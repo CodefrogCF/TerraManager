@@ -21,7 +21,8 @@ class Animals extends Table {
 
   TextColumn get birthDateAccuracy =>
       text()
-          .map(const BirthDateAccuracyConverter()).nullable()();
+          .map(const BirthDateAccuracyConverter())
+          .nullable()();
 
   RealColumn get tempMin => real()();
 

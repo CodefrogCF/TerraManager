@@ -1,10 +1,6 @@
 import 'package:drift/drift.dart';
 
-enum BirthDateAccuracy {
-  exact,
-  monthKnown,
-  yearKnown,
-}
+import '../enums/birth_date_accuracy.dart';
 
 class BirthDateAccuracyConverter
     extends TypeConverter<BirthDateAccuracy, String> {

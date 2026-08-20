@@ -1166,16 +1166,321 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   }
 }
 
+class $FeedingEventsTable extends FeedingEvents
+    with TableInfo<$FeedingEventsTable, FeedingEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FeedingEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _animalIdMeta = const VerificationMeta(
+    'animalId',
+  );
+  @override
+  late final GeneratedColumn<int> animalId = GeneratedColumn<int>(
+    'animal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES animals (id)',
+    ),
+  );
+  static const VerificationMeta _fedAtMeta = const VerificationMeta('fedAt');
+  @override
+  late final GeneratedColumn<DateTime> fedAt = GeneratedColumn<DateTime>(
+    'fed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, animalId, fedAt, notes];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'feeding_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FeedingEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('animal_id')) {
+      context.handle(
+        _animalIdMeta,
+        animalId.isAcceptableOrUnknown(data['animal_id']!, _animalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_animalIdMeta);
+    }
+    if (data.containsKey('fed_at')) {
+      context.handle(
+        _fedAtMeta,
+        fedAt.isAcceptableOrUnknown(data['fed_at']!, _fedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fedAtMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FeedingEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FeedingEvent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      animalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}animal_id'],
+      )!,
+      fedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fed_at'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+    );
+  }
+
+  @override
+  $FeedingEventsTable createAlias(String alias) {
+    return $FeedingEventsTable(attachedDatabase, alias);
+  }
+}
+
+class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
+  final int id;
+  final int animalId;
+  final DateTime fedAt;
+  final String? notes;
+  const FeedingEvent({
+    required this.id,
+    required this.animalId,
+    required this.fedAt,
+    this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['animal_id'] = Variable<int>(animalId);
+    map['fed_at'] = Variable<DateTime>(fedAt);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  FeedingEventsCompanion toCompanion(bool nullToAbsent) {
+    return FeedingEventsCompanion(
+      id: Value(id),
+      animalId: Value(animalId),
+      fedAt: Value(fedAt),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+    );
+  }
+
+  factory FeedingEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FeedingEvent(
+      id: serializer.fromJson<int>(json['id']),
+      animalId: serializer.fromJson<int>(json['animalId']),
+      fedAt: serializer.fromJson<DateTime>(json['fedAt']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'animalId': serializer.toJson<int>(animalId),
+      'fedAt': serializer.toJson<DateTime>(fedAt),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  FeedingEvent copyWith({
+    int? id,
+    int? animalId,
+    DateTime? fedAt,
+    Value<String?> notes = const Value.absent(),
+  }) => FeedingEvent(
+    id: id ?? this.id,
+    animalId: animalId ?? this.animalId,
+    fedAt: fedAt ?? this.fedAt,
+    notes: notes.present ? notes.value : this.notes,
+  );
+  FeedingEvent copyWithCompanion(FeedingEventsCompanion data) {
+    return FeedingEvent(
+      id: data.id.present ? data.id.value : this.id,
+      animalId: data.animalId.present ? data.animalId.value : this.animalId,
+      fedAt: data.fedAt.present ? data.fedAt.value : this.fedAt,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedingEvent(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('fedAt: $fedAt, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, animalId, fedAt, notes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FeedingEvent &&
+          other.id == this.id &&
+          other.animalId == this.animalId &&
+          other.fedAt == this.fedAt &&
+          other.notes == this.notes);
+}
+
+class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
+  final Value<int> id;
+  final Value<int> animalId;
+  final Value<DateTime> fedAt;
+  final Value<String?> notes;
+  const FeedingEventsCompanion({
+    this.id = const Value.absent(),
+    this.animalId = const Value.absent(),
+    this.fedAt = const Value.absent(),
+    this.notes = const Value.absent(),
+  });
+  FeedingEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required int animalId,
+    required DateTime fedAt,
+    this.notes = const Value.absent(),
+  }) : animalId = Value(animalId),
+       fedAt = Value(fedAt);
+  static Insertable<FeedingEvent> custom({
+    Expression<int>? id,
+    Expression<int>? animalId,
+    Expression<DateTime>? fedAt,
+    Expression<String>? notes,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (animalId != null) 'animal_id': animalId,
+      if (fedAt != null) 'fed_at': fedAt,
+      if (notes != null) 'notes': notes,
+    });
+  }
+
+  FeedingEventsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? animalId,
+    Value<DateTime>? fedAt,
+    Value<String?>? notes,
+  }) {
+    return FeedingEventsCompanion(
+      id: id ?? this.id,
+      animalId: animalId ?? this.animalId,
+      fedAt: fedAt ?? this.fedAt,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (animalId.present) {
+      map['animal_id'] = Variable<int>(animalId.value);
+    }
+    if (fedAt.present) {
+      map['fed_at'] = Variable<DateTime>(fedAt.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeedingEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('fedAt: $fedAt, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $BoxesTable boxes = $BoxesTable(this);
   late final $AnimalsTable animals = $AnimalsTable(this);
+  late final $FeedingEventsTable feedingEvents = $FeedingEventsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [boxes, animals];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    boxes,
+    animals,
+    feedingEvents,
+  ];
 }
 
 typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
@@ -1498,6 +1803,24 @@ final class $$AnimalsTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static MultiTypedResultKey<$FeedingEventsTable, List<FeedingEvent>>
+  _feedingEventsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.feedingEvents,
+    aliasName: 'animals__id__feeding_events__animal_id',
+  );
+
+  $$FeedingEventsTableProcessedTableManager get feedingEventsRefs {
+    final manager = $$FeedingEventsTableTableManager(
+      $_db,
+      $_db.feedingEvents,
+    ).filter((f) => f.animalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_feedingEventsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$AnimalsTableFilterComposer
@@ -1602,6 +1925,31 @@ class $$AnimalsTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> feedingEventsRefs(
+    Expression<bool> Function($$FeedingEventsTableFilterComposer f) f,
+  ) {
+    final $$FeedingEventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedingEvents,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedingEventsTableFilterComposer(
+            $db: $db,
+            $table: $db.feedingEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 }
 
@@ -1792,6 +2140,31 @@ class $$AnimalsTableAnnotationComposer
     );
     return composer;
   }
+
+  Expression<T> feedingEventsRefs<T extends Object>(
+    Expression<T> Function($$FeedingEventsTableAnnotationComposer a) f,
+  ) {
+    final $$FeedingEventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.feedingEvents,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$FeedingEventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.feedingEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AnimalsTableTableManager
@@ -1807,7 +2180,7 @@ class $$AnimalsTableTableManager
           $$AnimalsTableUpdateCompanionBuilder,
           (Animal, $$AnimalsTableReferences),
           Animal,
-          PrefetchHooks Function({bool boxId})
+          PrefetchHooks Function({bool boxId, bool feedingEventsRefs})
         > {
   $$AnimalsTableTableManager(_$AppDatabase db, $AnimalsTable table)
     : super(
@@ -1898,10 +2271,12 @@ class $$AnimalsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({boxId = false}) {
+          prefetchHooksCallback: ({boxId = false, feedingEventsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [
+                if (feedingEventsRefs) db.feedingEvents,
+              ],
               addJoins:
                   <
                     T extends TableManagerState<
@@ -1934,7 +2309,26 @@ class $$AnimalsTableTableManager
                     return state;
                   },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (feedingEventsRefs)
+                    await $_getPrefetchedData<
+                      Animal,
+                      $AnimalsTable,
+                      FeedingEvent
+                    >(
+                      currentTable: table,
+                      referencedTable: $$AnimalsTableReferences
+                          ._feedingEventsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$AnimalsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).feedingEventsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.animalId == item.id),
+                      typedResults: items,
+                    ),
+                ];
               },
             );
           },
@@ -1954,7 +2348,301 @@ typedef $$AnimalsTableProcessedTableManager =
       $$AnimalsTableUpdateCompanionBuilder,
       (Animal, $$AnimalsTableReferences),
       Animal,
-      PrefetchHooks Function({bool boxId})
+      PrefetchHooks Function({bool boxId, bool feedingEventsRefs})
+    >;
+typedef $$FeedingEventsTableCreateCompanionBuilder =
+    FeedingEventsCompanion Function({
+      Value<int> id,
+      required int animalId,
+      required DateTime fedAt,
+      Value<String?> notes,
+    });
+typedef $$FeedingEventsTableUpdateCompanionBuilder =
+    FeedingEventsCompanion Function({
+      Value<int> id,
+      Value<int> animalId,
+      Value<DateTime> fedAt,
+      Value<String?> notes,
+    });
+
+final class $$FeedingEventsTableReferences
+    extends BaseReferences<_$AppDatabase, $FeedingEventsTable, FeedingEvent> {
+  $$FeedingEventsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AnimalsTable _animalIdTable(_$AppDatabase db) =>
+      db.animals.createAlias('feeding_events__animal_id__animals__id');
+
+  $$AnimalsTableProcessedTableManager get animalId {
+    final $_column = $_itemColumn<int>('animal_id')!;
+
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_animalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$FeedingEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $FeedingEventsTable> {
+  $$FeedingEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fedAt => $composableBuilder(
+    column: $table.fedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AnimalsTableFilterComposer get animalId {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedingEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FeedingEventsTable> {
+  $$FeedingEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fedAt => $composableBuilder(
+    column: $table.fedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AnimalsTableOrderingComposer get animalId {
+    final $$AnimalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedingEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FeedingEventsTable> {
+  $$FeedingEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fedAt =>
+      $composableBuilder(column: $table.fedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$AnimalsTableAnnotationComposer get animalId {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$FeedingEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FeedingEventsTable,
+          FeedingEvent,
+          $$FeedingEventsTableFilterComposer,
+          $$FeedingEventsTableOrderingComposer,
+          $$FeedingEventsTableAnnotationComposer,
+          $$FeedingEventsTableCreateCompanionBuilder,
+          $$FeedingEventsTableUpdateCompanionBuilder,
+          (FeedingEvent, $$FeedingEventsTableReferences),
+          FeedingEvent,
+          PrefetchHooks Function({bool animalId})
+        > {
+  $$FeedingEventsTableTableManager(_$AppDatabase db, $FeedingEventsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FeedingEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FeedingEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FeedingEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> animalId = const Value.absent(),
+                Value<DateTime> fedAt = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+              }) => FeedingEventsCompanion(
+                id: id,
+                animalId: animalId,
+                fedAt: fedAt,
+                notes: notes,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int animalId,
+                required DateTime fedAt,
+                Value<String?> notes = const Value.absent(),
+              }) => FeedingEventsCompanion.insert(
+                id: id,
+                animalId: animalId,
+                fedAt: fedAt,
+                notes: notes,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$FeedingEventsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({animalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (animalId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.animalId,
+                        referencedTable: $$FeedingEventsTableReferences
+                            ._animalIdTable(db),
+                        referencedColumn: $$FeedingEventsTableReferences
+                            ._animalIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FeedingEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FeedingEventsTable,
+      FeedingEvent,
+      $$FeedingEventsTableFilterComposer,
+      $$FeedingEventsTableOrderingComposer,
+      $$FeedingEventsTableAnnotationComposer,
+      $$FeedingEventsTableCreateCompanionBuilder,
+      $$FeedingEventsTableUpdateCompanionBuilder,
+      (FeedingEvent, $$FeedingEventsTableReferences),
+      FeedingEvent,
+      PrefetchHooks Function({bool animalId})
     >;
 
 class $AppDatabaseManager {
@@ -1964,4 +2652,6 @@ class $AppDatabaseManager {
       $$BoxesTableTableManager(_db, _db.boxes);
   $$AnimalsTableTableManager get animals =>
       $$AnimalsTableTableManager(_db, _db.animals);
+  $$FeedingEventsTableTableManager get feedingEvents =>
+      $$FeedingEventsTableTableManager(_db, _db.feedingEvents);
 }

@@ -1,10 +1,6 @@
 import 'package:drift/drift.dart';
 
-enum Sex {
-  male,
-  female,
-  unknown,
-}
+import '../enums/sex.dart';
 
 class SexConverter extends TypeConverter<Sex, String> {
   const SexConverter();

@@ -143,7 +143,9 @@ lib/core/database/tables/
 
 Generated Drift code is located in:
 
+```text
 lib/core/database/app_database.g.dart
+```
 
 The generated file must not be edited manually. It is regenerated from the Drift table definitions.
 

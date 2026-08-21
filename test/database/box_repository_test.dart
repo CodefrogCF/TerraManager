@@ -85,4 +85,56 @@ void main() {
 
     expect(boxes, isEmpty);
   });
+
+  test('can create a box', () async {
+    final boxId = await repository.createBox('new-box');
+
+    final box = await repository.getBoxById(boxId);
+
+    expect(box, isNotNull);
+    expect(box!.qrId, 'new-box');
+  });
+
+  test('can update a box', () async {
+    final boxId = await repository.createBox('old-box');
+
+    final updated = await repository.updateBox(
+      boxId,
+      'new-box',
+    );
+
+    expect(updated, isTrue);
+
+    final box = await repository.getBoxById(boxId);
+
+    expect(box, isNotNull);
+    expect(box!.qrId, 'new-box');
+  });
+
+  test('can delete a box', () async {
+    final boxId = await repository.createBox('delete-me');
+
+    final deleted = await repository.deleteBox(boxId);
+
+    expect(deleted, isTrue);
+
+    final box = await repository.getBoxById(boxId);
+
+    expect(box, isNull);
+  });
+
+  test('updateBox returns false when box does not exist', () async {
+    final updated = await repository.updateBox(
+      999,
+      'does-not-exist',
+    );
+
+    expect(updated, isFalse);
+  });
+
+  test('deleteBox returns false when box does not exist', () async {
+    final deleted = await repository.deleteBox(999);
+
+    expect(deleted, isFalse);
+  });
 }

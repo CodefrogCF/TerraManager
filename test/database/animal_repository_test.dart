@@ -125,4 +125,70 @@ void main() {
 
     expect(animals, isEmpty);
   });
+
+  test('can create an animal', () async {
+    final boxId = await database.into(database.boxes).insert(
+          BoxesCompanion.insert(
+            qrId: 'create-animal-box',
+          ),
+        );
+
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Kornnatter',
+      latinName: 'Pantherophis guttatus',
+      sex: Sex.male,
+      birthDate: DateTime(2021, 3, 15),
+      birthDateAccuracy: BirthDateAccuracy.exact,
+      tempMin: 24.0,
+      tempMax: 28.0,
+      humidityMin: 40.0,
+      humidityMax: 60.0,
+      picturePath: '/pictures/kornnatter.jpg',
+      notes: 'Test animal',
+    );
+
+    final animal = await repository.getAnimalById(animalId);
+
+    expect(animal, isNotNull);
+    expect(animal!.boxId, boxId);
+    expect(animal.commonName, 'Kornnatter');
+    expect(animal.latinName, 'Pantherophis guttatus');
+    expect(animal.sex, Sex.male);
+    expect(animal.birthDate, DateTime(2021, 3, 15));
+    expect(animal.birthDateAccuracy, BirthDateAccuracy.exact);
+    expect(animal.tempMin, 24.0);
+    expect(animal.tempMax, 28.0);
+    expect(animal.humidityMin, 40.0);
+    expect(animal.humidityMax, 60.0);
+    expect(animal.picturePath, '/pictures/kornnatter.jpg');
+    expect(animal.notes, 'Test animal');
+  });
+
+  test('can create an animal without optional data', () async {
+    final boxId = await database.into(database.boxes).insert(
+          BoxesCompanion.insert(
+            qrId: 'minimal-animal-box',
+          ),
+        );
+
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Kornnatter',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24.0,
+      tempMax: 28.0,
+      humidityMin: 40.0,
+      humidityMax: 60.0,
+    );
+
+    final animal = await repository.getAnimalById(animalId);
+
+    expect(animal, isNotNull);
+    expect(animal!.sex, isNull);
+    expect(animal.birthDate, isNull);
+    expect(animal.birthDateAccuracy, isNull);
+    expect(animal.picturePath, isNull);
+    expect(animal.notes, isNull);
+  });
 }

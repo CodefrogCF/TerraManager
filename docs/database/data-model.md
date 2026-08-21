@@ -1,6 +1,6 @@
 ## Data Model
 
-The current database structure is:
+The planned database structure is:
 
 ```text
 Box

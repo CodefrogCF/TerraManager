@@ -7,33 +7,33 @@
 
 ### Context
 
-TerraManager soll zur Verwaltung von Terrarien, Tieren, Fütterungen und später Sensoren eingesetzt werden.
+TerraManager is intended for managing terrariums, animals, feeding events, and, later, sensors.
 
-Die Anwendung soll insbesondere im direkten Umfeld der Terrarien zuverlässig funktionieren. Eine permanente Internetverbindung kann dort nicht vorausgesetzt werden.
+The application should function reliably, especially in the immediate vicinity of the terrariums. A permanent internet connection cannot be assumed in that environment.
 
 ### Decision
 
-TerraManager wird zunächst als **local-first application** entwickelt.
+TerraManager will initially be developed as a **local-first application**.
 
-Die primären Daten werden lokal auf dem jeweiligen Gerät gespeichert. Die Kernfunktionen der Anwendung sollen ohne Internetverbindung funktionieren.
+Primary data will be stored locally on the respective device. The core features of the application should work without an internet connection.
 
-Eine mögliche Cloud-Synchronisation kann zu einem späteren Zeitpunkt ergänzt werden.
+Cloud synchronization may be added at a later stage.
 
 ### Consequences
 
-**Vorteile:**
+**Advantages:**
 
-* Die Anwendung funktioniert offline.
-* QR-Codes können ohne Internetverbindung gescannt werden.
-* Änderungen können unmittelbar gespeichert werden.
-* Keine Abhängigkeit von einem externen Server für die MVP-Version.
-* Datenschutz und Datensouveränität bleiben zunächst vollständig beim Benutzer.
+* The application works offline.
+* QR codes can be scanned without an internet connection.
+* Changes can be saved immediately.
+* The MVP has no dependency on an external server.
+* Data privacy and data sovereignty initially remain entirely with the user.
 
-**Nachteile:**
+**Disadvantages:**
 
-* Daten sind zunächst an das jeweilige Gerät gebunden.
-* Eine Synchronisation zwischen mehreren Geräten ist zunächst nicht möglich.
-* Backup und Wiederherstellung müssen später berücksichtigt werden.
+* Data is initially tied to the respective device.
+* Synchronization between multiple devices is not possible initially.
+* Backup and recovery must be taken into account later.
 
 ---
 
@@ -44,40 +44,40 @@ Eine mögliche Cloud-Synchronisation kann zu einem späteren Zeitpunkt ergänzt 
 
 ### Context
 
-Jede Box soll dauerhaft mit einem QR-Code versehen werden.
+Each box should be permanently labeled with a QR code.
 
-Die Daten einer Box können sich im Laufe der Zeit ändern. Beispielsweise können sich Name, Tier, Notizen oder Fütterungsdaten ändern.
+The data associated with a box may change over time. For example, its name, animal, notes, or feeding data may change.
 
-Ein bereits angebrachter QR-Code soll deshalb nicht bei jeder Änderung neu erstellt oder gedruckt werden müssen.
+Therefore, an already-attached QR code should not need to be recreated or reprinted every time a change is made.
 
 ### Decision
 
-Der QR-Code enthält ausschließlich eine **dauerhafte eindeutige Kennung der Box**.
+The QR code contains only a **permanent, unique identifier for the box**.
 
-Die eigentlichen Box- und Tierdaten werden nicht im QR-Code gespeichert.
+The actual box and animal data is not stored in the QR code.
 
-Beispiel:
+Example:
 
 TM:BOX:<UUID>
 
-Die UUID wird bei der Erstellung einer Box einmalig generiert und bleibt während der gesamten Lebensdauer der Box unverändert.
+The UUID is generated once when a box is created and remains unchanged throughout the box's entire lifetime.
 
-Beim Scannen wird die UUID ausgelesen und verwendet, um die zugehörige Box aus der lokalen Datenbank zu laden.
+When scanned, the UUID is read and used to load the associated box from the local database.
 
 ### Consequences
 
-**Vorteile:**
+**Advantages:**
 
-* Der QR-Code muss nach Datenänderungen nicht neu gedruckt werden.
-* Der QR-Code bleibt klein und einfach.
-* Die Datenstruktur kann unabhängig vom QR-Code erweitert werden.
-* Sensible oder umfangreiche Daten werden nicht direkt im QR-Code gespeichert.
-* QR-Codes können dauerhaft auf physischen Boxen angebracht werden.
+* The QR code does not need to be reprinted after data changes.
+* The QR code remains small and simple.
+* The data structure can be extended independently of the QR code.
+* Sensitive or extensive data is not stored directly in the QR code.
+* QR codes can be permanently attached to physical boxes.
 
-**Nachteile:**
+**Disadvantages:**
 
-* Ohne Zugriff auf die lokale Datenbank enthält der QR-Code selbst keine Informationen über die Box.
-* Bei einem Verlust der lokalen Datenbank kann die QR-ID allein die ursprünglichen Daten nicht wiederherstellen.
+* Without access to the local database, the QR code itself contains no information about the box.
+* If the local database is lost, the QR ID alone cannot restore the original data.
 
 ---
 
@@ -88,32 +88,32 @@ Beim Scannen wird die UUID ausgelesen und verwendet, um die zugehörige Box aus 
 
 ### Context
 
-TerraManager benötigt eine lokale persistente Datenhaltung.
+TerraManager requires local persistent data storage.
 
-Das Datenmodell enthält mehrere relationale Beziehungen:
+The data model contains several relational relationships:
 
-* Eine Box kann mehrere Tiere enthalten.
-* Ein Tier kann mehrere Feeding Events besitzen.
-* Eine Box kann mehrere Sensoren besitzen.
+* A box can contain multiple animals.
+* An animal can have multiple feeding events.
+* A box can have multiple sensors.
 
-Die Datenbank muss auf Android, iOS und Desktop/Web-fähigen Zielplattformen möglichst konsistent eingesetzt werden können. Migrationen und zukünftige Erweiterungen müssen unterstützt werden.
+The database should be usable as consistently as possible across Android, iOS, and desktop/web-capable target platforms. Migrations and future extensions must be supported.
 
 ### Decision
 
-TerraManager verwendet **SQLite über Drift** als lokale Datenbankabstraktion.
+TerraManager uses **SQLite through Drift** as its local database abstraction.
 
-Drift stellt eine typsichere Dart-Schnittstelle für SQLite bereit und ermöglicht die Definition relationaler Tabellen, Fremdschlüssel, Abfragen und Datenbankmigrationen.
+Drift provides a type-safe Dart interface for SQLite and enables the definition of relational tables, foreign keys, queries, and database migrations.
 
 ### Initial entities
 
-Die Datenbank wird zunächst folgende Tabellen enthalten:
+The database will initially contain the following tables:
 
 Box
 Animal
 FeedingEvent
 Sensor
 
-Die Beziehungen sind:
+The relationships are:
 
 Box 1 ─── n Animal
 
@@ -123,30 +123,30 @@ Box 1 ─── n Sensor
 
 ### Consequences
 
-**Vorteile:**
+**Advantages:**
 
-* Relationale Datenstruktur passt zum Domänenmodell.
-* SQLite ist lokal und bewährt.
-* Fremdschlüssel können Datenintegrität gewährleisten.
-* Drift erzeugt typsicheren Dart-Code.
-* Datenbankmigrationen können versioniert werden.
-* Die Datenbank kann später erweitert werden.
+* The relational data structure fits the domain model.
+* SQLite is local and well established.
+* Foreign keys can ensure data integrity.
+* Drift generates type-safe Dart code.
+* Database migrations can be versioned.
+* The database can be extended later.
 
-**Nachteile:**
+**Disadvantages:**
 
-* Etwas mehr Initialaufwand als bei einfachen NoSQL-Lösungen.
-* Das Datenbankschema muss bei Änderungen migriert werden.
-* Für sehr einfache Datenstrukturen wäre SQLite möglicherweise überdimensioniert.
+* Slightly more initial effort than with simple NoSQL solutions.
+* The database schema must be migrated when changes are made.
+* SQLite may be over-engineered for very simple data structures.
 
 ### Alternatives considered
 
 **Isar**
 
-Isar wäre aufgrund der guten Flutter-Integration ebenfalls geeignet. Die relationalen Beziehungen von TerraManager sprechen jedoch für SQLite/Drift.
+Isar would also be suitable due to its good Flutter integration. However, TerraManager's relational relationships favor SQLite/Drift.
 
 **Hive**
 
-Hive wäre für einfache lokale Key-Value-Daten geeignet. Für die relationalen Beziehungen von TerraManager wird es nicht als optimale Grundlage betrachtet.
+Hive would be suitable for simple local key-value data. However, it is not considered the optimal foundation for TerraManager's relational relationships.
 
 ---
 

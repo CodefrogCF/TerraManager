@@ -143,4 +143,53 @@ void main() {
 
     expect(latestFeeding, isNull);
   });
+
+  test('getAnimalsForBox returns only animals assigned to the given box', () async {
+    final box1Id = await database.into(database.boxes).insert(
+      BoxesCompanion.insert(qrId: 'box-1'),
+    );
+
+    final box2Id = await database.into(database.boxes).insert(
+      BoxesCompanion.insert(qrId: 'box-2'),
+    );
+
+    await database.into(database.animals).insert(
+      AnimalsCompanion.insert(
+        boxId: box1Id,
+        commonName: 'Tier 1',
+        latinName: 'Animal one',
+        tempMin: 20,
+        tempMax: 25,
+        humidityMin: 60,
+        humidityMax: 70,
+      ),
+    );
+
+    await database.into(database.animals).insert(
+      AnimalsCompanion.insert(
+        boxId: box2Id,
+        commonName: 'Tier 2',
+        latinName: 'Animal two',
+        tempMin: 21,
+        tempMax: 26,
+        humidityMin: 55,
+        humidityMax: 65,
+      ),
+    );
+
+    final animals = await repository.getAnimalsForBox(box1Id);
+
+    expect(animals.length, 1);
+    expect(animals.first.commonName, 'Tier 1');
+  });
+
+  test('getAnimalsForBox returns an empty list when the box has no animals', () async {
+    final boxId = await database.into(database.boxes).insert(
+      BoxesCompanion.insert(qrId: 'empty-box'),
+    );
+
+    final animals = await repository.getAnimalsForBox(boxId);
+
+    expect(animals, isEmpty);
+  });
 }

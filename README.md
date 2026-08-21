@@ -117,7 +117,7 @@ Animal data currently includes:
 
 - Modification timestamp
 
-๎The preferred temperature and humidity values belong to the animal, not the box.
+The preferred temperature and humidity values belong to the animal, not the box.
 
 This allows multiple animals in the same box to have different preferred environmental parameters.
 

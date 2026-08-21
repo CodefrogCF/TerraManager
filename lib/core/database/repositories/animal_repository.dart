@@ -32,4 +32,10 @@ class AnimalRepository {
       .getSingleOrNull();
     return feeding?.fedAt;
   }
+
+  Future<List<Animal>> getAnimalsForBox(int boxId) {
+    return (database.select(database.animals)
+      ..where((animal) => animal.boxId.equals(boxId)))
+    .get();
+  }
 }

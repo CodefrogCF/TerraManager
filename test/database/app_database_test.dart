@@ -5,7 +5,6 @@ import 'package:drift/native.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
-import 'package:terramanager/core/database/tables/feeding_events.dart';
 
 void main() {
 

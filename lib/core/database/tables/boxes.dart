@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+@DataClassName('Box')
 class Boxes extends Table {
   IntColumn get id => integer().autoIncrement()();
 

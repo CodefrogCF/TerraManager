@@ -3,7 +3,7 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Boxe> {
+class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -64,7 +64,7 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Boxe> {
   static const String $name = 'boxes';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Boxe> instance, {
+    Insertable<Box> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -98,9 +98,9 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Boxe> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Boxe map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Box map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Boxe(
+    return Box(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}id'],
@@ -126,12 +126,12 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Boxe> {
   }
 }
 
-class Boxe extends DataClass implements Insertable<Boxe> {
+class Box extends DataClass implements Insertable<Box> {
   final int id;
   final String qrId;
   final DateTime createdAt;
   final DateTime updatedAt;
-  const Boxe({
+  const Box({
     required this.id,
     required this.qrId,
     required this.createdAt,
@@ -156,12 +156,12 @@ class Boxe extends DataClass implements Insertable<Boxe> {
     );
   }
 
-  factory Boxe.fromJson(
+  factory Box.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Boxe(
+    return Box(
       id: serializer.fromJson<int>(json['id']),
       qrId: serializer.fromJson<String>(json['qrId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -179,19 +179,19 @@ class Boxe extends DataClass implements Insertable<Boxe> {
     };
   }
 
-  Boxe copyWith({
+  Box copyWith({
     int? id,
     String? qrId,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) => Boxe(
+  }) => Box(
     id: id ?? this.id,
     qrId: qrId ?? this.qrId,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
-  Boxe copyWithCompanion(BoxesCompanion data) {
-    return Boxe(
+  Box copyWithCompanion(BoxesCompanion data) {
+    return Box(
       id: data.id.present ? data.id.value : this.id,
       qrId: data.qrId.present ? data.qrId.value : this.qrId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
@@ -201,7 +201,7 @@ class Boxe extends DataClass implements Insertable<Boxe> {
 
   @override
   String toString() {
-    return (StringBuffer('Boxe(')
+    return (StringBuffer('Box(')
           ..write('id: $id, ')
           ..write('qrId: $qrId, ')
           ..write('createdAt: $createdAt, ')
@@ -215,14 +215,14 @@ class Boxe extends DataClass implements Insertable<Boxe> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Boxe &&
+      (other is Box &&
           other.id == this.id &&
           other.qrId == this.qrId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
 
-class BoxesCompanion extends UpdateCompanion<Boxe> {
+class BoxesCompanion extends UpdateCompanion<Box> {
   final Value<int> id;
   final Value<String> qrId;
   final Value<DateTime> createdAt;
@@ -239,7 +239,7 @@ class BoxesCompanion extends UpdateCompanion<Boxe> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : qrId = Value(qrId);
-  static Insertable<Boxe> custom({
+  static Insertable<Box> custom({
     Expression<int>? id,
     Expression<String>? qrId,
     Expression<DateTime>? createdAt,
@@ -1497,7 +1497,7 @@ typedef $$BoxesTableUpdateCompanionBuilder = BoxesCompanion Function({
 });
 
 final class $$BoxesTableReferences
-    extends BaseReferences<_$AppDatabase, $BoxesTable, Boxe> {
+    extends BaseReferences<_$AppDatabase, $BoxesTable, Box> {
   $$BoxesTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static MultiTypedResultKey<$AnimalsTable, List<Animal>> _animalsRefsTable(
@@ -1656,14 +1656,14 @@ class $$BoxesTableTableManager
         RootTableManager<
           _$AppDatabase,
           $BoxesTable,
-          Boxe,
+          Box,
           $$BoxesTableFilterComposer,
           $$BoxesTableOrderingComposer,
           $$BoxesTableAnnotationComposer,
           $$BoxesTableCreateCompanionBuilder,
           $$BoxesTableUpdateCompanionBuilder,
-          (Boxe, $$BoxesTableReferences),
-          Boxe,
+          (Box, $$BoxesTableReferences),
+          Box,
           PrefetchHooks Function({bool animalsRefs})
         > {
   $$BoxesTableTableManager(_$AppDatabase db, $BoxesTable table)
@@ -1715,7 +1715,7 @@ class $$BoxesTableTableManager
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (animalsRefs)
-                    await $_getPrefetchedData<Boxe, $BoxesTable, Animal>(
+                    await $_getPrefetchedData<Box, $BoxesTable, Animal>(
                       currentTable: table,
                       referencedTable: $$BoxesTableReferences._animalsRefsTable(
                         db,
@@ -1738,14 +1738,14 @@ typedef $$BoxesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $BoxesTable,
-      Boxe,
+      Box,
       $$BoxesTableFilterComposer,
       $$BoxesTableOrderingComposer,
       $$BoxesTableAnnotationComposer,
       $$BoxesTableCreateCompanionBuilder,
       $$BoxesTableUpdateCompanionBuilder,
-      (Boxe, $$BoxesTableReferences),
-      Boxe,
+      (Box, $$BoxesTableReferences),
+      Box,
       PrefetchHooks Function({bool animalsRefs})
     >;
 typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({

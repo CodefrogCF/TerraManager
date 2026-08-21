@@ -58,7 +58,9 @@ The actual box and animal data is not stored in the QR code.
 
 Example:
 
+```text
 TM:BOX:<UUID>
+```
 
 The UUID is generated once when a box is created and remains unchanged throughout the box's entire lifetime.
 
@@ -108,18 +110,22 @@ Drift provides a type-safe Dart interface for SQLite and enables the definition 
 
 The database will initially contain the following tables:
 
+```text
 Box
 Animal
 FeedingEvent
 Sensor
+```
 
 The relationships are:
 
+```text
 Box 1 ─── n Animal
 
 Animal 1 ─── n FeedingEvent
 
 Box 1 ─── n Sensor
+```
 
 ### Consequences
 

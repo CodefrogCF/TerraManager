@@ -23,17 +23,17 @@ Cloud synchronization may be added at a later stage.
 
 **Advantages:**
 
-* The application works offline.
-* QR codes can be scanned without an internet connection.
-* Changes can be saved immediately.
-* The MVP has no dependency on an external server.
-* Data privacy and data sovereignty initially remain entirely with the user.
+- The application works offline.
+- QR codes can be scanned without an internet connection.
+- Changes can be saved immediately.
+- The MVP has no dependency on an external server.
+- Data privacy and data sovereignty initially remain entirely with the user.
 
 **Disadvantages:**
 
-* Data is initially tied to the respective device.
-* Synchronization between multiple devices is not possible initially.
-* Backup and recovery must be taken into account later.
+- Data is initially tied to the respective device.
+- Synchronization between multiple devices is not possible initially.
+- Backup and recovery must be taken into account later.
 
 ---
 
@@ -68,16 +68,16 @@ When scanned, the UUID is read and used to load the associated box from the loca
 
 **Advantages:**
 
-* The QR code does not need to be reprinted after data changes.
-* The QR code remains small and simple.
-* The data structure can be extended independently of the QR code.
-* Sensitive or extensive data is not stored directly in the QR code.
-* QR codes can be permanently attached to physical boxes.
+- The QR code does not need to be reprinted after data changes.
+- The QR code remains small and simple.
+- The data structure can be extended independently of the QR code.
+- Sensitive or extensive data is not stored directly in the QR code.
+- QR codes can be permanently attached to physical boxes.
 
 **Disadvantages:**
 
-* Without access to the local database, the QR code itself contains no information about the box.
-* If the local database is lost, the QR ID alone cannot restore the original data.
+- Without access to the local database, the QR code itself contains no information about the box.
+- If the local database is lost, the QR ID alone cannot restore the original data.
 
 ---
 
@@ -92,9 +92,9 @@ TerraManager requires local persistent data storage.
 
 The data model contains several relational relationships:
 
-* A box can contain multiple animals.
-* An animal can have multiple feeding events.
-* A box can have multiple sensors.
+- A box can contain multiple animals.
+- An animal can have multiple feeding events.
+- A box can have multiple sensors.
 
 The database should be usable as consistently as possible across Android, iOS, and desktop/web-capable target platforms. Migrations and future extensions must be supported.
 
@@ -125,18 +125,18 @@ Box 1 ─── n Sensor
 
 **Advantages:**
 
-* The relational data structure fits the domain model.
-* SQLite is local and well established.
-* Foreign keys can ensure data integrity.
-* Drift generates type-safe Dart code.
-* Database migrations can be versioned.
-* The database can be extended later.
+- The relational data structure fits the domain model.
+- SQLite is local and well established.
+- Foreign keys can ensure data integrity.
+- Drift generates type-safe Dart code.
+- Database migrations can be versioned.
+- The database can be extended later.
 
 **Disadvantages:**
 
-* Slightly more initial effort than with simple NoSQL solutions.
-* The database schema must be migrated when changes are made.
-* SQLite may be over-engineered for very simple data structures.
+- Slightly more initial effort than with simple NoSQL solutions.
+- The database schema must be migrated when changes are made.
+- SQLite may be over-engineered for very simple data structures.
 
 ### Alternatives considered
 
@@ -147,6 +147,3 @@ Isar would also be suitable due to its good Flutter integration. However, TerraM
 **Hive**
 
 Hive would be suitable for simple local key-value data. However, it is not considered the optimal foundation for TerraManager's relational relationships.
-
----
-

@@ -191,4 +191,106 @@ void main() {
     expect(animal.picturePath, isNull);
     expect(animal.notes, isNull);
   });
+
+  test('can update an animal', () async {
+    final boxId = await database.into(database.boxes).insert(
+          BoxesCompanion.insert(
+            qrId: 'animal-update-box',
+          ),
+        );
+
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Kornnatter',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final updated = await repository.updateAnimal(
+      animalId: animalId,
+      boxId: boxId,
+      commonName: 'Kornnatter',
+      latinName: 'Pantherophis guttatus',
+      sex: Sex.female,
+      birthDate: DateTime(2021, 3, 15),
+      birthDateAccuracy: BirthDateAccuracy.exact,
+      tempMin: 25,
+      tempMax: 29,
+      humidityMin: 45,
+      humidityMax: 65,
+      notes: 'Aktualisierte Notizen',
+    );
+
+    expect(updated, isTrue);
+
+    final animal = await repository.getAnimalById(animalId);
+
+    expect(animal, isNotNull);
+    expect(animal!.commonName, 'Kornnatter');
+    expect(animal.latinName, 'Pantherophis guttatus');
+    expect(animal.sex, Sex.female);
+    expect(animal.birthDate, DateTime(2021, 3, 15));
+    expect(animal.birthDateAccuracy, BirthDateAccuracy.exact);
+    expect(animal.tempMin, 25);
+    expect(animal.tempMax, 29);
+    expect(animal.humidityMin, 45);
+    expect(animal.humidityMax, 65);
+    expect(animal.notes, 'Aktualisierte Notizen');
+  });
+
+  test('updateAnimal returns false when animal does not exist', () async {
+    final boxId = await database.into(database.boxes).insert(
+          BoxesCompanion.insert(
+            qrId: 'missing-animal-box',
+          ),
+        );
+
+    final updated = await repository.updateAnimal(
+      animalId: 999,
+      boxId: boxId,
+      commonName: 'Kornnatter',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    expect(updated, isFalse);
+  });
+
+  test('can delete an animal', () async {
+    final boxId = await database.into(database.boxes).insert(
+          BoxesCompanion.insert(
+            qrId: 'animal-delete-box',
+          ),
+        );
+
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Kornnatter',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final deleted = await repository.deleteAnimal(animalId);
+
+    expect(deleted, isTrue);
+
+    final animal = await repository.getAnimalById(animalId);
+
+    expect(animal, isNull);
+  });
+
+  test('deleteAnimal returns false when animal does not exist', () async {
+    final deleted = await repository.deleteAnimal(999);
+
+    expect(deleted, isFalse);
+  });
 }

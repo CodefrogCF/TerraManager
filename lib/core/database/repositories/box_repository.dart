@@ -31,16 +31,20 @@ class BoxRepository {
         );
   }
 
-  Future<bool> updateBox(int boxId, String qrId) {
-    return (database.update(database.boxes)
+  Future<bool> updateBox({
+    required int boxId,
+    required String qrId,
+  }) async {
+    final updatedRows = await (database.update(database.boxes)
           ..where((box) => box.id.equals(boxId)))
         .write(
-          BoxesCompanion(
-            qrId: Value(qrId),
-            updatedAt: Value(DateTime.now()),
-          ),
-        )
-        .then((rowsUpdated) => rowsUpdated > 0);
+      BoxesCompanion(
+        qrId: Value(qrId),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+
+    return updatedRows > 0;
   }
 
   Future<bool> deleteBox(int boxId) {

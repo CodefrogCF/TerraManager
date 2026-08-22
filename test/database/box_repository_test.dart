@@ -99,8 +99,8 @@ void main() {
     final boxId = await repository.createBox('old-box');
 
     final updated = await repository.updateBox(
-      boxId,
-      'new-box',
+      boxId: boxId,
+      qrId: 'new-box',
     );
 
     expect(updated, isTrue);
@@ -125,8 +125,8 @@ void main() {
 
   test('updateBox returns false when box does not exist', () async {
     final updated = await repository.updateBox(
-      999,
-      'does-not-exist',
+      boxId: 999,
+      qrId: 'does-not-exist',
     );
 
     expect(updated, isFalse);

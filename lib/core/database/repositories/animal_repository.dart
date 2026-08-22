@@ -57,4 +57,50 @@ class AnimalRepository {
           ),
         );
   }
+
+  Future<bool> updateAnimal({
+    required int animalId,
+    required int boxId,
+    required String commonName,
+    required String latinName,
+    Sex? sex,
+    DateTime? birthDate,
+    BirthDateAccuracy? birthDateAccuracy,
+    required double tempMin,
+    required double tempMax,
+    required double humidityMin,
+    required double humidityMax,
+    String? picturePath,
+    String? notes,
+  }) async {
+    final updatedRows = await (database.update(database.animals)
+          ..where((animal) => animal.id.equals(animalId)))
+        .write(
+      AnimalsCompanion(
+        boxId: Value(boxId),
+        commonName: Value(commonName),
+        latinName: Value(latinName),
+        sex: Value.absentIfNull(sex),
+        birthDate: Value.absentIfNull(birthDate),
+        birthDateAccuracy: Value.absentIfNull(birthDateAccuracy),
+        tempMin: Value(tempMin),
+        tempMax: Value(tempMax),
+        humidityMin: Value(humidityMin),
+        humidityMax: Value(humidityMax),
+        picturePath: Value.absentIfNull(picturePath),
+        notes: Value.absentIfNull(notes),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
+
+    return updatedRows > 0;
+  }
+
+  Future<bool> deleteAnimal(int animalId) async {
+    final deletedRows = await (database.delete(database.animals)
+          ..where((animal) => animal.id.equals(animalId)))
+        .go();
+
+    return deletedRows > 0;
+  }
 }

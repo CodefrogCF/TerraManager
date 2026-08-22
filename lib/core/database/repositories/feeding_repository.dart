@@ -47,4 +47,37 @@ class FeedingRepository {
 
     return feeding?.fedAt;
   }
+
+  Future<FeedingEvent?> getFeedingById(int feedingId) {
+    return (database.select(database.feedingEvents)
+          ..where((event) => event.id.equals(feedingId)))
+        .getSingleOrNull();
+  }
+
+  Future<bool> updateFeeding({
+    required int feedingId,
+    required int animalId,
+    required DateTime fedAt,
+    String? notes,
+  }) async {
+    final updatedRows = await (database.update(database.feedingEvents)
+          ..where((event) => event.id.equals(feedingId)))
+        .write(
+      FeedingEventsCompanion(
+        animalId: Value(animalId),
+        fedAt: Value(fedAt),
+        notes: Value.absentIfNull(notes),
+      ),
+    );
+
+    return updatedRows > 0;
+  }
+
+  Future<bool> deleteFeeding(int feedingId) async {
+    final deletedRows = await (database.delete(database.feedingEvents)
+          ..where((event) => event.id.equals(feedingId)))
+        .go();
+
+    return deletedRows > 0;
+  }
 }

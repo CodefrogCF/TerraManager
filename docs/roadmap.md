@@ -46,7 +46,7 @@ The next development phase focuses on the application UI and navigation.
 
 ### User Interface
 
-[ ] Basic application navigation
+[x] Basic application navigation
 
 [ ] Box overview
 

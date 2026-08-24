@@ -33,9 +33,9 @@ Implemented so far:
 - Database and repository tests
 
 - Light and Dark application themes
+- Initial application navigation
 
-The UI and QR-code functionality are not implemented yet.
-Basic application navigation is the next development step.
+The UI and QR-code functionality are not fully implemented yet.
 
 ## Concept
 
@@ -235,16 +235,24 @@ The project aims to keep the application layers separated.
 The intended basic structure is:
 
 ```text
-UI
- │
- ▼
-Repository
- │
- ▼
-Drift
- │
- ▼
-SQLite
+App
+│
+▼
+AppShell
+│
+├── Boxes
+├── Animals
+├── Settings
+└── ...
+     │
+     ▼
+  Repository
+     │
+     ▼
+   Drift
+     │
+     ▼
+   SQLite
 ```
 
 The UI should not directly depend on database implementation details.

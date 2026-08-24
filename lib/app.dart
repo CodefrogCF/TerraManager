@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'core/theme/app_theme.dart';
-import 'features/boxes/presentation/pages/boxes_page.dart';
+import 'features/navigation/presentation/pages/app_shell.dart';
 
 class TerraManagerApp extends StatelessWidget {
   const TerraManagerApp({super.key});
@@ -13,7 +13,7 @@ class TerraManagerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const BoxesPage(),
+      home: const AppShell(),
     );
   }
 }

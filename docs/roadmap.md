@@ -1,5 +1,20 @@
 ## Current Roadmap
 
+### Current Status
+
+The database foundation and initial repository layer are complete.
+
+The application currently has:
+
+- Local Drift database
+- Box, Animal and FeedingEvent data models
+- Enum converters
+- Repository layer
+- Repository tests
+- Light and Dark application themes
+
+The next development phase focuses on the application UI and navigation.
+
 ### Database
 
 [x] Define box data model
@@ -29,21 +44,6 @@
 [x] Complete initial repository layer
 
 
-### QR Code
-
-[ ] Generate unique QR IDs
-
-[ ] Generate QR codes
-
-[ ] Export QR codes as PNG/JPG
-
-[ ] Save QR code locally
-
-[ ] Print QR codes
-
-[ ] Implement QR scanner
-
-
 ### User Interface
 
 [ ] Basic application navigation
@@ -67,6 +67,21 @@
 [ ] Notes
 
 [ ] Animal picture support
+
+
+### QR Code
+
+[ ] Generate unique QR IDs
+
+[ ] Generate QR codes
+
+[ ] Export QR codes as PNG/JPG
+
+[ ] Save QR code locally
+
+[ ] Print QR codes
+
+[ ] Implement QR scanner
 
 
 ### Platform Support

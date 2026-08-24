@@ -32,7 +32,10 @@ Implemented so far:
 - Latest feeding lookup
 - Database and repository tests
 
+- Light and Dark application themes
+
 The UI and QR-code functionality are not implemented yet.
+Basic application navigation is the next development step.
 
 ## Concept
 
@@ -254,7 +257,10 @@ The current project structure is based around the following organization:
 
 ```text
 lib/
+├── main.dart
 └── core/
+    ├── theme/
+    │   └── app_theme.dart
     └── database/
         ├── app_database.dart
         ├── app_database.g.dart
@@ -269,12 +275,16 @@ lib/
         │   ├── animals.dart
         │   └── feeding_events.dart
         └── repositories/
-            └── ...
+            ├── animal_repository.dart
+            ├── box_repository.dart
+            └── feeding_repository.dart
 
 test/
 └── database/
     ├── app_database_test.dart
-    └── animal_repository_test.dart
+    ├── animal_repository_test.dart
+    ├── box_repository_test.dart
+    └── feeding_repository_test.dart
 ```
 
 Generated Drift files such as app_database.g.dart must not be edited manually.

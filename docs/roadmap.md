@@ -26,7 +26,7 @@
 
 [x] Add repository tests
 
-[ ] Complete initial repository layer
+[x] Complete initial repository layer
 
 
 ### QR Code

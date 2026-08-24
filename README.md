@@ -6,7 +6,11 @@ The application is being developed with Flutter and is intended to initially sup
 
 ## Project Status
 
-Current status: Early development / database and repository layer
+Current status:
+Database foundation complete
+Repository layer complete
+Initial theme complete
+UI development starting
 
 The basic database structure is implemented using Drift and SQLite.
 

@@ -20,7 +20,9 @@ part 'app_database.g.dart';
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(driftDatabase(name: 'terramanager'));
+  AppDatabase() : super(
+    driftDatabase(
+      name: 'terramanager'));
 
   AppDatabase.test(super.executor);
 

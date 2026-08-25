@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'core/database/app_database.dart';
 import 'core/theme/app_theme.dart';
 import 'features/navigation/presentation/pages/app_shell.dart';
 
 class TerraManagerApp extends StatelessWidget {
-  const TerraManagerApp({super.key});
+  final AppDatabase database;
+
+  const TerraManagerApp({
+    super.key,
+    required this.database,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +19,7 @@ class TerraManagerApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: const AppShell(),
+      home: AppShell(database: database),
     );
   }
 }

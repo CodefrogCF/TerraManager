@@ -49,14 +49,14 @@ class BoxesPage extends StatelessWidget {
               final box = boxes[index];
 
               return ListTile(
-                leading: const Icon(Icons.inventory_2_outlined),
+                leading: const Icon(Icons.home_outlined),
                 title: Text(box.qrId),
                 subtitle: Text('Box ID: ${box.id}'),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => BoxDetailPage(
-                        qrId: box.qrId,
+                        box: box,
                       ),
                     ),
                   );

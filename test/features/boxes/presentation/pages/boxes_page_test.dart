@@ -81,7 +81,7 @@ void main() {
     expect(find.text('test-box-003'), findsOneWidget);
   });
 
-  testWidgets('navigates to box detail when a box is selected', (tester) async {
+  testWidgets('navigates to box detail page', (tester) async {
     await database.into(database.boxes).insert(
           BoxesCompanion.insert(
             qrId: 'test-box-001',
@@ -100,6 +100,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Box Details'), findsOneWidget);
-    expect(find.text('Box Detail: test-box-001'), findsOneWidget);
+    expect(find.text('test-box-001'), findsOneWidget);
   });
 }

@@ -17,79 +17,79 @@ The next development phase focuses on the application UI and navigation.
 
 ### Database
 
-[x] Define box data model
+- [x] Define box data model
 
-[x] Define animal data model
+- [x] Define animal data model
 
-[x] Define Box → Animal relationship
+- [x] Define Box → Animal relationship
 
-[x] Add Sex enum
+- [x] Add Sex enum
 
-[x] Add Sex converter
+- [x] Add Sex converter
 
-[x] Add birth date
+- [x] Add birth date
 
-[x] Add birth date accuracy
+- [x] Add birth date accuracy
 
-[x] Add BirthDateAccuracy converter
+- [x] Add BirthDateAccuracy converter
 
-[x] Define feeding events
+- [x] Define feeding events
 
-[x] Implement latest feeding lookup
+- [x] Implement latest feeding lookup
 
-[x] Add database tests
+- [x] Add database tests
 
-[x] Add repository tests
+- [x] Add repository tests
 
-[x] Complete initial repository layer
+- [x] Complete initial repository layer
 
 
 ### User Interface
 
-[x] Basic application navigation
+- [x] Basic application navigation
 
-[x] Box overview
+- [x] Box overview
 
-[ ] Box detail screen
+- [x] Box detail screen
 
-[ ] Animal overview
+- [ ] Animal overview
 
-[ ] Animal detail screen
+- [ ] Animal detail screen
 
-[ ] Animal editing
+- [ ] Animal editing
 
-[ ] New box workflow
+- [ ] New box workflow
 
-[ ] New animal workflow
+- [ ] New animal workflow
 
-[ ] Feeding history
+- [ ] Feeding history
 
-[ ] Notes
+- [ ] Notes
 
-[ ] Animal picture support
+- [ ] Animal picture support
 
 
 ### QR Code
 
-[ ] Generate unique QR IDs
+- [ ] Generate unique QR IDs
 
-[ ] Generate QR codes
+- [ ] Generate QR codes
 
-[ ] Export QR codes as PNG/JPG
+- [ ] Export QR codes as PNG/JPG
 
-[ ] Save QR code locally
+- [ ] Save QR code locally
 
-[ ] Print QR codes
+- [ ] Print QR codes
 
-[ ] Implement QR scanner
+- [ ] Implement QR scanner
 
 
 ### Platform Support
 
-[ ] Android
+- [ ] Android
 
-[ ] Web
+- [ ] Web
 
-[ ] iOS
+- [ ] iOS
 
-[ ] Cross-platform testing
+- [ ] Cross-platform testing

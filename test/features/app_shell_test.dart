@@ -50,7 +50,7 @@ void main() {
     await tester.tap(find.text('Animals').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Animal Overview'), findsOneWidget);
+    expect(find.text('No animals available'), findsOneWidget);
   });
 
   testWidgets('can navigate back to boxes', (tester) async {

@@ -24,7 +24,7 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final pages = [
       BoxesPage(database: widget.database),
-      const AnimalsPage(),
+      AnimalsPage(database: widget.database),
       const SettingsPage(),
     ];
 

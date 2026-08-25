@@ -10,7 +10,7 @@ class BoxesPage extends StatelessWidget {
         title: const Text('Boxes'),
       ),
       body: const Center(
-        child: Text('Box overview'),
+        child: Text('Box Overview'),
       ),
     );
   }

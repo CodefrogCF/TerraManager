@@ -10,7 +10,7 @@ class AnimalsPage extends StatelessWidget {
         title: const Text('Animals'),
       ),
       body: const Center(
-        child: Text('Animal overview'),
+        child: Text('Animal Overview'),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import 'animal_detail_page.dart';
 
 class AnimalsPage extends StatelessWidget {
   final AppDatabase database;
@@ -51,6 +52,16 @@ class AnimalsPage extends StatelessWidget {
                 leading: const Icon(Icons.emoji_nature_outlined),
                 title: Text(animal.commonName),
                 subtitle: Text(animal.latinName),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => AnimalDetailPage(
+                        database: database,
+                        animalId: animal.id,
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );

@@ -293,4 +293,106 @@ void main() {
 
     expect(deleted, isFalse);
   });
+
+  test('updateAnimal can clear nullable fields', () async {
+    final boxId = await database.into(database.boxes).insert(
+          BoxesCompanion.insert(
+            qrId: 'test-box-001',
+          ),
+        );
+
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Test Snake',
+      latinName: 'Pantherophis guttatus',
+      sex: Sex.female,
+      birthDate: DateTime(2024, 5, 10),
+      birthDateAccuracy: BirthDateAccuracy.exact,
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+      picturePath: '/images/test.jpg',
+      notes: 'Some notes',
+    );
+
+    final success = await repository.updateAnimal(
+      animalId: animalId,
+      boxId: boxId,
+      commonName: 'Test Snake',
+      latinName: 'Pantherophis guttatus',
+      sex: null,
+      birthDate: null,
+      birthDateAccuracy: null,
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+      picturePath: null,
+      notes: null,
+    );
+
+    expect(success, isTrue);
+
+    final updatedAnimal = await repository.getAnimalById(animalId);
+
+    expect(updatedAnimal, isNotNull);
+    expect(updatedAnimal!.sex, isNull);
+    expect(updatedAnimal.birthDate, isNull);
+    expect(updatedAnimal.birthDateAccuracy, isNull);
+    expect(updatedAnimal.picturePath, isNull);
+    expect(updatedAnimal.notes, isNull);
+  });
+
+  test('updateAnimal updates animal fields', () async {
+    final boxId = await database.into(database.boxes).insert(
+          BoxesCompanion.insert(
+            qrId: 'test-box-001',
+          ),
+        );
+
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Old Name',
+      latinName: 'Old species',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 30,
+      humidityMax: 50,
+    );
+
+    final success = await repository.updateAnimal(
+      animalId: animalId,
+      boxId: boxId,
+      commonName: 'New Name',
+      latinName: 'Pantherophis guttatus',
+      sex: Sex.female,
+      birthDate: DateTime(2024, 5, 10),
+      birthDateAccuracy: BirthDateAccuracy.exact,
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+      notes: 'Updated notes',
+    );
+
+    expect(success, isTrue);
+
+    final updatedAnimal = await repository.getAnimalById(animalId);
+
+    expect(updatedAnimal, isNotNull);
+    expect(updatedAnimal!.commonName, 'New Name');
+    expect(updatedAnimal.latinName, 'Pantherophis guttatus');
+    expect(updatedAnimal.sex, Sex.female);
+    expect(updatedAnimal.birthDate, DateTime(2024, 5, 10));
+    expect(
+      updatedAnimal.birthDateAccuracy,
+      BirthDateAccuracy.exact,
+    );
+    expect(updatedAnimal.tempMin, 24);
+    expect(updatedAnimal.tempMax, 28);
+    expect(updatedAnimal.humidityMin, 40);
+    expect(updatedAnimal.humidityMax, 60);
+    expect(updatedAnimal.notes, 'Updated notes');
+  });
 }

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import 'animal_edit_page.dart';
 
-class AnimalDetailPage extends StatelessWidget {
+class AnimalDetailPage extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
 
@@ -14,15 +15,60 @@ class AnimalDetailPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final repository = AnimalRepository(database);
+  State<AnimalDetailPage> createState() => _AnimalDetailPageState();
+}
 
+class _AnimalDetailPageState extends State<AnimalDetailPage> {
+  late Future<Animal?> _animalFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAnimal();
+  }
+
+  void _loadAnimal() {
+    _animalFuture =
+        AnimalRepository(widget.database).getAnimalById(widget.animalId);
+  }
+
+  Future<void> _openEditPage() async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => AnimalEditPage(
+          database: widget.database,
+          animalId: widget.animalId,
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (result == true) {
+      setState(() {
+        _loadAnimal();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Animal Details'),
+        actions: [
+          IconButton(
+            key: const Key('edit-animal-button'),
+            onPressed: _openEditPage,
+            icon: const Icon(Icons.edit),
+            tooltip: 'Edit Animal',
+          ),
+        ],
       ),
       body: FutureBuilder<Animal?>(
-        future: repository.getAnimalById(animalId),
+        future: _animalFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(
@@ -57,6 +103,11 @@ class AnimalDetailPage extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 24),
+
+              _DetailRow(
+                label: 'Box',
+                value: 'Box ${animal.boxId}',
+              ),
 
               if (animal.sex != null)
                 _DetailRow(

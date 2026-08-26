@@ -1,7 +1,6 @@
 import 'package:drift/drift.dart';
 
 import '../app_database.dart';
-
 import '../enums/birth_date_accuracy.dart';
 import '../enums/sex.dart';
 
@@ -12,18 +11,18 @@ class AnimalRepository {
 
   Future<Animal?> getAnimalById(int animalId) {
     return (database.select(database.animals)
-      ..where((animal) => animal.id.equals(animalId)))
-    .getSingleOrNull();
+          ..where((animal) => animal.id.equals(animalId)))
+        .getSingleOrNull();
   }
-  
+
   Future<List<Animal>> getAllAnimals() {
     return database.select(database.animals).get();
   }
 
   Future<List<Animal>> getAnimalsForBox(int boxId) {
     return (database.select(database.animals)
-      ..where((animal) => animal.boxId.equals(boxId)))
-    .get();
+          ..where((animal) => animal.boxId.equals(boxId)))
+        .get();
   }
 
   Future<int> createAnimal({
@@ -80,15 +79,15 @@ class AnimalRepository {
         boxId: Value(boxId),
         commonName: Value(commonName),
         latinName: Value(latinName),
-        sex: Value.absentIfNull(sex),
-        birthDate: Value.absentIfNull(birthDate),
-        birthDateAccuracy: Value.absentIfNull(birthDateAccuracy),
+        sex: Value(sex),
+        birthDate: Value(birthDate),
+        birthDateAccuracy: Value(birthDateAccuracy),
         tempMin: Value(tempMin),
         tempMax: Value(tempMax),
         humidityMin: Value(humidityMin),
         humidityMax: Value(humidityMax),
-        picturePath: Value.absentIfNull(picturePath),
-        notes: Value.absentIfNull(notes),
+        picturePath: Value(picturePath),
+        notes: Value(notes),
         updatedAt: Value(DateTime.now()),
       ),
     );

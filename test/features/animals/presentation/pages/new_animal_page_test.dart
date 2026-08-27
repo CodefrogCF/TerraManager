@@ -461,4 +461,70 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'can create animal with notes',
+    (tester) async {
+      await createTestBox();
+
+      await pumpPageWithNavigation(tester);
+
+      await fillRequiredFields(
+        tester,
+        boxQrId: 'test-box-001',
+      );
+
+      final notesField = find.byKey(
+        const Key('notes-field'),
+      );
+
+      await tester.ensureVisible(notesField);
+      await tester.enterText(
+        notesField,
+        'Calm animal, feeds well.',
+      );
+
+      await tester.tap(
+        find.byTooltip('Save Animal'),
+      );
+
+      await tester.pumpAndSettle();
+
+      final animals =
+          await AnimalRepository(database).getAllAnimals();
+
+      expect(
+        animals.single.notes,
+        'Calm animal, feeds well.',
+      );
+    },
+  );
+
+  testWidgets(
+    'stores empty notes as null',
+    (tester) async {
+      await createTestBox();
+
+      await pumpPageWithNavigation(tester);
+
+      await fillRequiredFields(
+        tester,
+        boxQrId: 'test-box-001',
+      );
+
+      await tester.tap(
+        find.byTooltip('Save Animal'),
+      );
+
+      await tester.pumpAndSettle();
+
+      final animals =
+          await AnimalRepository(database).getAllAnimals();
+
+      expect(
+        animals.single.notes,
+        isNull,
+      );
+    },
+  );
 }

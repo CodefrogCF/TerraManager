@@ -27,6 +27,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _tempMaxController = TextEditingController();
   final _humidityMinController = TextEditingController();
   final _humidityMaxController = TextEditingController();
+  final _notesController = TextEditingController();
 
   List<Box> _boxes = [];
 
@@ -55,6 +56,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     _tempMaxController.dispose();
     _humidityMinController.dispose();
     _humidityMaxController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -108,6 +110,9 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         tempMax: double.parse(_tempMaxController.text),
         humidityMin: double.parse(_humidityMinController.text),
         humidityMax: double.parse(_humidityMaxController.text),
+        notes: _notesController.text.trim().isEmpty
+          ? null
+          : _notesController.text.trim(),
       );
 
       if (!mounted) {
@@ -353,6 +358,18 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               key: const Key('humidity-max-field'),
               controller: _humidityMaxController,
               label: 'Maximum Humidity (%)',
+            ),
+            const SizedBox(height: 24),
+
+            TextFormField(
+              key: const Key('notes-field'),
+              controller: _notesController,
+              enabled: !_saving,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                labelText: 'Notes',
+                alignLabelWithHint: true,
+              ),
             ),
             const SizedBox(height: 24),
 

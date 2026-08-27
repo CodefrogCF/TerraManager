@@ -85,7 +85,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: feedings.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(),
             itemBuilder: (context, index) {
               final feeding = feedings[index];
 

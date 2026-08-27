@@ -6,7 +6,6 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
-import 'package:terramanager/features/animals/presentation/pages/animal_edit_page.dart';
 
 void main() {
   late AppDatabase database;

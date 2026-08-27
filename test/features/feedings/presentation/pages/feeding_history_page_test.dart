@@ -6,6 +6,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+
 import 'package:terramanager/features/feedings/presentation/pages/feeding_history_page.dart';
 
 void main() {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
+import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../widgets/box_qr_code.dart';
 
@@ -10,12 +11,14 @@ class BoxDetailPage extends StatefulWidget {
   final Box box;
   final QrExporter qrExporter;
   final QrStorage qrStorage;
+  final QrPrinter qrPrinter;
 
   const BoxDetailPage({
     super.key,
     required this.box,
     this.qrExporter = const QrExportService(),
     this.qrStorage = const QrStorageService(),
+    this.qrPrinter = const QrPrintService(),
   });
 
   @override
@@ -24,7 +27,10 @@ class BoxDetailPage extends StatefulWidget {
 
 class _BoxDetailPageState extends State<BoxDetailPage> {
   bool _savingQr = false;
+  bool _printingQr = false;
+
   String? _saveError;
+  String? _printError;
 
   Future<void> _saveQrCode() async {
     setState(() {
@@ -71,6 +77,47 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     }
   }
 
+  Future<void> _printQrCode() async {
+    setState(() {
+      _printingQr = true;
+      _printError = null;
+    });
+
+    try {
+      final pngBytes = await widget.qrExporter.exportPng(
+        qrId: widget.box.qrId,
+      );
+
+      await widget.qrPrinter.printQrCode(
+        pngBytes: pngBytes,
+        qrId: widget.box.qrId,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _printingQr = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('QR code sent to printer'),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _printingQr = false;
+        _printError = 'Failed to print QR code';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final box = widget.box;
@@ -93,6 +140,20 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 : const Icon(Icons.download_outlined),
             tooltip: 'Save QR Code',
           ),
+          IconButton(
+            key: const Key('print-qr-button'),
+            onPressed: _printingQr ? null : _printQrCode,
+            icon: _printingQr
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(Icons.print_outlined),
+            tooltip: 'Print QR Code',
+          ),
         ],
       ),
       body: ListView(
@@ -102,6 +163,17 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             Text(
               _saveError!,
               key: const Key('qr-save-error'),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          if (_printError != null) ...[
+            Text(
+              _printError!,
+              key: const Key('qr-print-error'),
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
               ),

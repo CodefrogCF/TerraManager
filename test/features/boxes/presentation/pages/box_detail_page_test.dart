@@ -4,13 +4,14 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:terramanager/core/qr/qr_export_service.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/widgets/box_qr_code.dart';
-import 'package:terramanager/core/qr/qr_storage_service.dart';
 import 'package:terramanager/core/qr/qr_file_name.dart';
+import 'package:terramanager/core/qr/qr_export_service.dart';
+import 'package:terramanager/core/qr/qr_print_service.dart';
+import 'package:terramanager/core/qr/qr_storage_service.dart';
 
 class FakeQrExporter implements QrExporter {
   String? exportedQrId;
@@ -69,6 +70,30 @@ class FailingQrStorage implements QrStorage {
     required String fileName,
   }) {
     throw StateError('Test save failure');
+  }
+}
+
+class FakeQrPrinter implements QrPrinter {
+  Uint8List? printedBytes;
+  String? printedQrId;
+
+  @override
+  Future<void> printQrCode({
+    required Uint8List pngBytes,
+    required String qrId,
+  }) async {
+    printedBytes = pngBytes;
+    printedQrId = qrId;
+  }
+}
+
+class FailingQrPrinter implements QrPrinter {
+  @override
+  Future<void> printQrCode({
+    required Uint8List pngBytes,
+    required String qrId,
+  }) {
+    throw StateError('Test print failure');
   }
 }
 
@@ -439,6 +464,132 @@ void main() {
           const Key('qr-save-error'),
         ),
         findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'shows QR print button',
+    (tester) async {
+      final box = await createTestBox();
+
+      await pumpPage(
+        tester,
+        box: box,
+      );
+
+      expect(
+        find.byKey(
+          const Key('print-qr-button'),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'prints QR code',
+    (tester) async {
+      final box = await createTestBox();
+
+      final exporter = FakeQrExporter();
+      final storage = FakeQrStorage();
+      final printer = FakeQrPrinter();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BoxDetailPage(
+            box: box,
+            qrExporter: exporter,
+            qrStorage: storage,
+            qrPrinter: printer,
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.byKey(
+          const Key('print-qr-button'),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        exporter.exportedQrId,
+        box.qrId,
+      );
+
+      expect(
+        printer.printedBytes,
+        isNotNull,
+      );
+
+      expect(
+        printer.printedBytes,
+        isNotEmpty,
+      );
+
+      expect(
+        printer.printedQrId,
+        box.qrId,
+      );
+
+      expect(
+        find.text('QR code sent to printer'),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Failed to print QR code'),
+        findsNothing,
+      );
+    },
+  );
+
+  testWidgets(
+    'shows error when printing QR code fails',
+    (tester) async {
+      final box = await createTestBox();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BoxDetailPage(
+            box: box,
+            qrExporter: FakeQrExporter(),
+            qrStorage: FakeQrStorage(),
+            qrPrinter: FailingQrPrinter(),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.byKey(
+          const Key('print-qr-button'),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(
+          const Key('qr-print-error'),
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Failed to print QR code'),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('QR code sent to printer'),
+        findsNothing,
       );
     },
   );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import 'animal_edit_page.dart';
 
 class AnimalDetailPage extends StatefulWidget {
@@ -53,12 +54,29 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     }
   }
 
+  Future<void> _openFeedingHistory() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => FeedingHistoryPage(
+          database: widget.database,
+          animalId: widget.animalId,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Animal Details'),
         actions: [
+          IconButton(
+            key: const Key('feeding-history-button'),
+            onPressed: _openFeedingHistory,
+            icon: const Icon(Icons.restaurant),
+            tooltip: 'Feeding History',
+          ),
           IconButton(
             key: const Key('edit-animal-button'),
             onPressed: _openEditPage,

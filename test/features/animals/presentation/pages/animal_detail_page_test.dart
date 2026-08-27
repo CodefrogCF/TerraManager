@@ -144,4 +144,57 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'feeding history button navigates to feeding history page',
+    (tester) async {
+      final boxId = await database.into(database.boxes).insert(
+            BoxesCompanion.insert(
+              qrId: 'feeding-history-box',
+            ),
+          );
+
+      final animalId = await AnimalRepository(database).createAnimal(
+        boxId: boxId,
+        commonName: 'Test Snake',
+        latinName: 'Pantherophis guttatus',
+        tempMin: 24,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 60,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AnimalDetailPage(
+            database: database,
+            animalId: animalId,
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('feeding-history-button')),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.byKey(const Key('feeding-history-button')),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Feeding History'),
+        findsOneWidget,
+      );
+
+      expect(
+        find.byKey(const Key('add-feeding-button')),
+        findsOneWidget,
+      );
+    },
+  );
 }

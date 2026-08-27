@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import 'animal_detail_page.dart';
+import 'new_animal_page.dart';
 
-class AnimalsPage extends StatelessWidget {
+class AnimalsPage extends StatefulWidget {
   final AppDatabase database;
 
   const AnimalsPage({
@@ -13,15 +14,51 @@ class AnimalsPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final repository = AnimalRepository(database);
+  State<AnimalsPage> createState() => _AnimalsPageState();
+}
 
+class _AnimalsPageState extends State<AnimalsPage> {
+  late Future<List<Animal>> _animalsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAnimals();
+  }
+
+  void _loadAnimals() {
+    _animalsFuture =
+        AnimalRepository(widget.database).getAllAnimals();
+  }
+
+  Future<void> _openNewAnimalPage() async {
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => NewAnimalPage(
+          database: widget.database,
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (created == true) {
+      setState(() {
+        _loadAnimals();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Animals'),
       ),
       body: FutureBuilder<List<Animal>>(
-        future: repository.getAllAnimals(),
+        future: _animalsFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(
@@ -49,14 +86,17 @@ class AnimalsPage extends StatelessWidget {
               final animal = animals[index];
 
               return ListTile(
-                leading: const Icon(Icons.emoji_nature_outlined),
+                key: Key('animal-list-item-${animal.id}'),
+                leading: const Icon(
+                  Icons.emoji_nature_outlined,
+                ),
                 title: Text(animal.commonName),
                 subtitle: Text(animal.latinName),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => AnimalDetailPage(
-                        database: database,
+                        database: widget.database,
                         animalId: animal.id,
                       ),
                     ),
@@ -66,6 +106,12 @@ class AnimalsPage extends StatelessWidget {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        key: const Key('add-animal-button'),
+        onPressed: _openNewAnimalPage,
+        tooltip: 'Add Animal',
+        child: const Icon(Icons.add),
       ),
     );
   }

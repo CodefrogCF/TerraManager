@@ -1,10 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/birth_date_accuracy.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../widgets/animal_picture.dart';
 
 class NewAnimalPage extends StatefulWidget {
   final AppDatabase database;
@@ -29,12 +33,17 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _humidityMaxController = TextEditingController();
   final _notesController = TextEditingController();
 
+  final ImagePicker _imagePicker = ImagePicker();
+
   List<Box> _boxes = [];
 
   int? _boxId;
   Sex? _sex;
   DateTime? _birthDate;
   BirthDateAccuracy? _birthDateAccuracy;
+
+  String? _picturePath;
+  Uint8List? _pictureBytes;
 
   bool _loading = true;
   bool _saving = false;
@@ -84,6 +93,44 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     }
   }
 
+  Future<void> _selectPicture() async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (image == null) {
+        return;
+      }
+
+      final bytes = await image.readAsBytes();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _picturePath = image.path;
+        _pictureBytes = bytes;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _saveError = 'Failed to select picture';
+      });
+    }
+  }
+
+  void _removePicture() {
+    setState(() {
+      _picturePath = null;
+      _pictureBytes = null;
+    });
+  }
+
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -110,9 +157,10 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         tempMax: double.parse(_tempMaxController.text),
         humidityMin: double.parse(_humidityMinController.text),
         humidityMax: double.parse(_humidityMaxController.text),
+        picturePath: _picturePath,
         notes: _notesController.text.trim().isEmpty
-          ? null
-          : _notesController.text.trim(),
+            ? null
+            : _notesController.text.trim(),
       );
 
       if (!mounted) {
@@ -140,9 +188,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         actions: [
           IconButton(
             key: const Key('save-animal-button'),
-            onPressed: _saving || _loading || _boxes.isEmpty
-                ? null
-                : _save,
+            onPressed:
+                _saving || _loading || _boxes.isEmpty ? null : _save,
             icon: const Icon(Icons.save),
             tooltip: 'Save Animal',
           ),
@@ -193,6 +240,35 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               ),
               const SizedBox(height: 16),
             ],
+
+            AnimalPicture(
+              picturePath: _picturePath,
+              pictureBytes: _pictureBytes,
+            ),
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('select-picture-button'),
+                    onPressed: _saving ? null : _selectPicture,
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: const Text('Select Picture'),
+                  ),
+                ),
+                if (_picturePath != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton(
+                    key: const Key('remove-picture-button'),
+                    onPressed: _saving ? null : _removePicture,
+                    icon: const Icon(Icons.delete_outline),
+                    tooltip: 'Remove Picture',
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 24),
 
             DropdownButtonFormField<int>(
               key: const Key('box-field'),
@@ -316,8 +392,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                   child: Text('Unknown'),
                 ),
                 ...BirthDateAccuracy.values.map(
-                  (accuracy) =>
-                      DropdownMenuItem<BirthDateAccuracy?>(
+                  (accuracy) => DropdownMenuItem<BirthDateAccuracy?>(
                     value: accuracy,
                     child: Text(accuracy.toString()),
                   ),
@@ -359,7 +434,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               controller: _humidityMaxController,
               label: 'Maximum Humidity (%)',
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
 
             TextFormField(
               key: const Key('notes-field'),

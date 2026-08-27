@@ -632,4 +632,26 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'shows picture controls',
+    (tester) async {
+      final animalId = await createTestAnimal();
+
+      await pumpPage(
+        tester,
+        animalId: animalId,
+      );
+
+      expect(
+        find.byKey(const Key('select-picture-button')),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Select Picture'),
+        findsOneWidget,
+      );
+    },
+  );
 }

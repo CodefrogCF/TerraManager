@@ -527,4 +527,28 @@ void main() {
       );
     },
   );
+
+  testWidgets(
+    'shows picture selection control',
+    (tester) async {
+      await createTestBox();
+
+      await pumpPage(tester);
+
+      expect(
+        find.byKey(const Key('select-picture-button')),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Select Picture'),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('No picture'),
+        findsOneWidget,
+      );
+    },
+  );
 }

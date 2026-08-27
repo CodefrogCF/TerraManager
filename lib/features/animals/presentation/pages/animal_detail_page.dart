@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
+import '../widgets/animal_picture.dart';
 import 'animal_edit_page.dart';
 
 class AnimalDetailPage extends StatefulWidget {
@@ -111,11 +112,18 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              AnimalPicture(
+                key: const Key('animal-picture'),
+                picturePath: animal.picturePath,
+              ),
+              const SizedBox(height: 24),
+
               Text(
                 animal.commonName,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 4),
+
               Text(
                 animal.latinName,
                 style: Theme.of(context).textTheme.titleMedium,

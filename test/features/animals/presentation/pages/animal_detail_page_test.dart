@@ -65,7 +65,18 @@ void main() {
     expect(find.text('10.05.2024'), findsOneWidget);
     expect(find.text('24.0 °C – 28.0 °C'), findsOneWidget);
     expect(find.text('40.0% – 60.0%'), findsOneWidget);
-    expect(find.text('Test notes'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.text('Test notes'),
+      300,
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Test notes'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows not found state for unknown animal', (tester) async {
@@ -192,6 +203,48 @@ void main() {
 
       expect(
         find.byKey(const Key('add-feeding-button')),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'shows picture placeholder when animal has no picture',
+    (tester) async {
+      final boxId = await database.into(database.boxes).insert(
+            BoxesCompanion.insert(
+              qrId: 'picture-test-box',
+            ),
+          );
+
+      final animalId = await AnimalRepository(database).createAnimal(
+        boxId: boxId,
+        commonName: 'Test Snake',
+        latinName: 'Pantherophis guttatus',
+        tempMin: 24,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 60,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AnimalDetailPage(
+            database: database,
+            animalId: animalId,
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('animal-picture')),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('No picture'),
         findsOneWidget,
       );
     },

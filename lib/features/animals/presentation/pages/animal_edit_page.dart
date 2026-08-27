@@ -1,10 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/birth_date_accuracy.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../widgets/animal_picture.dart';
 
 class AnimalEditPage extends StatefulWidget {
   final AppDatabase database;
@@ -31,10 +35,15 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _humidityMaxController = TextEditingController();
   final _notesController = TextEditingController();
 
+  final ImagePicker _imagePicker = ImagePicker();
+
   Sex? _sex;
   BirthDateAccuracy? _birthDateAccuracy;
   DateTime? _birthDate;
   int? _boxId;
+
+  String? _picturePath;
+  Uint8List? _pictureBytes;
 
   List<Box> _boxes = [];
 
@@ -104,6 +113,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _birthDateAccuracy = animal.birthDateAccuracy;
       _boxId = animal.boxId;
 
+      _picturePath = animal.picturePath;
+
       setState(() {
         _loading = false;
       });
@@ -125,6 +136,46 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     }
 
     setState(() {
+      _hasUnsavedChanges = true;
+    });
+  }
+
+  Future<void> _selectPicture() async {
+    try {
+      final image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (image == null) {
+        return;
+      }
+
+      final bytes = await image.readAsBytes();
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _picturePath = image.path;
+        _pictureBytes = bytes;
+        _hasUnsavedChanges = true;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _error = 'Failed to select picture';
+      });
+    }
+  }
+
+  void _removePicture() {
+    setState(() {
+      _picturePath = null;
+      _pictureBytes = null;
       _hasUnsavedChanges = true;
     });
   }
@@ -159,7 +210,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         tempMax: double.parse(_tempMaxController.text),
         humidityMin: double.parse(_humidityMinController.text),
         humidityMax: double.parse(_humidityMaxController.text),
-        picturePath: _animal!.picturePath,
+        picturePath: _picturePath,
         notes: _notesController.text.trim().isEmpty
             ? null
             : _notesController.text.trim(),
@@ -292,6 +343,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_error != null) ...[
               Text(
@@ -302,6 +354,40 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               ),
               const SizedBox(height: 16),
             ],
+
+            AnimalPicture(
+              picturePath: _picturePath,
+              pictureBytes: _pictureBytes,
+            ),
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('select-picture-button'),
+                    onPressed: _saving ? null : _selectPicture,
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: Text(
+                      _picturePath == null
+                          ? 'Select Picture'
+                          : 'Change Picture',
+                    ),
+                  ),
+                ),
+                if (_picturePath != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton(
+                    key: const Key('remove-picture-button'),
+                    onPressed: _saving ? null : _removePicture,
+                    icon: const Icon(Icons.delete_outline),
+                    tooltip: 'Remove Picture',
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 24),
+
             DropdownButtonFormField<int>(
               key: const Key('box-field'),
               initialValue: _boxId,

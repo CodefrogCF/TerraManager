@@ -4,6 +4,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import 'box_detail_page.dart';
 import 'new_box_page.dart';
+import 'box_scanner_page.dart';
 
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
@@ -50,11 +51,39 @@ class _BoxesPageState extends State<BoxesPage> {
     }
   }
 
+  Future<void> _openScannerPage() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BoxScannerPage(
+          database: widget.database,
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _loadBoxes();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Boxes'),
+        actions: [
+          IconButton(
+            key: const Key('scan-box-button'),
+            onPressed: _openScannerPage,
+            icon: const Icon(
+              Icons.qr_code_scanner,
+            ),
+            tooltip: 'Scan Box',
+          ),
+        ],
       ),
       body: FutureBuilder<List<Box>>(
         future: _boxesFuture,

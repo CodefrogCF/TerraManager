@@ -22,7 +22,13 @@ part 'app_database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(
     driftDatabase(
-      name: 'terramanager'));
+      name: 'terramanager',
+      web: DriftWebOptions(
+        sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+        driftWorker: Uri.parse('drift_worker.dart.js'),
+      ),
+    )
+  );
 
   AppDatabase.test(super.executor);
 

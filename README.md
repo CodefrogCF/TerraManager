@@ -493,3 +493,19 @@ Current development environment:
 - Git
 
 - GitHub
+
+## Known Web Limitations
+
+- Camera access for QR scanning requires browser permission and a secure context
+  (`https://` or `localhost`).
+- QR scanning depends on browser camera support and may behave differently
+  between browsers and devices.
+- Local application data is stored in browser-managed storage. Clearing site
+  data, browser storage, or using private/incognito mode may remove or prevent
+  persistent TerraManager data.
+- Downloaded QR code files are handled by the browser. The exact save location
+  and download behavior therefore depend on the user's browser settings.
+- QR printing uses the browser/system print dialog. Available printers and
+  print options depend on the browser and operating system.
+- Browser permissions for camera and file-related functionality are controlled
+  by the browser and may need to be granted again after being revoked.

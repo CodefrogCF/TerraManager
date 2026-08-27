@@ -141,8 +141,6 @@ void main() {
 
       await tester.pump();
 
-      // Nicht awaiten:
-      // Der Future endet erst, nachdem BoxDetailPage wieder geschlossen wurde.
       final scanFuture = scan(qrId);
 
       await tester.pump();

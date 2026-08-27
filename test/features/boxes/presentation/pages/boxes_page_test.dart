@@ -142,8 +142,17 @@ void main() {
       );
 
       expect(
-        find.byKey(const Key('qr-id-field')),
+        find.byKey(
+          const Key('create-box-button'),
+        ),
         findsOneWidget,
+      );
+
+      expect(
+        find.byKey(
+          const Key('qr-id-field'),
+        ),
+        findsNothing,
       );
     },
   );
@@ -166,9 +175,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key('qr-id-field')),
-        'new-overview-box',
+      expect(
+        find.text('New Box'),
+        findsOneWidget,
       );
 
       await tester.tap(
@@ -185,22 +194,28 @@ void main() {
       );
 
       expect(
-        find.text('new-overview-box'),
-        findsOneWidget,
-      );
-
-      expect(
         find.text('No boxes available'),
         findsNothing,
       );
 
-      final box = await BoxRepository(database).getBoxByQrId(
-        'new-overview-box',
+      final boxes =
+          await BoxRepository(database).getAllBoxes();
+
+      expect(
+        boxes.length,
+        1,
+      );
+
+      final box = boxes.single;
+
+      expect(
+        box.qrId,
+        startsWith('TM:BOX:'),
       );
 
       expect(
-        box,
-        isNotNull,
+        find.text(box.qrId),
+        findsOneWidget,
       );
     },
   );

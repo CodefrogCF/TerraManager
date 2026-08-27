@@ -72,7 +72,7 @@ void main() {
   }
 
   testWidgets(
-    'shows new box form',
+    'shows new box screen',
     (tester) async {
       await pumpPage(tester);
 
@@ -82,53 +82,55 @@ void main() {
       );
 
       expect(
-        find.byKey(const Key('qr-id-field')),
+        find.text('Create a new box'),
         findsOneWidget,
       );
 
       expect(
-        find.byKey(const Key('create-box-button')),
+        find.text(
+          'A unique QR identifier will be generated automatically '
+          'for this box.',
+        ),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Format: TM:BOX:<UUID>'),
+        findsOneWidget,
+      );
+
+      expect(
+        find.byKey(
+          const Key('create-box-button'),
+        ),
         findsOneWidget,
       );
     },
   );
 
   testWidgets(
-    'validates empty QR ID',
+    'does not require manual QR ID',
     (tester) async {
       await pumpPage(tester);
 
-      await tester.tap(
+      expect(
+        find.byType(TextFormField),
+        findsNothing,
+      );
+
+      expect(
         find.byKey(
-          const Key('create-box-button'),
+          const Key('qr-id-field'),
         ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Please enter a QR ID'),
-        findsOneWidget,
-      );
-
-      final boxes = await BoxRepository(database).getAllBoxes();
-
-      expect(
-        boxes,
-        isEmpty,
+        findsNothing,
       );
     },
   );
 
   testWidgets(
-    'creates box in database',
+    'creates box with generated QR ID',
     (tester) async {
       await pumpPageWithNavigation(tester);
-
-      await tester.enterText(
-        find.byKey(const Key('qr-id-field')),
-        'test-box-new-001',
-      );
 
       await tester.tap(
         find.byKey(
@@ -138,31 +140,41 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      final box = await BoxRepository(database).getBoxByQrId(
-        'test-box-new-001',
+      final boxes =
+          await BoxRepository(database).getAllBoxes();
+
+      expect(
+        boxes.length,
+        1,
+      );
+
+      final box = boxes.single;
+
+      expect(
+        box.qrId,
+        startsWith('TM:BOX:'),
       );
 
       expect(
-        box,
-        isNotNull,
-      );
-
-      expect(
-        box!.qrId,
-        'test-box-new-001',
+        box.qrId,
+        matches(
+          RegExp(
+            r'^TM:BOX:'
+            r'[0-9a-f]{8}-'
+            r'[0-9a-f]{4}-'
+            r'4[0-9a-f]{3}-'
+            r'[89ab][0-9a-f]{3}-'
+            r'[0-9a-f]{12}$',
+          ),
+        ),
       );
     },
   );
 
   testWidgets(
-    'returns to previous page after successful save',
+    'returns to previous page after successful creation',
     (tester) async {
       await pumpPageWithNavigation(tester);
-
-      await tester.enterText(
-        find.byKey(const Key('qr-id-field')),
-        'test-box-new-002',
-      );
 
       await tester.tap(
         find.byKey(
@@ -179,40 +191,6 @@ void main() {
 
       expect(
         find.text('Open New Box'),
-        findsOneWidget,
-      );
-    },
-  );
-
-  testWidgets(
-    'shows error when QR ID already exists',
-    (tester) async {
-      await BoxRepository(database).createBox(
-        'duplicate-box',
-      );
-
-      await pumpPage(tester);
-
-      await tester.enterText(
-        find.byKey(const Key('qr-id-field')),
-        'duplicate-box',
-      );
-
-      await tester.tap(
-        find.byKey(
-          const Key('create-box-button'),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Failed to create box'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('New Box'),
         findsOneWidget,
       );
     },

@@ -10,7 +10,8 @@ Current status:
 Database foundation complete
 Repository layer complete
 Initial theme complete
-UI development started
+Initial UI development complete
+QR-code functionality started
 
 The basic database structure is implemented using Drift and SQLite.
 

@@ -137,4 +137,53 @@ void main() {
 
     expect(deleted, isFalse);
   });
+
+  test('can create box with generated QR ID', () async {
+    final boxId = await repository.createBoxWithGeneratedQrId();
+
+    final box = await repository.getBoxById(boxId);
+
+    expect(
+      box,
+      isNotNull,
+    );
+
+    expect(
+      box!.qrId,
+      startsWith('TM:BOX:'),
+    );
+
+    expect(
+      box.qrId,
+      matches(
+        RegExp(
+          r'^TM:BOX:'
+          r'[0-9a-f]{8}-'
+          r'[0-9a-f]{4}-'
+          r'4[0-9a-f]{3}-'
+          r'[89ab][0-9a-f]{3}-'
+          r'[0-9a-f]{12}$',
+        ),
+      ),
+    );
+  });
+
+  test('generated QR IDs are unique between boxes', () async {
+    final firstId =
+        await repository.createBoxWithGeneratedQrId();
+
+    final secondId =
+        await repository.createBoxWithGeneratedQrId();
+
+    final first = await repository.getBoxById(firstId);
+    final second = await repository.getBoxById(secondId);
+
+    expect(first, isNotNull);
+    expect(second, isNotNull);
+
+    expect(
+      first!.qrId,
+      isNot(second!.qrId),
+    );
+  });
 }

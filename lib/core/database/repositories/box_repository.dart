@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../qr/qr_id_generator.dart';
 import '../app_database.dart';
 
 class BoxRepository {
@@ -29,6 +30,12 @@ class BoxRepository {
             qrId: qrId,
           ),
         );
+  }
+
+  Future<int> createBoxWithGeneratedQrId() {
+    return createBox(
+      generateBoxQrId(),
+    );
   }
 
   Future<bool> updateBox({

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
-import '../../../boxes/presentation/pages/box_detail_page.dart';
+import 'box_detail_page.dart';
+import 'new_box_page.dart';
 
-class BoxesPage extends StatelessWidget {
+class BoxesPage extends StatefulWidget {
   final AppDatabase database;
 
   const BoxesPage({
@@ -13,15 +14,50 @@ class BoxesPage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final repository = BoxRepository(database);
+  State<BoxesPage> createState() => _BoxesPageState();
+}
 
+class _BoxesPageState extends State<BoxesPage> {
+  late Future<List<Box>> _boxesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBoxes();
+  }
+
+  void _loadBoxes() {
+    _boxesFuture = BoxRepository(widget.database).getAllBoxes();
+  }
+
+  Future<void> _openNewBoxPage() async {
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => NewBoxPage(
+          database: widget.database,
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (created == true) {
+      setState(() {
+        _loadBoxes();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Boxes'),
       ),
       body: FutureBuilder<List<Box>>(
-        future: repository.getAllBoxes(),
+        future: _boxesFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(
@@ -49,9 +85,14 @@ class BoxesPage extends StatelessWidget {
               final box = boxes[index];
 
               return ListTile(
-                leading: const Icon(Icons.home_outlined),
+                key: Key('box-list-item-${box.id}'),
+                leading: const Icon(
+                  Icons.home_outlined,
+                ),
                 title: Text(box.qrId),
-                subtitle: Text('Box ID: ${box.id}'),
+                subtitle: Text(
+                  'Box ID: ${box.id}',
+                ),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -65,6 +106,12 @@ class BoxesPage extends StatelessWidget {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        key: const Key('add-box-button'),
+        onPressed: _openNewBoxPage,
+        tooltip: 'Add Box',
+        child: const Icon(Icons.add),
       ),
     );
   }

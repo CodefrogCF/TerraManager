@@ -35,6 +35,16 @@ Implemented so far:
 - Light and Dark application themes
 - Initial application navigation
 - Box overview
+- Box detail screen
+- Animal overview
+- Animal detail screen
+- Animal editing
+
+- New Box workflow
+- New Animal workflow
+
+- Feeding history
+- Animal notes/picture support
 
 The UI and QR-code functionality are not fully implemented yet.
 

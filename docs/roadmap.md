@@ -52,21 +52,21 @@ The next development phase focuses on the application UI and navigation.
 
 - [x] Box detail screen
 
-- [ ] Animal overview
+- [x] Animal overview
 
-- [ ] Animal detail screen
+- [x] Animal detail screen
 
-- [ ] Animal editing
+- [x] Animal editing
 
-- [ ] New box workflow
+- [x] New box workflow
 
-- [ ] New animal workflow
+- [x] New animal workflow
 
-- [ ] Feeding history
+- [x] Feeding history
 
-- [ ] Notes
+- [x] Notes
 
-- [ ] Animal picture support
+- [x] Animal picture support
 
 
 ### QR Code

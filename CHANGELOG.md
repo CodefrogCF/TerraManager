@@ -4,6 +4,50 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [0.5.0] - Usability & Settings
+
+### Added
+
+- assigned animals on the box detail screen
+- safe deletion workflow for empty boxes
+- deletion protection for boxes containing active animals
+- animal lifecycle with active and archived states
+- archive reasons, dates and optional archive notes
+- dedicated Animal History view
+- restore workflow for archived animals
+- permanent deletion of archived animals
+- latest feeding information on animal details
+- persistent System, Light and Dark appearance settings
+- selectable application accent colors
+
+### Changed
+
+- animal overview now displays active animals only
+- box details only display active assigned animals
+- archived animals are no longer associated with an active box
+- animal detail refreshes latest feeding information after returning from feeding history
+- application theme is generated dynamically from the selected accent color
+- UI appearance preferences are stored separately from domain data
+
+### Data Migration
+
+- database schema upgraded from version 1 to version 2
+- existing animals are migrated as active
+- existing box assignments are preserved
+- existing feeding history is preserved
+
+### Testing
+
+- added Drift schema migration tests
+- added migration data-integrity tests
+- added animal lifecycle repository tests
+- added animal lifecycle widget tests
+- added Animal History tests
+- added latest-feeding tests
+- added persistent settings and theme tests
+- completed Android regression validation
+- completed Web regression validation
+
 ## [0.4.0] - Platform Support
 
 ### Added

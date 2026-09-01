@@ -8,7 +8,7 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 ## Project Status
 
-Current development status: **v0.4.0 – Platform Support**
+Current development status: **v0.5.0 – Usability & Settings**
 
 Completed milestones:
 
@@ -16,20 +16,14 @@ Completed milestones:
 - v0.2.0 – User Interface
 - v0.3.0 – QR Code
 - v0.4.0 – Android and Web Platform Support
+- v0.5.0 – Usability & Settings
 
 Android and Web have been validated successfully.
 
-The next milestone is:
+v0.5.0 adds improved box management, animal lifecycle and history,
+latest-feeding information and persistent appearance settings.
 
-**v0.5.0 – Usability & Settings**
-
-Planned improvements include:
-
-- assigned animals on the box detail screen
-- safe box deletion
-- latest feeding on the animal detail screen
-- persistent theme settings
-- selectable accent colors
+The next development milestone has not yet been finalized.
 
 ## Implemented Features
 
@@ -46,10 +40,14 @@ Planned improvements include:
 - QR code printing
 - QR code scanning
 - unknown and invalid QR handling
+- assigned animal list on box detail
+- navigation from box to assigned animal
+- safe deletion of empty boxes
+- deletion protection for boxes containing active animals
 
 ### Animals
 
-- animal overview
+- active animal overview
 - animal creation
 - animal detail screen
 - animal editing
@@ -62,6 +60,12 @@ Planned improvements include:
 - preferred humidity range
 - optional picture
 - notes
+- active and archived lifecycle states
+- archive reasons, dates and optional archive notes
+- dedicated Animal History view
+- restore archived animals
+- permanent deletion of archived animals
+- preserved feeding history while archived
 
 ### Feeding
 
@@ -69,6 +73,17 @@ Planned improvements include:
 - feeding timestamps
 - optional feeding notes
 - latest feeding lookup
+- latest feeding displayed directly on animal details
+- automatic refresh after returning from feeding history
+
+### Settings
+
+- System theme mode
+- Light theme mode
+- Dark theme mode
+- predefined accent colors
+- immediate appearance changes
+- persistent appearance settings
 
 ### Platform Support
 
@@ -144,9 +159,14 @@ The current database structure is:
 ```text
 Box
  │
- └──── 1:n ──── Animal
+ └──── 1:n ──── Active Animal
                    │
                    └──── 1:n ──── FeedingEvent
+
+Archived Animal
+ │
+ ├── no active box assignment
+ └──── 1:n ──── FeedingEvent
 ```
 
 ### Box
@@ -173,6 +193,7 @@ TM:BOX:<UUID-v4>
 Animal
 ├── id
 ├── boxId
+├── status
 ├── commonName
 ├── latinName
 ├── sex
@@ -184,11 +205,17 @@ Animal
 ├── humidityMax
 ├── picturePath
 ├── notes
+├── archiveReason
+├── archivedAt
+├── archiveNotes
 ├── createdAt
 └── updatedAt
 ```
 
-Each animal belongs to exactly one box.
+Active animals are assigned to a box.
+
+Archived animals have no active box assignment. Their animal data and feeding
+history remain stored until the animal is explicitly deleted permanently.
 
 ### FeedingEvent
 
@@ -241,6 +268,7 @@ It is generated from the permanent qrId when needed.
 - Flutter
 - Dart
 - Material 3
+- shared_preferences
 
 ### Database
 
@@ -332,6 +360,9 @@ lib/
     ├── animals/
     ├── feedings/
     └── settings/
+        ├── app_accent.dart
+        ├── app_settings_controller.dart
+        └── presentation/
 ```
 
 Generated Drift files such as:
@@ -395,7 +426,13 @@ Platform-specific functionality such as camera access, gallery storage and print
 After changing Drift tables, converters or related database definitions:
 
 ```text
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
+```
+
+When changing the database schema, Drift migration files must also be updated:
+
+```text
+dart run drift_dev make-migrations
 ```
 
 Do not manually edit generated Drift files.

@@ -47,8 +47,8 @@ class _AppShellState extends State<AppShell> {
             label: 'Boxes',
           ),
           NavigationDestination(
-            icon: Icon(Icons.emoji_nature_outlined),
-            selectedIcon: Icon(Icons.emoji_nature),
+            icon: Icon(Icons.pets_outlined),
+            selectedIcon: Icon(Icons.pets),
             label: 'Animals',
           ),
           NavigationDestination(

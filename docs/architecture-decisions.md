@@ -255,3 +255,63 @@ Disadvantages:
 - platform-specific implementations still require manual validation
 
 ---
+
+## ADR-006: Store UI preferences outside the domain database
+
+**Status:** Accepted
+
+**Date:** 2026-09-01
+
+### Context
+
+TerraManager supports user-selectable appearance settings:
+
+- System, Light and Dark theme modes
+- predefined accent colors
+
+These values are application preferences rather than terrarium domain data.
+
+Storing them in the Drift database would couple UI preferences to the relational
+domain schema and could require unnecessary database migrations for appearance
+changes.
+
+### Decision
+
+Appearance preferences are stored through `shared_preferences`.
+
+The Drift/SQLite database remains responsible for domain data such as:
+
+```text
+Box
+Animal
+FeedingEvent
+```
+
+The application settings controller loads and persists appearance preferences
+and notifies the application when they change.
+
+The application theme is regenerated immediately from the selected theme mode
+and accent color.
+
+### Consequences
+
+Advantages:
+
+- UI preferences remain separate from domain data
+- no Drift schema migration is required for appearance-only settings
+- settings can be applied immediately
+- simple persistence on Android and Web
+- invalid stored values can safely fall back to application defaults
+
+Disadvantages:
+
+- application state is persisted through more than one storage mechanism
+- appearance preferences are still local to the current device/browser profile
+- clearing application/browser data may reset the preferences
+
+Default values are:
+
+```text
+ThemeMode.system
+Accent = TerraManager green
+```

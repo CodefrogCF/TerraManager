@@ -35,6 +35,19 @@ The application must allow the user to:
 - store preferred humidity values
 - store optional birth information
 - store optional sex information
+- archive an animal without losing its data
+- select an archive reason and archive date
+- store an optional archive note
+- remove archived animals from active box assignments
+- view archived animals in Animal History
+- open archived animal details
+- restore an archived animal to a selected box
+- preserve feeding history while an animal is archived
+- permanently delete an archived animal through an explicit confirmation workflow
+
+Active animals must have a box assignment.
+
+Archived animals must not have an active box assignment.
 
 ## Feeding
 
@@ -47,6 +60,11 @@ The application must allow the user to:
 - display the latest feeding directly on the animal detail screen
 
 The latest feeding must be derived from feeding history rather than duplicated in the Animal record.
+
+The animal detail screen must display the most recent FeedingEvent, including
+its timestamp and optional note.
+
+The displayed value must refresh after the feeding history is modified.
 
 ## QR Codes
 
@@ -83,6 +101,13 @@ Core application data must be stored locally.
 Data must survive normal application restarts.
 
 The MVP does not require cloud synchronization.
+
+Core domain data is stored with Drift/SQLite.
+
+Appearance preferences are stored separately through `shared_preferences`.
+
+Both domain data and appearance preferences must survive normal application
+restarts or browser reloads on validated platforms.
 
 ## Platform Targets
 

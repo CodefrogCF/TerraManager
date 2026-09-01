@@ -15,10 +15,17 @@ Sensors are planned but are not implemented.
 ```text
 Box
  │
- └──── 1:n ──── Animal
+ └──── 1:n ──── Active Animal
                    │
                    └──── 1:n ──── FeedingEvent
+
+Archived Animal
+ │
+ ├── boxId = null
+ └──── 1:n ──── FeedingEvent
 ```
+
+An animal remains the owner of its feeding history while archived.
 
 Planned:
 
@@ -59,12 +66,13 @@ The QR identifier does not contain animal or box data. It only identifies the co
 
 ## Animal
 
-An Animal represents an individual animal assigned to a box.
+An Animal represents an individual animal managed by TerraManager.
 
 ```text
 Animal
 ├── id
 ├── boxId
+├── status
 ├── commonName
 ├── latinName
 ├── sex
@@ -76,6 +84,9 @@ Animal
 ├── humidityMax
 ├── picturePath
 ├── notes
+├── archiveReason
+├── archivedAt
+├── archiveNotes
 ├── createdAt
 └── updatedAt
 ```
@@ -84,6 +95,7 @@ Animal
 
 - id – auto-incrementing primary key
 - boxId – foreign key referencing Box
+- status – active or archived
 - commonName – common name
 - latinName – scientific name
 - sex – optional sex
@@ -95,10 +107,42 @@ Animal
 - humidityMax – preferred maximum humidity
 - picturePath – optional picture reference/path
 - notes – optional notes
+- archiveReason – optional archive reason
+- archivedAt – optional archive date
+- archiveNotes – optional archive notes
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
-An animal belongs to exactly one box.
+### Lifecycle
+
+Active animals:
+
+```text
+status = active
+boxId = assigned box
+archiveReason = null
+archivedAt = null
+archiveNotes = null
+```
+
+Archived animals:
+
+```text
+status = archived
+boxId = null
+archiveReason = archive reason
+archivedAt = archive date
+archiveNotes = optional
+```
+
+Archiving an animal does not remove its animal record or feeding history.
+
+Restoring an archived animal requires assigning a box again.
+
+Permanent deletion is intentionally a separate operation and explicitly removes
+associated feeding events before removing the animal.
+
+Lifecycle consistency is enforced by the repository/application layer.
 
 Nullable animal fields can be explicitly cleared when an animal is edited.
 
@@ -128,7 +172,7 @@ Feeding events are ordered by **fedAt**.
 The latest feeding is derived from the feeding history through:
 
 ```text
-FeedingRepository.getLastFeeding(...)
+FeedingRepository.getLatestFeeding(...)
 ```
 
 The latest feeding date is therefore not duplicated in the Animal table.
@@ -155,6 +199,8 @@ Current converters include:
 ```text
 SexConverter
 BirthDateAccuracyConverter
+AnimalStatusConverter
+AnimalArchiveReasonConverter
 ```
 
 This keeps the Dart domain model type-safe while storing simple SQLite values.
@@ -207,10 +253,13 @@ BoxRepository
 
 AnimalRepository
 ├── create animal
-├── retrieve animals
-├── retrieve animals for box
-├── update animal
-└── delete animal
+├── retrieve active animals
+├── retrieve archived animals
+├── retrieve active animals for box
+├── update active animal
+├── archive animal
+├── restore animal
+└── permanently delete archived animal
 
 FeedingRepository
 ├── create feeding event
@@ -238,3 +287,13 @@ web/drift_worker.dart.js
 ```
 
 Web persistence has been validated across normal browser reloads.
+
+## Schema Version
+
+The current Drift database schema version is **2**.
+
+Schema version 2 introduced animal lifecycle support and changed `boxId` from
+required to nullable.
+
+The v1 → v2 migration preserves existing animals, box assignments and feeding
+history. Existing animals are migrated with `status = active`.

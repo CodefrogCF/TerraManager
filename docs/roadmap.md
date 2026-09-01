@@ -2,9 +2,9 @@
 
 ## Current Status
 
-Current completed release milestone:
+Current development milestone:
 
-**v0.4.0 – Platform Support**
+**v0.5.0 – Usability & Settings**
 
 Completed development areas:
 
@@ -17,10 +17,13 @@ Completed development areas:
 - QR generation, export, storage, printing and scanning
 - Android validation
 - Web validation
+- safe box management
+- animal lifecycle and archive
+- Animal History
+- latest feeding on animal details
+- persistent appearance settings
 
-The next development milestone is:
-
-**v0.5.0 – Usability & Settings**
+v0.5.0 has completed implementation and validation.
 
 ---
 
@@ -124,53 +127,53 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Box Detail Improvements
 
-- [ ] Show animals assigned to the box
-- [ ] Show empty state when no animals are assigned
-- [ ] Open animal detail from assigned animal list
-- [ ] Add box deletion action
-- [ ] Require confirmation before deletion
-- [ ] Prevent accidental deletion of boxes containing animals
-- [ ] Refresh box overview after deletion
+- [x] Show animals assigned to the box
+- [x] Show empty state when no animals are assigned
+- [x] Open animal detail from assigned animal list
+- [x] Add box deletion action
+- [x] Require confirmation before deletion
+- [x] Prevent accidental deletion of boxes containing animals
+- [x] Refresh box overview after deletion
 
 ### Animal Lifecycle
 
-- [ ] Add animal lifecycle status
-- [ ] Add archive reasons and archive metadata
-- [ ] Add database migration for lifecycle support
-- [ ] Archive animals
-- [ ] Restore archived animals
-- [ ] Remove archived animals from active boxes
-- [ ] Add Animal History view
-- [ ] Display archive information
-- [ ] Support explicit permanent deletion of archived animals
-- [ ] Preserve feeding history while archived
+- [x] Add animal lifecycle status
+- [x] Add archive reasons and archive metadata
+- [x] Add database migration for lifecycle support
+- [x] Archive animals
+- [x] Restore archived animals
+- [x] Remove archived animals from active boxes
+- [x] Add Animal History view
+- [x] Display archive information
+- [x] Support explicit permanent deletion of archived animals
+- [x] Preserve feeding history while archived
 
 ### Animal Detail Improvements
 
-- [ ] Show latest feeding below Notes
-- [ ] Show date and time of latest feeding
-- [ ] Show suitable empty state when no feeding exists
-- [ ] Refresh latest feeding after feeding history changes
+- [x] Show latest feeding on animal detail page
+- [x] Show date and time of latest feeding
+- [x] Show suitable empty state when no feeding exists
+- [x] Refresh latest feeding after feeding history changes
 
 ### Settings
 
-- [ ] Implement appearance settings
-- [ ] System theme mode
-- [ ] Light theme mode
-- [ ] Dark theme mode
-- [ ] Selectable accent colors
-- [ ] Apply theme changes immediately
-- [ ] Persist settings
-- [ ] Validate settings on Android
-- [ ] Validate settings on Web
+- [x] Implement appearance settings
+- [x] System theme mode
+- [x] Light theme mode
+- [x] Dark theme mode
+- [x] Selectable accent colors
+- [x] Apply theme changes immediately
+- [x] Persist settings
+- [x] Validate settings on Android
+- [x] Validate settings on Web
 
 ### Release
 
-- [ ] Regression test Android
-- [ ] Regression test Web
-- [ ] Update documentation
-- [ ] Update changelog
-- [ ] Release v0.5.0
+- [x] Regression test Android
+- [x] Regression test Web
+- [x] Update documentation
+- [x] Update changelog
+- [ ] Tag and publish v0.5.0
 
 ---
 

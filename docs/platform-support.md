@@ -34,6 +34,14 @@ Validated functionality includes:
 - QR scanning
 - invalid QR handling
 - unknown QR handling
+- animal lifecycle and archiving
+- Animal History
+- restoring archived animals
+- permanent deletion of archived animals
+- latest feeding display
+- System / Light / Dark appearance selection
+- accent color selection
+- appearance-setting persistence across application restarts
 
 QR images saved on Android are stored through the platform media/gallery system so they remain accessible to the user outside the application.
 
@@ -56,6 +64,14 @@ Validated functionality includes:
 - QR scanning
 - camera permission handling
 - QR printing
+- animal lifecycle and archiving
+- Animal History
+- restoring archived animals
+- permanent deletion of archived animals
+- latest feeding display
+- System / Light / Dark appearance selection
+- accent color selection
+- appearance-setting persistence across normal browser reloads
 
 ## Web Database
 
@@ -120,6 +136,13 @@ The final download location therefore depends on browser and operating-system se
 QR printing uses browser/system printing facilities.
 
 Available printers and print options depend on the browser and operating system.
+
+### Appearance preferences
+
+Appearance settings are stored locally through `shared_preferences`.
+
+Clearing browser site data may therefore reset both the TerraManager database
+and locally stored appearance preferences.
 
 ## iOS
 

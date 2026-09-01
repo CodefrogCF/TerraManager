@@ -1,73 +1,105 @@
 # TerraManager
 
-TerraManager is a cross-platform application for managing terrarium boxes and their inhabitants.
+TerraManager is a cross-platform, local-first application for managing terrarium boxes, animals and feeding records.
 
-The application is being developed with Flutter and is intended to initially support Android and Web, with potential iOS support at a later stage.
+The application is developed with Flutter and currently supports Android and Web.
+
+iOS support is planned, but has not yet been validated because no macOS build environment or physical iOS test device is currently available.
 
 ## Project Status
 
-Current status:
-Database foundation complete
-Repository layer complete
-Initial theme complete
-Initial UI development complete
-QR-code functionality started
+Current development status: **v0.4.0 – Platform Support**
 
-The basic database structure is implemented using Drift and SQLite.
+Completed milestones:
 
-The current test suite passes successfully.
+- v0.1.0 – Foundation
+- v0.2.0 – User Interface
+- v0.3.0 – QR Code
+- v0.4.0 – Android and Web Platform Support
 
-Implemented so far:
+Android and Web have been validated successfully.
 
-- Flutter project setup
-- Git/GitHub workflow
-- Project documentation and ADRs
-- Drift/SQLite database
-- Box management data model
-- Animal data model
-- Box → Animal 1:n relationship
-- Sex enum and database converter
-- Birth date and birth date accuracy
-- Feeding event history
-- Animal repository
-- Latest feeding lookup
-- Database and repository tests
+The next milestone is:
 
-- Light and Dark application themes
-- Initial application navigation
-- Box overview
-- Box detail screen
-- Animal overview
-- Animal detail screen
-- Animal editing
+**v0.5.0 – Usability & Settings**
 
-- New Box workflow
-- New Animal workflow
+Planned improvements include:
 
-- Feeding history
-- Animal notes/picture support
+- assigned animals on the box detail screen
+- safe box deletion
+- latest feeding on the animal detail screen
+- persistent theme settings
+- selectable accent colors
 
-The UI and QR-code functionality are not fully implemented yet.
+## Implemented Features
+
+### Boxes
+
+- box overview
+- box creation
+- automatic unique QR ID generation
+- box detail screen
+- permanent QR identifiers
+- QR code display
+- QR code export as PNG
+- local QR image storage
+- QR code printing
+- QR code scanning
+- unknown and invalid QR handling
+
+### Animals
+
+- animal overview
+- animal creation
+- animal detail screen
+- animal editing
+- box assignment
+- common and Latin names
+- sex
+- birth date
+- birth date accuracy
+- preferred temperature range
+- preferred humidity range
+- optional picture
+- notes
+
+### Feeding
+
+- feeding event history
+- feeding timestamps
+- optional feeding notes
+- latest feeding lookup
+
+### Platform Support
+
+Validated:
+
+- Android
+- Web
+
+Not yet validated:
+
+- iOS
 
 ## Concept
 
 The core concept is based on physical terrarium boxes identified by permanent QR codes.
 
-Each box receives a unique QR ID.
+Each box receives a unique QR identifier when it is created.
 
-The QR code itself does not contain the animal data. It only identifies the corresponding box.
+The QR code does not contain animal or terrarium data. It contains only the permanent box identifier.
 
 Example:
 
 ```text
-Physical box
+Physical Box
     │
-    │ QR code
+    │ QR Code
     ▼
-   qrId
+TM:BOX:<UUID>
     │
     ▼
- Database
+Database
     │
     └── Box
           │
@@ -76,102 +108,51 @@ Physical box
           └── ...
 ```
 
-A user can scan the QR code attached to a box with their smartphone camera.
+The QR identifier remains stable even when animals or other application data change.
 
-The application then loads the corresponding box and its inhabitants.
+Scanning the QR code resolves the identifier through the local database and opens the corresponding box.
 
-## Planned Features
+## Local-First Architecture
 
-### Box management
+TerraManager is designed as a local-first application.
 
-- Create a new box
+Core functionality does not require an internet connection.
 
-- Generate a unique QR ID
+Application data is stored locally on the current device or browser profile.
 
-- Generate a printable QR code
+```text
+UI
+ │
+ ▼
+Repository
+ │
+ ▼
+Drift
+ │
+ ▼
+Local Database
+```
 
-- Save the QR code as an image
+There is currently no cloud synchronization.
 
-- Scan an existing QR code
-
-- Load the associated box
-
-- View and edit box-related data
-
-
-### Animal management
-
-Each animal belongs to exactly one box.
-
-Animal data currently includes:
-
-- Common name
-
-- Latin name
-
-- Sex
-
-- Birth date
-
-- Birth date accuracy
-
-- Preferred minimum temperature
-
-- Preferred maximum temperature
-
-- Preferred minimum humidity
-
-- Preferred maximum humidity
-
-- Optional picture
-
-- Notes
-
-- Creation timestamp
-
-- Modification timestamp
-
-The preferred temperature and humidity values belong to the animal, not the box.
-
-This allows multiple animals in the same box to have different preferred environmental parameters.
-
-### Feeding
-
-Feeding events are stored separately from the animal.
-
-Each feeding event contains:
-
-- Animal
-
-- Feeding timestamp
-
-- Optional notes
-
-
-This allows a complete feeding history to be retained instead of storing only the last feeding date.
-
-The latest feeding can be derived from the feeding event history.
+This means that data stored on one device is not automatically available on another device.
 
 ## Data Model
 
 The current database structure is:
 
 ```text
-Boxes
-  │
-  │ 1:n
-  ▼
-Animals
-  │
-  │ 1:n
-  ▼
-FeedingEvents
+Box
+ │
+ └──── 1:n ──── Animal
+                   │
+                   └──── 1:n ──── FeedingEvent
 ```
 
-### Boxes
+### Box
 
 ```text
-Boxes
+Box
 ├── id
 ├── qrId
 ├── createdAt
@@ -180,10 +161,16 @@ Boxes
 
 qrId is unique and permanently identifies the box.
 
-### Animals
+The QR format is:
 
 ```text
-Animals
+TM:BOX:<UUID-v4>
+```
+
+### Animal
+
+```text
+Animal
 ├── id
 ├── boxId
 ├── commonName
@@ -201,212 +188,169 @@ Animals
 └── updatedAt
 ```
 
-### FeedingEvents
+Each animal belongs to exactly one box.
+
+### FeedingEvent
 
 ```text
-FeedingEvents
+FeedingEvent
 ├── id
 ├── animalId
 ├── fedAt
 └── notes
 ```
 
+An animal can have multiple feeding events.
+
+The latest feeding is derived from the feeding history and is not stored separately.
+
+## QR Architecture
+
+QR functionality is separated into reusable components.
+
+```text
+Box.qrId
+    │
+    ├── BoxQrCode
+    │
+    ├── QrExporter
+    │       │
+    │       ▼
+    │    PNG bytes
+    │       │
+    │       ├── QrStorage
+    │       └── QrPrinter
+    │
+    └── QR Scanner
+            │
+            ▼
+       QR validation
+            │
+            ▼
+       BoxRepository
+```
+
+The QR image itself is not stored in the database.
+
+It is generated from the permanent qrId when needed.
+
 ## Technology Stack
 
 ### Application
 
 - Flutter
-
 - Dart
-
+- Material 3
 
 ### Database
 
 - Drift
-
 - SQLite
+- SQLite WASM on Web
 
+### QR and Media
+
+- qr_flutter
+- mobile_scanner
+- uuid
+- image_picker
+- file_saver
+- saver_gallery
+- printing
+- pdf
 
 ### Development
 
+- Windows 11
 - Visual Studio Code
-
 - Android Studio
-
 - Git
-
 - GitHub
-
-
-The project is currently developed on Windows 11.
 
 ## Architecture
 
-The project aims to keep the application layers separated.
-
-The intended basic structure is:
+The project separates presentation, application-facing repositories and persistence.
 
 ```text
-App
-│
-▼
-AppShell
-│
-├── Boxes
-├── Animals
-├── Settings
-└── ...
-     │
-     ▼
-  Repository
-     │
-     ▼
-   Drift
-     │
-     ▼
-   SQLite
+TerraManagerApp
+      │
+      ▼
+   AppShell
+      │
+      ├── Boxes
+      ├── Animals
+      └── Settings
+             │
+             ▼
+        Repositories
+             │
+             ▼
+           Drift
+             │
+             ▼
+      Local Persistence
 ```
 
-The UI should not directly depend on database implementation details.
+The UI should not contain direct database implementation logic.
 
-Repositories provide the application-facing API for accessing and modifying data.
+Repositories provide the application-facing API for data access and modification.
+
+Platform-specific functionality is isolated behind services where practical.
 
 ## Project Structure
 
-The current project structure is based around the following organization:
+The project is organized approximately as follows:
 
 ```text
 lib/
 ├── main.dart
-└── core/
-    ├── theme/
-    │   └── app_theme.dart
-    └── database/
-        ├── app_database.dart
-        ├── app_database.g.dart
-        ├── converters/
-        │   ├── birth_date_accuracy_converter.dart
-        │   └── sex_converter.dart
-        ├── enums/
-        │   ├── birth_date_accuracy.dart
-        │   └── sex.dart
-        ├── tables/
-        │   ├── boxes.dart
-        │   ├── animals.dart
-        │   └── feeding_events.dart
-        └── repositories/
-            ├── animal_repository.dart
-            ├── box_repository.dart
-            └── feeding_repository.dart
-
-test/
-└── database/
-    ├── app_database_test.dart
-    ├── animal_repository_test.dart
-    ├── box_repository_test.dart
-    └── feeding_repository_test.dart
+├── app.dart
+│
+├── core/
+│   ├── theme/
+│   │   └── app_theme.dart
+│   │
+│   ├── database/
+│   │   ├── app_database.dart
+│   │   ├── app_database.g.dart
+│   │   ├── converters/
+│   │   ├── enums/
+│   │   ├── tables/
+│   │   └── repositories/
+│   │
+│   └── qr/
+│       ├── qr_export_service.dart
+│       ├── qr_file_name.dart
+│       ├── qr_id_generator.dart
+│       ├── qr_print_service.dart
+│       ├── qr_storage_service.dart
+│       └── qr_validator.dart
+│
+└── features/
+    ├── navigation/
+    ├── boxes/
+    ├── animals/
+    ├── feedings/
+    └── settings/
 ```
 
-Generated Drift files such as app_database.g.dart must not be edited manually.
-
-## Enums and Type Converters
-
-Some Dart types are represented as strings in SQLite.
-
-For example:
+Generated Drift files such as:
 
 ```text
-Sex
- │
- ▼
-SexConverter
- │
- ▼
-TEXT
+lib/core/database/app_database.g.dart
 ```
 
-The same approach is used for:
-
-```text
-BirthDateAccuracy
-```
-
-This keeps the Dart application type-safe while using simple SQLite-compatible values.
-
-## Birth Date Accuracy
-
-The exact birth date of an acquired animal is often unknown.
-
-Therefore, the application stores both:
-
-```text
-birthDate
-birthDateAccuracy
-```
-
-This allows the application to distinguish between an exact and an approximate/uncertain birth date.
-
-## QR Code Concept
-
-QR codes are permanently associated with boxes.
-
-The intended workflow is:
-
-```text
-Create Box
-    │
-    ▼
-Generate unique qrId
-    │
-    ▼
-Generate QR code
-    │
-    ▼
-Save as PNG/JPG
-    │
-    ▼
-Print
-    │
-    ▼
-Attach to physical box
-```
-
-Scanning:
-
-```text
-Camera
-   │
-   ▼
-QR code
-   │
-   ▼
-qrId
-   │
-   ▼
-Box
-   │
-   ▼
-Animals
-```
-
-The QR code is therefore an identifier, not a storage medium for the actual application data.
+must not be edited manually.
 
 ## Development Workflow
 
-Development is tracked using Git and GitHub.
+Development is tracked with:
 
-The project uses:
-
-- Git commits
-
+- Git
 - GitHub Issues
-
-- Architecture Decision Records (ADRs)
-
-- Automated tests
-
-
-Changes should preferably be implemented in small, logically separated steps.
+- GitHub Milestones
+- Architecture Decision Records
+- automated tests
 
 Typical workflow:
 
@@ -415,9 +359,13 @@ Issue
   ↓
 Implementation
   ↓
-Test
+Tests
+  ↓
+flutter analyze
   ↓
 flutter test
+  ↓
+Manual validation where required
   ↓
 Commit
   ↓
@@ -428,84 +376,55 @@ Close Issue
 
 ## Testing
 
-Run all tests with:
+Run static analysis:
+
+```text
+flutter analyze
+```
+
+Run the complete automated test suite:
 
 ```text
 flutter test
 ```
 
-The current database and repository test suite passes successfully.
+Platform-specific functionality such as camera access, gallery storage and printing must additionally be validated on the target platform.
 
 ## Code Generation
 
-Drift generates database-related code.
-
-After changing a table, converter, or other Drift-related definition, regenerate the code.
-
-The generated file is:
+After changing Drift tables, converters or related database definitions:
 
 ```text
-lib/core/database/app_database.g.dart
+dart run build_runner build --delete-conflicting-outputs
 ```
 
-Do not edit this file manually.
+Do not manually edit generated Drift files.
 
-## Current Roadmap
+## Documentation
 
-The Roadmap is documented separately as Roadmap.
+Additional documentation:
 
-See:
-
-```text
 docs/roadmap.md
-```
+docs/development.md
+docs/platform-support.md
+docs/database/data-model.md
+docs/architecture-decisions.md
+docs/functional-requirements-MVP.md
+docs/functional-requirements-non-MVP.md
+CHANGELOG.md
 
-Roadmap should be updated whenever a step in the development process is completed.
+## Known Limitations
 
-## Architecture Decisions
+TerraManager currently follows a local-first architecture.
 
-Important architectural decisions are documented separately as Architecture Decision Records.
+There is no cloud synchronization or multi-device synchronization.
 
-See:
+Data is therefore tied to the local device or browser profile unless manually transferred or backed up.
+
+iOS has not yet been validated.
+
+Detailed platform-specific limitations are documented in:
 
 ```text
-docs/architecture/
+docs/platform-support.md
 ```
-
-ADRs should be added whenever a significant architectural decision is made.
-
-## Development Environment
-
-Current development environment:
-
-- Windows 11
-
-- Flutter stable
-
-- Dart
-
-- Android Studio
-
-- Visual Studio Code
-
-- Android Emulator
-
-- Git
-
-- GitHub
-
-## Known Web Limitations
-
-- Camera access for QR scanning requires browser permission and a secure context
-  (`https://` or `localhost`).
-- QR scanning depends on browser camera support and may behave differently
-  between browsers and devices.
-- Local application data is stored in browser-managed storage. Clearing site
-  data, browser storage, or using private/incognito mode may remove or prevent
-  persistent TerraManager data.
-- Downloaded QR code files are handled by the browser. The exact save location
-  and download behavior therefore depend on the user's browser settings.
-- QR printing uses the browser/system print dialog. Available printers and
-  print options depend on the browser and operating system.
-- Browser permissions for camera and file-related functionality are controlled
-  by the browser and may need to be granted again after being revoked.

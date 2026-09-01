@@ -132,6 +132,19 @@ iOS validation is currently deferred because no macOS development environment or
 - [ ] Prevent accidental deletion of boxes containing animals
 - [ ] Refresh box overview after deletion
 
+### Animal Lifecycle
+
+- [ ] Add animal lifecycle status
+- [ ] Add archive reasons and archive metadata
+- [ ] Add database migration for lifecycle support
+- [ ] Archive animals
+- [ ] Restore archived animals
+- [ ] Remove archived animals from active boxes
+- [ ] Add Animal History view
+- [ ] Display archive information
+- [ ] Support explicit permanent deletion of archived animals
+- [ ] Preserve feeding history while archived
+
 ### Animal Detail Improvements
 
 - [ ] Show latest feeding below Notes

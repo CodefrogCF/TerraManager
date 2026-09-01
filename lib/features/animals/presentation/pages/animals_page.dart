@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import 'animal_detail_page.dart';
+import 'animal_history_page.dart';
 import 'new_animal_page.dart';
 
 class AnimalsPage extends StatefulWidget {
@@ -72,11 +73,39 @@ class _AnimalsPageState extends State<AnimalsPage> {
     });
   }
 
+  Future<void> _openAnimalHistory() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AnimalHistoryPage(
+          database: widget.database,
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _loadAnimals();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Animals'),
+        actions: [
+          IconButton(
+            key: const Key('animal-history-button'),
+            onPressed: _openAnimalHistory,
+            icon: const Icon(
+              Icons.history,
+            ),
+            tooltip: 'Animal History',
+          ),
+        ],
       ),
       body: FutureBuilder<List<Animal>>(
         future: _animalsFuture,
@@ -107,12 +136,18 @@ class _AnimalsPageState extends State<AnimalsPage> {
               final animal = animals[index];
 
               return ListTile(
-                key: Key('animal-list-item-${animal.id}'),
+                key: Key(
+                  'animal-list-item-${animal.id}',
+                ),
                 leading: const Icon(
                   Icons.emoji_nature_outlined,
                 ),
-                title: Text(animal.commonName),
-                subtitle: Text(animal.latinName),
+                title: Text(
+                  animal.commonName,
+                ),
+                subtitle: Text(
+                  animal.latinName,
+                ),
                 onTap: () {
                   _openAnimalDetail(animal);
                 },

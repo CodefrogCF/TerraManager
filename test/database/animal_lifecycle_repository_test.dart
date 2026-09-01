@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -556,6 +557,156 @@ void main() {
       expect(
         animal.boxId,
         firstBoxId,
+      );
+    },
+  );
+
+  test(
+    'permanent deletion removes archived animal and feeding history',
+    () async {
+      final boxId = await createBox(
+        'TM:BOX:eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+      );
+
+      final animalId = await createAnimal(
+        boxId,
+        commonName: 'Archived Animal',
+      );
+
+      await database
+          .into(database.feedingEvents)
+          .insert(
+            FeedingEventsCompanion.insert(
+              animalId: animalId,
+              fedAt: DateTime(
+                2026,
+                9,
+                1,
+                18,
+                0,
+              ),
+              notes: const drift.Value(
+                'Existing feeding',
+              ),
+            ),
+          );
+
+      await animalRepository.archiveAnimal(
+        animalId: animalId,
+        reason: AnimalArchiveReason.sold,
+        archivedAt: DateTime(
+          2026,
+          9,
+          2,
+        ),
+      );
+
+      final deleted =
+          await animalRepository
+              .permanentlyDeleteArchivedAnimal(
+        animalId,
+      );
+
+      expect(
+        deleted,
+        isTrue,
+      );
+
+      expect(
+        await animalRepository.getAnimalById(
+          animalId,
+        ),
+        isNull,
+      );
+
+      final feedings =
+          await (database.select(
+        database.feedingEvents,
+      )..where(
+                  (event) =>
+                      event.animalId.equals(
+                        animalId,
+                      ),
+                ))
+              .get();
+
+      expect(
+        feedings,
+        isEmpty,
+      );
+    },
+  );
+
+  test(
+    'permanent deletion rejects active animal and preserves feeding history',
+    () async {
+      final boxId = await createBox(
+        'TM:BOX:ffffffff-ffff-4fff-8fff-ffffffffffff',
+      );
+
+      final animalId = await createAnimal(
+        boxId,
+        commonName: 'Active Animal',
+      );
+
+      await database
+          .into(database.feedingEvents)
+          .insert(
+            FeedingEventsCompanion.insert(
+              animalId: animalId,
+              fedAt: DateTime(
+                2026,
+                9,
+                1,
+                18,
+                0,
+              ),
+              notes: const drift.Value(
+                'Must survive',
+              ),
+            ),
+          );
+
+      final deleted =
+          await animalRepository
+              .permanentlyDeleteArchivedAnimal(
+        animalId,
+      );
+
+      expect(
+        deleted,
+        isFalse,
+      );
+
+      final animal =
+          await animalRepository.getAnimalById(
+        animalId,
+      );
+
+      expect(
+        animal,
+        isNotNull,
+      );
+
+      expect(
+        animal!.status,
+        AnimalStatus.active,
+      );
+
+      final feedings =
+          await (database.select(
+        database.feedingEvents,
+      )..where(
+                  (event) =>
+                      event.animalId.equals(
+                        animalId,
+                      ),
+                ))
+              .get();
+
+      expect(
+        feedings,
+        hasLength(1),
       );
     },
   );

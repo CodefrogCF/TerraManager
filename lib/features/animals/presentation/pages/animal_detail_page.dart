@@ -72,7 +72,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     );
   }
 
-  Future<void> _archiveAnimal(Animal animal) async {
+  Future<void> _archiveAnimal(
+    Animal animal,
+  ) async {
     if (_lifecycleActionInProgress ||
         animal.status != AnimalStatus.active) {
       return;
@@ -110,6 +112,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           _lifecycleActionInProgress = false;
           _lifecycleError = 'Failed to archive animal';
         });
+
         return;
       }
 
@@ -135,7 +138,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     }
   }
 
-  Future<void> _restoreAnimal(Animal animal) async {
+  Future<void> _restoreAnimal(
+    Animal animal,
+  ) async {
     if (_lifecycleActionInProgress ||
         animal.status != AnimalStatus.archived) {
       return;
@@ -157,6 +162,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       setState(() {
         _lifecycleError = 'Failed to load boxes';
       });
+
       return;
     }
 
@@ -175,7 +181,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             ),
             actions: [
               TextButton(
-                key: const Key('close-no-boxes-dialog-button'),
+                key: const Key(
+                  'close-no-boxes-dialog-button',
+                ),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -221,6 +229,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           _lifecycleActionInProgress = false;
           _lifecycleError = 'Failed to restore animal';
         });
+
         return;
       }
 
@@ -246,6 +255,98 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     }
   }
 
+  Future<void> _permanentlyDeleteAnimal(
+    Animal animal,
+  ) async {
+    if (_lifecycleActionInProgress ||
+        animal.status != AnimalStatus.archived) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          key: const Key(
+            'permanent-delete-animal-dialog',
+          ),
+          title: const Text(
+            'Permanently Delete Animal?',
+          ),
+          content: const Text(
+            'The animal and all associated feeding history '
+            'will be permanently removed. This cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              key: const Key(
+                'cancel-permanent-delete-animal-button',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              key: const Key(
+                'confirm-permanent-delete-animal-button',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text(
+                'Delete Permanently',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _lifecycleActionInProgress = true;
+      _lifecycleError = null;
+    });
+
+    try {
+      final success =
+          await AnimalRepository(widget.database)
+              .permanentlyDeleteArchivedAnimal(
+        animal.id,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      if (!success) {
+        setState(() {
+          _lifecycleActionInProgress = false;
+          _lifecycleError =
+              'Failed to permanently delete animal';
+        });
+
+        return;
+      }
+
+      Navigator.of(context).pop(true);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _lifecycleActionInProgress = false;
+        _lifecycleError =
+            'Failed to permanently delete animal';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Animal?>(
@@ -259,18 +360,27 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             actions: [
               if (animal != null)
                 IconButton(
-                  key: const Key('feeding-history-button'),
+                  key: const Key(
+                    'feeding-history-button',
+                  ),
                   onPressed: _openFeedingHistory,
-                  icon: const Icon(Icons.restaurant),
+                  icon: const Icon(
+                    Icons.restaurant,
+                  ),
                   tooltip: 'Feeding History',
                 ),
               if (animal != null &&
                   animal.status == AnimalStatus.active)
                 IconButton(
-                  key: const Key('edit-animal-button'),
-                  onPressed:
-                      _lifecycleActionInProgress ? null : _openEditPage,
-                  icon: const Icon(Icons.edit),
+                  key: const Key(
+                    'edit-animal-button',
+                  ),
+                  onPressed: _lifecycleActionInProgress
+                      ? null
+                      : _openEditPage,
+                  icon: const Icon(
+                    Icons.edit,
+                  ),
                   tooltip: 'Edit Animal',
                 ),
             ],
@@ -308,7 +418,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       );
     }
 
-    final isArchived = animal.status == AnimalStatus.archived;
+    final isArchived =
+        animal.status == AnimalStatus.archived;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -316,7 +427,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         if (_lifecycleError != null) ...[
           Text(
             _lifecycleError!,
-            key: const Key('animal-lifecycle-error'),
+            key: const Key(
+              'animal-lifecycle-error',
+            ),
             style: TextStyle(
               color: Theme.of(context).colorScheme.error,
             ),
@@ -344,7 +457,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
         _DetailRow(
           label: 'Status',
-          value: isArchived ? 'Archived' : 'Active',
+          value: isArchived
+              ? 'Archived'
+              : 'Active',
         ),
 
         if (!isArchived && animal.boxId != null)
@@ -362,7 +477,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         if (animal.birthDate != null)
           _DetailRow(
             label: 'Birth date',
-            value: _formatDate(animal.birthDate!),
+            value: _formatDate(
+              animal.birthDate!,
+            ),
           ),
 
         if (animal.birthDateAccuracy != null)
@@ -373,22 +490,29 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
         _DetailRow(
           label: 'Temperature',
-          value: '${animal.tempMin} °C – ${animal.tempMax} °C',
+          value:
+              '${animal.tempMin} °C – ${animal.tempMax} °C',
         ),
 
         _DetailRow(
           label: 'Humidity',
-          value: '${animal.humidityMin}% – ${animal.humidityMax}%',
+          value:
+              '${animal.humidityMin}% – ${animal.humidityMax}%',
         ),
 
-        if (animal.notes != null && animal.notes!.isNotEmpty) ...[
+        if (animal.notes != null &&
+            animal.notes!.isNotEmpty) ...[
           const SizedBox(height: 16),
+
           Text(
             'Notes',
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          Text(animal.notes!),
+
+          Text(
+            animal.notes!,
+          ),
         ],
 
         if (isArchived) ...[
@@ -398,7 +522,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
           Text(
             'Archive Information',
-            key: const Key('archive-information-heading'),
+            key: const Key(
+              'archive-information-heading',
+            ),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
@@ -422,24 +548,32 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           if (animal.archiveNotes != null &&
               animal.archiveNotes!.isNotEmpty) ...[
             const SizedBox(height: 8),
+
             Text(
               'Archive note',
               style: Theme.of(context).textTheme.titleSmall,
             ),
             const SizedBox(height: 8),
+
             Text(
               animal.archiveNotes!,
-              key: const Key('archive-notes'),
+              key: const Key(
+                'archive-notes',
+              ),
             ),
           ],
 
           const SizedBox(height: 24),
 
           FilledButton.icon(
-            key: const Key('restore-animal-button'),
+            key: const Key(
+              'restore-animal-button',
+            ),
             onPressed: _lifecycleActionInProgress
                 ? null
-                : () => _restoreAnimal(animal),
+                : () => _restoreAnimal(
+                      animal,
+                    ),
             icon: _lifecycleActionInProgress
                 ? const SizedBox(
                     width: 18,
@@ -448,8 +582,35 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Icon(Icons.restore),
-            label: const Text('Restore Animal'),
+                : const Icon(
+                    Icons.restore,
+                  ),
+            label: const Text(
+              'Restore Animal',
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          OutlinedButton.icon(
+            key: const Key(
+              'permanent-delete-animal-button',
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor:
+                  Theme.of(context).colorScheme.error,
+            ),
+            onPressed: _lifecycleActionInProgress
+                ? null
+                : () => _permanentlyDeleteAnimal(
+                      animal,
+                    ),
+            icon: const Icon(
+              Icons.delete_forever_outlined,
+            ),
+            label: const Text(
+              'Delete Permanently',
+            ),
           ),
         ] else ...[
           const SizedBox(height: 32),
@@ -457,10 +618,14 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           const SizedBox(height: 16),
 
           OutlinedButton.icon(
-            key: const Key('archive-animal-button'),
+            key: const Key(
+              'archive-animal-button',
+            ),
             onPressed: _lifecycleActionInProgress
                 ? null
-                : () => _archiveAnimal(animal),
+                : () => _archiveAnimal(
+                      animal,
+                    ),
             icon: _lifecycleActionInProgress
                 ? const SizedBox(
                     width: 18,
@@ -469,8 +634,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Icon(Icons.archive_outlined),
-            label: const Text('Archive Animal'),
+                : const Icon(
+                    Icons.archive_outlined,
+                  ),
+            label: const Text(
+              'Archive Animal',
+            ),
           ),
         ],
 
@@ -488,8 +657,10 @@ class _ArchiveAnimalDialog extends StatefulWidget {
       _ArchiveAnimalDialogState();
 }
 
-class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
-  final TextEditingController _notesController = TextEditingController();
+class _ArchiveAnimalDialogState
+    extends State<_ArchiveAnimalDialog> {
+  final TextEditingController _notesController =
+      TextEditingController();
 
   AnimalArchiveReason? _reason;
   late DateTime _archiveDate;
@@ -537,13 +708,16 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
       return;
     }
 
-    final notes = _notesController.text.trim();
+    final notes =
+        _notesController.text.trim();
 
     Navigator.of(context).pop(
       _ArchiveAnimalResult(
         reason: reason,
         archivedAt: _archiveDate,
-        notes: notes.isEmpty ? null : notes,
+        notes: notes.isEmpty
+            ? null
+            : notes,
       ),
     );
   }
@@ -551,9 +725,13 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      key: const Key('archive-animal-dialog'),
+      key: const Key(
+        'archive-animal-dialog',
+      ),
       scrollable: true,
-      title: const Text('Archive Animal'),
+      title: const Text(
+        'Archive Animal',
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -563,17 +741,22 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
           const SizedBox(height: 20),
 
           DropdownButtonFormField<AnimalArchiveReason>(
-            key: const Key('archive-reason-field'),
+            key: const Key(
+              'archive-reason-field',
+            ),
             initialValue: _reason,
             decoration: const InputDecoration(
               labelText: 'Reason',
             ),
             items: AnimalArchiveReason.values
                 .map(
-                  (reason) => DropdownMenuItem(
+                  (reason) => DropdownMenuItem<
+                      AnimalArchiveReason>(
                     value: reason,
                     child: Text(
-                      _archiveReasonLabel(reason),
+                      _archiveReasonLabel(
+                        reason,
+                      ),
                     ),
                   ),
                 )
@@ -587,11 +770,17 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
           const SizedBox(height: 16),
 
           ListTile(
-            key: const Key('archive-date-field'),
+            key: const Key(
+              'archive-date-field',
+            ),
             contentPadding: EdgeInsets.zero,
-            title: const Text('Archive Date'),
+            title: const Text(
+              'Archive Date',
+            ),
             subtitle: Text(
-              _formatDate(_archiveDate),
+              _formatDate(
+                _archiveDate,
+              ),
             ),
             trailing: const Icon(
               Icons.calendar_today,
@@ -601,7 +790,9 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
           const SizedBox(height: 16),
 
           TextField(
-            key: const Key('archive-notes-field'),
+            key: const Key(
+              'archive-notes-field',
+            ),
             controller: _notesController,
             maxLines: 3,
             decoration: const InputDecoration(
@@ -614,16 +805,26 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
       ),
       actions: [
         TextButton(
-          key: const Key('cancel-archive-animal-button'),
+          key: const Key(
+            'cancel-archive-animal-button',
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: const Text(
+            'Cancel',
+          ),
         ),
         FilledButton(
-          key: const Key('confirm-archive-animal-button'),
-          onPressed: _reason == null ? null : _confirm,
-          child: const Text('Archive'),
+          key: const Key(
+            'confirm-archive-animal-button',
+          ),
+          onPressed: _reason == null
+              ? null
+              : _confirm,
+          child: const Text(
+            'Archive',
+          ),
         ),
       ],
     );
@@ -642,16 +843,23 @@ class _RestoreAnimalDialog extends StatefulWidget {
       _RestoreAnimalDialogState();
 }
 
-class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
+class _RestoreAnimalDialogState
+    extends State<_RestoreAnimalDialog> {
   int? _boxId;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      key: const Key('restore-animal-dialog'),
-      title: const Text('Restore Animal'),
+      key: const Key(
+        'restore-animal-dialog',
+      ),
+      title: const Text(
+        'Restore Animal',
+      ),
       content: DropdownButtonFormField<int>(
-        key: const Key('restore-box-field'),
+        key: const Key(
+          'restore-box-field',
+        ),
         initialValue: _boxId,
         isExpanded: true,
         decoration: const InputDecoration(
@@ -677,20 +885,30 @@ class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
       ),
       actions: [
         TextButton(
-          key: const Key('cancel-restore-animal-button'),
+          key: const Key(
+            'cancel-restore-animal-button',
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: const Text(
+            'Cancel',
+          ),
         ),
         FilledButton(
-          key: const Key('confirm-restore-animal-button'),
+          key: const Key(
+            'confirm-restore-animal-button',
+          ),
           onPressed: _boxId == null
               ? null
               : () {
-                  Navigator.of(context).pop(_boxId);
+                  Navigator.of(context).pop(
+                    _boxId,
+                  );
                 },
-          child: const Text('Restore'),
+          child: const Text(
+            'Restore',
+          ),
         ),
       ],
     );
@@ -721,7 +939,9 @@ class _DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(
+        bottom: 12,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -735,7 +955,9 @@ class _DetailRow extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(value),
+            child: Text(
+              value,
+            ),
           ),
         ],
       ),
@@ -749,18 +971,24 @@ String _archiveReasonLabel(
   switch (reason) {
     case AnimalArchiveReason.sold:
       return 'Sold';
+
     case AnimalArchiveReason.traded:
       return 'Traded';
+
     case AnimalArchiveReason.deceased:
       return 'Deceased';
+
     case AnimalArchiveReason.rehomed:
       return 'Rehomed';
+
     case AnimalArchiveReason.other:
       return 'Other';
   }
 }
 
-String _formatDate(DateTime date) {
+String _formatDate(
+  DateTime date,
+) {
   return '${date.day.toString().padLeft(2, '0')}.'
       '${date.month.toString().padLeft(2, '0')}.'
       '${date.year}';

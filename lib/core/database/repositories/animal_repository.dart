@@ -38,7 +38,12 @@ class AnimalRepository {
                 animal.status.equalsValue(
               AnimalStatus.archived,
             ),
-          );
+          )
+          ..orderBy([
+            (animal) => OrderingTerm.desc(
+                  animal.archivedAt,
+                ),
+          ]);
 
     return query.get();
   }
@@ -274,6 +279,43 @@ class AnimalRepository {
     );
 
     return updatedRows > 0;
+  }
+
+  Future<bool> permanentlyDeleteArchivedAnimal(
+    int animalId,
+  ) {
+    return database.transaction(() async {
+      final animal = await getAnimalById(
+        animalId,
+      );
+
+      if (animal == null ||
+          animal.status != AnimalStatus.archived) {
+        return false;
+      }
+
+      await (database.delete(
+        database.feedingEvents,
+      )..where(
+          (event) =>
+              event.animalId.equals(animalId),
+        ))
+          .go();
+
+      final deletedRows =
+          await (database.delete(
+        database.animals,
+      )..where(
+              (animal) =>
+                  animal.id.equals(animalId) &
+                  animal.status.equalsValue(
+                    AnimalStatus.archived,
+                  ),
+            ))
+              .go();
+
+      return deletedRows == 1;
+    });
   }
 
   Future<bool> deleteAnimal(

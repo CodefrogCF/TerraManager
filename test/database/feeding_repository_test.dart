@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,7 +30,7 @@ void main() {
 
     final animalId = await database.into(database.animals).insert(
           AnimalsCompanion.insert(
-            boxId: boxId,
+            boxId: drift.Value(boxId),
             commonName: 'Kornnatter',
             latinName: 'Pantherophis guttatus',
             tempMin: 24.0,
@@ -65,7 +66,7 @@ void main() {
 
     final animalId = await database.into(database.animals).insert(
           AnimalsCompanion.insert(
-            boxId: boxId,
+            boxId: drift.Value(boxId),
             commonName: 'Kornnatter',
             latinName: 'Pantherophis guttatus',
             tempMin: 24,
@@ -105,7 +106,7 @@ void main() {
 
     final animalId = await database.into(database.animals).insert(
           AnimalsCompanion.insert(
-            boxId: boxId,
+            boxId: drift.Value(boxId),
             commonName: 'Kornnatter',
             latinName: 'Pantherophis guttatus',
             tempMin: 24,
@@ -147,7 +148,7 @@ void main() {
 
     final animalId = await database.into(database.animals).insert(
           AnimalsCompanion.insert(
-            boxId: boxId,
+            boxId: drift.Value(boxId),
             commonName: 'Kornnatter',
             latinName: 'Pantherophis guttatus',
             tempMin: 24,
@@ -176,7 +177,7 @@ void main() {
 
     final animalId = await database.into(database.animals).insert(
           AnimalsCompanion.insert(
-            boxId: boxId,
+            boxId: drift.Value(boxId),
             commonName: 'Kornnatter',
             latinName: 'Pantherophis guttatus',
             tempMin: 24,

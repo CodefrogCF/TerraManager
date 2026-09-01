@@ -1,0 +1,4 @@
+enum AnimalStatus {
+  active,
+  archived,
+}

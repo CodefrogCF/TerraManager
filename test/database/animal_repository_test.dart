@@ -32,7 +32,7 @@ void main() {
 
     final animalId = await database.into(database.animals).insert(
           AnimalsCompanion.insert(
-            boxId: boxId,
+            boxId: drift.Value(boxId),
             commonName: 'Kornnatter',
             latinName: 'Pantherophis guttatus',
             sex: const drift.Value(Sex.male),
@@ -88,7 +88,7 @@ void main() {
 
     await database.into(database.animals).insert(
       AnimalsCompanion.insert(
-        boxId: box1Id,
+        boxId: drift.Value(box1Id),
         commonName: 'Tier 1',
         latinName: 'Animal one',
         tempMin: 20,
@@ -100,7 +100,7 @@ void main() {
 
     await database.into(database.animals).insert(
       AnimalsCompanion.insert(
-        boxId: box2Id,
+        boxId: drift.Value(box2Id),
         commonName: 'Tier 2',
         latinName: 'Animal two',
         tempMin: 21,

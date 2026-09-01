@@ -320,13 +320,23 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
   late final GeneratedColumn<int> boxId = GeneratedColumn<int>(
     'box_id',
     aliasedName,
-    false,
+    true,
     type: DriftSqlType.int,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'REFERENCES boxes (id)',
     ),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<AnimalStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('active'),
+      ).withConverter<AnimalStatus>($AnimalsTable.$converterstatus);
   static const VerificationMeta _commonNameMeta = const VerificationMeta(
     'commonName',
   );
@@ -445,6 +455,37 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<AnimalArchiveReason?, String>
+  archiveReason = GeneratedColumn<String>(
+    'archive_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<AnimalArchiveReason?>($AnimalsTable.$converterarchiveReasonn);
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta(
+    'archivedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _archiveNotesMeta = const VerificationMeta(
+    'archiveNotes',
+  );
+  @override
+  late final GeneratedColumn<String> archiveNotes = GeneratedColumn<String>(
+    'archive_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -473,6 +514,7 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
   List<GeneratedColumn> get $columns => [
     id,
     boxId,
+    status,
     commonName,
     latinName,
     sex,
@@ -484,6 +526,9 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     humidityMax,
     picturePath,
     notes,
+    archiveReason,
+    archivedAt,
+    archiveNotes,
     createdAt,
     updatedAt,
   ];
@@ -507,8 +552,6 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         _boxIdMeta,
         boxId.isAcceptableOrUnknown(data['box_id']!, _boxIdMeta),
       );
-    } else if (isInserting) {
-      context.missing(_boxIdMeta);
     }
     if (data.containsKey('common_name')) {
       context.handle(
@@ -585,6 +628,21 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+        _archivedAtMeta,
+        archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    }
+    if (data.containsKey('archive_notes')) {
+      context.handle(
+        _archiveNotesMeta,
+        archiveNotes.isAcceptableOrUnknown(
+          data['archive_notes']!,
+          _archiveNotesMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -613,7 +671,13 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
       boxId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}box_id'],
-      )!,
+      ),
+      status: $AnimalsTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
       commonName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}common_name'],
@@ -662,6 +726,20 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      archiveReason: $AnimalsTable.$converterarchiveReasonn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}archive_reason'],
+        ),
+      ),
+      archivedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}archived_at'],
+      ),
+      archiveNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}archive_notes'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -678,6 +756,8 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     return $AnimalsTable(attachedDatabase, alias);
   }
 
+  static TypeConverter<AnimalStatus, String> $converterstatus =
+      const AnimalStatusConverter();
   static TypeConverter<Sex, String> $convertersex = const SexConverter();
   static TypeConverter<Sex?, String?> $convertersexn =
       NullAwareTypeConverter.wrap($convertersex);
@@ -687,11 +767,16 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
   $converterbirthDateAccuracyn = NullAwareTypeConverter.wrap(
     $converterbirthDateAccuracy,
   );
+  static TypeConverter<AnimalArchiveReason, String> $converterarchiveReason =
+      const AnimalArchiveReasonConverter();
+  static TypeConverter<AnimalArchiveReason?, String?> $converterarchiveReasonn =
+      NullAwareTypeConverter.wrap($converterarchiveReason);
 }
 
 class Animal extends DataClass implements Insertable<Animal> {
   final int id;
-  final int boxId;
+  final int? boxId;
+  final AnimalStatus status;
   final String commonName;
   final String latinName;
   final Sex? sex;
@@ -703,11 +788,15 @@ class Animal extends DataClass implements Insertable<Animal> {
   final double humidityMax;
   final String? picturePath;
   final String? notes;
+  final AnimalArchiveReason? archiveReason;
+  final DateTime? archivedAt;
+  final String? archiveNotes;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Animal({
     required this.id,
-    required this.boxId,
+    this.boxId,
+    required this.status,
     required this.commonName,
     required this.latinName,
     this.sex,
@@ -719,6 +808,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     required this.humidityMax,
     this.picturePath,
     this.notes,
+    this.archiveReason,
+    this.archivedAt,
+    this.archiveNotes,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -726,7 +818,14 @@ class Animal extends DataClass implements Insertable<Animal> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['box_id'] = Variable<int>(boxId);
+    if (!nullToAbsent || boxId != null) {
+      map['box_id'] = Variable<int>(boxId);
+    }
+    {
+      map['status'] = Variable<String>(
+        $AnimalsTable.$converterstatus.toSql(status),
+      );
+    }
     map['common_name'] = Variable<String>(commonName);
     map['latin_name'] = Variable<String>(latinName);
     if (!nullToAbsent || sex != null) {
@@ -750,6 +849,17 @@ class Animal extends DataClass implements Insertable<Animal> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || archiveReason != null) {
+      map['archive_reason'] = Variable<String>(
+        $AnimalsTable.$converterarchiveReasonn.toSql(archiveReason),
+      );
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    if (!nullToAbsent || archiveNotes != null) {
+      map['archive_notes'] = Variable<String>(archiveNotes);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -758,7 +868,10 @@ class Animal extends DataClass implements Insertable<Animal> {
   AnimalsCompanion toCompanion(bool nullToAbsent) {
     return AnimalsCompanion(
       id: Value(id),
-      boxId: Value(boxId),
+      boxId: boxId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxId),
+      status: Value(status),
       commonName: Value(commonName),
       latinName: Value(latinName),
       sex: sex == null && nullToAbsent ? const Value.absent() : Value(sex),
@@ -778,6 +891,15 @@ class Animal extends DataClass implements Insertable<Animal> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      archiveReason: archiveReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archiveReason),
+      archivedAt: archivedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedAt),
+      archiveNotes: archiveNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archiveNotes),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -790,7 +912,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Animal(
       id: serializer.fromJson<int>(json['id']),
-      boxId: serializer.fromJson<int>(json['boxId']),
+      boxId: serializer.fromJson<int?>(json['boxId']),
+      status: serializer.fromJson<AnimalStatus>(json['status']),
       commonName: serializer.fromJson<String>(json['commonName']),
       latinName: serializer.fromJson<String>(json['latinName']),
       sex: serializer.fromJson<Sex?>(json['sex']),
@@ -804,6 +927,11 @@ class Animal extends DataClass implements Insertable<Animal> {
       humidityMax: serializer.fromJson<double>(json['humidityMax']),
       picturePath: serializer.fromJson<String?>(json['picturePath']),
       notes: serializer.fromJson<String?>(json['notes']),
+      archiveReason: serializer.fromJson<AnimalArchiveReason?>(
+        json['archiveReason'],
+      ),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+      archiveNotes: serializer.fromJson<String?>(json['archiveNotes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -813,7 +941,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'boxId': serializer.toJson<int>(boxId),
+      'boxId': serializer.toJson<int?>(boxId),
+      'status': serializer.toJson<AnimalStatus>(status),
       'commonName': serializer.toJson<String>(commonName),
       'latinName': serializer.toJson<String>(latinName),
       'sex': serializer.toJson<Sex?>(sex),
@@ -827,6 +956,9 @@ class Animal extends DataClass implements Insertable<Animal> {
       'humidityMax': serializer.toJson<double>(humidityMax),
       'picturePath': serializer.toJson<String?>(picturePath),
       'notes': serializer.toJson<String?>(notes),
+      'archiveReason': serializer.toJson<AnimalArchiveReason?>(archiveReason),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+      'archiveNotes': serializer.toJson<String?>(archiveNotes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -834,7 +966,8 @@ class Animal extends DataClass implements Insertable<Animal> {
 
   Animal copyWith({
     int? id,
-    int? boxId,
+    Value<int?> boxId = const Value.absent(),
+    AnimalStatus? status,
     String? commonName,
     String? latinName,
     Value<Sex?> sex = const Value.absent(),
@@ -846,11 +979,15 @@ class Animal extends DataClass implements Insertable<Animal> {
     double? humidityMax,
     Value<String?> picturePath = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<AnimalArchiveReason?> archiveReason = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
+    Value<String?> archiveNotes = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Animal(
     id: id ?? this.id,
-    boxId: boxId ?? this.boxId,
+    boxId: boxId.present ? boxId.value : this.boxId,
+    status: status ?? this.status,
     commonName: commonName ?? this.commonName,
     latinName: latinName ?? this.latinName,
     sex: sex.present ? sex.value : this.sex,
@@ -864,6 +1001,11 @@ class Animal extends DataClass implements Insertable<Animal> {
     humidityMax: humidityMax ?? this.humidityMax,
     picturePath: picturePath.present ? picturePath.value : this.picturePath,
     notes: notes.present ? notes.value : this.notes,
+    archiveReason: archiveReason.present
+        ? archiveReason.value
+        : this.archiveReason,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    archiveNotes: archiveNotes.present ? archiveNotes.value : this.archiveNotes,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -871,6 +1013,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     return Animal(
       id: data.id.present ? data.id.value : this.id,
       boxId: data.boxId.present ? data.boxId.value : this.boxId,
+      status: data.status.present ? data.status.value : this.status,
       commonName: data.commonName.present
           ? data.commonName.value
           : this.commonName,
@@ -892,6 +1035,15 @@ class Animal extends DataClass implements Insertable<Animal> {
           ? data.picturePath.value
           : this.picturePath,
       notes: data.notes.present ? data.notes.value : this.notes,
+      archiveReason: data.archiveReason.present
+          ? data.archiveReason.value
+          : this.archiveReason,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
+      archiveNotes: data.archiveNotes.present
+          ? data.archiveNotes.value
+          : this.archiveNotes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -902,6 +1054,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     return (StringBuffer('Animal(')
           ..write('id: $id, ')
           ..write('boxId: $boxId, ')
+          ..write('status: $status, ')
           ..write('commonName: $commonName, ')
           ..write('latinName: $latinName, ')
           ..write('sex: $sex, ')
@@ -913,6 +1066,9 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('humidityMax: $humidityMax, ')
           ..write('picturePath: $picturePath, ')
           ..write('notes: $notes, ')
+          ..write('archiveReason: $archiveReason, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('archiveNotes: $archiveNotes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -923,6 +1079,7 @@ class Animal extends DataClass implements Insertable<Animal> {
   int get hashCode => Object.hash(
     id,
     boxId,
+    status,
     commonName,
     latinName,
     sex,
@@ -934,6 +1091,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     humidityMax,
     picturePath,
     notes,
+    archiveReason,
+    archivedAt,
+    archiveNotes,
     createdAt,
     updatedAt,
   );
@@ -943,6 +1103,7 @@ class Animal extends DataClass implements Insertable<Animal> {
       (other is Animal &&
           other.id == this.id &&
           other.boxId == this.boxId &&
+          other.status == this.status &&
           other.commonName == this.commonName &&
           other.latinName == this.latinName &&
           other.sex == this.sex &&
@@ -954,13 +1115,17 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.humidityMax == this.humidityMax &&
           other.picturePath == this.picturePath &&
           other.notes == this.notes &&
+          other.archiveReason == this.archiveReason &&
+          other.archivedAt == this.archivedAt &&
+          other.archiveNotes == this.archiveNotes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
 
 class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<int> id;
-  final Value<int> boxId;
+  final Value<int?> boxId;
+  final Value<AnimalStatus> status;
   final Value<String> commonName;
   final Value<String> latinName;
   final Value<Sex?> sex;
@@ -972,11 +1137,15 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<double> humidityMax;
   final Value<String?> picturePath;
   final Value<String?> notes;
+  final Value<AnimalArchiveReason?> archiveReason;
+  final Value<DateTime?> archivedAt;
+  final Value<String?> archiveNotes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const AnimalsCompanion({
     this.id = const Value.absent(),
     this.boxId = const Value.absent(),
+    this.status = const Value.absent(),
     this.commonName = const Value.absent(),
     this.latinName = const Value.absent(),
     this.sex = const Value.absent(),
@@ -988,12 +1157,16 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.humidityMax = const Value.absent(),
     this.picturePath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.archiveReason = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.archiveNotes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
   AnimalsCompanion.insert({
     this.id = const Value.absent(),
-    required int boxId,
+    this.boxId = const Value.absent(),
+    this.status = const Value.absent(),
     required String commonName,
     required String latinName,
     this.sex = const Value.absent(),
@@ -1005,10 +1178,12 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     required double humidityMax,
     this.picturePath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.archiveReason = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.archiveNotes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
-  }) : boxId = Value(boxId),
-       commonName = Value(commonName),
+  }) : commonName = Value(commonName),
        latinName = Value(latinName),
        tempMin = Value(tempMin),
        tempMax = Value(tempMax),
@@ -1017,6 +1192,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   static Insertable<Animal> custom({
     Expression<int>? id,
     Expression<int>? boxId,
+    Expression<String>? status,
     Expression<String>? commonName,
     Expression<String>? latinName,
     Expression<String>? sex,
@@ -1028,12 +1204,16 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<double>? humidityMax,
     Expression<String>? picturePath,
     Expression<String>? notes,
+    Expression<String>? archiveReason,
+    Expression<DateTime>? archivedAt,
+    Expression<String>? archiveNotes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (boxId != null) 'box_id': boxId,
+      if (status != null) 'status': status,
       if (commonName != null) 'common_name': commonName,
       if (latinName != null) 'latin_name': latinName,
       if (sex != null) 'sex': sex,
@@ -1045,6 +1225,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       if (humidityMax != null) 'humidity_max': humidityMax,
       if (picturePath != null) 'picture_path': picturePath,
       if (notes != null) 'notes': notes,
+      if (archiveReason != null) 'archive_reason': archiveReason,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (archiveNotes != null) 'archive_notes': archiveNotes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -1052,7 +1235,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
 
   AnimalsCompanion copyWith({
     Value<int>? id,
-    Value<int>? boxId,
+    Value<int?>? boxId,
+    Value<AnimalStatus>? status,
     Value<String>? commonName,
     Value<String>? latinName,
     Value<Sex?>? sex,
@@ -1064,12 +1248,16 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<double>? humidityMax,
     Value<String?>? picturePath,
     Value<String?>? notes,
+    Value<AnimalArchiveReason?>? archiveReason,
+    Value<DateTime?>? archivedAt,
+    Value<String?>? archiveNotes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
     return AnimalsCompanion(
       id: id ?? this.id,
       boxId: boxId ?? this.boxId,
+      status: status ?? this.status,
       commonName: commonName ?? this.commonName,
       latinName: latinName ?? this.latinName,
       sex: sex ?? this.sex,
@@ -1081,6 +1269,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       humidityMax: humidityMax ?? this.humidityMax,
       picturePath: picturePath ?? this.picturePath,
       notes: notes ?? this.notes,
+      archiveReason: archiveReason ?? this.archiveReason,
+      archivedAt: archivedAt ?? this.archivedAt,
+      archiveNotes: archiveNotes ?? this.archiveNotes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -1094,6 +1285,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     }
     if (boxId.present) {
       map['box_id'] = Variable<int>(boxId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $AnimalsTable.$converterstatus.toSql(status.value),
+      );
     }
     if (commonName.present) {
       map['common_name'] = Variable<String>(commonName.value);
@@ -1134,6 +1330,17 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (archiveReason.present) {
+      map['archive_reason'] = Variable<String>(
+        $AnimalsTable.$converterarchiveReasonn.toSql(archiveReason.value),
+      );
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (archiveNotes.present) {
+      map['archive_notes'] = Variable<String>(archiveNotes.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1148,6 +1355,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     return (StringBuffer('AnimalsCompanion(')
           ..write('id: $id, ')
           ..write('boxId: $boxId, ')
+          ..write('status: $status, ')
           ..write('commonName: $commonName, ')
           ..write('latinName: $latinName, ')
           ..write('sex: $sex, ')
@@ -1159,6 +1367,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('humidityMax: $humidityMax, ')
           ..write('picturePath: $picturePath, ')
           ..write('notes: $notes, ')
+          ..write('archiveReason: $archiveReason, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('archiveNotes: $archiveNotes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1750,7 +1961,8 @@ typedef $$BoxesTableProcessedTableManager =
     >;
 typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<int> id,
-  required int boxId,
+  Value<int?> boxId,
+  Value<AnimalStatus> status,
   required String commonName,
   required String latinName,
   Value<Sex?> sex,
@@ -1762,12 +1974,16 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   required double humidityMax,
   Value<String?> picturePath,
   Value<String?> notes,
+  Value<AnimalArchiveReason?> archiveReason,
+  Value<DateTime?> archivedAt,
+  Value<String?> archiveNotes,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
 typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<int> id,
-  Value<int> boxId,
+  Value<int?> boxId,
+  Value<AnimalStatus> status,
   Value<String> commonName,
   Value<String> latinName,
   Value<Sex?> sex,
@@ -1779,6 +1995,9 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<double> humidityMax,
   Value<String?> picturePath,
   Value<String?> notes,
+  Value<AnimalArchiveReason?> archiveReason,
+  Value<DateTime?> archivedAt,
+  Value<String?> archiveNotes,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -1790,9 +2009,9 @@ final class $$AnimalsTableReferences
   static $BoxesTable _boxIdTable(_$AppDatabase db) =>
       db.boxes.createAlias('animals__box_id__boxes__id');
 
-  $$BoxesTableProcessedTableManager get boxId {
-    final $_column = $_itemColumn<int>('box_id')!;
-
+  $$BoxesTableProcessedTableManager? get boxId {
+    final $_column = $_itemColumn<int>('box_id');
+    if ($_column == null) return null;
     final manager = $$BoxesTableTableManager(
       $_db,
       $_db.boxes,
@@ -1835,6 +2054,12 @@ class $$AnimalsTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AnimalStatus, AnimalStatus, String>
+  get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnFilters<String> get commonName => $composableBuilder(
@@ -1891,6 +2116,26 @@ class $$AnimalsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    AnimalArchiveReason?,
+    AnimalArchiveReason,
+    String
+  >
+  get archiveReason => $composableBuilder(
+    column: $table.archiveReason,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get archiveNotes => $composableBuilder(
+    column: $table.archiveNotes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1967,6 +2212,11 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get commonName => $composableBuilder(
     column: $table.commonName,
     builder: (column) => ColumnOrderings(column),
@@ -2022,6 +2272,21 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get archiveReason => $composableBuilder(
+    column: $table.archiveReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get archiveNotes => $composableBuilder(
+    column: $table.archiveNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -2068,6 +2333,9 @@ class $$AnimalsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumnWithTypeConverter<AnimalStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
   GeneratedColumn<String> get commonName => $composableBuilder(
     column: $table.commonName,
     builder: (column) => column,
@@ -2111,6 +2379,22 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AnimalArchiveReason?, String>
+  get archiveReason => $composableBuilder(
+    column: $table.archiveReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get archiveNotes => $composableBuilder(
+    column: $table.archiveNotes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2196,7 +2480,8 @@ class $$AnimalsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> boxId = const Value.absent(),
+                Value<int?> boxId = const Value.absent(),
+                Value<AnimalStatus> status = const Value.absent(),
                 Value<String> commonName = const Value.absent(),
                 Value<String> latinName = const Value.absent(),
                 Value<Sex?> sex = const Value.absent(),
@@ -2209,11 +2494,16 @@ class $$AnimalsTableTableManager
                 Value<double> humidityMax = const Value.absent(),
                 Value<String?> picturePath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<AnimalArchiveReason?> archiveReason =
+                    const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<String?> archiveNotes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => AnimalsCompanion(
                 id: id,
                 boxId: boxId,
+                status: status,
                 commonName: commonName,
                 latinName: latinName,
                 sex: sex,
@@ -2225,13 +2515,17 @@ class $$AnimalsTableTableManager
                 humidityMax: humidityMax,
                 picturePath: picturePath,
                 notes: notes,
+                archiveReason: archiveReason,
+                archivedAt: archivedAt,
+                archiveNotes: archiveNotes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int boxId,
+                Value<int?> boxId = const Value.absent(),
+                Value<AnimalStatus> status = const Value.absent(),
                 required String commonName,
                 required String latinName,
                 Value<Sex?> sex = const Value.absent(),
@@ -2244,11 +2538,16 @@ class $$AnimalsTableTableManager
                 required double humidityMax,
                 Value<String?> picturePath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<AnimalArchiveReason?> archiveReason =
+                    const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<String?> archiveNotes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => AnimalsCompanion.insert(
                 id: id,
                 boxId: boxId,
+                status: status,
                 commonName: commonName,
                 latinName: latinName,
                 sex: sex,
@@ -2260,6 +2559,9 @@ class $$AnimalsTableTableManager
                 humidityMax: humidityMax,
                 picturePath: picturePath,
                 notes: notes,
+                archiveReason: archiveReason,
+                archivedAt: archivedAt,
+                archiveNotes: archiveNotes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

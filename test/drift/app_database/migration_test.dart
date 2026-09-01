@@ -1,0 +1,278 @@
+// dart format width=80
+// ignore_for_file: unused_local_variable, unused_import
+
+import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift_dev/api/migrations_native.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:terramanager/core/database/app_database.dart';
+
+import 'generated/schema.dart';
+import 'generated/schema_v1.dart' as v1;
+import 'generated/schema_v2.dart' as v2;
+
+void main() {
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+
+  late SchemaVerifier verifier;
+
+  setUpAll(() {
+    verifier = SchemaVerifier(
+      GeneratedHelper(),
+    );
+  });
+
+  group('simple database migrations', () {
+    const versions = GeneratedHelper.versions;
+
+    for (final (i, fromVersion) in versions.indexed) {
+      group('from $fromVersion', () {
+        for (final toVersion in versions.skip(i + 1)) {
+          test('to $toVersion', () async {
+            final schema = await verifier.schemaAt(
+              fromVersion,
+            );
+
+            final db = AppDatabase(
+              schema.newConnection(),
+            );
+
+            await verifier.migrateAndValidate(
+              db,
+              toVersion,
+            );
+
+            await db.close();
+          });
+        }
+      });
+    }
+  });
+
+  test(
+    'migration from v1 to v2 preserves existing data',
+    () async {
+      int unixSeconds(DateTime value) {
+        return value.millisecondsSinceEpoch ~/ 1000;
+      }
+
+      final boxCreatedAt = unixSeconds(
+        DateTime(
+          2026,
+          8,
+          20,
+          10,
+          0,
+        ),
+      );
+
+      final boxUpdatedAt = unixSeconds(
+        DateTime(
+          2026,
+          8,
+          21,
+          11,
+          30,
+        ),
+      );
+
+      final animalCreatedAt = unixSeconds(
+        DateTime(
+          2026,
+          8,
+          20,
+          10,
+          15,
+        ),
+      );
+
+      final animalUpdatedAt = unixSeconds(
+        DateTime(
+          2026,
+          8,
+          22,
+          14,
+          45,
+        ),
+      );
+
+      final fedAt = unixSeconds(
+        DateTime(
+          2026,
+          8,
+          23,
+          18,
+          30,
+        ),
+      );
+
+      final oldBoxesData = <v1.BoxesData>[
+        v1.BoxesData(
+          id: 1,
+          qrId:
+              'TM:BOX:12345678-1234-4123-8123-123456789abc',
+          createdAt: boxCreatedAt,
+          updatedAt: boxUpdatedAt,
+        ),
+      ];
+
+      final expectedNewBoxesData = <v2.BoxesData>[
+        v2.BoxesData(
+          id: 1,
+          qrId:
+              'TM:BOX:12345678-1234-4123-8123-123456789abc',
+          createdAt: boxCreatedAt,
+          updatedAt: boxUpdatedAt,
+        ),
+      ];
+
+      final oldAnimalsData = <v1.AnimalsData>[
+        v1.AnimalsData(
+          id: 1,
+          boxId: 1,
+          commonName: 'Corn Snake',
+          latinName: 'Pantherophis guttatus',
+          sex: null,
+          birthDate: null,
+          birthDateAccuracy: null,
+          tempMin: 24,
+          tempMax: 28,
+          humidityMin: 40,
+          humidityMax: 60,
+          picturePath: null,
+          notes: 'Existing animal before migration',
+          createdAt: animalCreatedAt,
+          updatedAt: animalUpdatedAt,
+        ),
+      ];
+
+      final expectedNewAnimalsData = <v2.AnimalsData>[
+        v2.AnimalsData(
+          id: 1,
+          boxId: 1,
+          status: 'active',
+          commonName: 'Corn Snake',
+          latinName: 'Pantherophis guttatus',
+          sex: null,
+          birthDate: null,
+          birthDateAccuracy: null,
+          tempMin: 24,
+          tempMax: 28,
+          humidityMin: 40,
+          humidityMax: 60,
+          picturePath: null,
+          notes: 'Existing animal before migration',
+          archiveReason: null,
+          archivedAt: null,
+          archiveNotes: null,
+          createdAt: animalCreatedAt,
+          updatedAt: animalUpdatedAt,
+        ),
+      ];
+
+      final oldFeedingEventsData = <v1.FeedingEventsData>[
+        v1.FeedingEventsData(
+          id: 1,
+          animalId: 1,
+          fedAt: fedAt,
+          notes: 'Existing feeding before migration',
+        ),
+      ];
+
+      final expectedNewFeedingEventsData = <v2.FeedingEventsData>[
+        v2.FeedingEventsData(
+          id: 1,
+          animalId: 1,
+          fedAt: fedAt,
+          notes: 'Existing feeding before migration',
+        ),
+      ];
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 1,
+        newVersion: 2,
+        createOld: v1.DatabaseAtV1.new,
+        createNew: v2.DatabaseAtV2.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) {
+          batch.insertAll(
+            oldDb.boxes,
+            oldBoxesData,
+          );
+
+          batch.insertAll(
+            oldDb.animals,
+            oldAnimalsData,
+          );
+
+          batch.insertAll(
+            oldDb.feedingEvents,
+            oldFeedingEventsData,
+          );
+        },
+        validateItems: (newDb) async {
+          final boxes = await newDb
+              .select(newDb.boxes)
+              .get();
+
+          final animals = await newDb
+              .select(newDb.animals)
+              .get();
+
+          final feedingEvents = await newDb
+              .select(newDb.feedingEvents)
+              .get();
+
+          expect(
+            boxes,
+            expectedNewBoxesData,
+          );
+
+          expect(
+            animals,
+            expectedNewAnimalsData,
+          );
+
+          expect(
+            feedingEvents,
+            expectedNewFeedingEventsData,
+          );
+
+          // Existing animals become active after migration.
+          expect(
+            animals.single.status,
+            'active',
+          );
+
+          // Existing box assignment is preserved.
+          expect(
+            animals.single.boxId,
+            1,
+          );
+
+          // New archive fields are empty for existing animals.
+          expect(
+            animals.single.archiveReason,
+            isNull,
+          );
+
+          expect(
+            animals.single.archivedAt,
+            isNull,
+          );
+
+          expect(
+            animals.single.archiveNotes,
+            isNull,
+          );
+
+          // Existing feeding history remains associated with the animal.
+          expect(
+            feedingEvents.single.animalId,
+            animals.single.id,
+          );
+        },
+      );
+    },
+  );
+}

@@ -34,7 +34,7 @@ setUp(() {
     // Act: create animal
     final animalId = await database.into(database.animals).insert(
           AnimalsCompanion.insert(
-            boxId: boxId,
+            boxId: Value(boxId),
             commonName: 'Test Animal',
             latinName: 'Testus animalis',
             sex: const Value(Sex.male),

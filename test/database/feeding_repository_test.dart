@@ -206,4 +206,113 @@ void main() {
 
     expect(deleted, isFalse);
   });
+
+  test(
+    'getLatestFeeding returns null when no feeding exists',
+    () async {
+      final boxId =
+          await database.into(database.boxes).insert(
+                BoxesCompanion.insert(
+                  qrId: 'latest-empty-box',
+                ),
+              );
+
+      final animalId =
+          await database.into(database.animals).insert(
+                AnimalsCompanion.insert(
+                  boxId: drift.Value(boxId),
+                  commonName: 'Kornnatter',
+                  latinName: 'Pantherophis guttatus',
+                  tempMin: 24,
+                  tempMax: 28,
+                  humidityMin: 40,
+                  humidityMax: 60,
+                ),
+              );
+
+      final feeding =
+          await repository.getLatestFeeding(
+        animalId,
+      );
+
+      expect(
+        feeding,
+        isNull,
+      );
+    },
+  );
+
+  test(
+    'getLatestFeeding returns newest feeding including notes',
+    () async {
+      final boxId =
+          await database.into(database.boxes).insert(
+                BoxesCompanion.insert(
+                  qrId: 'latest-feeding-box',
+                ),
+              );
+
+      final animalId =
+          await database.into(database.animals).insert(
+                AnimalsCompanion.insert(
+                  boxId: drift.Value(boxId),
+                  commonName: 'Kornnatter',
+                  latinName: 'Pantherophis guttatus',
+                  tempMin: 24,
+                  tempMax: 28,
+                  humidityMin: 40,
+                  humidityMax: 60,
+                ),
+              );
+
+      await repository.addFeeding(
+        animalId,
+        DateTime(
+          2026,
+          8,
+          10,
+          12,
+        ),
+        notes: 'Older feeding',
+      );
+
+      await repository.addFeeding(
+        animalId,
+        DateTime(
+          2026,
+          8,
+          20,
+          18,
+          30,
+        ),
+        notes: 'Latest feeding',
+      );
+
+      final feeding =
+          await repository.getLatestFeeding(
+        animalId,
+      );
+
+      expect(
+        feeding,
+        isNotNull,
+      );
+
+      expect(
+        feeding!.fedAt,
+        DateTime(
+          2026,
+          8,
+          20,
+          18,
+          30,
+        ),
+      );
+
+      expect(
+        feeding.notes,
+        'Latest feeding',
+      );
+    },
+  );
 }

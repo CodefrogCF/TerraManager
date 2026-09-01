@@ -16,14 +16,20 @@ class FeedingRepository {
           FeedingEventsCompanion.insert(
             animalId: animalId,
             fedAt: fedAt,
-            notes: notes == null ? const Value.absent() : Value(notes),
+            notes: notes == null
+                ? const Value.absent()
+                : Value(notes),
           ),
         );
   }
 
-  Future<List<FeedingEvent>> getFeedingsForAnimal(int animalId) {
+  Future<List<FeedingEvent>> getFeedingsForAnimal(
+    int animalId,
+  ) {
     return (database.select(database.feedingEvents)
-          ..where((event) => event.animalId.equals(animalId))
+          ..where(
+            (event) => event.animalId.equals(animalId),
+          )
           ..orderBy([
             (event) => OrderingTerm(
                   expression: event.fedAt,
@@ -33,9 +39,13 @@ class FeedingRepository {
         .get();
   }
 
-  Future<DateTime?> getLastFeeding(int animalId) async {
-    final feeding = await (database.select(database.feedingEvents)
-          ..where((event) => event.animalId.equals(animalId))
+  Future<FeedingEvent?> getLatestFeeding(
+    int animalId,
+  ) {
+    return (database.select(database.feedingEvents)
+          ..where(
+            (event) => event.animalId.equals(animalId),
+          )
           ..orderBy([
             (event) => OrderingTerm(
                   expression: event.fedAt,
@@ -44,13 +54,25 @@ class FeedingRepository {
           ])
           ..limit(1))
         .getSingleOrNull();
+  }
+
+  Future<DateTime?> getLastFeeding(
+    int animalId,
+  ) async {
+    final feeding = await getLatestFeeding(
+      animalId,
+    );
 
     return feeding?.fedAt;
   }
 
-  Future<FeedingEvent?> getFeedingById(int feedingId) {
+  Future<FeedingEvent?> getFeedingById(
+    int feedingId,
+  ) {
     return (database.select(database.feedingEvents)
-          ..where((event) => event.id.equals(feedingId)))
+          ..where(
+            (event) => event.id.equals(feedingId),
+          ))
         .getSingleOrNull();
   }
 
@@ -60,9 +82,12 @@ class FeedingRepository {
     required DateTime fedAt,
     String? notes,
   }) async {
-    final updatedRows = await (database.update(database.feedingEvents)
-          ..where((event) => event.id.equals(feedingId)))
-        .write(
+    final updatedRows =
+        await (database.update(database.feedingEvents)
+              ..where(
+                (event) => event.id.equals(feedingId),
+              ))
+            .write(
       FeedingEventsCompanion(
         animalId: Value(animalId),
         fedAt: Value(fedAt),
@@ -73,10 +98,15 @@ class FeedingRepository {
     return updatedRows > 0;
   }
 
-  Future<bool> deleteFeeding(int feedingId) async {
-    final deletedRows = await (database.delete(database.feedingEvents)
-          ..where((event) => event.id.equals(feedingId)))
-        .go();
+  Future<bool> deleteFeeding(
+    int feedingId,
+  ) async {
+    final deletedRows =
+        await (database.delete(database.feedingEvents)
+              ..where(
+                (event) => event.id.equals(feedingId),
+              ))
+            .go();
 
     return deletedRows > 0;
   }

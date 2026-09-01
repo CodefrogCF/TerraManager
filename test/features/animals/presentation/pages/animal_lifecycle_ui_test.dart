@@ -480,6 +480,13 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      await scrollToKey(
+        tester,
+        const Key(
+          'archive-information-heading',
+        ),
+      );
+
       expect(
         find.byKey(
           const Key(

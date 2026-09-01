@@ -4,6 +4,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/animal_archive_reason.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../widgets/animal_picture.dart';
@@ -25,6 +26,7 @@ class AnimalDetailPage extends StatefulWidget {
 
 class _AnimalDetailPageState extends State<AnimalDetailPage> {
   late Future<Animal?> _animalFuture;
+  late Future<FeedingEvent?> _latestFeedingFuture;
 
   bool _lifecycleActionInProgress = false;
   String? _lifecycleError;
@@ -33,11 +35,19 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
   void initState() {
     super.initState();
     _loadAnimal();
+    _loadLatestFeeding();
   }
 
   void _loadAnimal() {
     _animalFuture =
         AnimalRepository(widget.database).getAnimalById(widget.animalId);
+  }
+
+  void _loadLatestFeeding() {
+    _latestFeedingFuture =
+        FeedingRepository(widget.database).getLatestFeeding(
+      widget.animalId,
+    );
   }
 
   Future<void> _openEditPage() async {
@@ -70,6 +80,14 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         ),
       ),
     );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _loadLatestFeeding();
+    });
   }
 
   Future<void> _archiveAnimal(
@@ -498,6 +516,104 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           label: 'Humidity',
           value:
               '${animal.humidityMin}% – ${animal.humidityMax}%',
+        ),
+
+        const SizedBox(height: 16),
+
+        Text(
+          'Latest Feeding',
+          key: const Key(
+            'latest-feeding-heading',
+          ),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+
+        FutureBuilder<FeedingEvent?>(
+          future: _latestFeedingFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const Text(
+                'Failed to load latest feeding',
+                key: Key(
+                  'latest-feeding-error',
+                ),
+              );
+            }
+
+            if (snapshot.connectionState ==
+                ConnectionState.waiting) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: 8,
+                ),
+                child: LinearProgressIndicator(
+                  key: Key(
+                    'latest-feeding-loading',
+                  ),
+                ),
+              );
+            }
+
+            final feeding = snapshot.data;
+
+            if (feeding == null) {
+              return const Text(
+                'No feeding events available',
+                key: Key(
+                  'latest-feeding-empty-state',
+                ),
+              );
+            }
+
+            return Card(
+              key: const Key(
+                'latest-feeding-section',
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.restaurant,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _formatDateTime(
+                              feeding.fedAt,
+                            ),
+                            key: const Key(
+                              'latest-feeding-date',
+                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    if (feeding.notes != null &&
+                        feeding.notes!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 12),
+
+                      Text(
+                        feeding.notes!,
+                        key: const Key(
+                          'latest-feeding-note',
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          },
         ),
 
         if (animal.notes != null &&
@@ -992,4 +1108,25 @@ String _formatDate(
   return '${date.day.toString().padLeft(2, '0')}.'
       '${date.month.toString().padLeft(2, '0')}.'
       '${date.year}';
+}
+
+String _formatDateTime(
+  DateTime dateTime,
+) {
+  final day =
+      dateTime.day.toString().padLeft(2, '0');
+
+  final month =
+      dateTime.month.toString().padLeft(2, '0');
+
+  final year =
+      dateTime.year.toString();
+
+  final hour =
+      dateTime.hour.toString().padLeft(2, '0');
+
+  final minute =
+      dateTime.minute.toString().padLeft(2, '0');
+
+  return '$day.$month.$year $hour:$minute';
 }

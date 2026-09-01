@@ -28,7 +28,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
   void _loadAnimals() {
     _animalsFuture =
-        AnimalRepository(widget.database).getAllAnimals();
+        AnimalRepository(widget.database).getActiveAnimals();
   }
 
   Future<void> _openNewAnimalPage() async {
@@ -49,6 +49,27 @@ class _AnimalsPageState extends State<AnimalsPage> {
         _loadAnimals();
       });
     }
+  }
+
+  Future<void> _openAnimalDetail(
+    Animal animal,
+  ) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AnimalDetailPage(
+          database: widget.database,
+          animalId: animal.id,
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _loadAnimals();
+    });
   }
 
   @override
@@ -93,14 +114,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
                 title: Text(animal.commonName),
                 subtitle: Text(animal.latinName),
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => AnimalDetailPage(
-                        database: widget.database,
-                        animalId: animal.id,
-                      ),
-                    ),
-                  );
+                  _openAnimalDetail(animal);
                 },
               );
             },

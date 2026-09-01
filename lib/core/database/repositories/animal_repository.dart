@@ -138,7 +138,10 @@ class AnimalRepository {
           database.animals,
         )..where(
             (animal) =>
-                animal.id.equals(animalId),
+                animal.id.equals(animalId) &
+                animal.status.equalsValue(
+                  AnimalStatus.active,
+                ),
           ))
             .write(
       AnimalsCompanion(

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/birth_date_accuracy.dart';
 import '../../../../core/database/enums/sex.dart';
+import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../widgets/animal_picture.dart';
@@ -87,6 +88,14 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         setState(() {
           _loading = false;
           _error = 'Animal not found';
+        });
+        return;
+      }
+
+      if (animal.status != AnimalStatus.active) {
+        setState(() {
+          _loading = false;
+          _error = 'Archived animals cannot be edited';
         });
         return;
       }

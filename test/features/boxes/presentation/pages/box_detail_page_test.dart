@@ -129,6 +129,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: BoxDetailPage(
+          database: database,
           box: box,
         ),
       ),
@@ -251,6 +252,7 @@ void main() {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => BoxDetailPage(
+                          database: database,
                           box: box,
                         ),
                       ),
@@ -319,6 +321,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: BoxDetailPage(
+            database: database,
             box: box,
             qrExporter: FailingQrExporter(),
             qrStorage: FakeQrStorage(),
@@ -380,6 +383,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: BoxDetailPage(
+            database: database,
             box: box,
             qrExporter: exporter,
             qrStorage: storage,
@@ -437,6 +441,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: BoxDetailPage(
+            database: database,
             box: box,
             qrExporter: FakeQrExporter(),
             qrStorage: FailingQrStorage(),
@@ -499,6 +504,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: BoxDetailPage(
+            database: database,
             box: box,
             qrExporter: exporter,
             qrStorage: storage,
@@ -557,6 +563,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: BoxDetailPage(
+            database: database,
             box: box,
             qrExporter: FakeQrExporter(),
             qrStorage: FakeQrStorage(),

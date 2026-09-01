@@ -110,6 +110,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => BoxDetailPage(
+            database: widget.database,
             box: box,
           ),
         ),

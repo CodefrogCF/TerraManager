@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
 import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
+import '../../../animals/presentation/pages/animal_detail_page.dart';
 import '../widgets/box_qr_code.dart';
 
 class BoxDetailPage extends StatefulWidget {
+  final AppDatabase database;
   final Box box;
   final QrExporter qrExporter;
   final QrStorage qrStorage;
@@ -15,6 +19,7 @@ class BoxDetailPage extends StatefulWidget {
 
   const BoxDetailPage({
     super.key,
+    required this.database,
     required this.box,
     this.qrExporter = const QrExportService(),
     this.qrStorage = const QrStorageService(),
@@ -26,11 +31,46 @@ class BoxDetailPage extends StatefulWidget {
 }
 
 class _BoxDetailPageState extends State<BoxDetailPage> {
+  late Future<List<Animal>> _animalsFuture;
+
   bool _savingQr = false;
   bool _printingQr = false;
+  bool _deleting = false;
 
   String? _saveError;
   String? _printError;
+  String? _deleteError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAnimals();
+  }
+
+  void _loadAnimals() {
+    _animalsFuture = AnimalRepository(
+      widget.database,
+    ).getAnimalsForBox(widget.box.id);
+  }
+
+  Future<void> _openAnimalDetail(Animal animal) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AnimalDetailPage(
+          database: widget.database,
+          animalId: animal.id,
+        ),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _loadAnimals();
+    });
+  }
 
   Future<void> _saveQrCode() async {
     setState(() {
@@ -118,6 +158,131 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     }
   }
 
+  Future<void> _deleteBox() async {
+    if (_deleting) {
+      return;
+    }
+
+    setState(() {
+      _deleteError = null;
+    });
+
+    try {
+      // Re-query the database instead of relying on the currently displayed
+      // list. This prevents deleting a box based on stale UI state.
+      final animals = await AnimalRepository(
+        widget.database,
+      ).getAnimalsForBox(widget.box.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (animals.isNotEmpty) {
+        await _showCannotDeleteDialog(
+          animals.length,
+        );
+        return;
+      }
+
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Delete Box?'),
+            content: const Text(
+              'Delete this box permanently?\n\n'
+              'This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                key: const Key('cancel-delete-box-button'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                key: const Key('confirm-delete-box-button'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmed != true || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _deleting = true;
+      });
+
+      final deleted = await BoxRepository(
+        widget.database,
+      ).deleteBox(widget.box.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (!deleted) {
+        setState(() {
+          _deleting = false;
+          _deleteError = 'Failed to delete box';
+        });
+        return;
+      }
+
+      Navigator.of(context).pop(true);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _deleting = false;
+        _deleteError = 'Failed to delete box';
+      });
+    }
+  }
+
+  Future<void> _showCannotDeleteDialog(
+    int animalCount,
+  ) {
+    final animalText = animalCount == 1
+        ? '1 animal is assigned to this box.'
+        : '$animalCount animals are assigned to this box.';
+
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Cannot Delete Box',
+          ),
+          content: Text(
+            '$animalText\n\n'
+            'Move or delete the assigned animals before deleting the box.',
+          ),
+          actions: [
+            TextButton(
+              key: const Key('close-cannot-delete-button'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final box = widget.box;
@@ -137,7 +302,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Icon(Icons.download_outlined),
+                : const Icon(
+                    Icons.download_outlined,
+                  ),
             tooltip: 'Save QR Code',
           ),
           IconButton(
@@ -151,8 +318,26 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                       strokeWidth: 2,
                     ),
                   )
-                : const Icon(Icons.print_outlined),
+                : const Icon(
+                    Icons.print_outlined,
+                  ),
             tooltip: 'Print QR Code',
+          ),
+          IconButton(
+            key: const Key('delete-box-button'),
+            onPressed: _deleting ? null : _deleteBox,
+            icon: _deleting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(
+                    Icons.delete_outline,
+                  ),
+            tooltip: 'Delete Box',
           ),
         ],
       ),
@@ -164,7 +349,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               _saveError!,
               key: const Key('qr-save-error'),
               style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
+                color: Theme.of(
+                  context,
+                ).colorScheme.error,
               ),
             ),
             const SizedBox(height: 16),
@@ -175,7 +362,22 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               _printError!,
               key: const Key('qr-print-error'),
               style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
+                color: Theme.of(
+                  context,
+                ).colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          if (_deleteError != null) ...[
+            Text(
+              _deleteError!,
+              key: const Key('box-delete-error'),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.error,
               ),
             ),
             const SizedBox(height: 16),
@@ -191,7 +393,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
           Text(
             'QR Identifier',
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
 
@@ -208,25 +412,141 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
           _DetailRow(
             label: 'Created',
-            value: _formatDateTime(box.createdAt),
+            value: _formatDateTime(
+              box.createdAt,
+            ),
           ),
 
           _DetailRow(
             label: 'Updated',
-            value: _formatDateTime(box.updatedAt),
+            value: _formatDateTime(
+              box.updatedAt,
+            ),
           ),
+
+          const SizedBox(height: 16),
+
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Assigned Animals',
+                  key: const Key(
+                    'assigned-animals-heading',
+                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium,
+                ),
+              ),
+              const Icon(
+                Icons.pets_outlined,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          FutureBuilder<List<Animal>>(
+            future: _animalsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 16,
+                  ),
+                  child: Text(
+                    'Failed to load assigned animals',
+                    key: Key(
+                      'assigned-animals-error',
+                    ),
+                  ),
+                );
+              }
+
+              if (snapshot.connectionState ==
+                  ConnectionState.waiting) {
+                return const Padding(
+                  padding: EdgeInsets.all(24),
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              final animals = snapshot.data ?? [];
+
+              if (animals.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 16,
+                  ),
+                  child: Text(
+                    'No animals assigned to this box',
+                    key: Key(
+                      'no-assigned-animals',
+                    ),
+                  ),
+                );
+              }
+
+              return Column(
+                children: [
+                  for (final animal in animals)
+                    Card(
+                      child: ListTile(
+                        key: Key(
+                          'assigned-animal-${animal.id}',
+                        ),
+                        leading: const Icon(
+                          Icons.pets_outlined,
+                        ),
+                        title: Text(
+                          animal.commonName,
+                        ),
+                        subtitle: Text(
+                          animal.latinName,
+                        ),
+                        trailing: const Icon(
+                          Icons.chevron_right,
+                        ),
+                        onTap: () {
+                          _openAnimalDetail(
+                            animal,
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  String _formatDateTime(DateTime dateTime) {
-    final day = dateTime.day.toString().padLeft(2, '0');
-    final month = dateTime.month.toString().padLeft(2, '0');
+  String _formatDateTime(
+    DateTime dateTime,
+  ) {
+    final day = dateTime.day
+        .toString()
+        .padLeft(2, '0');
+
+    final month = dateTime.month
+        .toString()
+        .padLeft(2, '0');
+
     final year = dateTime.year.toString();
 
-    final hour = dateTime.hour.toString().padLeft(2, '0');
-    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final hour = dateTime.hour
+        .toString()
+        .padLeft(2, '0');
+
+    final minute = dateTime.minute
+        .toString()
+        .padLeft(2, '0');
 
     return '$day.$month.$year $hour:$minute';
   }
@@ -244,9 +564,12 @@ class _DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(
+        bottom: 12,
+      ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 120,

@@ -25,7 +25,7 @@ class FakeBackupFileGateway implements BackupFileGateway {
   }
 
   @override
-  Future<String> saveBackup(BackupExportResult backup) async {
+  Future<String?> saveBackup(BackupExportResult backup) async {
     savedBackups.add(backup);
 
     return backup.fileName;

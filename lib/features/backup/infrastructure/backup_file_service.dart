@@ -14,15 +14,15 @@ class PickedBackupFile {
 }
 
 abstract class BackupFileGateway {
-  Future<String> saveBackup(BackupExportResult backup);
+  Future<String?> saveBackup(BackupExportResult backup);
 
   Future<PickedBackupFile?> pickBackup();
 }
 
 class BackupFileService implements BackupFileGateway {
   @override
-  Future<String> saveBackup(BackupExportResult backup) {
-    return FileSaver.instance.saveFile(
+  Future<String?> saveBackup(BackupExportResult backup) {
+    return FileSaver.instance.saveAs(
       name: backup.fileName,
       bytes: backup.bytes,
       includeExtension: false,

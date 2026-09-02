@@ -90,9 +90,15 @@ class _SettingsPageState extends State<SettingsPage> {
         accent: settings.accent,
       );
 
-      await _backupFileGateway.saveBackup(backup);
+      final savedPath = await _backupFileGateway.saveBackup(backup);
 
       if (!mounted) {
+        return;
+      }
+
+      if (savedPath == null) {
+        _showMessage('Backup creation cancelled.');
+
         return;
       }
 
@@ -193,7 +199,11 @@ class _SettingsPageState extends State<SettingsPage> {
         database: widget.database,
         settingsController: settings,
         safetyBackupWriter: (safetyBackup) async {
-          await _backupFileGateway.saveBackup(safetyBackup);
+          final savedPath = await _backupFileGateway.saveBackup(safetyBackup);
+
+          if (savedPath == null) {
+            throw StateError('Safety backup save was cancelled.');
+          }
         },
         exportService: _backupExportService,
       );

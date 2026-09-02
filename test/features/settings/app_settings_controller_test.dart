@@ -122,4 +122,46 @@ void main() {
       );
     },
   );
+
+  test(
+    'replaceSettings persists theme and accent together',
+    () async {
+      final controller =
+          AppSettingsController();
+
+      await controller.load();
+
+      await controller.replaceSettings(
+        themeMode: ThemeMode.dark,
+        accent: AppAccent.purple,
+      );
+
+      expect(
+        controller.themeMode,
+        ThemeMode.dark,
+      );
+
+      expect(
+        controller.accent,
+        AppAccent.purple,
+      );
+
+      final preferences =
+          await SharedPreferences.getInstance();
+
+      expect(
+        preferences.getString(
+          'theme_mode',
+        ),
+        'dark',
+      );
+
+      expect(
+        preferences.getString(
+          'accent',
+        ),
+        'purple',
+      );
+    },
+  );
 }

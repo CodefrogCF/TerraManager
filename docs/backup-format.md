@@ -829,6 +829,40 @@ successful but partially restored state.
 Exact transactional and recovery behavior is defined by the restore
 implementation.
 
+## Transactional Database Replacement
+
+Domain data replacement is performed inside a Drift transaction.
+
+The replacement order is:
+
+```text
+Delete FeedingEvents
+Delete Animals
+Delete Boxes
+
+Reset autoincrement sequences
+
+Insert Boxes
+Insert Animals
+Insert FeedingEvents
+
+Run foreign-key integrity check
+```
+
+If any database operation fails, the transaction is rolled back.
+
+The database therefore remains in its pre-restore state.
+
+Restored media is prepared before destructive database changes begin.
+
+Application settings changed in preparation for restore are returned to their
+previous values if database replacement fails.
+
+Prepared restore media is cleaned up when database replacement fails.
+
+The pre-restore safety backup is never deleted automatically as part of
+rollback.
+
 ## Full Replacement vs Merge
 
 Backup Format Version 1 intentionally uses full replacement.

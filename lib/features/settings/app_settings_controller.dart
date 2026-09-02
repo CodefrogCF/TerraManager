@@ -94,6 +94,80 @@ class AppSettingsController extends ChangeNotifier {
 
     return AppAccent.green;
   }
+
+  Future<void> replaceSettings({
+    required ThemeMode themeMode,
+    required AppAccent accent,
+  }) async {
+    final preferences = await SharedPreferences.getInstance();
+
+    final previousThemeMode = _themeMode;
+    final previousAccent = _accent;
+
+    final previousStoredTheme =
+        preferences.getString(_themeModeKey);
+
+    final previousStoredAccent =
+        preferences.getString(_accentKey);
+
+    try {
+      final themeSaved = await preferences.setString(
+        _themeModeKey,
+        themeMode.name,
+      );
+
+      if (!themeSaved) {
+        throw StateError(
+          'Failed to persist theme mode',
+        );
+      }
+
+      final accentSaved = await preferences.setString(
+        _accentKey,
+        accent.name,
+      );
+
+      if (!accentSaved) {
+        throw StateError(
+          'Failed to persist accent',
+        );
+      }
+
+      _themeMode = themeMode;
+      _accent = accent;
+
+      notifyListeners();
+    } catch (_) {
+      if (previousStoredTheme == null) {
+        await preferences.remove(
+          _themeModeKey,
+        );
+      } else {
+        await preferences.setString(
+          _themeModeKey,
+          previousStoredTheme,
+        );
+      }
+
+      if (previousStoredAccent == null) {
+        await preferences.remove(
+          _accentKey,
+        );
+      } else {
+        await preferences.setString(
+          _accentKey,
+          previousStoredAccent,
+        );
+      }
+
+      _themeMode = previousThemeMode;
+      _accent = previousAccent;
+
+      notifyListeners();
+
+      rethrow;
+    }
+  }
 }
 
 class AppSettingsScope

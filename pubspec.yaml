@@ -45,6 +45,7 @@ dependencies:
   mobile_scanner: ^7.4.0
   saver_gallery: ^5.1.0
   shared_preferences: ^2.5.5
+  archive: ^4.0.9
 
 dev_dependencies:
   flutter_test:

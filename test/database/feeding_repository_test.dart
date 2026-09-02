@@ -315,4 +315,78 @@ void main() {
       );
     },
   );
+
+  test(
+    'can get all feeding events',
+    () async {
+      final boxId =
+          await database
+              .into(database.boxes)
+              .insert(
+        BoxesCompanion.insert(
+          qrId:
+              'all-feedings-box',
+        ),
+      );
+
+      final firstAnimalId =
+          await database
+              .into(database.animals)
+              .insert(
+        AnimalsCompanion.insert(
+          boxId: drift.Value(boxId),
+          commonName: 'Animal One',
+          latinName: 'Species one',
+          tempMin: 20,
+          tempMax: 25,
+          humidityMin: 40,
+          humidityMax: 60,
+        ),
+      );
+
+      final secondAnimalId =
+          await database
+              .into(database.animals)
+              .insert(
+        AnimalsCompanion.insert(
+          boxId: drift.Value(boxId),
+          commonName: 'Animal Two',
+          latinName: 'Species two',
+          tempMin: 20,
+          tempMax: 25,
+          humidityMin: 40,
+          humidityMax: 60,
+        ),
+      );
+
+      await repository.addFeeding(
+        firstAnimalId,
+        DateTime(2026, 9, 1),
+      );
+
+      await repository.addFeeding(
+        secondAnimalId,
+        DateTime(2026, 9, 2),
+      );
+
+      final feedings =
+          await repository.getAllFeedings();
+
+      expect(
+        feedings.length,
+        2,
+      );
+
+      expect(
+        feedings.map(
+          (feeding) =>
+              feeding.animalId,
+        ),
+        containsAll([
+          firstAnimalId,
+          secondAnimalId,
+        ]),
+      );
+    },
+  );
 }

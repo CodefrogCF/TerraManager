@@ -7,6 +7,10 @@ class FeedingRepository {
 
   FeedingRepository(this.database);
 
+  Future<List<FeedingEvent>> getAllFeedings() {
+    return database.select(database.feedingEvents).get();
+  }
+
   Future<int> addFeeding(
     int animalId,
     DateTime fedAt, {

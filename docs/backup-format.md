@@ -525,6 +525,14 @@ Example:
 media/animals/10.jpg
 ```
 
+The archive filename extension is preserved when a recognized image extension
+is available.
+
+If the source reference does not expose a usable image extension, TerraManager
+may use the generic `.img` extension.
+
+The media content itself remains unchanged.
+
 The Animal representation then stores:
 
 ```json

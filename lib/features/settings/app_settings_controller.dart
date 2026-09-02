@@ -16,20 +16,14 @@ class AppSettingsController extends ChangeNotifier {
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
 
-    _themeMode = _parseThemeMode(
-      preferences.getString(_themeModeKey),
-    );
+    _themeMode = _parseThemeMode(preferences.getString(_themeModeKey));
 
-    _accent = _parseAccent(
-      preferences.getString(_accentKey),
-    );
+    _accent = _parseAccent(preferences.getString(_accentKey));
 
     notifyListeners();
   }
 
-  Future<void> setThemeMode(
-    ThemeMode themeMode,
-  ) async {
+  Future<void> setThemeMode(ThemeMode themeMode) async {
     if (_themeMode == themeMode) {
       return;
     }
@@ -39,15 +33,10 @@ class AppSettingsController extends ChangeNotifier {
 
     final preferences = await SharedPreferences.getInstance();
 
-    await preferences.setString(
-      _themeModeKey,
-      themeMode.name,
-    );
+    await preferences.setString(_themeModeKey, themeMode.name);
   }
 
-  Future<void> setAccent(
-    AppAccent accent,
-  ) async {
+  Future<void> setAccent(AppAccent accent) async {
     if (_accent == accent) {
       return;
     }
@@ -57,15 +46,10 @@ class AppSettingsController extends ChangeNotifier {
 
     final preferences = await SharedPreferences.getInstance();
 
-    await preferences.setString(
-      _accentKey,
-      accent.name,
-    );
+    await preferences.setString(_accentKey, accent.name);
   }
 
-  ThemeMode _parseThemeMode(
-    String? value,
-  ) {
+  ThemeMode _parseThemeMode(String? value) {
     if (value == null) {
       return ThemeMode.system;
     }
@@ -79,9 +63,7 @@ class AppSettingsController extends ChangeNotifier {
     return ThemeMode.system;
   }
 
-  AppAccent _parseAccent(
-    String? value,
-  ) {
+  AppAccent _parseAccent(String? value) {
     if (value == null) {
       return AppAccent.green;
     }
@@ -104,11 +86,9 @@ class AppSettingsController extends ChangeNotifier {
     final previousThemeMode = _themeMode;
     final previousAccent = _accent;
 
-    final previousStoredTheme =
-        preferences.getString(_themeModeKey);
+    final previousStoredTheme = preferences.getString(_themeModeKey);
 
-    final previousStoredAccent =
-        preferences.getString(_accentKey);
+    final previousStoredAccent = preferences.getString(_accentKey);
 
     try {
       final themeSaved = await preferences.setString(
@@ -117,20 +97,13 @@ class AppSettingsController extends ChangeNotifier {
       );
 
       if (!themeSaved) {
-        throw StateError(
-          'Failed to persist theme mode',
-        );
+        throw StateError('Failed to persist theme mode');
       }
 
-      final accentSaved = await preferences.setString(
-        _accentKey,
-        accent.name,
-      );
+      final accentSaved = await preferences.setString(_accentKey, accent.name);
 
       if (!accentSaved) {
-        throw StateError(
-          'Failed to persist accent',
-        );
+        throw StateError('Failed to persist accent');
       }
 
       _themeMode = themeMode;
@@ -139,25 +112,15 @@ class AppSettingsController extends ChangeNotifier {
       notifyListeners();
     } catch (_) {
       if (previousStoredTheme == null) {
-        await preferences.remove(
-          _themeModeKey,
-        );
+        await preferences.remove(_themeModeKey);
       } else {
-        await preferences.setString(
-          _themeModeKey,
-          previousStoredTheme,
-        );
+        await preferences.setString(_themeModeKey, previousStoredTheme);
       }
 
       if (previousStoredAccent == null) {
-        await preferences.remove(
-          _accentKey,
-        );
+        await preferences.remove(_accentKey);
       } else {
-        await preferences.setString(
-          _accentKey,
-          previousStoredAccent,
-        );
+        await preferences.setString(_accentKey, previousStoredAccent);
       }
 
       _themeMode = previousThemeMode;
@@ -170,26 +133,18 @@ class AppSettingsController extends ChangeNotifier {
   }
 }
 
-class AppSettingsScope
-    extends InheritedNotifier<AppSettingsController> {
+class AppSettingsScope extends InheritedNotifier<AppSettingsController> {
   const AppSettingsScope({
     super.key,
     required AppSettingsController controller,
     required super.child,
-  }) : super(
-          notifier: controller,
-        );
+  }) : super(notifier: controller);
 
-  static AppSettingsController of(
-    BuildContext context,
-  ) {
-    final scope = context.dependOnInheritedWidgetOfExactType<
-        AppSettingsScope>();
+  static AppSettingsController of(BuildContext context) {
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<AppSettingsScope>();
 
-    assert(
-      scope != null,
-      'No AppSettingsScope found in context',
-    );
+    assert(scope != null, 'No AppSettingsScope found in context');
 
     return scope!.notifier!;
   }

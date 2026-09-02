@@ -297,6 +297,406 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   }
 }
 
+class $MediaAssetsTable extends MediaAssets
+    with TableInfo<$MediaAssetsTable, MediaAsset> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MediaAssetsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _fileNameMeta = const VerificationMeta(
+    'fileName',
+  );
+  @override
+  late final GeneratedColumn<String> fileName = GeneratedColumn<String>(
+    'file_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _mimeTypeMeta = const VerificationMeta(
+    'mimeType',
+  );
+  @override
+  late final GeneratedColumn<String> mimeType = GeneratedColumn<String>(
+    'mime_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  @override
+  late final GeneratedColumn<Uint8List> data = GeneratedColumn<Uint8List>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.blob,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    fileName,
+    mimeType,
+    data,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'media_assets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MediaAsset> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('file_name')) {
+      context.handle(
+        _fileNameMeta,
+        fileName.isAcceptableOrUnknown(data['file_name']!, _fileNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fileNameMeta);
+    }
+    if (data.containsKey('mime_type')) {
+      context.handle(
+        _mimeTypeMeta,
+        mimeType.isAcceptableOrUnknown(data['mime_type']!, _mimeTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mimeTypeMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(
+        _dataMeta,
+        this.data.isAcceptableOrUnknown(data['data']!, _dataMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dataMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MediaAsset map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MediaAsset(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      fileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_name'],
+      )!,
+      mimeType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mime_type'],
+      )!,
+      data: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}data'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $MediaAssetsTable createAlias(String alias) {
+    return $MediaAssetsTable(attachedDatabase, alias);
+  }
+}
+
+class MediaAsset extends DataClass implements Insertable<MediaAsset> {
+  final int id;
+  final String fileName;
+  final String mimeType;
+  final Uint8List data;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const MediaAsset({
+    required this.id,
+    required this.fileName,
+    required this.mimeType,
+    required this.data,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['file_name'] = Variable<String>(fileName);
+    map['mime_type'] = Variable<String>(mimeType);
+    map['data'] = Variable<Uint8List>(data);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  MediaAssetsCompanion toCompanion(bool nullToAbsent) {
+    return MediaAssetsCompanion(
+      id: Value(id),
+      fileName: Value(fileName),
+      mimeType: Value(mimeType),
+      data: Value(data),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory MediaAsset.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MediaAsset(
+      id: serializer.fromJson<int>(json['id']),
+      fileName: serializer.fromJson<String>(json['fileName']),
+      mimeType: serializer.fromJson<String>(json['mimeType']),
+      data: serializer.fromJson<Uint8List>(json['data']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'fileName': serializer.toJson<String>(fileName),
+      'mimeType': serializer.toJson<String>(mimeType),
+      'data': serializer.toJson<Uint8List>(data),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  MediaAsset copyWith({
+    int? id,
+    String? fileName,
+    String? mimeType,
+    Uint8List? data,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => MediaAsset(
+    id: id ?? this.id,
+    fileName: fileName ?? this.fileName,
+    mimeType: mimeType ?? this.mimeType,
+    data: data ?? this.data,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  MediaAsset copyWithCompanion(MediaAssetsCompanion data) {
+    return MediaAsset(
+      id: data.id.present ? data.id.value : this.id,
+      fileName: data.fileName.present ? data.fileName.value : this.fileName,
+      mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
+      data: data.data.present ? data.data.value : this.data,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MediaAsset(')
+          ..write('id: $id, ')
+          ..write('fileName: $fileName, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('data: $data, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    fileName,
+    mimeType,
+    $driftBlobEquality.hash(data),
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MediaAsset &&
+          other.id == this.id &&
+          other.fileName == this.fileName &&
+          other.mimeType == this.mimeType &&
+          $driftBlobEquality.equals(other.data, this.data) &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
+  final Value<int> id;
+  final Value<String> fileName;
+  final Value<String> mimeType;
+  final Value<Uint8List> data;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const MediaAssetsCompanion({
+    this.id = const Value.absent(),
+    this.fileName = const Value.absent(),
+    this.mimeType = const Value.absent(),
+    this.data = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  MediaAssetsCompanion.insert({
+    this.id = const Value.absent(),
+    required String fileName,
+    required String mimeType,
+    required Uint8List data,
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : fileName = Value(fileName),
+       mimeType = Value(mimeType),
+       data = Value(data);
+  static Insertable<MediaAsset> custom({
+    Expression<int>? id,
+    Expression<String>? fileName,
+    Expression<String>? mimeType,
+    Expression<Uint8List>? data,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (fileName != null) 'file_name': fileName,
+      if (mimeType != null) 'mime_type': mimeType,
+      if (data != null) 'data': data,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  MediaAssetsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? fileName,
+    Value<String>? mimeType,
+    Value<Uint8List>? data,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return MediaAssetsCompanion(
+      id: id ?? this.id,
+      fileName: fileName ?? this.fileName,
+      mimeType: mimeType ?? this.mimeType,
+      data: data ?? this.data,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
+    }
+    if (mimeType.present) {
+      map['mime_type'] = Variable<String>(mimeType.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<Uint8List>(data.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MediaAssetsCompanion(')
+          ..write('id: $id, ')
+          ..write('fileName: $fileName, ')
+          ..write('mimeType: $mimeType, ')
+          ..write('data: $data, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -446,6 +846,20 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _pictureMediaIdMeta = const VerificationMeta(
+    'pictureMediaId',
+  );
+  @override
+  late final GeneratedColumn<int> pictureMediaId = GeneratedColumn<int>(
+    'picture_media_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES media_assets (id)',
+    ),
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -525,6 +939,7 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     humidityMin,
     humidityMax,
     picturePath,
+    pictureMediaId,
     notes,
     archiveReason,
     archivedAt,
@@ -619,6 +1034,15 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         picturePath.isAcceptableOrUnknown(
           data['picture_path']!,
           _picturePathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('picture_media_id')) {
+      context.handle(
+        _pictureMediaIdMeta,
+        pictureMediaId.isAcceptableOrUnknown(
+          data['picture_media_id']!,
+          _pictureMediaIdMeta,
         ),
       );
     }
@@ -722,6 +1146,10 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.string,
         data['${effectivePrefix}picture_path'],
       ),
+      pictureMediaId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}picture_media_id'],
+      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -787,6 +1215,7 @@ class Animal extends DataClass implements Insertable<Animal> {
   final double humidityMin;
   final double humidityMax;
   final String? picturePath;
+  final int? pictureMediaId;
   final String? notes;
   final AnimalArchiveReason? archiveReason;
   final DateTime? archivedAt;
@@ -807,6 +1236,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     required this.humidityMin,
     required this.humidityMax,
     this.picturePath,
+    this.pictureMediaId,
     this.notes,
     this.archiveReason,
     this.archivedAt,
@@ -845,6 +1275,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     map['humidity_max'] = Variable<double>(humidityMax);
     if (!nullToAbsent || picturePath != null) {
       map['picture_path'] = Variable<String>(picturePath);
+    }
+    if (!nullToAbsent || pictureMediaId != null) {
+      map['picture_media_id'] = Variable<int>(pictureMediaId);
     }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -888,6 +1321,9 @@ class Animal extends DataClass implements Insertable<Animal> {
       picturePath: picturePath == null && nullToAbsent
           ? const Value.absent()
           : Value(picturePath),
+      pictureMediaId: pictureMediaId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pictureMediaId),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -926,6 +1362,7 @@ class Animal extends DataClass implements Insertable<Animal> {
       humidityMin: serializer.fromJson<double>(json['humidityMin']),
       humidityMax: serializer.fromJson<double>(json['humidityMax']),
       picturePath: serializer.fromJson<String?>(json['picturePath']),
+      pictureMediaId: serializer.fromJson<int?>(json['pictureMediaId']),
       notes: serializer.fromJson<String?>(json['notes']),
       archiveReason: serializer.fromJson<AnimalArchiveReason?>(
         json['archiveReason'],
@@ -955,6 +1392,7 @@ class Animal extends DataClass implements Insertable<Animal> {
       'humidityMin': serializer.toJson<double>(humidityMin),
       'humidityMax': serializer.toJson<double>(humidityMax),
       'picturePath': serializer.toJson<String?>(picturePath),
+      'pictureMediaId': serializer.toJson<int?>(pictureMediaId),
       'notes': serializer.toJson<String?>(notes),
       'archiveReason': serializer.toJson<AnimalArchiveReason?>(archiveReason),
       'archivedAt': serializer.toJson<DateTime?>(archivedAt),
@@ -978,6 +1416,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     double? humidityMin,
     double? humidityMax,
     Value<String?> picturePath = const Value.absent(),
+    Value<int?> pictureMediaId = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<AnimalArchiveReason?> archiveReason = const Value.absent(),
     Value<DateTime?> archivedAt = const Value.absent(),
@@ -1000,6 +1439,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     humidityMin: humidityMin ?? this.humidityMin,
     humidityMax: humidityMax ?? this.humidityMax,
     picturePath: picturePath.present ? picturePath.value : this.picturePath,
+    pictureMediaId: pictureMediaId.present
+        ? pictureMediaId.value
+        : this.pictureMediaId,
     notes: notes.present ? notes.value : this.notes,
     archiveReason: archiveReason.present
         ? archiveReason.value
@@ -1034,6 +1476,9 @@ class Animal extends DataClass implements Insertable<Animal> {
       picturePath: data.picturePath.present
           ? data.picturePath.value
           : this.picturePath,
+      pictureMediaId: data.pictureMediaId.present
+          ? data.pictureMediaId.value
+          : this.pictureMediaId,
       notes: data.notes.present ? data.notes.value : this.notes,
       archiveReason: data.archiveReason.present
           ? data.archiveReason.value
@@ -1065,6 +1510,7 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
           ..write('picturePath: $picturePath, ')
+          ..write('pictureMediaId: $pictureMediaId, ')
           ..write('notes: $notes, ')
           ..write('archiveReason: $archiveReason, ')
           ..write('archivedAt: $archivedAt, ')
@@ -1090,6 +1536,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     humidityMin,
     humidityMax,
     picturePath,
+    pictureMediaId,
     notes,
     archiveReason,
     archivedAt,
@@ -1114,6 +1561,7 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.humidityMin == this.humidityMin &&
           other.humidityMax == this.humidityMax &&
           other.picturePath == this.picturePath &&
+          other.pictureMediaId == this.pictureMediaId &&
           other.notes == this.notes &&
           other.archiveReason == this.archiveReason &&
           other.archivedAt == this.archivedAt &&
@@ -1136,6 +1584,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<double> humidityMin;
   final Value<double> humidityMax;
   final Value<String?> picturePath;
+  final Value<int?> pictureMediaId;
   final Value<String?> notes;
   final Value<AnimalArchiveReason?> archiveReason;
   final Value<DateTime?> archivedAt;
@@ -1156,6 +1605,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.humidityMin = const Value.absent(),
     this.humidityMax = const Value.absent(),
     this.picturePath = const Value.absent(),
+    this.pictureMediaId = const Value.absent(),
     this.notes = const Value.absent(),
     this.archiveReason = const Value.absent(),
     this.archivedAt = const Value.absent(),
@@ -1177,6 +1627,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     required double humidityMin,
     required double humidityMax,
     this.picturePath = const Value.absent(),
+    this.pictureMediaId = const Value.absent(),
     this.notes = const Value.absent(),
     this.archiveReason = const Value.absent(),
     this.archivedAt = const Value.absent(),
@@ -1203,6 +1654,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<double>? humidityMin,
     Expression<double>? humidityMax,
     Expression<String>? picturePath,
+    Expression<int>? pictureMediaId,
     Expression<String>? notes,
     Expression<String>? archiveReason,
     Expression<DateTime>? archivedAt,
@@ -1224,6 +1676,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       if (humidityMin != null) 'humidity_min': humidityMin,
       if (humidityMax != null) 'humidity_max': humidityMax,
       if (picturePath != null) 'picture_path': picturePath,
+      if (pictureMediaId != null) 'picture_media_id': pictureMediaId,
       if (notes != null) 'notes': notes,
       if (archiveReason != null) 'archive_reason': archiveReason,
       if (archivedAt != null) 'archived_at': archivedAt,
@@ -1247,6 +1700,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<double>? humidityMin,
     Value<double>? humidityMax,
     Value<String?>? picturePath,
+    Value<int?>? pictureMediaId,
     Value<String?>? notes,
     Value<AnimalArchiveReason?>? archiveReason,
     Value<DateTime?>? archivedAt,
@@ -1268,6 +1722,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       humidityMin: humidityMin ?? this.humidityMin,
       humidityMax: humidityMax ?? this.humidityMax,
       picturePath: picturePath ?? this.picturePath,
+      pictureMediaId: pictureMediaId ?? this.pictureMediaId,
       notes: notes ?? this.notes,
       archiveReason: archiveReason ?? this.archiveReason,
       archivedAt: archivedAt ?? this.archivedAt,
@@ -1327,6 +1782,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     if (picturePath.present) {
       map['picture_path'] = Variable<String>(picturePath.value);
     }
+    if (pictureMediaId.present) {
+      map['picture_media_id'] = Variable<int>(pictureMediaId.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -1366,6 +1824,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
           ..write('picturePath: $picturePath, ')
+          ..write('pictureMediaId: $pictureMediaId, ')
           ..write('notes: $notes, ')
           ..write('archiveReason: $archiveReason, ')
           ..write('archivedAt: $archivedAt, ')
@@ -1681,6 +2140,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $BoxesTable boxes = $BoxesTable(this);
+  late final $MediaAssetsTable mediaAssets = $MediaAssetsTable(this);
   late final $AnimalsTable animals = $AnimalsTable(this);
   late final $FeedingEventsTable feedingEvents = $FeedingEventsTable(this);
   @override
@@ -1689,6 +2149,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     boxes,
+    mediaAssets,
     animals,
     feedingEvents,
   ];
@@ -1959,6 +2420,323 @@ typedef $$BoxesTableProcessedTableManager =
       Box,
       PrefetchHooks Function({bool animalsRefs})
     >;
+typedef $$MediaAssetsTableCreateCompanionBuilder =
+    MediaAssetsCompanion Function({
+      Value<int> id,
+      required String fileName,
+      required String mimeType,
+      required Uint8List data,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+typedef $$MediaAssetsTableUpdateCompanionBuilder =
+    MediaAssetsCompanion Function({
+      Value<int> id,
+      Value<String> fileName,
+      Value<String> mimeType,
+      Value<Uint8List> data,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$MediaAssetsTableReferences
+    extends BaseReferences<_$AppDatabase, $MediaAssetsTable, MediaAsset> {
+  $$MediaAssetsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$AnimalsTable, List<Animal>> _animalsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.animals,
+    aliasName: 'media_assets__id__animals__picture_media_id',
+  );
+
+  $$AnimalsTableProcessedTableManager get animalsRefs {
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.pictureMediaId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_animalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$MediaAssetsTableFilterComposer
+    extends Composer<_$AppDatabase, $MediaAssetsTable> {
+  $$MediaAssetsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mimeType => $composableBuilder(
+    column: $table.mimeType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<Uint8List> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> animalsRefs(
+    Expression<bool> Function($$AnimalsTableFilterComposer f) f,
+  ) {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.pictureMediaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$MediaAssetsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MediaAssetsTable> {
+  $$MediaAssetsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fileName => $composableBuilder(
+    column: $table.fileName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mimeType => $composableBuilder(
+    column: $table.mimeType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<Uint8List> get data => $composableBuilder(
+    column: $table.data,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MediaAssetsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MediaAssetsTable> {
+  $$MediaAssetsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => column);
+
+  GeneratedColumn<String> get mimeType =>
+      $composableBuilder(column: $table.mimeType, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> animalsRefs<T extends Object>(
+    Expression<T> Function($$AnimalsTableAnnotationComposer a) f,
+  ) {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.pictureMediaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$MediaAssetsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MediaAssetsTable,
+          MediaAsset,
+          $$MediaAssetsTableFilterComposer,
+          $$MediaAssetsTableOrderingComposer,
+          $$MediaAssetsTableAnnotationComposer,
+          $$MediaAssetsTableCreateCompanionBuilder,
+          $$MediaAssetsTableUpdateCompanionBuilder,
+          (MediaAsset, $$MediaAssetsTableReferences),
+          MediaAsset,
+          PrefetchHooks Function({bool animalsRefs})
+        > {
+  $$MediaAssetsTableTableManager(_$AppDatabase db, $MediaAssetsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MediaAssetsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MediaAssetsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MediaAssetsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> fileName = const Value.absent(),
+                Value<String> mimeType = const Value.absent(),
+                Value<Uint8List> data = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => MediaAssetsCompanion(
+                id: id,
+                fileName: fileName,
+                mimeType: mimeType,
+                data: data,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String fileName,
+                required String mimeType,
+                required Uint8List data,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => MediaAssetsCompanion.insert(
+                id: id,
+                fileName: fileName,
+                mimeType: mimeType,
+                data: data,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MediaAssetsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({animalsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (animalsRefs) db.animals],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (animalsRefs)
+                    await $_getPrefetchedData<
+                      MediaAsset,
+                      $MediaAssetsTable,
+                      Animal
+                    >(
+                      currentTable: table,
+                      referencedTable: $$MediaAssetsTableReferences
+                          ._animalsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$MediaAssetsTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).animalsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.pictureMediaId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$MediaAssetsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MediaAssetsTable,
+      MediaAsset,
+      $$MediaAssetsTableFilterComposer,
+      $$MediaAssetsTableOrderingComposer,
+      $$MediaAssetsTableAnnotationComposer,
+      $$MediaAssetsTableCreateCompanionBuilder,
+      $$MediaAssetsTableUpdateCompanionBuilder,
+      (MediaAsset, $$MediaAssetsTableReferences),
+      MediaAsset,
+      PrefetchHooks Function({bool animalsRefs})
+    >;
 typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<int> id,
   Value<int?> boxId,
@@ -1973,6 +2751,7 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   required double humidityMin,
   required double humidityMax,
   Value<String?> picturePath,
+  Value<int?> pictureMediaId,
   Value<String?> notes,
   Value<AnimalArchiveReason?> archiveReason,
   Value<DateTime?> archivedAt,
@@ -1994,6 +2773,7 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<double> humidityMin,
   Value<double> humidityMax,
   Value<String?> picturePath,
+  Value<int?> pictureMediaId,
   Value<String?> notes,
   Value<AnimalArchiveReason?> archiveReason,
   Value<DateTime?> archivedAt,
@@ -2017,6 +2797,23 @@ final class $$AnimalsTableReferences
       $_db.boxes,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_boxIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MediaAssetsTable _pictureMediaIdTable(_$AppDatabase db) =>
+      db.mediaAssets.createAlias('animals__picture_media_id__media_assets__id');
+
+  $$MediaAssetsTableProcessedTableManager? get pictureMediaId {
+    final $_column = $_itemColumn<int>('picture_media_id');
+    if ($_column == null) return null;
+    final manager = $$MediaAssetsTableTableManager(
+      $_db,
+      $_db.mediaAssets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_pictureMediaIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -2163,6 +2960,29 @@ class $$AnimalsTableFilterComposer
           }) => $$BoxesTableFilterComposer(
             $db: $db,
             $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MediaAssetsTableFilterComposer get pictureMediaId {
+    final $$MediaAssetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.pictureMediaId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableFilterComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -2319,6 +3139,29 @@ class $$AnimalsTableOrderingComposer
     );
     return composer;
   }
+
+  $$MediaAssetsTableOrderingComposer get pictureMediaId {
+    final $$MediaAssetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.pictureMediaId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$AnimalsTableAnnotationComposer
@@ -2425,6 +3268,29 @@ class $$AnimalsTableAnnotationComposer
     return composer;
   }
 
+  $$MediaAssetsTableAnnotationComposer get pictureMediaId {
+    final $$MediaAssetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.pictureMediaId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> feedingEventsRefs<T extends Object>(
     Expression<T> Function($$FeedingEventsTableAnnotationComposer a) f,
   ) {
@@ -2464,7 +3330,11 @@ class $$AnimalsTableTableManager
           $$AnimalsTableUpdateCompanionBuilder,
           (Animal, $$AnimalsTableReferences),
           Animal,
-          PrefetchHooks Function({bool boxId, bool feedingEventsRefs})
+          PrefetchHooks Function({
+            bool boxId,
+            bool pictureMediaId,
+            bool feedingEventsRefs,
+          })
         > {
   $$AnimalsTableTableManager(_$AppDatabase db, $AnimalsTable table)
     : super(
@@ -2493,6 +3363,7 @@ class $$AnimalsTableTableManager
                 Value<double> humidityMin = const Value.absent(),
                 Value<double> humidityMax = const Value.absent(),
                 Value<String?> picturePath = const Value.absent(),
+                Value<int?> pictureMediaId = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<AnimalArchiveReason?> archiveReason =
                     const Value.absent(),
@@ -2514,6 +3385,7 @@ class $$AnimalsTableTableManager
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
                 picturePath: picturePath,
+                pictureMediaId: pictureMediaId,
                 notes: notes,
                 archiveReason: archiveReason,
                 archivedAt: archivedAt,
@@ -2537,6 +3409,7 @@ class $$AnimalsTableTableManager
                 required double humidityMin,
                 required double humidityMax,
                 Value<String?> picturePath = const Value.absent(),
+                Value<int?> pictureMediaId = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<AnimalArchiveReason?> archiveReason =
                     const Value.absent(),
@@ -2558,6 +3431,7 @@ class $$AnimalsTableTableManager
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
                 picturePath: picturePath,
+                pictureMediaId: pictureMediaId,
                 notes: notes,
                 archiveReason: archiveReason,
                 archivedAt: archivedAt,
@@ -2573,67 +3447,85 @@ class $$AnimalsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({boxId = false, feedingEventsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (feedingEventsRefs) db.feedingEvents,
-              ],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (boxId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.boxId,
-                        referencedTable: $$AnimalsTableReferences._boxIdTable(
-                          db,
-                        ),
-                        referencedColumn: $$AnimalsTableReferences
-                            ._boxIdTable(db)
-                            .id,
-                      ) as T;
-                    }
+          prefetchHooksCallback:
+              ({
+                boxId = false,
+                pictureMediaId = false,
+                feedingEventsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (feedingEventsRefs) db.feedingEvents,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (boxId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.boxId,
+                            referencedTable: $$AnimalsTableReferences
+                                ._boxIdTable(db),
+                            referencedColumn: $$AnimalsTableReferences
+                                ._boxIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (pictureMediaId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.pictureMediaId,
+                            referencedTable: $$AnimalsTableReferences
+                                ._pictureMediaIdTable(db),
+                            referencedColumn: $$AnimalsTableReferences
+                                ._pictureMediaIdTable(db)
+                                .id,
+                          ) as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (feedingEventsRefs)
+                        await $_getPrefetchedData<
+                          Animal,
+                          $AnimalsTable,
+                          FeedingEvent
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AnimalsTableReferences
+                              ._feedingEventsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AnimalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).feedingEventsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.animalId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (feedingEventsRefs)
-                    await $_getPrefetchedData<
-                      Animal,
-                      $AnimalsTable,
-                      FeedingEvent
-                    >(
-                      currentTable: table,
-                      referencedTable: $$AnimalsTableReferences
-                          ._feedingEventsRefsTable(db),
-                      managerFromTypedResult: (p0) => $$AnimalsTableReferences(
-                        db,
-                        table,
-                        p0,
-                      ).feedingEventsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.animalId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2650,7 +3542,11 @@ typedef $$AnimalsTableProcessedTableManager =
       $$AnimalsTableUpdateCompanionBuilder,
       (Animal, $$AnimalsTableReferences),
       Animal,
-      PrefetchHooks Function({bool boxId, bool feedingEventsRefs})
+      PrefetchHooks Function({
+        bool boxId,
+        bool pictureMediaId,
+        bool feedingEventsRefs,
+      })
     >;
 typedef $$FeedingEventsTableCreateCompanionBuilder =
     FeedingEventsCompanion Function({
@@ -2952,6 +3848,8 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$BoxesTableTableManager get boxes =>
       $$BoxesTableTableManager(_db, _db.boxes);
+  $$MediaAssetsTableTableManager get mediaAssets =>
+      $$MediaAssetsTableTableManager(_db, _db.mediaAssets);
   $$AnimalsTableTableManager get animals =>
       $$AnimalsTableTableManager(_db, _db.animals);
   $$FeedingEventsTableTableManager get feedingEvents =>

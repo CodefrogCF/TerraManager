@@ -23,26 +23,13 @@ class FakeQrExporter implements QrExporter {
   }) async {
     exportedQrId = qrId;
 
-    return Uint8List.fromList([
-      137,
-      80,
-      78,
-      71,
-      13,
-      10,
-      26,
-      10,
-      1,
-    ]);
+    return Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10, 1]);
   }
 }
 
 class FailingQrExporter implements QrExporter {
   @override
-  Future<Uint8List> exportPng({
-    required String qrId,
-    double size = 1024,
-  }) {
+  Future<Uint8List> exportPng({required String qrId, double size = 1024}) {
     throw StateError('Test export failure');
   }
 }
@@ -65,10 +52,7 @@ class FakeQrStorage implements QrStorage {
 
 class FailingQrStorage implements QrStorage {
   @override
-  Future<String> savePng({
-    required Uint8List bytes,
-    required String fileName,
-  }) {
+  Future<String> savePng({required Uint8List bytes, required String fileName}) {
     throw StateError('Test save failure');
   }
 }
@@ -101,9 +85,7 @@ void main() {
   late AppDatabase database;
 
   setUp(() {
-    database = AppDatabase.test(
-      NativeDatabase.memory(),
-    );
+    database = AppDatabase.test(NativeDatabase.memory());
   });
 
   tearDown(() async {
@@ -111,493 +93,282 @@ void main() {
   });
 
   Future<Box> createTestBox() async {
-    final boxId = await BoxRepository(database).createBox(
-      'TM:BOX:12345678-1234-4123-8123-123456789abc',
-    );
+    final boxId = await BoxRepository(database)
+        .createBox('TM:BOX:12345678-1234-4123-8123-123456789abc');
 
-    final box = await BoxRepository(database).getBoxById(
-      boxId,
-    );
+    final box = await BoxRepository(database).getBoxById(boxId);
 
     return box!;
   }
 
-  Future<void> pumpPage(
-    WidgetTester tester, {
-    required Box box,
-  }) async {
+  Future<void> pumpPage(WidgetTester tester, {required Box box}) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: BoxDetailPage(
-          database: database,
-          box: box,
-        ),
+        home: BoxDetailPage(database: database, box: box),
       ),
     );
 
     await tester.pumpAndSettle();
   }
 
-  testWidgets(
-    'shows box details',
-    (tester) async {
-      final box = await createTestBox();
+  testWidgets('shows box details', (tester) async {
+    final box = await createTestBox();
 
-      await pumpPage(
-        tester,
-        box: box,
-      );
+    await pumpPage(tester, box: box);
 
-      expect(
-        find.text('Box Details'),
-        findsOneWidget,
-      );
+    expect(find.text('Box Details'), findsOneWidget);
 
-      expect(
-        find.text(
-          'TM:BOX:12345678-1234-4123-8123-123456789abc',
+    expect(
+      find.text('TM:BOX:12345678-1234-4123-8123-123456789abc'),
+      findsOneWidget,
+    );
+
+    expect(find.text('Box ID'), findsOneWidget);
+
+    expect(find.text(box.id.toString()), findsOneWidget);
+
+    expect(find.text('Created'), findsOneWidget);
+
+    expect(find.text('Updated'), findsOneWidget);
+  });
+
+  testWidgets('shows QR code', (tester) async {
+    final box = await createTestBox();
+
+    await pumpPage(tester, box: box);
+
+    expect(find.byKey(const Key('box-qr-code')), findsOneWidget);
+
+    expect(find.byKey(const Key('box-qr-image')), findsOneWidget);
+
+    expect(find.byType(QrImageView), findsOneWidget);
+  });
+
+  testWidgets('QR code receives box QR ID', (tester) async {
+    final box = await createTestBox();
+
+    await pumpPage(tester, box: box);
+
+    final boxQrCode = tester.widget<BoxQrCode>(
+      find.byKey(const Key('box-qr-code')),
+    );
+
+    expect(boxQrCode.qrId, box.qrId);
+  });
+
+  testWidgets('back navigation returns to previous page', (tester) async {
+    final box = await createTestBox();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: ElevatedButton(
+                key: const Key('open-box-detail-button'),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          BoxDetailPage(database: database, box: box),
+                    ),
+                  );
+                },
+                child: const Text('Open Box'),
+              ),
+            );
+          },
         ),
-        findsOneWidget,
-      );
+      ),
+    );
 
-      expect(
-        find.text('Box ID'),
-        findsOneWidget,
-      );
+    await tester.tap(find.byKey(const Key('open-box-detail-button')));
 
-      expect(
-        find.text(box.id.toString()),
-        findsOneWidget,
-      );
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('Created'),
-        findsOneWidget,
-      );
+    expect(find.text('Box Details'), findsOneWidget);
 
-      expect(
-        find.text('Updated'),
-        findsOneWidget,
-      );
-    },
-  );
+    await tester.pageBack();
+    await tester.pumpAndSettle();
 
-  testWidgets(
-    'shows QR code',
-    (tester) async {
-      final box = await createTestBox();
+    expect(find.text('Box Details'), findsNothing);
 
-      await pumpPage(
-        tester,
-        box: box,
-      );
+    expect(find.text('Open Box'), findsOneWidget);
+  });
 
-      expect(
-        find.byKey(
-          const Key('box-qr-code'),
+  testWidgets('shows QR save button', (tester) async {
+    final box = await createTestBox();
+
+    await pumpPage(tester, box: box);
+
+    expect(find.byKey(const Key('save-qr-button')), findsOneWidget);
+  });
+
+  testWidgets('shows error when QR generation fails', (tester) async {
+    final box = await createTestBox();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BoxDetailPage(
+          database: database,
+          box: box,
+          qrExporter: FailingQrExporter(),
+          qrStorage: FakeQrStorage(),
         ),
-        findsOneWidget,
-      );
+      ),
+    );
 
-      expect(
-        find.byKey(
-          const Key('box-qr-image'),
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('save-qr-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Failed to save QR code'), findsOneWidget);
+
+    expect(find.byKey(const Key('qr-save-error')), findsOneWidget);
+  });
+
+  testWidgets('shows QR save button', (tester) async {
+    final box = await createTestBox();
+
+    await pumpPage(tester, box: box);
+
+    expect(find.byKey(const Key('save-qr-button')), findsOneWidget);
+  });
+
+  testWidgets('saves QR code as PNG', (tester) async {
+    final box = await createTestBox();
+
+    final exporter = FakeQrExporter();
+    final storage = FakeQrStorage();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BoxDetailPage(
+          database: database,
+          box: box,
+          qrExporter: exporter,
+          qrStorage: storage,
         ),
-        findsOneWidget,
-      );
+      ),
+    );
 
-      expect(
-        find.byType(QrImageView),
-        findsOneWidget,
-      );
-    },
-  );
+    await tester.pumpAndSettle();
 
-  testWidgets(
-    'QR code receives box QR ID',
-    (tester) async {
-      final box = await createTestBox();
+    await tester.tap(find.byKey(const Key('save-qr-button')));
 
-      await pumpPage(
-        tester,
-        box: box,
-      );
+    await tester.pumpAndSettle();
 
-      final boxQrCode = tester.widget<BoxQrCode>(
-        find.byKey(
-          const Key('box-qr-code'),
+    expect(exporter.exportedQrId, box.qrId);
+
+    expect(storage.savedBytes, isNotNull);
+
+    expect(storage.savedBytes, isNotEmpty);
+
+    expect(storage.savedFileName, buildBoxQrFileName(box.qrId));
+
+    expect(find.text('QR code saved'), findsOneWidget);
+
+    expect(find.text('Failed to save QR code'), findsNothing);
+  });
+
+  testWidgets('shows error when saving QR code fails', (tester) async {
+    final box = await createTestBox();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BoxDetailPage(
+          database: database,
+          box: box,
+          qrExporter: FakeQrExporter(),
+          qrStorage: FailingQrStorage(),
         ),
-      );
+      ),
+    );
 
-      expect(
-        boxQrCode.qrId,
-        box.qrId,
-      );
-    },
-  );
+    await tester.pumpAndSettle();
 
-  testWidgets(
-    'back navigation returns to previous page',
-    (tester) async {
-      final box = await createTestBox();
+    await tester.tap(find.byKey(const Key('save-qr-button')));
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              return Scaffold(
-                body: ElevatedButton(
-                  key: const Key('open-box-detail-button'),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => BoxDetailPage(
-                          database: database,
-                          box: box,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text('Open Box'),
-                ),
-              );
-            },
-          ),
+    await tester.pumpAndSettle();
+
+    expect(find.text('Failed to save QR code'), findsOneWidget);
+
+    expect(find.byKey(const Key('qr-save-error')), findsOneWidget);
+  });
+
+  testWidgets('shows QR print button', (tester) async {
+    final box = await createTestBox();
+
+    await pumpPage(tester, box: box);
+
+    expect(find.byKey(const Key('print-qr-button')), findsOneWidget);
+  });
+
+  testWidgets('prints QR code', (tester) async {
+    final box = await createTestBox();
+
+    final exporter = FakeQrExporter();
+    final storage = FakeQrStorage();
+    final printer = FakeQrPrinter();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BoxDetailPage(
+          database: database,
+          box: box,
+          qrExporter: exporter,
+          qrStorage: storage,
+          qrPrinter: printer,
         ),
-      );
+      ),
+    );
 
-      await tester.tap(
-        find.byKey(
-          const Key('open-box-detail-button'),
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('print-qr-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(exporter.exportedQrId, box.qrId);
+
+    expect(printer.printedBytes, isNotNull);
+
+    expect(printer.printedBytes, isNotEmpty);
+
+    expect(printer.printedQrId, box.qrId);
+
+    expect(find.text('QR code sent to printer'), findsOneWidget);
+
+    expect(find.text('Failed to print QR code'), findsNothing);
+  });
+
+  testWidgets('shows error when printing QR code fails', (tester) async {
+    final box = await createTestBox();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BoxDetailPage(
+          database: database,
+          box: box,
+          qrExporter: FakeQrExporter(),
+          qrStorage: FakeQrStorage(),
+          qrPrinter: FailingQrPrinter(),
         ),
-      );
+      ),
+    );
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('Box Details'),
-        findsOneWidget,
-      );
+    await tester.tap(find.byKey(const Key('print-qr-button')));
 
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('Box Details'),
-        findsNothing,
-      );
+    expect(find.byKey(const Key('qr-print-error')), findsOneWidget);
 
-      expect(
-        find.text('Open Box'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.text('Failed to print QR code'), findsOneWidget);
 
-  testWidgets(
-    'shows QR save button',
-    (tester) async {
-      final box = await createTestBox();
-
-      await pumpPage(
-        tester,
-        box: box,
-      );
-
-      expect(
-        find.byKey(
-          const Key('save-qr-button'),
-        ),
-        findsOneWidget,
-      );
-    },
-  );
-
-  testWidgets(
-    'shows error when QR generation fails',
-    (tester) async {
-      final box = await createTestBox();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BoxDetailPage(
-            database: database,
-            box: box,
-            qrExporter: FailingQrExporter(),
-            qrStorage: FakeQrStorage(),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      await tester.tap(
-        find.byKey(
-          const Key('save-qr-button'),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Failed to save QR code'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.byKey(
-          const Key('qr-save-error'),
-        ),
-        findsOneWidget,
-      );
-    },
-  );
-
-  testWidgets(
-    'shows QR save button',
-    (tester) async {
-      final box = await createTestBox();
-
-      await pumpPage(
-        tester,
-        box: box,
-      );
-
-      expect(
-        find.byKey(
-          const Key('save-qr-button'),
-        ),
-        findsOneWidget,
-      );
-    },
-  );
-
-  testWidgets(
-    'saves QR code as PNG',
-    (tester) async {
-      final box = await createTestBox();
-
-      final exporter = FakeQrExporter();
-      final storage = FakeQrStorage();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BoxDetailPage(
-            database: database,
-            box: box,
-            qrExporter: exporter,
-            qrStorage: storage,
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      await tester.tap(
-        find.byKey(
-          const Key('save-qr-button'),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(
-        exporter.exportedQrId,
-        box.qrId,
-      );
-
-      expect(
-        storage.savedBytes,
-        isNotNull,
-      );
-
-      expect(
-        storage.savedBytes,
-        isNotEmpty,
-      );
-
-      expect(
-        storage.savedFileName,
-        buildBoxQrFileName(box.qrId),
-      );
-
-      expect(
-        find.text('QR code saved'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Failed to save QR code'),
-        findsNothing,
-      );
-    },
-  );
-
-  testWidgets(
-    'shows error when saving QR code fails',
-    (tester) async {
-      final box = await createTestBox();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BoxDetailPage(
-            database: database,
-            box: box,
-            qrExporter: FakeQrExporter(),
-            qrStorage: FailingQrStorage(),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      await tester.tap(
-        find.byKey(
-          const Key('save-qr-button'),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Failed to save QR code'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.byKey(
-          const Key('qr-save-error'),
-        ),
-        findsOneWidget,
-      );
-    },
-  );
-
-  testWidgets(
-    'shows QR print button',
-    (tester) async {
-      final box = await createTestBox();
-
-      await pumpPage(
-        tester,
-        box: box,
-      );
-
-      expect(
-        find.byKey(
-          const Key('print-qr-button'),
-        ),
-        findsOneWidget,
-      );
-    },
-  );
-
-  testWidgets(
-    'prints QR code',
-    (tester) async {
-      final box = await createTestBox();
-
-      final exporter = FakeQrExporter();
-      final storage = FakeQrStorage();
-      final printer = FakeQrPrinter();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BoxDetailPage(
-            database: database,
-            box: box,
-            qrExporter: exporter,
-            qrStorage: storage,
-            qrPrinter: printer,
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      await tester.tap(
-        find.byKey(
-          const Key('print-qr-button'),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(
-        exporter.exportedQrId,
-        box.qrId,
-      );
-
-      expect(
-        printer.printedBytes,
-        isNotNull,
-      );
-
-      expect(
-        printer.printedBytes,
-        isNotEmpty,
-      );
-
-      expect(
-        printer.printedQrId,
-        box.qrId,
-      );
-
-      expect(
-        find.text('QR code sent to printer'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Failed to print QR code'),
-        findsNothing,
-      );
-    },
-  );
-
-  testWidgets(
-    'shows error when printing QR code fails',
-    (tester) async {
-      final box = await createTestBox();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: BoxDetailPage(
-            database: database,
-            box: box,
-            qrExporter: FakeQrExporter(),
-            qrStorage: FakeQrStorage(),
-            qrPrinter: FailingQrPrinter(),
-          ),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      await tester.tap(
-        find.byKey(
-          const Key('print-qr-button'),
-        ),
-      );
-
-      await tester.pumpAndSettle();
-
-      expect(
-        find.byKey(
-          const Key('qr-print-error'),
-        ),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('Failed to print QR code'),
-        findsOneWidget,
-      );
-
-      expect(
-        find.text('QR code sent to printer'),
-        findsNothing,
-      );
-    },
-  );
+    expect(find.text('QR code sent to printer'), findsNothing);
+  });
 }

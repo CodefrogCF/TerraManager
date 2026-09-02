@@ -18,12 +18,7 @@ class AnimalPicture extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (pictureBytes != null) {
-      return _buildImage(
-        Image.memory(
-          pictureBytes!,
-          fit: BoxFit.cover,
-        ),
-      );
+      return _buildImage(Image.memory(pictureBytes!, fit: BoxFit.cover));
     }
 
     if (picturePath == null || picturePath!.trim().isEmpty) {
@@ -36,24 +31,15 @@ class AnimalPicture extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return SizedBox(
             height: height,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           );
         }
 
         if (snapshot.hasError || snapshot.data == null) {
-          return _buildPlaceholder(
-            text: 'Image unavailable',
-          );
+          return _buildPlaceholder(text: 'Image unavailable');
         }
 
-        return _buildImage(
-          Image.memory(
-            snapshot.data!,
-            fit: BoxFit.cover,
-          ),
-        );
+        return _buildImage(Image.memory(snapshot.data!, fit: BoxFit.cover));
       },
     );
   }
@@ -62,16 +48,11 @@ class AnimalPicture extends StatelessWidget {
     return SizedBox(
       width: double.infinity,
       height: height,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: image,
-      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(12), child: image),
     );
   }
 
-  Widget _buildPlaceholder({
-    String text = 'No picture',
-  }) {
+  Widget _buildPlaceholder({String text = 'No picture'}) {
     return SizedBox(
       width: double.infinity,
       height: height,
@@ -80,10 +61,7 @@ class AnimalPicture extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.image_not_supported_outlined,
-                size: 48,
-              ),
+              const Icon(Icons.image_not_supported_outlined, size: 48),
               const SizedBox(height: 8),
               Text(text),
             ],

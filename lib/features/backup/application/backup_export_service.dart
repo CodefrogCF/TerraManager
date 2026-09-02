@@ -9,6 +9,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/repositories/animal_repository.dart';
 import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
+import '../../../core/database/repositories/media_repository.dart';
 import '../../settings/app_accent.dart';
 import '../domain/backup_data.dart';
 import '../domain/backup_enum_codec.dart';
@@ -25,7 +26,7 @@ class BackupExportService {
   final BackupMediaReader _mediaReader;
 
   BackupExportService(this.database, {BackupMediaReader? mediaReader})
-    : _mediaReader = mediaReader ?? _readMediaFromPath;
+    : _mediaReader = mediaReader ?? _readLegacyMediaFromPath;
 
   Future<BackupExportResult> createBackup({
     required String appVersion,
@@ -41,12 +42,18 @@ class BackupExportService {
 
     final feedingEvents = await FeedingRepository(database).getAllFeedings();
 
+    final mediaRepository = MediaRepository(database);
+
     final mediaFiles = <String, Uint8List>{};
 
     final backupAnimals = <BackupAnimal>[];
 
     for (final animal in animals) {
-      final pictureMediaPath = await _exportAnimalPicture(animal, mediaFiles);
+      final pictureMediaPath = await _exportAnimalPicture(
+        animal: animal,
+        mediaRepository: mediaRepository,
+        mediaFiles: mediaFiles,
+      );
 
       backupAnimals.add(
         BackupAnimal(
@@ -158,10 +165,46 @@ class BackupExportService {
     );
   }
 
-  Future<String?> _exportAnimalPicture(
-    Animal animal,
-    Map<String, Uint8List> mediaFiles,
-  ) async {
+  Future<String?> _exportAnimalPicture({
+    required Animal animal,
+    required MediaRepository mediaRepository,
+    required Map<String, Uint8List> mediaFiles,
+  }) async {
+    final mediaId = animal.pictureMediaId;
+
+    if (mediaId != null) {
+      final media = await mediaRepository.getMediaById(mediaId);
+
+      if (media == null) {
+        throw BackupExportException(
+          'Persistent picture for animal '
+          '${animal.id} does not exist.',
+        );
+      }
+
+      if (media.data.isEmpty) {
+        throw BackupExportException(
+          'Persistent picture for animal '
+          '${animal.id} is empty.',
+        );
+      }
+
+      final extension = _mediaExtension(
+        media.fileName,
+        mimeType: media.mimeType,
+      );
+
+      final mediaPath =
+          '${BackupFormat.animalMediaDirectory}/'
+          '${animal.id}.$extension';
+
+      mediaFiles[mediaPath] = media.data;
+
+      return mediaPath;
+    }
+
+    // Legacy fallback for installations where
+    // picturePath could not yet be migrated.
     final sourcePath = animal.picturePath?.trim();
 
     if (sourcePath == null || sourcePath.isEmpty) {
@@ -174,34 +217,36 @@ class BackupExportService {
       bytes = await _mediaReader(sourcePath);
     } catch (error) {
       throw BackupExportException(
-        'Failed to read picture for animal '
-        '${animal.id}.',
+        'Failed to read legacy picture '
+        'for animal ${animal.id}.',
         cause: error,
       );
     }
 
     if (bytes.isEmpty) {
       throw BackupExportException(
-        'Picture for animal '
+        'Legacy picture for animal '
         '${animal.id} is empty.',
       );
     }
 
+    final extension = _mediaExtension(sourcePath);
+
     final mediaPath =
         '${BackupFormat.animalMediaDirectory}/'
-        '${animal.id}.${_mediaExtension(sourcePath)}';
+        '${animal.id}.$extension';
 
     mediaFiles[mediaPath] = bytes;
 
     return mediaPath;
   }
 
-  static Future<Uint8List> _readMediaFromPath(String path) {
+  static Future<Uint8List> _readLegacyMediaFromPath(String path) {
     return XFile(path).readAsBytes();
   }
 
-  static String _mediaExtension(String sourcePath) {
-    final withoutQuery = sourcePath.split('?').first.split('#').first;
+  static String _mediaExtension(String source, {String? mimeType}) {
+    final withoutQuery = source.split('?').first.split('#').first;
 
     final normalized = withoutQuery.replaceAll('\\', '/');
 
@@ -209,28 +254,50 @@ class BackupExportService {
 
     final dotIndex = fileName.lastIndexOf('.');
 
-    if (dotIndex == -1 || dotIndex == fileName.length - 1) {
-      return 'img';
+    if (dotIndex != -1 && dotIndex < fileName.length - 1) {
+      final extension = fileName.substring(dotIndex + 1).toLowerCase();
+
+      const supportedExtensions = {
+        'jpg',
+        'jpeg',
+        'png',
+        'webp',
+        'gif',
+        'bmp',
+        'heic',
+        'heif',
+      };
+
+      if (supportedExtensions.contains(extension)) {
+        return extension;
+      }
     }
 
-    final extension = fileName.substring(dotIndex + 1).toLowerCase();
+    switch (mimeType?.trim().toLowerCase()) {
+      case 'image/jpeg':
+        return 'jpg';
 
-    const supportedExtensions = {
-      'jpg',
-      'jpeg',
-      'png',
-      'webp',
-      'gif',
-      'bmp',
-      'heic',
-      'heif',
-    };
+      case 'image/png':
+        return 'png';
 
-    if (!supportedExtensions.contains(extension)) {
-      return 'img';
+      case 'image/webp':
+        return 'webp';
+
+      case 'image/gif':
+        return 'gif';
+
+      case 'image/bmp':
+        return 'bmp';
+
+      case 'image/heic':
+        return 'heic';
+
+      case 'image/heif':
+        return 'heif';
+
+      default:
+        return 'img';
     }
-
-    return extension;
   }
 
   static String _buildBackupFileName(DateTime dateTime) {

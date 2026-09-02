@@ -9,9 +9,8 @@ import 'box_detail_page.dart';
 class BoxScannerPage extends StatefulWidget {
   final AppDatabase database;
 
-  final void Function(
-    Future<void> Function(String value) handler,
-  )? onHandlerReady;
+  final void Function(Future<void> Function(String value) handler)?
+  onHandlerReady;
 
   final Future<void> Function()? stopScanner;
   final Future<void> Function()? startScanner;
@@ -31,9 +30,7 @@ class BoxScannerPage extends StatefulWidget {
 class _BoxScannerPageState extends State<BoxScannerPage> {
   final MobileScannerController _controller = MobileScannerController(
     detectionSpeed: DetectionSpeed.noDuplicates,
-    formats: const [
-      BarcodeFormat.qrCode,
-    ],
+    formats: const [BarcodeFormat.qrCode],
   );
 
   bool _processing = false;
@@ -85,9 +82,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
     }
 
     try {
-      final box = await BoxRepository(
-        widget.database,
-      ).getBoxByQrId(value);
+      final box = await BoxRepository(widget.database).getBoxByQrId(value);
 
       if (!mounted) {
         return;
@@ -109,10 +104,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
 
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => BoxDetailPage(
-            database: widget.database,
-            box: box,
-          ),
+          builder: (_) => BoxDetailPage(database: widget.database, box: box),
         ),
       );
 
@@ -148,9 +140,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
       return;
     }
 
-    _handleQrValue(
-      value.trim(),
-    );
+    _handleQrValue(value.trim());
   }
 
   @override
@@ -162,9 +152,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan Box'),
-      ),
+      appBar: AppBar(title: const Text('Scan Box')),
       body: Column(
         children: [
           Expanded(
@@ -194,10 +182,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
                       width: 260,
                       height: 260,
                       decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 3,
-                        ),
+                        border: Border.all(color: Colors.white, width: 3),
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
@@ -221,9 +206,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
                 _error!,
                 key: const Key('scanner-error'),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
         ],

@@ -1,4 +1,1 @@
-enum AnimalStatus {
-  active,
-  archived,
-}
+enum AnimalStatus { active, archived }

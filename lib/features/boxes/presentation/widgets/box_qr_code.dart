@@ -5,11 +5,7 @@ class BoxQrCode extends StatelessWidget {
   final String qrId;
   final double size;
 
-  const BoxQrCode({
-    super.key,
-    required this.qrId,
-    this.size = 220,
-  });
+  const BoxQrCode({super.key, required this.qrId, this.size = 220});
 
   @override
   Widget build(BuildContext context) {

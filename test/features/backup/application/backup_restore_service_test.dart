@@ -36,6 +36,7 @@ void main() {
 
   tearDown(() async {
     settingsController.dispose();
+
     await database.close();
   });
 
@@ -72,6 +73,10 @@ void main() {
       manifest: BackupManifest(
         backupFormatVersion: 1,
         appVersion: '0.6.0',
+
+        // Intentionally schema 2:
+        // backups created before MediaAssets
+        // must remain restorable.
         databaseSchemaVersion: 2,
         createdAt: DateTime.utc(2026, 9, 2),
       ),
@@ -125,84 +130,97 @@ void main() {
     );
   }
 
-  test(
-    'replaces database while preserving backup ids and relationships',
-    () async {
-      await createExistingData();
-
-      var safetyBackupWritten = false;
-
-      final service = BackupRestoreService(
-        database: database,
-        settingsController: settingsController,
-        safetyBackupWriter: (backup) async {
-          safetyBackupWritten = true;
-
-          expect(backup.data.animals.single.commonName, 'Old Animal');
-        },
-        mediaWriter: (portablePath, bytes) async {
-          expect(portablePath, 'media/animals/12.jpg');
-
-          expect(bytes, Uint8List.fromList([1, 2, 3, 4]));
-
-          return 'restored/12.jpg';
-        },
-        mediaCleanup: (_) async {},
-      );
-
-      final result = await service.restore(
-        backup: createTargetBackup(),
-        currentAppVersion: '0.6.0',
-      );
-
-      expect(safetyBackupWritten, isTrue);
-
-      expect(result.boxCount, 1);
-
-      expect(result.animalCount, 1);
-
-      expect(result.feedingEventCount, 1);
-
-      expect(result.mediaFileCount, 1);
-
-      final boxes = await database.select(database.boxes).get();
-
-      expect(boxes.length, 1);
-
-      expect(boxes.single.id, 5);
-
-      final animals = await database.select(database.animals).get();
-
-      expect(animals.length, 1);
-
-      final animal = animals.single;
-
-      expect(animal.id, 12);
-
-      expect(animal.boxId, 5);
-
-      expect(animal.commonName, 'Restored Animal');
-
-      expect(animal.picturePath, 'restored/12.jpg');
-
-      final feedings = await database.select(database.feedingEvents).get();
-
-      expect(feedings.length, 1);
-
-      expect(feedings.single.id, 30);
-
-      expect(feedings.single.animalId, 12);
-
-      expect(settingsController.themeMode, ThemeMode.dark);
-
-      expect(settingsController.accent, AppAccent.teal);
-    },
-  );
-
-  test('safety backup failure leaves current data unchanged', () async {
+  test('replaces database while preserving '
+      'backup ids and relationships', () async {
     await createExistingData();
 
-    var mediaWriterCalled = false;
+    var safetyBackupWritten = false;
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (backup) async {
+        safetyBackupWritten = true;
+
+        expect(backup.data.animals.single.commonName, 'Old Animal');
+      },
+    );
+
+    final result = await service.restore(
+      backup: createTargetBackup(),
+      currentAppVersion: '0.6.0',
+    );
+
+    expect(safetyBackupWritten, isTrue);
+
+    expect(result.boxCount, 1);
+
+    expect(result.animalCount, 1);
+
+    expect(result.feedingEventCount, 1);
+
+    expect(result.mediaFileCount, 1);
+
+    final boxes = await database.select(database.boxes).get();
+
+    expect(boxes.length, 1);
+
+    expect(boxes.single.id, 5);
+
+    expect(boxes.single.qrId, 'TM:BOX:55555555-5555-4555-8555-555555555555');
+
+    final animals = await database.select(database.animals).get();
+
+    expect(animals.length, 1);
+
+    final animal = animals.single;
+
+    expect(animal.id, 12);
+
+    expect(animal.boxId, 5);
+
+    expect(animal.commonName, 'Restored Animal');
+
+    // External paths are no longer
+    // restored.
+    expect(animal.picturePath, isNull);
+
+    // Picture is now represented by a
+    // persistent MediaAsset.
+    expect(animal.pictureMediaId, isNotNull);
+
+    final mediaAssets = await database.select(database.mediaAssets).get();
+
+    expect(mediaAssets.length, 1);
+
+    final media = mediaAssets.single;
+
+    expect(media.id, animal.pictureMediaId);
+
+    expect(media.fileName, '12.jpg');
+
+    expect(media.mimeType, 'image/jpeg');
+
+    expect(media.data, Uint8List.fromList([1, 2, 3, 4]));
+
+    final feedings = await database.select(database.feedingEvents).get();
+
+    expect(feedings.length, 1);
+
+    expect(feedings.single.id, 30);
+
+    expect(feedings.single.animalId, 12);
+
+    expect(feedings.single.notes, 'Restored feeding');
+
+    expect(settingsController.themeMode, ThemeMode.dark);
+
+    expect(settingsController.accent, AppAccent.teal);
+  });
+
+  test('safety backup failure leaves '
+      'current data unchanged', () async {
+    await createExistingData();
 
     final service = BackupRestoreService(
       database: database,
@@ -210,11 +228,6 @@ void main() {
       safetyBackupWriter: (_) async {
         throw Exception('Cannot save safety backup');
       },
-      mediaWriter: (path, bytes) async {
-        mediaWriterCalled = true;
-        return 'unused.jpg';
-      },
-      mediaCleanup: (_) async {},
     );
 
     await expectLater(
@@ -228,9 +241,9 @@ void main() {
       ),
     );
 
-    expect(mediaWriterCalled, isFalse);
-
     final animals = await database.select(database.animals).get();
+
+    expect(animals.length, 1);
 
     expect(animals.single.commonName, 'Old Animal');
 
@@ -239,124 +252,132 @@ void main() {
     expect(settingsController.accent, AppAccent.red);
   });
 
-  test(
-    'media failure leaves current database and settings unchanged',
-    () async {
-      await createExistingData();
+  test('missing media in unvalidated backup '
+      'rolls back database and settings', () async {
+    await createExistingData();
 
-      final service = BackupRestoreService(
-        database: database,
-        settingsController: settingsController,
-        safetyBackupWriter: (_) async {},
-        mediaWriter: (path, bytes) async {
-          throw Exception('Media write failed');
-        },
-        mediaCleanup: (_) async {},
-      );
+    final target = createTargetBackup();
 
-      await expectLater(
-        service.restore(
-          backup: createTargetBackup(),
-          currentAppVersion: '0.6.0',
+    // Deliberately bypasses normal
+    // BackupValidationService validation.
+    final brokenBackup = ValidatedBackup(
+      manifest: target.manifest,
+      data: target.data,
+      settings: target.settings,
+      mediaFiles: const {},
+    );
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (_) async {},
+    );
+
+    await expectLater(
+      service.restore(backup: brokenBackup, currentAppVersion: '0.6.0'),
+      throwsA(
+        isA<BackupRestoreException>().having(
+          (error) => error.stage,
+          'stage',
+          BackupRestoreStage.database,
         ),
-        throwsA(
-          isA<BackupRestoreException>().having(
-            (error) => error.stage,
-            'stage',
-            BackupRestoreStage.media,
+      ),
+    );
+
+    final animals = await database.select(database.animals).get();
+
+    expect(animals.length, 1);
+
+    expect(animals.single.commonName, 'Old Animal');
+
+    final feedings = await database.select(database.feedingEvents).get();
+
+    expect(feedings.length, 1);
+
+    expect(feedings.single.notes, 'Old feeding');
+
+    // Transaction rollback must not
+    // leave partially restored media.
+    expect(await database.select(database.mediaAssets).get(), isEmpty);
+
+    expect(settingsController.themeMode, ThemeMode.light);
+
+    expect(settingsController.accent, AppAccent.red);
+  });
+
+  test('database failure rolls back '
+      'data and settings', () async {
+    await createExistingData();
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (_) async {},
+    );
+
+    // Deliberately bypasses validation
+    // to force a foreign-key failure
+    // inside the DB transaction.
+    final invalidBackup = createTargetBackup(animalBoxId: 999);
+
+    await expectLater(
+      service.restore(backup: invalidBackup, currentAppVersion: '0.6.0'),
+      throwsA(
+        isA<BackupRestoreException>().having(
+          (error) => error.stage,
+          'stage',
+          BackupRestoreStage.database,
+        ),
+      ),
+    );
+
+    final boxes = await database.select(database.boxes).get();
+
+    expect(boxes.length, 1);
+
+    expect(boxes.single.qrId, 'TM:BOX:11111111-1111-4111-8111-111111111111');
+
+    final animals = await database.select(database.animals).get();
+
+    expect(animals.length, 1);
+
+    expect(animals.single.commonName, 'Old Animal');
+
+    // Media created inside the failed
+    // transaction must also be rolled
+    // back automatically.
+    expect(await database.select(database.mediaAssets).get(), isEmpty);
+
+    expect(settingsController.themeMode, ThemeMode.light);
+
+    expect(settingsController.accent, AppAccent.red);
+  });
+
+  test('restored autoincrement sequence '
+      'continues after restored ids', () async {
+    await createExistingData();
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (_) async {},
+    );
+
+    await service.restore(
+      backup: createTargetBackup(includePicture: false),
+      currentAppVersion: '0.6.0',
+    );
+
+    final nextBoxId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:66666666-6666-4666-8666-666666666666',
           ),
-        ),
-      );
+        );
 
-      final animals = await database.select(database.animals).get();
-
-      expect(animals.single.commonName, 'Old Animal');
-
-      expect(settingsController.themeMode, ThemeMode.light);
-
-      expect(settingsController.accent, AppAccent.red);
-    },
-  );
-
-  test(
-    'database failure rolls back data settings and prepared media',
-    () async {
-      await createExistingData();
-
-      final cleanedPaths = <String>[];
-
-      final service = BackupRestoreService(
-        database: database,
-        settingsController: settingsController,
-        safetyBackupWriter: (_) async {},
-        mediaWriter: (path, bytes) async {
-          return 'restored/12.jpg';
-        },
-        mediaCleanup: (localPath) async {
-          cleanedPaths.add(localPath);
-        },
-      );
-
-      // Deliberately bypasses validation to force a
-      // foreign-key failure inside the DB transaction.
-      final invalidBackup = createTargetBackup(animalBoxId: 999);
-
-      await expectLater(
-        service.restore(backup: invalidBackup, currentAppVersion: '0.6.0'),
-        throwsA(
-          isA<BackupRestoreException>().having(
-            (error) => error.stage,
-            'stage',
-            BackupRestoreStage.database,
-          ),
-        ),
-      );
-
-      final animals = await database.select(database.animals).get();
-
-      expect(animals.length, 1);
-
-      expect(animals.single.commonName, 'Old Animal');
-
-      expect(settingsController.themeMode, ThemeMode.light);
-
-      expect(settingsController.accent, AppAccent.red);
-
-      expect(cleanedPaths, contains('restored/12.jpg'));
-    },
-  );
-
-  test(
-    'restored autoincrement sequence continues after restored ids',
-    () async {
-      await createExistingData();
-
-      final service = BackupRestoreService(
-        database: database,
-        settingsController: settingsController,
-        safetyBackupWriter: (_) async {},
-        mediaWriter: (path, bytes) async {
-          return 'unused';
-        },
-        mediaCleanup: (_) async {},
-      );
-
-      await service.restore(
-        backup: createTargetBackup(includePicture: false),
-        currentAppVersion: '0.6.0',
-      );
-
-      final nextBoxId = await database
-          .into(database.boxes)
-          .insert(
-            BoxesCompanion.insert(
-              qrId: 'TM:BOX:66666666-6666-4666-8666-666666666666',
-            ),
-          );
-
-      expect(nextBoxId, 6);
-    },
-  );
+    expect(nextBoxId, 6);
+  });
 
   test('can restore an empty backup', () async {
     await createExistingData();
@@ -377,10 +398,6 @@ void main() {
       database: database,
       settingsController: settingsController,
       safetyBackupWriter: (_) async {},
-      mediaWriter: (path, bytes) async {
-        return 'unused';
-      },
-      mediaCleanup: (_) async {},
     );
 
     await service.restore(backup: backup, currentAppVersion: '0.6.0');
@@ -390,6 +407,8 @@ void main() {
     expect(await database.select(database.animals).get(), isEmpty);
 
     expect(await database.select(database.feedingEvents).get(), isEmpty);
+
+    expect(await database.select(database.mediaAssets).get(), isEmpty);
 
     expect(settingsController.themeMode, ThemeMode.system);
 

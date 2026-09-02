@@ -8,10 +8,7 @@ import 'features/navigation/presentation/pages/app_shell.dart';
 class TerraManagerApp extends StatefulWidget {
   final AppDatabase database;
 
-  const TerraManagerApp({
-    super.key,
-    required this.database,
-  });
+  const TerraManagerApp({super.key, required this.database});
 
   @override
   State<TerraManagerApp> createState() => _TerraManagerAppState();
@@ -41,21 +38,14 @@ class _TerraManagerAppState extends State<TerraManagerApp> {
       child: ListenableBuilder(
         listenable: _settingsController,
         builder: (context, _) {
-          final accentColor =
-              _settingsController.accent.color;
+          final accentColor = _settingsController.accent.color;
 
           return MaterialApp(
             title: 'TerraManager',
-            theme: AppTheme.lightTheme(
-              seedColor: accentColor,
-            ),
-            darkTheme: AppTheme.darkTheme(
-              seedColor: accentColor,
-            ),
+            theme: AppTheme.lightTheme(seedColor: accentColor),
+            darkTheme: AppTheme.darkTheme(seedColor: accentColor),
             themeMode: _settingsController.themeMode,
-            home: AppShell(
-              database: widget.database,
-            ),
+            home: AppShell(database: widget.database),
           );
         },
       ),

@@ -11,9 +11,7 @@ void main() {
   late AppDatabase database;
 
   setUp(() {
-    database = AppDatabase.test(
-      NativeDatabase.memory(),
-    );
+    database = AppDatabase.test(NativeDatabase.memory());
   });
 
   tearDown(() async {
@@ -21,9 +19,7 @@ void main() {
   });
 
   Future<int> createTestBox() {
-    return BoxRepository(database).createBox(
-      'test-box-001',
-    );
+    return BoxRepository(database).createBox('test-box-001');
   }
 
   Future<int> createTestAnimal({
@@ -42,241 +38,129 @@ void main() {
     );
   }
 
-  Future<void> pumpPage(
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: AnimalsPage(
-          database: database,
-        ),
-      ),
-    );
+  Future<void> pumpPage(WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: AnimalsPage(database: database)));
 
     await tester.pumpAndSettle();
   }
 
-  testWidgets(
-    'shows empty state when no animals exist',
-    (tester) async {
-      await pumpPage(tester);
+  testWidgets('shows empty state when no animals exist', (tester) async {
+    await pumpPage(tester);
 
-      expect(
-        find.text('No animals available'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.text('No animals available'), findsOneWidget);
+  });
 
-  testWidgets(
-    'shows animal from database',
-    (tester) async {
-      final boxId = await createTestBox();
+  testWidgets('shows animal from database', (tester) async {
+    final boxId = await createTestBox();
 
-      await createTestAnimal(
-        boxId: boxId,
-      );
+    await createTestAnimal(boxId: boxId);
 
-      await pumpPage(tester);
+    await pumpPage(tester);
 
-      expect(
-        find.text('Test Snake'),
-        findsOneWidget,
-      );
+    expect(find.text('Test Snake'), findsOneWidget);
 
-      expect(
-        find.text('Pantherophis guttatus'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.text('Pantherophis guttatus'), findsOneWidget);
+  });
 
-  testWidgets(
-    'shows multiple animals',
-    (tester) async {
-      final boxId = await createTestBox();
+  testWidgets('shows multiple animals', (tester) async {
+    final boxId = await createTestBox();
 
-      await createTestAnimal(
-        boxId: boxId,
-        commonName: 'Snake One',
-      );
+    await createTestAnimal(boxId: boxId, commonName: 'Snake One');
 
-      await createTestAnimal(
-        boxId: boxId,
-        commonName: 'Snake Two',
-      );
+    await createTestAnimal(boxId: boxId, commonName: 'Snake Two');
 
-      await pumpPage(tester);
+    await pumpPage(tester);
 
-      expect(
-        find.text('Snake One'),
-        findsOneWidget,
-      );
+    expect(find.text('Snake One'), findsOneWidget);
 
-      expect(
-        find.text('Snake Two'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.text('Snake Two'), findsOneWidget);
+  });
 
-  testWidgets(
-    'opens animal detail page',
-    (tester) async {
-      final boxId = await createTestBox();
+  testWidgets('opens animal detail page', (tester) async {
+    final boxId = await createTestBox();
 
-      await createTestAnimal(
-        boxId: boxId,
-      );
+    await createTestAnimal(boxId: boxId);
 
-      await pumpPage(tester);
+    await pumpPage(tester);
 
-      await tester.tap(
-        find.text('Test Snake'),
-      );
+    await tester.tap(find.text('Test Snake'));
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('Animal Details'),
-        findsOneWidget,
-      );
+    expect(find.text('Animal Details'), findsOneWidget);
 
-      expect(
-        find.text('Test Snake'),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.text('Test Snake'), findsOneWidget);
+  });
 
-  testWidgets(
-    'add button opens new animal page',
-    (tester) async {
-      await createTestBox();
+  testWidgets('add button opens new animal page', (tester) async {
+    await createTestBox();
 
-      await pumpPage(tester);
+    await pumpPage(tester);
 
-      expect(
-        find.byKey(const Key('add-animal-button')),
-        findsOneWidget,
-      );
+    expect(find.byKey(const Key('add-animal-button')), findsOneWidget);
 
-      await tester.tap(
-        find.byKey(const Key('add-animal-button')),
-      );
+    await tester.tap(find.byKey(const Key('add-animal-button')));
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('New Animal'),
-        findsOneWidget,
-      );
+    expect(find.text('New Animal'), findsOneWidget);
 
-      expect(
-        find.byKey(const Key('common-name-field')),
-        findsOneWidget,
-      );
-    },
-  );
+    expect(find.byKey(const Key('common-name-field')), findsOneWidget);
+  });
 
-  testWidgets(
-    'newly created animal appears in overview',
-    (tester) async {
-      await createTestBox();
+  testWidgets('newly created animal appears in overview', (tester) async {
+    await createTestBox();
 
-      await pumpPage(tester);
+    await pumpPage(tester);
 
-      expect(
-        find.text('No animals available'),
-        findsOneWidget,
-      );
+    expect(find.text('No animals available'), findsOneWidget);
 
-      await tester.tap(
-        find.byKey(const Key('add-animal-button')),
-      );
+    await tester.tap(find.byKey(const Key('add-animal-button')));
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      await tester.tap(
-        find.byKey(const Key('box-field')),
-      );
+    await tester.tap(find.byKey(const Key('box-field')));
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      await tester.tap(
-        find.text('test-box-001').last,
-      );
+    await tester.tap(find.text('test-box-001').last);
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const Key('common-name-field')),
-        'New Snake',
-      );
+    await tester.enterText(
+      find.byKey(const Key('common-name-field')),
+      'New Snake',
+    );
 
-      await tester.enterText(
-        find.byKey(const Key('latin-name-field')),
-        'Pantherophis guttatus',
-      );
+    await tester.enterText(
+      find.byKey(const Key('latin-name-field')),
+      'Pantherophis guttatus',
+    );
 
-      await tester.enterText(
-        find.byKey(const Key('temp-min-field')),
-        '24',
-      );
+    await tester.enterText(find.byKey(const Key('temp-min-field')), '24');
 
-      await tester.enterText(
-        find.byKey(const Key('temp-max-field')),
-        '28',
-      );
+    await tester.enterText(find.byKey(const Key('temp-max-field')), '28');
 
-      await tester.enterText(
-        find.byKey(const Key('humidity-min-field')),
-        '40',
-      );
+    await tester.enterText(find.byKey(const Key('humidity-min-field')), '40');
 
-      await tester.enterText(
-        find.byKey(const Key('humidity-max-field')),
-        '60',
-      );
+    await tester.enterText(find.byKey(const Key('humidity-max-field')), '60');
 
-      await tester.tap(
-        find.byTooltip('Save Animal'),
-      );
+    await tester.tap(find.byTooltip('Save Animal'));
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(
-        find.text('Animals'),
-        findsOneWidget,
-      );
+    expect(find.text('Animals'), findsOneWidget);
 
-      expect(
-        find.text('New Snake'),
-        findsOneWidget,
-      );
+    expect(find.text('New Snake'), findsOneWidget);
 
-      expect(
-        find.text('Pantherophis guttatus'),
-        findsOneWidget,
-      );
+    expect(find.text('Pantherophis guttatus'), findsOneWidget);
 
-      expect(
-        find.text('No animals available'),
-        findsNothing,
-      );
+    expect(find.text('No animals available'), findsNothing);
 
-      final animals =
-          await AnimalRepository(database).getAllAnimals();
+    final animals = await AnimalRepository(database).getAllAnimals();
 
-      expect(
-        animals.length,
-        1,
-      );
+    expect(animals.length, 1);
 
-      expect(
-        animals.single.commonName,
-        'New Snake',
-      );
-    },
-  );
+    expect(animals.single.commonName, 'New Snake');
+  });
 }

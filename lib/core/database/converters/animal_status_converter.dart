@@ -2,8 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../enums/animal_status.dart';
 
-class AnimalStatusConverter
-    extends TypeConverter<AnimalStatus, String> {
+class AnimalStatusConverter extends TypeConverter<AnimalStatus, String> {
   const AnimalStatusConverter();
 
   @override

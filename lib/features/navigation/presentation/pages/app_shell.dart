@@ -8,14 +8,10 @@ import '../../../settings/presentation/pages/settings.dart';
 class AppShell extends StatefulWidget {
   final AppDatabase database;
 
-  const AppShell({
-    super.key,
-    required this.database,
-  });
+  const AppShell({super.key, required this.database});
 
   @override
-  State<AppShell> createState() =>
-      _AppShellState();
+  State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell> {
@@ -32,29 +28,21 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final pages = [
       BoxesPage(
-        key: ValueKey(
-          'boxes-$_dataRevision',
-        ),
+        key: ValueKey('boxes-$_dataRevision'),
         database: widget.database,
       ),
       AnimalsPage(
-        key: ValueKey(
-          'animals-$_dataRevision',
-        ),
+        key: ValueKey('animals-$_dataRevision'),
         database: widget.database,
       ),
       SettingsPage(
         database: widget.database,
-        onRestoreCompleted:
-            _handleRestoreCompleted,
+        onRestoreCompleted: _handleRestoreCompleted,
       ),
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
@@ -64,27 +52,18 @@ class _AppShellState extends State<AppShell> {
         },
         destinations: const [
           NavigationDestination(
-            icon: Icon(
-              Icons.home_outlined,
-            ),
-            selectedIcon:
-                Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
             label: 'Boxes',
           ),
           NavigationDestination(
-            icon: Icon(
-              Icons.pets_outlined,
-            ),
-            selectedIcon:
-                Icon(Icons.pets),
+            icon: Icon(Icons.pets_outlined),
+            selectedIcon: Icon(Icons.pets),
             label: 'Animals',
           ),
           NavigationDestination(
-            icon: Icon(
-              Icons.settings_outlined,
-            ),
-            selectedIcon:
-                Icon(Icons.settings),
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
             label: 'Settings',
           ),
         ],

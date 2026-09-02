@@ -9,10 +9,7 @@ import 'new_box_page.dart';
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
 
-  const BoxesPage({
-    super.key,
-    required this.database,
-  });
+  const BoxesPage({super.key, required this.database});
 
   @override
   State<BoxesPage> createState() => _BoxesPageState();
@@ -28,18 +25,12 @@ class _BoxesPageState extends State<BoxesPage> {
   }
 
   void _loadBoxes() {
-    _boxesFuture = BoxRepository(
-      widget.database,
-    ).getAllBoxes();
+    _boxesFuture = BoxRepository(widget.database).getAllBoxes();
   }
 
   Future<void> _openNewBoxPage() async {
     final created = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => NewBoxPage(
-          database: widget.database,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => NewBoxPage(database: widget.database)),
     );
 
     if (!mounted) {
@@ -53,15 +44,10 @@ class _BoxesPageState extends State<BoxesPage> {
     }
   }
 
-  Future<void> _openBoxDetail(
-    Box box,
-  ) async {
+  Future<void> _openBoxDetail(Box box) async {
     final deleted = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => BoxDetailPage(
-          database: widget.database,
-          box: box,
-        ),
+        builder: (_) => BoxDetailPage(database: widget.database, box: box),
       ),
     );
 
@@ -79,9 +65,7 @@ class _BoxesPageState extends State<BoxesPage> {
   Future<void> _openScannerPage() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => BoxScannerPage(
-          database: widget.database,
-        ),
+        builder: (_) => BoxScannerPage(database: widget.database),
       ),
     );
 
@@ -101,13 +85,9 @@ class _BoxesPageState extends State<BoxesPage> {
         title: const Text('Boxes'),
         actions: [
           IconButton(
-            key: const Key(
-              'scan-box-button',
-            ),
+            key: const Key('scan-box-button'),
             onPressed: _openScannerPage,
-            icon: const Icon(
-              Icons.qr_code_scanner,
-            ),
+            icon: const Icon(Icons.qr_code_scanner),
             tooltip: 'Scan Box',
           ),
         ],
@@ -116,29 +96,17 @@ class _BoxesPageState extends State<BoxesPage> {
         future: _boxesFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(
-              child: Text(
-                'Failed to load boxes',
-              ),
-            );
+            return const Center(child: Text('Failed to load boxes'));
           }
 
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
-            return const Center(
-              child:
-                  CircularProgressIndicator(),
-            );
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
           }
 
           final boxes = snapshot.data ?? [];
 
           if (boxes.isEmpty) {
-            return const Center(
-              child: Text(
-                'No boxes available',
-              ),
-            );
+            return const Center(child: Text('No boxes available'));
           }
 
           return ListView.builder(
@@ -147,38 +115,23 @@ class _BoxesPageState extends State<BoxesPage> {
               final box = boxes[index];
 
               return ListTile(
-                key: Key(
-                  'box-list-item-${box.id}',
-                ),
-                leading: const Icon(
-                  Icons.home_outlined,
-                ),
-                title: Text(
-                  box.qrId,
-                ),
-                subtitle: Text(
-                  'Box ID: ${box.id}',
-                ),
+                key: Key('box-list-item-${box.id}'),
+                leading: const Icon(Icons.home_outlined),
+                title: Text(box.qrId),
+                subtitle: Text('Box ID: ${box.id}'),
                 onTap: () {
-                  _openBoxDetail(
-                    box,
-                  );
+                  _openBoxDetail(box);
                 },
               );
             },
           );
         },
       ),
-      floatingActionButton:
-          FloatingActionButton(
-        key: const Key(
-          'add-box-button',
-        ),
+      floatingActionButton: FloatingActionButton(
+        key: const Key('add-box-button'),
         onPressed: _openNewBoxPage,
         tooltip: 'Add Box',
-        child: const Icon(
-          Icons.add,
-        ),
+        child: const Icon(Icons.add),
       ),
     );
   }

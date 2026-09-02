@@ -5,41 +5,28 @@ import '../converters/animal_status_converter.dart';
 import '../converters/birth_date_accuracy_converter.dart';
 import '../converters/sex_converter.dart';
 import 'boxes.dart';
+import 'media_assets.dart';
 
 @DataClassName('Animal')
 class Animals extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  IntColumn get boxId => integer()
-      .references(Boxes, #id)
-      .nullable()();
+  IntColumn get boxId => integer().references(Boxes, #id).nullable()();
 
   TextColumn get status => text()
-      .withDefault(
-        const Constant('active'),
-      )
-      .map(
-        const AnimalStatusConverter(),
-      )();
+      .withDefault(const Constant('active'))
+      .map(const AnimalStatusConverter())();
 
   TextColumn get commonName => text()();
 
   TextColumn get latinName => text()();
 
-  TextColumn get sex => text()
-      .map(
-        const SexConverter(),
-      )
-      .nullable()();
+  TextColumn get sex => text().map(const SexConverter()).nullable()();
 
-  DateTimeColumn get birthDate =>
-      dateTime().nullable()();
+  DateTimeColumn get birthDate => dateTime().nullable()();
 
-  TextColumn get birthDateAccuracy => text()
-      .map(
-        const BirthDateAccuracyConverter(),
-      )
-      .nullable()();
+  TextColumn get birthDateAccuracy =>
+      text().map(const BirthDateAccuracyConverter()).nullable()();
 
   RealColumn get tempMin => real()();
 
@@ -49,31 +36,21 @@ class Animals extends Table {
 
   RealColumn get humidityMax => real()();
 
-  TextColumn get picturePath =>
-      text().nullable()();
+  TextColumn get picturePath => text().nullable()();
 
-  TextColumn get notes =>
-      text().nullable()();
+  IntColumn get pictureMediaId =>
+      integer().references(MediaAssets, #id).nullable()();
 
-  TextColumn get archiveReason => text()
-      .map(
-        const AnimalArchiveReasonConverter(),
-      )
-      .nullable()();
+  TextColumn get notes => text().nullable()();
 
-  DateTimeColumn get archivedAt =>
-      dateTime().nullable()();
+  TextColumn get archiveReason =>
+      text().map(const AnimalArchiveReasonConverter()).nullable()();
 
-  TextColumn get archiveNotes =>
-      text().nullable()();
+  DateTimeColumn get archivedAt => dateTime().nullable()();
 
-  DateTimeColumn get createdAt =>
-      dateTime().withDefault(
-        currentDateAndTime,
-      )();
+  TextColumn get archiveNotes => text().nullable()();
 
-  DateTimeColumn get updatedAt =>
-      dateTime().withDefault(
-        currentDateAndTime,
-      )();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

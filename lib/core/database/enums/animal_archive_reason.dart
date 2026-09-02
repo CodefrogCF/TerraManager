@@ -1,7 +1,1 @@
-enum AnimalArchiveReason {
-  sold,
-  traded,
-  deceased,
-  rehomed,
-  other,
-}
+enum AnimalArchiveReason { sold, traded, deceased, rehomed, other }

@@ -10,6 +10,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -17,9 +18,7 @@ void main() {
   late SchemaVerifier verifier;
 
   setUpAll(() {
-    verifier = SchemaVerifier(
-      GeneratedHelper(),
-    );
+    verifier = SchemaVerifier(GeneratedHelper());
   });
 
   group('simple database migrations', () {
@@ -29,18 +28,11 @@ void main() {
       group('from $fromVersion', () {
         for (final toVersion in versions.skip(i + 1)) {
           test('to $toVersion', () async {
-            final schema = await verifier.schemaAt(
-              fromVersion,
-            );
+            final schema = await verifier.schemaAt(fromVersion);
 
-            final db = AppDatabase(
-              schema.newConnection(),
-            );
+            final db = AppDatabase(schema.newConnection());
 
-            await verifier.migrateAndValidate(
-              db,
-              toVersion,
-            );
+            await verifier.migrateAndValidate(db, toVersion);
 
             await db.close();
           });
@@ -49,228 +41,245 @@ void main() {
     }
   });
 
+  test('migration from v1 to v2 preserves existing data', () async {
+    int unixSeconds(DateTime value) {
+      return value.millisecondsSinceEpoch ~/ 1000;
+    }
+
+    final boxCreatedAt = unixSeconds(DateTime(2026, 8, 20, 10, 0));
+
+    final boxUpdatedAt = unixSeconds(DateTime(2026, 8, 21, 11, 30));
+
+    final animalCreatedAt = unixSeconds(DateTime(2026, 8, 20, 10, 15));
+
+    final animalUpdatedAt = unixSeconds(DateTime(2026, 8, 22, 14, 45));
+
+    final fedAt = unixSeconds(DateTime(2026, 8, 23, 18, 30));
+
+    final oldBoxesData = <v1.BoxesData>[
+      v1.BoxesData(
+        id: 1,
+        qrId: 'TM:BOX:12345678-1234-4123-8123-123456789abc',
+        createdAt: boxCreatedAt,
+        updatedAt: boxUpdatedAt,
+      ),
+    ];
+
+    final expectedNewBoxesData = <v2.BoxesData>[
+      v2.BoxesData(
+        id: 1,
+        qrId: 'TM:BOX:12345678-1234-4123-8123-123456789abc',
+        createdAt: boxCreatedAt,
+        updatedAt: boxUpdatedAt,
+      ),
+    ];
+
+    final oldAnimalsData = <v1.AnimalsData>[
+      v1.AnimalsData(
+        id: 1,
+        boxId: 1,
+        commonName: 'Corn Snake',
+        latinName: 'Pantherophis guttatus',
+        sex: null,
+        birthDate: null,
+        birthDateAccuracy: null,
+        tempMin: 24,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 60,
+        picturePath: null,
+        notes: 'Existing animal before migration',
+        createdAt: animalCreatedAt,
+        updatedAt: animalUpdatedAt,
+      ),
+    ];
+
+    final expectedNewAnimalsData = <v2.AnimalsData>[
+      v2.AnimalsData(
+        id: 1,
+        boxId: 1,
+        status: 'active',
+        commonName: 'Corn Snake',
+        latinName: 'Pantherophis guttatus',
+        sex: null,
+        birthDate: null,
+        birthDateAccuracy: null,
+        tempMin: 24,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 60,
+        picturePath: null,
+        notes: 'Existing animal before migration',
+        archiveReason: null,
+        archivedAt: null,
+        archiveNotes: null,
+        createdAt: animalCreatedAt,
+        updatedAt: animalUpdatedAt,
+      ),
+    ];
+
+    final oldFeedingEventsData = <v1.FeedingEventsData>[
+      v1.FeedingEventsData(
+        id: 1,
+        animalId: 1,
+        fedAt: fedAt,
+        notes: 'Existing feeding before migration',
+      ),
+    ];
+
+    final expectedNewFeedingEventsData = <v2.FeedingEventsData>[
+      v2.FeedingEventsData(
+        id: 1,
+        animalId: 1,
+        fedAt: fedAt,
+        notes: 'Existing feeding before migration',
+      ),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 1,
+      newVersion: 2,
+      createOld: v1.DatabaseAtV1.new,
+      createNew: v2.DatabaseAtV2.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.boxes, oldBoxesData);
+
+        batch.insertAll(oldDb.animals, oldAnimalsData);
+
+        batch.insertAll(oldDb.feedingEvents, oldFeedingEventsData);
+      },
+      validateItems: (newDb) async {
+        final boxes = await newDb.select(newDb.boxes).get();
+
+        final animals = await newDb.select(newDb.animals).get();
+
+        final feedingEvents = await newDb.select(newDb.feedingEvents).get();
+
+        expect(boxes, expectedNewBoxesData);
+
+        expect(animals, expectedNewAnimalsData);
+
+        expect(feedingEvents, expectedNewFeedingEventsData);
+
+        // Existing animals become active after migration.
+        expect(animals.single.status, 'active');
+
+        // Existing box assignment is preserved.
+        expect(animals.single.boxId, 1);
+
+        // New archive fields are empty for existing animals.
+        expect(animals.single.archiveReason, isNull);
+
+        expect(animals.single.archivedAt, isNull);
+
+        expect(animals.single.archiveNotes, isNull);
+
+        // Existing feeding history remains associated with the animal.
+        expect(feedingEvents.single.animalId, animals.single.id);
+      },
+    );
+  });
+
   test(
-    'migration from v1 to v2 preserves existing data',
+    'migration from v2 to v3 preserves existing data and adds media support',
     () async {
       int unixSeconds(DateTime value) {
         return value.millisecondsSinceEpoch ~/ 1000;
       }
 
-      final boxCreatedAt = unixSeconds(
-        DateTime(
-          2026,
-          8,
-          20,
-          10,
-          0,
-        ),
-      );
+      final createdAt = unixSeconds(DateTime(2026, 9, 1, 10));
 
-      final boxUpdatedAt = unixSeconds(
-        DateTime(
-          2026,
-          8,
-          21,
-          11,
-          30,
-        ),
-      );
+      final updatedAt = unixSeconds(DateTime(2026, 9, 2, 12));
 
-      final animalCreatedAt = unixSeconds(
-        DateTime(
-          2026,
-          8,
-          20,
-          10,
-          15,
-        ),
-      );
-
-      final animalUpdatedAt = unixSeconds(
-        DateTime(
-          2026,
-          8,
-          22,
-          14,
-          45,
-        ),
-      );
-
-      final fedAt = unixSeconds(
-        DateTime(
-          2026,
-          8,
-          23,
-          18,
-          30,
-        ),
-      );
-
-      final oldBoxesData = <v1.BoxesData>[
-        v1.BoxesData(
-          id: 1,
-          qrId:
-              'TM:BOX:12345678-1234-4123-8123-123456789abc',
-          createdAt: boxCreatedAt,
-          updatedAt: boxUpdatedAt,
-        ),
-      ];
-
-      final expectedNewBoxesData = <v2.BoxesData>[
+      final oldBoxesData = <v2.BoxesData>[
         v2.BoxesData(
           id: 1,
-          qrId:
-              'TM:BOX:12345678-1234-4123-8123-123456789abc',
-          createdAt: boxCreatedAt,
-          updatedAt: boxUpdatedAt,
+          qrId: 'TM:BOX:12345678-1234-4123-8123-123456789abc',
+          createdAt: createdAt,
+          updatedAt: updatedAt,
         ),
       ];
 
-      final oldAnimalsData = <v1.AnimalsData>[
-        v1.AnimalsData(
-          id: 1,
-          boxId: 1,
-          commonName: 'Corn Snake',
-          latinName: 'Pantherophis guttatus',
-          sex: null,
-          birthDate: null,
-          birthDateAccuracy: null,
-          tempMin: 24,
-          tempMax: 28,
-          humidityMin: 40,
-          humidityMax: 60,
-          picturePath: null,
-          notes: 'Existing animal before migration',
-          createdAt: animalCreatedAt,
-          updatedAt: animalUpdatedAt,
-        ),
-      ];
-
-      final expectedNewAnimalsData = <v2.AnimalsData>[
+      final oldAnimalsData = <v2.AnimalsData>[
         v2.AnimalsData(
           id: 1,
           boxId: 1,
           status: 'active',
           commonName: 'Corn Snake',
           latinName: 'Pantherophis guttatus',
-          sex: null,
+          sex: 'female',
           birthDate: null,
           birthDateAccuracy: null,
           tempMin: 24,
           tempMax: 28,
           humidityMin: 40,
           humidityMax: 60,
-          picturePath: null,
-          notes: 'Existing animal before migration',
+          picturePath: 'legacy/animal.jpg',
+          notes: 'Existing animal',
           archiveReason: null,
           archivedAt: null,
           archiveNotes: null,
-          createdAt: animalCreatedAt,
-          updatedAt: animalUpdatedAt,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
         ),
       ];
 
-      final oldFeedingEventsData = <v1.FeedingEventsData>[
-        v1.FeedingEventsData(
+      final expectedAnimals = <v3.AnimalsData>[
+        v3.AnimalsData(
           id: 1,
-          animalId: 1,
-          fedAt: fedAt,
-          notes: 'Existing feeding before migration',
-        ),
-      ];
-
-      final expectedNewFeedingEventsData = <v2.FeedingEventsData>[
-        v2.FeedingEventsData(
-          id: 1,
-          animalId: 1,
-          fedAt: fedAt,
-          notes: 'Existing feeding before migration',
+          boxId: 1,
+          status: 'active',
+          commonName: 'Corn Snake',
+          latinName: 'Pantherophis guttatus',
+          sex: 'female',
+          birthDate: null,
+          birthDateAccuracy: null,
+          tempMin: 24,
+          tempMax: 28,
+          humidityMin: 40,
+          humidityMax: 60,
+          picturePath: 'legacy/animal.jpg',
+          pictureMediaId: null,
+          notes: 'Existing animal',
+          archiveReason: null,
+          archivedAt: null,
+          archiveNotes: null,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
         ),
       ];
 
       await verifier.testWithDataIntegrity(
-        oldVersion: 1,
-        newVersion: 2,
-        createOld: v1.DatabaseAtV1.new,
-        createNew: v2.DatabaseAtV2.new,
+        oldVersion: 2,
+        newVersion: 3,
+        createOld: v2.DatabaseAtV2.new,
+        createNew: v3.DatabaseAtV3.new,
         openTestedDatabase: AppDatabase.new,
         createItems: (batch, oldDb) {
-          batch.insertAll(
-            oldDb.boxes,
-            oldBoxesData,
-          );
+          batch.insertAll(oldDb.boxes, oldBoxesData);
 
-          batch.insertAll(
-            oldDb.animals,
-            oldAnimalsData,
-          );
-
-          batch.insertAll(
-            oldDb.feedingEvents,
-            oldFeedingEventsData,
-          );
+          batch.insertAll(oldDb.animals, oldAnimalsData);
         },
         validateItems: (newDb) async {
-          final boxes = await newDb
-              .select(newDb.boxes)
-              .get();
+          final boxes = await newDb.select(newDb.boxes).get();
 
-          final animals = await newDb
-              .select(newDb.animals)
-              .get();
+          final animals = await newDb.select(newDb.animals).get();
 
-          final feedingEvents = await newDb
-              .select(newDb.feedingEvents)
-              .get();
+          final media = await newDb.select(newDb.mediaAssets).get();
 
-          expect(
-            boxes,
-            expectedNewBoxesData,
-          );
+          expect(boxes.length, 1);
 
-          expect(
-            animals,
-            expectedNewAnimalsData,
-          );
+          expect(animals, expectedAnimals);
 
-          expect(
-            feedingEvents,
-            expectedNewFeedingEventsData,
-          );
+          expect(media, isEmpty);
 
-          // Existing animals become active after migration.
-          expect(
-            animals.single.status,
-            'active',
-          );
+          // Legacy picturePath is preserved.
+          expect(animals.single.picturePath, 'legacy/animal.jpg');
 
-          // Existing box assignment is preserved.
-          expect(
-            animals.single.boxId,
-            1,
-          );
-
-          // New archive fields are empty for existing animals.
-          expect(
-            animals.single.archiveReason,
-            isNull,
-          );
-
-          expect(
-            animals.single.archivedAt,
-            isNull,
-          );
-
-          expect(
-            animals.single.archiveNotes,
-            isNull,
-          );
-
-          // Existing feeding history remains associated with the animal.
-          expect(
-            feedingEvents.single.animalId,
-            animals.single.id,
-          );
+          // No MediaAsset is fabricated during
+          // the schema migration.
+          expect(animals.single.pictureMediaId, isNull);
         },
       );
     },

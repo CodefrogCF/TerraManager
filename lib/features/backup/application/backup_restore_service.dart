@@ -14,20 +14,12 @@ typedef BackupSafetyBackupWriter = Future<void> Function(
   BackupExportResult backup,
 );
 
-typedef BackupRestoreMediaWriter = Future<String> Function(
-  String portablePath,
-  Uint8List bytes,
-);
-
-typedef BackupRestoreMediaCleanup = Future<void> Function(String localPath);
-
 class BackupRestoreService {
   final AppDatabase database;
+
   final AppSettingsController settingsController;
 
   final BackupSafetyBackupWriter safetyBackupWriter;
-  final BackupRestoreMediaWriter mediaWriter;
-  final BackupRestoreMediaCleanup mediaCleanup;
 
   final BackupExportService _exportService;
 
@@ -35,8 +27,6 @@ class BackupRestoreService {
     required this.database,
     required this.settingsController,
     required this.safetyBackupWriter,
-    required this.mediaWriter,
-    required this.mediaCleanup,
     BackupExportService? exportService,
   }) : _exportService = exportService ?? BackupExportService(database);
 
@@ -82,62 +72,12 @@ class BackupRestoreService {
       );
     }
 
-    final restoredMediaPaths = <String, String>{};
-
-    final writtenLocalPaths = <String>[];
-
-    try {
-      for (final animal in backup.data.animals) {
-        final portablePath = animal.pictureMediaPath;
-
-        if (portablePath == null) {
-          continue;
-        }
-
-        if (restoredMediaPaths.containsKey(portablePath)) {
-          continue;
-        }
-
-        final bytes = backup.mediaFiles[portablePath];
-
-        if (bytes == null) {
-          throw StateError(
-            'Validated backup is missing media: '
-            '$portablePath',
-          );
-        }
-
-        final localPath = await mediaWriter(portablePath, bytes);
-
-        if (localPath.trim().isEmpty) {
-          throw StateError(
-            'Media writer returned an empty path '
-            'for $portablePath',
-          );
-        }
-
-        restoredMediaPaths[portablePath] = localPath;
-
-        writtenLocalPaths.add(localPath);
-      }
-    } catch (error) {
-      await _cleanupMediaBestEffort(writtenLocalPaths);
-
-      throw BackupRestoreException(
-        stage: BackupRestoreStage.media,
-        message: 'Failed to prepare backup media.',
-        cause: error,
-      );
-    }
-
     try {
       await settingsController.replaceSettings(
         themeMode: restoredThemeMode,
         accent: restoredAccent,
       );
     } catch (error) {
-      await _cleanupMediaBestEffort(writtenLocalPaths);
-
       throw BackupRestoreException(
         stage: BackupRestoreStage.settings,
         message: 'Failed to restore application settings.',
@@ -145,35 +85,23 @@ class BackupRestoreService {
       );
     }
 
-    try {
-      await _replaceDatabase(
-        backup: backup,
-        restoredMediaPaths: restoredMediaPaths,
-      );
-    } catch (error) {
-      Object? rollbackError;
+    late final int restoredMediaCount;
 
+    try {
+      restoredMediaCount = await _replaceDatabase(backup: backup);
+    } catch (error) {
       try {
         await settingsController.replaceSettings(
           themeMode: previousThemeMode,
           accent: previousAccent,
         );
-      } catch (settingsRollbackError) {
-        rollbackError = settingsRollbackError;
-      }
-
-      try {
-        await _cleanupMedia(writtenLocalPaths);
-      } catch (mediaRollbackError) {
-        rollbackError ??= mediaRollbackError;
-      }
-
-      if (rollbackError != null) {
+      } catch (rollbackError) {
         throw BackupRestoreException(
           stage: BackupRestoreStage.rollback,
           message:
-              'Database restore failed and rollback '
-              'could not be completed cleanly.',
+              'Database restore failed and '
+              'settings rollback could not '
+              'be completed cleanly.',
           cause: rollbackError,
         );
       }
@@ -190,18 +118,19 @@ class BackupRestoreService {
       boxCount: backup.boxCount,
       animalCount: backup.animalCount,
       feedingEventCount: backup.feedingEventCount,
-      mediaFileCount: restoredMediaPaths.length,
+      mediaFileCount: restoredMediaCount,
     );
   }
 
-  Future<void> _replaceDatabase({
-    required ValidatedBackup backup,
-    required Map<String, String> restoredMediaPaths,
-  }) {
+  Future<int> _replaceDatabase({required ValidatedBackup backup}) {
     return database.transaction(() async {
       await database.delete(database.feedingEvents).go();
 
       await database.delete(database.animals).go();
+
+      // Animals reference MediaAssets, so
+      // media must be removed afterwards.
+      await database.delete(database.mediaAssets).go();
 
       await database.delete(database.boxes).go();
 
@@ -210,7 +139,8 @@ class BackupRestoreService {
         "WHERE name IN ("
         "'boxes', "
         "'animals', "
-        "'feeding_events'"
+        "'feeding_events', "
+        "'media_assets'"
         ")",
       );
 
@@ -226,6 +156,8 @@ class BackupRestoreService {
               ),
             );
       }
+
+      var restoredMediaCount = 0;
 
       for (final animal in backup.data.animals) {
         final status = BackupEnumCodec.decodeAnimalStatus(animal.status);
@@ -244,15 +176,44 @@ class BackupRestoreService {
             ? null
             : BackupEnumCodec.decodeArchiveReason(animal.archiveReason!);
 
-        final picturePath = animal.pictureMediaPath == null
-            ? null
-            : restoredMediaPaths[animal.pictureMediaPath!];
+        int? pictureMediaId;
 
-        if (animal.pictureMediaPath != null && picturePath == null) {
-          throw StateError(
-            'Missing restored media path for '
-            '${animal.pictureMediaPath}',
-          );
+        final portablePath = animal.pictureMediaPath;
+
+        if (portablePath != null) {
+          final bytes = backup.mediaFiles[portablePath];
+
+          if (bytes == null) {
+            throw StateError(
+              'Validated backup is '
+              'missing media: '
+              '$portablePath',
+            );
+          }
+
+          if (bytes.isEmpty) {
+            throw StateError(
+              'Validated backup contains '
+              'empty media: '
+              '$portablePath',
+            );
+          }
+
+          final fileName = _fileNameFromPortablePath(portablePath);
+
+          pictureMediaId = await database
+              .into(database.mediaAssets)
+              .insert(
+                MediaAssetsCompanion.insert(
+                  fileName: fileName,
+                  mimeType: _mimeTypeFromFileName(fileName),
+                  data: bytes,
+                  createdAt: Value(animal.createdAt),
+                  updatedAt: Value(animal.updatedAt),
+                ),
+              );
+
+          restoredMediaCount++;
         }
 
         await database
@@ -271,7 +232,8 @@ class BackupRestoreService {
                 tempMax: Value(animal.tempMax),
                 humidityMin: Value(animal.humidityMin),
                 humidityMax: Value(animal.humidityMax),
-                picturePath: Value(picturePath),
+                picturePath: const Value(null),
+                pictureMediaId: Value(pictureMediaId),
                 notes: Value(animal.notes),
                 archiveReason: Value(archiveReason),
                 archivedAt: Value(animal.archivedAt),
@@ -301,35 +263,62 @@ class BackupRestoreService {
 
       if (foreignKeyErrors.isNotEmpty) {
         throw StateError(
-          'Foreign key violations after restore: '
+          'Foreign key violations '
+          'after restore: '
           '${foreignKeyErrors.map((row) => row.data).toList()}',
         );
       }
+
+      return restoredMediaCount;
     });
   }
 
-  Future<void> _cleanupMedia(List<String> localPaths) async {
-    Object? firstError;
+  static String _fileNameFromPortablePath(String portablePath) {
+    final normalized = portablePath.replaceAll('\\', '/');
 
-    for (final path in localPaths.reversed) {
-      try {
-        await mediaCleanup(path);
-      } catch (error) {
-        firstError ??= error;
-      }
+    final fileName = normalized.split('/').last.trim();
+
+    if (fileName.isEmpty) {
+      throw StateError(
+        'Invalid media path: '
+        '$portablePath',
+      );
     }
 
-    if (firstError != null) {
-      throw firstError;
-    }
+    return fileName;
   }
 
-  Future<void> _cleanupMediaBestEffort(List<String> localPaths) async {
-    try {
-      await _cleanupMedia(localPaths);
-    } catch (_) {
-      // Existing application data has not yet been
-      // modified at this stage. Cleanup is best-effort.
+  static String _mimeTypeFromFileName(String fileName) {
+    final lower = fileName.toLowerCase();
+
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+      return 'image/jpeg';
     }
+
+    if (lower.endsWith('.png')) {
+      return 'image/png';
+    }
+
+    if (lower.endsWith('.webp')) {
+      return 'image/webp';
+    }
+
+    if (lower.endsWith('.gif')) {
+      return 'image/gif';
+    }
+
+    if (lower.endsWith('.bmp')) {
+      return 'image/bmp';
+    }
+
+    if (lower.endsWith('.heic')) {
+      return 'image/heic';
+    }
+
+    if (lower.endsWith('.heif')) {
+      return 'image/heif';
+    }
+
+    return 'application/octet-stream';
   }
 }

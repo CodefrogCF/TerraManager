@@ -48,18 +48,15 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   void _loadAnimals() {
-    _animalsFuture = AnimalRepository(
-      widget.database,
-    ).getAnimalsForBox(widget.box.id);
+    _animalsFuture = AnimalRepository(widget.database)
+        .getAnimalsForBox(widget.box.id);
   }
 
   Future<void> _openAnimalDetail(Animal animal) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => AnimalDetailPage(
-          database: widget.database,
-          animalId: animal.id,
-        ),
+        builder: (_) =>
+            AnimalDetailPage(database: widget.database, animalId: animal.id),
       ),
     );
 
@@ -79,18 +76,11 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     });
 
     try {
-      final pngBytes = await widget.qrExporter.exportPng(
-        qrId: widget.box.qrId,
-      );
+      final pngBytes = await widget.qrExporter.exportPng(qrId: widget.box.qrId);
 
-      final fileName = buildBoxQrFileName(
-        widget.box.qrId,
-      );
+      final fileName = buildBoxQrFileName(widget.box.qrId);
 
-      await widget.qrStorage.savePng(
-        bytes: pngBytes,
-        fileName: fileName,
-      );
+      await widget.qrStorage.savePng(bytes: pngBytes, fileName: fileName);
 
       if (!mounted) {
         return;
@@ -100,11 +90,8 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         _savingQr = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('QR code saved'),
-        ),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('QR code saved')));
     } catch (_) {
       if (!mounted) {
         return;
@@ -124,9 +111,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     });
 
     try {
-      final pngBytes = await widget.qrExporter.exportPng(
-        qrId: widget.box.qrId,
-      );
+      final pngBytes = await widget.qrExporter.exportPng(qrId: widget.box.qrId);
 
       await widget.qrPrinter.printQrCode(
         pngBytes: pngBytes,
@@ -141,11 +126,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         _printingQr = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('QR code sent to printer'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('QR code sent to printer')));
     } catch (_) {
       if (!mounted) {
         return;
@@ -170,18 +153,15 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     try {
       // Re-query the database instead of relying on the currently displayed
       // list. This prevents deleting a box based on stale UI state.
-      final animals = await AnimalRepository(
-        widget.database,
-      ).getAnimalsForBox(widget.box.id);
+      final animals = await AnimalRepository(widget.database)
+          .getAnimalsForBox(widget.box.id);
 
       if (!mounted) {
         return;
       }
 
       if (animals.isNotEmpty) {
-        await _showCannotDeleteDialog(
-          animals.length,
-        );
+        await _showCannotDeleteDialog(animals.length);
         return;
       }
 
@@ -222,9 +202,8 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         _deleting = true;
       });
 
-      final deleted = await BoxRepository(
-        widget.database,
-      ).deleteBox(widget.box.id);
+      final deleted = await BoxRepository(widget.database)
+          .deleteBox(widget.box.id);
 
       if (!mounted) {
         return;
@@ -251,9 +230,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     }
   }
 
-  Future<void> _showCannotDeleteDialog(
-    int animalCount,
-  ) {
+  Future<void> _showCannotDeleteDialog(int animalCount) {
     final animalText = animalCount == 1
         ? '1 animal is assigned to this box.'
         : '$animalCount animals are assigned to this box.';
@@ -262,9 +239,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text(
-            'Cannot Delete Box',
-          ),
+          title: const Text('Cannot Delete Box'),
           content: Text(
             '$animalText\n\n'
             'Move or delete the assigned animals before deleting the box.',
@@ -298,13 +273,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(
-                    Icons.download_outlined,
-                  ),
+                : const Icon(Icons.download_outlined),
             tooltip: 'Save QR Code',
           ),
           IconButton(
@@ -314,13 +285,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(
-                    Icons.print_outlined,
-                  ),
+                : const Icon(Icons.print_outlined),
             tooltip: 'Print QR Code',
           ),
           IconButton(
@@ -330,13 +297,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(
-                    Icons.delete_outline,
-                  ),
+                : const Icon(Icons.delete_outline),
             tooltip: 'Delete Box',
           ),
         ],
@@ -348,11 +311,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             Text(
               _saveError!,
               key: const Key('qr-save-error'),
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             const SizedBox(height: 16),
           ],
@@ -361,11 +320,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             Text(
               _printError!,
               key: const Key('qr-print-error'),
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             const SizedBox(height: 16),
           ],
@@ -374,55 +329,27 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             Text(
               _deleteError!,
               key: const Key('box-delete-error'),
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.error,
-              ),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
             const SizedBox(height: 16),
           ],
 
           Center(
-            child: BoxQrCode(
-              key: const Key('box-qr-code'),
-              qrId: box.qrId,
-            ),
+            child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
           ),
           const SizedBox(height: 24),
 
-          Text(
-            'QR Identifier',
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium,
-          ),
+          Text('QR Identifier', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
 
-          SelectableText(
-            box.qrId,
-            key: const Key('box-qr-id'),
-          ),
+          SelectableText(box.qrId, key: const Key('box-qr-id')),
           const SizedBox(height: 24),
 
-          _DetailRow(
-            label: 'Box ID',
-            value: box.id.toString(),
-          ),
+          _DetailRow(label: 'Box ID', value: box.id.toString()),
 
-          _DetailRow(
-            label: 'Created',
-            value: _formatDateTime(
-              box.createdAt,
-            ),
-          ),
+          _DetailRow(label: 'Created', value: _formatDateTime(box.createdAt)),
 
-          _DetailRow(
-            label: 'Updated',
-            value: _formatDateTime(
-              box.updatedAt,
-            ),
-          ),
+          _DetailRow(label: 'Updated', value: _formatDateTime(box.updatedAt)),
 
           const SizedBox(height: 16),
 
@@ -431,17 +358,11 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               Expanded(
                 child: Text(
                   'Assigned Animals',
-                  key: const Key(
-                    'assigned-animals-heading',
-                  ),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleMedium,
+                  key: const Key('assigned-animals-heading'),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
-              const Icon(
-                Icons.pets_outlined,
-              ),
+              const Icon(Icons.pets_outlined),
             ],
           ),
           const SizedBox(height: 8),
@@ -451,25 +372,18 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return const Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 16,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'Failed to load assigned animals',
-                    key: Key(
-                      'assigned-animals-error',
-                    ),
+                    key: Key('assigned-animals-error'),
                   ),
                 );
               }
 
-              if (snapshot.connectionState ==
-                  ConnectionState.waiting) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Padding(
                   padding: EdgeInsets.all(24),
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
+                  child: Center(child: CircularProgressIndicator()),
                 );
               }
 
@@ -477,14 +391,10 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
               if (animals.isEmpty) {
                 return const Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 16,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'No animals assigned to this box',
-                    key: Key(
-                      'no-assigned-animals',
-                    ),
+                    key: Key('no-assigned-animals'),
                   ),
                 );
               }
@@ -494,25 +404,13 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                   for (final animal in animals)
                     Card(
                       child: ListTile(
-                        key: Key(
-                          'assigned-animal-${animal.id}',
-                        ),
-                        leading: const Icon(
-                          Icons.pets_outlined,
-                        ),
-                        title: Text(
-                          animal.commonName,
-                        ),
-                        subtitle: Text(
-                          animal.latinName,
-                        ),
-                        trailing: const Icon(
-                          Icons.chevron_right,
-                        ),
+                        key: Key('assigned-animal-${animal.id}'),
+                        leading: const Icon(Icons.pets_outlined),
+                        title: Text(animal.commonName),
+                        subtitle: Text(animal.latinName),
+                        trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          _openAnimalDetail(
-                            animal,
-                          );
+                          _openAnimalDetail(animal);
                         },
                       ),
                     ),
@@ -527,26 +425,16 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     );
   }
 
-  String _formatDateTime(
-    DateTime dateTime,
-  ) {
-    final day = dateTime.day
-        .toString()
-        .padLeft(2, '0');
+  String _formatDateTime(DateTime dateTime) {
+    final day = dateTime.day.toString().padLeft(2, '0');
 
-    final month = dateTime.month
-        .toString()
-        .padLeft(2, '0');
+    final month = dateTime.month.toString().padLeft(2, '0');
 
     final year = dateTime.year.toString();
 
-    final hour = dateTime.hour
-        .toString()
-        .padLeft(2, '0');
+    final hour = dateTime.hour.toString().padLeft(2, '0');
 
-    final minute = dateTime.minute
-        .toString()
-        .padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
 
     return '$day.$month.$year $hour:$minute';
   }
@@ -556,33 +444,23 @@ class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRow({
-    required this.label,
-    required this.value,
-  });
+  const _DetailRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 12,
-      ),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: Text(value),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );

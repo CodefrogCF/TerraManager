@@ -6,6 +6,7 @@ import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/media_repository.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../widgets/animal_picture.dart';
 import 'animal_edit_page.dart';
@@ -27,6 +28,7 @@ class AnimalDetailPage extends StatefulWidget {
 class _AnimalDetailPageState extends State<AnimalDetailPage> {
   late Future<Animal?> _animalFuture;
   late Future<FeedingEvent?> _latestFeedingFuture;
+  late Future<MediaAsset?> _pictureMediaFuture;
 
   bool _lifecycleActionInProgress = false;
   String? _lifecycleError;
@@ -39,15 +41,23 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
   }
 
   void _loadAnimal() {
-    _animalFuture =
-        AnimalRepository(widget.database).getAnimalById(widget.animalId);
+    _animalFuture = AnimalRepository(widget.database)
+        .getAnimalById(widget.animalId);
+
+    _pictureMediaFuture = _animalFuture.then((animal) async {
+      final mediaId = animal?.pictureMediaId;
+
+      if (mediaId == null) {
+        return null;
+      }
+
+      return MediaRepository(widget.database).getMediaById(mediaId);
+    });
   }
 
   void _loadLatestFeeding() {
-    _latestFeedingFuture =
-        FeedingRepository(widget.database).getLatestFeeding(
-      widget.animalId,
-    );
+    _latestFeedingFuture = FeedingRepository(widget.database)
+        .getLatestFeeding(widget.animalId);
   }
 
   Future<void> _openEditPage() async {
@@ -90,11 +100,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     });
   }
 
-  Future<void> _archiveAnimal(
-    Animal animal,
-  ) async {
-    if (_lifecycleActionInProgress ||
-        animal.status != AnimalStatus.active) {
+  Future<void> _archiveAnimal(Animal animal) async {
+    if (_lifecycleActionInProgress || animal.status != AnimalStatus.active) {
       return;
     }
 
@@ -113,8 +120,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     });
 
     try {
-      final success =
-          await AnimalRepository(widget.database).archiveAnimal(
+      final success = await AnimalRepository(widget.database).archiveAnimal(
         animalId: animal.id,
         reason: result.reason,
         archivedAt: result.archivedAt,
@@ -139,11 +145,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         _loadAnimal();
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Animal archived'),
-        ),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Animal archived')));
     } catch (_) {
       if (!mounted) {
         return;
@@ -156,11 +159,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     }
   }
 
-  Future<void> _restoreAnimal(
-    Animal animal,
-  ) async {
-    if (_lifecycleActionInProgress ||
-        animal.status != AnimalStatus.archived) {
+  Future<void> _restoreAnimal(Animal animal) async {
+    if (_lifecycleActionInProgress || animal.status != AnimalStatus.archived) {
       return;
     }
 
@@ -194,14 +194,10 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         builder: (context) {
           return AlertDialog(
             title: const Text('No Boxes Available'),
-            content: const Text(
-              'Create a box before restoring this animal.',
-            ),
+            content: const Text('Create a box before restoring this animal.'),
             actions: [
               TextButton(
-                key: const Key(
-                  'close-no-boxes-dialog-button',
-                ),
+                key: const Key('close-no-boxes-dialog-button'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -217,9 +213,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
     final selectedBoxId = await showDialog<int>(
       context: context,
-      builder: (_) => _RestoreAnimalDialog(
-        boxes: boxes,
-      ),
+      builder: (_) => _RestoreAnimalDialog(boxes: boxes),
     );
 
     if (selectedBoxId == null || !mounted) {
@@ -232,11 +226,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     });
 
     try {
-      final success =
-          await AnimalRepository(widget.database).restoreAnimal(
-        animalId: animal.id,
-        boxId: selectedBoxId,
-      );
+      final success = await AnimalRepository(widget.database)
+          .restoreAnimal(animalId: animal.id, boxId: selectedBoxId);
 
       if (!mounted) {
         return;
@@ -256,11 +247,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         _loadAnimal();
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Animal restored'),
-        ),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Animal restored')));
     } catch (_) {
       if (!mounted) {
         return;
@@ -273,11 +261,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     }
   }
 
-  Future<void> _permanentlyDeleteAnimal(
-    Animal animal,
-  ) async {
-    if (_lifecycleActionInProgress ||
-        animal.status != AnimalStatus.archived) {
+  Future<void> _permanentlyDeleteAnimal(Animal animal) async {
+    if (_lifecycleActionInProgress || animal.status != AnimalStatus.archived) {
       return;
     }
 
@@ -285,36 +270,26 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          key: const Key(
-            'permanent-delete-animal-dialog',
-          ),
-          title: const Text(
-            'Permanently Delete Animal?',
-          ),
+          key: const Key('permanent-delete-animal-dialog'),
+          title: const Text('Permanently Delete Animal?'),
           content: const Text(
             'The animal and all associated feeding history '
             'will be permanently removed. This cannot be undone.',
           ),
           actions: [
             TextButton(
-              key: const Key(
-                'cancel-permanent-delete-animal-button',
-              ),
+              key: const Key('cancel-permanent-delete-animal-button'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
               child: const Text('Cancel'),
             ),
             FilledButton(
-              key: const Key(
-                'confirm-permanent-delete-animal-button',
-              ),
+              key: const Key('confirm-permanent-delete-animal-button'),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text(
-                'Delete Permanently',
-              ),
+              child: const Text('Delete Permanently'),
             ),
           ],
         );
@@ -331,11 +306,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     });
 
     try {
-      final success =
-          await AnimalRepository(widget.database)
-              .permanentlyDeleteArchivedAnimal(
-        animal.id,
-      );
+      final success = await AnimalRepository(widget.database)
+          .permanentlyDeleteArchivedAnimal(animal.id);
 
       if (!mounted) {
         return;
@@ -344,8 +316,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       if (!success) {
         setState(() {
           _lifecycleActionInProgress = false;
-          _lifecycleError =
-              'Failed to permanently delete animal';
+          _lifecycleError = 'Failed to permanently delete animal';
         });
 
         return;
@@ -359,8 +330,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
       setState(() {
         _lifecycleActionInProgress = false;
-        _lifecycleError =
-            'Failed to permanently delete animal';
+        _lifecycleError = 'Failed to permanently delete animal';
       });
     }
   }
@@ -378,66 +348,42 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             actions: [
               if (animal != null)
                 IconButton(
-                  key: const Key(
-                    'feeding-history-button',
-                  ),
+                  key: const Key('feeding-history-button'),
                   onPressed: _openFeedingHistory,
-                  icon: const Icon(
-                    Icons.restaurant,
-                  ),
+                  icon: const Icon(Icons.restaurant),
                   tooltip: 'Feeding History',
                 ),
-              if (animal != null &&
-                  animal.status == AnimalStatus.active)
+              if (animal != null && animal.status == AnimalStatus.active)
                 IconButton(
-                  key: const Key(
-                    'edit-animal-button',
-                  ),
-                  onPressed: _lifecycleActionInProgress
-                      ? null
-                      : _openEditPage,
-                  icon: const Icon(
-                    Icons.edit,
-                  ),
+                  key: const Key('edit-animal-button'),
+                  onPressed: _lifecycleActionInProgress ? null : _openEditPage,
+                  icon: const Icon(Icons.edit),
                   tooltip: 'Edit Animal',
                 ),
             ],
           ),
-          body: _buildBody(
-            context,
-            snapshot,
-          ),
+          body: _buildBody(context, snapshot),
         );
       },
     );
   }
 
-  Widget _buildBody(
-    BuildContext context,
-    AsyncSnapshot<Animal?> snapshot,
-  ) {
+  Widget _buildBody(BuildContext context, AsyncSnapshot<Animal?> snapshot) {
     if (snapshot.hasError) {
-      return const Center(
-        child: Text('Failed to load animal'),
-      );
+      return const Center(child: Text('Failed to load animal'));
     }
 
     if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     final animal = snapshot.data;
 
     if (animal == null) {
-      return const Center(
-        child: Text('Animal not found'),
-      );
+      return const Center(child: Text('Animal not found'));
     }
 
-    final isArchived =
-        animal.status == AnimalStatus.archived;
+    final isArchived = animal.status == AnimalStatus.archived;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -445,19 +391,29 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         if (_lifecycleError != null) ...[
           Text(
             _lifecycleError!,
-            key: const Key(
-              'animal-lifecycle-error',
-            ),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.error,
-            ),
+            key: const Key('animal-lifecycle-error'),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
           ),
           const SizedBox(height: 16),
         ],
 
-        AnimalPicture(
-          key: const Key('animal-picture'),
-          picturePath: animal.picturePath,
+        FutureBuilder<MediaAsset?>(
+          future: _pictureMediaFuture,
+          builder: (context, pictureSnapshot) {
+            if (animal.pictureMediaId != null &&
+                pictureSnapshot.connectionState == ConnectionState.waiting) {
+              return const SizedBox(
+                height: 220,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            return AnimalPicture(
+              key: const Key('animal-picture'),
+              pictureBytes: pictureSnapshot.data?.data,
+              picturePath: animal.picturePath,
+            );
+          },
         ),
         const SizedBox(height: 24),
 
@@ -467,37 +423,21 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         ),
         const SizedBox(height: 4),
 
-        Text(
-          animal.latinName,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
+        Text(animal.latinName, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 24),
 
-        _DetailRow(
-          label: 'Status',
-          value: isArchived
-              ? 'Archived'
-              : 'Active',
-        ),
+        _DetailRow(label: 'Status', value: isArchived ? 'Archived' : 'Active'),
 
         if (!isArchived && animal.boxId != null)
-          _DetailRow(
-            label: 'Box',
-            value: 'Box ${animal.boxId}',
-          ),
+          _DetailRow(label: 'Box', value: 'Box ${animal.boxId}'),
 
         if (animal.sex != null)
-          _DetailRow(
-            label: 'Sex',
-            value: animal.sex.toString(),
-          ),
+          _DetailRow(label: 'Sex', value: animal.sex.toString()),
 
         if (animal.birthDate != null)
           _DetailRow(
             label: 'Birth date',
-            value: _formatDate(
-              animal.birthDate!,
-            ),
+            value: _formatDate(animal.birthDate!),
           ),
 
         if (animal.birthDateAccuracy != null)
@@ -508,23 +448,19 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
         _DetailRow(
           label: 'Temperature',
-          value:
-              '${animal.tempMin} °C – ${animal.tempMax} °C',
+          value: '${animal.tempMin} °C – ${animal.tempMax} °C',
         ),
 
         _DetailRow(
           label: 'Humidity',
-          value:
-              '${animal.humidityMin}% – ${animal.humidityMax}%',
+          value: '${animal.humidityMin}% – ${animal.humidityMax}%',
         ),
 
         const SizedBox(height: 16),
 
         Text(
           'Latest Feeding',
-          key: const Key(
-            'latest-feeding-heading',
-          ),
+          key: const Key('latest-feeding-heading'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
@@ -535,22 +471,15 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             if (snapshot.hasError) {
               return const Text(
                 'Failed to load latest feeding',
-                key: Key(
-                  'latest-feeding-error',
-                ),
+                key: Key('latest-feeding-error'),
               );
             }
 
-            if (snapshot.connectionState ==
-                ConnectionState.waiting) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
               return const Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 8,
-                ),
+                padding: EdgeInsets.symmetric(vertical: 8),
                 child: LinearProgressIndicator(
-                  key: Key(
-                    'latest-feeding-loading',
-                  ),
+                  key: Key('latest-feeding-loading'),
                 ),
               );
             }
@@ -560,39 +489,26 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             if (feeding == null) {
               return const Text(
                 'No feeding events available',
-                key: Key(
-                  'latest-feeding-empty-state',
-                ),
+                key: Key('latest-feeding-empty-state'),
               );
             }
 
             return Card(
-              key: const Key(
-                'latest-feeding-section',
-              ),
+              key: const Key('latest-feeding-section'),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(
-                          Icons.restaurant,
-                        ),
+                        const Icon(Icons.restaurant),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            _formatDateTime(
-                              feeding.fedAt,
-                            ),
-                            key: const Key(
-                              'latest-feeding-date',
-                            ),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall,
+                            _formatDateTime(feeding.fedAt),
+                            key: const Key('latest-feeding-date'),
+                            style: Theme.of(context).textTheme.titleSmall,
                           ),
                         ),
                       ],
@@ -604,9 +520,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
                       Text(
                         feeding.notes!,
-                        key: const Key(
-                          'latest-feeding-note',
-                        ),
+                        key: const Key('latest-feeding-note'),
                       ),
                     ],
                   ],
@@ -616,19 +530,13 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           },
         ),
 
-        if (animal.notes != null &&
-            animal.notes!.isNotEmpty) ...[
+        if (animal.notes != null && animal.notes!.isNotEmpty) ...[
           const SizedBox(height: 16),
 
-          Text(
-            'Notes',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text('Notes', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
 
-          Text(
-            animal.notes!,
-          ),
+          Text(animal.notes!),
         ],
 
         if (isArchived) ...[
@@ -638,9 +546,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
           Text(
             'Archive Information',
-            key: const Key(
-              'archive-information-heading',
-            ),
+            key: const Key('archive-information-heading'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 16),
@@ -648,85 +554,54 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           if (animal.archiveReason != null)
             _DetailRow(
               label: 'Reason',
-              value: _archiveReasonLabel(
-                animal.archiveReason!,
-              ),
+              value: _archiveReasonLabel(animal.archiveReason!),
             ),
 
           if (animal.archivedAt != null)
             _DetailRow(
               label: 'Archive date',
-              value: _formatDate(
-                animal.archivedAt!,
-              ),
+              value: _formatDate(animal.archivedAt!),
             ),
 
           if (animal.archiveNotes != null &&
               animal.archiveNotes!.isNotEmpty) ...[
             const SizedBox(height: 8),
 
-            Text(
-              'Archive note',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
+            Text('Archive note', style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
 
-            Text(
-              animal.archiveNotes!,
-              key: const Key(
-                'archive-notes',
-              ),
-            ),
+            Text(animal.archiveNotes!, key: const Key('archive-notes')),
           ],
 
           const SizedBox(height: 24),
 
           FilledButton.icon(
-            key: const Key(
-              'restore-animal-button',
-            ),
+            key: const Key('restore-animal-button'),
             onPressed: _lifecycleActionInProgress
                 ? null
-                : () => _restoreAnimal(
-                      animal,
-                    ),
+                : () => _restoreAnimal(animal),
             icon: _lifecycleActionInProgress
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(
-                    Icons.restore,
-                  ),
-            label: const Text(
-              'Restore Animal',
-            ),
+                : const Icon(Icons.restore),
+            label: const Text('Restore Animal'),
           ),
 
           const SizedBox(height: 12),
 
           OutlinedButton.icon(
-            key: const Key(
-              'permanent-delete-animal-button',
-            ),
+            key: const Key('permanent-delete-animal-button'),
             style: OutlinedButton.styleFrom(
-              foregroundColor:
-                  Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.error,
             ),
             onPressed: _lifecycleActionInProgress
                 ? null
-                : () => _permanentlyDeleteAnimal(
-                      animal,
-                    ),
-            icon: const Icon(
-              Icons.delete_forever_outlined,
-            ),
-            label: const Text(
-              'Delete Permanently',
-            ),
+                : () => _permanentlyDeleteAnimal(animal),
+            icon: const Icon(Icons.delete_forever_outlined),
+            label: const Text('Delete Permanently'),
           ),
         ] else ...[
           const SizedBox(height: 32),
@@ -734,28 +609,18 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           const SizedBox(height: 16),
 
           OutlinedButton.icon(
-            key: const Key(
-              'archive-animal-button',
-            ),
+            key: const Key('archive-animal-button'),
             onPressed: _lifecycleActionInProgress
                 ? null
-                : () => _archiveAnimal(
-                      animal,
-                    ),
+                : () => _archiveAnimal(animal),
             icon: _lifecycleActionInProgress
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(
-                    Icons.archive_outlined,
-                  ),
-            label: const Text(
-              'Archive Animal',
-            ),
+                : const Icon(Icons.archive_outlined),
+            label: const Text('Archive Animal'),
           ),
         ],
 
@@ -769,14 +634,11 @@ class _ArchiveAnimalDialog extends StatefulWidget {
   const _ArchiveAnimalDialog();
 
   @override
-  State<_ArchiveAnimalDialog> createState() =>
-      _ArchiveAnimalDialogState();
+  State<_ArchiveAnimalDialog> createState() => _ArchiveAnimalDialogState();
 }
 
-class _ArchiveAnimalDialogState
-    extends State<_ArchiveAnimalDialog> {
-  final TextEditingController _notesController =
-      TextEditingController();
+class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
+  final TextEditingController _notesController = TextEditingController();
 
   AnimalArchiveReason? _reason;
   late DateTime _archiveDate;
@@ -787,11 +649,7 @@ class _ArchiveAnimalDialogState
 
     final now = DateTime.now();
 
-    _archiveDate = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    );
+    _archiveDate = DateTime(now.year, now.month, now.day);
   }
 
   @override
@@ -824,16 +682,13 @@ class _ArchiveAnimalDialogState
       return;
     }
 
-    final notes =
-        _notesController.text.trim();
+    final notes = _notesController.text.trim();
 
     Navigator.of(context).pop(
       _ArchiveAnimalResult(
         reason: reason,
         archivedAt: _archiveDate,
-        notes: notes.isEmpty
-            ? null
-            : notes,
+        notes: notes.isEmpty ? null : notes,
       ),
     );
   }
@@ -841,39 +696,24 @@ class _ArchiveAnimalDialogState
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      key: const Key(
-        'archive-animal-dialog',
-      ),
+      key: const Key('archive-animal-dialog'),
       scrollable: true,
-      title: const Text(
-        'Archive Animal',
-      ),
+      title: const Text('Archive Animal'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Archive this animal and remove it from its current box?',
-          ),
+          const Text('Archive this animal and remove it from its current box?'),
           const SizedBox(height: 20),
 
           DropdownButtonFormField<AnimalArchiveReason>(
-            key: const Key(
-              'archive-reason-field',
-            ),
+            key: const Key('archive-reason-field'),
             initialValue: _reason,
-            decoration: const InputDecoration(
-              labelText: 'Reason',
-            ),
+            decoration: const InputDecoration(labelText: 'Reason'),
             items: AnimalArchiveReason.values
                 .map(
-                  (reason) => DropdownMenuItem<
-                      AnimalArchiveReason>(
+                  (reason) => DropdownMenuItem<AnimalArchiveReason>(
                     value: reason,
-                    child: Text(
-                      _archiveReasonLabel(
-                        reason,
-                      ),
-                    ),
+                    child: Text(_archiveReasonLabel(reason)),
                   ),
                 )
                 .toList(),
@@ -886,29 +726,17 @@ class _ArchiveAnimalDialogState
           const SizedBox(height: 16),
 
           ListTile(
-            key: const Key(
-              'archive-date-field',
-            ),
+            key: const Key('archive-date-field'),
             contentPadding: EdgeInsets.zero,
-            title: const Text(
-              'Archive Date',
-            ),
-            subtitle: Text(
-              _formatDate(
-                _archiveDate,
-              ),
-            ),
-            trailing: const Icon(
-              Icons.calendar_today,
-            ),
+            title: const Text('Archive Date'),
+            subtitle: Text(_formatDate(_archiveDate)),
+            trailing: const Icon(Icons.calendar_today),
             onTap: _selectDate,
           ),
           const SizedBox(height: 16),
 
           TextField(
-            key: const Key(
-              'archive-notes-field',
-            ),
+            key: const Key('archive-notes-field'),
             controller: _notesController,
             maxLines: 3,
             decoration: const InputDecoration(
@@ -921,26 +749,16 @@ class _ArchiveAnimalDialogState
       ),
       actions: [
         TextButton(
-          key: const Key(
-            'cancel-archive-animal-button',
-          ),
+          key: const Key('cancel-archive-animal-button'),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text(
-            'Cancel',
-          ),
+          child: const Text('Cancel'),
         ),
         FilledButton(
-          key: const Key(
-            'confirm-archive-animal-button',
-          ),
-          onPressed: _reason == null
-              ? null
-              : _confirm,
-          child: const Text(
-            'Archive',
-          ),
+          key: const Key('confirm-archive-animal-button'),
+          onPressed: _reason == null ? null : _confirm,
+          child: const Text('Archive'),
         ),
       ],
     );
@@ -950,37 +768,25 @@ class _ArchiveAnimalDialogState
 class _RestoreAnimalDialog extends StatefulWidget {
   final List<Box> boxes;
 
-  const _RestoreAnimalDialog({
-    required this.boxes,
-  });
+  const _RestoreAnimalDialog({required this.boxes});
 
   @override
-  State<_RestoreAnimalDialog> createState() =>
-      _RestoreAnimalDialogState();
+  State<_RestoreAnimalDialog> createState() => _RestoreAnimalDialogState();
 }
 
-class _RestoreAnimalDialogState
-    extends State<_RestoreAnimalDialog> {
+class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
   int? _boxId;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      key: const Key(
-        'restore-animal-dialog',
-      ),
-      title: const Text(
-        'Restore Animal',
-      ),
+      key: const Key('restore-animal-dialog'),
+      title: const Text('Restore Animal'),
       content: DropdownButtonFormField<int>(
-        key: const Key(
-          'restore-box-field',
-        ),
+        key: const Key('restore-box-field'),
         initialValue: _boxId,
         isExpanded: true,
-        decoration: const InputDecoration(
-          labelText: 'Assign to Box',
-        ),
+        decoration: const InputDecoration(labelText: 'Assign to Box'),
         items: widget.boxes
             .map(
               (box) => DropdownMenuItem<int>(
@@ -1001,30 +807,20 @@ class _RestoreAnimalDialogState
       ),
       actions: [
         TextButton(
-          key: const Key(
-            'cancel-restore-animal-button',
-          ),
+          key: const Key('cancel-restore-animal-button'),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text(
-            'Cancel',
-          ),
+          child: const Text('Cancel'),
         ),
         FilledButton(
-          key: const Key(
-            'confirm-restore-animal-button',
-          ),
+          key: const Key('confirm-restore-animal-button'),
           onPressed: _boxId == null
               ? null
               : () {
-                  Navigator.of(context).pop(
-                    _boxId,
-                  );
+                  Navigator.of(context).pop(_boxId);
                 },
-          child: const Text(
-            'Restore',
-          ),
+          child: const Text('Restore'),
         ),
       ],
     );
@@ -1047,17 +843,12 @@ class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRow({
-    required this.label,
-    required this.value,
-  });
+  const _DetailRow({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 12,
-      ),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1065,25 +856,17 @@ class _DetailRow extends StatelessWidget {
             width: 150,
             child: Text(
               label,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-            ),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
   }
 }
 
-String _archiveReasonLabel(
-  AnimalArchiveReason reason,
-) {
+String _archiveReasonLabel(AnimalArchiveReason reason) {
   switch (reason) {
     case AnimalArchiveReason.sold:
       return 'Sold';
@@ -1102,31 +885,22 @@ String _archiveReasonLabel(
   }
 }
 
-String _formatDate(
-  DateTime date,
-) {
+String _formatDate(DateTime date) {
   return '${date.day.toString().padLeft(2, '0')}.'
       '${date.month.toString().padLeft(2, '0')}.'
       '${date.year}';
 }
 
-String _formatDateTime(
-  DateTime dateTime,
-) {
-  final day =
-      dateTime.day.toString().padLeft(2, '0');
+String _formatDateTime(DateTime dateTime) {
+  final day = dateTime.day.toString().padLeft(2, '0');
 
-  final month =
-      dateTime.month.toString().padLeft(2, '0');
+  final month = dateTime.month.toString().padLeft(2, '0');
 
-  final year =
-      dateTime.year.toString();
+  final year = dateTime.year.toString();
 
-  final hour =
-      dateTime.hour.toString().padLeft(2, '0');
+  final hour = dateTime.hour.toString().padLeft(2, '0');
 
-  final minute =
-      dateTime.minute.toString().padLeft(2, '0');
+  final minute = dateTime.minute.toString().padLeft(2, '0');
 
   return '$day.$month.$year $hour:$minute';
 }

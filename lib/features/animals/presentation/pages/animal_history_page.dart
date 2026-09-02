@@ -8,10 +8,7 @@ import 'animal_detail_page.dart';
 class AnimalHistoryPage extends StatefulWidget {
   final AppDatabase database;
 
-  const AnimalHistoryPage({
-    super.key,
-    required this.database,
-  });
+  const AnimalHistoryPage({super.key, required this.database});
 
   @override
   State<AnimalHistoryPage> createState() => _AnimalHistoryPageState();
@@ -27,19 +24,14 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
   }
 
   void _loadAnimals() {
-    _animalsFuture =
-        AnimalRepository(widget.database).getArchivedAnimals();
+    _animalsFuture = AnimalRepository(widget.database).getArchivedAnimals();
   }
 
-  Future<void> _openAnimalDetail(
-    Animal animal,
-  ) async {
+  Future<void> _openAnimalDetail(Animal animal) async {
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => AnimalDetailPage(
-          database: widget.database,
-          animalId: animal.id,
-        ),
+        builder: (_) =>
+            AnimalDetailPage(database: widget.database, animalId: animal.id),
       ),
     );
 
@@ -55,22 +47,16 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Animal History'),
-      ),
+      appBar: AppBar(title: const Text('Animal History')),
       body: FutureBuilder<List<Animal>>(
         future: _animalsFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(
-              child: Text('Failed to load animal history'),
-            );
+            return const Center(child: Text('Failed to load animal history'));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           final animals = snapshot.data ?? [];
@@ -88,25 +74,15 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
               final animal = animals[index];
 
               return ListTile(
-                key: Key(
-                  'archived-animal-list-item-${animal.id}',
-                ),
-                leading: const Icon(
-                  Icons.history,
-                ),
-                title: Text(
-                  animal.commonName,
-                ),
+                key: Key('archived-animal-list-item-${animal.id}'),
+                leading: const Icon(Icons.history),
+                title: Text(animal.commonName),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      animal.latinName,
-                    ),
+                    Text(animal.latinName),
                     const SizedBox(height: 4),
-                    Text(
-                      _archiveSummary(animal),
-                    ),
+                    Text(_archiveSummary(animal)),
                   ],
                 ),
                 isThreeLine: true,
@@ -121,36 +97,22 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
     );
   }
 
-  String _archiveSummary(
-    Animal animal,
-  ) {
+  String _archiveSummary(Animal animal) {
     final parts = <String>[];
 
     if (animal.archiveReason != null) {
-      parts.add(
-        _archiveReasonLabel(
-          animal.archiveReason!,
-        ),
-      );
+      parts.add(_archiveReasonLabel(animal.archiveReason!));
     }
 
     if (animal.archivedAt != null) {
-      parts.add(
-        _formatDate(
-          animal.archivedAt!,
-        ),
-      );
+      parts.add(_formatDate(animal.archivedAt!));
     }
 
-    return parts.isEmpty
-        ? 'Archived'
-        : parts.join(' • ');
+    return parts.isEmpty ? 'Archived' : parts.join(' • ');
   }
 }
 
-String _archiveReasonLabel(
-  AnimalArchiveReason reason,
-) {
+String _archiveReasonLabel(AnimalArchiveReason reason) {
   switch (reason) {
     case AnimalArchiveReason.sold:
       return 'Sold';
@@ -165,9 +127,7 @@ String _archiveReasonLabel(
   }
 }
 
-String _formatDate(
-  DateTime date,
-) {
+String _formatDate(DateTime date) {
   return '${date.day.toString().padLeft(2, '0')}.'
       '${date.month.toString().padLeft(2, '0')}.'
       '${date.year}';

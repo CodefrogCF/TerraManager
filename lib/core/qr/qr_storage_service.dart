@@ -3,10 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 
 abstract class QrStorage {
-  Future<String> savePng({
-    required Uint8List bytes,
-    required String fileName,
-  });
+  Future<String> savePng({required Uint8List bytes, required String fileName});
 }
 
 class QrStorageService implements QrStorage {

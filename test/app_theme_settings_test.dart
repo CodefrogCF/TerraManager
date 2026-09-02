@@ -11,46 +11,27 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    database = AppDatabase.test(
-      NativeDatabase.memory(),
-    );
+    database = AppDatabase.test(NativeDatabase.memory());
   });
 
   tearDown(() async {
     await database.close();
   });
 
-  testWidgets(
-    'loads persisted dark theme',
-    (tester) async {
-      SharedPreferences.setMockInitialValues({
-        'theme_mode': 'dark',
-        'accent': 'purple',
-      });
+  testWidgets('loads persisted dark theme', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'theme_mode': 'dark',
+      'accent': 'purple',
+    });
 
-      await tester.pumpWidget(
-        TerraManagerApp(
-          database: database,
-        ),
-      );
+    await tester.pumpWidget(TerraManagerApp(database: database));
 
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      final materialApp =
-          tester.widget<MaterialApp>(
-        find.byType(MaterialApp),
-      );
+    final materialApp = tester.widget<MaterialApp>(find.byType(MaterialApp));
 
-      expect(
-        materialApp.themeMode,
-        ThemeMode.dark,
-      );
+    expect(materialApp.themeMode, ThemeMode.dark);
 
-      expect(
-        materialApp.darkTheme
-            ?.colorScheme.brightness,
-        Brightness.dark,
-      );
-    },
-  );
+    expect(materialApp.darkTheme?.colorScheme.brightness, Brightness.dark);
+  });
 }

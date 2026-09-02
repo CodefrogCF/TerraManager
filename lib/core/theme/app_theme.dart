@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  static ThemeData lightTheme({
-    required Color seedColor,
-  }) {
+  static ThemeData lightTheme({required Color seedColor}) {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor,
@@ -15,9 +13,7 @@ class AppTheme {
     );
   }
 
-  static ThemeData darkTheme({
-    required Color seedColor,
-  }) {
+  static ThemeData darkTheme({required Color seedColor}) {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor,

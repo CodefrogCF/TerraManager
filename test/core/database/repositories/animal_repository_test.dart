@@ -12,9 +12,7 @@ void main() {
   late AnimalRepository repository;
 
   setUp(() {
-    database = AppDatabase.test(
-      NativeDatabase.memory(),
-    );
+    database = AppDatabase.test(NativeDatabase.memory());
 
     repository = AnimalRepository(database);
   });
@@ -24,24 +22,20 @@ void main() {
   });
 
   test('can get an animal by id', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'test-box-001',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
 
-    final animalId = await database.into(database.animals).insert(
+    final animalId = await database
+        .into(database.animals)
+        .insert(
           AnimalsCompanion.insert(
             boxId: drift.Value(boxId),
             commonName: 'Kornnatter',
             latinName: 'Pantherophis guttatus',
             sex: const drift.Value(Sex.male),
-            birthDate: drift.Value(
-              DateTime(2021, 3, 15),
-            ),
-            birthDateAccuracy: const drift.Value(
-              BirthDateAccuracy.exact,
-            ),
+            birthDate: drift.Value(DateTime(2021, 3, 15)),
+            birthDateAccuracy: const drift.Value(BirthDateAccuracy.exact),
             tempMin: 24.0,
             tempMax: 28.0,
             humidityMin: 40.0,
@@ -57,14 +51,8 @@ void main() {
     expect(animal.commonName, 'Kornnatter');
     expect(animal.latinName, 'Pantherophis guttatus');
     expect(animal.sex, Sex.male);
-    expect(
-      animal.birthDate,
-      DateTime(2021, 3, 15),
-    );
-    expect(
-      animal.birthDateAccuracy,
-      BirthDateAccuracy.exact,
-    );
+    expect(animal.birthDate, DateTime(2021, 3, 15));
+    expect(animal.birthDateAccuracy, BirthDateAccuracy.exact);
     expect(animal.tempMin, 24.0);
     expect(animal.tempMax, 28.0);
     expect(animal.humidityMin, 40.0);
@@ -77,61 +65,69 @@ void main() {
     expect(animal, isNull);
   });
 
-  test('getAnimalsForBox returns only animals assigned to the given box', () async {
-    final box1Id = await database.into(database.boxes).insert(
-      BoxesCompanion.insert(qrId: 'box-1'),
-    );
+  test(
+    'getAnimalsForBox returns only animals assigned to the given box',
+    () async {
+      final box1Id = await database
+          .into(database.boxes)
+          .insert(BoxesCompanion.insert(qrId: 'box-1'));
 
-    final box2Id = await database.into(database.boxes).insert(
-      BoxesCompanion.insert(qrId: 'box-2'),
-    );
+      final box2Id = await database
+          .into(database.boxes)
+          .insert(BoxesCompanion.insert(qrId: 'box-2'));
 
-    await database.into(database.animals).insert(
-      AnimalsCompanion.insert(
-        boxId: drift.Value(box1Id),
-        commonName: 'Tier 1',
-        latinName: 'Animal one',
-        tempMin: 20,
-        tempMax: 25,
-        humidityMin: 60,
-        humidityMax: 70,
-      ),
-    );
+      await database
+          .into(database.animals)
+          .insert(
+            AnimalsCompanion.insert(
+              boxId: drift.Value(box1Id),
+              commonName: 'Tier 1',
+              latinName: 'Animal one',
+              tempMin: 20,
+              tempMax: 25,
+              humidityMin: 60,
+              humidityMax: 70,
+            ),
+          );
 
-    await database.into(database.animals).insert(
-      AnimalsCompanion.insert(
-        boxId: drift.Value(box2Id),
-        commonName: 'Tier 2',
-        latinName: 'Animal two',
-        tempMin: 21,
-        tempMax: 26,
-        humidityMin: 55,
-        humidityMax: 65,
-      ),
-    );
+      await database
+          .into(database.animals)
+          .insert(
+            AnimalsCompanion.insert(
+              boxId: drift.Value(box2Id),
+              commonName: 'Tier 2',
+              latinName: 'Animal two',
+              tempMin: 21,
+              tempMax: 26,
+              humidityMin: 55,
+              humidityMax: 65,
+            ),
+          );
 
-    final animals = await repository.getAnimalsForBox(box1Id);
+      final animals = await repository.getAnimalsForBox(box1Id);
 
-    expect(animals.length, 1);
-    expect(animals.first.commonName, 'Tier 1');
-  });
+      expect(animals.length, 1);
+      expect(animals.first.commonName, 'Tier 1');
+    },
+  );
 
-  test('getAnimalsForBox returns an empty list when the box has no animals', () async {
-    final boxId = await database.into(database.boxes).insert(
-      BoxesCompanion.insert(qrId: 'empty-box'),
-    );
+  test(
+    'getAnimalsForBox returns an empty list when the box has no animals',
+    () async {
+      final boxId = await database
+          .into(database.boxes)
+          .insert(BoxesCompanion.insert(qrId: 'empty-box'));
 
-    final animals = await repository.getAnimalsForBox(boxId);
+      final animals = await repository.getAnimalsForBox(boxId);
 
-    expect(animals, isEmpty);
-  });
+      expect(animals, isEmpty);
+    },
+  );
 
   test('can create an animal', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'create-animal-box',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'create-animal-box'));
 
     final animalId = await repository.createAnimal(
       boxId: boxId,
@@ -166,11 +162,9 @@ void main() {
   });
 
   test('can create an animal without optional data', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'minimal-animal-box',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'minimal-animal-box'));
 
     final animalId = await repository.createAnimal(
       boxId: boxId,
@@ -193,11 +187,9 @@ void main() {
   });
 
   test('can update an animal', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'animal-update-box',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'animal-update-box'));
 
     final animalId = await repository.createAnimal(
       boxId: boxId,
@@ -242,11 +234,9 @@ void main() {
   });
 
   test('updateAnimal returns false when animal does not exist', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'missing-animal-box',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'missing-animal-box'));
 
     final updated = await repository.updateAnimal(
       animalId: 999,
@@ -263,11 +253,9 @@ void main() {
   });
 
   test('can delete an animal', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'animal-delete-box',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'animal-delete-box'));
 
     final animalId = await repository.createAnimal(
       boxId: boxId,
@@ -295,11 +283,9 @@ void main() {
   });
 
   test('updateAnimal can clear nullable fields', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'test-box-001',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
 
     final animalId = await repository.createAnimal(
       boxId: boxId,
@@ -345,11 +331,9 @@ void main() {
   });
 
   test('updateAnimal updates animal fields', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'test-box-001',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
 
     final animalId = await repository.createAnimal(
       boxId: boxId,
@@ -385,10 +369,7 @@ void main() {
     expect(updatedAnimal.latinName, 'Pantherophis guttatus');
     expect(updatedAnimal.sex, Sex.female);
     expect(updatedAnimal.birthDate, DateTime(2024, 5, 10));
-    expect(
-      updatedAnimal.birthDateAccuracy,
-      BirthDateAccuracy.exact,
-    );
+    expect(updatedAnimal.birthDateAccuracy, BirthDateAccuracy.exact);
     expect(updatedAnimal.tempMin, 24);
     expect(updatedAnimal.tempMax, 28);
     expect(updatedAnimal.humidityMin, 40);

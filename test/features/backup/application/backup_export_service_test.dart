@@ -13,13 +13,14 @@ import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/backup/application/backup_export_exception.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
-import 'package:terramanager/features/backup/domain/backup_format.dart';
-import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/backup/domain/backup_data.dart';
+import 'package:terramanager/features/backup/domain/backup_format.dart';
 import 'package:terramanager/features/backup/domain/backup_manifest.dart';
 import 'package:terramanager/features/backup/domain/backup_settings.dart';
+import 'package:terramanager/features/settings/app_accent.dart';
 
 void main() {
   late AppDatabase database;
@@ -43,6 +44,14 @@ void main() {
           ),
         );
 
+    final pictureBytes = Uint8List.fromList([1, 2, 3, 4]);
+
+    final pictureMediaId = await MediaRepository(database).createMedia(
+      fileName: 'animal.png',
+      mimeType: 'image/png',
+      data: pictureBytes,
+    );
+
     final animalId = await AnimalRepository(database).createAnimal(
       boxId: boxId,
       commonName: 'Test Snake',
@@ -54,7 +63,7 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
-      picturePath: 'test/image.png',
+      pictureMediaId: pictureMediaId,
       notes: 'Test animal',
     );
 
@@ -63,10 +72,12 @@ void main() {
 
     final service = BackupExportService(
       database,
-      mediaReader: (path) async {
-        expect(path, 'test/image.png');
-
-        return Uint8List.fromList([1, 2, 3, 4]);
+      mediaReader: (_) async {
+        fail(
+          'Legacy media reader must not '
+          'be used for persistent '
+          'MediaAssets.',
+        );
       },
     );
 
@@ -85,7 +96,7 @@ void main() {
 
     expect(result.manifest.backupFormatVersion, 1);
 
-    expect(result.manifest.databaseSchemaVersion, 2);
+    expect(result.manifest.databaseSchemaVersion, database.schemaVersion);
 
     expect(result.manifest.appVersion, '0.6.0');
 
@@ -119,7 +130,7 @@ void main() {
 
     expect(pictureFile, isNotNull);
 
-    expect(pictureFile!.readBytes(), Uint8List.fromList([1, 2, 3, 4]));
+    expect(pictureFile!.readBytes(), pictureBytes);
 
     final dataJson =
         jsonDecode(utf8.decode(dataFile!.readBytes()!)) as Map<String, dynamic>;
@@ -222,41 +233,100 @@ void main() {
     expect(archive.find(BackupFormat.settingsFileName), isNotNull);
   });
 
-  test('fails instead of silently omitting unreadable picture', () async {
+  test(
+    'fails instead of silently omitting unreadable legacy picture',
+    () async {
+      final boxId = await database
+          .into(database.boxes)
+          .insert(
+            BoxesCompanion.insert(
+              qrId: 'TM:BOX:33333333-3333-4333-8333-333333333333',
+            ),
+          );
+
+      await AnimalRepository(database).createAnimal(
+        boxId: boxId,
+        commonName: 'Test Animal',
+        latinName: 'Test species',
+        tempMin: 20,
+        tempMax: 25,
+        humidityMin: 40,
+        humidityMax: 70,
+        picturePath: 'missing/image.jpg',
+      );
+
+      final service = BackupExportService(
+        database,
+        mediaReader: (_) async {
+          throw Exception('File not found');
+        },
+      );
+
+      expect(
+        () => service.createBackup(
+          appVersion: '0.6.0',
+          themeMode: ThemeMode.system,
+          accent: AppAccent.green,
+        ),
+        throwsA(isA<BackupExportException>()),
+      );
+    },
+  );
+
+  test('exports readable legacy picture as fallback', () async {
     final boxId = await database
         .into(database.boxes)
         .insert(
           BoxesCompanion.insert(
-            qrId: 'TM:BOX:33333333-3333-4333-8333-333333333333',
+            qrId: 'TM:BOX:77777777-7777-4777-8777-777777777777',
           ),
         );
 
-    await AnimalRepository(database).createAnimal(
+    final animalId = await AnimalRepository(database).createAnimal(
       boxId: boxId,
-      commonName: 'Test Animal',
-      latinName: 'Test species',
+      commonName: 'Legacy Animal',
+      latinName: 'Legacy species',
       tempMin: 20,
       tempMax: 25,
       humidityMin: 40,
-      humidityMax: 70,
-      picturePath: 'missing/image.jpg',
+      humidityMax: 60,
+      picturePath: 'legacy/image.jpg',
     );
+
+    final pictureBytes = Uint8List.fromList([9, 8, 7]);
 
     final service = BackupExportService(
       database,
-      mediaReader: (_) async {
-        throw Exception('File not found');
+      mediaReader: (path) async {
+        expect(path, 'legacy/image.jpg');
+
+        return pictureBytes;
       },
     );
 
-    expect(
-      () => service.createBackup(
-        appVersion: '0.6.0',
-        themeMode: ThemeMode.system,
-        accent: AppAccent.green,
-      ),
-      throwsA(isA<BackupExportException>()),
+    final result = await service.createBackup(
+      appVersion: '0.6.0',
+      themeMode: ThemeMode.system,
+      accent: AppAccent.green,
     );
+
+    expect(
+      result.data.animals.single.pictureMediaPath,
+      'media/animals/$animalId.jpg',
+    );
+
+    expect(result.mediaFileCount, 1);
+
+    final archive = ZipDecoder().decodeBytes(result.bytes, verify: true);
+
+    final mediaFile = archive.find(
+      'media/animals/'
+      '$animalId.jpg',
+    );
+
+    expect(mediaFile, isNotNull);
+
+    expect(mediaFile!.readBytes(), pictureBytes);
   });
 
   test('generated archive can be decoded back into backup models', () async {
@@ -267,6 +337,14 @@ void main() {
             qrId: 'TM:BOX:44444444-4444-4444-8444-444444444444',
           ),
         );
+
+    final pictureBytes = Uint8List.fromList([10, 20, 30, 40, 50]);
+
+    final pictureMediaId = await MediaRepository(database).createMedia(
+      fileName: 'roundtrip.jpg',
+      mimeType: 'image/jpeg',
+      data: pictureBytes,
+    );
 
     final animalId = await AnimalRepository(database).createAnimal(
       boxId: boxId,
@@ -279,7 +357,7 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
-      picturePath: 'roundtrip/image.jpg',
+      pictureMediaId: pictureMediaId,
       notes: 'Roundtrip animal',
     );
 
@@ -289,22 +367,13 @@ void main() {
       notes: 'Roundtrip feeding',
     );
 
-    final pictureBytes = Uint8List.fromList([10, 20, 30, 40, 50]);
-
-    final service = BackupExportService(
-      database,
-      mediaReader: (path) async {
-        expect(path, 'roundtrip/image.jpg');
-
-        return pictureBytes;
-      },
-    );
+    final service = BackupExportService(database);
 
     final result = await service.createBackup(
       appVersion: '0.6.0',
       themeMode: ThemeMode.dark,
       accent: AppAccent.teal,
-      createdAt: DateTime.utc(2026, 9, 2, 16, 0),
+      createdAt: DateTime.utc(2026, 9, 2, 16),
     );
 
     final archive = ZipDecoder().decodeBytes(result.bytes, verify: true);
@@ -318,8 +387,11 @@ void main() {
     final mediaFile = archive.find('media/animals/$animalId.jpg');
 
     expect(manifestFile, isNotNull);
+
     expect(dataFile, isNotNull);
+
     expect(settingsFile, isNotNull);
+
     expect(mediaFile, isNotNull);
 
     final manifestJson = jsonDecode(
@@ -345,7 +417,7 @@ void main() {
 
     expect(restoredManifest.databaseSchemaVersion, database.schemaVersion);
 
-    expect(restoredManifest.createdAt, DateTime.utc(2026, 9, 2, 16, 0));
+    expect(restoredManifest.createdAt, DateTime.utc(2026, 9, 2, 16));
 
     expect(restoredData.boxes.length, 1);
 

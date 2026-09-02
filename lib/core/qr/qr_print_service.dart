@@ -5,10 +5,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 abstract class QrPrinter {
-  Future<void> printQrCode({
-    required Uint8List pngBytes,
-    required String qrId,
-  });
+  Future<void> printQrCode({required Uint8List pngBytes, required String qrId});
 }
 
 class QrPrintService implements QrPrinter {
@@ -31,16 +28,9 @@ class QrPrintService implements QrPrinter {
             child: pw.Column(
               mainAxisSize: pw.MainAxisSize.min,
               children: [
-                pw.Image(
-                  image,
-                  width: 220,
-                  height: 220,
-                ),
+                pw.Image(image, width: 220, height: 220),
                 pw.SizedBox(height: 16),
-                pw.Text(
-                  qrId,
-                  textAlign: pw.TextAlign.center,
-                ),
+                pw.Text(qrId, textAlign: pw.TextAlign.center),
               ],
             ),
           );

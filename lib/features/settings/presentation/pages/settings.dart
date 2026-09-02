@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -22,9 +20,6 @@ class SettingsPage extends StatefulWidget {
   final BackupExportService? backupExportService;
   final BackupValidationService? backupValidationService;
 
-  final BackupRestoreMediaWriter? restoreMediaWriter;
-  final BackupRestoreMediaCleanup? restoreMediaCleanup;
-
   final AppVersionLoader? appVersionLoader;
 
   final VoidCallback? onRestoreCompleted;
@@ -35,8 +30,6 @@ class SettingsPage extends StatefulWidget {
     this.backupFileGateway,
     this.backupExportService,
     this.backupValidationService,
-    this.restoreMediaWriter,
-    this.restoreMediaCleanup,
     this.appVersionLoader,
     this.onRestoreCompleted,
   });
@@ -180,20 +173,6 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
 
-      // Persistent media restore will be implemented
-      // during the platform/media integration work.
-      if (backup.mediaFileCount > 0 && widget.restoreMediaWriter == null) {
-        _showMessage(
-          'This backup contains pictures. '
-          'Picture restore is not available '
-          'until persistent media storage '
-          'has been configured.',
-          error: true,
-        );
-
-        return;
-      }
-
       final confirmed = await _showRestoreConfirmation();
 
       if (!confirmed || !mounted) {
@@ -216,8 +195,6 @@ class _SettingsPageState extends State<SettingsPage> {
         safetyBackupWriter: (safetyBackup) async {
           await _backupFileGateway.saveBackup(safetyBackup);
         },
-        mediaWriter: widget.restoreMediaWriter ?? _unsupportedMediaWriter,
-        mediaCleanup: widget.restoreMediaCleanup ?? _unusedMediaCleanup,
         exportService: _backupExportService,
       );
 
@@ -255,12 +232,6 @@ class _SettingsPageState extends State<SettingsPage> {
       }
     }
   }
-
-  Future<String> _unsupportedMediaWriter(String portablePath, Uint8List bytes) {
-    throw UnsupportedError('Persistent media restore is not configured.');
-  }
-
-  Future<void> _unusedMediaCleanup(String localPath) async {}
 
   Future<bool> _showBackupInformation(ValidatedBackup backup) async {
     final result = await showDialog<bool>(

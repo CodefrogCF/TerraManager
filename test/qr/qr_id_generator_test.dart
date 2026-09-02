@@ -25,9 +25,6 @@ void main() {
     final first = generateBoxQrId();
     final second = generateBoxQrId();
 
-    expect(
-      first,
-      isNot(second),
-    );
+    expect(first, isNot(second));
   });
 }

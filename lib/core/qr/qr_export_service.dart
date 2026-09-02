@@ -4,10 +4,7 @@ import 'dart:ui' as ui;
 import 'package:qr_flutter/qr_flutter.dart';
 
 abstract class QrExporter {
-  Future<Uint8List> exportPng({
-    required String qrId,
-    double size = 1024,
-  });
+  Future<Uint8List> exportPng({required String qrId, double size = 1024});
 }
 
 class QrExportService implements QrExporter {

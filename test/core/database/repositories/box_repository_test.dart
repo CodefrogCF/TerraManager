@@ -9,9 +9,7 @@ void main() {
   late BoxRepository repository;
 
   setUp(() {
-    database = AppDatabase.test(
-      NativeDatabase.memory(),
-    );
+    database = AppDatabase.test(NativeDatabase.memory());
 
     repository = BoxRepository(database);
   });
@@ -21,11 +19,9 @@ void main() {
   });
 
   test('can get a box by id', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'test-box-001',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
 
     final box = await repository.getBoxById(boxId);
 
@@ -41,11 +37,9 @@ void main() {
   });
 
   test('can get a box by qr id', () async {
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'test-box-002',
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-002'));
 
     final box = await repository.getBoxByQrId('test-box-002');
 
@@ -61,17 +55,13 @@ void main() {
   });
 
   test('can get all boxes', () async {
-    await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'test-box-003',
-          ),
-        );
+    await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-003'));
 
-    await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: 'test-box-004',
-          ),
-        );
+    await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-004'));
 
     final boxes = await repository.getAllBoxes();
 
@@ -98,10 +88,7 @@ void main() {
   test('can update a box', () async {
     final boxId = await repository.createBox('old-box');
 
-    final updated = await repository.updateBox(
-      boxId: boxId,
-      qrId: 'new-box',
-    );
+    final updated = await repository.updateBox(boxId: boxId, qrId: 'new-box');
 
     expect(updated, isTrue);
 
@@ -143,15 +130,9 @@ void main() {
 
     final box = await repository.getBoxById(boxId);
 
-    expect(
-      box,
-      isNotNull,
-    );
+    expect(box, isNotNull);
 
-    expect(
-      box!.qrId,
-      startsWith('TM:BOX:'),
-    );
+    expect(box!.qrId, startsWith('TM:BOX:'));
 
     expect(
       box.qrId,
@@ -169,11 +150,9 @@ void main() {
   });
 
   test('generated QR IDs are unique between boxes', () async {
-    final firstId =
-        await repository.createBoxWithGeneratedQrId();
+    final firstId = await repository.createBoxWithGeneratedQrId();
 
-    final secondId =
-        await repository.createBoxWithGeneratedQrId();
+    final secondId = await repository.createBoxWithGeneratedQrId();
 
     final first = await repository.getBoxById(firstId);
     final second = await repository.getBoxById(secondId);
@@ -181,9 +160,6 @@ void main() {
     expect(first, isNotNull);
     expect(second, isNotNull);
 
-    expect(
-      first!.qrId,
-      isNot(second!.qrId),
-    );
+    expect(first!.qrId, isNot(second!.qrId));
   });
 }

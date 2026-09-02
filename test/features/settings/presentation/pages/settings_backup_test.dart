@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/backup/application/backup_export_result.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
 import 'package:terramanager/features/backup/infrastructure/backup_file_service.dart';
@@ -68,6 +69,7 @@ void main() {
     settingsController.dispose();
 
     await database.close();
+
     await sourceDatabase.close();
   });
 
@@ -139,12 +141,12 @@ void main() {
     expect(fileGateway.savedBackups.single.data.boxes.length, 1);
 
     expect(find.text('Backup created successfully.'), findsOneWidget);
+
     expect(find.byKey(const Key('backup-progress')), findsNothing);
   });
 
-  testWidgets('validates confirms and restores backup without media', (
-    tester,
-  ) async {
+  testWidgets('validates confirms and restores '
+      'backup without media', (tester) async {
     await database
         .into(database.boxes)
         .insert(
@@ -206,7 +208,9 @@ void main() {
 
     await tester.tap(find.byKey(const Key('restore-confirm-button')));
 
-    await tester.pumpAndSettle();
+    await pumpUntil(tester, () => restoreCompleted);
+
+    await tester.pump();
 
     final boxes = await database.select(database.boxes).get();
 
@@ -216,7 +220,7 @@ void main() {
 
     expect(restoreCompleted, isTrue);
 
-    // The restore creates and saves a safety
+    // Restore creates a safety
     // backup before replacing data.
     expect(fileGateway.savedBackups.length, 1);
 
@@ -228,69 +232,140 @@ void main() {
     expect(find.text('Backup restored successfully.'), findsOneWidget);
   });
 
-  testWidgets(
-    'does not start restore with media when media storage is unavailable',
-    (tester) async {
-      final boxId = await sourceDatabase
-          .into(sourceDatabase.boxes)
-          .insert(
-            BoxesCompanion.insert(
-              qrId: 'TM:BOX:33333333-3333-4333-8333-333333333333',
-            ),
-          );
+  testWidgets('restores backup with '
+      'persistent media', (tester) async {
+    await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:11111111-1111-4111-8111-111111111111',
+          ),
+        );
 
-      await sourceDatabase
-          .into(sourceDatabase.animals)
-          .insert(
-            AnimalsCompanion.insert(
-              boxId: drift.Value(boxId),
-              commonName: 'Picture Animal',
-              latinName: 'Test species',
-              tempMin: 20,
-              tempMax: 25,
-              humidityMin: 40,
-              humidityMax: 60,
-              picturePath: const drift.Value('test/image.jpg'),
-            ),
-          );
+    final sourceBoxId = await sourceDatabase
+        .into(sourceDatabase.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:33333333-3333-4333-8333-333333333333',
+          ),
+        );
 
-      final sourceBackup =
-          await BackupExportService(
-            sourceDatabase,
-            mediaReader: (_) async {
-              return Uint8List.fromList([1, 2, 3]);
-            },
-          ).createBackup(
-            appVersion: '0.6.0',
-            themeMode: ThemeMode.system,
-            accent: settingsController.accent,
-          );
+    final pictureBytes = Uint8List.fromList([1, 2, 3]);
 
-      fileGateway.pickedFile = PickedBackupFile(
-        name: sourceBackup.fileName,
-        bytes: sourceBackup.bytes,
-      );
+    final pictureMediaId = await MediaRepository(sourceDatabase).createMedia(
+      fileName: 'animal.jpg',
+      mimeType: 'image/jpeg',
+      data: pictureBytes,
+    );
 
-      await tester.pumpWidget(buildApp());
+    final sourceAnimalId = await sourceDatabase
+        .into(sourceDatabase.animals)
+        .insert(
+          AnimalsCompanion.insert(
+            boxId: drift.Value(sourceBoxId),
+            commonName: 'Picture Animal',
+            latinName: 'Test species',
+            tempMin: 20,
+            tempMax: 25,
+            humidityMin: 40,
+            humidityMax: 60,
+            pictureMediaId: drift.Value(pictureMediaId),
+          ),
+        );
 
-      await scrollToKey(tester, const Key('restore-backup-button'));
+    final sourceBackup = await BackupExportService(sourceDatabase).createBackup(
+      appVersion: '0.6.0',
+      themeMode: ThemeMode.system,
+      accent: settingsController.accent,
+    );
 
-      await tester.tap(find.byKey(const Key('restore-backup-button')));
+    expect(sourceBackup.mediaFileCount, 1);
 
-      await tester.pumpAndSettle();
+    expect(
+      sourceBackup.data.animals.single.pictureMediaPath,
+      'media/animals/'
+      '$sourceAnimalId.jpg',
+    );
 
-      await tester.tap(find.byKey(const Key('backup-info-continue-button')));
+    fileGateway.pickedFile = PickedBackupFile(
+      name: sourceBackup.fileName,
+      bytes: sourceBackup.bytes,
+    );
 
-      await tester.pumpAndSettle();
+    var restoreCompleted = false;
 
-      expect(
-        find.textContaining('Picture restore is not available'),
-        findsOneWidget,
-      );
+    await tester.pumpWidget(
+      buildApp(
+        onRestoreCompleted: () {
+          restoreCompleted = true;
+        },
+      ),
+    );
 
-      // No safety backup means destructive restore
-      // never started.
-      expect(fileGateway.savedBackups, isEmpty);
-    },
-  );
+    await scrollToKey(tester, const Key('restore-backup-button'));
+
+    await tester.tap(find.byKey(const Key('restore-backup-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('backup-info-dialog')), findsOneWidget);
+
+    expect(find.text('Pictures'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('backup-info-continue-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('restore-confirmation-dialog')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('restore-confirm-button')));
+
+    await pumpUntil(tester, () => restoreCompleted);
+
+    await tester.pump();
+
+    final animals = await database.select(database.animals).get();
+
+    expect(animals.length, 1);
+
+    final animal = animals.single;
+
+    expect(animal.id, sourceAnimalId);
+
+    expect(animal.commonName, 'Picture Animal');
+
+    expect(animal.picturePath, isNull);
+
+    expect(animal.pictureMediaId, isNotNull);
+
+    final mediaAssets = await database.select(database.mediaAssets).get();
+
+    expect(mediaAssets.length, 1);
+
+    final media = mediaAssets.single;
+
+    expect(media.id, animal.pictureMediaId);
+
+    expect(media.fileName, '$sourceAnimalId.jpg');
+
+    expect(media.mimeType, 'image/jpeg');
+
+    expect(media.data, pictureBytes);
+
+    expect(restoreCompleted, isTrue);
+
+    // Safety backup of the previous
+    // database was saved.
+    expect(fileGateway.savedBackups.length, 1);
+
+    expect(
+      fileGateway.savedBackups.single.data.boxes.single.qrId,
+      'TM:BOX:11111111-1111-4111-8111-111111111111',
+    );
+
+    expect(find.text('Backup restored successfully.'), findsOneWidget);
+  });
 }

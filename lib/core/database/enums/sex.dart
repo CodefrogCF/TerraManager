@@ -1,5 +1,1 @@
-enum Sex {
-  male,
-  female,
-  unknown,
-}
+enum Sex { male, female, unknown }

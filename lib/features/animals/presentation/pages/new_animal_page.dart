@@ -8,15 +8,14 @@ import '../../../../core/database/enums/birth_date_accuracy.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/media/image_media_info.dart';
 import '../widgets/animal_picture.dart';
 
 class NewAnimalPage extends StatefulWidget {
   final AppDatabase database;
 
-  const NewAnimalPage({
-    super.key,
-    required this.database,
-  });
+  const NewAnimalPage({super.key, required this.database});
 
   @override
   State<NewAnimalPage> createState() => _NewAnimalPageState();
@@ -42,8 +41,9 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   DateTime? _birthDate;
   BirthDateAccuracy? _birthDateAccuracy;
 
-  String? _picturePath;
   Uint8List? _pictureBytes;
+  String? _pictureFileName;
+  String? _pictureMimeType;
 
   bool _loading = true;
   bool _saving = false;
@@ -95,9 +95,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   Future<void> _selectPicture() async {
     try {
-      final image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-      );
+      final image = await _imagePicker.pickImage(source: ImageSource.gallery);
 
       if (image == null) {
         return;
@@ -105,13 +103,16 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
       final bytes = await image.readAsBytes();
 
+      final info = ImageMediaInfo.fromXFile(image);
+
       if (!mounted) {
         return;
       }
 
       setState(() {
-        _picturePath = image.path;
         _pictureBytes = bytes;
+        _pictureFileName = info.fileName;
+        _pictureMimeType = info.mimeType;
       });
     } catch (_) {
       if (!mounted) {
@@ -126,8 +127,9 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   void _removePicture() {
     setState(() {
-      _picturePath = null;
       _pictureBytes = null;
+      _pictureFileName = null;
+      _pictureMimeType = null;
     });
   }
 
@@ -146,22 +148,35 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     });
 
     try {
-      await AnimalRepository(widget.database).createAnimal(
-        boxId: _boxId!,
-        commonName: _commonNameController.text.trim(),
-        latinName: _latinNameController.text.trim(),
-        sex: _sex,
-        birthDate: _birthDate,
-        birthDateAccuracy: _birthDateAccuracy,
-        tempMin: double.parse(_tempMinController.text),
-        tempMax: double.parse(_tempMaxController.text),
-        humidityMin: double.parse(_humidityMinController.text),
-        humidityMax: double.parse(_humidityMaxController.text),
-        picturePath: _picturePath,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-      );
+      await widget.database.transaction(() async {
+        int? pictureMediaId;
+
+        if (_pictureBytes != null) {
+          pictureMediaId = await MediaRepository(widget.database).createMedia(
+            fileName: _pictureFileName ?? 'animal.img',
+            mimeType: _pictureMimeType ?? 'application/octet-stream',
+            data: _pictureBytes!,
+          );
+        }
+
+        await AnimalRepository(widget.database).createAnimal(
+          boxId: _boxId!,
+          commonName: _commonNameController.text.trim(),
+          latinName: _latinNameController.text.trim(),
+          sex: _sex,
+          birthDate: _birthDate,
+          birthDateAccuracy: _birthDateAccuracy,
+          tempMin: double.parse(_tempMinController.text),
+          tempMax: double.parse(_tempMaxController.text),
+          humidityMin: double.parse(_humidityMinController.text),
+          humidityMax: double.parse(_humidityMaxController.text),
+          pictureMediaId: pictureMediaId,
+          picturePath: null,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        );
+      });
 
       if (!mounted) {
         return;
@@ -188,8 +203,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         actions: [
           IconButton(
             key: const Key('save-animal-button'),
-            onPressed:
-                _saving || _loading || _boxes.isEmpty ? null : _save,
+            onPressed: _saving || _loading || _boxes.isEmpty ? null : _save,
             icon: const Icon(Icons.save),
             tooltip: 'Save Animal',
           ),
@@ -201,15 +215,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_loadError != null) {
-      return Center(
-        child: Text(_loadError!),
-      );
+      return Center(child: Text(_loadError!));
     }
 
     if (_boxes.isEmpty) {
@@ -234,17 +244,12 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             if (_saveError != null) ...[
               Text(
                 _saveError!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               const SizedBox(height: 16),
             ],
 
-            AnimalPicture(
-              picturePath: _picturePath,
-              pictureBytes: _pictureBytes,
-            ),
+            AnimalPicture(pictureBytes: _pictureBytes),
             const SizedBox(height: 8),
 
             Row(
@@ -254,10 +259,14 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                     key: const Key('select-picture-button'),
                     onPressed: _saving ? null : _selectPicture,
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: const Text('Select Picture'),
+                    label: Text(
+                      _pictureBytes == null
+                          ? 'Select Picture'
+                          : 'Change Picture',
+                    ),
                   ),
                 ),
-                if (_picturePath != null) ...[
+                if (_pictureBytes != null) ...[
                   const SizedBox(width: 8),
                   IconButton(
                     key: const Key('remove-picture-button'),
@@ -273,9 +282,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             DropdownButtonFormField<int>(
               key: const Key('box-field'),
               initialValue: _boxId,
-              decoration: const InputDecoration(
-                labelText: 'Associated Box',
-              ),
+              decoration: const InputDecoration(labelText: 'Associated Box'),
               items: _boxes
                   .map(
                     (box) => DropdownMenuItem<int>(
@@ -305,9 +312,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               key: const Key('common-name-field'),
               controller: _commonNameController,
               enabled: !_saving,
-              decoration: const InputDecoration(
-                labelText: 'Common Name',
-              ),
+              decoration: const InputDecoration(labelText: 'Common Name'),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a common name';
@@ -322,9 +327,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               key: const Key('latin-name-field'),
               controller: _latinNameController,
               enabled: !_saving,
-              decoration: const InputDecoration(
-                labelText: 'Latin Name',
-              ),
+              decoration: const InputDecoration(labelText: 'Latin Name'),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a latin name';
@@ -338,9 +341,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             DropdownButtonFormField<Sex?>(
               key: const Key('sex-field'),
               initialValue: _sex,
-              decoration: const InputDecoration(
-                labelText: 'Sex',
-              ),
+              decoration: const InputDecoration(labelText: 'Sex'),
               items: [
                 const DropdownMenuItem<Sex?>(
                   value: null,
@@ -368,9 +369,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               contentPadding: EdgeInsets.zero,
               title: const Text('Birth Date'),
               subtitle: Text(
-                _birthDate == null
-                    ? 'Not specified'
-                    : _formatDate(_birthDate!),
+                _birthDate == null ? 'Not specified' : _formatDate(_birthDate!),
               ),
               trailing: IconButton(
                 key: const Key('birth-date-button'),
@@ -455,14 +454,10 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.add),
-              label: Text(
-                _saving ? 'Creating...' : 'Create Animal',
-              ),
+              label: Text(_saving ? 'Creating...' : 'Create Animal'),
             ),
           ],
         ),
@@ -479,12 +474,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       key: key,
       controller: controller,
       enabled: !_saving,
-      keyboardType: const TextInputType.numberWithOptions(
-        decimal: true,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(labelText: label),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return 'Please enter a value';

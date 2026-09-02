@@ -9,15 +9,15 @@ class BoxRepository {
   BoxRepository(this.database);
 
   Future<Box?> getBoxById(int boxId) {
-    return (database.select(database.boxes)
-          ..where((box) => box.id.equals(boxId)))
-        .getSingleOrNull();
+    return (database.select(
+      database.boxes,
+    )..where((box) => box.id.equals(boxId))).getSingleOrNull();
   }
 
   Future<Box?> getBoxByQrId(String qrId) {
-    return (database.select(database.boxes)
-          ..where((box) => box.qrId.equals(qrId)))
-        .getSingleOrNull();
+    return (database.select(
+      database.boxes,
+    )..where((box) => box.qrId.equals(qrId))).getSingleOrNull();
   }
 
   Future<List<Box>> getAllBoxes() {
@@ -25,31 +25,22 @@ class BoxRepository {
   }
 
   Future<int> createBox(String qrId) {
-    return database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: qrId,
-          ),
-        );
+    return database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: qrId));
   }
 
   Future<int> createBoxWithGeneratedQrId() {
-    return createBox(
-      generateBoxQrId(),
-    );
+    return createBox(generateBoxQrId());
   }
 
-  Future<bool> updateBox({
-    required int boxId,
-    required String qrId,
-  }) async {
-    final updatedRows = await (database.update(database.boxes)
-          ..where((box) => box.id.equals(boxId)))
-        .write(
-      BoxesCompanion(
-        qrId: Value(qrId),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+  Future<bool> updateBox({required int boxId, required String qrId}) async {
+    final updatedRows =
+        await (database.update(
+          database.boxes,
+        )..where((box) => box.id.equals(boxId))).write(
+          BoxesCompanion(qrId: Value(qrId), updatedAt: Value(DateTime.now())),
+        );
 
     return updatedRows > 0;
   }

@@ -108,7 +108,7 @@ Example:
 {
   "backupFormatVersion": 1,
   "appVersion": "0.6.0",
-  "databaseSchemaVersion": 2,
+  "databaseSchemaVersion": 3,
   "createdAt": "2026-09-02T13:30:00.000Z"
 }
 ```

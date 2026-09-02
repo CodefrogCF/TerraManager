@@ -56,30 +56,22 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Feeding History'),
-      ),
+      appBar: AppBar(title: const Text('Feeding History')),
       body: FutureBuilder<List<FeedingEvent>>(
         future: _feedingsFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(
-              child: Text('Failed to load feeding history'),
-            );
+            return const Center(child: Text('Failed to load feeding history'));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           final feedings = snapshot.data ?? [];
 
           if (feedings.isEmpty) {
-            return const Center(
-              child: Text('No feeding events available'),
-            );
+            return const Center(child: Text('No feeding events available'));
           }
 
           return ListView.separated(
@@ -93,8 +85,8 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
                 key: Key('feeding-item-${feeding.id}'),
                 leading: const Icon(Icons.restaurant),
                 title: Text(_formatDateTime(feeding.fedAt)),
-                subtitle: feeding.notes != null &&
-                        feeding.notes!.trim().isNotEmpty
+                subtitle:
+                    feeding.notes != null && feeding.notes!.trim().isNotEmpty
                     ? Text(feeding.notes!)
                     : null,
               );
@@ -116,10 +108,7 @@ class _AddFeedingDialog extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
 
-  const _AddFeedingDialog({
-    required this.database,
-    required this.animalId,
-  });
+  const _AddFeedingDialog({required this.database, required this.animalId});
 
   @override
   State<_AddFeedingDialog> createState() => _AddFeedingDialogState();
@@ -214,9 +203,7 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
             if (_error != null) ...[
               Text(
                 _error!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               const SizedBox(height: 16),
             ],
@@ -224,9 +211,7 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
               key: const Key('feeding-date-time-field'),
               contentPadding: EdgeInsets.zero,
               title: const Text('Date and Time'),
-              subtitle: Text(
-                _formatDateTime(_fedAt),
-              ),
+              subtitle: Text(_formatDateTime(_fedAt)),
               trailing: IconButton(
                 key: const Key('feeding-date-time-button'),
                 onPressed: _saving ? null : _selectDateTime,
@@ -259,15 +244,12 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
         FilledButton(
           key: const Key('save-feeding-button'),
           onPressed: _saving ? null : _save,
-          child: Text(
-            _saving ? 'Saving...' : 'Save',
-          ),
+          child: Text(_saving ? 'Saving...' : 'Save'),
         ),
       ],
     );
   }
 }
-
 
 String _formatDateTime(DateTime dateTime) {
   final day = dateTime.day.toString().padLeft(2, '0');

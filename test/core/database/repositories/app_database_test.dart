@@ -7,14 +7,11 @@ import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 
 void main() {
-
   late AppDatabase database;
 
-setUp(() {
-  database = AppDatabase.test(
-    NativeDatabase.memory(),
-  );
-});
+  setUp(() {
+    database = AppDatabase.test(NativeDatabase.memory());
+  });
 
   tearDown(() async {
     await database.close();
@@ -25,23 +22,21 @@ setUp(() {
     const qrId = 'TM:BOX:test-box-001';
 
     // Act: create box
-    final boxId = await database.into(database.boxes).insert(
-          BoxesCompanion.insert(
-            qrId: qrId,
-          ),
-        );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: qrId));
 
     // Act: create animal
-    final animalId = await database.into(database.animals).insert(
+    final animalId = await database
+        .into(database.animals)
+        .insert(
           AnimalsCompanion.insert(
             boxId: Value(boxId),
             commonName: 'Test Animal',
             latinName: 'Testus animalis',
             sex: const Value(Sex.male),
             birthDate: Value(DateTime(2021, 3, 15)),
-            birthDateAccuracy: const Value(
-              BirthDateAccuracy.exact,
-            ),
+            birthDateAccuracy: const Value(BirthDateAccuracy.exact),
             tempMin: 22.0,
             tempMax: 28.0,
             humidityMin: 60.0,
@@ -50,8 +45,9 @@ setUp(() {
         );
 
     // Act: create feeding event
-    final feedingEventId =
-    await database.into(database.feedingEvents).insert(
+    final feedingEventId = await database
+        .into(database.feedingEvents)
+        .insert(
           FeedingEventsCompanion.insert(
             animalId: animalId,
             fedAt: DateTime(2026, 8, 20, 7, 30),
@@ -65,9 +61,9 @@ setUp(() {
     expect(boxId, greaterThan(0));
     expect(animalId, greaterThan(0));
 
-    final animal = await (database.select(database.animals)
-          ..where((animal) => animal.id.equals(animalId)))
-        .getSingle();
+    final animal = await (database.select(
+      database.animals,
+    )..where((animal) => animal.id.equals(animalId))).getSingle();
 
     expect(animal.boxId, boxId);
     expect(animal.commonName, 'Test Animal');
@@ -78,40 +74,35 @@ setUp(() {
     expect(animal.humidityMin, 60.0);
     expect(animal.humidityMax, 75.0);
 
-    final feedingEvent =
-    await (database.select(database.feedingEvents)
-          ..where((event) => event.id.equals(feedingEventId)))
-        .getSingle();
+    final feedingEvent = await (database.select(
+      database.feedingEvents,
+    )..where((event) => event.id.equals(feedingEventId))).getSingle();
 
     expect(feedingEvent.animalId, animalId);
-    expect(
-      feedingEvent.fedAt,
-      DateTime(2026, 8, 20, 7, 30),
-    );
+    expect(feedingEvent.fedAt, DateTime(2026, 8, 20, 7, 30));
     expect(feedingEvent.notes, 'Frostfutter');
 
-    await database.into(database.feedingEvents).insert(
-      FeedingEventsCompanion.insert(
-        animalId: animalId,
-        fedAt: DateTime(2026, 8, 13, 7, 30),
-      ),
-    );
+    await database
+        .into(database.feedingEvents)
+        .insert(
+          FeedingEventsCompanion.insert(
+            animalId: animalId,
+            fedAt: DateTime(2026, 8, 13, 7, 30),
+          ),
+        );
 
-    final latestFeeding = await (database.select(database.feedingEvents)
-          ..where((event) => event.animalId.equals(animalId))
-          ..orderBy([
-            (event) => OrderingTerm(
+    final latestFeeding =
+        await (database.select(database.feedingEvents)
+              ..where((event) => event.animalId.equals(animalId))
+              ..orderBy([
+                (event) => OrderingTerm(
                   expression: event.fedAt,
                   mode: OrderingMode.desc,
                 ),
-          ])
-          ..limit(1))
-        .getSingle();
+              ])
+              ..limit(1))
+            .getSingle();
 
-    expect(
-      latestFeeding.fedAt,
-      DateTime(2026, 8, 20, 7, 30),
-    );
-
+    expect(latestFeeding.fedAt, DateTime(2026, 8, 20, 7, 30));
   });
 }

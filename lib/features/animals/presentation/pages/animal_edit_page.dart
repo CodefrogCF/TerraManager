@@ -9,6 +9,8 @@ import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/media/image_media_info.dart';
 import '../widgets/animal_picture.dart';
 
 class AnimalEditPage extends StatefulWidget {
@@ -43,8 +45,16 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   DateTime? _birthDate;
   int? _boxId;
 
-  String? _picturePath;
+  int? _pictureMediaId;
+  int? _originalPictureMediaId;
+
+  String? _legacyPicturePath;
+
   Uint8List? _pictureBytes;
+  String? _pictureFileName;
+  String? _pictureMimeType;
+
+  bool _pictureChanged = false;
 
   List<Box> _boxes = [];
 
@@ -102,6 +112,13 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
       final boxes = await boxRepository.getAllBoxes();
 
+      MediaAsset? pictureMedia;
+
+      if (animal.pictureMediaId != null) {
+        pictureMedia = await MediaRepository(widget.database)
+            .getMediaById(animal.pictureMediaId!);
+      }
+
       if (!mounted) {
         return;
       }
@@ -122,7 +139,19 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _birthDateAccuracy = animal.birthDateAccuracy;
       _boxId = animal.boxId;
 
-      _picturePath = animal.picturePath;
+      _pictureMediaId = animal.pictureMediaId;
+
+      _originalPictureMediaId = animal.pictureMediaId;
+
+      _legacyPicturePath = animal.picturePath;
+
+      if (pictureMedia != null) {
+        _pictureBytes = pictureMedia.data;
+
+        _pictureFileName = pictureMedia.fileName;
+
+        _pictureMimeType = pictureMedia.mimeType;
+      }
 
       setState(() {
         _loading = false;
@@ -151,9 +180,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   Future<void> _selectPicture() async {
     try {
-      final image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-      );
+      final image = await _imagePicker.pickImage(source: ImageSource.gallery);
 
       if (image == null) {
         return;
@@ -161,13 +188,21 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
       final bytes = await image.readAsBytes();
 
+      final info = ImageMediaInfo.fromXFile(image);
+
       if (!mounted) {
         return;
       }
 
       setState(() {
-        _picturePath = image.path;
+        _pictureMediaId = null;
+        _legacyPicturePath = null;
+
         _pictureBytes = bytes;
+        _pictureFileName = info.fileName;
+        _pictureMimeType = info.mimeType;
+
+        _pictureChanged = true;
         _hasUnsavedChanges = true;
       });
     } catch (_) {
@@ -183,8 +218,14 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   void _removePicture() {
     setState(() {
-      _picturePath = null;
+      _pictureMediaId = null;
+      _legacyPicturePath = null;
+
       _pictureBytes = null;
+      _pictureFileName = null;
+      _pictureMimeType = null;
+
+      _pictureChanged = true;
       _hasUnsavedChanges = true;
     });
   }
@@ -207,23 +248,60 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     });
 
     try {
-      final success = await AnimalRepository(widget.database).updateAnimal(
-        animalId: _animal!.id,
-        boxId: _boxId!,
-        commonName: _commonNameController.text.trim(),
-        latinName: _latinNameController.text.trim(),
-        sex: _sex,
-        birthDate: _birthDate,
-        birthDateAccuracy: _birthDateAccuracy,
-        tempMin: double.parse(_tempMinController.text),
-        tempMax: double.parse(_tempMaxController.text),
-        humidityMin: double.parse(_humidityMinController.text),
-        humidityMax: double.parse(_humidityMaxController.text),
-        picturePath: _picturePath,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-      );
+      final success = await widget.database.transaction(() async {
+        final mediaRepository = MediaRepository(widget.database);
+
+        int? pictureMediaId = _pictureMediaId;
+
+        String? legacyPicturePath = _legacyPicturePath;
+
+        if (_pictureChanged) {
+          legacyPicturePath = null;
+
+          if (_pictureBytes != null) {
+            pictureMediaId = await mediaRepository.createMedia(
+              fileName: _pictureFileName ?? 'animal.img',
+              mimeType: _pictureMimeType ?? 'application/octet-stream',
+              data: _pictureBytes!,
+            );
+          } else {
+            pictureMediaId = null;
+          }
+        }
+
+        final updated = await AnimalRepository(widget.database).updateAnimal(
+          animalId: _animal!.id,
+          boxId: _boxId!,
+          commonName: _commonNameController.text.trim(),
+          latinName: _latinNameController.text.trim(),
+          sex: _sex,
+          birthDate: _birthDate,
+          birthDateAccuracy: _birthDateAccuracy,
+          tempMin: double.parse(_tempMinController.text),
+          tempMax: double.parse(_tempMaxController.text),
+          humidityMin: double.parse(_humidityMinController.text),
+          humidityMax: double.parse(_humidityMaxController.text),
+          pictureMediaId: pictureMediaId,
+          picturePath: legacyPicturePath,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        );
+
+        if (!updated) {
+          throw StateError('Animal update failed');
+        }
+
+        final oldMediaId = _originalPictureMediaId;
+
+        if (_pictureChanged &&
+            oldMediaId != null &&
+            oldMediaId != pictureMediaId) {
+          await mediaRepository.deleteMedia(oldMediaId);
+        }
+
+        return true;
+      });
 
       if (!mounted) {
         return;
@@ -231,12 +309,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
       if (success) {
         _hasUnsavedChanges = false;
+
         Navigator.of(context).pop(true);
-      } else {
-        setState(() {
-          _saving = false;
-          _error = 'Failed to save animal';
-        });
       }
     } catch (_) {
       if (!mounted) {
@@ -334,17 +408,18 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     );
   }
 
+  bool get _hasPicture =>
+      _pictureBytes != null ||
+      _legacyPicturePath != null ||
+      _pictureMediaId != null;
+
   Widget _buildBody() {
     if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (_error != null && _animal == null) {
-      return Center(
-        child: Text(_error!),
-      );
+      return Center(child: Text(_error!));
     }
 
     return Form(
@@ -357,16 +432,14 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             if (_error != null) ...[
               Text(
                 _error!,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               const SizedBox(height: 16),
             ],
 
             AnimalPicture(
-              picturePath: _picturePath,
               pictureBytes: _pictureBytes,
+              picturePath: _legacyPicturePath,
             ),
             const SizedBox(height: 8),
 
@@ -378,13 +451,11 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                     onPressed: _saving ? null : _selectPicture,
                     icon: const Icon(Icons.photo_library_outlined),
                     label: Text(
-                      _picturePath == null
-                          ? 'Select Picture'
-                          : 'Change Picture',
+                      _hasPicture ? 'Change Picture' : 'Select Picture',
                     ),
                   ),
                 ),
-                if (_picturePath != null) ...[
+                if (_hasPicture) ...[
                   const SizedBox(width: 8),
                   IconButton(
                     key: const Key('remove-picture-button'),
@@ -400,9 +471,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             DropdownButtonFormField<int>(
               key: const Key('box-field'),
               initialValue: _boxId,
-              decoration: const InputDecoration(
-                labelText: 'Associated Box',
-              ),
+              decoration: const InputDecoration(labelText: 'Associated Box'),
               items: _boxes
                   .map(
                     (box) => DropdownMenuItem<int>(
@@ -433,9 +502,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               key: const Key('common-name-field'),
               controller: _commonNameController,
               onChanged: (_) => _markAsChanged(),
-              decoration: const InputDecoration(
-                labelText: 'Common Name',
-              ),
+              decoration: const InputDecoration(labelText: 'Common Name'),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a common name';
@@ -450,9 +517,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               key: const Key('latin-name-field'),
               controller: _latinNameController,
               onChanged: (_) => _markAsChanged(),
-              decoration: const InputDecoration(
-                labelText: 'Latin Name',
-              ),
+              decoration: const InputDecoration(labelText: 'Latin Name'),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a latin name';
@@ -466,9 +531,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             DropdownButtonFormField<Sex?>(
               key: const Key('sex-field'),
               initialValue: _sex,
-              decoration: const InputDecoration(
-                labelText: 'Sex',
-              ),
+              decoration: const InputDecoration(labelText: 'Sex'),
               items: [
                 const DropdownMenuItem<Sex?>(
                   value: null,
@@ -497,9 +560,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               contentPadding: EdgeInsets.zero,
               title: const Text('Birth Date'),
               subtitle: Text(
-                _birthDate == null
-                    ? 'Not specified'
-                    : _formatDate(_birthDate!),
+                _birthDate == null ? 'Not specified' : _formatDate(_birthDate!),
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.calendar_today),
@@ -597,12 +658,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       key: key,
       controller: controller,
       onChanged: (_) => _markAsChanged(),
-      keyboardType: const TextInputType.numberWithOptions(
-        decimal: true,
-      ),
-      decoration: InputDecoration(
-        labelText: label,
-      ),
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(labelText: label),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return 'Please enter a value';

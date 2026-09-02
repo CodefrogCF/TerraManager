@@ -13,29 +13,25 @@ import 'enums/sex.dart';
 import 'tables/boxes.dart';
 import 'tables/animals.dart';
 import 'tables/feeding_events.dart';
+import 'tables/media_assets.dart';
 
 import 'app_database.steps.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(
-  tables: [
-    Boxes,
-    Animals,
-    FeedingEvents,
-  ],
-)
+@DriftDatabase(tables: [Boxes, MediaAssets, Animals, FeedingEvents])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? executor]) : super(
-    executor ??
-      driftDatabase(
-        name: 'terramanager',
-        web: DriftWebOptions(
-          sqlite3Wasm: Uri.parse('sqlite3.wasm'),
-          driftWorker: Uri.parse('drift_worker.dart.js'),
-        ),
-      )
-  );
+  AppDatabase([QueryExecutor? executor])
+    : super(
+        executor ??
+            driftDatabase(
+              name: 'terramanager',
+              web: DriftWebOptions(
+                sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+                driftWorker: Uri.parse('drift_worker.dart.js'),
+              ),
+            ),
+      );
 
   AppDatabase.test(super.executor);
 
@@ -46,9 +42,7 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (m, from, to) async {
-        await customStatement(
-          'PRAGMA foreign_keys = OFF',
-        );
+        await customStatement('PRAGMA foreign_keys = OFF');
 
         try {
           await m.runMigrationSteps(
@@ -68,11 +62,19 @@ class AppDatabase extends _$AppDatabase {
                   ),
                 );
               },
+
+              from2To3: (m, schema) async {
+                await m.createTable(schema.mediaAssets);
+
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.pictureMediaId,
+                );
+              },
             ),
           );
 
-          final foreignKeyErrors =
-              await customSelect(
+          final foreignKeyErrors = await customSelect(
             'PRAGMA foreign_key_check',
           ).get();
 
@@ -83,19 +85,15 @@ class AppDatabase extends _$AppDatabase {
             );
           }
         } finally {
-          await customStatement(
-            'PRAGMA foreign_keys = ON',
-          );
+          await customStatement('PRAGMA foreign_keys = ON');
         }
       },
       beforeOpen: (_) async {
-        await customStatement(
-          'PRAGMA foreign_keys = ON',
-        );
+        await customStatement('PRAGMA foreign_keys = ON');
       },
     );
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 }

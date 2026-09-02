@@ -1,5 +1,1 @@
-enum BirthDateAccuracy {
-  exact,
-  monthKnown,
-  yearKnown,
-}
+enum BirthDateAccuracy { exact, monthKnown, yearKnown }

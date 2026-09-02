@@ -6,10 +6,7 @@ import '../../../../core/database/repositories/box_repository.dart';
 class NewBoxPage extends StatefulWidget {
   final AppDatabase database;
 
-  const NewBoxPage({
-    super.key,
-    required this.database,
-  });
+  const NewBoxPage({super.key, required this.database});
 
   @override
   State<NewBoxPage> createState() => _NewBoxPageState();
@@ -26,9 +23,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
     });
 
     try {
-      await BoxRepository(
-        widget.database,
-      ).createBoxWithGeneratedQrId();
+      await BoxRepository(widget.database).createBoxWithGeneratedQrId();
 
       if (!mounted) {
         return;
@@ -50,16 +45,12 @@ class _NewBoxPageState extends State<NewBoxPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('New Box'),
-      ),
+      appBar: AppBar(title: const Text('New Box')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 500,
-            ),
+            constraints: const BoxConstraints(maxWidth: 500),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -112,14 +103,10 @@ class _NewBoxPageState extends State<NewBoxPage> {
                       ? const SizedBox(
                           width: 18,
                           height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.add),
-                  label: Text(
-                    _saving ? 'Creating...' : 'Create Box',
-                  ),
+                  label: Text(_saving ? 'Creating...' : 'Create Box'),
                 ),
               ],
             ),

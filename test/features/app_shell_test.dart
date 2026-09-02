@@ -14,9 +14,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
 
-    database = AppDatabase.test(
-      NativeDatabase.memory(),
-    );
+    database = AppDatabase.test(NativeDatabase.memory());
 
     settingsController = AppSettingsController();
     await settingsController.load();
@@ -27,17 +25,11 @@ void main() {
     await database.close();
   });
 
-  Future<void> pumpApp(
-    WidgetTester tester,
-  ) async {
+  Future<void> pumpApp(WidgetTester tester) async {
     await tester.pumpWidget(
       AppSettingsScope(
         controller: settingsController,
-        child: MaterialApp(
-          home: AppShell(
-            database: database,
-          ),
-        ),
+        child: MaterialApp(home: AppShell(database: database)),
       ),
     );
 

@@ -696,6 +696,22 @@ Validation includes at least:
 Validation must complete successfully before existing TerraManager data is
 modified.
 
+### Archive Path Safety
+
+Archive entry paths must be portable relative paths using `/` as separator.
+
+The following are rejected:
+
+- absolute paths
+- Windows-style backslash paths
+- drive-qualified paths
+- `.` path segments
+- `..` path segments
+- duplicate archive entry names
+
+This prevents backup archives from referencing files outside their intended
+restore location.
+
 ## Relationship Validation
 
 The following relationships must be valid.

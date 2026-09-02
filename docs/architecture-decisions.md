@@ -315,3 +315,89 @@ Default values are:
 ThemeMode.system
 Accent = TerraManager green
 ```
+
+---
+
+## ADR-007: Portable versioned backup format
+
+**Status:** Accepted
+
+**Date:** 2026-09-02
+
+### Context
+
+TerraManager stores important local-only data including Boxes, Animals,
+FeedingEvents, lifecycle history and animal pictures.
+
+The local-first architecture means this data currently exists only on the
+current device or browser profile.
+
+Copying the raw SQLite database would tightly couple backups to a specific
+database schema and platform implementation.
+
+Android and Web also use different persistence mechanisms for database and media
+storage.
+
+### Decision
+
+TerraManager uses a portable versioned backup archive rather than exposing the
+raw SQLite database as the backup format.
+
+The backup file uses the `.tmbackup` extension.
+
+The initial format contains:
+
+```text
+manifest.json
+data.json
+settings.json
+media/
+```
+
+The backup format has its own `backupFormatVersion`.
+
+This version is independent from the Drift `databaseSchemaVersion`.
+
+Domain records are serialized into portable data structures.
+
+Local operating-system media paths are not preserved directly. Media files are
+included in the archive and referenced through portable backup media
+identifiers.
+
+Generated QR images are excluded because they can be regenerated from the
+permanent Box `qrId`.
+
+Restore version 1 uses full replacement rather than merge semantics.
+
+Before destructive restore:
+
+- the selected backup is validated
+- a backup of the current state is created
+- explicit user confirmation is required
+- replacement may begin
+
+### Consequences
+
+Advantages:
+
+- backups can be transferred between Android and Web
+- backup compatibility can evolve independently from Drift schema migrations
+- media can be restored to platform-appropriate storage
+- QR identifiers remain stable
+- backups are not tied to device-specific filesystem paths
+- future application versions can implement explicit backup migration logic
+
+Disadvantages:
+
+- serialization and restore logic must be maintained separately from Drift
+- media increases backup file size
+- cross-version compatibility must be tested
+- destructive restore requires additional safety handling
+
+### Out of Scope for Version 1
+
+- merge restore
+- selective restore
+- incremental backups
+- cloud backup
+- automatic scheduled backup

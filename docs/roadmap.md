@@ -173,22 +173,141 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Regression test Web
 - [x] Update documentation
 - [x] Update changelog
-- [ ] Tag and publish v0.5.0
+- [x] Tag and publish v0.5.0
+
+---
+
+## v0.6.0 – Backup & Restore
+
+### Backup Format
+
+- [ ] Define versioned `.tmbackup` format
+- [ ] Separate backup format version from database schema version
+- [ ] Document backup compatibility rules
+- [ ] Store portable media references
+- [ ] Exclude generated QR images
+
+### Backup
+
+- [ ] Export Boxes
+- [ ] Export Animals
+- [ ] Export FeedingEvents
+- [ ] Export animal pictures
+- [ ] Export appearance settings
+- [ ] Generate portable backup archive
+
+### Restore
+
+- [ ] Validate backup before modifying data
+- [ ] Validate format compatibility
+- [ ] Validate record relationships
+- [ ] Validate referenced media
+- [ ] Create pre-restore safety backup
+- [ ] Require destructive restore confirmation
+- [ ] Restore domain data
+- [ ] Restore media
+- [ ] Restore appearance settings
+
+### Platform Support
+
+- [ ] Validate backup on Android
+- [ ] Validate restore on Android
+- [ ] Validate backup on Web
+- [ ] Validate restore on Web
+- [ ] Validate Android → Web restore
+- [ ] Validate Web → Android restore
+
+### Release
+
+- [ ] Regression tests
+- [ ] Update documentation
+- [ ] Update changelog
+- [ ] Release v0.6.0
+
+---
+
+## v0.7.0 – Editing & Overview
+
+### Boxes
+
+- [ ] Add optional width
+- [ ] Add optional height
+- [ ] Add optional depth
+- [ ] Add optional Box picture
+- [ ] Add Box editing
+- [ ] Keep QR identifier immutable
+- [ ] Show human-readable Box labels
+
+### Feeding
+
+- [ ] Edit FeedingEvents
+- [ ] Delete FeedingEvents
+- [ ] Recalculate Latest Feeding after changes
+
+### Overview
+
+- [ ] Show Animal thumbnails where available
+- [ ] Show Box thumbnails where available
+- [ ] Preserve Animal Overview scroll position after detail navigation
+
+### Release
+
+- [ ] Database migration tests
+- [ ] Regression tests
+- [ ] Validate backup compatibility
+- [ ] Update documentation
+- [ ] Update changelog
+- [ ] Release v0.7.0
+
+---
+
+## v0.8.0 – Navigation & History
+
+### Detail Navigation
+
+- [ ] Add contextual detail navigation model
+- [ ] Swipe between Animals
+- [ ] Preserve Active Animal context
+- [ ] Preserve archived Animal context
+- [ ] Preserve Box-specific Animal context
+- [ ] Swipe between Boxes
+
+### Animal Box History
+
+- [ ] Add AnimalBoxAssignment data model
+- [ ] Add database migration
+- [ ] Record assignment when Animal is created
+- [ ] Record Box changes
+- [ ] Close assignment when Animal is archived
+- [ ] Create assignment when Animal is restored
+- [ ] Handle permanent deletion
+- [ ] Add Box-specific Animal History view (stretch)
+
+### Release
+
+- [ ] Regression tests
+- [ ] Validate backup/restore of history data
+- [ ] Update documentation
+- [ ] Update changelog
+- [ ] Release v0.8.0
 
 ---
 
 ## Future Development
 
-Planned future features include:
+Possible later development areas include:
 
-- iOS validation
 - sensors
 - automatic temperature and humidity tracking
 - smart-home integration
-- backup and restore
-- data import/export
-- user accounts
+- automatic backups
+- scheduled backups
 - cloud synchronization
+- user accounts
 - multi-device synchronization
-
-The exact order of future milestones will be decided after v0.5.0.
+- animal weight history
+- shedding history
+- health and event tracking
+- breeding records
+- enclosure maintenance history
+- iOS validation

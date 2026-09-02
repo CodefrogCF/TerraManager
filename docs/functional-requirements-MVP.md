@@ -117,3 +117,30 @@ The MVP targets:
 - Web
 
 iOS is planned but is not required to be validated before the current MVP milestones can continue.
+
+## Backup and Restore
+
+The application must allow the user to:
+
+- create a portable backup of local TerraManager data
+- export Boxes
+- export Animals
+- export FeedingEvents
+- export backed-up media
+- export appearance settings
+- restore a compatible TerraManager backup
+- validate a backup before modifying existing data
+- create a safety backup before destructive restore
+- explicitly confirm replacement of existing local data
+
+The backup format must be independent from the raw SQLite database file.
+
+Backups must use an explicit backup format version that is independent from the
+database schema version.
+
+Generated QR images do not need to be included because they can be recreated
+from the permanent Box `qrId`.
+
+The initial restore implementation uses full replacement.
+
+Merging backup data with existing application data is not required for the MVP.

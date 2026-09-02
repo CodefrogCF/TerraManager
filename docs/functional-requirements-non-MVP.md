@@ -24,13 +24,21 @@ The following functionality is outside the current TerraManager MVP scope.
 - multi-device synchronization
 - shared terrarium data between users
 
-## Backup and Transfer
+## Advanced Backup and Transfer
+
+The following functionality remains outside the current MVP:
 
 - automatic backups
-- backup scheduling
-- database export
-- database import
-- device-to-device data migration
+- scheduled backups
+- cloud backup
+- incremental backups
+- selective record restore
+- merge restore
+- conflict resolution during import
+- direct device-to-device synchronization
+
+Manual portable backup and full restore are part of the MVP beginning with
+v0.6.0.
 
 ## Additional Platforms
 

@@ -8,7 +8,9 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 ## Project Status
 
-Current development status: **v0.5.0 – Usability & Settings**
+Current completed release milestone:
+
+**v0.5.0 – Usability & Settings**
 
 Completed milestones:
 
@@ -18,12 +20,23 @@ Completed milestones:
 - v0.4.0 – Android and Web Platform Support
 - v0.5.0 – Usability & Settings
 
-Android and Web have been validated successfully.
+Android and Web are currently validated platforms.
 
-v0.5.0 adds improved box management, animal lifecycle and history,
-latest-feeding information and persistent appearance settings.
+The next planned milestones are:
 
-The next development milestone has not yet been finalized.
+### v0.6.0 – Backup & Restore
+
+Portable backup and restore of TerraManager domain data, settings and media.
+
+### v0.7.0 – Editing & Overview
+
+Box editing, enclosure dimensions, Box pictures, human-readable Box labels,
+editable feeding events, overview thumbnails and improved list-state handling.
+
+### v0.8.0 – Navigation & History
+
+Contextual swipe navigation between detail records and historical tracking of
+Animal-to-Box assignments.
 
 ## Implemented Features
 

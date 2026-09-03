@@ -1,9 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 
 void main() {
@@ -16,6 +19,14 @@ void main() {
   tearDown(() async {
     await database.close();
   });
+
+  Future<int> createTestMedia() {
+    return MediaRepository(database).createMedia(
+      fileName: 'box.png',
+      mimeType: 'image/png',
+      data: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10, 1]),
+    );
+  }
 
   Future<void> pumpPage(WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(home: BoxesPage(database: database)));
@@ -41,6 +52,44 @@ void main() {
     expect(find.text('test-box-001'), findsNothing);
   });
 
+  testWidgets('shows fallback thumbnail when box has no picture', (
+    tester,
+  ) async {
+    final boxId = await BoxRepository(database).createBox('test-box-001');
+
+    await pumpPage(tester);
+
+    final thumbnail = find.byKey(Key('box-thumbnail-$boxId'));
+
+    expect(thumbnail, findsOneWidget);
+
+    expect(
+      find.descendant(
+        of: thumbnail,
+        matching: find.byIcon(Icons.home_outlined),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows picture thumbnail when box has media', (tester) async {
+    final mediaId = await createTestMedia();
+
+    final boxId = await BoxRepository(database)
+        .createBox('test-box-001', pictureMediaId: mediaId);
+
+    await pumpPage(tester);
+
+    final thumbnail = find.byKey(Key('box-thumbnail-$boxId'));
+
+    expect(thumbnail, findsOneWidget);
+
+    expect(
+      find.descendant(of: thumbnail, matching: find.byType(Image)),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('shows box dimensions in overview', (tester) async {
     await BoxRepository(database)
         .createBox('test-box-001', widthCm: 60, heightCm: 45, depthCm: 40);
@@ -60,6 +109,7 @@ void main() {
     await pumpPage(tester);
 
     expect(find.text('Box 1'), findsOneWidget);
+
     expect(find.text('Box 2'), findsOneWidget);
 
     expect(find.text('test-box-001'), findsNothing);
@@ -115,9 +165,11 @@ void main() {
     final createButton = find.byKey(const Key('create-box-button'));
 
     await tester.ensureVisible(createButton);
+
     await tester.pumpAndSettle();
 
     await tester.tap(createButton);
+
     await tester.pumpAndSettle();
 
     final boxes = await BoxRepository(database).getAllBoxes();
@@ -151,8 +203,11 @@ void main() {
     await pumpPage(tester);
 
     expect(find.text('Box 1'), findsOneWidget);
+
     expect(find.text('Box 2'), findsNothing);
+
     expect(find.text('Box 3'), findsOneWidget);
+
     expect(find.text('Box 4'), findsOneWidget);
   });
 }

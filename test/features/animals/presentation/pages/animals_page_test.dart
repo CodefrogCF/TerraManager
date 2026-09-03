@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
 
 void main() {
@@ -26,6 +29,7 @@ void main() {
     required int boxId,
     String commonName = 'Test Snake',
     String latinName = 'Pantherophis guttatus',
+    int? pictureMediaId,
   }) {
     return AnimalRepository(database).createAnimal(
       boxId: boxId,
@@ -35,6 +39,15 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      pictureMediaId: pictureMediaId,
+    );
+  }
+
+  Future<int> createTestMedia() {
+    return MediaRepository(database).createMedia(
+      fileName: 'animal.png',
+      mimeType: 'image/png',
+      data: Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10, 1]),
     );
   }
 
@@ -60,6 +73,49 @@ void main() {
     expect(find.text('Test Snake'), findsOneWidget);
 
     expect(find.text('Pantherophis guttatus'), findsOneWidget);
+  });
+
+  testWidgets('shows fallback thumbnail when animal has no picture', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+
+    final animalId = await createTestAnimal(boxId: boxId);
+
+    await pumpPage(tester);
+
+    final thumbnail = find.byKey(Key('animal-thumbnail-$animalId'));
+
+    expect(thumbnail, findsOneWidget);
+
+    expect(
+      find.descendant(
+        of: thumbnail,
+        matching: find.byIcon(Icons.emoji_nature_outlined),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows picture thumbnail when animal has media', (tester) async {
+    final boxId = await createTestBox();
+    final mediaId = await createTestMedia();
+
+    final animalId = await createTestAnimal(
+      boxId: boxId,
+      pictureMediaId: mediaId,
+    );
+
+    await pumpPage(tester);
+
+    final thumbnail = find.byKey(Key('animal-thumbnail-$animalId'));
+
+    expect(thumbnail, findsOneWidget);
+
+    expect(
+      find.descendant(of: thumbnail, matching: find.byType(Image)),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows multiple animals', (tester) async {

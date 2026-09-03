@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/media/media_thumbnail.dart';
 import 'animal_detail_page.dart';
 import 'animal_history_page.dart';
 import 'new_animal_page.dart';
@@ -18,6 +20,8 @@ class AnimalsPage extends StatefulWidget {
 class _AnimalsPageState extends State<AnimalsPage> {
   late Future<List<Animal>> _animalsFuture;
 
+  final Map<int, Future<MediaAsset?>> _pictureFutures = {};
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +29,20 @@ class _AnimalsPageState extends State<AnimalsPage> {
   }
 
   void _loadAnimals() {
+    _pictureFutures.clear();
+
     _animalsFuture = AnimalRepository(widget.database).getActiveAnimals();
+  }
+
+  Future<MediaAsset?> _pictureFutureFor(int? mediaId) {
+    if (mediaId == null) {
+      return Future<MediaAsset?>.value(null);
+    }
+
+    return _pictureFutures.putIfAbsent(
+      mediaId,
+      () => MediaRepository(widget.database).getMediaById(mediaId),
+    );
   }
 
   Future<void> _openNewAnimalPage() async {
@@ -117,9 +134,22 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
               return ListTile(
                 key: Key('animal-list-item-${animal.id}'),
-                leading: const Icon(Icons.emoji_nature_outlined),
+                leading: FutureBuilder<MediaAsset?>(
+                  future: _pictureFutureFor(animal.pictureMediaId),
+                  builder: (context, pictureSnapshot) {
+                    return MediaThumbnail(
+                      key: Key('animal-thumbnail-${animal.id}'),
+                      pictureBytes: pictureSnapshot.data?.data,
+                      picturePath: pictureSnapshot.data == null
+                          ? animal.picturePath
+                          : null,
+                      fallbackIcon: Icons.emoji_nature_outlined,
+                    );
+                  },
+                ),
                 title: Text(animal.commonName),
                 subtitle: Text(animal.latinName),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   _openAnimalDetail(animal);
                 },

@@ -193,13 +193,15 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text(box.qrId), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
 
     await tester.tap(find.byKey(Key('box-list-item-${box.id}')));
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Box Details'), findsOneWidget);
+    expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
+
+    expect(find.text('Box 1'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('delete-box-button')));
 

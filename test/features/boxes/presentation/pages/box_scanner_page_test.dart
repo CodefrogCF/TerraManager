@@ -107,7 +107,9 @@ void main() {
 
     expect(find.byType(BoxDetailPage), findsOneWidget);
 
-    expect(find.text('Box Details'), findsOneWidget);
+    expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
+
+    expect(find.text('Box 1'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.byKey(const Key('box-qr-id')), 300);
 

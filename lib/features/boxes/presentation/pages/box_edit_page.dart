@@ -8,6 +8,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/image_media_info.dart';
+import '../../../../core/boxes/box_label.dart';
 import '../widgets/box_picture.dart';
 
 class BoxEditPage extends StatefulWidget {
@@ -314,7 +315,9 @@ class _BoxEditPageState extends State<BoxEditPage> {
             key: const Key('back-button'),
             onPressed: _handleBack,
           ),
-          title: const Text('Edit Box'),
+          title: Text(
+            _box == null ? 'Edit Box' : 'Edit ${buildBoxLabel(_box!.id)}',
+          ),
           actions: [
             IconButton(
               key: const Key('save-box-button'),

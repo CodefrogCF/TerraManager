@@ -8,6 +8,7 @@ import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
 import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
+import '../../../../core/boxes/box_label.dart';
 import '../../../animals/presentation/pages/animal_detail_page.dart';
 import 'box_edit_page.dart';
 import '../widgets/box_picture.dart';
@@ -332,7 +333,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Box Details'),
+        title: Text(buildBoxLabel(box.id), key: const Key('box-detail-title')),
         actions: [
           IconButton(
             key: const Key('edit-box-button'),

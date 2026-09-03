@@ -29,26 +29,42 @@ void main() {
     expect(find.text('No boxes available'), findsOneWidget);
   });
 
-  testWidgets('shows box from database', (tester) async {
+  testWidgets('shows human readable box label', (tester) async {
     await BoxRepository(database).createBox('test-box-001');
 
     await pumpPage(tester);
 
-    expect(find.text('test-box-001'), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
 
-    expect(find.text('Box ID: 1'), findsOneWidget);
+    expect(find.text('Dimensions not specified'), findsOneWidget);
+
+    expect(find.text('test-box-001'), findsNothing);
   });
 
-  testWidgets('shows multiple boxes', (tester) async {
+  testWidgets('shows box dimensions in overview', (tester) async {
+    await BoxRepository(database)
+        .createBox('test-box-001', widthCm: 60, heightCm: 45, depthCm: 40);
+
+    await pumpPage(tester);
+
+    expect(find.text('Box 1'), findsOneWidget);
+
+    expect(find.text('60 × 45 × 40 cm'), findsOneWidget);
+  });
+
+  testWidgets('shows multiple boxes by local box id', (tester) async {
     await BoxRepository(database).createBox('test-box-001');
 
     await BoxRepository(database).createBox('test-box-002');
 
     await pumpPage(tester);
 
-    expect(find.text('test-box-001'), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
+    expect(find.text('Box 2'), findsOneWidget);
 
-    expect(find.text('test-box-002'), findsOneWidget);
+    expect(find.text('test-box-001'), findsNothing);
+
+    expect(find.text('test-box-002'), findsNothing);
   });
 
   testWidgets('opens box detail page', (tester) async {
@@ -56,17 +72,19 @@ void main() {
 
     await pumpPage(tester);
 
-    await tester.tap(find.text('test-box-detail'));
+    await tester.tap(find.byKey(const Key('box-list-item-1')));
 
     await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
+
+    expect(find.text('Box 1'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.byKey(const Key('box-qr-id')), 300);
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Box Details'), findsOneWidget);
-
-    expect(find.text('test-box-detail'), findsWidgets);
+    expect(find.text('test-box-detail'), findsOneWidget);
   });
 
   testWidgets('add button opens new box page', (tester) async {
@@ -85,7 +103,7 @@ void main() {
     expect(find.byKey(const Key('qr-id-field')), findsNothing);
   });
 
-  testWidgets('newly created box appears in overview', (tester) async {
+  testWidgets('newly created box appears with readable label', (tester) async {
     await pumpPage(tester);
 
     expect(find.text('No boxes available'), findsOneWidget);
@@ -93,8 +111,6 @@ void main() {
     await tester.tap(find.byKey(const Key('add-box-button')));
 
     await tester.pumpAndSettle();
-
-    expect(find.text('New Box'), findsOneWidget);
 
     final createButton = find.byKey(const Key('create-box-button'));
 
@@ -104,10 +120,6 @@ void main() {
     await tester.tap(createButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Boxes'), findsOneWidget);
-
-    expect(find.text('No boxes available'), findsNothing);
-
     final boxes = await BoxRepository(database).getAllBoxes();
 
     expect(boxes.length, 1);
@@ -116,6 +128,31 @@ void main() {
 
     expect(box.qrId, startsWith('TM:BOX:'));
 
-    expect(find.text(box.qrId), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
+
+    expect(find.text(box.qrId), findsNothing);
+  });
+
+  testWidgets('box ids are not renumbered after deletion', (tester) async {
+    final repository = BoxRepository(database);
+
+    await repository.createBox('box-1');
+
+    final secondId = await repository.createBox('box-2');
+
+    await repository.createBox('box-3');
+
+    await repository.deleteBox(secondId);
+
+    final fourthId = await repository.createBox('box-4');
+
+    expect(fourthId, 4);
+
+    await pumpPage(tester);
+
+    expect(find.text('Box 1'), findsOneWidget);
+    expect(find.text('Box 2'), findsNothing);
+    expect(find.text('Box 3'), findsOneWidget);
+    expect(find.text('Box 4'), findsOneWidget);
   });
 }

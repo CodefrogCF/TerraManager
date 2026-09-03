@@ -63,13 +63,13 @@ void main() {
 
   Future<void> fillRequiredFields(
     WidgetTester tester, {
-    required String boxQrId,
+    required String boxLabel,
   }) async {
     await tester.tap(find.byKey(const Key('box-field')));
 
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(boxQrId).last);
+    await tester.tap(find.text(boxLabel).last);
 
     await tester.pumpAndSettle();
 
@@ -188,7 +188,7 @@ void main() {
 
     await pumpPageWithNavigation(tester);
 
-    await fillRequiredFields(tester, boxQrId: 'test-box-001');
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
 
     await tester.tap(find.byTooltip('Save Animal'));
 
@@ -214,7 +214,7 @@ void main() {
 
     await pumpPageWithNavigation(tester);
 
-    await fillRequiredFields(tester, boxQrId: 'test-box-001');
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
 
     final sexField = find.byKey(const Key('sex-field'));
 
@@ -248,7 +248,7 @@ void main() {
 
     await pumpPageWithNavigation(tester);
 
-    await fillRequiredFields(tester, boxQrId: 'test-box-002');
+    await fillRequiredFields(tester, boxLabel: 'Box 2');
 
     await tester.tap(find.byTooltip('Save Animal'));
 
@@ -266,7 +266,7 @@ void main() {
 
     await pumpPageWithNavigation(tester);
 
-    await fillRequiredFields(tester, boxQrId: 'test-box-001');
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
 
     await tester.tap(find.byTooltip('Save Animal'));
 
@@ -282,7 +282,7 @@ void main() {
 
     await pumpPageWithNavigation(tester);
 
-    await fillRequiredFields(tester, boxQrId: 'test-box-001');
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
 
     final notesField = find.byKey(const Key('notes-field'));
 
@@ -303,7 +303,7 @@ void main() {
 
     await pumpPageWithNavigation(tester);
 
-    await fillRequiredFields(tester, boxQrId: 'test-box-001');
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
 
     await tester.tap(find.byTooltip('Save Animal'));
 
@@ -324,5 +324,22 @@ void main() {
     expect(find.text('Select Picture'), findsOneWidget);
 
     expect(find.text('No picture'), findsOneWidget);
+  });
+
+  testWidgets('shows human readable box labels', (tester) async {
+    await createTestBox(qrId: 'TM:BOX:12345678-1234-4123-8123-123456789abc');
+
+    await pumpPage(tester);
+
+    await tester.tap(find.byKey(const Key('box-field')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Box 1'), findsOneWidget);
+
+    expect(
+      find.text('TM:BOX:12345678-1234-4123-8123-123456789abc'),
+      findsNothing,
+    );
   });
 }

@@ -170,7 +170,7 @@ void main() {
 
     expect(find.byKey(const Key('box-field')), findsOneWidget);
 
-    expect(find.text('test-box-001'), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
   });
 
   testWidgets('shows error when animal does not exist', (tester) async {
@@ -216,7 +216,9 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('test-box-002').last);
+    await tester.tap(find.text('Box 2').last);
+
+    expect(find.text('test-box-001'), findsNothing);
 
     await tester.pumpAndSettle();
 

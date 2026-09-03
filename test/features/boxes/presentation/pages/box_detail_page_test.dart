@@ -116,11 +116,18 @@ void main() {
 
     await pumpPage(tester, box: box);
 
-    expect(find.text('Box Details'), findsOneWidget);
+    expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
+
+    expect(find.text('Box 1'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.byKey(const Key('box-qr-id')), 300);
 
     await tester.pumpAndSettle();
+
+    expect(
+      find.text('TM:BOX:12345678-1234-4123-8123-123456789abc'),
+      findsOneWidget,
+    );
 
     expect(find.byKey(const Key('box-qr-id')), findsOneWidget);
 
@@ -187,12 +194,12 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Box Details'), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
 
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    expect(find.text('Box Details'), findsNothing);
+    expect(find.text('Box 1'), findsNothing);
 
     expect(find.text('Open Box'), findsOneWidget);
   });

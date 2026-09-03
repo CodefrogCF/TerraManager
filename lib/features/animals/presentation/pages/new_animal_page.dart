@@ -10,6 +10,7 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/image_media_info.dart';
+import '../../../../core/boxes/box_label.dart';
 import '../widgets/animal_picture.dart';
 
 class NewAnimalPage extends StatefulWidget {
@@ -287,7 +288,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                   .map(
                     (box) => DropdownMenuItem<int>(
                       value: box.id,
-                      child: Text(box.qrId),
+                      child: Text(buildBoxLabel(box.id)),
                     ),
                   )
                   .toList(),

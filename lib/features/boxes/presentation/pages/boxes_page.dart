@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/boxes/box_label.dart';
 import 'box_detail_page.dart';
 import 'box_scanner_page.dart';
 import 'new_box_page.dart';
@@ -17,6 +18,28 @@ class BoxesPage extends StatefulWidget {
 
 class _BoxesPageState extends State<BoxesPage> {
   late Future<List<Box>> _boxesFuture;
+
+  String _formatDimensions(Box box) {
+    if (box.widthCm == null && box.heightCm == null && box.depthCm == null) {
+      return 'Dimensions not specified';
+    }
+
+    return '${_formatDimensionValue(box.widthCm)} × '
+        '${_formatDimensionValue(box.heightCm)} × '
+        '${_formatDimensionValue(box.depthCm)} cm';
+  }
+
+  String _formatDimensionValue(double? value) {
+    if (value == null) {
+      return '—';
+    }
+
+    if (value == value.roundToDouble()) {
+      return value.toInt().toString();
+    }
+
+    return value.toString();
+  }
 
   @override
   void initState() {
@@ -117,8 +140,12 @@ class _BoxesPageState extends State<BoxesPage> {
               return ListTile(
                 key: Key('box-list-item-${box.id}'),
                 leading: const Icon(Icons.home_outlined),
-                title: Text(box.qrId),
-                subtitle: Text('Box ID: ${box.id}'),
+                title: Text(
+                  buildBoxLabel(box.id),
+                  key: Key('box-label-${box.id}'),
+                ),
+                subtitle: Text(_formatDimensions(box)),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   _openBoxDetail(box);
                 },

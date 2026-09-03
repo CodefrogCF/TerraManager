@@ -123,7 +123,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('test-box-001').last);
+    await tester.tap(find.text('Box 1').last);
 
     await tester.pumpAndSettle();
 

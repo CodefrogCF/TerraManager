@@ -118,7 +118,6 @@ void main() {
 
     final updated = await repository.updateFeeding(
       feedingId: feedingId,
-      animalId: animalId,
       fedAt: DateTime(2026, 8, 21, 8, 15),
       notes: 'Neue Notiz',
     );
@@ -134,27 +133,8 @@ void main() {
   });
 
   test('updateFeeding returns false when feeding does not exist', () async {
-    final boxId = await database
-        .into(database.boxes)
-        .insert(BoxesCompanion.insert(qrId: 'missing-feeding-box'));
-
-    final animalId = await database
-        .into(database.animals)
-        .insert(
-          AnimalsCompanion.insert(
-            boxId: drift.Value(boxId),
-            commonName: 'Kornnatter',
-            latinName: 'Pantherophis guttatus',
-            tempMin: 24,
-            tempMax: 28,
-            humidityMin: 40,
-            humidityMax: 60,
-          ),
-        );
-
     final updated = await repository.updateFeeding(
       feedingId: 999,
-      animalId: animalId,
       fedAt: DateTime(2026, 8, 20, 7, 30),
       notes: 'Does not exist',
     );
@@ -310,5 +290,81 @@ void main() {
       feedings.map((feeding) => feeding.animalId),
       containsAll([firstAnimalId, secondAnimalId]),
     );
+  });
+
+  test('can clear feeding notes', () async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'feeding-clear-note-box'));
+
+    final animalId = await database
+        .into(database.animals)
+        .insert(
+          AnimalsCompanion.insert(
+            boxId: drift.Value(boxId),
+            commonName: 'Kornnatter',
+            latinName: 'Pantherophis guttatus',
+            tempMin: 24,
+            tempMax: 28,
+            humidityMin: 40,
+            humidityMax: 60,
+          ),
+        );
+
+    final feedingId = await repository.addFeeding(
+      animalId,
+      DateTime(2026, 8, 20, 7, 30),
+      notes: 'Existing note',
+    );
+
+    final updated = await repository.updateFeeding(
+      feedingId: feedingId,
+      fedAt: DateTime(2026, 8, 20, 7, 30),
+      notes: null,
+    );
+
+    expect(updated, isTrue);
+
+    final feeding = await repository.getFeedingById(feedingId);
+
+    expect(feeding, isNotNull);
+    expect(feeding!.animalId, animalId);
+    expect(feeding.notes, isNull);
+  });
+
+  test('updating feeding keeps animal assignment', () async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'feeding-animal-box'));
+
+    final animalId = await database
+        .into(database.animals)
+        .insert(
+          AnimalsCompanion.insert(
+            boxId: drift.Value(boxId),
+            commonName: 'Kornnatter',
+            latinName: 'Pantherophis guttatus',
+            tempMin: 24,
+            tempMax: 28,
+            humidityMin: 40,
+            humidityMax: 60,
+          ),
+        );
+
+    final feedingId = await repository.addFeeding(
+      animalId,
+      DateTime(2026, 8, 20, 12),
+    );
+
+    await repository.updateFeeding(
+      feedingId: feedingId,
+      fedAt: DateTime(2026, 8, 21, 13),
+      notes: 'Updated',
+    );
+
+    final feeding = await repository.getFeedingById(feedingId);
+
+    expect(feeding, isNotNull);
+    expect(feeding!.animalId, animalId);
   });
 }

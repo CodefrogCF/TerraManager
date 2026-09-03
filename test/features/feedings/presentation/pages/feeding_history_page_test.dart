@@ -173,4 +173,119 @@ void main() {
 
     expect(find.text('Add Feeding'), findsNothing);
   });
+
+  testWidgets('opens edit dialog with existing feeding data', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final feedingId = await FeedingRepository(database).addFeeding(
+      animalId,
+      DateTime(2026, 8, 20, 18, 30),
+      notes: 'Original note',
+    );
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.tap(find.byKey(Key('feeding-item-$feedingId')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit Feeding'), findsOneWidget);
+
+    expect(find.byKey(const Key('feeding-dialog')), findsOneWidget);
+
+    expect(find.text('20.08.2026 18:30'), findsWidgets);
+
+    final notesField = tester.widget<TextField>(
+      find.byKey(const Key('feeding-notes-field')),
+    );
+
+    expect(notesField.controller!.text, 'Original note');
+  });
+
+  testWidgets('edits feeding notes', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final feedingId = await FeedingRepository(database)
+        .addFeeding(animalId, DateTime(2026, 8, 20, 18, 30), notes: 'Old note');
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.tap(find.byKey(Key('feeding-item-$feedingId')));
+
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('feeding-notes-field')),
+      'Updated note',
+    );
+
+    await tester.tap(find.byKey(const Key('save-feeding-button')));
+
+    await tester.pumpAndSettle();
+
+    final feeding = await FeedingRepository(database).getFeedingById(feedingId);
+
+    expect(feeding, isNotNull);
+    expect(feeding!.notes, 'Updated note');
+
+    expect(find.text('Updated note'), findsOneWidget);
+
+    expect(find.text('Old note'), findsNothing);
+  });
+
+  testWidgets('can clear feeding notes while editing', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final feedingId = await FeedingRepository(
+      database,
+    ).addFeeding(animalId, DateTime(2026, 8, 20, 18, 30), notes: 'Remove me');
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.tap(find.byKey(Key('feeding-item-$feedingId')));
+
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byKey(const Key('feeding-notes-field')), '');
+
+    await tester.tap(find.byKey(const Key('save-feeding-button')));
+
+    await tester.pumpAndSettle();
+
+    final feeding = await FeedingRepository(database).getFeedingById(feedingId);
+
+    expect(feeding, isNotNull);
+    expect(feeding!.notes, isNull);
+
+    expect(find.text('Remove me'), findsNothing);
+  });
+
+  testWidgets('cancel edit leaves feeding unchanged', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final feedingId = await FeedingRepository(database)
+        .addFeeding(animalId, DateTime(2026, 8, 20, 18, 30), notes: 'Original');
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.tap(find.byKey(Key('feeding-item-$feedingId')));
+
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('feeding-notes-field')),
+      'Should not save',
+    );
+
+    await tester.tap(find.byKey(const Key('cancel-feeding-button')));
+
+    await tester.pumpAndSettle();
+
+    final feeding = await FeedingRepository(database).getFeedingById(feedingId);
+
+    expect(feeding, isNotNull);
+    expect(feeding!.notes, 'Original');
+
+    expect(find.text('Edit Feeding'), findsNothing);
+  });
 }

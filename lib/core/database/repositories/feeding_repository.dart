@@ -58,7 +58,6 @@ class FeedingRepository {
 
   Future<bool> updateFeeding({
     required int feedingId,
-    required int animalId,
     required DateTime fedAt,
     String? notes,
   }) async {
@@ -67,13 +66,12 @@ class FeedingRepository {
           database.feedingEvents,
         )..where((event) => event.id.equals(feedingId))).write(
           FeedingEventsCompanion(
-            animalId: Value(animalId),
             fedAt: Value(fedAt),
-            notes: Value.absentIfNull(notes),
+            notes: Value<String?>(notes),
           ),
         );
 
-    return updatedRows > 0;
+    return updatedRows == 1;
   }
 
   Future<bool> deleteFeeding(int feedingId) async {
@@ -81,6 +79,6 @@ class FeedingRepository {
       database.feedingEvents,
     )..where((event) => event.id.equals(feedingId))).go();
 
-    return deletedRows > 0;
+    return deletedRows == 1;
   }
 }

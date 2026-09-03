@@ -35,22 +35,41 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
     final created = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return _AddFeedingDialog(
+        return _FeedingDialog(
           database: widget.database,
           animalId: widget.animalId,
         );
       },
     );
 
-    if (!mounted) {
+    if (!mounted || created != true) {
       return;
     }
 
-    if (created == true) {
-      setState(() {
-        _loadFeedings();
-      });
+    setState(() {
+      _loadFeedings();
+    });
+  }
+
+  Future<void> _editFeeding(FeedingEvent feeding) async {
+    final changed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return _FeedingDialog(
+          database: widget.database,
+          animalId: widget.animalId,
+          feeding: feeding,
+        );
+      },
+    );
+
+    if (!mounted || changed != true) {
+      return;
     }
+
+    setState(() {
+      _loadFeedings();
+    });
   }
 
   @override
@@ -89,6 +108,10 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
                     feeding.notes != null && feeding.notes!.trim().isNotEmpty
                     ? Text(feeding.notes!)
                     : null,
+                trailing: const Icon(Icons.edit_outlined),
+                onTap: () {
+                  _editFeeding(feeding);
+                },
               );
             },
           );
@@ -104,44 +127,77 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
   }
 }
 
-class _AddFeedingDialog extends StatefulWidget {
+class _FeedingDialog extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
+  final FeedingEvent? feeding;
 
-  const _AddFeedingDialog({required this.database, required this.animalId});
+  const _FeedingDialog({
+    required this.database,
+    required this.animalId,
+    this.feeding,
+  });
+
+  bool get isEditing => feeding != null;
 
   @override
-  State<_AddFeedingDialog> createState() => _AddFeedingDialogState();
+  State<_FeedingDialog> createState() => _FeedingDialogState();
 }
 
-class _AddFeedingDialogState extends State<_AddFeedingDialog> {
+class _FeedingDialogState extends State<_FeedingDialog> {
   final _notesController = TextEditingController();
 
-  DateTime _fedAt = DateTime.now();
+  late DateTime _fedAt;
 
   bool _saving = false;
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+
+    final feeding = widget.feeding;
+
+    _fedAt = feeding?.fedAt ?? DateTime.now();
+
+    _notesController.text = feeding?.notes ?? '';
+  }
+
+  @override
   void dispose() {
     _notesController.dispose();
+
     super.dispose();
   }
 
   Future<void> _save() async {
+    if (_saving) {
+      return;
+    }
+
     setState(() {
       _saving = true;
       _error = null;
     });
 
     try {
-      await FeedingRepository(widget.database).addFeeding(
-        widget.animalId,
-        _fedAt,
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-      );
+      final notes = _notesController.text.trim();
+      final normalizedNotes = notes.isEmpty ? null : notes;
+
+      if (widget.isEditing) {
+        final updated = await FeedingRepository(widget.database).updateFeeding(
+          feedingId: widget.feeding!.id,
+          fedAt: _fedAt,
+          notes: normalizedNotes,
+        );
+
+        if (!updated) {
+          throw StateError('Feeding update failed');
+        }
+      } else {
+        await FeedingRepository(widget.database)
+            .addFeeding(widget.animalId, _fedAt, notes: normalizedNotes);
+      }
 
       if (!mounted) {
         return;
@@ -155,17 +211,23 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
 
       setState(() {
         _saving = false;
-        _error = 'Failed to save feeding event';
+        _error = widget.isEditing
+            ? 'Failed to update feeding event'
+            : 'Failed to save feeding event';
       });
     }
   }
 
   Future<void> _selectDateTime() async {
+    final now = DateTime.now();
+
+    final initialDate = _fedAt.isAfter(now) ? now : _fedAt;
+
     final date = await showDatePicker(
       context: context,
-      initialDate: _fedAt,
+      initialDate: initialDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      lastDate: now,
     );
 
     if (date == null || !mounted) {
@@ -181,21 +243,33 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
       return;
     }
 
+    final selected = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      time.hour,
+      time.minute,
+    );
+
+    if (selected.isAfter(DateTime.now())) {
+      setState(() {
+        _error = 'Feeding date and time cannot be in the future';
+      });
+
+      return;
+    }
+
     setState(() {
-      _fedAt = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        time.hour,
-        time.minute,
-      );
+      _fedAt = selected;
+      _error = null;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add Feeding'),
+      key: const Key('feeding-dialog'),
+      title: Text(widget.isEditing ? 'Edit Feeding' : 'Add Feeding'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -203,15 +277,20 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
             if (_error != null) ...[
               Text(
                 _error!,
+                key: const Key('feeding-dialog-error'),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               const SizedBox(height: 16),
             ],
+
             ListTile(
               key: const Key('feeding-date-time-field'),
               contentPadding: EdgeInsets.zero,
               title: const Text('Date and Time'),
-              subtitle: Text(_formatDateTime(_fedAt)),
+              subtitle: Text(
+                _formatDateTime(_fedAt),
+                key: const Key('feeding-date-time-value'),
+              ),
               trailing: IconButton(
                 key: const Key('feeding-date-time-button'),
                 onPressed: _saving ? null : _selectDateTime,
@@ -219,6 +298,7 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
               ),
             ),
             const SizedBox(height: 16),
+
             TextField(
               key: const Key('feeding-notes-field'),
               controller: _notesController,
@@ -234,6 +314,7 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
       ),
       actions: [
         TextButton(
+          key: const Key('cancel-feeding-button'),
           onPressed: _saving
               ? null
               : () {
@@ -253,10 +334,13 @@ class _AddFeedingDialogState extends State<_AddFeedingDialog> {
 
 String _formatDateTime(DateTime dateTime) {
   final day = dateTime.day.toString().padLeft(2, '0');
+
   final month = dateTime.month.toString().padLeft(2, '0');
+
   final year = dateTime.year.toString();
 
   final hour = dateTime.hour.toString().padLeft(2, '0');
+
   final minute = dateTime.minute.toString().padLeft(2, '0');
 
   return '$day.$month.$year $hour:$minute';

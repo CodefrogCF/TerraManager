@@ -1,7 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/media/image_media_info.dart';
+import '../widgets/box_picture.dart';
 
 class NewBoxPage extends StatefulWidget {
   final AppDatabase database;
@@ -13,17 +19,105 @@ class NewBoxPage extends StatefulWidget {
 }
 
 class _NewBoxPageState extends State<NewBoxPage> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _widthController = TextEditingController();
+  final _heightController = TextEditingController();
+  final _depthController = TextEditingController();
+
+  final ImagePicker _imagePicker = ImagePicker();
+
+  Uint8List? _pictureBytes;
+  String? _pictureFileName;
+  String? _pictureMimeType;
+
   bool _saving = false;
+
   String? _error;
 
+  @override
+  void dispose() {
+    _widthController.dispose();
+    _heightController.dispose();
+    _depthController.dispose();
+
+    super.dispose();
+  }
+
+  Future<void> _selectPicture() async {
+    try {
+      final image = await _imagePicker.pickImage(source: ImageSource.gallery);
+
+      if (image == null) {
+        return;
+      }
+
+      final bytes = await image.readAsBytes();
+      final info = ImageMediaInfo.fromXFile(image);
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _pictureBytes = bytes;
+        _pictureFileName = info.fileName;
+        _pictureMimeType = info.mimeType;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _error = 'Failed to select picture';
+      });
+    }
+  }
+
+  void _removePicture() {
+    setState(() {
+      _pictureBytes = null;
+      _pictureFileName = null;
+      _pictureMimeType = null;
+    });
+  }
+
   Future<void> _createBox() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     setState(() {
       _saving = true;
       _error = null;
     });
 
     try {
-      await BoxRepository(widget.database).createBoxWithGeneratedQrId();
+      final widthCm = _parseOptionalNumber(_widthController.text);
+
+      final heightCm = _parseOptionalNumber(_heightController.text);
+
+      final depthCm = _parseOptionalNumber(_depthController.text);
+
+      await widget.database.transaction(() async {
+        int? pictureMediaId;
+
+        if (_pictureBytes != null) {
+          pictureMediaId = await MediaRepository(widget.database).createMedia(
+            fileName: _pictureFileName ?? 'box.img',
+            mimeType: _pictureMimeType ?? 'application/octet-stream',
+            data: _pictureBytes!,
+          );
+        }
+
+        await BoxRepository(widget.database).createBoxWithGeneratedQrId(
+          widthCm: widthCm,
+          heightCm: heightCm,
+          depthCm: depthCm,
+          pictureMediaId: pictureMediaId,
+        );
+      });
 
       if (!mounted) {
         return;
@@ -46,73 +140,176 @@ class _NewBoxPageState extends State<NewBoxPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('New Box')),
-      body: Center(
+      body: Form(
+        key: _formKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(
-                  Icons.qr_code,
-                  size: 72,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(height: 24),
-
-                Text(
-                  'Create a new box',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 12),
-
-                Text(
-                  'A unique QR identifier will be generated automatically '
-                  'for this box.',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 8),
-
-                Text(
-                  'Format: TM:BOX:<UUID>',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-
-                if (_error != null) ...[
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 500),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Icon(
+                    Icons.qr_code,
+                    size: 72,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                   const SizedBox(height: 24),
+
                   Text(
-                    _error!,
+                    'Create a new box',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 12),
+
+                  Text(
+                    'A permanent unique QR identifier will be '
+                    'generated automatically.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 8),
+
+                  Text(
+                    'Format: TM:BOX:<UUID>',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 32),
+
+                  BoxPicture(
+                    key: const Key('new-box-picture'),
+                    pictureBytes: _pictureBytes,
+                  ),
+                  const SizedBox(height: 8),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          key: const Key('select-new-box-picture-button'),
+                          onPressed: _saving ? null : _selectPicture,
+                          icon: const Icon(Icons.photo_library_outlined),
+                          label: Text(
+                            _pictureBytes == null
+                                ? 'Select Picture'
+                                : 'Change Picture',
+                          ),
+                        ),
+                      ),
+                      if (_pictureBytes != null) ...[
+                        const SizedBox(width: 8),
+                        IconButton(
+                          key: const Key('remove-new-box-picture-button'),
+                          onPressed: _saving ? null : _removePicture,
+                          icon: const Icon(Icons.delete_outline),
+                          tooltip: 'Remove Picture',
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  Text(
+                    'Dimensions',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 16),
+
+                  _dimensionField(
+                    key: const Key('new-box-width-field'),
+                    controller: _widthController,
+                    label: 'Width (cm)',
+                  ),
+                  const SizedBox(height: 16),
+
+                  _dimensionField(
+                    key: const Key('new-box-height-field'),
+                    controller: _heightController,
+                    label: 'Height (cm)',
+                  ),
+                  const SizedBox(height: 16),
+
+                  _dimensionField(
+                    key: const Key('new-box-depth-field'),
+                    controller: _depthController,
+                    label: 'Depth (cm)',
+                  ),
+
+                  if (_error != null) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      _error!,
+                      key: const Key('new-box-error'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
+                  ],
+
+                  const SizedBox(height: 32),
+
+                  FilledButton.icon(
+                    key: const Key('create-box-button'),
+                    onPressed: _saving ? null : _createBox,
+                    icon: _saving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.add),
+                    label: Text(_saving ? 'Creating...' : 'Create Box'),
                   ),
                 ],
-
-                const SizedBox(height: 32),
-
-                FilledButton.icon(
-                  key: const Key('create-box-button'),
-                  onPressed: _saving ? null : _createBox,
-                  icon: _saving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.add),
-                  label: Text(_saving ? 'Creating...' : 'Create Box'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _dimensionField({
+    required Key key,
+    required TextEditingController controller,
+    required String label,
+  }) {
+    return TextFormField(
+      key: key,
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(labelText: label, helperText: 'Optional'),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return null;
+        }
+
+        final parsed = _parseOptionalNumber(value);
+
+        if (parsed == null) {
+          return 'Please enter a valid number';
+        }
+
+        if (parsed <= 0) {
+          return 'Value must be greater than 0';
+        }
+
+        return null;
+      },
+    );
+  }
+
+  double? _parseOptionalNumber(String value) {
+    final normalized = value.trim().replaceAll(',', '.');
+
+    if (normalized.isEmpty) {
+      return null;
+    }
+
+    return double.tryParse(normalized);
   }
 }

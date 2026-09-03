@@ -62,11 +62,18 @@ void main() {
 
     expect(
       find.text(
-        'A unique QR identifier will be generated automatically '
-        'for this box.',
+        'A permanent unique QR identifier will be generated automatically.',
       ),
       findsOneWidget,
     );
+
+    expect(find.byKey(const Key('new-box-picture')), findsOneWidget);
+
+    expect(find.byKey(const Key('new-box-width-field')), findsOneWidget);
+
+    expect(find.byKey(const Key('new-box-height-field')), findsOneWidget);
+
+    expect(find.byKey(const Key('new-box-depth-field')), findsOneWidget);
 
     expect(find.text('Format: TM:BOX:<UUID>'), findsOneWidget);
 
@@ -76,7 +83,15 @@ void main() {
   testWidgets('does not require manual QR ID', (tester) async {
     await pumpPage(tester);
 
-    expect(find.byType(TextFormField), findsNothing);
+    expect(find.byType(TextFormField), findsNWidgets(3));
+
+    expect(find.byKey(const Key('new-box-width-field')), findsOneWidget);
+
+    expect(find.byKey(const Key('new-box-height-field')), findsOneWidget);
+
+    expect(find.byKey(const Key('new-box-depth-field')), findsOneWidget);
+
+    expect(find.text('Format: TM:BOX:<UUID>'), findsOneWidget);
 
     expect(find.byKey(const Key('qr-id-field')), findsNothing);
   });
@@ -84,8 +99,12 @@ void main() {
   testWidgets('creates box with generated QR ID', (tester) async {
     await pumpPageWithNavigation(tester);
 
-    await tester.tap(find.byKey(const Key('create-box-button')));
+    final createButton = find.byKey(const Key('create-box-button'));
 
+    await tester.ensureVisible(createButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(createButton);
     await tester.pumpAndSettle();
 
     final boxes = await BoxRepository(database).getAllBoxes();
@@ -116,8 +135,12 @@ void main() {
   ) async {
     await pumpPageWithNavigation(tester);
 
-    await tester.tap(find.byKey(const Key('create-box-button')));
+    final createButton = find.byKey(const Key('create-box-button'));
 
+    await tester.ensureVisible(createButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(createButton);
     await tester.pumpAndSettle();
 
     expect(find.text('New Box'), findsNothing);

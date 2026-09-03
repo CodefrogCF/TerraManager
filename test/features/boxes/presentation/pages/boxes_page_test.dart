@@ -60,6 +60,10 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(find.byKey(const Key('box-qr-id')), 300);
+
+    await tester.pumpAndSettle();
+
     expect(find.text('Box Details'), findsOneWidget);
 
     expect(find.text('test-box-detail'), findsWidgets);
@@ -92,8 +96,12 @@ void main() {
 
     expect(find.text('New Box'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('create-box-button')));
+    final createButton = find.byKey(const Key('create-box-button'));
 
+    await tester.ensureVisible(createButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(createButton);
     await tester.pumpAndSettle();
 
     expect(find.text('Boxes'), findsOneWidget);

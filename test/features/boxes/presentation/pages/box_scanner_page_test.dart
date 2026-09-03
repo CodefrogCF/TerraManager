@@ -109,7 +109,16 @@ void main() {
 
     expect(find.text('Box Details'), findsOneWidget);
 
-    expect(find.text(qrId), findsOneWidget);
+    await tester.scrollUntilVisible(find.byKey(const Key('box-qr-id')), 300);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('box-qr-id')), findsOneWidget);
+
+    expect(
+      find.text('TM:BOX:12345678-1234-4123-8123-123456789abc'),
+      findsOneWidget,
+    );
 
     await tester.pageBack();
     await tester.pumpAndSettle();

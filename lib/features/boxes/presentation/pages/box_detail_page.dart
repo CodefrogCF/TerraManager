@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
 import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../animals/presentation/pages/animal_detail_page.dart';
+import 'box_edit_page.dart';
+import '../widgets/box_picture.dart';
 import '../widgets/box_qr_code.dart';
 
 class BoxDetailPage extends StatefulWidget {
@@ -31,7 +34,10 @@ class BoxDetailPage extends StatefulWidget {
 }
 
 class _BoxDetailPageState extends State<BoxDetailPage> {
+  late Box _box;
+
   late Future<List<Animal>> _animalsFuture;
+  late Future<MediaAsset?> _pictureFuture;
 
   bool _savingQr = false;
   bool _printingQr = false;
@@ -40,16 +46,81 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   String? _saveError;
   String? _printError;
   String? _deleteError;
+  String? _refreshError;
 
   @override
   void initState() {
     super.initState();
+
+    _box = widget.box;
+
     _loadAnimals();
+    _loadPicture();
   }
 
   void _loadAnimals() {
     _animalsFuture = AnimalRepository(widget.database)
-        .getAnimalsForBox(widget.box.id);
+        .getAnimalsForBox(_box.id);
+  }
+
+  void _loadPicture() {
+    final pictureMediaId = _box.pictureMediaId;
+
+    if (pictureMediaId == null) {
+      _pictureFuture = Future.value(null);
+      return;
+    }
+
+    _pictureFuture = MediaRepository(widget.database)
+        .getMediaById(pictureMediaId);
+  }
+
+  Future<void> _refreshBox() async {
+    try {
+      final box = await BoxRepository(widget.database).getBoxById(_box.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (box == null) {
+        setState(() {
+          _refreshError = 'Box no longer exists';
+        });
+
+        return;
+      }
+
+      setState(() {
+        _box = box;
+        _refreshError = null;
+
+        _loadPicture();
+        _loadAnimals();
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _refreshError = 'Failed to refresh box';
+      });
+    }
+  }
+
+  Future<void> _openEditPage() async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => BoxEditPage(database: widget.database, boxId: _box.id),
+      ),
+    );
+
+    if (!mounted || changed != true) {
+      return;
+    }
+
+    await _refreshBox();
   }
 
   Future<void> _openAnimalDetail(Animal animal) async {
@@ -76,9 +147,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     });
 
     try {
-      final pngBytes = await widget.qrExporter.exportPng(qrId: widget.box.qrId);
+      final pngBytes = await widget.qrExporter.exportPng(qrId: _box.qrId);
 
-      final fileName = buildBoxQrFileName(widget.box.qrId);
+      final fileName = buildBoxQrFileName(_box.qrId);
 
       await widget.qrStorage.savePng(bytes: pngBytes, fileName: fileName);
 
@@ -111,12 +182,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     });
 
     try {
-      final pngBytes = await widget.qrExporter.exportPng(qrId: widget.box.qrId);
+      final pngBytes = await widget.qrExporter.exportPng(qrId: _box.qrId);
 
-      await widget.qrPrinter.printQrCode(
-        pngBytes: pngBytes,
-        qrId: widget.box.qrId,
-      );
+      await widget.qrPrinter.printQrCode(pngBytes: pngBytes, qrId: _box.qrId);
 
       if (!mounted) {
         return;
@@ -151,10 +219,8 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     });
 
     try {
-      // Re-query the database instead of relying on the currently displayed
-      // list. This prevents deleting a box based on stale UI state.
       final animals = await AnimalRepository(widget.database)
-          .getAnimalsForBox(widget.box.id);
+          .getAnimalsForBox(_box.id);
 
       if (!mounted) {
         return;
@@ -162,6 +228,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
       if (animals.isNotEmpty) {
         await _showCannotDeleteDialog(animals.length);
+
         return;
       }
 
@@ -202,8 +269,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         _deleting = true;
       });
 
-      final deleted = await BoxRepository(widget.database)
-          .deleteBox(widget.box.id);
+      final deleted = await BoxRepository(widget.database).deleteBox(_box.id);
 
       if (!mounted) {
         return;
@@ -214,6 +280,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
           _deleting = false;
           _deleteError = 'Failed to delete box';
         });
+
         return;
       }
 
@@ -242,7 +309,8 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
           title: const Text('Cannot Delete Box'),
           content: Text(
             '$animalText\n\n'
-            'Move or delete the assigned animals before deleting the box.',
+            'Move or delete the assigned animals '
+            'before deleting the box.',
           ),
           actions: [
             TextButton(
@@ -260,12 +328,18 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final box = widget.box;
+    final box = _box;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Box Details'),
         actions: [
+          IconButton(
+            key: const Key('edit-box-button'),
+            onPressed: _deleting ? null : _openEditPage,
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Edit Box',
+          ),
           IconButton(
             key: const Key('save-qr-button'),
             onPressed: _savingQr ? null : _saveQrCode,
@@ -307,6 +381,15 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (_refreshError != null) ...[
+            Text(
+              _refreshError!,
+              key: const Key('box-refresh-error'),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            const SizedBox(height: 16),
+          ],
+
           if (_saveError != null) ...[
             Text(
               _saveError!,
@@ -333,6 +416,50 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             ),
             const SizedBox(height: 16),
           ],
+
+          FutureBuilder<MediaAsset?>(
+            future: _pictureFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SizedBox(
+                  height: 220,
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              return BoxPicture(
+                key: const Key('box-detail-picture'),
+                pictureBytes: snapshot.data?.data,
+                emptyText: snapshot.hasError
+                    ? 'Image unavailable'
+                    : 'No picture',
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+
+          Text('Dimensions', style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 12),
+
+          _DetailRow(
+            key: const Key('box-width-row'),
+            label: 'Width',
+            value: _formatDimension(box.widthCm),
+          ),
+
+          _DetailRow(
+            key: const Key('box-height-row'),
+            label: 'Height',
+            value: _formatDimension(box.heightCm),
+          ),
+
+          _DetailRow(
+            key: const Key('box-depth-row'),
+            label: 'Depth',
+            value: _formatDimension(box.depthCm),
+          ),
+
+          const SizedBox(height: 12),
 
           Center(
             child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
@@ -425,6 +552,18 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     );
   }
 
+  String _formatDimension(double? value) {
+    if (value == null) {
+      return 'Not specified';
+    }
+
+    final formatted = value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toString();
+
+    return '$formatted cm';
+  }
+
   String _formatDateTime(DateTime dateTime) {
     final day = dateTime.day.toString().padLeft(2, '0');
 
@@ -444,7 +583,7 @@ class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRow({required this.label, required this.value});
+  const _DetailRow({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {

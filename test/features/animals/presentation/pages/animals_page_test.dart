@@ -9,6 +9,7 @@ import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
+import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 
 void main() {
   late AppDatabase database;
@@ -218,5 +219,91 @@ void main() {
     expect(animals.length, 1);
 
     expect(animals.single.commonName, 'New Snake');
+  });
+
+  testWidgets('preserves scroll position after returning from animal detail', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+
+    for (var i = 1; i <= 30; i++) {
+      await createTestAnimal(
+        boxId: boxId,
+        commonName: 'Animal $i',
+        latinName: 'Species $i',
+      );
+    }
+
+    await pumpPage(tester);
+
+    final target = find.text('Animal 20');
+
+    await tester.scrollUntilVisible(target, 300);
+
+    await tester.pumpAndSettle();
+
+    final positionBefore = tester.getTopLeft(target).dy;
+
+    await tester.tap(target);
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Animal Details'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Animals'), findsOneWidget);
+
+    expect(target, findsOneWidget);
+
+    final positionAfter = tester.getTopLeft(target).dy;
+
+    expect(positionAfter, closeTo(positionBefore, 1.0));
+  });
+
+  testWidgets('restores scroll safely when animal list becomes shorter', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+
+    for (var i = 1; i <= 30; i++) {
+      await createTestAnimal(
+        boxId: boxId,
+        commonName: 'Animal $i',
+        latinName: 'Species $i',
+      );
+    }
+
+    await pumpPage(tester);
+
+    final target = find.text('Animal 30');
+
+    await tester.scrollUntilVisible(target, 300);
+
+    await tester.pumpAndSettle();
+
+    expect(target, findsOneWidget);
+
+    final animals = await AnimalRepository(database).getActiveAnimals();
+
+    for (final animal in animals.skip(15)) {
+      await AnimalRepository(database).archiveAnimal(
+        animalId: animal.id,
+        reason: AnimalArchiveReason.other,
+        archivedAt: DateTime(2026, 9, 3),
+      );
+    }
+
+    // Rebuild the page with the shorter active list.
+    await tester.pumpWidget(MaterialApp(home: AnimalsPage(database: database)));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Animals'), findsOneWidget);
+
+    expect(find.byType(ListView), findsOneWidget);
+
+    expect(tester.takeException(), isNull);
   });
 }

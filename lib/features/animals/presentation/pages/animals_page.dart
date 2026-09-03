@@ -20,6 +20,8 @@ class AnimalsPage extends StatefulWidget {
 class _AnimalsPageState extends State<AnimalsPage> {
   late Future<List<Animal>> _animalsFuture;
 
+  final ScrollController _scrollController = ScrollController();
+
   final Map<int, Future<MediaAsset?>> _pictureFutures = {};
 
   @override
@@ -28,10 +30,45 @@ class _AnimalsPageState extends State<AnimalsPage> {
     _loadAnimals();
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+
+    super.dispose();
+  }
+
   void _loadAnimals() {
     _pictureFutures.clear();
 
     _animalsFuture = AnimalRepository(widget.database).getActiveAnimals();
+  }
+
+  Future<void> _reloadAnimalsPreservingScroll(double previousOffset) async {
+    setState(() {
+      _loadAnimals();
+    });
+
+    try {
+      await _animalsFuture;
+    } catch (_) {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) {
+        return;
+      }
+
+      final maxOffset = _scrollController.position.maxScrollExtent;
+
+      final targetOffset = previousOffset.clamp(0.0, maxOffset);
+
+      _scrollController.jumpTo(targetOffset);
+    });
   }
 
   Future<MediaAsset?> _pictureFutureFor(int? mediaId) {
@@ -52,18 +89,20 @@ class _AnimalsPageState extends State<AnimalsPage> {
       ),
     );
 
-    if (!mounted) {
+    if (!mounted || created != true) {
       return;
     }
 
-    if (created == true) {
-      setState(() {
-        _loadAnimals();
-      });
-    }
+    setState(() {
+      _loadAnimals();
+    });
   }
 
   Future<void> _openAnimalDetail(Animal animal) async {
+    final previousOffset = _scrollController.hasClients
+        ? _scrollController.offset
+        : 0.0;
+
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) =>
@@ -75,12 +114,14 @@ class _AnimalsPageState extends State<AnimalsPage> {
       return;
     }
 
-    setState(() {
-      _loadAnimals();
-    });
+    await _reloadAnimalsPreservingScroll(previousOffset);
   }
 
   Future<void> _openAnimalHistory() async {
+    final previousOffset = _scrollController.hasClients
+        ? _scrollController.offset
+        : 0.0;
+
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => AnimalHistoryPage(database: widget.database),
@@ -91,9 +132,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
       return;
     }
 
-    setState(() {
-      _loadAnimals();
-    });
+    await _reloadAnimalsPreservingScroll(previousOffset);
   }
 
   @override
@@ -128,6 +167,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
           }
 
           return ListView.builder(
+            key: const PageStorageKey<String>('animals-overview-list'),
+            controller: _scrollController,
             itemCount: animals.length,
             itemBuilder: (context, index) {
               final animal = animals[index];

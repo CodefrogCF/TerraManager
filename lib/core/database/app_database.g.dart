@@ -3,300 +3,6 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $BoxesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _qrIdMeta = const VerificationMeta('qrId');
-  @override
-  late final GeneratedColumn<String> qrId = GeneratedColumn<String>(
-    'qr_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [id, qrId, createdAt, updatedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'boxes';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Box> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('qr_id')) {
-      context.handle(
-        _qrIdMeta,
-        qrId.isAcceptableOrUnknown(data['qr_id']!, _qrIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_qrIdMeta);
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Box map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Box(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      qrId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}qr_id'],
-      )!,
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-    );
-  }
-
-  @override
-  $BoxesTable createAlias(String alias) {
-    return $BoxesTable(attachedDatabase, alias);
-  }
-}
-
-class Box extends DataClass implements Insertable<Box> {
-  final int id;
-  final String qrId;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  const Box({
-    required this.id,
-    required this.qrId,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    map['qr_id'] = Variable<String>(qrId);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    return map;
-  }
-
-  BoxesCompanion toCompanion(bool nullToAbsent) {
-    return BoxesCompanion(
-      id: Value(id),
-      qrId: Value(qrId),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-    );
-  }
-
-  factory Box.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Box(
-      id: serializer.fromJson<int>(json['id']),
-      qrId: serializer.fromJson<String>(json['qrId']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'qrId': serializer.toJson<String>(qrId),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-    };
-  }
-
-  Box copyWith({
-    int? id,
-    String? qrId,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) => Box(
-    id: id ?? this.id,
-    qrId: qrId ?? this.qrId,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
-  Box copyWithCompanion(BoxesCompanion data) {
-    return Box(
-      id: data.id.present ? data.id.value : this.id,
-      qrId: data.qrId.present ? data.qrId.value : this.qrId,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Box(')
-          ..write('id: $id, ')
-          ..write('qrId: $qrId, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, qrId, createdAt, updatedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Box &&
-          other.id == this.id &&
-          other.qrId == this.qrId &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
-}
-
-class BoxesCompanion extends UpdateCompanion<Box> {
-  final Value<int> id;
-  final Value<String> qrId;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  const BoxesCompanion({
-    this.id = const Value.absent(),
-    this.qrId = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  });
-  BoxesCompanion.insert({
-    this.id = const Value.absent(),
-    required String qrId,
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-  }) : qrId = Value(qrId);
-  static Insertable<Box> custom({
-    Expression<int>? id,
-    Expression<String>? qrId,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (qrId != null) 'qr_id': qrId,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-    });
-  }
-
-  BoxesCompanion copyWith({
-    Value<int>? id,
-    Value<String>? qrId,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-  }) {
-    return BoxesCompanion(
-      id: id ?? this.id,
-      qrId: qrId ?? this.qrId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (qrId.present) {
-      map['qr_id'] = Variable<String>(qrId.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('BoxesCompanion(')
-          ..write('id: $id, ')
-          ..write('qrId: $qrId, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $MediaAssetsTable extends MediaAssets
     with TableInfo<$MediaAssetsTable, MediaAsset> {
   @override
@@ -690,6 +396,516 @@ class MediaAssetsCompanion extends UpdateCompanion<MediaAsset> {
           ..write('fileName: $fileName, ')
           ..write('mimeType: $mimeType, ')
           ..write('data: $data, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoxesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _qrIdMeta = const VerificationMeta('qrId');
+  @override
+  late final GeneratedColumn<String> qrId = GeneratedColumn<String>(
+    'qr_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _widthCmMeta = const VerificationMeta(
+    'widthCm',
+  );
+  @override
+  late final GeneratedColumn<double> widthCm = GeneratedColumn<double>(
+    'width_cm',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _heightCmMeta = const VerificationMeta(
+    'heightCm',
+  );
+  @override
+  late final GeneratedColumn<double> heightCm = GeneratedColumn<double>(
+    'height_cm',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _depthCmMeta = const VerificationMeta(
+    'depthCm',
+  );
+  @override
+  late final GeneratedColumn<double> depthCm = GeneratedColumn<double>(
+    'depth_cm',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pictureMediaIdMeta = const VerificationMeta(
+    'pictureMediaId',
+  );
+  @override
+  late final GeneratedColumn<int> pictureMediaId = GeneratedColumn<int>(
+    'picture_media_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES media_assets (id)',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    qrId,
+    widthCm,
+    heightCm,
+    depthCm,
+    pictureMediaId,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'boxes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Box> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('qr_id')) {
+      context.handle(
+        _qrIdMeta,
+        qrId.isAcceptableOrUnknown(data['qr_id']!, _qrIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_qrIdMeta);
+    }
+    if (data.containsKey('width_cm')) {
+      context.handle(
+        _widthCmMeta,
+        widthCm.isAcceptableOrUnknown(data['width_cm']!, _widthCmMeta),
+      );
+    }
+    if (data.containsKey('height_cm')) {
+      context.handle(
+        _heightCmMeta,
+        heightCm.isAcceptableOrUnknown(data['height_cm']!, _heightCmMeta),
+      );
+    }
+    if (data.containsKey('depth_cm')) {
+      context.handle(
+        _depthCmMeta,
+        depthCm.isAcceptableOrUnknown(data['depth_cm']!, _depthCmMeta),
+      );
+    }
+    if (data.containsKey('picture_media_id')) {
+      context.handle(
+        _pictureMediaIdMeta,
+        pictureMediaId.isAcceptableOrUnknown(
+          data['picture_media_id']!,
+          _pictureMediaIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Box map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Box(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      qrId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}qr_id'],
+      )!,
+      widthCm: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}width_cm'],
+      ),
+      heightCm: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}height_cm'],
+      ),
+      depthCm: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}depth_cm'],
+      ),
+      pictureMediaId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}picture_media_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $BoxesTable createAlias(String alias) {
+    return $BoxesTable(attachedDatabase, alias);
+  }
+}
+
+class Box extends DataClass implements Insertable<Box> {
+  final int id;
+  final String qrId;
+  final double? widthCm;
+  final double? heightCm;
+  final double? depthCm;
+  final int? pictureMediaId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const Box({
+    required this.id,
+    required this.qrId,
+    this.widthCm,
+    this.heightCm,
+    this.depthCm,
+    this.pictureMediaId,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['qr_id'] = Variable<String>(qrId);
+    if (!nullToAbsent || widthCm != null) {
+      map['width_cm'] = Variable<double>(widthCm);
+    }
+    if (!nullToAbsent || heightCm != null) {
+      map['height_cm'] = Variable<double>(heightCm);
+    }
+    if (!nullToAbsent || depthCm != null) {
+      map['depth_cm'] = Variable<double>(depthCm);
+    }
+    if (!nullToAbsent || pictureMediaId != null) {
+      map['picture_media_id'] = Variable<int>(pictureMediaId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  BoxesCompanion toCompanion(bool nullToAbsent) {
+    return BoxesCompanion(
+      id: Value(id),
+      qrId: Value(qrId),
+      widthCm: widthCm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(widthCm),
+      heightCm: heightCm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(heightCm),
+      depthCm: depthCm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(depthCm),
+      pictureMediaId: pictureMediaId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pictureMediaId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory Box.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Box(
+      id: serializer.fromJson<int>(json['id']),
+      qrId: serializer.fromJson<String>(json['qrId']),
+      widthCm: serializer.fromJson<double?>(json['widthCm']),
+      heightCm: serializer.fromJson<double?>(json['heightCm']),
+      depthCm: serializer.fromJson<double?>(json['depthCm']),
+      pictureMediaId: serializer.fromJson<int?>(json['pictureMediaId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'qrId': serializer.toJson<String>(qrId),
+      'widthCm': serializer.toJson<double?>(widthCm),
+      'heightCm': serializer.toJson<double?>(heightCm),
+      'depthCm': serializer.toJson<double?>(depthCm),
+      'pictureMediaId': serializer.toJson<int?>(pictureMediaId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  Box copyWith({
+    int? id,
+    String? qrId,
+    Value<double?> widthCm = const Value.absent(),
+    Value<double?> heightCm = const Value.absent(),
+    Value<double?> depthCm = const Value.absent(),
+    Value<int?> pictureMediaId = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => Box(
+    id: id ?? this.id,
+    qrId: qrId ?? this.qrId,
+    widthCm: widthCm.present ? widthCm.value : this.widthCm,
+    heightCm: heightCm.present ? heightCm.value : this.heightCm,
+    depthCm: depthCm.present ? depthCm.value : this.depthCm,
+    pictureMediaId: pictureMediaId.present
+        ? pictureMediaId.value
+        : this.pictureMediaId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  Box copyWithCompanion(BoxesCompanion data) {
+    return Box(
+      id: data.id.present ? data.id.value : this.id,
+      qrId: data.qrId.present ? data.qrId.value : this.qrId,
+      widthCm: data.widthCm.present ? data.widthCm.value : this.widthCm,
+      heightCm: data.heightCm.present ? data.heightCm.value : this.heightCm,
+      depthCm: data.depthCm.present ? data.depthCm.value : this.depthCm,
+      pictureMediaId: data.pictureMediaId.present
+          ? data.pictureMediaId.value
+          : this.pictureMediaId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Box(')
+          ..write('id: $id, ')
+          ..write('qrId: $qrId, ')
+          ..write('widthCm: $widthCm, ')
+          ..write('heightCm: $heightCm, ')
+          ..write('depthCm: $depthCm, ')
+          ..write('pictureMediaId: $pictureMediaId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    qrId,
+    widthCm,
+    heightCm,
+    depthCm,
+    pictureMediaId,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Box &&
+          other.id == this.id &&
+          other.qrId == this.qrId &&
+          other.widthCm == this.widthCm &&
+          other.heightCm == this.heightCm &&
+          other.depthCm == this.depthCm &&
+          other.pictureMediaId == this.pictureMediaId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class BoxesCompanion extends UpdateCompanion<Box> {
+  final Value<int> id;
+  final Value<String> qrId;
+  final Value<double?> widthCm;
+  final Value<double?> heightCm;
+  final Value<double?> depthCm;
+  final Value<int?> pictureMediaId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const BoxesCompanion({
+    this.id = const Value.absent(),
+    this.qrId = const Value.absent(),
+    this.widthCm = const Value.absent(),
+    this.heightCm = const Value.absent(),
+    this.depthCm = const Value.absent(),
+    this.pictureMediaId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  BoxesCompanion.insert({
+    this.id = const Value.absent(),
+    required String qrId,
+    this.widthCm = const Value.absent(),
+    this.heightCm = const Value.absent(),
+    this.depthCm = const Value.absent(),
+    this.pictureMediaId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  }) : qrId = Value(qrId);
+  static Insertable<Box> custom({
+    Expression<int>? id,
+    Expression<String>? qrId,
+    Expression<double>? widthCm,
+    Expression<double>? heightCm,
+    Expression<double>? depthCm,
+    Expression<int>? pictureMediaId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (qrId != null) 'qr_id': qrId,
+      if (widthCm != null) 'width_cm': widthCm,
+      if (heightCm != null) 'height_cm': heightCm,
+      if (depthCm != null) 'depth_cm': depthCm,
+      if (pictureMediaId != null) 'picture_media_id': pictureMediaId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  BoxesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? qrId,
+    Value<double?>? widthCm,
+    Value<double?>? heightCm,
+    Value<double?>? depthCm,
+    Value<int?>? pictureMediaId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return BoxesCompanion(
+      id: id ?? this.id,
+      qrId: qrId ?? this.qrId,
+      widthCm: widthCm ?? this.widthCm,
+      heightCm: heightCm ?? this.heightCm,
+      depthCm: depthCm ?? this.depthCm,
+      pictureMediaId: pictureMediaId ?? this.pictureMediaId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (qrId.present) {
+      map['qr_id'] = Variable<String>(qrId.value);
+    }
+    if (widthCm.present) {
+      map['width_cm'] = Variable<double>(widthCm.value);
+    }
+    if (heightCm.present) {
+      map['height_cm'] = Variable<double>(heightCm.value);
+    }
+    if (depthCm.present) {
+      map['depth_cm'] = Variable<double>(depthCm.value);
+    }
+    if (pictureMediaId.present) {
+      map['picture_media_id'] = Variable<int>(pictureMediaId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoxesCompanion(')
+          ..write('id: $id, ')
+          ..write('qrId: $qrId, ')
+          ..write('widthCm: $widthCm, ')
+          ..write('heightCm: $heightCm, ')
+          ..write('depthCm: $depthCm, ')
+          ..write('pictureMediaId: $pictureMediaId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2139,8 +2355,8 @@ class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $BoxesTable boxes = $BoxesTable(this);
   late final $MediaAssetsTable mediaAssets = $MediaAssetsTable(this);
+  late final $BoxesTable boxes = $BoxesTable(this);
   late final $AnimalsTable animals = $AnimalsTable(this);
   late final $FeedingEventsTable feedingEvents = $FeedingEventsTable(this);
   @override
@@ -2148,278 +2364,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    boxes,
     mediaAssets,
+    boxes,
     animals,
     feedingEvents,
   ];
 }
 
-typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
-  Value<int> id,
-  required String qrId,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
-});
-typedef $$BoxesTableUpdateCompanionBuilder = BoxesCompanion Function({
-  Value<int> id,
-  Value<String> qrId,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
-});
-
-final class $$BoxesTableReferences
-    extends BaseReferences<_$AppDatabase, $BoxesTable, Box> {
-  $$BoxesTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$AnimalsTable, List<Animal>> _animalsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.animals,
-    aliasName: 'boxes__id__animals__box_id',
-  );
-
-  $$AnimalsTableProcessedTableManager get animalsRefs {
-    final manager = $$AnimalsTableTableManager(
-      $_db,
-      $_db.animals,
-    ).filter((f) => f.boxId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_animalsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
-class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
-  $$BoxesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get qrId => $composableBuilder(
-    column: $table.qrId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  Expression<bool> animalsRefs(
-    Expression<bool> Function($$AnimalsTableFilterComposer f) f,
-  ) {
-    final $$AnimalsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.animals,
-      getReferencedColumn: (t) => t.boxId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AnimalsTableFilterComposer(
-            $db: $db,
-            $table: $db.animals,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$BoxesTableOrderingComposer
-    extends Composer<_$AppDatabase, $BoxesTable> {
-  $$BoxesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get qrId => $composableBuilder(
-    column: $table.qrId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$BoxesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $BoxesTable> {
-  $$BoxesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get qrId =>
-      $composableBuilder(column: $table.qrId, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  Expression<T> animalsRefs<T extends Object>(
-    Expression<T> Function($$AnimalsTableAnnotationComposer a) f,
-  ) {
-    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.animals,
-      getReferencedColumn: (t) => t.boxId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$AnimalsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.animals,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-}
-
-class $$BoxesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $BoxesTable,
-          Box,
-          $$BoxesTableFilterComposer,
-          $$BoxesTableOrderingComposer,
-          $$BoxesTableAnnotationComposer,
-          $$BoxesTableCreateCompanionBuilder,
-          $$BoxesTableUpdateCompanionBuilder,
-          (Box, $$BoxesTableReferences),
-          Box,
-          PrefetchHooks Function({bool animalsRefs})
-        > {
-  $$BoxesTableTableManager(_$AppDatabase db, $BoxesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$BoxesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$BoxesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$BoxesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<String> qrId = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-              }) => BoxesCompanion(
-                id: id,
-                qrId: qrId,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required String qrId,
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-              }) => BoxesCompanion.insert(
-                id: id,
-                qrId: qrId,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) =>
-                    (e.readTable(table), $$BoxesTableReferences(db, table, e)),
-              )
-              .toList(),
-          prefetchHooksCallback: ({animalsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (animalsRefs) db.animals],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (animalsRefs)
-                    await $_getPrefetchedData<Box, $BoxesTable, Animal>(
-                      currentTable: table,
-                      referencedTable: $$BoxesTableReferences._animalsRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$BoxesTableReferences(db, table, p0).animalsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.boxId == item.id),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
-        ),
-      );
-}
-
-typedef $$BoxesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $BoxesTable,
-      Box,
-      $$BoxesTableFilterComposer,
-      $$BoxesTableOrderingComposer,
-      $$BoxesTableAnnotationComposer,
-      $$BoxesTableCreateCompanionBuilder,
-      $$BoxesTableUpdateCompanionBuilder,
-      (Box, $$BoxesTableReferences),
-      Box,
-      PrefetchHooks Function({bool animalsRefs})
-    >;
 typedef $$MediaAssetsTableCreateCompanionBuilder =
     MediaAssetsCompanion Function({
       Value<int> id,
@@ -2442,6 +2393,25 @@ typedef $$MediaAssetsTableUpdateCompanionBuilder =
 final class $$MediaAssetsTableReferences
     extends BaseReferences<_$AppDatabase, $MediaAssetsTable, MediaAsset> {
   $$MediaAssetsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$BoxesTable, List<Box>> _boxesRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.boxes,
+    aliasName: 'media_assets__id__boxes__picture_media_id',
+  );
+
+  $$BoxesTableProcessedTableManager get boxesRefs {
+    final manager = $$BoxesTableTableManager(
+      $_db,
+      $_db.boxes,
+    ).filter((f) => f.pictureMediaId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_boxesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 
   static MultiTypedResultKey<$AnimalsTable, List<Animal>> _animalsRefsTable(
     _$AppDatabase db,
@@ -2501,6 +2471,31 @@ class $$MediaAssetsTableFilterComposer
     column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> boxesRefs(
+    Expression<bool> Function($$BoxesTableFilterComposer f) f,
+  ) {
+    final $$BoxesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.pictureMediaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableFilterComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 
   Expression<bool> animalsRefs(
     Expression<bool> Function($$AnimalsTableFilterComposer f) f,
@@ -2595,6 +2590,31 @@ class $$MediaAssetsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  Expression<T> boxesRefs<T extends Object>(
+    Expression<T> Function($$BoxesTableAnnotationComposer a) f,
+  ) {
+    final $$BoxesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.pictureMediaId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> animalsRefs<T extends Object>(
     Expression<T> Function($$AnimalsTableAnnotationComposer a) f,
   ) {
@@ -2634,7 +2654,7 @@ class $$MediaAssetsTableTableManager
           $$MediaAssetsTableUpdateCompanionBuilder,
           (MediaAsset, $$MediaAssetsTableReferences),
           MediaAsset,
-          PrefetchHooks Function({bool animalsRefs})
+          PrefetchHooks Function({bool boxesRefs, bool animalsRefs})
         > {
   $$MediaAssetsTableTableManager(_$AppDatabase db, $MediaAssetsTable table)
     : super(
@@ -2687,13 +2707,33 @@ class $$MediaAssetsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({animalsRefs = false}) {
+          prefetchHooksCallback: ({boxesRefs = false, animalsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (animalsRefs) db.animals],
+              explicitlyWatchedTables: [
+                if (boxesRefs) db.boxes,
+                if (animalsRefs) db.animals,
+              ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
+                  if (boxesRefs)
+                    await $_getPrefetchedData<
+                      MediaAsset,
+                      $MediaAssetsTable,
+                      Box
+                    >(
+                      currentTable: table,
+                      referencedTable: $$MediaAssetsTableReferences
+                          ._boxesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$MediaAssetsTableReferences(db, table, p0).boxesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.pictureMediaId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                   if (animalsRefs)
                     await $_getPrefetchedData<
                       MediaAsset,
@@ -2735,7 +2775,452 @@ typedef $$MediaAssetsTableProcessedTableManager =
       $$MediaAssetsTableUpdateCompanionBuilder,
       (MediaAsset, $$MediaAssetsTableReferences),
       MediaAsset,
-      PrefetchHooks Function({bool animalsRefs})
+      PrefetchHooks Function({bool boxesRefs, bool animalsRefs})
+    >;
+typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
+  Value<int> id,
+  required String qrId,
+  Value<double?> widthCm,
+  Value<double?> heightCm,
+  Value<double?> depthCm,
+  Value<int?> pictureMediaId,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+typedef $$BoxesTableUpdateCompanionBuilder = BoxesCompanion Function({
+  Value<int> id,
+  Value<String> qrId,
+  Value<double?> widthCm,
+  Value<double?> heightCm,
+  Value<double?> depthCm,
+  Value<int?> pictureMediaId,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+});
+
+final class $$BoxesTableReferences
+    extends BaseReferences<_$AppDatabase, $BoxesTable, Box> {
+  $$BoxesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $MediaAssetsTable _pictureMediaIdTable(_$AppDatabase db) =>
+      db.mediaAssets.createAlias('boxes__picture_media_id__media_assets__id');
+
+  $$MediaAssetsTableProcessedTableManager? get pictureMediaId {
+    final $_column = $_itemColumn<int>('picture_media_id');
+    if ($_column == null) return null;
+    final manager = $$MediaAssetsTableTableManager(
+      $_db,
+      $_db.mediaAssets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_pictureMediaIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$AnimalsTable, List<Animal>> _animalsRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.animals,
+    aliasName: 'boxes__id__animals__box_id',
+  );
+
+  $$AnimalsTableProcessedTableManager get animalsRefs {
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.boxId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_animalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
+  $$BoxesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get qrId => $composableBuilder(
+    column: $table.qrId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get widthCm => $composableBuilder(
+    column: $table.widthCm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get heightCm => $composableBuilder(
+    column: $table.heightCm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get depthCm => $composableBuilder(
+    column: $table.depthCm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MediaAssetsTableFilterComposer get pictureMediaId {
+    final $$MediaAssetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.pictureMediaId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableFilterComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> animalsRefs(
+    Expression<bool> Function($$AnimalsTableFilterComposer f) f,
+  ) {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.boxId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$BoxesTableOrderingComposer
+    extends Composer<_$AppDatabase, $BoxesTable> {
+  $$BoxesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get qrId => $composableBuilder(
+    column: $table.qrId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get widthCm => $composableBuilder(
+    column: $table.widthCm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get heightCm => $composableBuilder(
+    column: $table.heightCm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get depthCm => $composableBuilder(
+    column: $table.depthCm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MediaAssetsTableOrderingComposer get pictureMediaId {
+    final $$MediaAssetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.pictureMediaId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BoxesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BoxesTable> {
+  $$BoxesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get qrId =>
+      $composableBuilder(column: $table.qrId, builder: (column) => column);
+
+  GeneratedColumn<double> get widthCm =>
+      $composableBuilder(column: $table.widthCm, builder: (column) => column);
+
+  GeneratedColumn<double> get heightCm =>
+      $composableBuilder(column: $table.heightCm, builder: (column) => column);
+
+  GeneratedColumn<double> get depthCm =>
+      $composableBuilder(column: $table.depthCm, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$MediaAssetsTableAnnotationComposer get pictureMediaId {
+    final $$MediaAssetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.pictureMediaId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> animalsRefs<T extends Object>(
+    Expression<T> Function($$AnimalsTableAnnotationComposer a) f,
+  ) {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.boxId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$BoxesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BoxesTable,
+          Box,
+          $$BoxesTableFilterComposer,
+          $$BoxesTableOrderingComposer,
+          $$BoxesTableAnnotationComposer,
+          $$BoxesTableCreateCompanionBuilder,
+          $$BoxesTableUpdateCompanionBuilder,
+          (Box, $$BoxesTableReferences),
+          Box,
+          PrefetchHooks Function({bool pictureMediaId, bool animalsRefs})
+        > {
+  $$BoxesTableTableManager(_$AppDatabase db, $BoxesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoxesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoxesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoxesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> qrId = const Value.absent(),
+                Value<double?> widthCm = const Value.absent(),
+                Value<double?> heightCm = const Value.absent(),
+                Value<double?> depthCm = const Value.absent(),
+                Value<int?> pictureMediaId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => BoxesCompanion(
+                id: id,
+                qrId: qrId,
+                widthCm: widthCm,
+                heightCm: heightCm,
+                depthCm: depthCm,
+                pictureMediaId: pictureMediaId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String qrId,
+                Value<double?> widthCm = const Value.absent(),
+                Value<double?> heightCm = const Value.absent(),
+                Value<double?> depthCm = const Value.absent(),
+                Value<int?> pictureMediaId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => BoxesCompanion.insert(
+                id: id,
+                qrId: qrId,
+                widthCm: widthCm,
+                heightCm: heightCm,
+                depthCm: depthCm,
+                pictureMediaId: pictureMediaId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$BoxesTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({pictureMediaId = false, animalsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [if (animalsRefs) db.animals],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (pictureMediaId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.pictureMediaId,
+                            referencedTable: $$BoxesTableReferences
+                                ._pictureMediaIdTable(db),
+                            referencedColumn: $$BoxesTableReferences
+                                ._pictureMediaIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (animalsRefs)
+                        await $_getPrefetchedData<Box, $BoxesTable, Animal>(
+                          currentTable: table,
+                          referencedTable: $$BoxesTableReferences
+                              ._animalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BoxesTableReferences(db, table, p0).animalsRefs,
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.boxId == item.id),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$BoxesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BoxesTable,
+      Box,
+      $$BoxesTableFilterComposer,
+      $$BoxesTableOrderingComposer,
+      $$BoxesTableAnnotationComposer,
+      $$BoxesTableCreateCompanionBuilder,
+      $$BoxesTableUpdateCompanionBuilder,
+      (Box, $$BoxesTableReferences),
+      Box,
+      PrefetchHooks Function({bool pictureMediaId, bool animalsRefs})
     >;
 typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<int> id,
@@ -3846,10 +4331,10 @@ typedef $$FeedingEventsTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$BoxesTableTableManager get boxes =>
-      $$BoxesTableTableManager(_db, _db.boxes);
   $$MediaAssetsTableTableManager get mediaAssets =>
       $$MediaAssetsTableTableManager(_db, _db.mediaAssets);
+  $$BoxesTableTableManager get boxes =>
+      $$BoxesTableTableManager(_db, _db.boxes);
   $$AnimalsTableTableManager get animals =>
       $$AnimalsTableTableManager(_db, _db.animals);
   $$FeedingEventsTableTableManager get feedingEvents =>

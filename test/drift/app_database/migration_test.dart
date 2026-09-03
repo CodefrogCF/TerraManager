@@ -11,6 +11,7 @@ import 'generated/schema.dart';
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
+import 'generated/schema_v4.dart' as v4;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -280,6 +281,79 @@ void main() {
           // No MediaAsset is fabricated during
           // the schema migration.
           expect(animals.single.pictureMediaId, isNull);
+        },
+      );
+    },
+  );
+
+  test(
+    'migration from v3 to v4 preserves existing boxes and adds box metadata',
+    () async {
+      int unixSeconds(DateTime value) {
+        return value.millisecondsSinceEpoch ~/ 1000;
+      }
+
+      final createdAt = unixSeconds(
+        DateTime(2026, 9, 2, 10),
+      );
+
+      final updatedAt = unixSeconds(
+        DateTime(2026, 9, 3, 8),
+      );
+
+      final oldBoxesData = <v3.BoxesData>[
+        v3.BoxesData(
+          id: 1,
+          qrId: 'TM:BOX:12345678-1234-4123-8123-123456789abc',
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        ),
+      ];
+
+      final expectedBoxes = <v4.BoxesData>[
+        v4.BoxesData(
+          id: 1,
+          qrId: 'TM:BOX:12345678-1234-4123-8123-123456789abc',
+          widthCm: null,
+          heightCm: null,
+          depthCm: null,
+          pictureMediaId: null,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        ),
+      ];
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 3,
+        newVersion: 4,
+        createOld: v3.DatabaseAtV3.new,
+        createNew: v4.DatabaseAtV4.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) {
+          batch.insertAll(
+            oldDb.boxes,
+            oldBoxesData,
+          );
+        },
+        validateItems: (newDb) async {
+          final boxes =
+              await newDb.select(newDb.boxes).get();
+
+          expect(boxes, expectedBoxes);
+
+          expect(boxes.single.widthCm, isNull);
+          expect(boxes.single.heightCm, isNull);
+          expect(boxes.single.depthCm, isNull);
+          expect(
+            boxes.single.pictureMediaId,
+            isNull,
+          );
+
+          // Permanent QR identifier survives unchanged.
+          expect(
+            boxes.single.qrId,
+            'TM:BOX:12345678-1234-4123-8123-123456789abc',
+          );
         },
       );
     },

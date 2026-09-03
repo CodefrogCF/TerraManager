@@ -62,7 +62,6 @@ class AppDatabase extends _$AppDatabase {
                   ),
                 );
               },
-
               from2To3: (m, schema) async {
                 await m.createTable(schema.mediaAssets);
 
@@ -70,6 +69,15 @@ class AppDatabase extends _$AppDatabase {
                   schema.animals,
                   schema.animals.pictureMediaId,
                 );
+              },
+              from3To4: (m, schema) async {
+                await m.addColumn(schema.boxes, schema.boxes.widthCm);
+
+                await m.addColumn(schema.boxes, schema.boxes.heightCm);
+
+                await m.addColumn(schema.boxes, schema.boxes.depthCm);
+
+                await m.addColumn(schema.boxes, schema.boxes.pictureMediaId);
               },
             ),
           );
@@ -95,5 +103,5 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 }

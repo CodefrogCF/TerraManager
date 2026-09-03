@@ -2,11 +2,14 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
+The current Drift database schema version is **3**.
+
 The current database model consists of:
 
-- boxes
-- animals
-- feeding events
+- Boxes
+- Animals
+- FeedingEvents
+- MediaAssets
 
 Sensors are planned but are not implemented.
 
@@ -17,15 +20,19 @@ Box
  │
  └──── 1:n ──── Active Animal
                    │
-                   └──── 1:n ──── FeedingEvent
+                   ├──── 1:n ──── FeedingEvent
+                   │
+                   └──── 0:1 ──── MediaAsset
 
 Archived Animal
  │
  ├── boxId = null
- └──── 1:n ──── FeedingEvent
+ ├──── 1:n ──── FeedingEvent
+ └──── 0:1 ──── MediaAsset
 ```
 
-An animal remains the owner of its feeding history while archived.
+An Animal remains the owner of its feeding history and optional picture while
+archived.
 
 Planned:
 
@@ -37,7 +44,8 @@ Box
 
 ## Box
 
-A Box represents a terrarium, enclosure or physical container managed by TerraManager.
+A Box represents a terrarium, enclosure or physical container managed by
+TerraManager.
 
 ```text
 Box
@@ -60,9 +68,10 @@ The QR identifier uses the following format:
 TM:BOX:<UUID-v4>
 ```
 
-A box can contain multiple animals.
+A Box can contain multiple active Animals.
 
-The QR identifier does not contain animal or box data. It only identifies the corresponding database record.
+The QR identifier does not contain Animal or Box data. It only identifies the
+corresponding database record.
 
 ## Animal
 
@@ -83,6 +92,7 @@ Animal
 ├── humidityMin
 ├── humidityMax
 ├── picturePath
+├── pictureMediaId
 ├── notes
 ├── archiveReason
 ├── archivedAt
@@ -94,7 +104,7 @@ Animal
 ### Fields
 
 - id – auto-incrementing primary key
-- boxId – foreign key referencing Box
+- boxId – nullable foreign key referencing Box
 - status – active or archived
 - commonName – common name
 - latinName – scientific name
@@ -105,7 +115,8 @@ Animal
 - tempMax – preferred maximum temperature
 - humidityMin – preferred minimum humidity
 - humidityMax – preferred maximum humidity
-- picturePath – optional picture reference/path
+- picturePath – nullable legacy picture reference retained for migration compatibility
+- pictureMediaId – nullable foreign key referencing MediaAsset
 - notes – optional notes
 - archiveReason – optional archive reason
 - archivedAt – optional archive date
@@ -113,19 +124,25 @@ Animal
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
+New Animal pictures are stored through `MediaAssets`.
+
+`picturePath` is not the primary picture storage mechanism anymore. It remains
+available so pictures created by earlier TerraManager versions can be migrated
+safely.
+
 ### Lifecycle
 
-Active animals:
+Active Animals:
 
 ```text
 status = active
-boxId = assigned box
+boxId = assigned Box
 archiveReason = null
 archivedAt = null
 archiveNotes = null
 ```
 
-Archived animals:
+Archived Animals:
 
 ```text
 status = archived
@@ -135,20 +152,94 @@ archivedAt = archive date
 archiveNotes = optional
 ```
 
-Archiving an animal does not remove its animal record or feeding history.
+Archiving an Animal does not remove its Animal record, picture or feeding
+history.
 
-Restoring an archived animal requires assigning a box again.
+Restoring an archived Animal requires assigning a Box again.
 
-Permanent deletion is intentionally a separate operation and explicitly removes
-associated feeding events before removing the animal.
+Permanent deletion is intentionally a separate operation. It removes associated
+feeding data and application-owned picture media before the Animal record is
+considered permanently removed.
 
 Lifecycle consistency is enforced by the repository/application layer.
 
-Nullable animal fields can be explicitly cleared when an animal is edited.
+Nullable Animal fields can be explicitly cleared when an Animal is edited.
+
+## MediaAsset
+
+A MediaAsset represents application-owned binary media stored persistently by
+TerraManager.
+
+```text
+MediaAsset
+├── id
+├── fileName
+├── mimeType
+├── data
+├── createdAt
+└── updatedAt
+```
+
+### Fields
+
+- id – auto-incrementing primary key
+- fileName – original or normalized media filename
+- mimeType – MIME type of the stored media
+- data – binary media contents
+- createdAt – creation timestamp
+- updatedAt – modification timestamp
+
+Animal pictures reference MediaAssets through:
+
+```text
+Animal.pictureMediaId
+        │
+        ▼
+MediaAsset.id
+```
+
+The media bytes are therefore controlled by TerraManager instead of relying on
+temporary or platform-specific paths returned by image selection APIs.
+
+This persistence model is shared by Android and Web.
+
+Internal `MediaAsset.id` values are not part of the portable backup format.
+Backup restore creates new MediaAsset records and assigns their generated IDs to
+the restored Animals.
+
+## Legacy Picture Migration
+
+Schema migration itself does not attempt to read external image files.
+
+After startup, TerraManager can migrate legacy Animal pictures where:
+
+```text
+pictureMediaId = null
+picturePath != null
+```
+
+If the legacy picture can be read:
+
+```text
+legacy picturePath
+       │
+       ▼
+MediaAsset
+       │
+       ▼
+Animal.pictureMediaId
+
+Animal.picturePath = null
+```
+
+If the legacy picture cannot be read, the existing `picturePath` is preserved.
+
+A missing legacy picture must therefore not cause database migration or
+application startup to fail.
 
 ## FeedingEvent
 
-A FeedingEvent represents a feeding performed for an animal.
+A FeedingEvent represents a feeding performed for an Animal.
 
 ```text
 FeedingEvent
@@ -165,9 +256,9 @@ FeedingEvent
 - fedAt – date and time of feeding
 - notes – optional notes
 
-Each animal can have multiple feeding events.
+Each Animal can have multiple FeedingEvents.
 
-Feeding events are ordered by **fedAt**.
+FeedingEvents are ordered by **fedAt**.
 
 The latest feeding is derived from the feeding history through:
 
@@ -188,11 +279,13 @@ Box
  └──── 1:n ──── Sensor
 ```
 
-Sensor fields and supported sensor types will be defined when sensor functionality is designed.
+Sensor fields and supported sensor types will be defined when sensor
+functionality is designed.
 
 ## Type Converters
 
-Some Dart values are mapped to SQLite-compatible text values using Drift converters.
+Some Dart values are mapped to SQLite-compatible text values using Drift
+converters.
 
 Current converters include:
 
@@ -213,7 +306,8 @@ Tables are defined in:
 lib/core/database/tables/
 ├── boxes.dart
 ├── animals.dart
-└── feeding_events.dart
+├── feeding_events.dart
+└── media_assets.dart
 ```
 
 The main database is defined in:
@@ -228,6 +322,12 @@ Generated Drift code is located in:
 lib/core/database/app_database.g.dart
 ```
 
+Versioned schema definitions are generated in:
+
+```text
+lib/core/database/app_database.steps.dart
+```
+
 Generated code must not be edited manually.
 
 ## Repositories
@@ -238,35 +338,42 @@ Database access is separated through repositories:
 lib/core/database/repositories/
 ├── animal_repository.dart
 ├── box_repository.dart
-└── feeding_repository.dart
+├── feeding_repository.dart
+└── media_repository.dart
 ```
 
 Examples of repository responsibilities:
 
 ```text
 BoxRepository
-├── create box
-├── retrieve boxes
+├── create Box
+├── retrieve Boxes
 ├── resolve qrId
-├── update box
-└── delete box
+├── update Box
+└── delete Box
 
 AnimalRepository
-├── create animal
-├── retrieve active animals
-├── retrieve archived animals
-├── retrieve active animals for box
-├── update active animal
-├── archive animal
-├── restore animal
-└── permanently delete archived animal
+├── create Animal
+├── retrieve active Animals
+├── retrieve archived Animals
+├── retrieve active Animals for Box
+├── update active Animal
+├── archive Animal
+├── restore Animal
+└── permanently delete archived Animal
 
 FeedingRepository
-├── create feeding event
+├── create FeedingEvent
 ├── retrieve feeding history
 ├── retrieve latest feeding
-├── update feeding event
-└── delete feeding event
+├── update FeedingEvent
+└── delete FeedingEvent
+
+MediaRepository
+├── create MediaAsset
+├── retrieve MediaAsset
+├── update MediaAsset
+└── delete MediaAsset
 ```
 
 ## Platform Persistence
@@ -274,6 +381,8 @@ FeedingRepository
 ### Android
 
 Drift uses native SQLite storage.
+
+Animal pictures are stored as MediaAssets in the local database.
 
 ### Web
 
@@ -286,14 +395,51 @@ web/sqlite3.wasm
 web/drift_worker.dart.js
 ```
 
-Web persistence has been validated across normal browser reloads.
+Animal pictures are also stored through MediaAssets.
+
+Web database and picture persistence have been validated across normal browser
+reloads.
 
 ## Schema Version
 
-The current Drift database schema version is **2**.
+The current Drift database schema version is 3.
 
-Schema version 2 introduced animal lifecycle support and changed `boxId` from
+### Schema Version 1
+
+Initial domain schema containing Boxes, Animals and FeedingEvents.
+
+### Schema Version 2
+
+Schema version 2 introduced Animal lifecycle support and changed boxId from
 required to nullable.
 
-The v1 → v2 migration preserves existing animals, box assignments and feeding
-history. Existing animals are migrated with `status = active`.
+The v1 → v2 migration preserves existing Animals, Box assignments and feeding
+history.
+
+Existing Animals are migrated with:
+
+```text
+status = active
+```
+
+### Schema Version 3
+
+Schema version 3 introduced persistent application-owned media.
+
+Changes:
+
+```text
+MediaAssets table added
+Animal.pictureMediaId added
+```
+
+The v2 → v3 schema migration preserves:
+
+- existing Boxes
+- existing Animals
+- existing FeedingEvents
+- existing picturePath values
+
+Existing picture files are not read during the Drift schema migration.
+
+Readable legacy pictures are migrated separately after application startup.

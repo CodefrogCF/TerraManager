@@ -506,18 +506,17 @@ Sex.unknown -> "unknown"
 
 ## Media References
 
-Device-specific filesystem paths are not portable and must never be stored as
-portable backup media identifiers.
+Internal or device-specific media storage details are not part of the portable
+backup format.
 
-Example of a local device path:
+TerraManager currently stores Animal pictures persistently in the local
+`MediaAssets` database table. Earlier versions may still contain legacy
+`picturePath` references.
 
-```text
-/data/user/0/.../animal.jpg
-```
+Neither the internal `MediaAsset` ID nor a legacy local filesystem path is used
+as the portable backup identifier.
 
-This value must not appear as `pictureMediaPath` inside the portable backup.
-
-Instead, the referenced media file is copied into the archive.
+Instead, the media bytes are written into the backup archive.
 
 Example:
 
@@ -525,21 +524,19 @@ Example:
 media/animals/10.jpg
 ```
 
-The archive filename extension is preserved when a recognized image extension
-is available.
+The Animal representation stores:
 
-If the source reference does not expose a usable image extension, TerraManager
-may use the generic `.img` extension.
-
-The media content itself remains unchanged.
-
-The Animal representation then stores:
-
-```json
+```text
 {
   "pictureMediaPath": "media/animals/10.jpg"
 }
 ```
+
+For persistent `MediaAssets`, the archive extension is derived from the stored
+filename or MIME type.
+
+Legacy `picturePath` data may still be read during export as a compatibility
+fallback when it could not previously be migrated into `MediaAssets`.
 
 During restore:
 
@@ -547,18 +544,28 @@ During restore:
 backup media file
         │
         ▼
-platform-appropriate media storage
+MediaAssets
         │
         ▼
-new local picturePath
+new MediaAsset.id
         │
         ▼
-restored Animal record
+Animal.pictureMediaId
 ```
 
-The original device-specific `picturePath` is therefore not preserved.
+The restored Animal uses:
 
-This allows backups to remain portable between Android and Web.
+```text
+picturePath = null
+pictureMediaId = restored MediaAsset ID
+```
+
+The internal `MediaAsset.id` itself is not preserved in Backup Format Version 1.
+It is recreated during restore because it is not part of the portable domain
+identity.
+
+This keeps backups portable between Android and Web while avoiding
+platform-specific file storage.
 
 ## Missing Pictures
 
@@ -765,7 +772,7 @@ Existing TerraManager domain data is not merged with backup data.
 
 Merge restore is explicitly outside Backup Format Version 1 restore semantics.
 
-The intended restore sequence is:
+The restore sequence is:
 
 ```text
 Select backup
@@ -777,25 +784,34 @@ Read archive
 Validate complete backup
       │
       ▼
-Create safety backup of current state
+Show backup information
       │
       ▼
 Request explicit confirmation
       │
       ▼
-Replace current TerraManager data
+Create and persist safety backup
       │
       ▼
-Restore media
+Restore appearance settings
       │
       ▼
-Restore settings
+Transactional database replacement
+      │
+      ├── Boxes
+      ├── MediaAssets
+      ├── Animals
+      └── FeedingEvents
       │
       ▼
-Verify restored state
+Foreign-key integrity check
+      │
+      ▼
+Restore complete
 ```
 
-No destructive operation may begin before validation succeeds.
+No destructive database operation begins before validation and explicit user
+confirmation succeed.
 
 ## Pre-Restore Safety Backup
 
@@ -831,34 +847,38 @@ implementation.
 
 ## Transactional Database Replacement
 
-Domain data replacement is performed inside a Drift transaction.
+Domain data and persistent media replacement are performed inside a Drift
+transaction.
 
 The replacement order is:
 
 ```text
 Delete FeedingEvents
 Delete Animals
+Delete MediaAssets
 Delete Boxes
-
 Reset autoincrement sequences
 
 Insert Boxes
-Insert Animals
+
+For each Animal picture:
+    Insert MediaAsset
+    obtain new MediaAsset.id
+
+Insert Animals using pictureMediaId
 Insert FeedingEvents
 
 Run foreign-key integrity check
 ```
 
-If any database operation fails, the transaction is rolled back.
+If any database or media insertion fails, the Drift transaction is rolled back.
 
-The database therefore remains in its pre-restore state.
+This means that restored `MediaAssets`, Animals, Boxes and FeedingEvents are
+committed together instead of maintaining a separate filesystem media restore
+phase.
 
-Restored media is prepared before destructive database changes begin.
-
-Application settings changed in preparation for restore are returned to their
-previous values if database replacement fails.
-
-Prepared restore media is cleaned up when database replacement fails.
+If database replacement fails after application settings were changed, the
+previous appearance settings are restored.
 
 The pre-restore safety backup is never deleted automatically as part of
 rollback.
@@ -883,18 +903,27 @@ mapping rules.
 
 ## Cross-Platform Portability
 
-The backup representation must not depend on:
+The backup representation does not depend on:
 
 - Android filesystem paths
-- browser-specific storage identifiers
+- browser-specific Blob URLs
+- internal MediaAsset IDs
 - raw SQLite database files
 - Drift-generated implementation details
 
-A backup produced on one validated platform should therefore be structurally
-usable on another validated platform.
+Animal pictures are exported as archive media entries and restored into the
+local `MediaAssets` persistence layer.
 
-Platform-specific restore logic is responsible for converting portable media
-references into appropriate local storage references.
+The same restore model is therefore used on Android and Web.
+
+Backup Format Version 1 has been manually validated for:
+
+```text
+Android → Android
+Web → Web
+Android → Web
+Web → Android
+```
 
 ## Compatibility Rules
 
@@ -986,6 +1015,7 @@ Internal implementation details such as:
 - generated Drift classes
 - SQLite timestamp representation
 - local picture paths
+- MediaAsset database IDs
 - SharedPreferences keys
 
 must not be treated as stable external backup values unless explicitly defined

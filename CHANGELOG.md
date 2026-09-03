@@ -4,6 +4,85 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [0.6.0] - Backup & Restore
+
+### Added
+
+- portable versioned `.tmbackup` backup format
+- backup manifest with application version, backup format version and database schema version
+- Box, Animal and FeedingEvent backup export
+- appearance settings backup export
+- Animal picture backup support
+- backup archive validation before restore
+- validation of record IDs and relationships
+- lifecycle invariant validation
+- QR identifier validation
+- enum and settings validation
+- media reference validation
+- archive path traversal protection
+- duplicate archive entry protection
+- backup information and confirmation dialogs
+- automatic pre-restore safety backup
+- full replacement restore workflow
+- persistent `MediaAssets` storage for Animal pictures
+- `Animal.pictureMediaId` relationship
+- legacy Animal picture migration
+- Android and Web backup file selection
+- user-selectable backup destination on Android
+
+### Changed
+
+- Animal pictures are now stored persistently in Drift/SQLite instead of relying on temporary `image_picker` paths
+- restored Animal pictures are stored as `MediaAssets`
+- restored Animals reference pictures through `pictureMediaId`
+- portable backups no longer depend on local picture paths
+- backup restore media handling is now part of the transactional database replacement
+- Android backup saving now uses a user-selectable system file destination
+- backup format version remains independent from database schema version
+
+### Data Migration
+
+- database schema upgraded from version 2 to version 3
+- added `MediaAssets` table
+- added nullable `Animal.pictureMediaId`
+- existing Animal data is preserved
+- existing `picturePath` values are preserved during schema migration
+- readable legacy Animal pictures are migrated to persistent `MediaAssets` after startup
+- unreadable legacy picture paths are retained without causing startup failure
+
+### Backup Compatibility
+
+- Backup Format Version 1 remains current
+- backups created from database schema version 2 remain restorable
+- generated QR images remain excluded from backups
+- permanent Box QR identifiers are preserved unchanged
+- internal `MediaAsset` IDs are not part of the portable backup format
+
+### Validated
+
+- Android backup
+- Android restore
+- Web backup
+- Web restore
+- Android → Web restore
+- Web → Android restore
+- persistent Animal pictures after Android application restart
+- persistent Animal pictures after Web browser reload
+- safety backup restore including Animal pictures
+
+### Testing
+
+- added backup format tests
+- added backup export tests
+- added backup validation tests
+- added transactional restore tests
+- added persistent media repository tests
+- added database schema v2 → v3 migration tests
+- added legacy picture migration tests
+- added Settings backup and restore widget tests
+- added cross-platform manual backup and restore validation
+- completed full regression test suite
+
 ## [0.5.0] - Usability & Settings
 
 ### Added

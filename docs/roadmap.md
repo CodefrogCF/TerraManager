@@ -4,7 +4,7 @@
 
 Current development milestone:
 
-**v0.5.0 – Usability & Settings**
+**v0.6.0 – Backup & Restore**
 
 Completed development areas:
 
@@ -22,8 +22,11 @@ Completed development areas:
 - Animal History
 - latest feeding on animal details
 - persistent appearance settings
+- portable backup and restore
+- persistent MediaAsset storage
+- cross-platform Android/Web backup transfer
 
-v0.5.0 has completed implementation and validation.
+v0.6.0 implementation and platform validation are complete.
 
 ---
 
@@ -181,48 +184,48 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Backup Format
 
-- [ ] Define versioned `.tmbackup` format
-- [ ] Separate backup format version from database schema version
-- [ ] Document backup compatibility rules
-- [ ] Store portable media references
-- [ ] Exclude generated QR images
+- [x] Define versioned `.tmbackup` format
+- [x] Separate backup format version from database schema version
+- [x] Document backup compatibility rules
+- [x] Store portable media references
+- [x] Exclude generated QR images
 
 ### Backup
 
-- [ ] Export Boxes
-- [ ] Export Animals
-- [ ] Export FeedingEvents
-- [ ] Export animal pictures
-- [ ] Export appearance settings
-- [ ] Generate portable backup archive
+- [x] Export Boxes
+- [x] Export Animals
+- [x] Export FeedingEvents
+- [x] Export animal pictures
+- [x] Export appearance settings
+- [x] Generate portable backup archive
 
 ### Restore
 
-- [ ] Validate backup before modifying data
-- [ ] Validate format compatibility
-- [ ] Validate record relationships
-- [ ] Validate referenced media
-- [ ] Create pre-restore safety backup
-- [ ] Require destructive restore confirmation
-- [ ] Restore domain data
-- [ ] Restore media
-- [ ] Restore appearance settings
+- [x] Validate backup before modifying data
+- [x] Validate format compatibility
+- [x] Validate record relationships
+- [x] Validate referenced media
+- [x] Create pre-restore safety backup
+- [x] Require destructive restore confirmation
+- [x] Restore domain data
+- [x] Restore media
+- [x] Restore appearance settings
 
 ### Platform Support
 
-- [ ] Validate backup on Android
-- [ ] Validate restore on Android
-- [ ] Validate backup on Web
-- [ ] Validate restore on Web
-- [ ] Validate Android → Web restore
-- [ ] Validate Web → Android restore
+- [x] Validate backup on Android
+- [x] Validate restore on Android
+- [x] Validate backup on Web
+- [x] Validate restore on Web
+- [x] Validate Android → Web restore
+- [x] Validate Web → Android restore
 
 ### Release
 
-- [ ] Regression tests
-- [ ] Update documentation
-- [ ] Update changelog
-- [ ] Release v0.6.0
+- [x] Regression tests
+- [x] Update documentation
+- [x] Update changelog
+- [x] Release v0.6.0
 
 ---
 

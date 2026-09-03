@@ -24,6 +24,12 @@ The following functionality is outside the current TerraManager MVP scope.
 - multi-device synchronization
 - shared terrarium data between users
 
+Manual transfer of a complete TerraManager state through `.tmbackup` files is
+supported, but this is not synchronization.
+
+A restore replaces the current local state instead of merging concurrent data
+from multiple devices.
+
 ## Advanced Backup and Transfer
 
 The following functionality remains outside the current MVP:
@@ -36,9 +42,15 @@ The following functionality remains outside the current MVP:
 - merge restore
 - conflict resolution during import
 - direct device-to-device synchronization
+- automatic synchronization of backup files
+- backup encryption
+- remote backup storage management
 
-Manual portable backup and full restore are part of the MVP beginning with
-v0.6.0.
+Manual portable backup and full replacement restore are part of the MVP
+beginning with v0.6.0.
+
+Backup Format Version 1 supports domain data, appearance settings and Animal
+pictures.
 
 ## Additional Platforms
 
@@ -49,11 +61,12 @@ v0.6.0.
 
 Possible future features may include:
 
-- animal weight history
+- Animal weight history
 - shedding history
 - health/event tracking
 - breeding records
 - enclosure maintenance history
 - feeding schedules and reminders
 
-These features are not part of the current MVP unless explicitly moved into a future milestone.
+These features are not part of the current MVP unless explicitly moved into a
+future milestone.

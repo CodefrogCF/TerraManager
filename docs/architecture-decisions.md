@@ -335,8 +335,9 @@ current device or browser profile.
 Copying the raw SQLite database would tightly couple backups to a specific
 database schema and platform implementation.
 
-Android and Web also use different persistence mechanisms for database and media
-storage.
+Android and Web use different underlying platform persistence implementations,
+so portable backups must not depend on platform-specific paths or browser
+identifiers.
 
 ### Decision
 
@@ -382,7 +383,7 @@ Advantages:
 
 - backups can be transferred between Android and Web
 - backup compatibility can evolve independently from Drift schema migrations
-- media can be restored to platform-appropriate storage
+- media is restored into TerraManager's persistent MediaAssets storage
 - QR identifiers remain stable
 - backups are not tied to device-specific filesystem paths
 - future application versions can implement explicit backup migration logic
@@ -401,3 +402,90 @@ Disadvantages:
 - incremental backups
 - cloud backup
 - automatic scheduled backup
+
+---
+
+## ADR-008: Store application media in persistent database-backed MediaAssets
+
+**Status:** Accepted
+
+**Date:** 2026-09-03
+
+### Context
+
+Earlier TerraManager versions stored Animal pictures using the path returned by
+`image_picker`.
+
+This approach is not sufficiently reliable as long-term application storage.
+
+On mobile platforms, a selected file path may refer to storage whose lifecycle
+is not controlled by TerraManager.
+
+On Web, image selection may expose browser-specific temporary references that
+are unsuitable as persistent application identifiers.
+
+This also complicates portable backup and restore because local paths cannot be
+transferred reliably between Android and Web.
+
+### Decision
+
+TerraManager stores application-owned media through a dedicated Drift table:
+
+```text
+MediaAsset
+├── id
+├── fileName
+├── mimeType
+├── data
+├── createdAt
+└── updatedAt
+```
+
+Animal pictures reference this table through:
+
+```text
+Animal.pictureMediaId
+```
+
+The actual media bytes are stored persistently in the local Drift/SQLite
+database.
+
+`Animal.picturePath` remains temporarily available only for migration and
+backward compatibility with data created before persistent media storage was
+introduced.
+
+A startup migration service attempts to import readable legacy pictures into
+`MediaAssets`.
+
+If a legacy picture cannot be read, the existing path is preserved rather than
+causing database migration or application startup to fail.
+
+Portable backup files do not preserve `MediaAsset.id`.
+
+Pictures are exported as portable archive entries such as:
+
+```text
+media/animals/17.jpg
+```
+
+During restore, a new `MediaAsset` record is created and its generated ID is
+assigned to `Animal.pictureMediaId`.
+
+## Consequences
+
+Advantages:
+
+- Animal pictures are owned by TerraManager rather than temporary external paths
+- Android pictures remain available after application restart
+- Web pictures remain available after browser reload
+- backup and restore use the same media persistence model on Android and Web
+- cross-platform backup transfer does not depend on local filesystem paths
+- future Box pictures can reuse the same media infrastructure
+- database transactions can restore domain records and media atomically
+
+Disadvantages:
+
+- binary media increases the size of the local database
+- large image collections may increase backup size and database storage use
+- deleting or replacing records must also manage referenced MediaAssets
+- legacy picture migration requires temporary compatibility logic

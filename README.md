@@ -10,7 +10,7 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Current completed release milestone:
 
-**v0.5.0 – Usability & Settings**
+**v0.6.0 – Backup & Restore**
 
 Completed milestones:
 
@@ -19,14 +19,18 @@ Completed milestones:
 - v0.3.0 – QR Code
 - v0.4.0 – Android and Web Platform Support
 - v0.5.0 – Usability & Settings
+- v0.6.0 – Backup & Restore
 
 Android and Web are currently validated platforms.
 
+Portable backup and restore has been validated:
+
+- Android → Android
+- Web → Web
+- Android → Web
+- Web → Android
+
 The next planned milestones are:
-
-### v0.6.0 – Backup & Restore
-
-Portable backup and restore of TerraManager domain data, settings and media.
 
 ### v0.7.0 – Editing & Overview
 
@@ -97,6 +101,34 @@ Animal-to-Box assignments.
 - predefined accent colors
 - immediate appearance changes
 - persistent appearance settings
+- portable `.tmbackup` backup creation
+- backup file selection and validation
+- pre-restore backup information
+- destructive restore confirmation
+- automatic safety backup before restore
+- full local data restore
+- appearance setting backup and restore
+
+### Backup & Restore
+
+- versioned portable `.tmbackup` archive format
+- backup format version independent from database schema version
+- Box export and restore
+- Animal export and restore
+- FeedingEvent export and restore
+- animal picture export and restore
+- appearance setting export and restore
+- permanent Box QR identifiers preserved
+- backup validation before destructive operations
+- relationship and lifecycle validation
+- archive path safety validation
+- pre-restore safety backup
+- explicit destructive restore confirmation
+- transactional database replacement
+- Android and Web portability
+- Android → Web restore validation
+- Web → Android restore validation
+- generated QR images excluded from backups
 
 ### Platform Support
 
@@ -165,6 +197,16 @@ There is currently no cloud synchronization.
 
 This means that data stored on one device is not automatically available on another device.
 
+Portable `.tmbackup` files can be used to manually transfer TerraManager data
+between supported devices and platforms.
+
+Backup transfer is not automatic synchronization. A restore replaces the current
+local TerraManager state with the selected backup.
+
+## Data Model
+
+The current database structure is:
+
 ## Data Model
 
 The current database structure is:
@@ -174,13 +216,16 @@ Box
  │
  └──── 1:n ──── Active Animal
                    │
-                   └──── 1:n ──── FeedingEvent
+                   ├──── 1:n ──── FeedingEvent
+                   │
+                   └──── 0:1 ──── MediaAsset
 
 Archived Animal
  │
  ├── no active box assignment
- └──── 1:n ──── FeedingEvent
-```
+ ├──── 1:n ──── FeedingEvent
+ └──── 0:1 ──── MediaAsset
+ ```
 
 ### Box
 
@@ -217,6 +262,7 @@ Animal
 ├── humidityMin
 ├── humidityMax
 ├── picturePath
+├── pictureMediaId
 ├── notes
 ├── archiveReason
 ├── archivedAt
@@ -227,8 +273,35 @@ Animal
 
 Active animals are assigned to a box.
 
-Archived animals have no active box assignment. Their animal data and feeding
-history remain stored until the animal is explicitly deleted permanently.
+Archived animals have no active box assignment. Their animal data, picture and
+feeding history remain stored until the animal is explicitly deleted permanently.
+
+`pictureMediaId` references persistent image data stored in `MediaAssets`.
+
+`picturePath` is retained only for migration and compatibility with pictures
+created by earlier TerraManager versions. New pictures are stored through
+`MediaAssets`.
+
+### MediaAsset
+
+```text
+MediaAsset
+├── id
+├── fileName
+├── mimeType
+├── data
+├── createdAt
+└── updatedAt
+```
+
+Animal pictures are stored persistently as binary data in the local Drift
+database.
+
+This avoids relying on temporary or platform-specific paths returned by image
+selection APIs.
+
+The same persistence model is used on Android and Web and allows pictures to be
+included in portable TerraManager backups.
 
 ### FeedingEvent
 
@@ -282,6 +355,9 @@ It is generated from the permanent qrId when needed.
 - Dart
 - Material 3
 - shared_preferences
+- archive
+- file_picker
+- package_info_plus
 
 ### Database
 
@@ -359,6 +435,10 @@ lib/
 │   │   ├── tables/
 │   │   └── repositories/
 │   │
+│   ├── media/
+│   │   ├── image_media_info.dart
+│   │   └── legacy_animal_picture_migration_service.dart
+│   │
 │   └── qr/
 │       ├── qr_export_service.dart
 │       ├── qr_file_name.dart
@@ -372,10 +452,15 @@ lib/
     ├── boxes/
     ├── animals/
     ├── feedings/
-    └── settings/
-        ├── app_accent.dart
-        ├── app_settings_controller.dart
-        └── presentation/
+    ├── settings/
+    │   ├── app_accent.dart
+    │   ├── app_settings_controller.dart
+    │   └── presentation/
+    │
+    └── backup/
+        ├── application/
+        ├── domain/
+        └── infrastructure/
 ```
 
 Generated Drift files such as:
@@ -467,9 +552,14 @@ CHANGELOG.md
 
 TerraManager currently follows a local-first architecture.
 
-There is no cloud synchronization or multi-device synchronization.
+There is no cloud synchronization or automatic multi-device synchronization.
 
-Data is therefore tied to the local device or browser profile unless manually transferred or backed up.
+Data is stored locally on the current device or browser profile. Portable
+`.tmbackup` files can be used for manual backup, recovery and transfer between
+validated platforms.
+
+Web data can still be lost when browser site data is cleared if no external
+backup exists.
 
 iOS has not yet been validated.
 

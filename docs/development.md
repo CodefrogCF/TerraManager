@@ -36,7 +36,7 @@ flutter test
 When Drift tables, converters or database definitions change:
 
 ```text
-dart run build_runner build --delete-conflicting-outputs
+dart run build_runner build
 ```
 
 Generated files such as:
@@ -46,6 +46,14 @@ lib/core/database/app_database.g.dart
 ```
 
 must not be edited manually.
+
+When the Drift schema changes, also update generated migration steps with:
+
+```text
+dart run drift_dev make-migrations
+```
+
+Migration output must be reviewed and covered by schema migration tests.
 
 ## Android Development
 

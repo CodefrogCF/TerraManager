@@ -126,6 +126,7 @@ Current entities are:
 Box
 Animal
 FeedingEvent
+MediaAsset
 ```
 
 Sensors are planned but not yet implemented.
@@ -285,6 +286,7 @@ The Drift/SQLite database remains responsible for domain data such as:
 Box
 Animal
 FeedingEvent
+MediaAsset
 ```
 
 The application settings controller loads and persists appearance preferences
@@ -377,6 +379,15 @@ Before destructive restore:
 - explicit user confirmation is required
 - replacement may begin
 
+### Implementation update – Backup Format Version 2
+
+TerraManager 0.7.x creates Backup Format Version 2 backups. Version 2 extends
+portable Box data with optional width, height, depth and Box picture media under
+`media/boxes/`.
+
+Backup Format Version 1 remains supported for backward-compatible restore.
+Missing Version 2 Box fields from a Version 1 backup are mapped to `null`.
+
 ### Consequences
 
 Advantages:
@@ -441,9 +452,10 @@ MediaAsset
 └── updatedAt
 ```
 
-Animal pictures reference this table through:
+Box and Animal pictures reference this table through:
 
 ```text
+Box.pictureMediaId
 Animal.pictureMediaId
 ```
 
@@ -468,19 +480,25 @@ Pictures are exported as portable archive entries such as:
 media/animals/17.jpg
 ```
 
-During restore, a new `MediaAsset` record is created and its generated ID is
-assigned to `Animal.pictureMediaId`.
+During restore, new `MediaAsset` records are created and their generated IDs are
+assigned to `Box.pictureMediaId` or `Animal.pictureMediaId` as appropriate.
+
+Box pictures are exported under portable paths such as:
+
+```text
+media/boxes/4.jpg
+```
 
 ## Consequences
 
 Advantages:
 
-- Animal pictures are owned by TerraManager rather than temporary external paths
+- Box and Animal pictures are owned by TerraManager rather than temporary external paths
 - Android pictures remain available after application restart
 - Web pictures remain available after browser reload
 - backup and restore use the same media persistence model on Android and Web
 - cross-platform backup transfer does not depend on local filesystem paths
-- future Box pictures can reuse the same media infrastructure
+- Box and Animal pictures use the same persistent media infrastructure
 - database transactions can restore domain records and media atomically
 
 Disadvantages:

@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **3**.
+The current Drift database schema version is **4**.
 
 The current database model consists of:
 
@@ -17,6 +17,8 @@ Sensors are planned but are not implemented.
 
 ```text
 Box
+ │
+ ├──── 0:1 ──── MediaAsset
  │
  └──── 1:n ──── Active Animal
                    │
@@ -51,6 +53,10 @@ TerraManager.
 Box
 ├── id
 ├── qrId
+├── widthCm
+├── heightCm
+├── depthCm
+├── pictureMediaId
 ├── createdAt
 └── updatedAt
 ```
@@ -59,6 +65,10 @@ Box
 
 - id – auto-incrementing primary key
 - qrId – unique permanent QR identifier
+- widthCm – optional enclosure width in centimeters
+- heightCm – optional enclosure height in centimeters
+- depthCm – optional enclosure depth in centimeters
+- pictureMediaId – nullable foreign key referencing MediaAsset
 - createdAt – creation timestamp
 - updatedAt – last modification timestamp
 
@@ -68,7 +78,7 @@ The QR identifier uses the following format:
 TM:BOX:<UUID-v4>
 ```
 
-A Box can contain multiple active Animals.
+A Box can contain multiple active Animals and can optionally reference a persistent picture through `pictureMediaId`.
 
 The QR identifier does not contain Animal or Box data. It only identifies the
 corresponding database record.
@@ -189,13 +199,14 @@ MediaAsset
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
-Animal pictures reference MediaAssets through:
+Box and Animal pictures reference MediaAssets through:
 
 ```text
-Animal.pictureMediaId
-        │
-        ▼
-MediaAsset.id
+Box.pictureMediaId ───────┐
+                          ▼
+                    MediaAsset.id
+                          ▲
+Animal.pictureMediaId ────┘
 ```
 
 The media bytes are therefore controlled by TerraManager instead of relying on
@@ -205,7 +216,7 @@ This persistence model is shared by Android and Web.
 
 Internal `MediaAsset.id` values are not part of the portable backup format.
 Backup restore creates new MediaAsset records and assigns their generated IDs to
-the restored Animals.
+the restored Boxes and Animals.
 
 ## Legacy Picture Migration
 
@@ -382,7 +393,7 @@ MediaRepository
 
 Drift uses native SQLite storage.
 
-Animal pictures are stored as MediaAssets in the local database.
+Box and Animal pictures are stored as MediaAssets in the local database.
 
 ### Web
 
@@ -395,14 +406,14 @@ web/sqlite3.wasm
 web/drift_worker.dart.js
 ```
 
-Animal pictures are also stored through MediaAssets.
+Box and Animal pictures are also stored through MediaAssets.
 
-Web database and picture persistence have been validated across normal browser
+Web database and Box/Animal picture persistence have been validated across normal browser
 reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 3.
+The current Drift database schema version is 4.
 
 ### Schema Version 1
 
@@ -443,3 +454,22 @@ The v2 → v3 schema migration preserves:
 Existing picture files are not read during the Drift schema migration.
 
 Readable legacy pictures are migrated separately after application startup.
+
+### Schema Version 4
+
+Schema version 4 introduced editable Box metadata and persistent Box pictures.
+
+Changes:
+
+```text
+Box.widthCm added
+Box.heightCm added
+Box.depthCm added
+Box.pictureMediaId added
+```
+
+`Box.pictureMediaId` is a nullable foreign key referencing `MediaAssets`.
+
+The v3 → v4 migration preserves existing Boxes, Animals, FeedingEvents and
+MediaAssets. Existing Boxes receive `null` for the newly introduced optional
+fields.

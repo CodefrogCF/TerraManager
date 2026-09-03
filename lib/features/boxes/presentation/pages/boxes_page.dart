@@ -21,6 +21,8 @@ class BoxesPage extends StatefulWidget {
 class _BoxesPageState extends State<BoxesPage> {
   late Future<List<Box>> _boxesFuture;
 
+  final ScrollController _scrollController = ScrollController();
+
   final Map<int, Future<MediaAsset?>> _pictureFutures = {};
 
   @override
@@ -29,10 +31,53 @@ class _BoxesPageState extends State<BoxesPage> {
     _loadBoxes();
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+
+    super.dispose();
+  }
+
   void _loadBoxes() {
     _pictureFutures.clear();
 
     _boxesFuture = BoxRepository(widget.database).getAllBoxes();
+  }
+
+  double _currentScrollOffset() {
+    if (!_scrollController.hasClients) {
+      return 0.0;
+    }
+
+    return _scrollController.offset;
+  }
+
+  Future<void> _reloadBoxesPreservingScroll(double previousOffset) async {
+    setState(() {
+      _loadBoxes();
+    });
+
+    try {
+      await _boxesFuture;
+    } catch (_) {
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) {
+        return;
+      }
+
+      final maxOffset = _scrollController.position.maxScrollExtent;
+
+      final targetOffset = previousOffset.clamp(0.0, maxOffset).toDouble();
+
+      _scrollController.jumpTo(targetOffset);
+    });
   }
 
   Future<MediaAsset?> _pictureFutureFor(int? mediaId) {
@@ -69,22 +114,22 @@ class _BoxesPageState extends State<BoxesPage> {
   }
 
   Future<void> _openNewBoxPage() async {
+    final previousOffset = _currentScrollOffset();
+
     final created = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => NewBoxPage(database: widget.database)),
     );
 
-    if (!mounted) {
+    if (!mounted || created != true) {
       return;
     }
 
-    if (created == true) {
-      setState(() {
-        _loadBoxes();
-      });
-    }
+    await _reloadBoxesPreservingScroll(previousOffset);
   }
 
   Future<void> _openBoxDetail(Box box) async {
+    final previousOffset = _currentScrollOffset();
+
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => BoxDetailPage(database: widget.database, box: box),
@@ -95,12 +140,12 @@ class _BoxesPageState extends State<BoxesPage> {
       return;
     }
 
-    setState(() {
-      _loadBoxes();
-    });
+    await _reloadBoxesPreservingScroll(previousOffset);
   }
 
   Future<void> _openScannerPage() async {
+    final previousOffset = _currentScrollOffset();
+
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => BoxScannerPage(database: widget.database),
@@ -111,9 +156,7 @@ class _BoxesPageState extends State<BoxesPage> {
       return;
     }
 
-    setState(() {
-      _loadBoxes();
-    });
+    await _reloadBoxesPreservingScroll(previousOffset);
   }
 
   @override
@@ -148,6 +191,8 @@ class _BoxesPageState extends State<BoxesPage> {
           }
 
           return ListView.builder(
+            key: const PageStorageKey<String>('boxes-overview-list'),
+            controller: _scrollController,
             itemCount: boxes.length,
             itemBuilder: (context, index) {
               final box = boxes[index];

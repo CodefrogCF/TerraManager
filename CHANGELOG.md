@@ -4,6 +4,78 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [Unreleased]
+
+### Fixed
+
+- preserve Box Overview scroll position after returning from Box details
+- preserve Box Overview scroll position after returning from Box scanner and successful Box creation refreshes
+
+## [0.7.0] - Editing & Overview
+
+### Added
+
+- optional Box width, height and depth
+- persistent Box pictures backed by `MediaAssets`
+- Box editing workflow
+- human-readable Box labels (`Box N`) while preserving permanent QR identifiers
+- Animal and Box thumbnails in overview lists
+- FeedingEvent editing
+- FeedingEvent deletion with confirmation
+- Backup Format Version 2
+- portable Box dimensions and Box pictures in backups
+- `media/boxes/` archive media support
+
+### Changed
+
+- Box QR identifiers remain immutable when Box metadata is edited
+- Latest Feeding is recalculated after FeedingEvent edits and deletions
+- Animal Overview preserves its scroll position after detail/history navigation
+- archived-Animal restore dialogs use human-readable Box labels
+- safety backups include Box dimensions and Box pictures
+- current backups are created as Backup Format Version 2
+- restore continues to accept Backup Format Version 1
+
+### Data Migration
+
+- database schema upgraded from version 3 to version 4
+- added nullable `Box.widthCm`
+- added nullable `Box.heightCm`
+- added nullable `Box.depthCm`
+- added nullable `Box.pictureMediaId` referencing `MediaAssets`
+- existing Boxes, Animals, FeedingEvents and media remain preserved
+
+### Backup Compatibility
+
+- Backup Format Version 2 is the current export format
+- Backup Format Version 1 remains supported for restore
+- Version 1 Box records restore with dimensions and Box picture fields set to `null`
+- Box and Animal pictures are restored as new local `MediaAssets`
+- permanent Box QR identifiers remain unchanged
+- generated QR images remain excluded from backups
+
+### Validated
+
+- Android regression validation
+- Web regression validation
+- Backup Format Version 2 export and restore
+- Backup Format Version 1 restore compatibility
+- Android → Web Version 2 restore
+- Web → Android Version 2 restore
+- Box and Animal picture backup/restore
+- pre-restore safety backup with Box dimensions and pictures
+
+### Testing
+
+- added schema v3 → v4 migration tests
+- added Box media lifecycle tests
+- added Box edit workflow tests
+- added overview thumbnail tests
+- added FeedingEvent edit and delete tests
+- added overview scroll-position regression tests
+- added Backup Format Version 2 export, validation and restore tests
+- completed full automated and manual regression validation
+
 ## [0.6.0] - Backup & Restore
 
 ### Added

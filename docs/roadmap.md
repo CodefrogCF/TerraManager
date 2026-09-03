@@ -4,7 +4,7 @@
 
 Current development milestone:
 
-**v0.6.0 – Backup & Restore**
+**v0.8.0 – Navigation & History**
 
 Completed development areas:
 
@@ -25,8 +25,17 @@ Completed development areas:
 - portable backup and restore
 - persistent MediaAsset storage
 - cross-platform Android/Web backup transfer
+- Box editing, dimensions and persistent pictures
+- human-readable Box labels
+- overview thumbnails
+- FeedingEvent editing and deletion
+- preserved Animal and Box overview scroll positions
+- Backup Format Version 2 with Box media
+- backward-compatible Backup Format Version 1 restore
 
-v0.6.0 implementation and platform validation are complete.
+v0.7.0 implementation and release validation are complete.
+
+v0.8.0 is the current development milestone.
 
 ---
 
@@ -233,34 +242,48 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Boxes
 
-- [ ] Add optional width
-- [ ] Add optional height
-- [ ] Add optional depth
-- [ ] Add optional Box picture
-- [ ] Add Box editing
-- [ ] Keep QR identifier immutable
-- [ ] Show human-readable Box labels
+- [x] Add optional width
+- [x] Add optional height
+- [x] Add optional depth
+- [x] Add optional Box picture
+- [x] Add Box editing
+- [x] Keep QR identifier immutable
+- [x] Show human-readable Box labels
 
 ### Feeding
 
-- [ ] Edit FeedingEvents
-- [ ] Delete FeedingEvents
-- [ ] Recalculate Latest Feeding after changes
+- [x] Edit FeedingEvents
+- [x] Delete FeedingEvents
+- [x] Recalculate Latest Feeding after changes
 
 ### Overview
 
-- [ ] Show Animal thumbnails where available
-- [ ] Show Box thumbnails where available
-- [ ] Preserve Animal Overview scroll position after detail navigation
+- [x] Show Animal thumbnails where available
+- [x] Show Box thumbnails where available
+- [x] Preserve Animal Overview scroll position after detail navigation
 
 ### Release
 
-- [ ] Database migration tests
-- [ ] Regression tests
-- [ ] Validate backup compatibility
-- [ ] Update documentation
-- [ ] Update changelog
-- [ ] Release v0.7.0
+- [x] Database migration tests
+- [x] Regression tests
+- [x] Validate backup compatibility
+- [x] Update documentation
+- [x] Update changelog
+- [x] Release v0.7.0
+
+---
+
+## v0.7.1 – Maintenance
+
+### Overview
+
+- [x] Preserve Box Overview scroll position after detail navigation
+- [x] Add regression coverage for Box Overview scroll restoration
+
+### Release
+
+- [x] Refresh documentation for the v0.7.x state
+- [ ] Release v0.7.1
 
 ---
 

@@ -10,8 +10,8 @@ This document describes the current platform validation status of TerraManager.
 | Web | Validated |
 | iOS | Planned / not validated |
 
-Portable Backup Format Version 1 has been validated between the currently
-supported platforms:
+Portable Backup Format Version 2 has been validated between the currently
+supported platforms. Backup Format Version 1 remains supported for legacy restore:
 
 ```text
 Android → Android
@@ -32,6 +32,12 @@ Validated functionality includes:
 - core navigation
 - Drift/SQLite persistence
 - box creation and persistence
+- Box editing and optional dimensions
+- persistent Box pictures
+- Box picture persistence across normal application restarts
+- Box and Animal overview thumbnails
+- FeedingEvent editing and deletion
+- preserved overview scroll position after detail navigation
 - animal creation and persistence
 - feeding history
 - notes
@@ -59,7 +65,8 @@ Validated functionality includes:
 - backup validation
 - pre-restore safety backup
 - full backup restore
-- animal picture backup and restore
+- Box and Animal picture backup and restore
+- Box dimension backup and restore
 - appearance-setting backup and restore
 - restore of Web-created backups
 
@@ -70,9 +77,9 @@ TerraManager backup files use the Android system file selection interface.
 The user can therefore choose an accessible destination such as Downloads,
 Documents or another available storage provider.
 
-Animal pictures are not stored as temporary image-picker paths anymore.
-Application-owned picture data is stored persistently through Drift in the
-`MediaAssets` table.
+Box and Animal pictures are stored persistently through Drift in the
+`MediaAssets` table. Animal `picturePath` values are retained only as a legacy
+migration fallback.
 
 ## Web
 
@@ -86,6 +93,12 @@ Validated functionality includes:
 - Drift database operation
 - persistence across normal browser reloads
 - box and animal workflows
+- Box editing and optional dimensions
+- persistent Box pictures
+- Box picture persistence across normal browser reloads
+- Box and Animal overview thumbnails
+- FeedingEvent editing and deletion
+- preserved overview scroll position after detail navigation
 - feeding data
 - persistent animal pictures
 - animal picture persistence across normal browser reloads
@@ -107,7 +120,8 @@ Validated functionality includes:
 - backup validation
 - pre-restore safety backup
 - full backup restore
-- animal picture backup and restore
+- Box and Animal picture backup and restore
+- Box dimension backup and restore
 - appearance-setting backup and restore
 - restore of Android-created backups
 
@@ -132,13 +146,14 @@ dart compile js -O4 web/drift_worker.dart -o web/drift_worker.dart.js
 The `sqlite3.wasm` version must remain compatible with the `sqlite3` Dart
 package resolved by the project.
 
-Persistent Animal pictures are stored as `MediaAssets` through the same Drift
-database abstraction used by the rest of the application.
+Persistent Box and Animal pictures are stored as `MediaAssets` through the same
+Drift database abstraction used by the rest of the application.
 
 ## Backup Portability
 
-TerraManager Backup Format Version 1 is designed to avoid platform-specific
-storage identifiers.
+TerraManager Backup Format Version 2 is the current portable format and avoids
+platform-specific storage identifiers. Version 1 remains supported for legacy
+restore.
 
 Portable backups contain:
 
@@ -147,7 +162,8 @@ manifest.json
 data.json
 settings.json
 media/
-└── animals/
+├── animals/
+└── boxes/
 ```
 
 Backups do not depend on:
@@ -157,8 +173,8 @@ Backups do not depend on:
 - raw SQLite database files
 - internal MediaAsset IDs
 
-Animal pictures are exported as portable media files and restored into the
-local `MediaAssets` persistence layer.
+Box and Animal pictures are exported as portable media files and restored into
+the local `MediaAssets` persistence layer.
 
 The following transfers have been manually validated:
 
@@ -175,8 +191,8 @@ Web backup     → Android restore
 
 Application data is stored in browser-managed local storage.
 
-Clearing site data may remove the TerraManager database, persistent Animal
-pictures and local appearance settings.
+Clearing site data may remove the TerraManager database, persistent Box and
+Animal pictures and local appearance settings.
 
 Portable `.tmbackup` files stored outside the browser can be used to restore
 data after such a loss.

@@ -10,7 +10,7 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Current completed release milestone:
 
-**v0.6.0 – Backup & Restore**
+**v0.7.0 – Editing & Overview**
 
 Completed milestones:
 
@@ -20,6 +20,7 @@ Completed milestones:
 - v0.4.0 – Android and Web Platform Support
 - v0.5.0 – Usability & Settings
 - v0.6.0 – Backup & Restore
+- v0.7.0 – Editing & Overview
 
 Android and Web are currently validated platforms.
 
@@ -30,12 +31,7 @@ Portable backup and restore has been validated:
 - Android → Web
 - Web → Android
 
-The next planned milestones are:
-
-### v0.7.0 – Editing & Overview
-
-Box editing, enclosure dimensions, Box pictures, human-readable Box labels,
-editable feeding events, overview thumbnails and improved list-state handling.
+The current development milestone is:
 
 ### v0.8.0 – Navigation & History
 
@@ -59,6 +55,12 @@ Animal-to-Box assignments.
 - unknown and invalid QR handling
 - assigned animal list on box detail
 - navigation from box to assigned animal
+- optional width, height and depth
+- persistent Box pictures
+- Box editing while keeping the QR identifier immutable
+- human-readable local labels (`Box N`)
+- Box thumbnails in the overview
+- preserved Box overview scroll position after detail navigation
 - safe deletion of empty boxes
 - deletion protection for boxes containing active animals
 
@@ -83,15 +85,19 @@ Animal-to-Box assignments.
 - restore archived animals
 - permanent deletion of archived animals
 - preserved feeding history while archived
+- Animal thumbnails in the overview
+- preserved Animal overview scroll position after detail navigation
 
 ### Feeding
 
 - feeding event history
 - feeding timestamps
 - optional feeding notes
+- FeedingEvent editing
+- FeedingEvent deletion with confirmation
 - latest feeding lookup
 - latest feeding displayed directly on animal details
-- automatic refresh after returning from feeding history
+- automatic refresh after feeding edits and deletions
 
 ### Settings
 
@@ -112,11 +118,13 @@ Animal-to-Box assignments.
 ### Backup & Restore
 
 - versioned portable `.tmbackup` archive format
+- Backup Format Version 2 for current exports
+- backward-compatible restore of Backup Format Version 1
 - backup format version independent from database schema version
-- Box export and restore
+- Box export and restore, including dimensions and pictures
 - Animal export and restore
 - FeedingEvent export and restore
-- animal picture export and restore
+- Box and Animal picture export and restore
 - appearance setting export and restore
 - permanent Box QR identifiers preserved
 - backup validation before destructive operations
@@ -207,12 +215,10 @@ local TerraManager state with the selected backup.
 
 The current database structure is:
 
-## Data Model
-
-The current database structure is:
-
 ```text
 Box
+ │
+ ├──── 0:1 ──── MediaAsset
  │
  └──── 1:n ──── Active Animal
                    │
@@ -233,11 +239,16 @@ Archived Animal
 Box
 ├── id
 ├── qrId
+├── widthCm
+├── heightCm
+├── depthCm
+├── pictureMediaId
 ├── createdAt
 └── updatedAt
 ```
 
-qrId is unique and permanently identifies the box.
+`qrId` is unique and permanently identifies the box. Width, height and depth are optional.
+`pictureMediaId` optionally references persistent image data stored in `MediaAssets`.
 
 The QR format is:
 
@@ -294,14 +305,14 @@ MediaAsset
 └── updatedAt
 ```
 
-Animal pictures are stored persistently as binary data in the local Drift
+Box and Animal pictures are stored persistently as binary data in the local Drift
 database.
 
 This avoids relying on temporary or platform-specific paths returned by image
 selection APIs.
 
-The same persistence model is used on Android and Web and allows pictures to be
-included in portable TerraManager backups.
+The same persistence model is used on Android and Web and allows Box and Animal
+pictures to be included in portable TerraManager backups.
 
 ### FeedingEvent
 
@@ -543,6 +554,7 @@ docs/roadmap.md
 docs/development.md
 docs/platform-support.md
 docs/database/data-model.md
+docs/backup-format.md
 docs/architecture-decisions.md
 docs/functional-requirements-MVP.md
 docs/functional-requirements-non-MVP.md

@@ -210,4 +210,50 @@ void main() {
 
     expect(find.text('Box 4'), findsOneWidget);
   });
+
+  testWidgets('preserves scroll position after returning from box detail', (
+    tester,
+  ) async {
+    final repository = BoxRepository(database);
+
+    final boxIds = <int>[];
+
+    for (var i = 1; i <= 30; i++) {
+      boxIds.add(await repository.createBox('test-box-$i'));
+    }
+
+    await pumpPage(tester);
+
+    final targetId = boxIds[19];
+
+    final target = find.byKey(Key('box-list-item-$targetId'));
+
+    await tester.scrollUntilVisible(
+      target,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(target, findsOneWidget);
+
+    final positionBefore = tester.getTopLeft(target).dy;
+
+    await tester.tap(target);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
+
+    await tester.pageBack();
+
+    await tester.pumpAndSettle();
+
+    expect(target, findsOneWidget);
+
+    final positionAfter = tester.getTopLeft(target).dy;
+
+    expect(positionAfter, closeTo(positionBefore, 1.0));
+  });
 }

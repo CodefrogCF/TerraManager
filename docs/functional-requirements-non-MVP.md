@@ -49,8 +49,9 @@ The following functionality remains outside the current MVP:
 Manual portable backup and full replacement restore are part of the MVP
 beginning with v0.6.0.
 
-Backup Format Version 1 supports domain data, appearance settings and Animal
-pictures.
+Backup Format Version 2 is the current export format and supports domain data,
+appearance settings, Box dimensions, Box pictures and Animal pictures. Backup
+Format Version 1 remains supported for backward-compatible restore.
 
 ## Additional Platforms
 

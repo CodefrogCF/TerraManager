@@ -168,7 +168,7 @@ Backup Format Version 2 uses:
 2
 ```
 
-erraManager 0.7.x accepts Backup Format Versions 1 and 2 for restore.
+TerraManager 0.7.x accepts Backup Format Versions 1 and 2 for restore.
 
 Version 1 is interpreted using the legacy Box representation. Missing Version 2
 Box fields are mapped to `null`.
@@ -182,7 +182,7 @@ Contains the TerraManager application version that created the backup.
 Example:
 
 ```text
-0.6.0
+0.7.0
 ```
 
 This value is informational and may also be used during compatibility
@@ -211,7 +211,7 @@ Example:
 
 ## Timestamp Format
 
-TerraManager Backup Format Version 1 serializes `DateTime` values using ISO 8601.
+TerraManager Backup Format Versions 1 and 2 serialize `DateTime` values using ISO 8601.
 
 Dart serialization uses:
 
@@ -232,7 +232,7 @@ portable backup representation.
 
 `data.json` contains portable representations of TerraManager domain data.
 
-Backup Format Version 1 contains:
+Backup Format Versions 1 and 2 contain:
 
 ```text
 boxes
@@ -254,10 +254,10 @@ The three collections must always be present, including when they are empty.
 
 ## Record IDs
 
-Backup Format Version 1 preserves the integer IDs of Boxes, Animals and
+Backup Format Versions 1 and 2 preserve the integer IDs of Boxes, Animals and
 FeedingEvents.
 
-This is possible because Restore Version 1 uses full replacement rather than
+This is possible because the current restore model uses full replacement rather than
 merge semantics.
 
 Preserving IDs keeps existing relationships deterministic:
@@ -529,7 +529,7 @@ silently replaced with default values.
 
 ### AnimalStatus
 
-Backup Format Version 1 defines:
+Backup Format Versions 1 and 2 define:
 
 ```text
 active
@@ -545,7 +545,7 @@ AnimalStatus.archived -> "archived"
 
 ### AnimalArchiveReason
 
-Backup Format Version 1 defines:
+Backup Format Versions 1 and 2 define:
 
 ```text
 sold
@@ -567,7 +567,7 @@ AnimalArchiveReason.other    -> "other"
 
 ### BirthDateAccuracy
 
-Backup Format Version 1 defines:
+Backup Format Versions 1 and 2 define:
 
 ```text
 exact
@@ -585,7 +585,7 @@ BirthDateAccuracy.yearKnown  -> "yearKnown"
 
 ### Sex
 
-Backup Format Version 1 defines:
+Backup Format Versions 1 and 2 define:
 
 ```text
 male
@@ -699,7 +699,7 @@ Excluding generated QR images:
 
 `settings.json` contains portable application appearance preferences.
 
-Backup Format Version 1 contains:
+Backup Format Versions 1 and 2 contain:
 
 ```text
 themeMode
@@ -720,7 +720,7 @@ explicitly encoded and validated.
 
 ## Stable Theme Mode Values
 
-Backup Format Version 1 defines:
+Backup Format Versions 1 and 2 define:
 
 ```text
 system
@@ -740,7 +740,7 @@ Unknown theme mode values must cause validation to fail.
 
 ## Stable Accent Values
 
-Backup Format Version 1 defines:
+Backup Format Versions 1 and 2 define:
 
 ```text
 green
@@ -832,7 +832,7 @@ Broken references make the backup invalid.
 
 ## Duplicate Validation
 
-Backup Format Version 1 must not contain conflicting identities.
+Supported backup formats must not contain conflicting identities.
 
 At minimum:
 
@@ -845,11 +845,11 @@ A backup containing duplicate required identities must be rejected.
 
 ## Restore Model
 
-Backup Format Version 1 uses full replacement.
+The current restore implementation uses full replacement for Backup Format Versions 1 and 2.
 
 Existing TerraManager domain data is not merged with backup data.
 
-Merge restore is explicitly outside Backup Format Version 1 restore semantics.
+Merge restore is explicitly outside the current restore semantics.
 
 The restore sequence is:
 
@@ -973,7 +973,7 @@ rollback.
 
 ## Full Replacement vs Merge
 
-Backup Format Version 1 intentionally uses full replacement.
+Backup Format Versions 1 and 2 intentionally use full replacement.
 
 Merge restore is not supported.
 
@@ -999,12 +999,12 @@ The backup representation does not depend on:
 - raw SQLite database files
 - Drift-generated implementation details
 
-Animal pictures are exported as archive media entries and restored into the
-local `MediaAssets` persistence layer.
+Box and Animal pictures are exported as archive media entries and restored into
+the local `MediaAssets` persistence layer.
 
 The same restore model is therefore used on Android and Web.
 
-Backup Format Version 1 has been manually validated for:
+Backup Format Version 2 has been manually validated for:
 
 ```text
 Android → Android
@@ -1059,8 +1059,6 @@ Backup Format Version 1 into its current domain model.
 
 Future TerraManager versions may add data such as:
 
-- Box dimensions
-- Box pictures
 - AnimalBoxAssignment history
 - sensor data
 - additional settings
@@ -1080,11 +1078,12 @@ For example:
 
 ```text
 TerraManager 0.6.0 -> Backup Format 1
-TerraManager 0.7.0 -> Backup Format 1
-TerraManager 0.8.0 -> Backup Format 1
+TerraManager 0.7.x -> Backup Format 2
 ```
 
-is valid if all additional data can be represented compatibly.
+A later application release may continue to use Backup Format 2 if its portable
+representation remains compatible, or introduce a new format version when the
+external representation changes incompatibly.
 
 A new application release does not automatically require:
 

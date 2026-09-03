@@ -12,12 +12,17 @@ The application must allow the user to:
 - automatically assign a permanent unique QR identifier
 - view the Box overview
 - view Box details
+- edit optional Box width, height and depth
+- add, replace or remove a persistent Box picture
+- display human-readable local Box labels while preserving the permanent QR identifier
+- display Box thumbnails where pictures are available
 - view Animals assigned to a Box
 - open an assigned Animal from the Box detail screen
 - delete an empty Box
 - require confirmation before deleting a Box
 - prevent accidental deletion of a Box containing Animals
 - identify a Box by QR code
+- preserve Box Overview scroll position after returning from related detail workflows
 
 The permanent QR identifier must remain unchanged when associated application
 data changes.
@@ -29,6 +34,8 @@ The application must allow the user to:
 - create an Animal
 - assign an Animal to a Box
 - view the Animal overview
+- display Animal thumbnails where pictures are available
+- preserve Animal Overview scroll position after returning from related detail/history workflows
 - view Animal details
 - edit Animal data
 - change the associated Box
@@ -54,15 +61,19 @@ Active Animals must have a Box assignment.
 
 Archived Animals must not have an active Box assignment.
 
-Application-owned Animal pictures must use persistent TerraManager storage and
-must not depend on temporary image-selection paths for normal operation.
+Application-owned Box and Animal pictures must use persistent TerraManager
+storage and must not depend on temporary image-selection paths for normal
+operation.
 
 ## Feeding
 
 The application must allow the user to:
 
 - add a FeedingEvent
+- edit an existing FeedingEvent
+- delete a FeedingEvent through an explicit confirmation workflow
 - store an optional feeding note
+- clear an existing feeding note
 - view complete feeding history
 - determine the latest feeding
 - display the latest feeding directly on the Animal detail screen
@@ -118,13 +129,13 @@ The MVP does not require cloud synchronization.
 
 Core domain data is stored with Drift/SQLite.
 
-Application-owned Animal pictures are stored persistently through MediaAssets in
-the local Drift database.
+Application-owned Box and Animal pictures are stored persistently through
+MediaAssets in the local Drift database.
 
 Appearance preferences are stored separately through `shared_preferences`.
 
-Domain data, Animal pictures and appearance preferences must survive normal
-application restarts or browser reloads on validated platforms.
+Domain data, Box and Animal pictures and appearance preferences must survive
+normal application restarts or browser reloads on validated platforms.
 
 ## Platform Targets
 
@@ -143,9 +154,10 @@ Android and Web are validated platforms.
 The application must allow the user to:
 
 - create a portable backup of local TerraManager data
-- export Boxes
+- export Boxes, including optional dimensions
 - export Animals
 - export FeedingEvents
+- export Box pictures
 - export Animal pictures
 - export appearance settings
 - select an existing TerraManager backup
@@ -158,6 +170,8 @@ The application must allow the user to:
 - validate permanent Box QR identifiers
 - create a safety backup before destructive database replacement
 - explicitly confirm replacement of existing local data
+- restore Box dimensions
+- restore persistent Box pictures
 - restore persistent Animal pictures
 - restore appearance settings
 
@@ -176,8 +190,9 @@ The initial restore implementation uses full replacement.
 
 Merging backup data with existing application data is not required for the MVP.
 
-Backup Format Version 1 must support manual transfer between the currently
-validated platforms:
+Backup Format Version 2 is the current export format and must support manual
+transfer between the currently validated platforms. Backup Format Version 1
+remains supported for backward-compatible restore:
 
 ```text
 Android → Android

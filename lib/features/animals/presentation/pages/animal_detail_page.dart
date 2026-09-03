@@ -7,6 +7,7 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/boxes/box_label.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../widgets/animal_picture.dart';
 import 'animal_edit_page.dart';
@@ -792,7 +793,7 @@ class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
               (box) => DropdownMenuItem<int>(
                 value: box.id,
                 child: Text(
-                  box.qrId,
+                  buildBoxLabel(box.id),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

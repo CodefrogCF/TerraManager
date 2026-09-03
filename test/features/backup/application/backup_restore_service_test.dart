@@ -1,5 +1,7 @@
 import 'dart:typed_data';
 
+import 'package:drift/drift.dart' as drift;
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +18,8 @@ import 'package:terramanager/features/backup/domain/backup_manifest.dart';
 import 'package:terramanager/features/backup/domain/backup_settings.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
+import 'package:archive/archive.dart';
+import 'package:terramanager/features/backup/domain/backup_format.dart';
 
 void main() {
   late AppDatabase database;
@@ -130,6 +134,63 @@ void main() {
     );
   }
 
+  ValidatedBackup createV2TargetBackup() {
+    const boxPicturePath = 'media/boxes/5.png';
+    const animalPicturePath = 'media/animals/12.jpg';
+
+    return ValidatedBackup(
+      manifest: BackupManifest(
+        backupFormatVersion: BackupFormat.currentVersion,
+        appVersion: '0.7.0',
+        databaseSchemaVersion: 4,
+        createdAt: DateTime.utc(2026, 9, 3),
+      ),
+      data: BackupData(
+        boxes: [
+          BackupBox(
+            id: 5,
+            qrId: 'TM:BOX:55555555-5555-4555-8555-555555555555',
+            widthCm: 60,
+            heightCm: 40,
+            depthCm: 45,
+            pictureMediaPath: boxPicturePath,
+            createdAt: DateTime(2026, 9, 1),
+            updatedAt: DateTime(2026, 9, 2),
+          ),
+        ],
+        animals: [
+          BackupAnimal(
+            id: 12,
+            boxId: 5,
+            status: 'active',
+            commonName: 'Restored Animal',
+            latinName: 'Restored species',
+            sex: 'female',
+            birthDate: null,
+            birthDateAccuracy: null,
+            tempMin: 24,
+            tempMax: 28,
+            humidityMin: 50,
+            humidityMax: 70,
+            pictureMediaPath: animalPicturePath,
+            notes: 'Restored notes',
+            archiveReason: null,
+            archivedAt: null,
+            archiveNotes: null,
+            createdAt: DateTime(2026, 9, 1),
+            updatedAt: DateTime(2026, 9, 2),
+          ),
+        ],
+        feedingEvents: const [],
+      ),
+      settings: const BackupSettings(themeMode: 'dark', accent: 'teal'),
+      mediaFiles: {
+        boxPicturePath: Uint8List.fromList([10, 20, 30]),
+        animalPicturePath: Uint8List.fromList([40, 50, 60]),
+      },
+    );
+  }
+
   test('replaces database while preserving '
       'backup ids and relationships', () async {
     await createExistingData();
@@ -168,6 +229,11 @@ void main() {
     expect(boxes.single.id, 5);
 
     expect(boxes.single.qrId, 'TM:BOX:55555555-5555-4555-8555-555555555555');
+
+    expect(boxes.single.widthCm, isNull);
+    expect(boxes.single.heightCm, isNull);
+    expect(boxes.single.depthCm, isNull);
+    expect(boxes.single.pictureMediaId, isNull);
 
     final animals = await database.select(database.animals).get();
 
@@ -413,5 +479,143 @@ void main() {
     expect(settingsController.themeMode, ThemeMode.system);
 
     expect(settingsController.accent, AppAccent.green);
+  });
+
+  test('restores v2 box dimensions and box picture '
+      'alongside animal picture', () async {
+    await createExistingData();
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (_) async {},
+    );
+
+    final result = await service.restore(
+      backup: createV2TargetBackup(),
+      currentAppVersion: '0.7.0',
+    );
+
+    expect(result.mediaFileCount, 2);
+
+    final boxes = await database.select(database.boxes).get();
+
+    expect(boxes.length, 1);
+
+    final box = boxes.single;
+
+    expect(box.id, 5);
+    expect(box.widthCm, 60);
+    expect(box.heightCm, 40);
+    expect(box.depthCm, 45);
+    expect(box.pictureMediaId, isNotNull);
+
+    final animals = await database.select(database.animals).get();
+
+    expect(animals.length, 1);
+
+    final animal = animals.single;
+
+    expect(animal.pictureMediaId, isNotNull);
+
+    expect(animal.pictureMediaId, isNot(box.pictureMediaId));
+
+    final mediaAssets = await database.select(database.mediaAssets).get();
+
+    expect(mediaAssets.length, 2);
+
+    final boxMedia = mediaAssets.firstWhere(
+      (media) => media.id == box.pictureMediaId,
+    );
+
+    expect(boxMedia.fileName, '5.png');
+    expect(boxMedia.mimeType, 'image/png');
+
+    expect(boxMedia.data, Uint8List.fromList([10, 20, 30]));
+
+    final animalMedia = mediaAssets.firstWhere(
+      (media) => media.id == animal.pictureMediaId,
+    );
+
+    expect(animalMedia.fileName, '12.jpg');
+    expect(animalMedia.mimeType, 'image/jpeg');
+
+    expect(animalMedia.data, Uint8List.fromList([40, 50, 60]));
+  });
+
+  test('safety backup includes box dimensions and picture', () async {
+    final pictureBytes = Uint8List.fromList([7, 8, 9]);
+
+    final pictureMediaId = await database
+        .into(database.mediaAssets)
+        .insert(
+          MediaAssetsCompanion.insert(
+            fileName: 'old-box.png',
+            mimeType: 'image/png',
+            data: pictureBytes,
+          ),
+        );
+
+    final boxId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:99999999-9999-4999-8999-999999999999',
+            widthCm: const drift.Value(80),
+            heightCm: const drift.Value(50),
+            depthCm: const drift.Value(50),
+            pictureMediaId: drift.Value(pictureMediaId),
+          ),
+        );
+
+    var checkedSafetyBackup = false;
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (backup) async {
+        checkedSafetyBackup = true;
+
+        expect(
+          backup.manifest.backupFormatVersion,
+          BackupFormat.currentVersion,
+        );
+
+        final box = backup.data.boxes.single;
+
+        expect(box.id, boxId);
+        expect(box.widthCm, 80);
+        expect(box.heightCm, 50);
+        expect(box.depthCm, 50);
+
+        expect(box.pictureMediaPath, 'media/boxes/$boxId.png');
+
+        expect(backup.mediaFileCount, 1);
+
+        final archive = ZipDecoder().decodeBytes(backup.bytes, verify: true);
+
+        final pictureFile = archive.find('media/boxes/$boxId.png');
+
+        expect(pictureFile, isNotNull);
+
+        expect(pictureFile!.readBytes(), pictureBytes);
+      },
+    );
+
+    final emptyTarget = ValidatedBackup(
+      manifest: BackupManifest(
+        backupFormatVersion: 1,
+        appVersion: '0.6.0',
+        databaseSchemaVersion: 2,
+        createdAt: DateTime.utc(2026, 9, 2),
+      ),
+      data: const BackupData(boxes: [], animals: [], feedingEvents: []),
+      settings: const BackupSettings(themeMode: 'system', accent: 'green'),
+      mediaFiles: const {},
+    );
+
+    await service.restore(backup: emptyTarget, currentAppVersion: '0.7.0');
+
+    expect(checkedSafetyBackup, isTrue);
   });
 }

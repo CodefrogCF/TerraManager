@@ -15,7 +15,9 @@ void main() {
     validator = BackupValidationService();
   });
 
-  Map<String, dynamic> manifestJson({int backupFormatVersion = 1}) {
+  Map<String, dynamic> manifestJson({
+    int backupFormatVersion = BackupFormat.currentVersion,
+  }) {
     return {
       'backupFormatVersion': backupFormatVersion,
       'appVersion': '0.6.0',
@@ -152,7 +154,7 @@ void main() {
 
     final result = validator.validate(bytes);
 
-    expect(result.manifest.backupFormatVersion, 1);
+    expect(result.manifest.backupFormatVersion, BackupFormat.currentVersion);
 
     expect(result.boxCount, 1);
 
@@ -173,8 +175,26 @@ void main() {
     expect(result.data.animals.single.boxId, isNull);
   });
 
-  test('rejects unsupported backup format', () {
-    final bytes = createArchive(manifest: manifestJson(backupFormatVersion: 2));
+  test('accepts legacy backup format version 1', () {
+    final bytes = createArchive(manifest: manifestJson(backupFormatVersion: 1));
+
+    final result = validator.validate(bytes);
+
+    expect(result.manifest.backupFormatVersion, 1);
+
+    expect(result.boxCount, 1);
+
+    expect(result.data.boxes.single.widthCm, isNull);
+
+    expect(result.data.boxes.single.pictureMediaPath, isNull);
+  });
+
+  test('rejects unsupported future backup format', () {
+    final bytes = createArchive(
+      manifest: manifestJson(
+        backupFormatVersion: BackupFormat.currentVersion + 1,
+      ),
+    );
 
     expect(
       () => validator.validate(bytes),
@@ -550,6 +570,169 @@ void main() {
           (error) => error.code,
           'code',
           BackupValidationErrorCode.invalidQrId,
+        ),
+      ),
+    );
+  });
+
+  test('accepts box dimensions and referenced media', () {
+    const mediaPath = 'media/boxes/1.png';
+
+    final bytes = createArchive(
+      data: dataJson(
+        boxes: [
+          {
+            'id': 1,
+            'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'widthCm': 60.0,
+            'heightCm': 40.0,
+            'depthCm': 45.0,
+            'pictureMediaPath': mediaPath,
+            'createdAt': '2026-08-01T10:00:00.000',
+            'updatedAt': '2026-08-01T10:00:00.000',
+          },
+        ],
+      ),
+      media: {
+        mediaPath: Uint8List.fromList([1, 2, 3]),
+      },
+    );
+
+    final result = validator.validate(bytes);
+
+    final box = result.data.boxes.single;
+
+    expect(box.widthCm, 60);
+    expect(box.heightCm, 40);
+    expect(box.depthCm, 45);
+
+    expect(box.pictureMediaPath, mediaPath);
+
+    expect(result.mediaFileCount, 1);
+
+    expect(result.mediaFiles[mediaPath], Uint8List.fromList([1, 2, 3]));
+  });
+
+  test('rejects missing referenced box media', () {
+    final bytes = createArchive(
+      data: dataJson(
+        boxes: [
+          {
+            'id': 1,
+            'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'widthCm': null,
+            'heightCm': null,
+            'depthCm': null,
+            'pictureMediaPath': 'media/boxes/1.jpg',
+            'createdAt': '2026-08-01T10:00:00.000',
+            'updatedAt': '2026-08-01T10:00:00.000',
+          },
+        ],
+      ),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.missingMedia,
+        ),
+      ),
+    );
+  });
+
+  test('rejects invalid box media reference', () {
+    const mediaPath = 'media/animals/1.jpg';
+
+    final bytes = createArchive(
+      data: dataJson(
+        boxes: [
+          {
+            'id': 1,
+            'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'widthCm': null,
+            'heightCm': null,
+            'depthCm': null,
+            'pictureMediaPath': mediaPath,
+            'createdAt': '2026-08-01T10:00:00.000',
+            'updatedAt': '2026-08-01T10:00:00.000',
+          },
+        ],
+      ),
+      media: {
+        mediaPath: Uint8List.fromList([1]),
+      },
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidMediaReference,
+        ),
+      ),
+    );
+  });
+
+  test('rejects empty referenced box media', () {
+    const mediaPath = 'media/boxes/1.jpg';
+
+    final bytes = createArchive(
+      data: dataJson(
+        boxes: [
+          {
+            'id': 1,
+            'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'pictureMediaPath': mediaPath,
+            'createdAt': '2026-08-01T10:00:00.000',
+            'updatedAt': '2026-08-01T10:00:00.000',
+          },
+        ],
+      ),
+      media: {mediaPath: Uint8List(0)},
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.emptyMedia,
+        ),
+      ),
+    );
+  });
+
+  test('rejects non-positive box dimension', () {
+    final bytes = createArchive(
+      data: dataJson(
+        boxes: [
+          {
+            'id': 1,
+            'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'widthCm': 0.0,
+            'heightCm': 40.0,
+            'depthCm': 40.0,
+            'pictureMediaPath': null,
+            'createdAt': '2026-08-01T10:00:00.000',
+            'updatedAt': '2026-08-01T10:00:00.000',
+          },
+        ],
+      ),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidData,
         ),
       ),
     );

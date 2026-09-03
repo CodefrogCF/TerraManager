@@ -128,11 +128,9 @@ class BackupRestoreService {
 
       await database.delete(database.animals).go();
 
-      // Animals reference MediaAssets, so
-      // media must be removed afterwards.
-      await database.delete(database.mediaAssets).go();
-
       await database.delete(database.boxes).go();
+
+      await database.delete(database.mediaAssets).go();
 
       await database.customStatement(
         "DELETE FROM sqlite_sequence "
@@ -144,20 +142,62 @@ class BackupRestoreService {
         ")",
       );
 
+      var restoredMediaCount = 0;
+
       for (final box in backup.data.boxes) {
+        int? pictureMediaId;
+
+        final portablePath = box.pictureMediaPath;
+
+        if (portablePath != null) {
+          final bytes = backup.mediaFiles[portablePath];
+
+          if (bytes == null) {
+            throw StateError(
+              'Validated backup is missing media: '
+              '$portablePath',
+            );
+          }
+
+          if (bytes.isEmpty) {
+            throw StateError(
+              'Validated backup contains empty media: '
+              '$portablePath',
+            );
+          }
+
+          final fileName = _fileNameFromPortablePath(portablePath);
+
+          pictureMediaId = await database
+              .into(database.mediaAssets)
+              .insert(
+                MediaAssetsCompanion.insert(
+                  fileName: fileName,
+                  mimeType: _mimeTypeFromFileName(fileName),
+                  data: bytes,
+                  createdAt: Value(box.createdAt),
+                  updatedAt: Value(box.updatedAt),
+                ),
+              );
+
+          restoredMediaCount++;
+        }
+
         await database
             .into(database.boxes)
             .insert(
               BoxesCompanion(
                 id: Value(box.id),
                 qrId: Value(box.qrId),
+                widthCm: Value(box.widthCm),
+                heightCm: Value(box.heightCm),
+                depthCm: Value(box.depthCm),
+                pictureMediaId: Value(pictureMediaId),
                 createdAt: Value(box.createdAt),
                 updatedAt: Value(box.updatedAt),
               ),
             );
       }
-
-      var restoredMediaCount = 0;
 
       for (final animal in backup.data.animals) {
         final status = BackupEnumCodec.decodeAnimalStatus(animal.status);

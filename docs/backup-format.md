@@ -69,12 +69,28 @@ representation becomes incompatible with the previous format.
 The current backup format version is:
 
 ```text
-1
+2
 ```
+
+TerraManager currently supports restore of:
+
+```text
+Backup Format 1
+Backup Format 2
+```
+
+New backups are always created as Backup Format Version 2.
+
+Backup Format Version 1 remains supported for backward compatibility with
+backups created by TerraManager 0.6.x.
 
 ## Backup Format Version 1
 
-Backup Format Version 1 uses the following archive structure:
+Backup Format Version 1 is the legacy format created by TerraManager 0.6.x.
+
+It remains supported for restore compatibility.
+
+Version 1 uses the following archive structure:
 
 ```text
 TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
@@ -85,8 +101,37 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
     └── animals/
 ```
 
-Future TerraManager versions may introduce additional media directories or
-additional data fields where backward compatibility can be preserved.
+## Backup Format Version 2
+
+Backup Format Version 2 is the current format.
+
+It extends portable Box data with dimensions and Box pictures.
+
+Archive structure:
+
+```text
+TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
+├── manifest.json
+├── data.json
+├── settings.json
+└── media/
+    ├── animals/
+    └── boxes/
+```
+
+Version 2 adds the following portable Box fields:
+
+```text
+widthCm
+heightCm
+depthCm
+pictureMediaPath
+```
+
+Version 2 does not preserve internal `MediaAsset.id` values.
+
+Box and Animal pictures are stored as portable archive media and recreated as
+new `MediaAssets` during restore.
 
 ## manifest.json
 
@@ -106,10 +151,10 @@ Example:
 
 ```json
 {
-  "backupFormatVersion": 1,
-  "appVersion": "0.6.0",
-  "databaseSchemaVersion": 3,
-  "createdAt": "2026-09-02T13:30:00.000Z"
+  "backupFormatVersion": 2,
+  "appVersion": "0.7.0",
+  "databaseSchemaVersion": 4,
+  "createdAt": "2026-09-03T13:30:00.000Z"
 }
 ```
 
@@ -117,14 +162,18 @@ Example:
 
 Identifies the external TerraManager backup format.
 
-Backup Format Version 1 uses:
+Backup Format Version 2 uses:
 
 ```text
-1
+2
 ```
 
-A TerraManager version must reject backup format versions that it does not
-support.
+erraManager 0.7.x accepts Backup Format Versions 1 and 2 for restore.
+
+Version 1 is interpreted using the legacy Box representation. Missing Version 2
+Box fields are mapped to `null`.
+
+Unsupported older or future format versions must be rejected before restore.
 
 ### appVersion
 
@@ -241,7 +290,9 @@ strategy.
 
 ## Box Representation
 
-A Box is serialized with the following fields:
+### Backup Format Version 1
+
+A Version 1 Box contains:
 
 ```text
 id
@@ -261,9 +312,55 @@ Example:
 }
 ```
 
+When a Version 1 backup is restored by TerraManager 0.7.x, the fields introduced
+in Version 2 are initialized as:
+
+```text
+widthCm = null
+heightCm = null
+depthCm = null
+pictureMediaPath = null
+```
+
+### Backup Format Version 2
+
+A Version 2 Box contains:
+
+```text
+id
+qrId
+widthCm
+heightCm
+depthCm
+pictureMediaPath
+createdAt
+updatedAt
+```
+
+Example:
+
+```json
+{
+  "id": 1,
+  "qrId": "TM:BOX:11111111-1111-4111-8111-111111111111",
+  "widthCm": 60.0,
+  "heightCm": 40.0,
+  "depthCm": 45.0,
+  "pictureMediaPath": "media/boxes/1.jpg",
+  "createdAt": "2026-08-01T10:00:00.000",
+  "updatedAt": "2026-08-02T12:00:00.000"
+}
+```
+
+Box dimensions are optional.
+
+When present, dimensions must be greater than zero.
+
+`pictureMediaPath` is optional.
+
 ### Box QR Identifier
 
-`qrId` is a permanent TerraManager Box identifier.
+`qrId` is the permanent TerraManager Box identifier.
 
 Format:
 
@@ -271,7 +368,7 @@ Format:
 TM:BOX:<UUID-v4>
 ```
 
-The QR identifier must survive backup and restore unchanged.
+The QR identifier survives backup and restore unchanged.
 
 Generated QR images are not stored because they can be regenerated from the
 permanent `qrId`.
@@ -506,66 +603,63 @@ Sex.unknown -> "unknown"
 
 ## Media References
 
-Internal or device-specific media storage details are not part of the portable
-backup format.
+Internal `MediaAsset.id` values and device-specific filesystem paths are not
+part of the portable backup format.
 
-TerraManager currently stores Animal pictures persistently in the local
-`MediaAssets` database table. Earlier versions may still contain legacy
-`picturePath` references.
-
-Neither the internal `MediaAsset` ID nor a legacy local filesystem path is used
-as the portable backup identifier.
-
-Instead, the media bytes are written into the backup archive.
-
-Example:
+Backup Format Version 2 supports portable media for both Animals and Boxes:
 
 ```text
-media/animals/10.jpg
+media/
+├── animals/
+│   └── <animalId>.<extension>
+└── boxes/
+    └── <boxId>.<extension>
 ```
 
-The Animal representation stores:
+Animal representation:
 
-```text
+```json
 {
   "pictureMediaPath": "media/animals/10.jpg"
+}
+```
+
+Box representation:
+
+```json
+{
+  "pictureMediaPath": "media/boxes/1.jpg"
 }
 ```
 
 For persistent `MediaAssets`, the archive extension is derived from the stored
 filename or MIME type.
 
-Legacy `picturePath` data may still be read during export as a compatibility
-fallback when it could not previously be migrated into `MediaAssets`.
+Legacy Animal `picturePath` data may still be read during export as a
+compatibility fallback.
+
+Boxes have no legacy filesystem picture path.
 
 During restore:
 
 ```text
-backup media file
-        │
-        ▼
+archive media
+     │
+     ▼
 MediaAssets
-        │
-        ▼
-new MediaAsset.id
-        │
-        ▼
-Animal.pictureMediaId
+     │
+     ├──► Box.pictureMediaId
+     │
+     └──► Animal.pictureMediaId
 ```
 
-The restored Animal uses:
+New local `MediaAsset.id` values are created during restore.
 
-```text
-picturePath = null
-pictureMediaId = restored MediaAsset ID
-```
+Internal MediaAsset IDs are not portable domain identities and are therefore
+not preserved.
 
-The internal `MediaAsset.id` itself is not preserved in Backup Format Version 1.
-It is recreated during restore because it is not part of the portable domain
-identity.
-
-This keeps backups portable between Android and Web while avoiding
-platform-specific file storage.
+If a `pictureMediaPath` is present, the referenced archive entry must exist,
+must not be empty and must use the correct media directory for its record type.
 
 ## Missing Pictures
 
@@ -581,21 +675,6 @@ If `pictureMediaPath` contains a media reference, the referenced file must exist
 inside the backup archive.
 
 A missing referenced media file makes the backup invalid.
-
-## Future Media
-
-The media hierarchy may be extended in future backup-compatible versions.
-
-For example:
-
-```text
-media/
-├── animals/
-└── boxes/
-```
-
-This allows future Box pictures or other media types to be added without
-relying on platform-specific paths.
 
 ## QR Images
 
@@ -850,32 +929,41 @@ implementation.
 Domain data and persistent media replacement are performed inside a Drift
 transaction.
 
-The replacement order is:
+Existing records are deleted in dependency-safe order:
 
 ```text
 Delete FeedingEvents
 Delete Animals
-Delete MediaAssets
 Delete Boxes
+Delete MediaAssets
 Reset autoincrement sequences
+```
 
-Insert Boxes
+Restore insertion order is:
+
+```text
+For each Box picture:
+    Insert MediaAsset
+    obtain new MediaAsset.id
+
+Insert Boxes using pictureMediaId
 
 For each Animal picture:
     Insert MediaAsset
     obtain new MediaAsset.id
 
 Insert Animals using pictureMediaId
+
 Insert FeedingEvents
 
 Run foreign-key integrity check
 ```
 
-If any database or media insertion fails, the Drift transaction is rolled back.
+Box and Animal MediaAsset IDs are recreated locally and may differ from IDs in
+the source installation.
 
-This means that restored `MediaAssets`, Animals, Boxes and FeedingEvents are
-committed together instead of maintaining a separate filesystem media restore
-phase.
+If any insertion or integrity check fails, the Drift transaction is rolled
+back.
 
 If database replacement fails after application settings were changed, the
 previous appearance settings are restored.
@@ -1069,3 +1157,69 @@ Version 1 excludes:
 - merge semantics
 - selective restore
 - automatic backup scheduling
+
+## Backup Format Version 2 Summary
+
+Version 2 contains:
+
+```text
+manifest.json
+├── backupFormatVersion
+├── appVersion
+├── databaseSchemaVersion
+└── createdAt
+
+data.json
+├── boxes
+├── animals
+└── feedingEvents
+
+settings.json
+├── themeMode
+└── accent
+
+media/
+├── animals/
+└── boxes/
+```
+
+Version 2 preserves:
+
+- Box IDs
+- permanent Box QR identifiers
+- optional Box width, height and depth
+- Box pictures through portable media references
+- Animal IDs
+- active and archived lifecycle state
+- Box assignments for active Animals
+- archive metadata
+- FeedingEvent IDs and relationships
+- timestamps and notes
+- Animal pictures through portable media references
+- appearance settings
+
+Version 2 excludes:
+
+- internal MediaAsset IDs
+- generated QR PNG files
+- raw SQLite database files
+- platform-specific media paths
+- cloud data
+- merge semantics
+- selective restore
+- automatic backup scheduling
+
+### Version 1 Restore Compatibility
+
+TerraManager 0.7.x continues to restore Backup Format Version 1.
+
+Version 1 Box records do not contain dimensions or Box pictures. During restore,
+the missing Version 2 fields are mapped to null.
+
+Animal media, IDs, relationships, lifecycle state, FeedingEvents and settings
+from Version 1 retain their existing restore semantics.
+
+TerraManager 0.7.x creates new backups exclusively as Backup Format Version 2.
+
+Applications that support only Version 1 must reject Version 2 backups rather
+than silently restore them while discarding Version 2 Box data.

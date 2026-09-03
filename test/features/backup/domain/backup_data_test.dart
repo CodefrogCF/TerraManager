@@ -9,6 +9,10 @@ void main() {
         BackupBox(
           id: 1,
           qrId: 'TM:BOX:11111111-1111-4111-8111-111111111111',
+          widthCm: 60,
+          heightCm: 40,
+          depthCm: 40,
+          pictureMediaPath: 'media/boxes/1.png',
           createdAt: DateTime(2026, 8, 1),
           updatedAt: DateTime(2026, 8, 2),
         ),
@@ -56,6 +60,11 @@ void main() {
 
     expect(restored.boxes.single.id, 1);
 
+    expect(restored.boxes.single.widthCm, 60);
+    expect(restored.boxes.single.heightCm, 40);
+    expect(restored.boxes.single.depthCm, 40);
+    expect(restored.boxes.single.pictureMediaPath, 'media/boxes/1.png');
+
     expect(restored.animals.single.boxId, 1);
 
     expect(restored.animals.single.pictureMediaPath, 'media/animals/10.jpg');
@@ -101,5 +110,20 @@ void main() {
     expect(restored.archiveReason, 'rehomed');
 
     expect(restored.archivedAt, DateTime(2026, 9, 1));
+  });
+
+  test('legacy v1 box json loads new fields as null', () {
+    final restored = BackupBox.fromJson({
+      'id': 4,
+      'qrId': 'TM:BOX:44444444-4444-4444-8444-444444444444',
+      'createdAt': '2026-08-01T10:00:00.000',
+      'updatedAt': '2026-08-02T12:00:00.000',
+    });
+
+    expect(restored.id, 4);
+    expect(restored.widthCm, isNull);
+    expect(restored.heightCm, isNull);
+    expect(restored.depthCm, isNull);
+    expect(restored.pictureMediaPath, isNull);
   });
 }

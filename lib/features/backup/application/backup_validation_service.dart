@@ -185,13 +185,14 @@ class BackupValidationService {
   }
 
   void _validateManifest(BackupManifest manifest) {
-    if (manifest.backupFormatVersion != BackupFormat.currentVersion) {
+    if (!BackupFormat.isSupportedVersion(manifest.backupFormatVersion)) {
       throw BackupValidationException(
         code: BackupValidationErrorCode.unsupportedBackupFormat,
         message:
             'Unsupported backup format version: '
             '${manifest.backupFormatVersion}. '
-            'Supported version: '
+            'Supported versions: '
+            '${BackupFormat.minimumSupportedVersion}-'
             '${BackupFormat.currentVersion}.',
       );
     }
@@ -261,6 +262,24 @@ class BackupValidationService {
               '${box.qrId}',
         );
       }
+
+      _validateOptionalPositiveDimension(
+        value: box.widthCm,
+        boxId: box.id,
+        fieldName: 'widthCm',
+      );
+
+      _validateOptionalPositiveDimension(
+        value: box.heightCm,
+        boxId: box.id,
+        fieldName: 'heightCm',
+      );
+
+      _validateOptionalPositiveDimension(
+        value: box.depthCm,
+        boxId: box.id,
+        fieldName: 'depthCm',
+      );
     }
 
     final animalIds = <int>{};
@@ -316,6 +335,25 @@ class BackupValidationService {
               'missing Animal ${feeding.animalId}.',
         );
       }
+    }
+  }
+
+  void _validateOptionalPositiveDimension({
+    required double? value,
+    required int boxId,
+    required String fieldName,
+  }) {
+    if (value == null) {
+      return;
+    }
+
+    if (value <= 0) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidData,
+        message:
+            'Box $boxId contains invalid '
+            '$fieldName: $value',
+      );
     }
   }
 
@@ -428,6 +466,47 @@ class BackupValidationService {
   ) {
     final result = <String, Uint8List>{};
 
+    for (final box in data.boxes) {
+      final mediaPath = box.pictureMediaPath;
+
+      if (mediaPath == null) {
+        continue;
+      }
+
+      if (!_isValidBoxMediaPath(mediaPath)) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.invalidMediaReference,
+          message:
+              'Box ${box.id} contains '
+              'invalid media reference: $mediaPath',
+        );
+      }
+
+      final file = archiveFiles[mediaPath];
+
+      if (file == null) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.missingMedia,
+          message:
+              'Referenced media file is missing: '
+              '$mediaPath',
+        );
+      }
+
+      final bytes = file.readBytes();
+
+      if (bytes == null || bytes.isEmpty) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.emptyMedia,
+          message:
+              'Referenced media file is empty: '
+              '$mediaPath',
+        );
+      }
+
+      result[mediaPath] = Uint8List.fromList(bytes);
+    }
+
     for (final animal in data.animals) {
       final mediaPath = animal.pictureMediaPath;
 
@@ -474,6 +553,11 @@ class BackupValidationService {
 
   bool _isValidAnimalMediaPath(String path) {
     return path.startsWith('${BackupFormat.animalMediaDirectory}/') &&
+        _isSafeArchivePath(path);
+  }
+
+  bool _isValidBoxMediaPath(String path) {
+    return path.startsWith('${BackupFormat.boxMediaDirectory}/') &&
         _isSafeArchivePath(path);
   }
 

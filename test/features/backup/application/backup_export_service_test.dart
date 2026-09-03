@@ -94,7 +94,7 @@ void main() {
       '2026-09-02_15-30.tmbackup',
     );
 
-    expect(result.manifest.backupFormatVersion, 1);
+    expect(result.manifest.backupFormatVersion, BackupFormat.currentVersion);
 
     expect(result.manifest.databaseSchemaVersion, database.schemaVersion);
 
@@ -411,7 +411,7 @@ void main() {
 
     final restoredSettings = BackupSettings.fromJson(settingsJson);
 
-    expect(restoredManifest.backupFormatVersion, 1);
+    expect(restoredManifest.backupFormatVersion, BackupFormat.currentVersion);
 
     expect(restoredManifest.appVersion, '0.6.0');
 
@@ -460,5 +460,72 @@ void main() {
     expect(restoredSettings.accent, 'teal');
 
     expect(mediaFile!.readBytes(), pictureBytes);
+  });
+
+  test('exports box dimensions and persistent picture', () async {
+    final pictureBytes = Uint8List.fromList([11, 22, 33, 44]);
+
+    final pictureMediaId = await MediaRepository(database).createMedia(
+      fileName: 'terrarium.webp',
+      mimeType: 'image/webp',
+      data: pictureBytes,
+    );
+
+    final boxId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:88888888-8888-4888-8888-888888888888',
+            widthCm: const drift.Value(60),
+            heightCm: const drift.Value(40),
+            depthCm: const drift.Value(45),
+            pictureMediaId: drift.Value(pictureMediaId),
+          ),
+        );
+
+    final result = await BackupExportService(database).createBackup(
+      appVersion: '0.7.0',
+      themeMode: ThemeMode.system,
+      accent: AppAccent.green,
+    );
+
+    expect(result.manifest.backupFormatVersion, BackupFormat.currentVersion);
+
+    expect(result.data.boxes.length, 1);
+
+    final box = result.data.boxes.single;
+
+    expect(box.id, boxId);
+    expect(box.widthCm, 60);
+    expect(box.heightCm, 40);
+    expect(box.depthCm, 45);
+
+    expect(box.pictureMediaPath, 'media/boxes/$boxId.webp');
+
+    expect(result.mediaFileCount, 1);
+
+    final archive = ZipDecoder().decodeBytes(result.bytes, verify: true);
+
+    final mediaFile = archive.find('media/boxes/$boxId.webp');
+
+    expect(mediaFile, isNotNull);
+    expect(mediaFile!.readBytes(), pictureBytes);
+
+    final dataFile = archive.find(BackupFormat.dataFileName);
+
+    expect(dataFile, isNotNull);
+
+    final dataJson =
+        jsonDecode(utf8.decode(dataFile!.readBytes()!)) as Map<String, dynamic>;
+
+    final boxes = dataJson['boxes'] as List<dynamic>;
+
+    final boxJson = boxes.single as Map<String, dynamic>;
+
+    expect(boxJson['widthCm'], 60.0);
+    expect(boxJson['heightCm'], 40.0);
+    expect(boxJson['depthCm'], 45.0);
+
+    expect(boxJson['pictureMediaPath'], 'media/boxes/$boxId.webp');
   });
 }

@@ -39,12 +39,23 @@ class BackupData {
 class BackupBox {
   final int id;
   final String qrId;
+
+  final double? widthCm;
+  final double? heightCm;
+  final double? depthCm;
+
+  final String? pictureMediaPath;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
   const BackupBox({
     required this.id,
     required this.qrId,
+    this.widthCm,
+    this.heightCm,
+    this.depthCm,
+    this.pictureMediaPath,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -53,6 +64,10 @@ class BackupBox {
     return {
       'id': id,
       'qrId': qrId,
+      'widthCm': widthCm,
+      'heightCm': heightCm,
+      'depthCm': depthCm,
+      'pictureMediaPath': pictureMediaPath,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -62,6 +77,10 @@ class BackupBox {
     return BackupBox(
       id: json['id'] as int,
       qrId: json['qrId'] as String,
+      widthCm: (json['widthCm'] as num?)?.toDouble(),
+      heightCm: (json['heightCm'] as num?)?.toDouble(),
+      depthCm: (json['depthCm'] as num?)?.toDouble(),
+      pictureMediaPath: json['pictureMediaPath'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );

@@ -7,6 +7,7 @@ import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 
 void main() {
   late AppDatabase database;
@@ -346,5 +347,81 @@ void main() {
     expect(find.text('No feeding events available'), findsOneWidget);
 
     expect(await feedingRepository.getLatestFeeding(animalId), isNull);
+  });
+
+  testWidgets('restore dialog shows human readable box labels', (tester) async {
+    final firstBoxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'restore-box-001'));
+
+    final secondBoxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'restore-box-002'));
+
+    final animalRepository = AnimalRepository(database);
+
+    final animalId = await animalRepository.createAnimal(
+      boxId: firstBoxId,
+      commonName: 'Archived Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final archived = await animalRepository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 3),
+    );
+
+    expect(archived, isTrue);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('restore-animal-button')),
+      300,
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('restore-animal-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('restore-animal-dialog')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('restore-box-field')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Box 1'), findsOneWidget);
+
+    expect(find.text('Box 2'), findsOneWidget);
+
+    expect(find.text('restore-box-001'), findsNothing);
+
+    expect(find.text('restore-box-002'), findsNothing);
+
+    await tester.tap(find.text('Box 2').last);
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('confirm-restore-animal-button')));
+
+    await tester.pumpAndSettle();
+
+    final restoredAnimal = await animalRepository.getAnimalById(animalId);
+
+    expect(restoredAnimal, isNotNull);
+    expect(restoredAnimal!.boxId, secondBoxId);
   });
 }

@@ -161,9 +161,20 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    await tester.tap(
-      find.text('TM:BOX:33333333-aaaa-4333-8333-333333333333').last,
+    expect(find.text('Box $firstBoxId'), findsOneWidget);
+    expect(find.text('Box $secondBoxId'), findsOneWidget);
+
+    expect(
+      find.text('TM:BOX:22222222-aaaa-4222-8222-222222222222'),
+      findsNothing,
     );
+
+    expect(
+      find.text('TM:BOX:33333333-aaaa-4333-8333-333333333333'),
+      findsNothing,
+    );
+
+    await tester.tap(find.text('Box $secondBoxId').last);
 
     await tester.pumpAndSettle();
 

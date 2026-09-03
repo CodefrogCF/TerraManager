@@ -46,6 +46,29 @@ class BackupExportService {
 
     final mediaFiles = <String, Uint8List>{};
 
+    final backupBoxes = <BackupBox>[];
+
+    for (final box in boxes) {
+      final pictureMediaPath = await _exportBoxPicture(
+        box: box,
+        mediaRepository: mediaRepository,
+        mediaFiles: mediaFiles,
+      );
+
+      backupBoxes.add(
+        BackupBox(
+          id: box.id,
+          qrId: box.qrId,
+          widthCm: box.widthCm,
+          heightCm: box.heightCm,
+          depthCm: box.depthCm,
+          pictureMediaPath: pictureMediaPath,
+          createdAt: box.createdAt,
+          updatedAt: box.updatedAt,
+        ),
+      );
+    }
+
     final backupAnimals = <BackupAnimal>[];
 
     for (final animal in animals) {
@@ -89,16 +112,7 @@ class BackupExportService {
     }
 
     final backupData = BackupData(
-      boxes: boxes
-          .map(
-            (box) => BackupBox(
-              id: box.id,
-              qrId: box.qrId,
-              createdAt: box.createdAt,
-              updatedAt: box.updatedAt,
-            ),
-          )
-          .toList(),
+      boxes: backupBoxes,
       animals: backupAnimals,
       feedingEvents: feedingEvents
           .map(
@@ -163,6 +177,44 @@ class BackupExportService {
       settings: backupSettings,
       mediaFileCount: mediaFiles.length,
     );
+  }
+
+  Future<String?> _exportBoxPicture({
+    required Box box,
+    required MediaRepository mediaRepository,
+    required Map<String, Uint8List> mediaFiles,
+  }) async {
+    final mediaId = box.pictureMediaId;
+
+    if (mediaId == null) {
+      return null;
+    }
+
+    final media = await mediaRepository.getMediaById(mediaId);
+
+    if (media == null) {
+      throw BackupExportException(
+        'Persistent picture for box '
+        '${box.id} does not exist.',
+      );
+    }
+
+    if (media.data.isEmpty) {
+      throw BackupExportException(
+        'Persistent picture for box '
+        '${box.id} is empty.',
+      );
+    }
+
+    final extension = _mediaExtension(media.fileName, mimeType: media.mimeType);
+
+    final mediaPath =
+        '${BackupFormat.boxMediaDirectory}/'
+        '${box.id}.$extension';
+
+    mediaFiles[mediaPath] = media.data;
+
+    return mediaPath;
   }
 
   Future<String?> _exportAnimalPicture({

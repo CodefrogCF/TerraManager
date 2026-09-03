@@ -288,4 +288,200 @@ void main() {
 
     expect(find.text('Edit Feeding'), findsNothing);
   });
+
+  testWidgets('delete button opens confirmation dialog', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final feedingId = await FeedingRepository(database).addFeeding(
+      animalId,
+      DateTime(2026, 8, 20, 18, 30),
+      notes: 'Mouse',
+    );
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.tap(
+      find.byKey(
+        Key('delete-feeding-button-$feedingId'),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('delete-feeding-dialog')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.text('Delete Feeding?'),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(
+        const Key('cancel-delete-feeding-button'),
+      ),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(
+        const Key('confirm-delete-feeding-button'),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('cancel delete keeps feeding', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final feedingId = await FeedingRepository(database).addFeeding(
+      animalId,
+      DateTime(2026, 8, 20, 18, 30),
+      notes: 'Keep me',
+    );
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.tap(
+      find.byKey(
+        Key('delete-feeding-button-$feedingId'),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(
+        const Key('cancel-delete-feeding-button'),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    final feeding = await FeedingRepository(database)
+        .getFeedingById(feedingId);
+
+    expect(feeding, isNotNull);
+
+    expect(
+      find.text('Keep me'),
+      findsOneWidget,
+    );
+
+    expect(
+      find.text('Delete Feeding?'),
+      findsNothing,
+    );
+  });
+
+  testWidgets('deletes selected feeding', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final firstId = await FeedingRepository(database).addFeeding(
+      animalId,
+      DateTime(2026, 8, 10, 12),
+      notes: 'Keep',
+    );
+
+    final secondId = await FeedingRepository(database).addFeeding(
+      animalId,
+      DateTime(2026, 8, 20, 18, 30),
+      notes: 'Delete me',
+    );
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.tap(
+      find.byKey(
+        Key('delete-feeding-button-$secondId'),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(
+        const Key('confirm-delete-feeding-button'),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    final repository = FeedingRepository(database);
+
+    expect(
+      await repository.getFeedingById(secondId),
+      isNull,
+    );
+
+    expect(
+      await repository.getFeedingById(firstId),
+      isNotNull,
+    );
+
+    expect(
+      find.text('Delete me'),
+      findsNothing,
+    );
+
+    expect(
+      find.text('Keep'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+    'deleting last feeding shows empty state',
+    (tester) async {
+      final animalId = await createTestAnimal();
+
+      final feedingId =
+          await FeedingRepository(database).addFeeding(
+        animalId,
+        DateTime(2026, 8, 20, 18, 30),
+        notes: 'Only feeding',
+      );
+
+      await pumpPage(
+        tester,
+        animalId: animalId,
+      );
+
+      await tester.tap(
+        find.byKey(
+          Key('delete-feeding-button-$feedingId'),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.byKey(
+          const Key(
+            'confirm-delete-feeding-button',
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('No feeding events available'),
+        findsOneWidget,
+      );
+
+      expect(
+        find.text('Only feeding'),
+        findsNothing,
+      );
+
+      final feedings =
+          await FeedingRepository(database)
+              .getFeedingsForAnimal(animalId);
+
+      expect(feedings, isEmpty);
+    },
+  );
 }

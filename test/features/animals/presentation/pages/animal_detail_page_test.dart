@@ -6,6 +6,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
+import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 
 void main() {
   late AppDatabase database;
@@ -183,5 +184,167 @@ void main() {
     expect(find.byKey(const Key('animal-picture')), findsOneWidget);
 
     expect(find.text('No picture'), findsOneWidget);
+  });
+
+  testWidgets(
+    'deleting latest feeding refreshes previous feeding on animal detail',
+    (tester) async {
+      final boxId = await database
+          .into(database.boxes)
+          .insert(BoxesCompanion.insert(qrId: 'latest-feeding-delete-box'));
+
+      final animalId = await AnimalRepository(database).createAnimal(
+        boxId: boxId,
+        commonName: 'Test Snake',
+        latinName: 'Pantherophis guttatus',
+        tempMin: 24,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 60,
+      );
+
+      final feedingRepository = FeedingRepository(database);
+
+      await feedingRepository.addFeeding(
+        animalId,
+        DateTime(2026, 8, 10, 12),
+        notes: 'Previous feeding',
+      );
+
+      final latestFeedingId = await feedingRepository.addFeeding(
+        animalId,
+        DateTime(2026, 8, 20, 18, 30),
+        notes: 'Latest feeding',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AnimalDetailPage(database: database, animalId: animalId),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('latest-feeding-section')),
+        300,
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('20.08.2026 18:30'), findsOneWidget);
+
+      expect(find.text('Latest feeding'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('feeding-history-button')));
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Feeding History'), findsOneWidget);
+
+      await tester.tap(
+        find.byKey(Key('delete-feeding-button-$latestFeedingId')),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete Feeding?'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('confirm-delete-feeding-button')));
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Latest feeding'), findsNothing);
+
+      expect(find.text('Previous feeding'), findsOneWidget);
+
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('latest-feeding-section')),
+        300,
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('latest-feeding-date')), findsOneWidget);
+
+      expect(find.text('10.08.2026 12:00'), findsOneWidget);
+
+      expect(find.text('Previous feeding'), findsOneWidget);
+
+      expect(find.text('20.08.2026 18:30'), findsNothing);
+
+      final latest = await feedingRepository.getLatestFeeding(animalId);
+
+      expect(latest, isNotNull);
+      expect(latest!.fedAt, DateTime(2026, 8, 10, 12));
+      expect(latest.notes, 'Previous feeding');
+    },
+  );
+
+  testWidgets('deleting last feeding refreshes empty state on animal detail', (
+    tester,
+  ) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'last-feeding-delete-box'));
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Test Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final feedingRepository = FeedingRepository(database);
+
+    final feedingId = await feedingRepository.addFeeding(
+      animalId,
+      DateTime(2026, 8, 20, 18, 30),
+      notes: 'Only feeding',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('feeding-history-button')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('delete-feeding-button-$feedingId')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('confirm-delete-feeding-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('No feeding events available'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('latest-feeding-empty-state')),
+      300,
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('latest-feeding-empty-state')), findsOneWidget);
+
+    expect(find.text('No feeding events available'), findsOneWidget);
+
+    expect(await feedingRepository.getLatestFeeding(animalId), isNull);
   });
 }

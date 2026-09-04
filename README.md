@@ -10,7 +10,7 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Current completed release milestone:
 
-**v0.7.0 – Editing & Overview**
+**v0.8.0 – Contextual Navigation**
 
 Completed milestones:
 
@@ -21,6 +21,8 @@ Completed milestones:
 - v0.5.0 – Usability & Settings
 - v0.6.0 – Backup & Restore
 - v0.7.0 – Editing & Overview
+- v0.7.1 – Maintenance
+- v0.8.0 – Contextual Navigation
 
 Android and Web are currently validated platforms.
 
@@ -33,10 +35,10 @@ Portable backup and restore has been validated:
 
 The current development milestone is:
 
-### v0.8.0 – Navigation & History
+### v0.9.0 – Feeding Workflow & Media
 
-Contextual swipe navigation between detail records and historical tracking of
-Animal-to-Box assignments.
+Full-screen, zoomable Box and Animal pictures and a dedicated QR Feeding Mode
+for quickly recording feeding events for the active Animals assigned to a Box.
 
 ## Implemented Features
 
@@ -61,6 +63,7 @@ Animal-to-Box assignments.
 - human-readable local labels (`Box N`)
 - Box thumbnails in the overview
 - preserved Box overview scroll position after detail navigation
+- contextual swipe navigation through the Box Overview ordering
 - safe deletion of empty boxes
 - deletion protection for boxes containing active animals
 
@@ -87,6 +90,8 @@ Animal-to-Box assignments.
 - preserved feeding history while archived
 - Animal thumbnails in the overview
 - preserved Animal overview scroll position after detail navigation
+- contextual swipe navigation through Active Animals, Animal History and
+  Box-specific Animal collections
 
 ### Feeding
 
@@ -148,6 +153,33 @@ Validated:
 Not yet validated:
 
 - iOS
+
+### Contextual Detail Navigation
+
+Animal and Box detail pages can receive a `DetailNavigationContext` containing:
+
+- the ordered record IDs from the source collection
+- the currently displayed record ID
+- the source of the navigation
+- the source Box ID when navigating through Animals assigned to one Box
+
+Supported sources are:
+
+- Active Animals
+- Animal History
+- Animals assigned to one Box
+- Box Overview
+
+Horizontal swipes move only within this source-specific ordering. The first and
+last records form navigation boundaries, so swiping cannot leave the original
+collection.
+
+The detail route remains open while the displayed record changes. Editing and
+other actions therefore continue to target the currently displayed record, and
+Back returns to the overview from which the route was opened.
+
+Detail pages can still be opened without a navigation context. In that case,
+they behave as normal non-swipe detail pages.
 
 ## Concept
 
@@ -553,7 +585,7 @@ Additional documentation:
 docs/roadmap.md
 docs/development.md
 docs/platform-support.md
-docs/database/data-model.md
+docs/data-model.md
 docs/backup-format.md
 docs/architecture-decisions.md
 docs/functional-requirements-MVP.md

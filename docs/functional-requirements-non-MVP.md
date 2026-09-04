@@ -62,6 +62,8 @@ Format Version 1 remains supported for backward-compatible restore.
 
 Possible future features may include:
 
+- historical Animal-to-Box assignment tracking
+- Box-specific Animal assignment history views
 - Animal weight history
 - shedding history
 - health/event tracking
@@ -71,3 +73,7 @@ Possible future features may include:
 
 These features are not part of the current MVP unless explicitly moved into a
 future milestone.
+
+Historical Animal-to-Box assignment tracking is currently deferred to Stretch
+Goals. The current `Animal.boxId` relationship remains the source of truth for
+an active Animal's present Box assignment.

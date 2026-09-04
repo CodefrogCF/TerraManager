@@ -4,7 +4,7 @@
 
 Current development milestone:
 
-**v0.8.0 – Navigation & History**
+**v0.9.0 – Feeding Workflow & Media**
 
 Completed development areas:
 
@@ -32,10 +32,16 @@ Completed development areas:
 - preserved Animal and Box overview scroll positions
 - Backup Format Version 2 with Box media
 - backward-compatible Backup Format Version 1 restore
+- contextual Animal detail navigation for Active Animals, Animal History and
+  Box-specific Animal collections
+- contextual Box detail navigation following the Box Overview ordering
 
-v0.7.0 implementation and release validation are complete.
+v0.7.1 implementation and release validation are complete.
 
-v0.8.0 is the current development milestone.
+v0.8.0 implementation, documentation, Android/Web regression validation and
+release are complete.
+
+v0.9.0 is the current development milestone.
 
 ---
 
@@ -283,39 +289,113 @@ iOS validation is currently deferred because no macOS development environment or
 ### Release
 
 - [x] Refresh documentation for the v0.7.x state
-- [ ] Release v0.7.1
+- [x] Release v0.7.1
 
 ---
 
-## v0.8.0 – Navigation & History
+## v0.8.0 – Contextual Navigation
 
 ### Detail Navigation
 
-- [ ] Add contextual detail navigation model
-- [ ] Swipe between Animals
-- [ ] Preserve Active Animal context
-- [ ] Preserve archived Animal context
-- [ ] Preserve Box-specific Animal context
-- [ ] Swipe between Boxes
+- [x] Add contextual detail navigation model
+- [x] Swipe between Animals
+- [x] Preserve Active Animal context
+- [x] Preserve archived Animal context
+- [x] Preserve Box-specific Animal context
+- [x] Swipe between Boxes
+- [x] Preserve Box Overview ordering
+- [x] Keep normal non-swipe detail navigation available
+- [x] Handle first and last record boundaries
+- [x] Keep detail actions bound to the currently displayed record
 
-### Animal Box History
+### Release
 
-- [ ] Add AnimalBoxAssignment data model
-- [ ] Add database migration
-- [ ] Record assignment when Animal is created
-- [ ] Record Box changes
-- [ ] Close assignment when Animal is archived
-- [ ] Create assignment when Animal is restored
-- [ ] Handle permanent deletion
-- [ ] Add Box-specific Animal History view (stretch)
+- [x] Automated regression tests
+- [x] Update documentation
+- [x] Update changelog
+- [x] Validate contextual navigation on Android
+- [x] Validate contextual navigation on Web
+- [x] Release v0.8.0
+
+---
+
+## v0.9.0 – Feeding Workflow & Media
+
+### Media
+
+- [ ] Open Box detail pictures in a full-screen viewer
+- [ ] Open Animal detail pictures in a full-screen viewer
+- [ ] Support picture zooming and panning
+- [ ] Preserve detail swipe navigation outside the picture viewer
+
+### Feeding Mode
+
+- [ ] Add a dedicated QR Feeding Mode entry point
+- [ ] Resolve a scanned Box to its currently assigned active Animals
+- [ ] Handle Boxes without assigned Animals
+- [ ] Select one or multiple Animals for a feeding
+- [ ] Create one FeedingEvent for every selected Animal
+- [ ] Return to scanning after a successful feeding entry
+- [ ] Preserve the existing normal Box scanner workflow
 
 ### Release
 
 - [ ] Regression tests
-- [ ] Validate backup/restore of history data
-- [ ] Update documentation
-- [ ] Update changelog
-- [ ] Release v0.8.0
+- [ ] Validate picture viewing on Android and Web
+- [ ] Validate QR Feeding Mode on Android and Web
+- [ ] Update documentation and changelog
+- [ ] Release v0.9.0
+
+---
+
+## v0.10.0 – Localization
+
+### Localization Infrastructure
+
+- [ ] Configure Flutter localization generation
+- [ ] Move user-visible strings into localization resources
+- [ ] Use English as the fallback language
+- [ ] Allow tests to select a fixed locale
+
+### Language Support
+
+- [ ] Add complete German translations
+- [ ] Follow the system language by default
+- [ ] Add System, English and German language settings
+- [ ] Apply language changes without restarting
+- [ ] Persist the selected language
+- [ ] Include the selected language in backup and restore
+
+### Release
+
+- [ ] Regression tests
+- [ ] Validate English and German on Android and Web
+- [ ] Update documentation and changelog
+- [ ] Release v0.10.0
+
+---
+
+## Stretch Goals
+
+These features are intentionally deferred and are not blockers for the active
+release sequence.
+
+### Animal Box Assignment History
+
+- [ ] Add `AnimalBoxAssignment` data model
+- [ ] Add database migration
+- [ ] Record assignment when an Animal is created
+- [ ] Record Box changes
+- [ ] Close the assignment when an Animal is archived
+- [ ] Create an assignment when an Animal is restored
+- [ ] Remove assignment history after permanent Animal deletion
+- [ ] Add Box-specific Animal History view
+
+### Additional Platform Validation
+
+- [ ] Validate iOS build and application startup
+- [ ] Validate database and media persistence on iOS
+- [ ] Validate QR storage, scanning and printing on iOS
 
 ---
 
@@ -336,4 +416,3 @@ Possible later development areas include:
 - health and event tracking
 - breeding records
 - enclosure maintenance history
-- iOS validation

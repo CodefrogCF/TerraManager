@@ -23,6 +23,7 @@ The application must allow the user to:
 - prevent accidental deletion of a Box containing Animals
 - identify a Box by QR code
 - preserve Box Overview scroll position after returning from related detail workflows
+- swipe between Box details using the ordering of the Box Overview
 
 The permanent QR identifier must remain unchanged when associated application
 data changes.
@@ -37,6 +38,7 @@ The application must allow the user to:
 - display Animal thumbnails where pictures are available
 - preserve Animal Overview scroll position after returning from related detail/history workflows
 - view Animal details
+- swipe between Animal details using the ordering of the source collection
 - edit Animal data
 - change the associated Box
 - add or remove an Animal picture
@@ -64,6 +66,30 @@ Archived Animals must not have an active Box assignment.
 Application-owned Box and Animal pictures must use persistent TerraManager
 storage and must not depend on temporary image-selection paths for normal
 operation.
+
+## Contextual Detail Navigation
+
+When a detail page is opened from an ordered collection, the application must
+preserve:
+
+- the ordered record IDs
+- the currently displayed record
+- the source collection
+- the source Box for a Box-specific Animal collection
+
+Supported Animal source collections are Active Animals, Animal History and the
+active Animals assigned to one Box.
+
+Supported Box navigation follows the Box Overview ordering.
+
+Horizontal navigation must stop at the first and last record of the source
+collection. Editing or acting on a detail page must affect the record currently
+displayed after swiping.
+
+Back must return to the overview from which the detail route was opened.
+
+Opening a detail page without a navigation context must remain supported and
+must not enable contextual swipe navigation.
 
 ## Feeding
 

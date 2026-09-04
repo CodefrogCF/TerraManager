@@ -38,6 +38,12 @@ Validated functionality includes:
 - Box and Animal overview thumbnails
 - FeedingEvent editing and deletion
 - preserved overview scroll position after detail navigation
+- contextual horizontal swipe navigation between Box details
+- contextual horizontal swipe navigation between Animal details from Active
+  Animals, Animal History and Box-specific Animal collections
+- first and last contextual navigation boundaries
+- detail actions after swiping and Back navigation to the originating overview
+- normal detail navigation without a swipe context
 - animal creation and persistence
 - feeding history
 - notes
@@ -99,6 +105,12 @@ Validated functionality includes:
 - Box and Animal overview thumbnails
 - FeedingEvent editing and deletion
 - preserved overview scroll position after detail navigation
+- contextual horizontal swipe navigation between Box details
+- contextual horizontal swipe navigation between Animal details from Active
+  Animals, Animal History and Box-specific Animal collections
+- first and last contextual navigation boundaries
+- detail actions after swiping and Back navigation to the originating overview
+- normal detail navigation without a swipe context
 - feeding data
 - persistent animal pictures
 - animal picture persistence across normal browser reloads

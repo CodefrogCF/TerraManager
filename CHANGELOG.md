@@ -4,7 +4,49 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
-## [Unreleased]
+## [0.8.0] - Contextual Navigation
+
+### Added
+
+- reusable `DetailNavigationContext` for ordered Animal and Box collections
+- navigation sources for Active Animals, Animal History, Box-specific Animals and Box Overview
+- horizontal swipe navigation between contextual Animal detail records
+- horizontal swipe navigation between contextual Box detail records
+- first and last record navigation boundaries
+
+### Changed
+
+- Animal detail actions continue to target the currently displayed Animal after swiping
+- Box edit, delete and QR actions continue to target the currently displayed Box after swiping
+- Animal detail navigation is disabled if an edited Animal leaves its original source collection
+- missing adjacent Boxes are removed safely from the in-memory navigation context
+- normal detail navigation without swipe context remains supported
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- no data or backup migration is required for v0.8.0
+
+### Validated
+
+- contextual Animal navigation on Android and Web
+- contextual Box navigation on Android and Web
+- Active Animal, Animal History and Box-specific Animal source ordering
+- first and last record boundaries
+- edit, delete and QR actions after contextual navigation
+- Back navigation to the originating overview
+- normal detail navigation without a swipe context
+
+### Testing
+
+- added contextual navigation model tests
+- added Active Animal, Animal History and Box-specific Animal swipe tests
+- added Box Overview swipe tests
+- added boundary, edit, deletion, QR action and missing-record regression coverage
+- completed the full automated test suite with 299 passing tests
+
+## [0.7.1] - Maintenance
 
 ### Fixed
 

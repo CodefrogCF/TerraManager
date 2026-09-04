@@ -507,3 +507,98 @@ Disadvantages:
 - large image collections may increase backup size and database storage use
 - deleting or replacing records must also manage referenced MediaAssets
 - legacy picture migration requires temporary compatibility logic
+
+---
+
+## ADR-009: Preserve source ordering with contextual detail navigation
+
+**Status:** Accepted
+
+**Date:** 2026-09-04
+
+### Context
+
+Animal and Box detail pages can be opened from different ordered collections.
+
+Animal details may originate from:
+
+- Active Animals
+- Animal History
+- Animals assigned to one Box
+
+Box details may originate from the Box Overview.
+
+A detail page cannot reconstruct the user's original navigation context by
+querying all database records. Such a query could include unrelated records,
+lose the source-specific ordering or mix active and archived Animals.
+
+The detail page must also keep the current record identifiable while its data is
+reloaded after editing or another detail action.
+
+### Decision
+
+TerraManager passes an optional immutable `DetailNavigationContext` to a detail
+page when that page is opened from an ordered collection.
+
+The context contains:
+
+```text
+DetailNavigationContext
+├── recordIds
+├── currentRecordId
+├── source
+└── sourceBoxId (Box-specific Animals only)
+```
+
+The supported sources are represented by `DetailNavigationSource`:
+
+```text
+activeAnimals
+archivedAnimals
+boxAnimals
+boxes
+```
+
+The context validates that:
+
+- the ordered record list is not empty
+- record IDs are unique
+- the current record belongs to the ordered record list
+- a Box-specific Animal context contains its source Box ID
+- other context types do not contain a source Box ID
+
+Animal and Box detail pages use the previous or next ID from this context when a
+horizontal swipe crosses the navigation threshold. They update the record shown
+by the existing route rather than pushing a new detail route for every swipe.
+
+First and last records form explicit boundaries. A swipe at a boundary keeps the
+current record displayed.
+
+After an Animal edit or lifecycle change, its navigation context is retained
+only if the Animal still belongs to the original source collection. A missing
+adjacent Box is removed from the in-memory navigation context without replacing
+the currently displayed Box.
+
+Navigation context is optional. Detail pages opened without one keep their
+normal non-swipe behavior.
+
+### Consequences
+
+Advantages:
+
+- detail navigation follows the ordering the user actually selected
+- active, archived and Box-specific Animal collections remain separate
+- detail actions always target the currently displayed record
+- editing can refresh a record without losing its current identity
+- Back returns through one detail route to the original overview
+- the navigation model is shared by Animal and Box features
+- existing non-swipe callers remain compatible
+
+Disadvantages:
+
+- the context represents a snapshot and can become stale when records change
+- detail pages must handle records that disappear or leave their source
+- the current context exists only in the active navigation route and is not
+  restored after a complete application restart or browser reload
+- horizontal gestures require coordination with other interactive detail
+  content

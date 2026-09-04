@@ -47,11 +47,16 @@ class BoxDetailPage extends StatefulWidget {
 }
 
 class _BoxDetailPageState extends State<BoxDetailPage> {
+  static const double _minimumSwipeDistance = 72;
+
   late Box _box;
 
+  DetailNavigationContext? _navigationContext;
   late Future<List<Animal>> _animalsFuture;
   late Future<MediaAsset?> _pictureFuture;
 
+  double _horizontalDragDistance = 0;
+  bool _switchingBox = false;
   bool _savingQr = false;
   bool _printingQr = false;
   bool _deleting = false;
@@ -66,6 +71,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     super.initState();
 
     _box = widget.box;
+    _navigationContext = widget.navigationContext;
 
     _loadAnimals();
     _loadPicture();
@@ -123,6 +129,10 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _openEditPage() async {
+    if (_switchingBox) {
+      return;
+    }
+
     final changed = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) => BoxEditPage(database: widget.database, boxId: _box.id),
@@ -161,6 +171,10 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _saveQrCode() async {
+    if (_switchingBox || _savingQr) {
+      return;
+    }
+
     setState(() {
       _savingQr = true;
       _saveError = null;
@@ -196,6 +210,10 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _printQrCode() async {
+    if (_switchingBox || _printingQr) {
+      return;
+    }
+
     setState(() {
       _printingQr = true;
       _printError = null;
@@ -230,7 +248,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _deleteBox() async {
-    if (_deleting) {
+    if (_switchingBox || _deleting) {
       return;
     }
 
@@ -346,6 +364,99 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     );
   }
 
+  void _handleHorizontalDragStart(DragStartDetails _) {
+    _horizontalDragDistance = 0;
+  }
+
+  void _handleHorizontalDragUpdate(DragUpdateDetails details) {
+    _horizontalDragDistance += details.primaryDelta ?? 0;
+  }
+
+  void _handleHorizontalDragEnd(DragEndDetails _) {
+    final dragDistance = _horizontalDragDistance;
+
+    _horizontalDragDistance = 0;
+
+    if (_switchingBox || _savingQr || _printingQr || _deleting) {
+      return;
+    }
+
+    if (dragDistance <= -_minimumSwipeDistance) {
+      _showAdjacentBox(next: true);
+    } else if (dragDistance >= _minimumSwipeDistance) {
+      _showAdjacentBox(next: false);
+    }
+  }
+
+  void _handleHorizontalDragCancel() {
+    _horizontalDragDistance = 0;
+  }
+
+  Future<void> _showAdjacentBox({required bool next}) async {
+    final navigationContext = _navigationContext;
+
+    if (navigationContext == null || _switchingBox) {
+      return;
+    }
+
+    final targetBoxId = next
+        ? navigationContext.nextRecordId
+        : navigationContext.previousRecordId;
+
+    if (targetBoxId == null) {
+      return;
+    }
+
+    setState(() {
+      _switchingBox = true;
+      _refreshError = null;
+    });
+
+    try {
+      final box = await BoxRepository(widget.database).getBoxById(targetBoxId);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (box == null) {
+        final remainingIds = navigationContext.recordIds.where(
+          (recordId) => recordId != targetBoxId,
+        );
+
+        setState(() {
+          _navigationContext = navigationContext.withRecordIds(remainingIds);
+          _switchingBox = false;
+          _refreshError = 'Box no longer exists';
+        });
+
+        return;
+      }
+
+      setState(() {
+        _box = box;
+        _navigationContext = navigationContext.selectRecord(targetBoxId);
+        _switchingBox = false;
+        _saveError = null;
+        _printError = null;
+        _deleteError = null;
+        _refreshError = null;
+
+        _loadPicture();
+        _loadAnimals();
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _switchingBox = false;
+        _refreshError = 'Failed to load box';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final box = _box;
@@ -356,13 +467,13 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         actions: [
           IconButton(
             key: const Key('edit-box-button'),
-            onPressed: _deleting ? null : _openEditPage,
+            onPressed: _switchingBox || _deleting ? null : _openEditPage,
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Edit Box',
           ),
           IconButton(
             key: const Key('save-qr-button'),
-            onPressed: _savingQr ? null : _saveQrCode,
+            onPressed: _switchingBox || _savingQr ? null : _saveQrCode,
             icon: _savingQr
                 ? const SizedBox(
                     width: 20,
@@ -374,7 +485,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
           ),
           IconButton(
             key: const Key('print-qr-button'),
-            onPressed: _printingQr ? null : _printQrCode,
+            onPressed: _switchingBox || _printingQr ? null : _printQrCode,
             icon: _printingQr
                 ? const SizedBox(
                     width: 20,
@@ -386,7 +497,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
           ),
           IconButton(
             key: const Key('delete-box-button'),
-            onPressed: _deleting ? null : _deleteBox,
+            onPressed: _switchingBox || _deleting ? null : _deleteBox,
             icon: _deleting
                 ? const SizedBox(
                     width: 20,
@@ -398,176 +509,205 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          if (_refreshError != null) ...[
-            Text(
-              _refreshError!,
-              key: const Key('box-refresh-error'),
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          if (_saveError != null) ...[
-            Text(
-              _saveError!,
-              key: const Key('qr-save-error'),
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          if (_printError != null) ...[
-            Text(
-              _printError!,
-              key: const Key('qr-print-error'),
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          if (_deleteError != null) ...[
-            Text(
-              _deleteError!,
-              key: const Key('box-delete-error'),
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          FutureBuilder<MediaAsset?>(
-            future: _pictureFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SizedBox(
-                  height: 220,
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              return BoxPicture(
-                key: const Key('box-detail-picture'),
-                pictureBytes: snapshot.data?.data,
-                emptyText: snapshot.hasError
-                    ? 'Image unavailable'
-                    : 'No picture',
-              );
-            },
-          ),
-          const SizedBox(height: 24),
-
-          Text('Dimensions', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 12),
-
-          _DetailRow(
-            key: const Key('box-width-row'),
-            label: 'Width',
-            value: _formatDimension(box.widthCm),
-          ),
-
-          _DetailRow(
-            key: const Key('box-height-row'),
-            label: 'Height',
-            value: _formatDimension(box.heightCm),
-          ),
-
-          _DetailRow(
-            key: const Key('box-depth-row'),
-            label: 'Depth',
-            value: _formatDimension(box.depthCm),
-          ),
-
-          const SizedBox(height: 12),
-
-          Center(
-            child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
-          ),
-          const SizedBox(height: 24),
-
-          Text('QR Identifier', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-
-          SelectableText(box.qrId, key: const Key('box-qr-id')),
-          const SizedBox(height: 24),
-
-          _DetailRow(label: 'Box ID', value: box.id.toString()),
-
-          _DetailRow(label: 'Created', value: _formatDateTime(box.createdAt)),
-
-          _DetailRow(label: 'Updated', value: _formatDateTime(box.updatedAt)),
-
-          const SizedBox(height: 16),
-
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Assigned Animals',
-                  key: const Key('assigned-animals-heading'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+      body: GestureDetector(
+        key: const Key('box-detail-swipe-area'),
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragStart: _navigationContext == null
+            ? null
+            : _handleHorizontalDragStart,
+        onHorizontalDragUpdate: _navigationContext == null
+            ? null
+            : _handleHorizontalDragUpdate,
+        onHorizontalDragEnd: _navigationContext == null
+            ? null
+            : _handleHorizontalDragEnd,
+        onHorizontalDragCancel: _navigationContext == null
+            ? null
+            : _handleHorizontalDragCancel,
+        child: ListView(
+          key: ValueKey<String>('box-detail-list-${box.id}'),
+          padding: const EdgeInsets.all(16),
+          children: [
+            if (_switchingBox) ...[
+              const LinearProgressIndicator(
+                key: Key('box-switching-indicator'),
               ),
-              const Icon(Icons.pets_outlined),
+              const SizedBox(height: 16),
             ],
-          ),
-          const SizedBox(height: 8),
 
-          FutureBuilder<List<Animal>>(
-            future: _animalsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
+            if (_refreshError != null) ...[
+              Text(
+                _refreshError!,
+                key: const Key('box-refresh-error'),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            if (_saveError != null) ...[
+              Text(
+                _saveError!,
+                key: const Key('qr-save-error'),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            if (_printError != null) ...[
+              Text(
+                _printError!,
+                key: const Key('qr-print-error'),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            if (_deleteError != null) ...[
+              Text(
+                _deleteError!,
+                key: const Key('box-delete-error'),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            FutureBuilder<MediaAsset?>(
+              key: ValueKey<String>('box-picture-${box.id}'),
+              future: _pictureFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SizedBox(
+                    height: 220,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                return BoxPicture(
+                  key: const Key('box-detail-picture'),
+                  pictureBytes: snapshot.data?.data,
+                  emptyText: snapshot.hasError
+                      ? 'Image unavailable'
+                      : 'No picture',
+                );
+              },
+            ),
+            const SizedBox(height: 24),
+
+            Text('Dimensions', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 12),
+
+            _DetailRow(
+              key: const Key('box-width-row'),
+              label: 'Width',
+              value: _formatDimension(box.widthCm),
+            ),
+
+            _DetailRow(
+              key: const Key('box-height-row'),
+              label: 'Height',
+              value: _formatDimension(box.heightCm),
+            ),
+
+            _DetailRow(
+              key: const Key('box-depth-row'),
+              label: 'Depth',
+              value: _formatDimension(box.depthCm),
+            ),
+
+            const SizedBox(height: 12),
+
+            Center(
+              child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
+            ),
+            const SizedBox(height: 24),
+
+            Text(
+              'QR Identifier',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+
+            SelectableText(box.qrId, key: const Key('box-qr-id')),
+            const SizedBox(height: 24),
+
+            _DetailRow(label: 'Box ID', value: box.id.toString()),
+
+            _DetailRow(label: 'Created', value: _formatDateTime(box.createdAt)),
+
+            _DetailRow(label: 'Updated', value: _formatDateTime(box.updatedAt)),
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                Expanded(
                   child: Text(
-                    'Failed to load assigned animals',
-                    key: Key('assigned-animals-error'),
+                    'Assigned Animals',
+                    key: const Key('assigned-animals-heading'),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
-                );
-              }
+                ),
+                const Icon(Icons.pets_outlined),
+              ],
+            ),
+            const SizedBox(height: 8),
 
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              final animals = snapshot.data ?? [];
-
-              if (animals.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: Text(
-                    'No animals assigned to this box',
-                    key: Key('no-assigned-animals'),
-                  ),
-                );
-              }
-
-              return Column(
-                children: [
-                  for (final animal in animals)
-                    Card(
-                      child: ListTile(
-                        key: Key('assigned-animal-${animal.id}'),
-                        leading: const Icon(Icons.pets_outlined),
-                        title: Text(animal.commonName),
-                        subtitle: Text(animal.latinName),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          _openAnimalDetail(animal, animals);
-                        },
-                      ),
+            FutureBuilder<List<Animal>>(
+              key: ValueKey<String>('box-animals-${box.id}'),
+              future: _animalsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'Failed to load assigned animals',
+                      key: Key('assigned-animals-error'),
                     ),
-                ],
-              );
-            },
-          ),
+                  );
+                }
 
-          const SizedBox(height: 24),
-        ],
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                final animals = snapshot.data ?? [];
+
+                if (animals.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text(
+                      'No animals assigned to this box',
+                      key: Key('no-assigned-animals'),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: [
+                    for (final animal in animals)
+                      Card(
+                        child: ListTile(
+                          key: Key('assigned-animal-${animal.id}'),
+                          leading: const Icon(Icons.pets_outlined),
+                          title: Text(animal.commonName),
+                          subtitle: Text(animal.latinName),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            _openAnimalDetail(animal, animals);
+                          },
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }

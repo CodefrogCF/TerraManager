@@ -53,6 +53,11 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    final detailPage = tester.widget<AnimalDetailPage>(
+      find.byType(AnimalDetailPage),
+    );
+
+    expect(detailPage.navigationContext, isNull);
     expect(find.text('Test Snake'), findsOneWidget);
     expect(find.text('Pantherophis guttatus'), findsOneWidget);
     expect(find.text('Sex'), findsOneWidget);

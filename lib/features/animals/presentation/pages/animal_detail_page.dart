@@ -9,18 +9,30 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/boxes/box_label.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
+import '../../../navigation/domain/detail_navigation_context.dart';
 import '../widgets/animal_picture.dart';
 import 'animal_edit_page.dart';
 
 class AnimalDetailPage extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
+  final DetailNavigationContext? navigationContext;
 
-  const AnimalDetailPage({
+  AnimalDetailPage({
     super.key,
     required this.database,
     required this.animalId,
-  });
+    this.navigationContext,
+  }) : assert(
+         navigationContext == null ||
+             navigationContext.source != DetailNavigationSource.boxes,
+         'Animal details require an animal navigation context.',
+       ),
+       assert(
+         navigationContext == null ||
+             navigationContext.currentRecordId == animalId,
+         'The navigation context must identify the displayed animal.',
+       );
 
   @override
   State<AnimalDetailPage> createState() => _AnimalDetailPageState();

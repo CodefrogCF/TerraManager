@@ -116,6 +116,9 @@ void main() {
 
     await pumpPage(tester, box: box);
 
+    final detailPage = tester.widget<BoxDetailPage>(find.byType(BoxDetailPage));
+
+    expect(detailPage.navigationContext, isNull);
     expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
 
     expect(find.text('Box 1'), findsOneWidget);

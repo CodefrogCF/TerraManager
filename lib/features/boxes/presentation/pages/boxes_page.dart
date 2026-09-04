@@ -5,6 +5,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
+import '../../../navigation/domain/detail_navigation_context.dart';
 import 'box_detail_page.dart';
 import 'box_scanner_page.dart';
 import 'new_box_page.dart';
@@ -127,12 +128,19 @@ class _BoxesPageState extends State<BoxesPage> {
     await _reloadBoxesPreservingScroll(previousOffset);
   }
 
-  Future<void> _openBoxDetail(Box box) async {
+  Future<void> _openBoxDetail(Box box, List<Box> boxes) async {
     final previousOffset = _currentScrollOffset();
 
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => BoxDetailPage(database: widget.database, box: box),
+        builder: (_) => BoxDetailPage(
+          database: widget.database,
+          box: box,
+          navigationContext: DetailNavigationContext.boxes(
+            boxIds: boxes.map((box) => box.id),
+            currentBoxId: box.id,
+          ),
+        ),
       ),
     );
 
@@ -216,7 +224,7 @@ class _BoxesPageState extends State<BoxesPage> {
                 subtitle: Text(_formatDimensions(box)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  _openBoxDetail(box);
+                  _openBoxDetail(box, boxes);
                 },
               );
             },

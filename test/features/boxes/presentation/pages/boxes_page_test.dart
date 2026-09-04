@@ -7,7 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
+import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
 
 void main() {
   late AppDatabase database;
@@ -135,6 +137,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('test-box-detail'), findsOneWidget);
+  });
+
+  testWidgets('passes box overview order to box details', (tester) async {
+    final repository = BoxRepository(database);
+
+    final firstId = await repository.createBox('test-box-1');
+    final secondId = await repository.createBox('test-box-2');
+    final thirdId = await repository.createBox('test-box-3');
+
+    await pumpPage(tester);
+
+    await tester.tap(find.byKey(Key('box-list-item-$secondId')));
+    await tester.pumpAndSettle();
+
+    final detailPage = tester.widget<BoxDetailPage>(find.byType(BoxDetailPage));
+    final navigationContext = detailPage.navigationContext!;
+
+    expect(navigationContext.source, DetailNavigationSource.boxes);
+    expect(navigationContext.recordIds, [firstId, secondId, thirdId]);
+    expect(navigationContext.currentRecordId, secondId);
+    expect(navigationContext.currentIndex, 1);
   });
 
   testWidgets('add button opens new box page', (tester) async {

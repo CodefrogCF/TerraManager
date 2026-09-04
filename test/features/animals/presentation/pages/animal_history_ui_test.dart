@@ -6,8 +6,10 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_history_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
+import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
 
 void main() {
   late AppDatabase database;
@@ -113,6 +115,61 @@ void main() {
       find.byKey(const Key('archive-information-heading')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('passes archived history order to animal details', (
+    tester,
+  ) async {
+    final boxId = await createBox(
+      'TM:BOX:12121212-aaaa-4121-8121-121212121212',
+    );
+
+    final oldestId = await createAnimal(
+      boxId: boxId,
+      commonName: 'Oldest Animal',
+    );
+    final middleId = await createAnimal(
+      boxId: boxId,
+      commonName: 'Middle Animal',
+    );
+    final newestId = await createAnimal(
+      boxId: boxId,
+      commonName: 'Newest Animal',
+    );
+
+    await animalRepository.archiveAnimal(
+      animalId: oldestId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+    await animalRepository.archiveAnimal(
+      animalId: middleId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 2),
+    );
+    await animalRepository.archiveAnimal(
+      animalId: newestId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 3),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnimalHistoryPage(database: database)),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('archived-animal-list-item-$middleId')));
+    await tester.pumpAndSettle();
+
+    final detailPage = tester.widget<AnimalDetailPage>(
+      find.byType(AnimalDetailPage),
+    );
+    final navigationContext = detailPage.navigationContext!;
+
+    expect(navigationContext.source, DetailNavigationSource.archivedAnimals);
+    expect(navigationContext.recordIds, [newestId, middleId, oldestId]);
+    expect(navigationContext.currentRecordId, middleId);
+    expect(navigationContext.currentIndex, 1);
   });
 
   testWidgets('restored animal leaves history and returns to active overview', (

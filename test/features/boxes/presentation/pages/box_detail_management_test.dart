@@ -8,6 +8,7 @@ import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
+import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
 
 void main() {
   late AppDatabase database;
@@ -122,6 +123,51 @@ void main() {
     expect(find.byType(AnimalDetailPage), findsOneWidget);
 
     expect(find.text('Corn Snake'), findsOneWidget);
+  });
+
+  testWidgets('passes box-specific animal order to animal details', (
+    tester,
+  ) async {
+    final box = await createTestBox();
+
+    final firstId = await createTestAnimal(
+      boxId: box.id,
+      commonName: 'Animal One',
+    );
+    final secondId = await createTestAnimal(
+      boxId: box.id,
+      commonName: 'Animal Two',
+    );
+    final thirdId = await createTestAnimal(
+      boxId: box.id,
+      commonName: 'Animal Three',
+    );
+
+    await pumpDetailPage(tester, box: box);
+    await scrollDown(tester);
+
+    final target = find.byKey(Key('assigned-animal-$secondId'));
+
+    await tester.scrollUntilVisible(
+      target,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(target);
+    await tester.pumpAndSettle();
+
+    final detailPage = tester.widget<AnimalDetailPage>(
+      find.byType(AnimalDetailPage),
+    );
+    final navigationContext = detailPage.navigationContext!;
+
+    expect(navigationContext.source, DetailNavigationSource.boxAnimals);
+    expect(navigationContext.sourceBoxId, box.id);
+    expect(navigationContext.recordIds, [firstId, secondId, thirdId]);
+    expect(navigationContext.currentRecordId, secondId);
+    expect(navigationContext.currentIndex, 1);
   });
 
   testWidgets('shows delete confirmation for empty box', (tester) async {

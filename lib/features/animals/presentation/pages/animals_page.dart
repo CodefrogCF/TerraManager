@@ -4,6 +4,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
+import '../../../navigation/domain/detail_navigation_context.dart';
 import 'animal_detail_page.dart';
 import 'animal_history_page.dart';
 import 'new_animal_page.dart';
@@ -98,15 +99,21 @@ class _AnimalsPageState extends State<AnimalsPage> {
     });
   }
 
-  Future<void> _openAnimalDetail(Animal animal) async {
+  Future<void> _openAnimalDetail(Animal animal, List<Animal> animals) async {
     final previousOffset = _scrollController.hasClients
         ? _scrollController.offset
         : 0.0;
 
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            AnimalDetailPage(database: widget.database, animalId: animal.id),
+        builder: (_) => AnimalDetailPage(
+          database: widget.database,
+          animalId: animal.id,
+          navigationContext: DetailNavigationContext.activeAnimals(
+            animalIds: animals.map((animal) => animal.id),
+            currentAnimalId: animal.id,
+          ),
+        ),
       ),
     );
 
@@ -192,7 +199,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
                 subtitle: Text(animal.latinName),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  _openAnimalDetail(animal);
+                  _openAnimalDetail(animal, animals);
                 },
               );
             },

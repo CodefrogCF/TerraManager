@@ -8,7 +8,9 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
+import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
+import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 
 void main() {
@@ -147,6 +149,38 @@ void main() {
     expect(find.text('Animal Details'), findsOneWidget);
 
     expect(find.text('Test Snake'), findsOneWidget);
+  });
+
+  testWidgets('passes active overview order to animal details', (tester) async {
+    final boxId = await createTestBox();
+
+    final firstId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Animal One',
+    );
+    final secondId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Animal Two',
+    );
+    final thirdId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Animal Three',
+    );
+
+    await pumpPage(tester);
+
+    await tester.tap(find.byKey(Key('animal-list-item-$secondId')));
+    await tester.pumpAndSettle();
+
+    final detailPage = tester.widget<AnimalDetailPage>(
+      find.byType(AnimalDetailPage),
+    );
+    final navigationContext = detailPage.navigationContext!;
+
+    expect(navigationContext.source, DetailNavigationSource.activeAnimals);
+    expect(navigationContext.recordIds, [firstId, secondId, thirdId]);
+    expect(navigationContext.currentRecordId, secondId);
+    expect(navigationContext.currentIndex, 1);
   });
 
   testWidgets('add button opens new animal page', (tester) async {

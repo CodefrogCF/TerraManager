@@ -10,6 +10,7 @@ import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../core/boxes/box_label.dart';
 import '../../../animals/presentation/pages/animal_detail_page.dart';
+import '../../../navigation/domain/detail_navigation_context.dart';
 import 'box_edit_page.dart';
 import '../widgets/box_picture.dart';
 import '../widgets/box_qr_code.dart';
@@ -17,18 +18,29 @@ import '../widgets/box_qr_code.dart';
 class BoxDetailPage extends StatefulWidget {
   final AppDatabase database;
   final Box box;
+  final DetailNavigationContext? navigationContext;
   final QrExporter qrExporter;
   final QrStorage qrStorage;
   final QrPrinter qrPrinter;
 
-  const BoxDetailPage({
+  BoxDetailPage({
     super.key,
     required this.database,
     required this.box,
+    this.navigationContext,
     this.qrExporter = const QrExportService(),
     this.qrStorage = const QrStorageService(),
     this.qrPrinter = const QrPrintService(),
-  });
+  }) : assert(
+         navigationContext == null ||
+             navigationContext.source == DetailNavigationSource.boxes,
+         'Box details require a box navigation context.',
+       ),
+       assert(
+         navigationContext == null ||
+             navigationContext.currentRecordId == box.id,
+         'The navigation context must identify the displayed box.',
+       );
 
   @override
   State<BoxDetailPage> createState() => _BoxDetailPageState();
@@ -124,11 +136,18 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     await _refreshBox();
   }
 
-  Future<void> _openAnimalDetail(Animal animal) async {
+  Future<void> _openAnimalDetail(Animal animal, List<Animal> animals) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) =>
-            AnimalDetailPage(database: widget.database, animalId: animal.id),
+        builder: (_) => AnimalDetailPage(
+          database: widget.database,
+          animalId: animal.id,
+          navigationContext: DetailNavigationContext.animalsForBox(
+            animalIds: animals.map((animal) => animal.id),
+            currentAnimalId: animal.id,
+            boxId: _box.id,
+          ),
+        ),
       ),
     );
 
@@ -538,7 +557,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                         subtitle: Text(animal.latinName),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          _openAnimalDetail(animal);
+                          _openAnimalDetail(animal, animals);
                         },
                       ),
                     ),

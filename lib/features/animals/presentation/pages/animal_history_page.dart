@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/animal_archive_reason.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../navigation/domain/detail_navigation_context.dart';
 import 'animal_detail_page.dart';
 
 class AnimalHistoryPage extends StatefulWidget {
@@ -27,11 +28,17 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
     _animalsFuture = AnimalRepository(widget.database).getArchivedAnimals();
   }
 
-  Future<void> _openAnimalDetail(Animal animal) async {
+  Future<void> _openAnimalDetail(Animal animal, List<Animal> animals) async {
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) =>
-            AnimalDetailPage(database: widget.database, animalId: animal.id),
+        builder: (_) => AnimalDetailPage(
+          database: widget.database,
+          animalId: animal.id,
+          navigationContext: DetailNavigationContext.archivedAnimals(
+            animalIds: animals.map((animal) => animal.id),
+            currentAnimalId: animal.id,
+          ),
+        ),
       ),
     );
 
@@ -87,7 +94,7 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
                 ),
                 isThreeLine: true,
                 onTap: () {
-                  _openAnimalDetail(animal);
+                  _openAnimalDetail(animal, animals);
                 },
               );
             },

@@ -39,23 +39,31 @@ class AnimalDetailPage extends StatefulWidget {
 }
 
 class _AnimalDetailPageState extends State<AnimalDetailPage> {
+  static const double _minimumSwipeDistance = 72;
+
+  late int _animalId;
+  DetailNavigationContext? _navigationContext;
   late Future<Animal?> _animalFuture;
   late Future<FeedingEvent?> _latestFeedingFuture;
   late Future<MediaAsset?> _pictureMediaFuture;
 
+  double _horizontalDragDistance = 0;
   bool _lifecycleActionInProgress = false;
   String? _lifecycleError;
 
   @override
   void initState() {
     super.initState();
+
+    _animalId = widget.animalId;
+    _navigationContext = widget.navigationContext;
+
     _loadAnimal();
     _loadLatestFeeding();
   }
 
   void _loadAnimal() {
-    _animalFuture = AnimalRepository(widget.database)
-        .getAnimalById(widget.animalId);
+    _animalFuture = AnimalRepository(widget.database).getAnimalById(_animalId);
 
     _pictureMediaFuture = _animalFuture.then((animal) async {
       final mediaId = animal?.pictureMediaId;
@@ -70,16 +78,14 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
   void _loadLatestFeeding() {
     _latestFeedingFuture = FeedingRepository(widget.database)
-        .getLatestFeeding(widget.animalId);
+        .getLatestFeeding(_animalId);
   }
 
   Future<void> _openEditPage() async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
-        builder: (_) => AnimalEditPage(
-          database: widget.database,
-          animalId: widget.animalId,
-        ),
+        builder: (_) =>
+            AnimalEditPage(database: widget.database, animalId: _animalId),
       ),
     );
 
@@ -87,20 +93,28 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       return;
     }
 
-    if (result == true) {
-      setState(() {
-        _loadAnimal();
-      });
+    if (result != true) {
+      return;
     }
+
+    final animal = await AnimalRepository(widget.database)
+        .getAnimalById(_animalId);
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _invalidateNavigationContextIfNeeded(animal);
+      _loadAnimal();
+    });
   }
 
   Future<void> _openFeedingHistory() async {
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => FeedingHistoryPage(
-          database: widget.database,
-          animalId: widget.animalId,
-        ),
+        builder: (_) =>
+            FeedingHistoryPage(database: widget.database, animalId: _animalId),
       ),
     );
 
@@ -155,6 +169,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
       setState(() {
         _lifecycleActionInProgress = false;
+        _navigationContext = null;
         _loadAnimal();
       });
 
@@ -257,6 +272,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
       setState(() {
         _lifecycleActionInProgress = false;
+        _navigationContext = null;
         _loadAnimal();
       });
 
@@ -348,9 +364,85 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     }
   }
 
+  void _invalidateNavigationContextIfNeeded(Animal? animal) {
+    final navigationContext = _navigationContext;
+
+    if (navigationContext == null || animal == null) {
+      return;
+    }
+
+    final remainsInSource = switch (navigationContext.source) {
+      DetailNavigationSource.activeAnimals =>
+        animal.status == AnimalStatus.active,
+      DetailNavigationSource.archivedAnimals =>
+        animal.status == AnimalStatus.archived,
+      DetailNavigationSource.boxAnimals =>
+        animal.status == AnimalStatus.active &&
+            animal.boxId == navigationContext.sourceBoxId,
+      DetailNavigationSource.boxes => false,
+    };
+
+    if (!remainsInSource) {
+      _navigationContext = null;
+    }
+  }
+
+  void _handleHorizontalDragStart(DragStartDetails _) {
+    _horizontalDragDistance = 0;
+  }
+
+  void _handleHorizontalDragUpdate(DragUpdateDetails details) {
+    _horizontalDragDistance += details.primaryDelta ?? 0;
+  }
+
+  void _handleHorizontalDragEnd(DragEndDetails _) {
+    final dragDistance = _horizontalDragDistance;
+
+    _horizontalDragDistance = 0;
+
+    if (_lifecycleActionInProgress) {
+      return;
+    }
+
+    if (dragDistance <= -_minimumSwipeDistance) {
+      _showAdjacentAnimal(next: true);
+    } else if (dragDistance >= _minimumSwipeDistance) {
+      _showAdjacentAnimal(next: false);
+    }
+  }
+
+  void _handleHorizontalDragCancel() {
+    _horizontalDragDistance = 0;
+  }
+
+  void _showAdjacentAnimal({required bool next}) {
+    final navigationContext = _navigationContext;
+
+    if (navigationContext == null) {
+      return;
+    }
+
+    final targetAnimalId = next
+        ? navigationContext.nextRecordId
+        : navigationContext.previousRecordId;
+
+    if (targetAnimalId == null) {
+      return;
+    }
+
+    setState(() {
+      _animalId = targetAnimalId;
+      _navigationContext = navigationContext.selectRecord(targetAnimalId);
+      _lifecycleError = null;
+      _loadAnimal();
+      _loadLatestFeeding();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Animal?>(
+      key: ValueKey<int>(_animalId),
       future: _animalFuture,
       builder: (context, snapshot) {
         final animal = snapshot.data;
@@ -375,7 +467,23 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                 ),
             ],
           ),
-          body: _buildBody(context, snapshot),
+          body: GestureDetector(
+            key: const Key('animal-detail-swipe-area'),
+            behavior: HitTestBehavior.translucent,
+            onHorizontalDragStart: _navigationContext == null
+                ? null
+                : _handleHorizontalDragStart,
+            onHorizontalDragUpdate: _navigationContext == null
+                ? null
+                : _handleHorizontalDragUpdate,
+            onHorizontalDragEnd: _navigationContext == null
+                ? null
+                : _handleHorizontalDragEnd,
+            onHorizontalDragCancel: _navigationContext == null
+                ? null
+                : _handleHorizontalDragCancel,
+            child: _buildBody(context, snapshot),
+          ),
         );
       },
     );
@@ -399,6 +507,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     final isArchived = animal.status == AnimalStatus.archived;
 
     return ListView(
+      key: ValueKey<String>('animal-detail-list-$_animalId'),
       padding: const EdgeInsets.all(16),
       children: [
         if (_lifecycleError != null) ...[

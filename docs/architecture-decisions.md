@@ -270,15 +270,21 @@ TerraManager supports user-selectable appearance settings:
 - System, Light and Dark theme modes
 - predefined accent colors
 
+TerraManager also supports a user-selectable application language:
+
+- System language
+- English
+- German
+
 These values are application preferences rather than terrarium domain data.
 
 Storing them in the Drift database would couple UI preferences to the relational
-domain schema and could require unnecessary database migrations for appearance
+domain schema and could require unnecessary database migrations for preference
 changes.
 
 ### Decision
 
-Appearance preferences are stored through `shared_preferences`.
+Appearance and language preferences are stored through `shared_preferences`.
 
 The Drift/SQLite database remains responsible for domain data such as:
 
@@ -289,18 +295,19 @@ FeedingEvent
 MediaAsset
 ```
 
-The application settings controller loads and persists appearance preferences
-and notifies the application when they change.
+The application settings controller loads and persists appearance and language
+preferences and notifies the application when they change.
 
 The application theme is regenerated immediately from the selected theme mode
-and accent color.
+and accent color. The application locale changes immediately when a language is
+selected.
 
 ### Consequences
 
 Advantages:
 
 - UI preferences remain separate from domain data
-- no Drift schema migration is required for appearance-only settings
+- no Drift schema migration is required for UI-only settings
 - settings can be applied immediately
 - simple persistence on Android and Web
 - invalid stored values can safely fall back to application defaults
@@ -308,7 +315,7 @@ Advantages:
 Disadvantages:
 
 - application state is persisted through more than one storage mechanism
-- appearance preferences are still local to the current device/browser profile
+- application preferences are still local to the current device/browser profile
 - clearing application/browser data may reset the preferences
 
 Default values are:
@@ -316,7 +323,11 @@ Default values are:
 ```text
 ThemeMode.system
 Accent = TerraManager green
+Language = System
 ```
+
+The System language follows the operating-system locale. Unsupported locales
+fall back to English.
 
 ---
 
@@ -387,6 +398,10 @@ portable Box data with optional width, height, depth and Box picture media under
 
 Backup Format Version 1 remains supported for backward-compatible restore.
 Missing Version 2 Box fields from a Version 1 backup are mapped to `null`.
+
+TerraManager 0.10.0 adds the optional application language to `settings.json`.
+This is a backward-compatible extension of Backup Format Version 2. Older
+backups without the field restore the System language setting.
 
 ### Consequences
 

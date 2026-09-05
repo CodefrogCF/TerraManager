@@ -4,6 +4,55 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [0.10.0] - Localization
+
+### Added
+
+- Flutter localization generation based on ARB resources
+- English localization template for all user-visible application text
+- complete German application translations
+- persistent `System`, `English` and `Deutsch` language selection in Settings
+- stable application-language values for portable backup and restore
+- localized backup-validation messages
+
+### Changed
+
+- user-visible text is now resolved through generated Flutter localizations
+- language changes are applied immediately without restarting the application
+- the default language setting follows the operating-system locale
+- unsupported system locales fall back to English
+- newly created backups include the selected application language in
+  `settings.json`
+- backup restore applies the stored language together with theme and accent
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- the language field is an additive application-setting field and does not
+  require a new backup format version
+- backups created before language selection was introduced remain restorable
+- a missing language field is interpreted as `System`
+- no database or backup migration is required for v0.10.0
+
+### Validated
+
+- complete English and German application interfaces
+- immediate language changes through Settings
+- persistence of manual language selections across application restarts
+- system-language selection and English fallback behavior
+- language-setting backup and restore
+- restore compatibility for backups without a language field
+
+### Testing
+
+- added localization catalog and generated-message tests
+- added application locale, immediate-switch and restart-persistence tests
+- added Settings language-selection tests
+- added language preference persistence and fallback tests
+- added backup encoding, validation, export and restore tests for language
+- completed the full automated test suite with 333 passing tests
+
 ## [0.9.0] - Feeding Workflow & Media
 
 ### Added

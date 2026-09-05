@@ -31,6 +31,23 @@ Run tests:
 flutter test
 ```
 
+## Localization Generation
+
+English and German source messages are stored in:
+
+```text
+lib/l10n/app_en.arb
+lib/l10n/app_de.arb
+```
+
+After changing either catalog, regenerate the Flutter localization classes:
+
+```text
+flutter gen-l10n
+```
+
+Generated files in `lib/l10n/generated/` must not be edited manually.
+
 ## Drift Code Generation
 
 When Drift tables, converters or database definitions change:
@@ -156,6 +173,9 @@ Examples:
 - printing
 - image picker
 - persistent database storage
+- System, English and German language selection
+- language persistence and unsupported-locale fallback
+- language-setting backup and restore
 
 ## Recommended Release Validation
 
@@ -164,6 +184,7 @@ Before a milestone release:
 ```text
 flutter clean
 flutter pub get
+flutter gen-l10n
 flutter analyze
 flutter test
 flutter build apk --debug

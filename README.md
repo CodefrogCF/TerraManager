@@ -8,11 +8,11 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 ## Project Status
 
-Current completed release milestone:
+Current release milestone:
 
-**v0.9.0 – Feeding Workflow & Media**
+**v0.10.0 – Localization**
 
-Completed milestones:
+Implemented milestones in the current source state:
 
 - v0.1.0 – Foundation
 - v0.2.0 – User Interface
@@ -24,6 +24,7 @@ Completed milestones:
 - v0.7.1 – Maintenance
 - v0.8.0 – Contextual Navigation
 - v0.9.0 – Feeding Workflow & Media
+- v0.10.0 – Localization
 
 Android and Web are currently validated platforms.
 
@@ -34,12 +35,10 @@ Portable backup and restore has been validated:
 - Android → Web
 - Web → Android
 
-The current development milestone is:
-
-### v0.10.0 – Localization
-
-English and German application languages with a persistent System, English or
-German language selection in Settings.
+TerraManager provides complete English and German interfaces. The language can
+follow the operating system or be selected explicitly as English or Deutsch in
+Settings. Manual selections are applied immediately and persist across normal
+application restarts.
 
 ## Implemented Features
 
@@ -124,13 +123,17 @@ German language selection in Settings.
 - predefined accent colors
 - immediate appearance changes
 - persistent appearance settings
+- System language mode
+- explicit English and German language selection
+- immediate language changes without an application restart
+- persistent language selection
 - portable `.tmbackup` backup creation
 - backup file selection and validation
 - pre-restore backup information
 - destructive restore confirmation
 - automatic safety backup before restore
 - full local data restore
-- appearance setting backup and restore
+- appearance and language setting backup and restore
 
 ### Backup & Restore
 
@@ -142,7 +145,8 @@ German language selection in Settings.
 - Animal export and restore
 - FeedingEvent export and restore
 - Box and Animal picture export and restore
-- appearance setting export and restore
+- appearance and language setting export and restore
+- backward-compatible restore of backups without a language setting
 - permanent Box QR identifiers preserved
 - backup validation before destructive operations
 - relationship and lifecycle validation
@@ -165,6 +169,25 @@ Validated:
 Not yet validated:
 
 - iOS
+
+### Localization
+
+TerraManager supports:
+
+- English (`en`)
+- German (`de`)
+
+The default `System` setting follows the operating-system language. If the
+system language is not supported, TerraManager falls back to English.
+
+Settings also provides explicit `English` and `Deutsch` selections. A manual
+selection is applied immediately, stored through `shared_preferences`, and
+restored the next time the application starts.
+
+The selected language is included in newly created `.tmbackup` files. Restoring
+a backup also restores its language setting. Backups created before language
+selection was introduced remain compatible and use `System` when the language
+field is absent.
 
 ### Contextual Detail Navigation
 
@@ -311,7 +334,7 @@ Archived Animal
  ├── no active box assignment
  ├──── 1:n ──── FeedingEvent
  └──── 0:1 ──── MediaAsset
- ```
+```
 
 ### Box
 
@@ -445,6 +468,8 @@ It is generated from the permanent qrId when needed.
 - Flutter
 - Dart
 - Material 3
+- flutter_localizations
+- intl
 - shared_preferences
 - archive
 - file_picker
@@ -538,20 +563,27 @@ lib/
 │       ├── qr_storage_service.dart
 │       └── qr_validator.dart
 │
-└── features/
-    ├── navigation/
-    ├── boxes/
-    ├── animals/
-    ├── feedings/
-    ├── settings/
-    │   ├── app_accent.dart
-    │   ├── app_settings_controller.dart
-    │   └── presentation/
-    │
-    └── backup/
-        ├── application/
-        ├── domain/
-        └── infrastructure/
+├── features/
+│   ├── navigation/
+│   ├── boxes/
+│   ├── animals/
+│   ├── feedings/
+│   ├── settings/
+│   │   ├── app_accent.dart
+│   │   ├── app_language.dart
+│   │   ├── app_settings_controller.dart
+│   │   └── presentation/
+│   │
+│   └── backup/
+│       ├── application/
+│       ├── domain/
+│       └── infrastructure/
+│
+└── l10n/
+    ├── app_en.arb
+    ├── app_de.arb
+    ├── app_localizations_context.dart
+    └── app_localizations_labels.dart
 ```
 
 Generated Drift files such as:
@@ -608,9 +640,20 @@ Run the complete automated test suite:
 flutter test
 ```
 
-Platform-specific functionality such as camera access, gallery storage and printing must additionally be validated on the target platform.
+Platform-specific functionality such as camera access, gallery storage and
+printing must additionally be validated on the target platform. Language
+selection should be checked using supported and unsupported system locales.
 
 ## Code Generation
+
+After changing localization resources in `lib/l10n/`:
+
+```text
+flutter gen-l10n
+```
+
+Generated localization files in `lib/l10n/generated/` must not be edited
+manually.
 
 After changing Drift tables, converters or related database definitions:
 

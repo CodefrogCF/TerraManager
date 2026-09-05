@@ -39,6 +39,11 @@ Completed development areas:
 - dedicated QR Feeding Mode for active Animals assigned to a scanned Box
 - atomic single- and multi-Animal quick feeding entries
 - immediate scanner restart after a Feeding Mode result
+- Flutter localization generation based on ARB resources
+- complete English and German application interfaces
+- persistent System, English and German language selection
+- immediate language changes without an application restart
+- language-setting backup and restore with legacy-backup compatibility
 
 v0.7.1 implementation and release validation are complete.
 
@@ -48,7 +53,8 @@ release are complete.
 v0.9.0 implementation, documentation, Android/Web regression validation and
 release are complete.
 
-v0.10.0 is the current development milestone.
+v0.10.0 implementation and documentation are complete. Final release validation
+is in progress.
 
 ---
 
@@ -363,25 +369,28 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Localization Infrastructure
 
-- [ ] Configure Flutter localization generation
-- [ ] Move user-visible strings into localization resources
-- [ ] Use English as the fallback language
-- [ ] Allow tests to select a fixed locale
+- [x] Configure Flutter localization generation
+- [x] Move user-visible strings into localization resources
+- [x] Use English as the fallback language
+- [x] Allow tests to select a fixed locale
 
 ### Language Support
 
-- [ ] Add complete German translations
-- [ ] Follow the system language by default
-- [ ] Add System, English and German language settings
-- [ ] Apply language changes without restarting
-- [ ] Persist the selected language
-- [ ] Include the selected language in backup and restore
+- [x] Add complete German translations
+- [x] Follow the system language by default
+- [x] Add System, English and German language settings
+- [x] Apply language changes without restarting
+- [x] Persist the selected language
+- [x] Include the selected language in backup and restore
 
 ### Release
 
 - [ ] Regression tests
-- [ ] Validate English and German on Android and Web
-- [ ] Update documentation and changelog
+- [x] Validate English and German on Android
+- [ ] Validate English and German on Web
+- [ ] Build the v0.10.0 Android release APK
+- [ ] Build the v0.10.0 Web release
+- [x] Update documentation and changelog
 - [ ] Release v0.10.0
 
 ---

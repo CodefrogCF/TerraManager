@@ -152,7 +152,7 @@ Example:
 ```json
 {
   "backupFormatVersion": 2,
-  "appVersion": "0.7.0",
+  "appVersion": "0.10.0",
   "databaseSchemaVersion": 4,
   "createdAt": "2026-09-03T13:30:00.000Z"
 }
@@ -168,7 +168,7 @@ Backup Format Version 2 uses:
 2
 ```
 
-TerraManager 0.7.x accepts Backup Format Versions 1 and 2 for restore.
+TerraManager 0.10.x accepts Backup Format Versions 1 and 2 for restore.
 
 Version 1 is interpreted using the legacy Box representation. Missing Version 2
 Box fields are mapped to `null`.
@@ -182,7 +182,7 @@ Contains the TerraManager application version that created the backup.
 Example:
 
 ```text
-0.7.0
+0.10.0
 ```
 
 This value is informational and may also be used during compatibility
@@ -312,7 +312,7 @@ Example:
 }
 ```
 
-When a Version 1 backup is restored by TerraManager 0.7.x, the fields introduced
+When a Version 1 backup is restored by TerraManager 0.10.x, the fields introduced
 in Version 2 are initialized as:
 
 ```text
@@ -697,21 +697,32 @@ Excluding generated QR images:
 
 ## settings.json
 
-`settings.json` contains portable application appearance preferences.
+`settings.json` contains portable application preferences.
 
-Backup Format Versions 1 and 2 contain:
+The required settings fields in Backup Format Versions 1 and 2 are:
 
 ```text
 themeMode
 accent
 ```
 
+TerraManager 0.10.0 adds the optional field:
+
+```text
+language
+```
+
+This additive field remains part of Backup Format Version 2. Older Version 1
+and Version 2 backups without `language` remain compatible and are interpreted
+as using the System language setting.
+
 Example:
 
 ```json
 {
   "themeMode": "dark",
-  "accent": "green"
+  "accent": "green",
+  "language": "german"
 }
 ```
 
@@ -754,6 +765,27 @@ red
 These correspond to the predefined TerraManager application accent choices.
 
 Unknown accent values must cause validation to fail.
+
+## Stable Language Values
+
+The optional language field defines:
+
+```text
+system
+english
+german
+```
+
+Mapping:
+
+```text
+AppLanguage.system  -> "system"
+AppLanguage.english -> "english"
+AppLanguage.german  -> "german"
+```
+
+If the field is absent, restore uses `AppLanguage.system`. If the field is
+present with an unknown value, backup validation must fail.
 
 ## Archive Validation
 
@@ -872,7 +904,7 @@ Request explicit confirmation
 Create and persist safety backup
       │
       ▼
-Restore appearance settings
+Restore appearance and language settings
       │
       ▼
 Transactional database replacement
@@ -966,7 +998,7 @@ If any insertion or integrity check fails, the Drift transaction is rolled
 back.
 
 If database replacement fails after application settings were changed, the
-previous appearance settings are restored.
+previous appearance and language settings are restored.
 
 The pre-restore safety backup is never deleted automatically as part of
 rollback.
@@ -1079,6 +1111,7 @@ For example:
 ```text
 TerraManager 0.6.0 -> Backup Format 1
 TerraManager 0.7.x -> Backup Format 2
+TerraManager 0.10.0 -> Backup Format 2 with an optional language setting
 ```
 
 A later application release may continue to use Backup Format 2 if its portable
@@ -1175,7 +1208,8 @@ data.json
 
 settings.json
 ├── themeMode
-└── accent
+├── accent
+└── language (optional; exported by TerraManager 0.10.0 and later)
 
 media/
 ├── animals/
@@ -1195,7 +1229,7 @@ Version 2 preserves:
 - FeedingEvent IDs and relationships
 - timestamps and notes
 - Animal pictures through portable media references
-- appearance settings
+- appearance settings and an optional language setting
 
 Version 2 excludes:
 
@@ -1210,7 +1244,7 @@ Version 2 excludes:
 
 ### Version 1 Restore Compatibility
 
-TerraManager 0.7.x continues to restore Backup Format Version 1.
+TerraManager 0.10.x continues to restore Backup Format Version 1.
 
 Version 1 Box records do not contain dimensions or Box pictures. During restore,
 the missing Version 2 fields are mapped to null.
@@ -1218,7 +1252,10 @@ the missing Version 2 fields are mapped to null.
 Animal media, IDs, relationships, lifecycle state, FeedingEvents and settings
 from Version 1 retain their existing restore semantics.
 
-TerraManager 0.7.x creates new backups exclusively as Backup Format Version 2.
+Version 1 and older Version 2 backups do not contain a language setting. Their
+missing field is restored as `system`.
+
+TerraManager 0.10.x creates new backups exclusively as Backup Format Version 2.
 
 Applications that support only Version 1 must reject Version 2 backups rather
 than silently restore them while discarding Version 2 Box data.

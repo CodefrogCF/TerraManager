@@ -72,6 +72,9 @@ Validated functionality includes:
 - System / Light / Dark appearance selection
 - accent color selection
 - appearance-setting persistence across application restarts
+- complete English and German interfaces
+- System / English / Deutsch language selection
+- immediate language changes and persistence across application restarts
 - portable `.tmbackup` creation
 - user-selectable backup destination through the Android system file picker
 - backup file selection
@@ -80,7 +83,8 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- appearance-setting backup and restore
+- appearance- and language-setting backup and restore
+- restore compatibility for backups without a language setting
 - restore of Web-created backups
 
 QR images saved on Android are stored through the platform media/gallery system
@@ -141,6 +145,9 @@ Validated functionality includes:
 - System / Light / Dark appearance selection
 - accent color selection
 - appearance-setting persistence across normal browser reloads
+- complete English and German interfaces
+- System / English / Deutsch language selection
+- immediate language changes and persistence across normal browser reloads
 - portable `.tmbackup` download
 - backup file selection
 - backup validation
@@ -148,7 +155,8 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- appearance-setting backup and restore
+- appearance- and language-setting backup and restore
+- restore compatibility for backups without a language setting
 - restore of Android-created backups
 
 ## Web Database
@@ -202,6 +210,10 @@ Backups do not depend on:
 Box and Animal pictures are exported as portable media files and restored into
 the local `MediaAssets` persistence layer.
 
+`settings.json` preserves theme mode, accent color and the selected application
+language. Backups without a language field remain compatible and restore the
+System language setting.
+
 The following transfers have been manually validated:
 
 ```text
@@ -218,7 +230,7 @@ Web backup     → Android restore
 Application data is stored in browser-managed local storage.
 
 Clearing site data may remove the TerraManager database, persistent Box and
-Animal pictures and local appearance settings.
+Animal pictures and local appearance and language settings.
 
 Portable `.tmbackup` files stored outside the browser can be used to restore
 data after such a loss.
@@ -262,14 +274,15 @@ QR printing uses browser/system printing facilities.
 Available printers and print options depend on the browser and operating
 system.
 
-### Appearance preferences
+### Application preferences
 
-Appearance settings are stored locally through `shared_preferences`.
+Appearance and language settings are stored locally through
+`shared_preferences`.
 
 Clearing browser site data may therefore reset both the TerraManager database
-and locally stored appearance preferences.
+and locally stored application preferences.
 
-Appearance settings are included in portable TerraManager backups.
+Appearance and language settings are included in portable TerraManager backups.
 
 ## iOS
 

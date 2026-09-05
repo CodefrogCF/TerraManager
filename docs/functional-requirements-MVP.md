@@ -171,8 +171,14 @@ The application must allow the user to:
 - explicitly select Dark mode
 - select an application accent color
 - persist appearance settings between application restarts
+- follow the operating-system language by default
+- explicitly select English or German
+- apply language changes without restarting the application
+- persist the selected language between application restarts
+- fall back to English when the system language is unsupported
 
-Appearance settings must be included in portable TerraManager backups.
+Appearance and language settings must be included in portable TerraManager
+backups.
 
 ## Persistence
 
@@ -187,10 +193,12 @@ Core domain data is stored with Drift/SQLite.
 Application-owned Box and Animal pictures are stored persistently through
 MediaAssets in the local Drift database.
 
-Appearance preferences are stored separately through `shared_preferences`.
+Appearance and language preferences are stored separately through
+`shared_preferences`.
 
-Domain data, Box and Animal pictures and appearance preferences must survive
-normal application restarts or browser reloads on validated platforms.
+Domain data, Box and Animal pictures, appearance preferences and manual language
+selection must survive normal application restarts or browser reloads on
+validated platforms.
 
 ## Platform Targets
 
@@ -214,7 +222,7 @@ The application must allow the user to:
 - export FeedingEvents
 - export Box pictures
 - export Animal pictures
-- export appearance settings
+- export appearance and language settings
 - select an existing TerraManager backup
 - inspect backup metadata before restore
 - restore a compatible TerraManager backup
@@ -228,7 +236,8 @@ The application must allow the user to:
 - restore Box dimensions
 - restore persistent Box pictures
 - restore persistent Animal pictures
-- restore appearance settings
+- restore appearance and language settings
+- restore older backups without a language field using the System setting
 
 The backup format must be independent from the raw SQLite database file.
 

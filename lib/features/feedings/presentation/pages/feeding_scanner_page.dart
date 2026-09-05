@@ -110,9 +110,13 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
         return;
       }
 
-      await Navigator.of(context).push<void>(
-        MaterialPageRoute<void>(
-          builder: (_) => FeedingBoxAnimalsPage(box: box, animals: animals),
+      final saved = await Navigator.of(context).push<bool>(
+        MaterialPageRoute<bool>(
+          builder: (_) => FeedingBoxAnimalsPage(
+            database: widget.database,
+            box: box,
+            animals: animals,
+          ),
         ),
       );
 
@@ -125,6 +129,21 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
       });
 
       await _startScanner();
+
+      if (!mounted) {
+        return;
+      }
+
+      if (saved == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Feeding events saved',
+              key: Key('feeding-mode-saved-message'),
+            ),
+          ),
+        );
+      }
     } catch (_) {
       if (!mounted) {
         return;

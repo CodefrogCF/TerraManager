@@ -23,6 +23,36 @@ class FeedingRepository {
         );
   }
 
+  Future<List<int>> addFeedings({
+    required Iterable<int> animalIds,
+    required DateTime fedAt,
+    String? notes,
+  }) {
+    final ids = List<int>.unmodifiable(animalIds);
+
+    if (ids.isEmpty) {
+      throw ArgumentError.value(ids, 'animalIds', 'must not be empty');
+    }
+
+    if (ids.toSet().length != ids.length) {
+      throw ArgumentError.value(
+        ids,
+        'animalIds',
+        'must not contain duplicates',
+      );
+    }
+
+    return database.transaction(() async {
+      final feedingIds = <int>[];
+
+      for (final animalId in ids) {
+        feedingIds.add(await addFeeding(animalId, fedAt, notes: notes));
+      }
+
+      return List<int>.unmodifiable(feedingIds);
+    });
+  }
+
   Future<List<FeedingEvent>> getFeedingsForAnimal(int animalId) {
     return (database.select(database.feedingEvents)
           ..where((event) => event.animalId.equals(animalId))

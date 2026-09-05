@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../../../media/presentation/pages/full_screen_image_page.dart';
+
 class BoxPicture extends StatelessWidget {
   final Uint8List? pictureBytes;
   final double height;
@@ -20,17 +22,35 @@ class BoxPicture extends StatelessWidget {
       return _buildPlaceholder();
     }
 
-    return SizedBox(
-      width: double.infinity,
-      height: height,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Image.memory(
-          pictureBytes!,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return _buildPlaceholder(text: 'Image unavailable');
+    return Semantics(
+      button: true,
+      label: 'Open box picture',
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          key: const Key('open-box-picture-button'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            FullScreenImagePage.open(
+              context,
+              imageBytes: pictureBytes!,
+              title: 'Box picture',
+            );
           },
+          child: SizedBox(
+            width: double.infinity,
+            height: height,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(
+                pictureBytes!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildPlaceholder(text: 'Image unavailable');
+                },
+              ),
+            ),
+          ),
         ),
       ),
     );

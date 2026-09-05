@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../media/presentation/pages/full_screen_image_page.dart';
+
 class AnimalPicture extends StatelessWidget {
   final String? picturePath;
   final Uint8List? pictureBytes;
@@ -18,7 +20,7 @@ class AnimalPicture extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (pictureBytes != null) {
-      return _buildImage(Image.memory(pictureBytes!, fit: BoxFit.cover));
+      return _buildImage(context, pictureBytes!);
     }
 
     if (picturePath == null || picturePath!.trim().isEmpty) {
@@ -39,16 +41,37 @@ class AnimalPicture extends StatelessWidget {
           return _buildPlaceholder(text: 'Image unavailable');
         }
 
-        return _buildImage(Image.memory(snapshot.data!, fit: BoxFit.cover));
+        return _buildImage(context, snapshot.data!);
       },
     );
   }
 
-  Widget _buildImage(Widget image) {
-    return SizedBox(
-      width: double.infinity,
-      height: height,
-      child: ClipRRect(borderRadius: BorderRadius.circular(12), child: image),
+  Widget _buildImage(BuildContext context, Uint8List imageBytes) {
+    return Semantics(
+      button: true,
+      label: 'Open animal picture',
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          key: const Key('open-animal-picture-button'),
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            FullScreenImagePage.open(
+              context,
+              imageBytes: imageBytes,
+              title: 'Animal picture',
+            );
+          },
+          child: SizedBox(
+            width: double.infinity,
+            height: height,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(imageBytes, fit: BoxFit.cover),
+            ),
+          ),
+        ),
+      ),
     );
   }
 

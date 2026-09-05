@@ -10,7 +10,7 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Current completed release milestone:
 
-**v0.8.0 – Contextual Navigation**
+**v0.9.0 – Feeding Workflow & Media**
 
 Completed milestones:
 
@@ -23,6 +23,7 @@ Completed milestones:
 - v0.7.0 – Editing & Overview
 - v0.7.1 – Maintenance
 - v0.8.0 – Contextual Navigation
+- v0.9.0 – Feeding Workflow & Media
 
 Android and Web are currently validated platforms.
 
@@ -35,10 +36,10 @@ Portable backup and restore has been validated:
 
 The current development milestone is:
 
-### v0.9.0 – Feeding Workflow & Media
+### v0.10.0 – Localization
 
-Full-screen, zoomable Box and Animal pictures and a dedicated QR Feeding Mode
-for quickly recording feeding events for the active Animals assigned to a Box.
+English and German application languages with a persistent System, English or
+German language selection in Settings.
 
 ## Implemented Features
 
@@ -59,6 +60,7 @@ for quickly recording feeding events for the active Animals assigned to a Box.
 - navigation from box to assigned animal
 - optional width, height and depth
 - persistent Box pictures
+- full-screen Box picture viewing with zooming and panning
 - Box editing while keeping the QR identifier immutable
 - human-readable local labels (`Box N`)
 - Box thumbnails in the overview
@@ -81,6 +83,7 @@ for quickly recording feeding events for the active Animals assigned to a Box.
 - preferred temperature range
 - preferred humidity range
 - optional picture
+- full-screen Animal picture viewing with zooming and panning
 - notes
 - active and archived lifecycle states
 - archive reasons, dates and optional archive notes
@@ -103,6 +106,15 @@ for quickly recording feeding events for the active Animals assigned to a Box.
 - latest feeding lookup
 - latest feeding displayed directly on animal details
 - automatic refresh after feeding edits and deletions
+- dedicated QR Feeding Mode from the Box Overview
+- scanned Box resolution to its currently assigned active Animals
+- empty state for Boxes without active Animals
+- one- and multi-Animal quick feeding selection
+- current date and time pre-filled for quick feeding entries
+- optional shared quick-feeding notes
+- atomic creation of one FeedingEvent per selected Animal
+- duplicate-submission protection
+- immediate return to scanning after saving or cancelling
 
 ### Settings
 
@@ -180,6 +192,42 @@ Back returns to the overview from which the route was opened.
 
 Detail pages can still be opened without a navigation context. In that case,
 they behave as normal non-swipe detail pages.
+
+### Full-Screen Pictures
+
+Box and Animal pictures shown on their detail pages can be opened in a dedicated
+full-screen viewer.
+
+The viewer:
+
+- displays the complete picture against a dark background
+- supports zoom levels from 1x to 5x
+- supports panning while zoomed
+- closes through its close button or normal platform Back navigation
+
+Because the viewer uses its own route, gestures inside the picture do not change
+the contextual Animal or Box detail record underneath it.
+
+### QR Feeding Mode
+
+The Box Overview provides a dedicated Feeding Mode that is separate from normal
+Box-detail scanning.
+
+After a valid Box QR code is scanned, TerraManager displays only the active
+Animals currently assigned to that Box. All displayed Animals are selected by
+default, allowing a single-Animal Box to be recorded with one save action after
+scanning. The selection can be changed for individual or grouped feedings.
+
+The feeding timestamp defaults to the current date and time and can be adjusted.
+One optional note is applied to every FeedingEvent created by the operation.
+
+Saving creates one normal FeedingEvent for every selected Animal inside a single
+database transaction. If one insert fails, none of the grouped feeding remains.
+While the transaction is running, repeated submissions are ignored.
+
+After saving or cancelling, the scanner resumes so the next Box can be scanned
+immediately. Newly created entries are available through the existing Animal
+feeding history and latest-feeding display.
 
 ## Concept
 

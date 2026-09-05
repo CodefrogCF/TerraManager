@@ -14,6 +14,8 @@ The application must allow the user to:
 - view Box details
 - edit optional Box width, height and depth
 - add, replace or remove a persistent Box picture
+- open a Box picture in a full-screen viewer
+- zoom and pan a Box picture in the full-screen viewer
 - display human-readable local Box labels while preserving the permanent QR identifier
 - display Box thumbnails where pictures are available
 - view Animals assigned to a Box
@@ -42,6 +44,8 @@ The application must allow the user to:
 - edit Animal data
 - change the associated Box
 - add or remove an Animal picture
+- open an Animal picture in a full-screen viewer
+- zoom and pan an Animal picture in the full-screen viewer
 - persist Animal pictures across normal application restarts or browser reloads
 - add and edit notes
 - store preferred temperature values
@@ -112,6 +116,29 @@ its timestamp and optional note.
 
 The displayed value must refresh after the feeding history is modified.
 
+The application must provide a dedicated Feeding Mode that allows the user to:
+
+- scan a permanent Box QR code
+- view the active Animals currently assigned to the scanned Box
+- handle a Box without active Animals without creating a feeding
+- select one or multiple Animals
+- use the current date and time as the default feeding timestamp
+- adjust the feeding timestamp
+- enter an optional note shared by the selected Animals
+- create one FeedingEvent for every selected Animal
+- return to the scanner after saving or cancelling
+
+All active Animals displayed after a scan should be selected by default so a
+single-Animal Box can be recorded with a minimal number of actions.
+
+Creating multiple FeedingEvents through Feeding Mode must be atomic. If one
+event cannot be inserted, no event from the grouped feeding may remain.
+
+Repeated save submissions must not create duplicate FeedingEvents.
+
+Feeding Mode must use the existing FeedingEvent model so new entries remain
+visible and editable through the existing Animal feeding history.
+
 ## QR Codes
 
 The application must allow the user to:
@@ -125,6 +152,8 @@ The application must allow the user to:
 - scan a QR code
 - validate TerraManager QR identifiers
 - resolve a scanned QR identifier to a Box
+- open a scanned Box in the dedicated Feeding Mode
+- resolve a Feeding Mode scan to the Box's currently assigned active Animals
 - report invalid QR codes
 - report valid but unknown TerraManager QR identifiers
 

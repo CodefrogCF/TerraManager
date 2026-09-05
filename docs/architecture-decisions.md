@@ -602,3 +602,82 @@ Disadvantages:
   restored after a complete application restart or browser reload
 - horizontal gestures require coordination with other interactive detail
   content
+
+---
+
+## ADR-010: Store grouped feedings as atomic per-Animal events
+
+**Status:** Accepted
+
+**Date:** 2026-09-05
+
+### Context
+
+Feeding Mode starts with a physical Box rather than one Animal. Scanning the
+Box QR code can therefore produce one or several active Animals that were fed at
+the same time.
+
+The existing domain model stores feeding history as individual FeedingEvents,
+with every event belonging to exactly one Animal. Introducing a separate group
+feeding entity would add a new schema and backup-format concept even though the
+group is needed only while the user records the action.
+
+Writing the selected Animals through independent, unrelated inserts would also
+allow a partial result if one insert failed. Retrying after such a failure could
+then create duplicate feeding history.
+
+### Decision
+
+TerraManager keeps FeedingEvent as the only persisted feeding model.
+
+Feeding Mode resolves the scanned Box to its currently assigned active Animals
+and passes the selected Animal IDs, one common timestamp and one optional common
+note to `FeedingRepository.addFeedings`.
+
+The repository validates that:
+
+- at least one Animal ID is supplied
+- the Animal IDs do not contain duplicates
+
+It then creates one normal FeedingEvent for every selected Animal inside one
+Drift transaction:
+
+```text
+Selected Animal IDs
+        │
+        ▼
+FeedingRepository.addFeedings
+        │
+        ▼
+Single database transaction
+        │
+        ├── FeedingEvent for Animal A
+        ├── FeedingEvent for Animal B
+        └── FeedingEvent for Animal C
+```
+
+If any insert fails, the transaction rolls back all events from that grouped
+feeding.
+
+The presentation layer prevents a second save while the first transaction is in
+progress. After a successful transaction, it closes the Box-specific feeding
+route and restarts the scanner.
+
+### Consequences
+
+Advantages:
+
+- grouped feedings cannot remain partially written
+- existing feeding history and latest-feeding queries need no special handling
+- existing edit, delete, backup and restore workflows continue to use normal
+  FeedingEvents
+- no database schema or backup-format migration is required
+- one-Animal and multi-Animal feedings share the same workflow
+- repeated save actions cannot create duplicate events while a save is running
+
+Disadvantages:
+
+- the database does not preserve a permanent relationship between events that
+  were created by the same grouped feeding
+- changing a grouped feeding later requires editing its individual events
+- every selected Animal currently receives the same timestamp and note

@@ -4,7 +4,7 @@
 
 Current development milestone:
 
-**v0.9.0 – Feeding Workflow & Media**
+**v0.10.0 – Localization**
 
 Completed development areas:
 
@@ -35,13 +35,20 @@ Completed development areas:
 - contextual Animal detail navigation for Active Animals, Animal History and
   Box-specific Animal collections
 - contextual Box detail navigation following the Box Overview ordering
+- full-screen Box and Animal picture viewing with zooming and panning
+- dedicated QR Feeding Mode for active Animals assigned to a scanned Box
+- atomic single- and multi-Animal quick feeding entries
+- immediate scanner restart after a Feeding Mode result
 
 v0.7.1 implementation and release validation are complete.
 
 v0.8.0 implementation, documentation, Android/Web regression validation and
 release are complete.
 
-v0.9.0 is the current development milestone.
+v0.9.0 implementation, documentation, Android/Web regression validation and
+release are complete.
+
+v0.10.0 is the current development milestone.
 
 ---
 
@@ -323,28 +330,32 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Media
 
-- [ ] Open Box detail pictures in a full-screen viewer
-- [ ] Open Animal detail pictures in a full-screen viewer
-- [ ] Support picture zooming and panning
-- [ ] Preserve detail swipe navigation outside the picture viewer
+- [x] Open Box detail pictures in a full-screen viewer
+- [x] Open Animal detail pictures in a full-screen viewer
+- [x] Support picture zooming and panning
+- [x] Preserve detail swipe navigation outside the picture viewer
 
 ### Feeding Mode
 
-- [ ] Add a dedicated QR Feeding Mode entry point
-- [ ] Resolve a scanned Box to its currently assigned active Animals
-- [ ] Handle Boxes without assigned Animals
-- [ ] Select one or multiple Animals for a feeding
-- [ ] Create one FeedingEvent for every selected Animal
-- [ ] Return to scanning after a successful feeding entry
-- [ ] Preserve the existing normal Box scanner workflow
+- [x] Add a dedicated QR Feeding Mode entry point
+- [x] Resolve a scanned Box to its currently assigned active Animals
+- [x] Handle Boxes without assigned Animals
+- [x] Select one or multiple Animals for a feeding
+- [x] Create one FeedingEvent for every selected Animal
+- [x] Write grouped feeding entries atomically
+- [x] Prevent duplicate feeding submissions
+- [x] Show new entries in the existing feeding history
+- [x] Return to scanning after a successful feeding entry
+- [x] Preserve the existing normal Box scanner workflow
 
 ### Release
 
-- [ ] Regression tests
-- [ ] Validate picture viewing on Android and Web
-- [ ] Validate QR Feeding Mode on Android and Web
-- [ ] Update documentation and changelog
-- [ ] Release v0.9.0
+- [x] Regression tests
+- [x] Validate picture viewing on Android
+- [x] Validate QR Feeding Mode on Android
+- [x] Complete final Android and Web release validation
+- [x] Update documentation and changelog
+- [x] Release v0.9.0
 
 ---
 

@@ -375,6 +375,7 @@ AnimalRepository
 
 FeedingRepository
 ├── create FeedingEvent
+├── create multiple FeedingEvents atomically
 ├── retrieve feeding history
 ├── retrieve latest feeding
 ├── update FeedingEvent

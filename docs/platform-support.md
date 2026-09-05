@@ -35,8 +35,14 @@ Validated functionality includes:
 - Box editing and optional dimensions
 - persistent Box pictures
 - Box picture persistence across normal application restarts
+- full-screen Box picture viewing with zooming and panning
 - Box and Animal overview thumbnails
 - FeedingEvent editing and deletion
+- dedicated QR Feeding Mode from the Box Overview
+- active-Animal resolution for a scanned Box
+- single- and multi-Animal quick feeding entries
+- atomic grouped FeedingEvent creation and duplicate-submission protection
+- scanner restart after saving or cancelling a quick feeding
 - preserved overview scroll position after detail navigation
 - contextual horizontal swipe navigation between Box details
 - contextual horizontal swipe navigation between Animal details from Active
@@ -49,6 +55,7 @@ Validated functionality includes:
 - notes
 - persistent animal pictures
 - animal picture persistence across application restarts
+- full-screen Animal picture viewing with zooming and panning
 - QR display
 - QR PNG generation
 - QR image storage in the Android media gallery
@@ -102,8 +109,14 @@ Validated functionality includes:
 - Box editing and optional dimensions
 - persistent Box pictures
 - Box picture persistence across normal browser reloads
+- full-screen Box picture viewing with zooming and panning
 - Box and Animal overview thumbnails
 - FeedingEvent editing and deletion
+- dedicated QR Feeding Mode from the Box Overview
+- active-Animal resolution for a scanned Box
+- single- and multi-Animal quick feeding entries
+- atomic grouped FeedingEvent creation and duplicate-submission protection
+- scanner restart after saving or cancelling a quick feeding
 - preserved overview scroll position after detail navigation
 - contextual horizontal swipe navigation between Box details
 - contextual horizontal swipe navigation between Animal details from Active
@@ -114,6 +127,7 @@ Validated functionality includes:
 - feeding data
 - persistent animal pictures
 - animal picture persistence across normal browser reloads
+- full-screen Animal picture viewing with zooming and panning
 - QR display
 - QR PNG download
 - QR scanning

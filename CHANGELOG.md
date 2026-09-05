@@ -4,6 +4,67 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [0.9.0] - Feeding Workflow & Media
+
+### Added
+
+- full-screen viewer for Box and Animal detail pictures
+- picture zooming and panning with a scale range from 1x to 5x
+- dedicated QR Feeding Mode entry point from the Box Overview
+- Box QR scanning that resolves the currently assigned active Animals
+- empty state for scanned Boxes without active Animals
+- quick feeding form with one- or multi-Animal selection
+- current date and time as the default feeding timestamp
+- optional shared notes for quick feeding entries
+- atomic creation of one FeedingEvent per selected Animal
+
+### Changed
+
+- Box and Animal detail pictures are now interactive and open in a separate
+  full-screen route
+- all active Animals assigned to a scanned Box are selected by default for a
+  minimal-tap feeding workflow
+- the Feeding Mode scanner resumes immediately after saving or cancelling a
+  Box-specific feeding workflow
+- normal Box QR scanning remains separate and unchanged
+
+### Reliability
+
+- grouped feeding inserts run inside one database transaction
+- a failed insert rolls back the complete grouped feeding
+- empty and duplicate Animal ID collections are rejected by the repository
+- save controls are disabled while a grouped feeding is being written
+- repeated save submissions do not create duplicate FeedingEvents
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- quick feeding entries use the existing FeedingEvent data model and appear in
+  the existing feeding history
+- no data or backup migration is required for v0.9.0
+
+### Validated
+
+- full-screen Box and Animal picture viewing
+- picture zooming, panning and close/Back navigation
+- dedicated Feeding Mode entry and Box QR resolution
+- active-Animal filtering and Boxes without active Animals
+- single- and multi-Animal feeding entries
+- default and manually selected feeding timestamps
+- optional notes and existing feeding-history integration
+- transactional rollback and duplicate-submission protection
+- scanner restart after saving and cancelling
+- existing normal Box scanner workflow
+
+### Testing
+
+- added full-screen picture viewer and detail-picture interaction tests
+- added Feeding Mode entry-point and scanner tests
+- added atomic FeedingRepository batch tests
+- added quick feeding selection, history and scanner-resume tests
+- completed the full automated test suite with 321 passing tests
+
 ## [0.8.0] - Contextual Navigation
 
 ### Added

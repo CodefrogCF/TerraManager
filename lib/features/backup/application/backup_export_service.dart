@@ -11,6 +11,7 @@ import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
 import '../../../core/database/repositories/media_repository.dart';
 import '../../settings/app_accent.dart';
+import '../../settings/app_language.dart';
 import '../domain/backup_data.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_format.dart';
@@ -32,6 +33,7 @@ class BackupExportService {
     required String appVersion,
     required ThemeMode themeMode,
     required AppAccent accent,
+    AppLanguage language = AppLanguage.system,
     DateTime? createdAt,
   }) async {
     final backupTime = createdAt ?? DateTime.now();
@@ -129,6 +131,7 @@ class BackupExportService {
     final backupSettings = BackupSettingsCodec.encode(
       themeMode: themeMode,
       accent: accent,
+      language: language,
     );
 
     final manifest = BackupManifest(

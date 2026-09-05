@@ -7,7 +7,8 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
-import '../../../../core/boxes/box_label.dart';
+import '../../../../l10n/app_localizations_context.dart';
+import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../widgets/animal_picture.dart';
@@ -161,7 +162,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       if (!success) {
         setState(() {
           _lifecycleActionInProgress = false;
-          _lifecycleError = 'Failed to archive animal';
+          _lifecycleError = context.l10n.failedToArchiveAnimal;
         });
 
         return;
@@ -174,7 +175,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       });
 
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Animal archived')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.animalArchived)));
     } catch (_) {
       if (!mounted) {
         return;
@@ -182,7 +183,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
       setState(() {
         _lifecycleActionInProgress = false;
-        _lifecycleError = 'Failed to archive animal';
+        _lifecycleError = context.l10n.failedToArchiveAnimal;
       });
     }
   }
@@ -206,7 +207,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       }
 
       setState(() {
-        _lifecycleError = 'Failed to load boxes';
+        _lifecycleError = context.l10n.failedToLoadBoxes;
       });
 
       return;
@@ -221,15 +222,15 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('No Boxes Available'),
-            content: const Text('Create a box before restoring this animal.'),
+            title: Text(context.l10n.noBoxesAvailableTitle),
+            content: Text(context.l10n.createBoxBeforeRestore),
             actions: [
               TextButton(
                 key: const Key('close-no-boxes-dialog-button'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('OK'),
+                child: Text(context.l10n.ok),
               ),
             ],
           );
@@ -264,7 +265,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       if (!success) {
         setState(() {
           _lifecycleActionInProgress = false;
-          _lifecycleError = 'Failed to restore animal';
+          _lifecycleError = context.l10n.failedToRestoreAnimal;
         });
 
         return;
@@ -277,7 +278,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       });
 
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Animal restored')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.animalRestored)));
     } catch (_) {
       if (!mounted) {
         return;
@@ -285,7 +286,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
       setState(() {
         _lifecycleActionInProgress = false;
-        _lifecycleError = 'Failed to restore animal';
+        _lifecycleError = context.l10n.failedToRestoreAnimal;
       });
     }
   }
@@ -300,25 +301,22 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       builder: (context) {
         return AlertDialog(
           key: const Key('permanent-delete-animal-dialog'),
-          title: const Text('Permanently Delete Animal?'),
-          content: const Text(
-            'The animal and all associated feeding history '
-            'will be permanently removed. This cannot be undone.',
-          ),
+          title: Text(context.l10n.permanentlyDeleteAnimalQuestion),
+          content: Text(context.l10n.permanentlyDeleteAnimalWarning),
           actions: [
             TextButton(
               key: const Key('cancel-permanent-delete-animal-button'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               key: const Key('confirm-permanent-delete-animal-button'),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('Delete Permanently'),
+              child: Text(context.l10n.deletePermanently),
             ),
           ],
         );
@@ -345,7 +343,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       if (!success) {
         setState(() {
           _lifecycleActionInProgress = false;
-          _lifecycleError = 'Failed to permanently delete animal';
+          _lifecycleError = context.l10n.failedToPermanentlyDeleteAnimal;
         });
 
         return;
@@ -359,7 +357,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
       setState(() {
         _lifecycleActionInProgress = false;
-        _lifecycleError = 'Failed to permanently delete animal';
+        _lifecycleError = context.l10n.failedToPermanentlyDeleteAnimal;
       });
     }
   }
@@ -449,21 +447,21 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Animal Details'),
+            title: Text(context.l10n.animalDetails),
             actions: [
               if (animal != null)
                 IconButton(
                   key: const Key('feeding-history-button'),
                   onPressed: _openFeedingHistory,
                   icon: const Icon(Icons.restaurant),
-                  tooltip: 'Feeding History',
+                  tooltip: context.l10n.feedingHistory,
                 ),
               if (animal != null && animal.status == AnimalStatus.active)
                 IconButton(
                   key: const Key('edit-animal-button'),
                   onPressed: _lifecycleActionInProgress ? null : _openEditPage,
                   icon: const Icon(Icons.edit),
-                  tooltip: 'Edit Animal',
+                  tooltip: context.l10n.editAnimal,
                 ),
             ],
           ),
@@ -491,7 +489,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
   Widget _buildBody(BuildContext context, AsyncSnapshot<Animal?> snapshot) {
     if (snapshot.hasError) {
-      return const Center(child: Text('Failed to load animal'));
+      return Center(child: Text(context.l10n.failedToLoadAnimal));
     }
 
     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -501,7 +499,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     final animal = snapshot.data;
 
     if (animal == null) {
-      return const Center(child: Text('Animal not found'));
+      return Center(child: Text(context.l10n.animalNotFound));
     }
 
     final isArchived = animal.status == AnimalStatus.archived;
@@ -548,40 +546,55 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         Text(animal.latinName, style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 24),
 
-        _DetailRow(label: 'Status', value: isArchived ? 'Archived' : 'Active'),
+        _DetailRow(
+          label: context.l10n.status,
+          value: isArchived ? context.l10n.archived : context.l10n.active,
+        ),
 
         if (!isArchived && animal.boxId != null)
-          _DetailRow(label: 'Box', value: 'Box ${animal.boxId}'),
+          _DetailRow(
+            label: context.l10n.box,
+            value: context.l10n.boxLabel(animal.boxId!),
+          ),
 
         if (animal.sex != null)
-          _DetailRow(label: 'Sex', value: animal.sex.toString()),
+          _DetailRow(
+            label: context.l10n.sex,
+            value: context.l10n.animalSexLabel(animal.sex!),
+          ),
 
         if (animal.birthDate != null)
           _DetailRow(
-            label: 'Birth date',
+            label: context.l10n.birthDateLowercase,
             value: _formatDate(animal.birthDate!),
           ),
 
         if (animal.birthDateAccuracy != null)
           _DetailRow(
-            label: 'Birth date accuracy',
-            value: animal.birthDateAccuracy.toString(),
+            label: context.l10n.birthDateAccuracyLowercase,
+            value: context.l10n.birthAccuracyLabel(animal.birthDateAccuracy!),
           ),
 
         _DetailRow(
-          label: 'Temperature',
-          value: '${animal.tempMin} °C – ${animal.tempMax} °C',
+          label: context.l10n.temperature,
+          value: context.l10n.temperatureRange(
+            animal.tempMin.toString(),
+            animal.tempMax.toString(),
+          ),
         ),
 
         _DetailRow(
-          label: 'Humidity',
-          value: '${animal.humidityMin}% – ${animal.humidityMax}%',
+          label: context.l10n.humidity,
+          value: context.l10n.humidityRange(
+            animal.humidityMin.toString(),
+            animal.humidityMax.toString(),
+          ),
         ),
 
         const SizedBox(height: 16),
 
         Text(
-          'Latest Feeding',
+          context.l10n.latestFeeding,
           key: const Key('latest-feeding-heading'),
           style: Theme.of(context).textTheme.titleMedium,
         ),
@@ -591,9 +604,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           future: _latestFeedingFuture,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return const Text(
-                'Failed to load latest feeding',
-                key: Key('latest-feeding-error'),
+              return Text(
+                context.l10n.failedToLoadLatestFeeding,
+                key: const Key('latest-feeding-error'),
               );
             }
 
@@ -609,9 +622,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             final feeding = snapshot.data;
 
             if (feeding == null) {
-              return const Text(
-                'No feeding events available',
-                key: Key('latest-feeding-empty-state'),
+              return Text(
+                context.l10n.noFeedingEventsAvailable,
+                key: const Key('latest-feeding-empty-state'),
               );
             }
 
@@ -655,7 +668,10 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         if (animal.notes != null && animal.notes!.isNotEmpty) ...[
           const SizedBox(height: 16),
 
-          Text('Notes', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            context.l10n.notes,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
 
           Text(animal.notes!),
@@ -667,7 +683,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           const SizedBox(height: 16),
 
           Text(
-            'Archive Information',
+            context.l10n.archiveInformation,
             key: const Key('archive-information-heading'),
             style: Theme.of(context).textTheme.titleMedium,
           ),
@@ -675,13 +691,15 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
           if (animal.archiveReason != null)
             _DetailRow(
-              label: 'Reason',
-              value: _archiveReasonLabel(animal.archiveReason!),
+              label: context.l10n.reason,
+              value: context.l10n.animalArchiveReasonLabel(
+                animal.archiveReason!,
+              ),
             ),
 
           if (animal.archivedAt != null)
             _DetailRow(
-              label: 'Archive date',
+              label: context.l10n.archiveDateLowercase,
               value: _formatDate(animal.archivedAt!),
             ),
 
@@ -689,7 +707,10 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               animal.archiveNotes!.isNotEmpty) ...[
             const SizedBox(height: 8),
 
-            Text('Archive note', style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              context.l10n.archiveNote,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: 8),
 
             Text(animal.archiveNotes!, key: const Key('archive-notes')),
@@ -709,7 +730,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.restore),
-            label: const Text('Restore Animal'),
+            label: Text(context.l10n.restoreAnimal),
           ),
 
           const SizedBox(height: 12),
@@ -723,7 +744,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                 ? null
                 : () => _permanentlyDeleteAnimal(animal),
             icon: const Icon(Icons.delete_forever_outlined),
-            label: const Text('Delete Permanently'),
+            label: Text(context.l10n.deletePermanently),
           ),
         ] else ...[
           const SizedBox(height: 32),
@@ -742,7 +763,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.archive_outlined),
-            label: const Text('Archive Animal'),
+            label: Text(context.l10n.archiveAnimal),
           ),
         ],
 
@@ -820,22 +841,22 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
     return AlertDialog(
       key: const Key('archive-animal-dialog'),
       scrollable: true,
-      title: const Text('Archive Animal'),
+      title: Text(context.l10n.archiveAnimal),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Archive this animal and remove it from its current box?'),
+          Text(context.l10n.archiveAnimalQuestion),
           const SizedBox(height: 20),
 
           DropdownButtonFormField<AnimalArchiveReason>(
             key: const Key('archive-reason-field'),
             initialValue: _reason,
-            decoration: const InputDecoration(labelText: 'Reason'),
+            decoration: InputDecoration(labelText: context.l10n.reason),
             items: AnimalArchiveReason.values
                 .map(
                   (reason) => DropdownMenuItem<AnimalArchiveReason>(
                     value: reason,
-                    child: Text(_archiveReasonLabel(reason)),
+                    child: Text(context.l10n.animalArchiveReasonLabel(reason)),
                   ),
                 )
                 .toList(),
@@ -850,7 +871,7 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
           ListTile(
             key: const Key('archive-date-field'),
             contentPadding: EdgeInsets.zero,
-            title: const Text('Archive Date'),
+            title: Text(context.l10n.archiveDate),
             subtitle: Text(_formatDate(_archiveDate)),
             trailing: const Icon(Icons.calendar_today),
             onTap: _selectDate,
@@ -861,9 +882,9 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
             key: const Key('archive-notes-field'),
             controller: _notesController,
             maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Note',
-              hintText: 'Optional',
+            decoration: InputDecoration(
+              labelText: context.l10n.note,
+              hintText: context.l10n.optional,
               alignLabelWithHint: true,
             ),
           ),
@@ -875,12 +896,12 @@ class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancel),
         ),
         FilledButton(
           key: const Key('confirm-archive-animal-button'),
           onPressed: _reason == null ? null : _confirm,
-          child: const Text('Archive'),
+          child: Text(context.l10n.archive),
         ),
       ],
     );
@@ -903,18 +924,18 @@ class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       key: const Key('restore-animal-dialog'),
-      title: const Text('Restore Animal'),
+      title: Text(context.l10n.restoreAnimal),
       content: DropdownButtonFormField<int>(
         key: const Key('restore-box-field'),
         initialValue: _boxId,
         isExpanded: true,
-        decoration: const InputDecoration(labelText: 'Assign to Box'),
+        decoration: InputDecoration(labelText: context.l10n.assignToBox),
         items: widget.boxes
             .map(
               (box) => DropdownMenuItem<int>(
                 value: box.id,
                 child: Text(
-                  buildBoxLabel(box.id),
+                  context.l10n.boxLabel(box.id),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -933,7 +954,7 @@ class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancel),
         ),
         FilledButton(
           key: const Key('confirm-restore-animal-button'),
@@ -942,7 +963,7 @@ class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
               : () {
                   Navigator.of(context).pop(_boxId);
                 },
-          child: const Text('Restore'),
+          child: Text(context.l10n.restore),
         ),
       ],
     );
@@ -985,25 +1006,6 @@ class _DetailRow extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-String _archiveReasonLabel(AnimalArchiveReason reason) {
-  switch (reason) {
-    case AnimalArchiveReason.sold:
-      return 'Sold';
-
-    case AnimalArchiveReason.traded:
-      return 'Traded';
-
-    case AnimalArchiveReason.deceased:
-      return 'Deceased';
-
-    case AnimalArchiveReason.rehomed:
-      return 'Rehomed';
-
-    case AnimalArchiveReason.other:
-      return 'Other';
   }
 }
 

@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_accent.dart';
+import 'app_language.dart';
 
 class AppSettingsController extends ChangeNotifier {
   static const String _themeModeKey = 'theme_mode';
   static const String _accentKey = 'accent';
+  static const String _languageKey = 'language';
 
   ThemeMode _themeMode = ThemeMode.system;
   AppAccent _accent = AppAccent.green;
+  AppLanguage _language = AppLanguage.system;
 
   ThemeMode get themeMode => _themeMode;
   AppAccent get accent => _accent;
+  AppLanguage get language => _language;
 
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
@@ -19,6 +23,8 @@ class AppSettingsController extends ChangeNotifier {
     _themeMode = _parseThemeMode(preferences.getString(_themeModeKey));
 
     _accent = _parseAccent(preferences.getString(_accentKey));
+
+    _language = _parseLanguage(preferences.getString(_languageKey));
 
     notifyListeners();
   }
@@ -49,6 +55,19 @@ class AppSettingsController extends ChangeNotifier {
     await preferences.setString(_accentKey, accent.name);
   }
 
+  Future<void> setLanguage(AppLanguage language) async {
+    if (_language == language) {
+      return;
+    }
+
+    _language = language;
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+
+    await preferences.setString(_languageKey, language.name);
+  }
+
   ThemeMode _parseThemeMode(String? value) {
     if (value == null) {
       return ThemeMode.system;
@@ -77,18 +96,36 @@ class AppSettingsController extends ChangeNotifier {
     return AppAccent.green;
   }
 
+  AppLanguage _parseLanguage(String? value) {
+    if (value == null) {
+      return AppLanguage.system;
+    }
+
+    for (final language in AppLanguage.values) {
+      if (language.name == value) {
+        return language;
+      }
+    }
+
+    return AppLanguage.system;
+  }
+
   Future<void> replaceSettings({
     required ThemeMode themeMode,
     required AppAccent accent,
+    required AppLanguage language,
   }) async {
     final preferences = await SharedPreferences.getInstance();
 
     final previousThemeMode = _themeMode;
     final previousAccent = _accent;
+    final previousLanguage = _language;
 
     final previousStoredTheme = preferences.getString(_themeModeKey);
 
     final previousStoredAccent = preferences.getString(_accentKey);
+
+    final previousStoredLanguage = preferences.getString(_languageKey);
 
     try {
       final themeSaved = await preferences.setString(
@@ -106,8 +143,18 @@ class AppSettingsController extends ChangeNotifier {
         throw StateError('Failed to persist accent');
       }
 
+      final languageSaved = await preferences.setString(
+        _languageKey,
+        language.name,
+      );
+
+      if (!languageSaved) {
+        throw StateError('Failed to persist language');
+      }
+
       _themeMode = themeMode;
       _accent = accent;
+      _language = language;
 
       notifyListeners();
     } catch (_) {
@@ -123,8 +170,15 @@ class AppSettingsController extends ChangeNotifier {
         await preferences.setString(_accentKey, previousStoredAccent);
       }
 
+      if (previousStoredLanguage == null) {
+        await preferences.remove(_languageKey);
+      } else {
+        await preferences.setString(_languageKey, previousStoredLanguage);
+      }
+
       _themeMode = previousThemeMode;
       _accent = previousAccent;
+      _language = previousLanguage;
 
       notifyListeners();
 

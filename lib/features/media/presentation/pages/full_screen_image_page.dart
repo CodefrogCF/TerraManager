@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../../../../l10n/app_localizations_context.dart';
+
 class FullScreenImagePage extends StatelessWidget {
   static const double minimumScale = 1;
   static const double maximumScale = 5;
@@ -23,10 +25,8 @@ class FullScreenImagePage extends StatelessWidget {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         fullscreenDialog: true,
-        builder: (_) => FullScreenImagePage(
-          imageBytes: imageBytes,
-          title: title,
-        ),
+        builder: (_) =>
+            FullScreenImagePage(imageBytes: imageBytes, title: title),
       ),
     );
   }
@@ -47,7 +47,7 @@ class FullScreenImagePage extends StatelessWidget {
             Navigator.of(context).pop();
           },
           icon: const Icon(Icons.close),
-          tooltip: 'Close picture',
+          tooltip: context.l10n.closePicture,
         ),
       ),
       body: SafeArea(

@@ -21,6 +21,7 @@ import 'package:terramanager/features/backup/domain/backup_format.dart';
 import 'package:terramanager/features/backup/domain/backup_manifest.dart';
 import 'package:terramanager/features/backup/domain/backup_settings.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
+import 'package:terramanager/features/settings/app_language.dart';
 
 void main() {
   late AppDatabase database;
@@ -85,6 +86,7 @@ void main() {
       appVersion: '0.6.0',
       themeMode: ThemeMode.dark,
       accent: AppAccent.purple,
+      language: AppLanguage.german,
       createdAt: DateTime(2026, 9, 2, 15, 30),
     );
 
@@ -103,6 +105,8 @@ void main() {
     expect(result.settings.themeMode, 'dark');
 
     expect(result.settings.accent, 'purple');
+
+    expect(result.settings.language, 'german');
 
     expect(result.data.boxes.length, 1);
 
@@ -134,6 +138,12 @@ void main() {
 
     final dataJson =
         jsonDecode(utf8.decode(dataFile!.readBytes()!)) as Map<String, dynamic>;
+
+    final settingsJson = jsonDecode(
+      utf8.decode(settingsFile!.readBytes()!),
+    ) as Map<String, dynamic>;
+
+    expect(settingsJson['language'], 'german');
 
     final animals = dataJson['animals'] as List<dynamic>;
 

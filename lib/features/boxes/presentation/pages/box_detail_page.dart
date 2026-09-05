@@ -8,7 +8,7 @@ import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
 import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
-import '../../../../core/boxes/box_label.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/pages/animal_detail_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import 'box_edit_page.dart';
@@ -104,7 +104,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
       if (box == null) {
         setState(() {
-          _refreshError = 'Box no longer exists';
+          _refreshError = context.l10n.boxNoLongerExists;
         });
 
         return;
@@ -123,7 +123,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       }
 
       setState(() {
-        _refreshError = 'Failed to refresh box';
+        _refreshError = context.l10n.failedToRefreshBox;
       });
     }
   }
@@ -196,7 +196,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       });
 
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('QR code saved')));
+          .showSnackBar(SnackBar(content: Text(context.l10n.qrCodeSaved)));
     } catch (_) {
       if (!mounted) {
         return;
@@ -204,7 +204,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
       setState(() {
         _savingQr = false;
-        _saveError = 'Failed to save QR code';
+        _saveError = context.l10n.failedToSaveQrCode;
       });
     }
   }
@@ -234,7 +234,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('QR code sent to printer')));
+      ).showSnackBar(SnackBar(content: Text(context.l10n.qrCodeSentToPrinter)));
     } catch (_) {
       if (!mounted) {
         return;
@@ -242,7 +242,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
       setState(() {
         _printingQr = false;
-        _printError = 'Failed to print QR code';
+        _printError = context.l10n.failedToPrintQrCode;
       });
     }
   }
@@ -274,25 +274,22 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Delete Box?'),
-            content: const Text(
-              'Delete this box permanently?\n\n'
-              'This action cannot be undone.',
-            ),
+            title: Text(context.l10n.deleteBoxQuestion),
+            content: Text(context.l10n.deleteBoxWarning),
             actions: [
               TextButton(
                 key: const Key('cancel-delete-box-button'),
                 onPressed: () {
                   Navigator.of(context).pop(false);
                 },
-                child: const Text('Cancel'),
+                child: Text(context.l10n.cancel),
               ),
               FilledButton(
                 key: const Key('confirm-delete-box-button'),
                 onPressed: () {
                   Navigator.of(context).pop(true);
                 },
-                child: const Text('Delete'),
+                child: Text(context.l10n.delete),
               ),
             ],
           );
@@ -316,7 +313,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       if (!deleted) {
         setState(() {
           _deleting = false;
-          _deleteError = 'Failed to delete box';
+          _deleteError = context.l10n.failedToDeleteBox;
         });
 
         return;
@@ -330,33 +327,25 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
       setState(() {
         _deleting = false;
-        _deleteError = 'Failed to delete box';
+        _deleteError = context.l10n.failedToDeleteBox;
       });
     }
   }
 
   Future<void> _showCannotDeleteDialog(int animalCount) {
-    final animalText = animalCount == 1
-        ? '1 animal is assigned to this box.'
-        : '$animalCount animals are assigned to this box.';
-
     return showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Cannot Delete Box'),
-          content: Text(
-            '$animalText\n\n'
-            'Move or delete the assigned animals '
-            'before deleting the box.',
-          ),
+          title: Text(context.l10n.cannotDeleteBox),
+          content: Text(context.l10n.assignedAnimalsPreventDelete(animalCount)),
           actions: [
             TextButton(
               key: const Key('close-cannot-delete-button'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text(context.l10n.ok),
             ),
           ],
         );
@@ -427,7 +416,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         setState(() {
           _navigationContext = navigationContext.withRecordIds(remainingIds);
           _switchingBox = false;
-          _refreshError = 'Box no longer exists';
+          _refreshError = context.l10n.boxNoLongerExists;
         });
 
         return;
@@ -452,7 +441,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
       setState(() {
         _switchingBox = false;
-        _refreshError = 'Failed to load box';
+        _refreshError = context.l10n.failedToLoadBox;
       });
     }
   }
@@ -463,13 +452,16 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(buildBoxLabel(box.id), key: const Key('box-detail-title')),
+        title: Text(
+          context.l10n.boxLabel(box.id),
+          key: const Key('box-detail-title'),
+        ),
         actions: [
           IconButton(
             key: const Key('edit-box-button'),
             onPressed: _switchingBox || _deleting ? null : _openEditPage,
             icon: const Icon(Icons.edit_outlined),
-            tooltip: 'Edit Box',
+            tooltip: context.l10n.editBoxTooltip,
           ),
           IconButton(
             key: const Key('save-qr-button'),
@@ -481,7 +473,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.download_outlined),
-            tooltip: 'Save QR Code',
+            tooltip: context.l10n.saveQrCode,
           ),
           IconButton(
             key: const Key('print-qr-button'),
@@ -493,7 +485,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.print_outlined),
-            tooltip: 'Print QR Code',
+            tooltip: context.l10n.printQrCode,
           ),
           IconButton(
             key: const Key('delete-box-button'),
@@ -505,7 +497,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.delete_outline),
-            tooltip: 'Delete Box',
+            tooltip: context.l10n.deleteBox,
           ),
         ],
       ),
@@ -586,32 +578,35 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                   key: const Key('box-detail-picture'),
                   pictureBytes: snapshot.data?.data,
                   emptyText: snapshot.hasError
-                      ? 'Image unavailable'
-                      : 'No picture',
+                      ? context.l10n.imageUnavailable
+                      : context.l10n.noPicture,
                 );
               },
             ),
             const SizedBox(height: 24),
 
-            Text('Dimensions', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              context.l10n.dimensions,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 12),
 
             _DetailRow(
               key: const Key('box-width-row'),
-              label: 'Width',
-              value: _formatDimension(box.widthCm),
+              label: context.l10n.width,
+              value: _formatDimension(context, box.widthCm),
             ),
 
             _DetailRow(
               key: const Key('box-height-row'),
-              label: 'Height',
-              value: _formatDimension(box.heightCm),
+              label: context.l10n.height,
+              value: _formatDimension(context, box.heightCm),
             ),
 
             _DetailRow(
               key: const Key('box-depth-row'),
-              label: 'Depth',
-              value: _formatDimension(box.depthCm),
+              label: context.l10n.depth,
+              value: _formatDimension(context, box.depthCm),
             ),
 
             const SizedBox(height: 12),
@@ -622,7 +617,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             const SizedBox(height: 24),
 
             Text(
-              'QR Identifier',
+              context.l10n.qrIdentifier,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -630,11 +625,17 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             SelectableText(box.qrId, key: const Key('box-qr-id')),
             const SizedBox(height: 24),
 
-            _DetailRow(label: 'Box ID', value: box.id.toString()),
+            _DetailRow(label: context.l10n.boxId, value: box.id.toString()),
 
-            _DetailRow(label: 'Created', value: _formatDateTime(box.createdAt)),
+            _DetailRow(
+              label: context.l10n.created,
+              value: _formatDateTime(box.createdAt),
+            ),
 
-            _DetailRow(label: 'Updated', value: _formatDateTime(box.updatedAt)),
+            _DetailRow(
+              label: context.l10n.updated,
+              value: _formatDateTime(box.updatedAt),
+            ),
 
             const SizedBox(height: 16),
 
@@ -642,7 +643,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               children: [
                 Expanded(
                   child: Text(
-                    'Assigned Animals',
+                    context.l10n.assignedAnimals,
                     key: const Key('assigned-animals-heading'),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
@@ -657,11 +658,11 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               future: _animalsFuture,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
-                      'Failed to load assigned animals',
-                      key: Key('assigned-animals-error'),
+                      context.l10n.failedToLoadAssignedAnimals,
+                      key: const Key('assigned-animals-error'),
                     ),
                   );
                 }
@@ -676,11 +677,11 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 final animals = snapshot.data ?? [];
 
                 if (animals.isEmpty) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Text(
-                      'No animals assigned to this box',
-                      key: Key('no-assigned-animals'),
+                      context.l10n.noAnimalsAssigned,
+                      key: const Key('no-assigned-animals'),
                     ),
                   );
                 }
@@ -712,16 +713,16 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     );
   }
 
-  String _formatDimension(double? value) {
+  String _formatDimension(BuildContext context, double? value) {
     if (value == null) {
-      return 'Not specified';
+      return context.l10n.notSpecified;
     }
 
     final formatted = value == value.roundToDouble()
         ? value.toInt().toString()
         : value.toString();
 
-    return '$formatted cm';
+    return context.l10n.centimeterValue(formatted);
   }
 
   String _formatDateTime(DateTime dateTime) {

@@ -7,6 +7,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/image_media_info.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import '../widgets/box_picture.dart';
 
 class NewBoxPage extends StatefulWidget {
@@ -70,7 +71,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
       }
 
       setState(() {
-        _error = 'Failed to select picture';
+        _error = context.l10n.failedToSelectPicture;
       });
     }
   }
@@ -131,7 +132,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
 
       setState(() {
         _saving = false;
-        _error = 'Failed to create box';
+        _error = context.l10n.failedToCreateBox;
       });
     }
   }
@@ -139,7 +140,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('New Box')),
+      appBar: AppBar(title: Text(context.l10n.newBox)),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -158,22 +159,21 @@ class _NewBoxPageState extends State<NewBoxPage> {
                   const SizedBox(height: 24),
 
                   Text(
-                    'Create a new box',
+                    context.l10n.createNewBox,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 12),
 
                   Text(
-                    'A permanent unique QR identifier will be '
-                    'generated automatically.',
+                    context.l10n.automaticQrIdentifierHint,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 8),
 
                   Text(
-                    'Format: TM:BOX:<UUID>',
+                    context.l10n.qrIdentifierFormat,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -194,8 +194,8 @@ class _NewBoxPageState extends State<NewBoxPage> {
                           icon: const Icon(Icons.photo_library_outlined),
                           label: Text(
                             _pictureBytes == null
-                                ? 'Select Picture'
-                                : 'Change Picture',
+                                ? context.l10n.selectPicture
+                                : context.l10n.changePicture,
                           ),
                         ),
                       ),
@@ -205,7 +205,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
                           key: const Key('remove-new-box-picture-button'),
                           onPressed: _saving ? null : _removePicture,
                           icon: const Icon(Icons.delete_outline),
-                          tooltip: 'Remove Picture',
+                          tooltip: context.l10n.removePicture,
                         ),
                       ],
                     ],
@@ -213,7 +213,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
                   const SizedBox(height: 24),
 
                   Text(
-                    'Dimensions',
+                    context.l10n.dimensions,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 16),
@@ -221,21 +221,21 @@ class _NewBoxPageState extends State<NewBoxPage> {
                   _dimensionField(
                     key: const Key('new-box-width-field'),
                     controller: _widthController,
-                    label: 'Width (cm)',
+                    label: context.l10n.widthCentimeters,
                   ),
                   const SizedBox(height: 16),
 
                   _dimensionField(
                     key: const Key('new-box-height-field'),
                     controller: _heightController,
-                    label: 'Height (cm)',
+                    label: context.l10n.heightCentimeters,
                   ),
                   const SizedBox(height: 16),
 
                   _dimensionField(
                     key: const Key('new-box-depth-field'),
                     controller: _depthController,
-                    label: 'Depth (cm)',
+                    label: context.l10n.depthCentimeters,
                   ),
 
                   if (_error != null) ...[
@@ -262,7 +262,9 @@ class _NewBoxPageState extends State<NewBoxPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.add),
-                    label: Text(_saving ? 'Creating...' : 'Create Box'),
+                    label: Text(
+                      _saving ? context.l10n.creating : context.l10n.createBox,
+                    ),
                   ),
                 ],
               ),
@@ -282,7 +284,10 @@ class _NewBoxPageState extends State<NewBoxPage> {
       key: key,
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(labelText: label, helperText: 'Optional'),
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: context.l10n.optional,
+      ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return null;
@@ -291,11 +296,11 @@ class _NewBoxPageState extends State<NewBoxPage> {
         final parsed = _parseOptionalNumber(value);
 
         if (parsed == null) {
-          return 'Please enter a valid number';
+          return context.l10n.pleaseEnterValidNumber;
         }
 
         if (parsed <= 0) {
-          return 'Value must be greater than 0';
+          return context.l10n.valueMustBeGreaterThanZero;
         }
 
         return null;

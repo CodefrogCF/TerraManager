@@ -5,6 +5,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/qr/qr_validator.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import 'feeding_box_animals_page.dart';
 
 class FeedingScannerPage extends StatefulWidget {
@@ -77,7 +78,7 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
     if (!isValidBoxQrId(value)) {
       setState(() {
         _processing = false;
-        _error = 'Invalid TerraManager QR code';
+        _error = context.l10n.invalidTerraManagerQrCode;
       });
       return;
     }
@@ -92,7 +93,7 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
       if (box == null) {
         setState(() {
           _processing = false;
-          _error = 'Box not found';
+          _error = context.l10n.boxNotFound;
         });
         return;
       }
@@ -136,10 +137,10 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
 
       if (saved == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Feeding events saved',
-              key: Key('feeding-mode-saved-message'),
+              context.l10n.feedingEventsSaved,
+              key: const Key('feeding-mode-saved-message'),
             ),
           ),
         );
@@ -151,7 +152,7 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
 
       setState(() {
         _processing = false;
-        _error = 'Failed to scan QR code';
+        _error = context.l10n.failedToScanQrCode;
       });
     }
   }
@@ -179,7 +180,7 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Feeding Mode')),
+      appBar: AppBar(title: Text(context.l10n.feedingModeTitle)),
       body: Column(
         children: [
           Expanded(
@@ -193,7 +194,7 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
                   errorBuilder: (context, error) {
                     return Center(
                       child: Text(
-                        'Camera unavailable',
+                        context.l10n.cameraUnavailable,
                         key: const Key('feeding-mode-camera-error'),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,

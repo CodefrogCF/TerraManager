@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
+import '../../../../l10n/app_localizations_context.dart';
 
 class QuickFeedingForm extends StatefulWidget {
   final AppDatabase database;
@@ -126,7 +127,7 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
 
     if (selected.isAfter(DateTime.now())) {
       setState(() {
-        _error = 'Feeding date and time cannot be in the future';
+        _error = context.l10n.feedingDateTimeInFuture;
       });
       return;
     }
@@ -173,7 +174,7 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
 
       setState(() {
         _saving = false;
-        _error = 'Failed to save feeding events';
+        _error = context.l10n.failedToSaveFeedingEvents;
       });
     }
   }
@@ -190,9 +191,10 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
             padding: const EdgeInsets.all(16),
             children: [
               Text(
-                '${widget.animals.length} active '
-                '${widget.animals.length == 1 ? 'animal' : 'animals'} '
-                'assigned to ${widget.boxLabel}',
+                context.l10n.activeAnimalsAssignedToBox(
+                  widget.animals.length,
+                  widget.boxLabel,
+                ),
                 key: const Key('feeding-box-animal-count'),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
@@ -201,7 +203,11 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                 child: TextButton(
                   key: const Key('toggle-all-feeding-animals-button'),
                   onPressed: _saving ? null : _toggleAllAnimals,
-                  child: Text(allSelected ? 'Deselect all' : 'Select all'),
+                  child: Text(
+                    allSelected
+                        ? context.l10n.deselectAll
+                        : context.l10n.selectAll,
+                  ),
                 ),
               ),
               ...widget.animals.map((animal) {
@@ -234,7 +240,7 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
               ListTile(
                 key: const Key('quick-feeding-date-time-field'),
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Date and Time'),
+                title: Text(context.l10n.dateAndTime),
                 subtitle: Text(
                   _formatDateTime(_fedAt),
                   key: const Key('quick-feeding-date-time-value'),
@@ -251,8 +257,8 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                 controller: _notesController,
                 enabled: !_saving,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
+                decoration: InputDecoration(
+                  labelText: context.l10n.notes,
                   alignLabelWithHint: true,
                 ),
               ),
@@ -278,12 +284,10 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                       : const Icon(Icons.restaurant),
                   label: Text(
                     _saving
-                        ? 'Saving...'
+                        ? context.l10n.saving
                         : selectedCount == 0
-                        ? 'Select an Animal'
-                        : selectedCount == 1
-                        ? 'Save Feeding'
-                        : 'Save $selectedCount Feedings',
+                        ? context.l10n.selectAnimal
+                        : context.l10n.saveFeedings(selectedCount),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -291,7 +295,7 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                   key: const Key('scan-another-box-button'),
                   onPressed: _saving ? null : widget.onCancel,
                   icon: const Icon(Icons.qr_code_scanner),
-                  label: const Text('Scan another Box'),
+                  label: Text(context.l10n.scanAnotherBox),
                 ),
               ],
             ),

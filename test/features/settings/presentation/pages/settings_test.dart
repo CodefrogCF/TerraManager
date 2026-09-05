@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/features/settings/app_accent.dart';
+import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 import 'package:drift/native.dart';
@@ -42,12 +43,12 @@ void main() {
     return controller;
   }
 
-  testWidgets('shows theme and accent settings', (tester) async {
+  testWidgets('shows theme, accent, and language settings', (tester) async {
     await pumpSettings(tester);
 
     expect(find.byKey(const Key('theme-mode-selector')), findsOneWidget);
 
-    expect(find.text('System'), findsOneWidget);
+    expect(find.text('System'), findsNWidgets(2));
 
     expect(find.text('Light'), findsOneWidget);
 
@@ -56,6 +57,12 @@ void main() {
     for (final accent in AppAccent.values) {
       expect(find.byKey(Key('accent-${accent.name}')), findsOneWidget);
     }
+
+    expect(find.byKey(const Key('language-selector')), findsOneWidget);
+
+    expect(find.text('English'), findsOneWidget);
+
+    expect(find.text('Deutsch'), findsOneWidget);
   });
 
   testWidgets('can change theme mode', (tester) async {
@@ -76,5 +83,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(controller.accent, AppAccent.purple);
+  });
+
+  testWidgets('can change language', (tester) async {
+    final controller = await pumpSettings(tester);
+
+    await tester.ensureVisible(find.text('Deutsch'));
+
+    await tester.tap(find.text('Deutsch'));
+
+    await tester.pumpAndSettle();
+
+    expect(controller.language, AppLanguage.german);
+
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(preferences.getString('language'), 'german');
   });
 }

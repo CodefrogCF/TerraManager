@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/features/backup/application/backup_settings_codec.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
+import 'package:terramanager/features/settings/app_language.dart';
 
 void main() {
   test('theme modes use stable backup values', () {
@@ -33,6 +34,20 @@ void main() {
     }
   });
 
+  test('languages use stable backup values and round trip', () {
+    expect(BackupSettingsCodec.encodeLanguage(AppLanguage.system), 'system');
+    expect(BackupSettingsCodec.encodeLanguage(AppLanguage.english), 'english');
+    expect(BackupSettingsCodec.encodeLanguage(AppLanguage.german), 'german');
+
+    for (final value in AppLanguage.values) {
+      final encoded = BackupSettingsCodec.encodeLanguage(value);
+
+      final decoded = BackupSettingsCodec.decodeLanguage(encoded);
+
+      expect(decoded, value);
+    }
+  });
+
   test('unsupported settings values throw', () {
     expect(
       () => BackupSettingsCodec.decodeThemeMode('future-theme'),
@@ -41,6 +56,11 @@ void main() {
 
     expect(
       () => BackupSettingsCodec.decodeAccent('future-accent'),
+      throwsFormatException,
+    );
+
+    expect(
+      () => BackupSettingsCodec.decodeLanguage('future-language'),
       throwsFormatException,
     );
   });

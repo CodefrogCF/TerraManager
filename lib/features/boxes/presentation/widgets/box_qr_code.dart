@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../../l10n/app_localizations_context.dart';
+
 class BoxQrCode extends StatelessWidget {
   final String qrId;
   final double size;
@@ -10,7 +12,7 @@ class BoxQrCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'QR code for box $qrId',
+      label: context.l10n.qrCodeForBox(qrId),
       child: Container(
         padding: const EdgeInsets.all(16),
         color: Colors.white,

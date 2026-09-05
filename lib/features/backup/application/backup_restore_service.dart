@@ -38,12 +38,18 @@ class BackupRestoreService {
 
     final previousAccent = settingsController.accent;
 
+    final previousLanguage = settingsController.language;
+
     final restoredThemeMode = BackupSettingsCodec.decodeThemeMode(
       backup.settings.themeMode,
     );
 
     final restoredAccent = BackupSettingsCodec.decodeAccent(
       backup.settings.accent,
+    );
+
+    final restoredLanguage = BackupSettingsCodec.decodeLanguage(
+      backup.settings.language,
     );
 
     final BackupExportResult safetyBackup;
@@ -53,6 +59,7 @@ class BackupRestoreService {
         appVersion: currentAppVersion,
         themeMode: previousThemeMode,
         accent: previousAccent,
+        language: previousLanguage,
       );
     } catch (error) {
       throw BackupRestoreException(
@@ -76,6 +83,7 @@ class BackupRestoreService {
       await settingsController.replaceSettings(
         themeMode: restoredThemeMode,
         accent: restoredAccent,
+        language: restoredLanguage,
       );
     } catch (error) {
       throw BackupRestoreException(
@@ -94,6 +102,7 @@ class BackupRestoreService {
         await settingsController.replaceSettings(
           themeMode: previousThemeMode,
           accent: previousAccent,
+          language: previousLanguage,
         );
       } catch (rollbackError) {
         throw BackupRestoreException(

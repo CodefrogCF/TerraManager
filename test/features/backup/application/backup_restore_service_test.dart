@@ -17,6 +17,7 @@ import 'package:terramanager/features/backup/domain/backup_data.dart';
 import 'package:terramanager/features/backup/domain/backup_manifest.dart';
 import 'package:terramanager/features/backup/domain/backup_settings.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
+import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:archive/archive.dart';
 import 'package:terramanager/features/backup/domain/backup_format.dart';
@@ -29,6 +30,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'theme_mode': 'light',
       'accent': 'red',
+      'language': 'english',
     });
 
     database = AppDatabase.test(NativeDatabase.memory());
@@ -125,7 +127,11 @@ void main() {
           ),
         ],
       ),
-      settings: const BackupSettings(themeMode: 'dark', accent: 'teal'),
+      settings: const BackupSettings(
+        themeMode: 'dark',
+        accent: 'teal',
+        language: 'german',
+      ),
       mediaFiles: includePicture
           ? {
               portablePicture: Uint8List.fromList([1, 2, 3, 4]),
@@ -282,6 +288,8 @@ void main() {
     expect(settingsController.themeMode, ThemeMode.dark);
 
     expect(settingsController.accent, AppAccent.teal);
+
+    expect(settingsController.language, AppLanguage.german);
   });
 
   test('safety backup failure leaves '
@@ -316,6 +324,8 @@ void main() {
     expect(settingsController.themeMode, ThemeMode.light);
 
     expect(settingsController.accent, AppAccent.red);
+
+    expect(settingsController.language, AppLanguage.english);
   });
 
   test('missing media in unvalidated backup '
@@ -369,6 +379,8 @@ void main() {
     expect(settingsController.themeMode, ThemeMode.light);
 
     expect(settingsController.accent, AppAccent.red);
+
+    expect(settingsController.language, AppLanguage.english);
   });
 
   test('database failure rolls back '
@@ -417,6 +429,8 @@ void main() {
     expect(settingsController.themeMode, ThemeMode.light);
 
     expect(settingsController.accent, AppAccent.red);
+
+    expect(settingsController.language, AppLanguage.english);
   });
 
   test('restored autoincrement sequence '

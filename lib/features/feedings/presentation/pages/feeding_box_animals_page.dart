@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/boxes/box_label.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import '../widgets/quick_feeding_form.dart';
 
 class FeedingBoxAnimalsPage extends StatelessWidget {
@@ -20,11 +20,14 @@ class FeedingBoxAnimalsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final boxLabel = buildBoxLabel(box.id);
+    final boxLabel = context.l10n.boxLabel(box.id);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Feeding – $boxLabel', key: const Key('feeding-box-title')),
+        title: Text(
+          context.l10n.feedingBoxTitle(boxLabel),
+          key: const Key('feeding-box-title'),
+        ),
       ),
       body: animals.isEmpty
           ? _EmptyAnimalList(
@@ -69,14 +72,14 @@ class _EmptyAnimalList extends StatelessWidget {
                   const Icon(Icons.pets_outlined, size: 56),
                   const SizedBox(height: 16),
                   Text(
-                    'No active animals assigned to $boxLabel',
+                    context.l10n.noActiveAnimalsAssigned(boxLabel),
                     key: const Key('feeding-box-empty-message'),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Return to the scanner and scan another Box.',
+                  Text(
+                    context.l10n.returnToScannerHint,
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -94,7 +97,7 @@ class _EmptyAnimalList extends StatelessWidget {
                 key: const Key('scan-another-box-button'),
                 onPressed: onScanAnother,
                 icon: const Icon(Icons.qr_code_scanner),
-                label: const Text('Scan another Box'),
+                label: Text(context.l10n.scanAnotherBox),
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../settings/app_accent.dart';
+import '../../settings/app_language.dart';
 import '../domain/backup_settings.dart';
 
 class BackupSettingsCodec {
@@ -9,10 +10,12 @@ class BackupSettingsCodec {
   static BackupSettings encode({
     required ThemeMode themeMode,
     required AppAccent accent,
+    AppLanguage language = AppLanguage.system,
   }) {
     return BackupSettings(
       themeMode: encodeThemeMode(themeMode),
       accent: encodeAccent(accent),
+      language: encodeLanguage(language),
     );
   }
 
@@ -53,6 +56,25 @@ class BackupSettingsCodec {
       'purple' => AppAccent.purple,
       'red' => AppAccent.red,
       _ => throw FormatException('Unsupported AppAccent backup value: $value'),
+    };
+  }
+
+  static String encodeLanguage(AppLanguage value) {
+    return switch (value) {
+      AppLanguage.system => 'system',
+      AppLanguage.english => 'english',
+      AppLanguage.german => 'german',
+    };
+  }
+
+  static AppLanguage decodeLanguage(String value) {
+    return switch (value) {
+      'system' => AppLanguage.system,
+      'english' => AppLanguage.english,
+      'german' => AppLanguage.german,
+      _ => throw FormatException(
+        'Unsupported AppLanguage backup value: $value',
+      ),
     };
   }
 }

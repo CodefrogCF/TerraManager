@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/boxes/box_label.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import '../../../feedings/presentation/pages/feeding_scanner_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import 'box_detail_page.dart';
@@ -93,14 +93,16 @@ class _BoxesPageState extends State<BoxesPage> {
     );
   }
 
-  String _formatDimensions(Box box) {
+  String _formatDimensions(BuildContext context, Box box) {
     if (box.widthCm == null && box.heightCm == null && box.depthCm == null) {
-      return 'Dimensions not specified';
+      return context.l10n.dimensionsNotSpecified;
     }
 
-    return '${_formatDimensionValue(box.widthCm)} × '
-        '${_formatDimensionValue(box.heightCm)} × '
-        '${_formatDimensionValue(box.depthCm)} cm';
+    return context.l10n.boxDimensions(
+      _formatDimensionValue(box.widthCm),
+      _formatDimensionValue(box.heightCm),
+      _formatDimensionValue(box.depthCm),
+    );
   }
 
   String _formatDimensionValue(double? value) {
@@ -180,19 +182,19 @@ class _BoxesPageState extends State<BoxesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Boxes'),
+        title: Text(context.l10n.navigationBoxes),
         actions: [
           IconButton(
             key: const Key('scan-box-button'),
             onPressed: _openScannerPage,
             icon: const Icon(Icons.qr_code_scanner),
-            tooltip: 'Scan Box',
+            tooltip: context.l10n.scanBoxTitle,
           ),
           IconButton(
             key: const Key('feeding-mode-button'),
             onPressed: _openFeedingMode,
             icon: const Icon(Icons.restaurant_menu),
-            tooltip: 'Feeding Mode',
+            tooltip: context.l10n.feedingModeTitle,
           ),
         ],
       ),
@@ -200,7 +202,7 @@ class _BoxesPageState extends State<BoxesPage> {
         future: _boxesFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Failed to load boxes'));
+            return Center(child: Text(context.l10n.failedToLoadBoxes));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -210,7 +212,7 @@ class _BoxesPageState extends State<BoxesPage> {
           final boxes = snapshot.data ?? [];
 
           if (boxes.isEmpty) {
-            return const Center(child: Text('No boxes available'));
+            return Center(child: Text(context.l10n.noBoxesAvailable));
           }
 
           return ListView.builder(
@@ -233,10 +235,10 @@ class _BoxesPageState extends State<BoxesPage> {
                   },
                 ),
                 title: Text(
-                  buildBoxLabel(box.id),
+                  context.l10n.boxLabel(box.id),
                   key: Key('box-label-${box.id}'),
                 ),
-                subtitle: Text(_formatDimensions(box)),
+                subtitle: Text(_formatDimensions(context, box)),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   _openBoxDetail(box, boxes);
@@ -249,7 +251,7 @@ class _BoxesPageState extends State<BoxesPage> {
       floatingActionButton: FloatingActionButton(
         key: const Key('add-box-button'),
         onPressed: _openNewBoxPage,
-        tooltip: 'Add Box',
+        tooltip: context.l10n.addBox,
         child: const Icon(Icons.add),
       ),
     );

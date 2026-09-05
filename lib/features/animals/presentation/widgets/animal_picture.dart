@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../l10n/app_localizations_context.dart';
 import '../../../media/presentation/pages/full_screen_image_page.dart';
 
 class AnimalPicture extends StatelessWidget {
@@ -24,7 +25,7 @@ class AnimalPicture extends StatelessWidget {
     }
 
     if (picturePath == null || picturePath!.trim().isEmpty) {
-      return _buildPlaceholder();
+      return _buildPlaceholder(context);
     }
 
     return FutureBuilder<Uint8List>(
@@ -38,7 +39,10 @@ class AnimalPicture extends StatelessWidget {
         }
 
         if (snapshot.hasError || snapshot.data == null) {
-          return _buildPlaceholder(text: 'Image unavailable');
+          return _buildPlaceholder(
+            context,
+            text: context.l10n.imageUnavailable,
+          );
         }
 
         return _buildImage(context, snapshot.data!);
@@ -49,7 +53,7 @@ class AnimalPicture extends StatelessWidget {
   Widget _buildImage(BuildContext context, Uint8List imageBytes) {
     return Semantics(
       button: true,
-      label: 'Open animal picture',
+      label: context.l10n.openAnimalPicture,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
@@ -59,7 +63,7 @@ class AnimalPicture extends StatelessWidget {
             FullScreenImagePage.open(
               context,
               imageBytes: imageBytes,
-              title: 'Animal picture',
+              title: context.l10n.animalPicture,
             );
           },
           child: SizedBox(
@@ -75,7 +79,7 @@ class AnimalPicture extends StatelessWidget {
     );
   }
 
-  Widget _buildPlaceholder({String text = 'No picture'}) {
+  Widget _buildPlaceholder(BuildContext context, {String? text}) {
     return SizedBox(
       width: double.infinity,
       height: height,
@@ -86,7 +90,7 @@ class AnimalPicture extends StatelessWidget {
             children: [
               const Icon(Icons.image_not_supported_outlined, size: 48),
               const SizedBox(height: 8),
-              Text(text),
+              Text(text ?? context.l10n.noPicture),
             ],
           ),
         ),

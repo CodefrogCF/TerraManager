@@ -1,0 +1,361 @@
+{
+  "@@locale": "en",
+  "appTitle": "TerraManager",
+  "@appTitle": {
+    "description": "Application title"
+  },
+  "navigationBoxes": "Boxes",
+  "@navigationBoxes": {
+    "description": "Bottom navigation label for the Box overview"
+  },
+  "navigationAnimals": "Animals",
+  "@navigationAnimals": {
+    "description": "Bottom navigation label for the Animal overview"
+  },
+  "navigationSettings": "Settings",
+  "@navigationSettings": {
+    "description": "Bottom navigation label for Settings"
+  },
+  "noPicture": "No picture",
+  "imageUnavailable": "Image unavailable",
+  "openAnimalPicture": "Open animal picture",
+  "animalPicture": "Animal picture",
+  "openBoxPicture": "Open box picture",
+  "boxPicture": "Box picture",
+  "closePicture": "Close picture",
+  "qrCodeForBox": "QR code for box {qrId}",
+  "@qrCodeForBox": {
+    "placeholders": {
+      "qrId": {
+        "type": "String"
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "save": "Save",
+  "saving": "Saving...",
+  "ok": "OK",
+  "optional": "Optional",
+  "scanAnotherBox": "Scan another Box",
+  "feedingBoxTitle": "Feeding – {boxLabel}",
+  "@feedingBoxTitle": {
+    "placeholders": {
+      "boxLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "noActiveAnimalsAssigned": "No active animals assigned to {boxLabel}",
+  "@noActiveAnimalsAssigned": {
+    "placeholders": {
+      "boxLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "returnToScannerHint": "Return to the scanner and scan another Box.",
+  "scanBoxTitle": "Scan Box",
+  "feedingModeTitle": "Feeding Mode",
+  "invalidTerraManagerQrCode": "Invalid TerraManager QR code",
+  "boxNotFound": "Box not found",
+  "failedToScanQrCode": "Failed to scan QR code",
+  "cameraUnavailable": "Camera unavailable",
+  "feedingEventsSaved": "Feeding events saved",
+  "boxLabel": "Box {boxId}",
+  "@boxLabel": {
+    "placeholders": {
+      "boxId": {
+        "type": "int"
+      }
+    }
+  },
+  "dimensionsNotSpecified": "Dimensions not specified",
+  "boxDimensions": "{width} × {height} × {depth} cm",
+  "@boxDimensions": {
+    "placeholders": {
+      "width": {
+        "type": "String"
+      },
+      "height": {
+        "type": "String"
+      },
+      "depth": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToLoadBoxes": "Failed to load boxes",
+  "noBoxesAvailable": "No boxes available",
+  "addBox": "Add Box",
+  "newBox": "New Box",
+  "failedToSelectPicture": "Failed to select picture",
+  "failedToCreateBox": "Failed to create box",
+  "createNewBox": "Create a new box",
+  "automaticQrIdentifierHint": "A permanent unique QR identifier will be generated automatically.",
+  "qrIdentifierFormat": "Format: TM:BOX:<UUID>",
+  "selectPicture": "Select Picture",
+  "changePicture": "Change Picture",
+  "removePicture": "Remove Picture",
+  "dimensions": "Dimensions",
+  "widthCentimeters": "Width (cm)",
+  "heightCentimeters": "Height (cm)",
+  "depthCentimeters": "Depth (cm)",
+  "creating": "Creating...",
+  "createBox": "Create Box",
+  "pleaseEnterValidNumber": "Please enter a valid number",
+  "valueMustBeGreaterThanZero": "Value must be greater than 0",
+  "failedToLoadBox": "Failed to load box",
+  "failedToSaveBox": "Failed to save box",
+  "unsavedChanges": "Unsaved changes",
+  "unsavedChangesLeaveQuestion": "You have unsaved changes. Do you really want to leave?",
+  "discard": "Discard",
+  "editBox": "Edit Box",
+  "editBoxLabel": "Edit {boxLabel}",
+  "@editBoxLabel": {
+    "placeholders": {
+      "boxLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "qrIdentifier": "QR Identifier",
+  "permanentQrIdentifierHint": "The QR identifier is permanent and cannot be changed.",
+  "boxNoLongerExists": "Box no longer exists",
+  "failedToRefreshBox": "Failed to refresh box",
+  "qrCodeSaved": "QR code saved",
+  "failedToSaveQrCode": "Failed to save QR code",
+  "qrCodeSentToPrinter": "QR code sent to printer",
+  "failedToPrintQrCode": "Failed to print QR code",
+  "deleteBoxQuestion": "Delete Box?",
+  "deleteBoxWarning": "Delete this box permanently?\n\nThis action cannot be undone.",
+  "failedToDeleteBox": "Failed to delete box",
+  "cannotDeleteBox": "Cannot Delete Box",
+  "assignedAnimalsPreventDelete": "{count, plural, =1{1 animal is assigned to this box.} other{{count} animals are assigned to this box.}}\n\nMove or delete the assigned animals before deleting the box.",
+  "@assignedAnimalsPreventDelete": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "editBoxTooltip": "Edit Box",
+  "saveQrCode": "Save QR Code",
+  "printQrCode": "Print QR Code",
+  "deleteBox": "Delete Box",
+  "width": "Width",
+  "height": "Height",
+  "depth": "Depth",
+  "boxId": "Box ID",
+  "created": "Created",
+  "updated": "Updated",
+  "assignedAnimals": "Assigned Animals",
+  "failedToLoadAssignedAnimals": "Failed to load assigned animals",
+  "noAnimalsAssigned": "No animals assigned to this box",
+  "notSpecified": "Not specified",
+  "centimeterValue": "{value} cm",
+  "@centimeterValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "animalHistory": "Animal History",
+  "failedToLoadAnimals": "Failed to load animals",
+  "noAnimalsAvailable": "No animals available",
+  "addAnimal": "Add Animal",
+  "failedToLoadAnimalHistory": "Failed to load animal history",
+  "noArchivedAnimals": "No archived animals",
+  "archived": "Archived",
+  "archiveReasonSold": "Sold",
+  "archiveReasonTraded": "Traded",
+  "archiveReasonDeceased": "Deceased",
+  "archiveReasonRehomed": "Rehomed",
+  "archiveReasonOther": "Other",
+  "newAnimal": "New Animal",
+  "saveAnimal": "Save Animal",
+  "failedToCreateAnimal": "Failed to create animal",
+  "noBoxesForAnimal": "No boxes available. Create a box before adding an animal.",
+  "associatedBox": "Associated Box",
+  "pleaseSelectBox": "Please select a box",
+  "commonName": "Common Name",
+  "pleaseEnterCommonName": "Please enter a common name",
+  "latinName": "Latin Name",
+  "pleaseEnterLatinName": "Please enter a latin name",
+  "sex": "Sex",
+  "unknown": "Unknown",
+  "sexMale": "Sex.male",
+  "sexFemale": "Sex.female",
+  "sexUnknown": "Sex.unknown",
+  "birthDate": "Birth Date",
+  "birthDateAccuracy": "Birth Date Accuracy",
+  "birthDateAccuracyExact": "BirthDateAccuracy.exact",
+  "birthDateAccuracyMonthKnown": "BirthDateAccuracy.monthKnown",
+  "birthDateAccuracyYearKnown": "BirthDateAccuracy.yearKnown",
+  "minimumTemperatureCelsius": "Minimum Temperature (°C)",
+  "maximumTemperatureCelsius": "Maximum Temperature (°C)",
+  "minimumHumidityPercent": "Minimum Humidity (%)",
+  "maximumHumidityPercent": "Maximum Humidity (%)",
+  "notes": "Notes",
+  "createAnimal": "Create Animal",
+  "pleaseEnterValue": "Please enter a value",
+  "animalNotFound": "Animal not found",
+  "archivedAnimalsCannotBeEdited": "Archived animals cannot be edited",
+  "failedToLoadAnimal": "Failed to load animal",
+  "failedToSaveAnimal": "Failed to save animal",
+  "editAnimal": "Edit Animal",
+  "animalDetails": "Animal Details",
+  "feedingHistory": "Feeding History",
+  "failedToArchiveAnimal": "Failed to archive animal",
+  "animalArchived": "Animal archived",
+  "noBoxesAvailableTitle": "No Boxes Available",
+  "createBoxBeforeRestore": "Create a box before restoring this animal.",
+  "failedToRestoreAnimal": "Failed to restore animal",
+  "animalRestored": "Animal restored",
+  "permanentlyDeleteAnimalQuestion": "Permanently Delete Animal?",
+  "permanentlyDeleteAnimalWarning": "The animal and all associated feeding history will be permanently removed. This cannot be undone.",
+  "deletePermanently": "Delete Permanently",
+  "failedToPermanentlyDeleteAnimal": "Failed to permanently delete animal",
+  "status": "Status",
+  "active": "Active",
+  "box": "Box",
+  "birthDateLowercase": "Birth date",
+  "birthDateAccuracyLowercase": "Birth date accuracy",
+  "temperature": "Temperature",
+  "temperatureRange": "{minimum} °C – {maximum} °C",
+  "@temperatureRange": {
+    "placeholders": {
+      "minimum": {
+        "type": "String"
+      },
+      "maximum": {
+        "type": "String"
+      }
+    }
+  },
+  "humidity": "Humidity",
+  "humidityRange": "{minimum}% – {maximum}%",
+  "@humidityRange": {
+    "placeholders": {
+      "minimum": {
+        "type": "String"
+      },
+      "maximum": {
+        "type": "String"
+      }
+    }
+  },
+  "latestFeeding": "Latest Feeding",
+  "failedToLoadLatestFeeding": "Failed to load latest feeding",
+  "noFeedingEventsAvailable": "No feeding events available",
+  "archiveInformation": "Archive Information",
+  "reason": "Reason",
+  "archiveDateLowercase": "Archive date",
+  "archiveNote": "Archive note",
+  "restoreAnimal": "Restore Animal",
+  "archiveAnimal": "Archive Animal",
+  "archiveAnimalQuestion": "Archive this animal and remove it from its current box?",
+  "archiveDate": "Archive Date",
+  "note": "Note",
+  "archive": "Archive",
+  "assignToBox": "Assign to Box",
+  "restore": "Restore",
+  "deleteFeedingQuestion": "Delete Feeding?",
+  "deleteFeedingWarning": "Delete the feeding from {dateTime} permanently?\n\nThis action cannot be undone.",
+  "@deleteFeedingWarning": {
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToDeleteFeedingEvent": "Failed to delete feeding event",
+  "failedToLoadFeedingHistory": "Failed to load feeding history",
+  "editFeeding": "Edit Feeding",
+  "deleteFeeding": "Delete Feeding",
+  "addFeeding": "Add Feeding",
+  "failedToUpdateFeedingEvent": "Failed to update feeding event",
+  "failedToSaveFeedingEvent": "Failed to save feeding event",
+  "feedingDateTimeInFuture": "Feeding date and time cannot be in the future",
+  "dateAndTime": "Date and Time",
+  "failedToSaveFeedingEvents": "Failed to save feeding events",
+  "activeAnimalsAssignedToBox": "{count, plural, =1{1 active animal assigned to {boxLabel}} other{{count} active animals assigned to {boxLabel}}}",
+  "@activeAnimalsAssignedToBox": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "boxLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "deselectAll": "Deselect all",
+  "selectAll": "Select all",
+  "selectAnimal": "Select an Animal",
+  "saveFeedings": "{count, plural, =1{Save Feeding} other{Save {count} Feedings}}",
+  "@saveFeedings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "backupCreationCancelled": "Backup creation cancelled.",
+  "backupCreatedSuccessfully": "Backup created successfully.",
+  "failedToCreateBackup": "Failed to create backup.",
+  "backupRestoredSuccessfully": "Backup restored successfully.",
+  "failedToRestoreBackup": "Failed to restore backup.",
+  "backupInformation": "Backup Information",
+  "appVersion": "App version",
+  "backupFormat": "Backup format",
+  "databaseSchema": "Database schema",
+  "feedingEvents": "Feeding events",
+  "pictures": "Pictures",
+  "continueAction": "Continue",
+  "replaceExistingDataQuestion": "Replace existing data?",
+  "replaceExistingDataWarning": "Existing TerraManager data will be replaced by this backup.\n\nA safety backup of the current state will be created before the restore begins.\n\nThis operation cannot be merged with the current data.",
+  "invalidBackup": "Invalid Backup",
+  "backupErrorInvalidArchive": "The backup file is invalid or damaged.",
+  "backupErrorUnsafeArchivePath": "The backup contains an unsafe archive path.",
+  "backupErrorDuplicateArchiveEntry": "The backup contains a duplicate archive entry.",
+  "backupErrorMissingRequiredFile": "A required backup file is missing.",
+  "backupErrorInvalidJson": "The backup contains invalid JSON data.",
+  "backupErrorInvalidManifest": "The backup manifest is invalid.",
+  "backupErrorUnsupportedBackupFormat": "The backup format is not supported.",
+  "backupErrorInvalidData": "The backup contains invalid application data.",
+  "backupErrorDuplicateRecordId": "The backup contains a duplicate record ID.",
+  "backupErrorDuplicateQrId": "The backup contains a duplicate QR identifier.",
+  "backupErrorInvalidQrId": "The backup contains an invalid QR identifier.",
+  "backupErrorInvalidEnum": "The backup contains an unsupported value.",
+  "backupErrorBrokenRelationship": "The backup contains a broken relationship between records.",
+  "backupErrorInvalidLifecycle": "The backup contains an invalid animal lifecycle state.",
+  "backupErrorInvalidSettings": "The backup contains unsupported application settings.",
+  "backupErrorInvalidMediaReference": "The backup contains an invalid picture reference.",
+  "backupErrorMissingMedia": "A referenced picture is missing from the backup.",
+  "backupErrorEmptyMedia": "A referenced picture in the backup is empty.",
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "accentColor": "Accent Color",
+  "accentGreen": "Green",
+  "accentBlue": "Blue",
+  "accentTeal": "Teal",
+  "accentOrange": "Orange",
+  "accentPurple": "Purple",
+  "accentRed": "Red",
+  "changesSavedAutomatically": "Changes are saved automatically.",
+  "backupAndRestore": "Backup & Restore",
+  "backupSectionDescription": "Create a portable TerraManager backup or replace the current local data from an existing backup.",
+  "createBackup": "Create Backup",
+  "createBackupDescription": "Export boxes, animals, feeding events, settings and pictures.",
+  "restoreBackup": "Restore Backup",
+  "restoreBackupDescription": "Validate and replace the current local TerraManager data.",
+  "language": "Language",
+  "languageSystem": "System",
+  "languageEnglish": "English",
+  "languageGerman": "Deutsch"
+}

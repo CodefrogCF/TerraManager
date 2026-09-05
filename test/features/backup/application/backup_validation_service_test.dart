@@ -29,8 +29,9 @@ void main() {
   Map<String, dynamic> settingsJson({
     String themeMode = 'system',
     String accent = 'green',
+    String? language = 'system',
   }) {
-    return {'themeMode': themeMode, 'accent': accent};
+    return {'themeMode': themeMode, 'accent': accent, 'language': ?language};
   }
 
   Map<String, dynamic> activeAnimal({
@@ -163,6 +164,16 @@ void main() {
     expect(result.feedingEventCount, 1);
 
     expect(result.mediaFileCount, 0);
+
+    expect(result.settings.language, 'system');
+  });
+
+  test('accepts legacy settings without language', () {
+    final bytes = createArchive(settings: settingsJson(language: null));
+
+    final result = validator.validate(bytes);
+
+    expect(result.settings.language, 'system');
   });
 
   test('accepts valid archived animal', () {
@@ -409,6 +420,23 @@ void main() {
   test('rejects unsupported settings', () {
     final bytes = createArchive(
       settings: settingsJson(themeMode: 'future-theme'),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidSettings,
+        ),
+      ),
+    );
+  });
+
+  test('rejects unsupported language setting', () {
+    final bytes = createArchive(
+      settings: settingsJson(language: 'future-language'),
     );
 
     expect(

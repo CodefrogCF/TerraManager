@@ -4,6 +4,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/qr/qr_validator.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import 'box_detail_page.dart';
 
 class BoxScannerPage extends StatefulWidget {
@@ -76,7 +77,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
     if (!isValidBoxQrId(value)) {
       setState(() {
         _processing = false;
-        _error = 'Invalid TerraManager QR code';
+        _error = context.l10n.invalidTerraManagerQrCode;
       });
       return;
     }
@@ -91,7 +92,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
       if (box == null) {
         setState(() {
           _processing = false;
-          _error = 'Box not found';
+          _error = context.l10n.boxNotFound;
         });
         return;
       }
@@ -124,7 +125,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
 
       setState(() {
         _processing = false;
-        _error = 'Failed to scan QR code';
+        _error = context.l10n.failedToScanQrCode;
       });
     }
   }
@@ -152,7 +153,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Scan Box')),
+      appBar: AppBar(title: Text(context.l10n.scanBoxTitle)),
       body: Column(
         children: [
           Expanded(
@@ -166,7 +167,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
                   errorBuilder: (context, error) {
                     return Center(
                       child: Text(
-                        'Camera unavailable',
+                        context.l10n.cameraUnavailable,
                         key: const Key('scanner-camera-error'),
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,

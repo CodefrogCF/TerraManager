@@ -10,7 +10,8 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/image_media_info.dart';
-import '../../../../core/boxes/box_label.dart';
+import '../../../../l10n/app_localizations_context.dart';
+import '../../../../l10n/app_localizations_labels.dart';
 import '../widgets/animal_picture.dart';
 
 class NewAnimalPage extends StatefulWidget {
@@ -89,7 +90,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
       setState(() {
         _loading = false;
-        _loadError = 'Failed to load boxes';
+        _loadError = context.l10n.failedToLoadBoxes;
       });
     }
   }
@@ -121,7 +122,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       }
 
       setState(() {
-        _saveError = 'Failed to select picture';
+        _saveError = context.l10n.failedToSelectPicture;
       });
     }
   }
@@ -191,7 +192,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
       setState(() {
         _saving = false;
-        _saveError = 'Failed to create animal';
+        _saveError = context.l10n.failedToCreateAnimal;
       });
     }
   }
@@ -200,13 +201,13 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('New Animal'),
+        title: Text(context.l10n.newAnimal),
         actions: [
           IconButton(
             key: const Key('save-animal-button'),
             onPressed: _saving || _loading || _boxes.isEmpty ? null : _save,
             icon: const Icon(Icons.save),
-            tooltip: 'Save Animal',
+            tooltip: context.l10n.saveAnimal,
           ),
         ],
       ),
@@ -224,11 +225,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     }
 
     if (_boxes.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Text(
-            'No boxes available. Create a box before adding an animal.',
+            context.l10n.noBoxesForAnimal,
             textAlign: TextAlign.center,
           ),
         ),
@@ -262,8 +263,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                     icon: const Icon(Icons.photo_library_outlined),
                     label: Text(
                       _pictureBytes == null
-                          ? 'Select Picture'
-                          : 'Change Picture',
+                          ? context.l10n.selectPicture
+                          : context.l10n.changePicture,
                     ),
                   ),
                 ),
@@ -273,7 +274,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                     key: const Key('remove-picture-button'),
                     onPressed: _saving ? null : _removePicture,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'Remove Picture',
+                    tooltip: context.l10n.removePicture,
                   ),
                 ],
               ],
@@ -283,12 +284,14 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             DropdownButtonFormField<int>(
               key: const Key('box-field'),
               initialValue: _boxId,
-              decoration: const InputDecoration(labelText: 'Associated Box'),
+              decoration: InputDecoration(
+                labelText: context.l10n.associatedBox,
+              ),
               items: _boxes
                   .map(
                     (box) => DropdownMenuItem<int>(
                       value: box.id,
-                      child: Text(buildBoxLabel(box.id)),
+                      child: Text(context.l10n.boxLabel(box.id)),
                     ),
                   )
                   .toList(),
@@ -301,7 +304,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                     },
               validator: (value) {
                 if (value == null) {
-                  return 'Please select a box';
+                  return context.l10n.pleaseSelectBox;
                 }
 
                 return null;
@@ -313,10 +316,10 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               key: const Key('common-name-field'),
               controller: _commonNameController,
               enabled: !_saving,
-              decoration: const InputDecoration(labelText: 'Common Name'),
+              decoration: InputDecoration(labelText: context.l10n.commonName),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a common name';
+                  return context.l10n.pleaseEnterCommonName;
                 }
 
                 return null;
@@ -328,10 +331,10 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               key: const Key('latin-name-field'),
               controller: _latinNameController,
               enabled: !_saving,
-              decoration: const InputDecoration(labelText: 'Latin Name'),
+              decoration: InputDecoration(labelText: context.l10n.latinName),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter a latin name';
+                  return context.l10n.pleaseEnterLatinName;
                 }
 
                 return null;
@@ -342,16 +345,16 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             DropdownButtonFormField<Sex?>(
               key: const Key('sex-field'),
               initialValue: _sex,
-              decoration: const InputDecoration(labelText: 'Sex'),
+              decoration: InputDecoration(labelText: context.l10n.sex),
               items: [
-                const DropdownMenuItem<Sex?>(
+                DropdownMenuItem<Sex?>(
                   value: null,
-                  child: Text('Unknown'),
+                  child: Text(context.l10n.unknown),
                 ),
                 ...Sex.values.map(
                   (sex) => DropdownMenuItem<Sex?>(
                     value: sex,
-                    child: Text(sex.toString()),
+                    child: Text(context.l10n.animalSexLabel(sex)),
                   ),
                 ),
               ],
@@ -368,9 +371,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             ListTile(
               key: const Key('birth-date-field'),
               contentPadding: EdgeInsets.zero,
-              title: const Text('Birth Date'),
+              title: Text(context.l10n.birthDate),
               subtitle: Text(
-                _birthDate == null ? 'Not specified' : _formatDate(_birthDate!),
+                _birthDate == null
+                    ? context.l10n.notSpecified
+                    : _formatDate(_birthDate!),
               ),
               trailing: IconButton(
                 key: const Key('birth-date-button'),
@@ -383,18 +388,18 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             DropdownButtonFormField<BirthDateAccuracy?>(
               key: const Key('birth-date-accuracy-field'),
               initialValue: _birthDateAccuracy,
-              decoration: const InputDecoration(
-                labelText: 'Birth Date Accuracy',
+              decoration: InputDecoration(
+                labelText: context.l10n.birthDateAccuracy,
               ),
               items: [
-                const DropdownMenuItem<BirthDateAccuracy?>(
+                DropdownMenuItem<BirthDateAccuracy?>(
                   value: null,
-                  child: Text('Unknown'),
+                  child: Text(context.l10n.unknown),
                 ),
                 ...BirthDateAccuracy.values.map(
                   (accuracy) => DropdownMenuItem<BirthDateAccuracy?>(
                     value: accuracy,
-                    child: Text(accuracy.toString()),
+                    child: Text(context.l10n.birthAccuracyLabel(accuracy)),
                   ),
                 ),
               ],
@@ -411,28 +416,28 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             _numberField(
               key: const Key('temp-min-field'),
               controller: _tempMinController,
-              label: 'Minimum Temperature (°C)',
+              label: context.l10n.minimumTemperatureCelsius,
             ),
             const SizedBox(height: 16),
 
             _numberField(
               key: const Key('temp-max-field'),
               controller: _tempMaxController,
-              label: 'Maximum Temperature (°C)',
+              label: context.l10n.maximumTemperatureCelsius,
             ),
             const SizedBox(height: 16),
 
             _numberField(
               key: const Key('humidity-min-field'),
               controller: _humidityMinController,
-              label: 'Minimum Humidity (%)',
+              label: context.l10n.minimumHumidityPercent,
             ),
             const SizedBox(height: 16),
 
             _numberField(
               key: const Key('humidity-max-field'),
               controller: _humidityMaxController,
-              label: 'Maximum Humidity (%)',
+              label: context.l10n.maximumHumidityPercent,
             ),
             const SizedBox(height: 16),
 
@@ -441,8 +446,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               controller: _notesController,
               enabled: !_saving,
               maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
+              decoration: InputDecoration(
+                labelText: context.l10n.notes,
                 alignLabelWithHint: true,
               ),
             ),
@@ -458,7 +463,9 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.add),
-              label: Text(_saving ? 'Creating...' : 'Create Animal'),
+              label: Text(
+                _saving ? context.l10n.creating : context.l10n.createAnimal,
+              ),
             ),
           ],
         ),
@@ -479,11 +486,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       decoration: InputDecoration(labelText: label),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return 'Please enter a value';
+          return context.l10n.pleaseEnterValue;
         }
 
         if (double.tryParse(value) == null) {
-          return 'Please enter a valid number';
+          return context.l10n.pleaseEnterValidNumber;
         }
 
         return null;

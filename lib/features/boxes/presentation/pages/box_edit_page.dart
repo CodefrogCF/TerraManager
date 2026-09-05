@@ -8,7 +8,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/image_media_info.dart';
-import '../../../../core/boxes/box_label.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import '../widgets/box_picture.dart';
 
 class BoxEditPage extends StatefulWidget {
@@ -72,7 +72,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
       if (box == null) {
         setState(() {
           _loading = false;
-          _error = 'Box not found';
+          _error = context.l10n.boxNotFound;
         });
 
         return;
@@ -114,7 +114,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
       setState(() {
         _loading = false;
-        _error = 'Failed to load box';
+        _error = context.l10n.failedToLoadBox;
       });
     }
   }
@@ -160,7 +160,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
       }
 
       setState(() {
-        _error = 'Failed to select picture';
+        _error = context.l10n.failedToSelectPicture;
       });
     }
   }
@@ -237,7 +237,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
       setState(() {
         _saving = false;
-        _error = 'Failed to save box';
+        _error = context.l10n.failedToSaveBox;
       });
     }
   }
@@ -247,25 +247,22 @@ class _BoxEditPageState extends State<BoxEditPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Unsaved changes'),
-          content: const Text(
-            'You have unsaved changes. '
-            'Do you really want to leave?',
-          ),
+          title: Text(context.l10n.unsavedChanges),
+          content: Text(context.l10n.unsavedChangesLeaveQuestion),
           actions: [
             TextButton(
               key: const Key('cancel-discard-box-button'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               key: const Key('confirm-discard-box-button'),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('Discard'),
+              child: Text(context.l10n.discard),
             ),
           ],
         );
@@ -316,7 +313,9 @@ class _BoxEditPageState extends State<BoxEditPage> {
             onPressed: _handleBack,
           ),
           title: Text(
-            _box == null ? 'Edit Box' : 'Edit ${buildBoxLabel(_box!.id)}',
+            _box == null
+                ? context.l10n.editBox
+                : context.l10n.editBoxLabel(context.l10n.boxLabel(_box!.id)),
           ),
           actions: [
             IconButton(
@@ -329,7 +328,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.save),
-              tooltip: 'Save',
+              tooltip: context.l10n.save,
             ),
           ],
         ),
@@ -346,7 +345,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
     }
 
     if (_box == null) {
-      return Center(child: Text(_error ?? 'Box not found'));
+      return Center(child: Text(_error ?? context.l10n.boxNotFound));
     }
 
     return Form(
@@ -379,7 +378,9 @@ class _BoxEditPageState extends State<BoxEditPage> {
                     onPressed: _saving ? null : _selectPicture,
                     icon: const Icon(Icons.photo_library_outlined),
                     label: Text(
-                      _hasPicture ? 'Change Picture' : 'Select Picture',
+                      _hasPicture
+                          ? context.l10n.changePicture
+                          : context.l10n.selectPicture,
                     ),
                   ),
                 ),
@@ -389,7 +390,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
                     key: const Key('remove-box-picture-button'),
                     onPressed: _saving ? null : _removePicture,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'Remove Picture',
+                    tooltip: context.l10n.removePicture,
                   ),
                 ],
               ],
@@ -397,7 +398,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
             const SizedBox(height: 24),
 
             Text(
-              'QR Identifier',
+              context.l10n.qrIdentifier,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -406,32 +407,35 @@ class _BoxEditPageState extends State<BoxEditPage> {
             const SizedBox(height: 4),
 
             Text(
-              'The QR identifier is permanent and cannot be changed.',
+              context.l10n.permanentQrIdentifierHint,
               style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 24),
 
-            Text('Dimensions', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              context.l10n.dimensions,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 16),
 
             _dimensionField(
               key: const Key('box-width-field'),
               controller: _widthController,
-              label: 'Width (cm)',
+              label: context.l10n.widthCentimeters,
             ),
             const SizedBox(height: 16),
 
             _dimensionField(
               key: const Key('box-height-field'),
               controller: _heightController,
-              label: 'Height (cm)',
+              label: context.l10n.heightCentimeters,
             ),
             const SizedBox(height: 16),
 
             _dimensionField(
               key: const Key('box-depth-field'),
               controller: _depthController,
-              label: 'Depth (cm)',
+              label: context.l10n.depthCentimeters,
             ),
             const SizedBox(height: 24),
 
@@ -439,7 +443,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
               key: const Key('save-box-form-button'),
               onPressed: _saving ? null : _save,
               icon: const Icon(Icons.save),
-              label: Text(_saving ? 'Saving...' : 'Save'),
+              label: Text(_saving ? context.l10n.saving : context.l10n.save),
             ),
           ],
         ),
@@ -457,7 +461,10 @@ class _BoxEditPageState extends State<BoxEditPage> {
       controller: controller,
       onChanged: (_) => _markAsChanged(),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(labelText: label, helperText: 'Optional'),
+      decoration: InputDecoration(
+        labelText: label,
+        helperText: context.l10n.optional,
+      ),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return null;
@@ -466,11 +473,11 @@ class _BoxEditPageState extends State<BoxEditPage> {
         final parsed = _parseOptionalNumber(value);
 
         if (parsed == null) {
-          return 'Please enter a valid number';
+          return context.l10n.pleaseEnterValidNumber;
         }
 
         if (parsed <= 0) {
-          return 'Value must be greater than 0';
+          return context.l10n.valueMustBeGreaterThanZero;
         }
 
         return null;

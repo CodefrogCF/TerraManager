@@ -4,6 +4,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
+import '../../../../l10n/app_localizations_context.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import 'animal_detail_page.dart';
 import 'animal_history_page.dart';
@@ -146,13 +147,13 @@ class _AnimalsPageState extends State<AnimalsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Animals'),
+        title: Text(context.l10n.navigationAnimals),
         actions: [
           IconButton(
             key: const Key('animal-history-button'),
             onPressed: _openAnimalHistory,
             icon: const Icon(Icons.history),
-            tooltip: 'Animal History',
+            tooltip: context.l10n.animalHistory,
           ),
         ],
       ),
@@ -160,7 +161,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
         future: _animalsFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Failed to load animals'));
+            return Center(child: Text(context.l10n.failedToLoadAnimals));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -170,7 +171,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
           final animals = snapshot.data ?? [];
 
           if (animals.isEmpty) {
-            return const Center(child: Text('No animals available'));
+            return Center(child: Text(context.l10n.noAnimalsAvailable));
           }
 
           return ListView.builder(
@@ -209,7 +210,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
       floatingActionButton: FloatingActionButton(
         key: const Key('add-animal-button'),
         onPressed: _openNewAnimalPage,
-        tooltip: 'Add Animal',
+        tooltip: context.l10n.addAnimal,
         child: const Icon(Icons.add),
       ),
     );

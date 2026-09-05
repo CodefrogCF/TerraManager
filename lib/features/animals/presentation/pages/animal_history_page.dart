@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
-import '../../../../core/database/enums/animal_archive_reason.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../l10n/app_localizations_context.dart';
+import '../../../../l10n/app_localizations_labels.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import 'animal_detail_page.dart';
 
@@ -54,12 +55,12 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Animal History')),
+      appBar: AppBar(title: Text(context.l10n.animalHistory)),
       body: FutureBuilder<List<Animal>>(
         future: _animalsFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Failed to load animal history'));
+            return Center(child: Text(context.l10n.failedToLoadAnimalHistory));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -69,9 +70,9 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
           final animals = snapshot.data ?? [];
 
           if (animals.isEmpty) {
-            return const Center(
-              key: Key('animal-history-empty-state'),
-              child: Text('No archived animals'),
+            return Center(
+              key: const Key('animal-history-empty-state'),
+              child: Text(context.l10n.noArchivedAnimals),
             );
           }
 
@@ -89,7 +90,7 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
                   children: [
                     Text(animal.latinName),
                     const SizedBox(height: 4),
-                    Text(_archiveSummary(animal)),
+                    Text(_archiveSummary(context, animal)),
                   ],
                 ),
                 isThreeLine: true,
@@ -104,33 +105,18 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
     );
   }
 
-  String _archiveSummary(Animal animal) {
+  String _archiveSummary(BuildContext context, Animal animal) {
     final parts = <String>[];
 
     if (animal.archiveReason != null) {
-      parts.add(_archiveReasonLabel(animal.archiveReason!));
+      parts.add(context.l10n.animalArchiveReasonLabel(animal.archiveReason!));
     }
 
     if (animal.archivedAt != null) {
       parts.add(_formatDate(animal.archivedAt!));
     }
 
-    return parts.isEmpty ? 'Archived' : parts.join(' • ');
-  }
-}
-
-String _archiveReasonLabel(AnimalArchiveReason reason) {
-  switch (reason) {
-    case AnimalArchiveReason.sold:
-      return 'Sold';
-    case AnimalArchiveReason.traded:
-      return 'Traded';
-    case AnimalArchiveReason.deceased:
-      return 'Deceased';
-    case AnimalArchiveReason.rehomed:
-      return 'Rehomed';
-    case AnimalArchiveReason.other:
-      return 'Other';
+    return parts.isEmpty ? context.l10n.archived : parts.join(' • ');
   }
 }
 

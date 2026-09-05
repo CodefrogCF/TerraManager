@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../l10n/app_localizations_context.dart';
+import '../../../../l10n/app_localizations_labels.dart';
 import '../../../backup/application/backup_export_service.dart';
 import '../../../backup/application/backup_restore_service.dart';
 import '../../../backup/application/backup_validation_exception.dart';
@@ -9,6 +11,7 @@ import '../../../backup/application/backup_validation_service.dart';
 import '../../../backup/application/validated_backup.dart';
 import '../../../backup/infrastructure/backup_file_service.dart';
 import '../../app_accent.dart';
+import '../../app_language.dart';
 import '../../app_settings_controller.dart';
 
 typedef AppVersionLoader = Future<String> Function();
@@ -88,6 +91,7 @@ class _SettingsPageState extends State<SettingsPage> {
         appVersion: appVersion,
         themeMode: settings.themeMode,
         accent: settings.accent,
+        language: settings.language,
       );
 
       final savedPath = await _backupFileGateway.saveBackup(backup);
@@ -97,12 +101,12 @@ class _SettingsPageState extends State<SettingsPage> {
       }
 
       if (savedPath == null) {
-        _showMessage('Backup creation cancelled.');
+        _showMessage(context.l10n.backupCreationCancelled);
 
         return;
       }
 
-      _showMessage('Backup created successfully.');
+      _showMessage(context.l10n.backupCreatedSuccessfully);
     } catch (error, stackTrace) {
       debugPrint('Backup creation failed: $error');
 
@@ -115,7 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
 
-      _showMessage('Failed to create backup.', error: true);
+      _showMessage(context.l10n.failedToCreateBackup, error: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -219,7 +223,7 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
 
-      _showMessage('Backup restored successfully.');
+      _showMessage(context.l10n.backupRestoredSuccessfully);
     } catch (error, stackTrace) {
       debugPrint('Backup restore failed: $error');
 
@@ -232,7 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
 
-      _showMessage('Failed to restore backup.', error: true);
+      _showMessage(context.l10n.failedToRestoreBackup, error: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -249,27 +253,42 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         return AlertDialog(
           key: const Key('backup-info-dialog'),
-          title: const Text('Backup Information'),
+          title: Text(context.l10n.backupInformation),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _infoRow('Created', _formatDateTime(backup.manifest.createdAt)),
-                _infoRow('App version', backup.manifest.appVersion),
                 _infoRow(
-                  'Backup format',
+                  context.l10n.created,
+                  _formatDateTime(backup.manifest.createdAt),
+                ),
+                _infoRow(context.l10n.appVersion, backup.manifest.appVersion),
+                _infoRow(
+                  context.l10n.backupFormat,
                   backup.manifest.backupFormatVersion.toString(),
                 ),
                 _infoRow(
-                  'Database schema',
+                  context.l10n.databaseSchema,
                   backup.manifest.databaseSchemaVersion.toString(),
                 ),
                 const Divider(),
-                _infoRow('Boxes', backup.boxCount.toString()),
-                _infoRow('Animals', backup.animalCount.toString()),
-                _infoRow('Feeding events', backup.feedingEventCount.toString()),
-                _infoRow('Pictures', backup.mediaFileCount.toString()),
+                _infoRow(
+                  context.l10n.navigationBoxes,
+                  backup.boxCount.toString(),
+                ),
+                _infoRow(
+                  context.l10n.navigationAnimals,
+                  backup.animalCount.toString(),
+                ),
+                _infoRow(
+                  context.l10n.feedingEvents,
+                  backup.feedingEventCount.toString(),
+                ),
+                _infoRow(
+                  context.l10n.pictures,
+                  backup.mediaFileCount.toString(),
+                ),
               ],
             ),
           ),
@@ -279,14 +298,14 @@ class _SettingsPageState extends State<SettingsPage> {
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               key: const Key('backup-info-continue-button'),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('Continue'),
+              child: Text(context.l10n.continueAction),
             ),
           ],
         );
@@ -321,30 +340,22 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         return AlertDialog(
           key: const Key('restore-confirmation-dialog'),
-          title: const Text('Replace existing data?'),
-          content: const Text(
-            'Existing TerraManager data will be '
-            'replaced by this backup.\n\n'
-            'A safety backup of the current state '
-            'will be created before the restore '
-            'begins.\n\n'
-            'This operation cannot be merged with '
-            'the current data.',
-          ),
+          title: Text(context.l10n.replaceExistingDataQuestion),
+          content: Text(context.l10n.replaceExistingDataWarning),
           actions: [
             TextButton(
               key: const Key('restore-cancel-button'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               key: const Key('restore-confirm-button'),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('Restore'),
+              child: Text(context.l10n.restore),
             ),
           ],
         );
@@ -360,14 +371,14 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         return AlertDialog(
           key: const Key('backup-validation-error-dialog'),
-          title: const Text('Invalid Backup'),
-          content: Text(error.message),
+          title: Text(context.l10n.invalidBackup),
+          content: Text(context.l10n.backupValidationErrorLabel(error.code)),
           actions: [
             FilledButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('OK'),
+              child: Text(context.l10n.ok),
             ),
           ],
         );
@@ -407,35 +418,41 @@ class _SettingsPageState extends State<SettingsPage> {
     final settings = AppSettingsScope.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: Text(context.l10n.navigationSettings)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Appearance', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            context.l10n.appearance,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 24),
 
-          Text('Theme', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            context.l10n.theme,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
 
           SizedBox(
             width: double.infinity,
             child: SegmentedButton<ThemeMode>(
               key: const Key('theme-mode-selector'),
-              segments: const [
+              segments: [
                 ButtonSegment<ThemeMode>(
                   value: ThemeMode.system,
-                  icon: Icon(Icons.settings_brightness),
-                  label: Text('System'),
+                  icon: const Icon(Icons.settings_brightness),
+                  label: Text(context.l10n.themeModeLabel(ThemeMode.system)),
                 ),
                 ButtonSegment<ThemeMode>(
                   value: ThemeMode.light,
-                  icon: Icon(Icons.light_mode),
-                  label: Text('Light'),
+                  icon: const Icon(Icons.light_mode),
+                  label: Text(context.l10n.themeModeLabel(ThemeMode.light)),
                 ),
                 ButtonSegment<ThemeMode>(
                   value: ThemeMode.dark,
-                  icon: Icon(Icons.dark_mode),
-                  label: Text('Dark'),
+                  icon: const Icon(Icons.dark_mode),
+                  label: Text(context.l10n.themeModeLabel(ThemeMode.dark)),
                 ),
               ],
               selected: {settings.themeMode},
@@ -449,7 +466,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
           const SizedBox(height: 32),
 
-          Text('Accent Color', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            context.l10n.accentColor,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 12),
 
           Wrap(
@@ -467,7 +487,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         settings.setAccent(accent);
                       },
                 avatar: CircleAvatar(backgroundColor: accent.color),
-                label: Text(accent.label),
+                label: Text(context.l10n.appAccentLabel(accent)),
               );
             }).toList(),
           ),
@@ -475,7 +495,34 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 32),
 
           Text(
-            'Changes are saved automatically.',
+            context.l10n.language,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<AppLanguage>(
+              key: const Key('language-selector'),
+              segments: AppLanguage.values.map((language) {
+                return ButtonSegment<AppLanguage>(
+                  value: language,
+                  label: Text(context.l10n.appLanguageLabel(language)),
+                );
+              }).toList(),
+              selected: {settings.language},
+              onSelectionChanged: _backupBusy
+                  ? null
+                  : (selection) {
+                      settings.setLanguage(selection.first);
+                    },
+            ),
+          ),
+
+          const SizedBox(height: 32),
+
+          Text(
+            context.l10n.changesSavedAutomatically,
             style: Theme.of(context).textTheme.bodySmall,
           ),
 
@@ -485,7 +532,7 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 24),
 
           Text(
-            'Backup & Restore',
+            context.l10n.backupAndRestore,
             key: const Key('backup-section-heading'),
             style: Theme.of(context).textTheme.titleLarge,
           ),
@@ -493,9 +540,7 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 8),
 
           Text(
-            'Create a portable TerraManager backup '
-            'or replace the current local data from '
-            'an existing backup.',
+            context.l10n.backupSectionDescription,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
 
@@ -506,11 +551,8 @@ class _SettingsPageState extends State<SettingsPage> {
             enabled: !_backupBusy,
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.download_outlined),
-            title: const Text('Create Backup'),
-            subtitle: const Text(
-              'Export boxes, animals, feeding '
-              'events, settings and pictures.',
-            ),
+            title: Text(context.l10n.createBackup),
+            subtitle: Text(context.l10n.createBackupDescription),
             trailing: const Icon(Icons.chevron_right),
             onTap: _backupBusy ? null : _createBackup,
           ),
@@ -522,11 +564,8 @@ class _SettingsPageState extends State<SettingsPage> {
             enabled: !_backupBusy,
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.restore_outlined),
-            title: const Text('Restore Backup'),
-            subtitle: const Text(
-              'Validate and replace the current '
-              'local TerraManager data.',
-            ),
+            title: Text(context.l10n.restoreBackup),
+            subtitle: Text(context.l10n.restoreBackupDescription),
             trailing: const Icon(Icons.chevron_right),
             onTap: _backupBusy ? null : _restoreBackup,
           ),

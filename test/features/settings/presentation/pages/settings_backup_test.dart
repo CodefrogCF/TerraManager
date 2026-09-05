@@ -11,6 +11,7 @@ import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/backup/application/backup_export_result.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
 import 'package:terramanager/features/backup/infrastructure/backup_file_service.dart';
+import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 
@@ -118,6 +119,8 @@ void main() {
   }
 
   testWidgets('creates and saves backup', (tester) async {
+    await settingsController.setLanguage(AppLanguage.german);
+
     await database
         .into(database.boxes)
         .insert(
@@ -139,6 +142,8 @@ void main() {
     expect(fileGateway.savedBackups.length, 1);
 
     expect(fileGateway.savedBackups.single.data.boxes.length, 1);
+
+    expect(fileGateway.savedBackups.single.settings.language, 'german');
 
     expect(find.text('Backup created successfully.'), findsOneWidget);
 
@@ -169,6 +174,7 @@ void main() {
       appVersion: '0.6.0',
       themeMode: ThemeMode.dark,
       accent: settingsController.accent,
+      language: AppLanguage.german,
       createdAt: DateTime.utc(2026, 9, 2, 15),
     );
 
@@ -220,6 +226,10 @@ void main() {
 
     expect(restoreCompleted, isTrue);
 
+    expect(settingsController.themeMode, ThemeMode.dark);
+
+    expect(settingsController.language, AppLanguage.german);
+
     // Restore creates a safety
     // backup before replacing data.
     expect(fileGateway.savedBackups.length, 1);
@@ -228,6 +238,8 @@ void main() {
       fileGateway.savedBackups.single.data.boxes.single.qrId,
       'TM:BOX:11111111-1111-4111-8111-111111111111',
     );
+
+    expect(fileGateway.savedBackups.single.settings.language, 'system');
 
     expect(find.text('Backup restored successfully.'), findsOneWidget);
   });

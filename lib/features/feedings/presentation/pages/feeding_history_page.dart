@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
+import '../../../../l10n/app_localizations_context.dart';
 
 class FeedingHistoryPage extends StatefulWidget {
   final AppDatabase database;
@@ -85,11 +86,9 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
       builder: (context) {
         return AlertDialog(
           key: const Key('delete-feeding-dialog'),
-          title: const Text('Delete Feeding?'),
+          title: Text(context.l10n.deleteFeedingQuestion),
           content: Text(
-            'Delete the feeding from '
-            '${_formatDateTime(feeding.fedAt)} permanently?\n\n'
-            'This action cannot be undone.',
+            context.l10n.deleteFeedingWarning(_formatDateTime(feeding.fedAt)),
           ),
           actions: [
             TextButton(
@@ -97,14 +96,14 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: const Text('Cancel'),
+              child: Text(context.l10n.cancel),
             ),
             FilledButton(
               key: const Key('confirm-delete-feeding-button'),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: const Text('Delete'),
+              child: Text(context.l10n.delete),
             ),
           ],
         );
@@ -131,7 +130,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
       if (!deleted) {
         setState(() {
           _deletingFeedingId = null;
-          _deleteError = 'Failed to delete feeding event';
+          _deleteError = context.l10n.failedToDeleteFeedingEvent;
         });
 
         return;
@@ -148,7 +147,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
 
       setState(() {
         _deletingFeedingId = null;
-        _deleteError = 'Failed to delete feeding event';
+        _deleteError = context.l10n.failedToDeleteFeedingEvent;
       });
     }
   }
@@ -156,7 +155,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Feeding History')),
+      appBar: AppBar(title: Text(context.l10n.feedingHistory)),
       body: Column(
         children: [
           if (_deleteError != null)
@@ -173,8 +172,8 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
               future: _feedingsFuture,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return const Center(
-                    child: Text('Failed to load feeding history'),
+                  return Center(
+                    child: Text(context.l10n.failedToLoadFeedingHistory),
                   );
                 }
 
@@ -185,8 +184,8 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
                 final feedings = snapshot.data ?? [];
 
                 if (feedings.isEmpty) {
-                  return const Center(
-                    child: Text('No feeding events available'),
+                  return Center(
+                    child: Text(context.l10n.noFeedingEventsAvailable),
                   );
                 }
 
@@ -219,7 +218,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
                                     _editFeeding(feeding);
                                   },
                             icon: const Icon(Icons.edit_outlined),
-                            tooltip: 'Edit Feeding',
+                            tooltip: context.l10n.editFeeding,
                           ),
                           IconButton(
                             key: Key('delete-feeding-button-${feeding.id}'),
@@ -237,7 +236,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
                                     ),
                                   )
                                 : const Icon(Icons.delete_outline),
-                            tooltip: 'Delete Feeding',
+                            tooltip: context.l10n.deleteFeeding,
                           ),
                         ],
                       ),
@@ -257,7 +256,7 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
       floatingActionButton: FloatingActionButton(
         key: const Key('add-feeding-button'),
         onPressed: _deletingFeedingId == null ? _addFeeding : null,
-        tooltip: 'Add Feeding',
+        tooltip: context.l10n.addFeeding,
         child: const Icon(Icons.add),
       ),
     );
@@ -348,8 +347,8 @@ class _FeedingDialogState extends State<_FeedingDialog> {
       setState(() {
         _saving = false;
         _error = widget.isEditing
-            ? 'Failed to update feeding event'
-            : 'Failed to save feeding event';
+            ? context.l10n.failedToUpdateFeedingEvent
+            : context.l10n.failedToSaveFeedingEvent;
       });
     }
   }
@@ -389,7 +388,7 @@ class _FeedingDialogState extends State<_FeedingDialog> {
 
     if (selected.isAfter(DateTime.now())) {
       setState(() {
-        _error = 'Feeding date and time cannot be in the future';
+        _error = context.l10n.feedingDateTimeInFuture;
       });
 
       return;
@@ -405,7 +404,9 @@ class _FeedingDialogState extends State<_FeedingDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       key: const Key('feeding-dialog'),
-      title: Text(widget.isEditing ? 'Edit Feeding' : 'Add Feeding'),
+      title: Text(
+        widget.isEditing ? context.l10n.editFeeding : context.l10n.addFeeding,
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -421,7 +422,7 @@ class _FeedingDialogState extends State<_FeedingDialog> {
             ListTile(
               key: const Key('feeding-date-time-field'),
               contentPadding: EdgeInsets.zero,
-              title: const Text('Date and Time'),
+              title: Text(context.l10n.dateAndTime),
               subtitle: Text(
                 _formatDateTime(_fedAt),
                 key: const Key('feeding-date-time-value'),
@@ -438,8 +439,8 @@ class _FeedingDialogState extends State<_FeedingDialog> {
               controller: _notesController,
               enabled: !_saving,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
+              decoration: InputDecoration(
+                labelText: context.l10n.notes,
                 alignLabelWithHint: true,
               ),
             ),
@@ -454,12 +455,12 @@ class _FeedingDialogState extends State<_FeedingDialog> {
               : () {
                   Navigator.of(context).pop(false);
                 },
-          child: const Text('Cancel'),
+          child: Text(context.l10n.cancel),
         ),
         FilledButton(
           key: const Key('save-feeding-button'),
           onPressed: _saving ? null : _save,
-          child: Text(_saving ? 'Saving...' : 'Save'),
+          child: Text(_saving ? context.l10n.saving : context.l10n.save),
         ),
       ],
     );

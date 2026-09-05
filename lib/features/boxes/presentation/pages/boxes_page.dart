@@ -5,6 +5,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
+import '../../../feedings/presentation/pages/feeding_scanner_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import 'box_detail_page.dart';
 import 'box_scanner_page.dart';
@@ -167,6 +168,14 @@ class _BoxesPageState extends State<BoxesPage> {
     await _reloadBoxesPreservingScroll(previousOffset);
   }
 
+  Future<void> _openFeedingMode() {
+    return Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => FeedingScannerPage(database: widget.database),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -178,6 +187,12 @@ class _BoxesPageState extends State<BoxesPage> {
             onPressed: _openScannerPage,
             icon: const Icon(Icons.qr_code_scanner),
             tooltip: 'Scan Box',
+          ),
+          IconButton(
+            key: const Key('feeding-mode-button'),
+            onPressed: _openFeedingMode,
+            icon: const Icon(Icons.restaurant_menu),
+            tooltip: 'Feeding Mode',
           ),
         ],
       ),

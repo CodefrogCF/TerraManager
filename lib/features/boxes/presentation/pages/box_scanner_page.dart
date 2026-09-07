@@ -5,6 +5,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/qr/qr_validator.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../scanning/presentation/widgets/scanner_torch_button.dart';
 import 'box_detail_page.dart';
 
 class BoxScannerPage extends StatefulWidget {
@@ -185,6 +186,27 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.white, width: 3),
                         borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 24,
+                  child: SafeArea(
+                    top: false,
+                    child: Center(
+                      child: ValueListenableBuilder<MobileScannerState>(
+                        valueListenable: _controller,
+                        builder: (context, state, child) {
+                          return ScannerTorchButton(
+                            torchState: state.torchState,
+                            onToggle: _controller.toggleTorch,
+                            buttonKey: const Key('box-scanner-torch-button'),
+                          );
+                        },
                       ),
                     ),
                   ),

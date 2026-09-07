@@ -8,6 +8,8 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Added
 
+- camera-light controls for the Box scanner and QR Feeding Mode scanner
+- localized camera-light actions with a shared scanner control
 - persistent setting for displaying either the common or Latin Animal name
   first
 - reusable Animal display-name mapping shared by overview, history, detail,
@@ -16,6 +18,8 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Changed
 
+- scanner camera-light controls are hidden when the active camera does not
+  provide a torch
 - Animal name-order changes are applied immediately without restarting the app
 - newly created backups include the preferred Animal name order in
   `settings.json`
@@ -30,6 +34,8 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Testing
 
+- added camera-light state, action and failure-handling widget tests
+- extended both scanner-page tests with the shared camera-light control
 - added display-name mapping tests
 - added preference persistence, fallback and Settings UI tests
 - extended backup codec, export and restore coverage for the new preference

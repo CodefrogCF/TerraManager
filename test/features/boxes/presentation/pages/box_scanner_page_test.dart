@@ -6,6 +6,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_scanner_page.dart';
+import 'package:terramanager/features/scanning/presentation/widgets/scanner_torch_button.dart';
 
 void main() {
   late AppDatabase database;
@@ -28,6 +29,7 @@ void main() {
     expect(find.text('Scan Box'), findsOneWidget);
 
     expect(find.byKey(const Key('box-qr-scanner')), findsOneWidget);
+    expect(find.byType(ScannerTorchButton), findsOneWidget);
   });
 
   testWidgets('shows error for invalid QR code', (tester) async {

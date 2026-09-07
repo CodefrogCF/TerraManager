@@ -8,6 +8,7 @@ import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_box_animals_page.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_scanner_page.dart';
+import 'package:terramanager/features/scanning/presentation/widgets/scanner_torch_button.dart';
 
 const _targetQrId = 'TM:BOX:12345678-1234-4123-8123-123456789abc';
 
@@ -43,6 +44,7 @@ void main() {
 
     expect(find.text('Feeding Mode'), findsOneWidget);
     expect(find.byKey(const Key('feeding-mode-qr-scanner')), findsOneWidget);
+    expect(find.byType(ScannerTorchButton), findsOneWidget);
   });
 
   testWidgets('shows an error for an invalid QR code', (tester) async {

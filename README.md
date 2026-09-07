@@ -54,6 +54,7 @@ application restarts.
 - local QR image storage
 - QR code printing
 - QR code scanning
+- optional camera-light controls in the Box and Feeding Mode scanners
 - unknown and invalid QR handling
 - assigned animal list on box detail
 - navigation from box to assigned animal
@@ -260,6 +261,10 @@ While the transaction is running, repeated submissions are ignored.
 After saving or cancelling, the scanner resumes so the next Box can be scanned
 immediately. Newly created entries are available through the existing Animal
 feeding history and latest-feeding display.
+
+Both the normal Box scanner and the Feeding Mode scanner provide a camera-light
+control when the active camera reports torch support. The control is omitted on
+unsupported cameras and platforms.
 
 ## Concept
 

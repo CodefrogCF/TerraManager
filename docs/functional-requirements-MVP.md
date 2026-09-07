@@ -150,6 +150,8 @@ The application must allow the user to:
 - save/download the QR image
 - print the QR code
 - scan a QR code
+- allow the camera light to be switched on and off while scanning when the
+  active camera supports it
 - validate TerraManager QR identifiers
 - resolve a scanned QR identifier to a Box
 - open a scanned Box in the dedicated Feeding Mode

@@ -420,9 +420,9 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Scanner Torch Controls
 
-- [ ] Add a torch control to the Box scanner
-- [ ] Add a torch control to the Feeding scanner
-- [ ] Handle cameras without torch support
+- [x] Add a torch control to the Box scanner
+- [x] Add a torch control to the Feeding scanner
+- [x] Handle cameras without torch support
 
 ### Direct Camera Capture
 

@@ -245,6 +245,11 @@ QR scanning requires:
 - user camera permission
 - a secure browser context
 
+The scanner camera-light control is available only when the active camera and
+platform report torch support. It remains hidden otherwise. The current Web
+scanner dependency reports the torch as unavailable, so Web scanning continues
+without this control.
+
 Camera access generally requires:
 
 ```text

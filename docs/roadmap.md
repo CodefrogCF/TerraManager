@@ -2,13 +2,9 @@
 
 ## Current Status
 
-Current active release milestone:
-
-**v0.11.0 – Personalization & Capture**
-
 Latest completed release milestone:
 
-**v0.10.0 – Localization**
+**v0.11.0 – Personalization & Capture**
 
 Completed development areas:
 
@@ -48,6 +44,10 @@ Completed development areas:
 - persistent System, English and German language selection
 - immediate language changes without an application restart
 - language-setting backup and restore with legacy-backup compatibility
+- persistent Common-name-first or Latin-name-first Animal presentation
+- camera-light controls in the Box and Feeding Mode scanners
+- context-sensitive Box and Animal picture actions with Camera and Gallery
+  source selection
 
 v0.7.1 implementation and release validation are complete.
 
@@ -60,8 +60,8 @@ release are complete.
 v0.10.0 implementation, documentation, Android/Web regression validation and
 release are complete.
 
-v0.11.0 development is in progress. Preferred Animal name ordering is the
-first implementation area.
+v0.11.0 implementation, documentation, automated testing, Android/Web
+regression validation and release packaging are complete.
 
 ---
 
@@ -415,8 +415,8 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Use the selected order in Quick Feeding Mode
 - [x] Include the preference in backup export and restore
 - [x] Keep legacy backups compatible
-- [ ] Validate the preference on Android
-- [ ] Validate the preference on Web
+- [x] Validate the preference on Android
+- [x] Validate the preference on Web
 
 ### Scanner Torch Controls
 
@@ -432,11 +432,11 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Release
 
-- [ ] Complete automated regression tests
-- [ ] Complete Android and Web manual validation
-- [ ] Update final release documentation
-- [ ] Build the supported release artifacts
-- [ ] Release v0.11.0
+- [x] Complete automated regression tests
+- [x] Complete Android and Web manual validation
+- [x] Update final release documentation
+- [x] Build the supported release artifacts
+- [x] Release v0.11.0
 
 ---
 

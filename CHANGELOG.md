@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
-## [Unreleased]
+## [0.11.0] - 2026-09-07
 
 ### Added
 
@@ -39,6 +39,18 @@ The project uses semantic versioning while development remains below version 1.0
 - backups without an Animal name-order field remain restorable and default to
   common name first
 - no database or backup-format migration is required
+
+### Validated
+
+- complete automated test suite
+- Android debug and release APK builds
+- Web release build
+- Android and Web regression testing
+- immediate Animal name-order changes, persistence and backup restore
+- camera-light controls in both QR scanners
+- Camera and Gallery picture selection for new and edited Boxes and Animals
+- compact Add Picture and Change Picture workflows
+- picture persistence and portable backup restore
 
 ### Testing
 

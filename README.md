@@ -8,9 +8,9 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 ## Project Status
 
-Current completed release milestone:
+Latest completed release milestone:
 
-**v0.10.0 – Localization**
+**v0.11.0 – Personalization & Capture** (`0.11.0+18`)
 
 Implemented milestones in the current source state:
 
@@ -25,6 +25,7 @@ Implemented milestones in the current source state:
 - v0.8.0 – Contextual Navigation
 - v0.9.0 – Feeding Workflow & Media
 - v0.10.0 – Localization
+- v0.11.0 – Personalization & Capture
 
 Android and Web are currently validated platforms.
 

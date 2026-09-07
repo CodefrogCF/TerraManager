@@ -10,6 +10,9 @@ This document describes the current platform validation status of TerraManager.
 | Web | Validated |
 | iOS | Planned / not validated |
 
+The completed v0.11.0 release validation is documented in
+`release-v0.11.0.md`. The platform lists below include this regression.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 
@@ -72,6 +75,9 @@ Validated functionality includes:
 - System / Light / Dark appearance selection
 - accent color selection
 - appearance-setting persistence across application restarts
+- Common-name-first / Latin-name-first Animal presentation
+- immediate Animal name-order changes and persistence across application
+  restarts
 - complete English and German interfaces
 - System / English / Deutsch language selection
 - immediate language changes and persistence across application restarts
@@ -83,9 +89,13 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- appearance- and language-setting backup and restore
+- appearance-, language- and Animal-name-setting backup and restore
 - restore compatibility for backups without a language setting
 - restore of Web-created backups
+- camera-light controls in the Box and Feeding Mode scanners
+- Camera and Gallery picture selection for new and edited Boxes and Animals
+- compact Add Picture and Change Picture actions
+- recoverable picture-source cancellation and denied camera permission
 
 QR images saved on Android are stored through the platform media/gallery system
 so they remain accessible to the user outside the application.
@@ -151,6 +161,9 @@ Validated functionality includes:
 - System / Light / Dark appearance selection
 - accent color selection
 - appearance-setting persistence across normal browser reloads
+- Common-name-first / Latin-name-first Animal presentation
+- immediate Animal name-order changes and persistence across normal browser
+  reloads
 - complete English and German interfaces
 - System / English / Deutsch language selection
 - immediate language changes and persistence across normal browser reloads
@@ -161,9 +174,13 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- appearance- and language-setting backup and restore
+- appearance-, language- and Animal-name-setting backup and restore
 - restore compatibility for backups without a language setting
 - restore of Android-created backups
+- both QR scanners with camera-light controls hidden when unsupported
+- compact Add Picture and Change Picture actions
+- Gallery picture selection for new and edited Boxes and Animals
+- disabled Camera source when browser capture is unsupported
 
 ## Web Database
 
@@ -216,9 +233,9 @@ Backups do not depend on:
 Box and Animal pictures are exported as portable media files and restored into
 the local `MediaAssets` persistence layer.
 
-`settings.json` preserves theme mode, accent color and the selected application
-language. Backups without a language field remain compatible and restore the
-System language setting.
+`settings.json` preserves theme mode, accent color, application language and
+preferred Animal name order. Backups without the newer settings fields remain
+compatible and restore their documented defaults.
 
 The following transfers have been manually validated:
 

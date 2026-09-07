@@ -194,6 +194,12 @@ flutter build web
 
 Then perform manual regression testing on validated target platforms.
 
+For v0.11.0, use the feature-specific validation and release sequence in:
+
+```text
+docs/release-v0.11.0.md
+```
+
 ## Git Workflow
 
 Recommended workflow:

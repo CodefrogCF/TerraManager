@@ -60,6 +60,8 @@ application restarts.
 - navigation from box to assigned animal
 - optional width, height and depth
 - persistent Box pictures
+- Add/Change Picture action with Camera and Gallery source selection for Box
+  pictures
 - full-screen Box picture viewing with zooming and panning
 - Box editing while keeping the QR identifier immutable
 - human-readable local labels (`Box N`)
@@ -83,6 +85,8 @@ application restarts.
 - preferred temperature range
 - preferred humidity range
 - optional picture
+- Add/Change Picture action with Camera and Gallery source selection for Animal
+  pictures
 - full-screen Animal picture viewing with zooming and panning
 - notes
 - active and archived lifecycle states
@@ -690,15 +694,15 @@ Do not manually edit generated Drift files.
 
 Additional documentation:
 
-- docs/roadmap.md
-- docs/development.md
-- docs/platform-support.md
-- docs/data-model.md
-- docs/backup-format.md
-- docs/architecture-decisions.md
-- docs/functional-requirements-MVP.md
-- docs/functional-requirements-non-MVP.md
-- CHANGELOG.md
+docs/roadmap.md
+docs/development.md
+docs/platform-support.md
+docs/data-model.md
+docs/backup-format.md
+docs/architecture-decisions.md
+docs/functional-requirements-MVP.md
+docs/functional-requirements-non-MVP.md
+CHANGELOG.md
 
 ## Known Limitations
 

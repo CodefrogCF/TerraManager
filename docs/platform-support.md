@@ -98,6 +98,12 @@ Box and Animal pictures are stored persistently through Drift in the
 `MediaAssets` table. Animal `picturePath` values are retained only as a legacy
 migration fallback.
 
+New and edited Box and Animal forms expose one context-sensitive Add Picture or
+Change Picture action. It opens a source menu for Camera and Gallery. The Camera
+option is disabled if the active platform implementation reports that capture
+is unsupported. Cancelling selection or denying access leaves the existing
+picture unchanged and keeps the form usable.
+
 ## Web
 
 Web support has been validated using a Chromium-based browser.
@@ -263,6 +269,10 @@ localhost
 ```
 
 Behavior may vary between browsers and devices.
+
+Camera-based picture capture also depends on browser and device support. When
+the browser does not expose it through the image picker, TerraManager disables
+the Camera option in the source menu while keeping Gallery selection available.
 
 ### Downloads
 

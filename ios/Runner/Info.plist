@@ -27,7 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>TerraManager uses the camera to scan box QR codes.</string>
+	<string>TerraManager uses the camera to scan box QR codes and take Box or Animal pictures.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>TerraManager uses the photo library to select Box or Animal pictures.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

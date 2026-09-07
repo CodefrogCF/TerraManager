@@ -8,6 +8,10 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Added
 
+- context-sensitive Add Picture and Change Picture actions for new and edited
+  Box and Animal pictures
+- shared Camera and Gallery source menu across all Box and Animal forms
+- iOS photo-library usage description for future platform validation
 - camera-light controls for the Box scanner and QR Feeding Mode scanner
 - localized camera-light actions with a shared scanner control
 - persistent setting for displaying either the common or Latin Animal name
@@ -18,6 +22,10 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Changed
 
+- unsupported camera picture sources are disabled inside the source menu
+  without blocking Gallery use
+- captured pictures use the existing persistent `MediaAssets` storage and
+  portable backup flow
 - scanner camera-light controls are hidden when the active camera does not
   provide a torch
 - Animal name-order changes are applied immediately without restarting the app
@@ -34,6 +42,9 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Testing
 
+- added camera/gallery source mapping and unsupported-source widget tests
+- added creation and editing form coverage for both Box and Animal picture
+  actions
 - added camera-light state, action and failure-handling widget tests
 - extended both scanner-page tests with the shared camera-light control
 - added display-name mapping tests

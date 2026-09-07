@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_edit_page.dart';
 
 void main() {
@@ -18,7 +21,7 @@ void main() {
     await database.close();
   });
 
-  Future<int> createTestAnimal() async {
+  Future<int> createTestAnimal({int? pictureMediaId}) async {
     final boxId = await database
         .into(database.boxes)
         .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
@@ -33,6 +36,7 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      pictureMediaId: pictureMediaId,
       notes: 'Original notes',
     );
   }
@@ -396,13 +400,47 @@ void main() {
     expect(find.text('Open Edit'), findsOneWidget);
   });
 
-  testWidgets('shows picture controls', (tester) async {
+  testWidgets('shows one Add Picture action without an existing picture', (
+    tester,
+  ) async {
     final animalId = await createTestAnimal();
 
     await pumpPage(tester, animalId: animalId);
 
     expect(find.byKey(const Key('select-picture-button')), findsOneWidget);
 
-    expect(find.text('Select Picture'), findsOneWidget);
+    expect(find.text('Add Picture'), findsOneWidget);
+
+    expect(find.byKey(const Key('remove-picture-button')), findsNothing);
+  });
+
+  testWidgets('shows Change Picture and delete for an existing picture', (
+    tester,
+  ) async {
+    final mediaId = await MediaRepository(database).createMedia(
+      fileName: 'animal.png',
+      mimeType: 'image/png',
+      data: base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+        '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      ),
+    );
+    final animalId = await createTestAnimal(pictureMediaId: mediaId);
+
+    await pumpPage(tester, animalId: animalId);
+
+    expect(find.byKey(const Key('select-picture-button')), findsOneWidget);
+    expect(find.text('Change Picture'), findsOneWidget);
+    expect(find.byKey(const Key('remove-picture-button')), findsOneWidget);
+
+    expect(find.text('Take Photo'), findsNothing);
+    expect(find.text('Choose from Gallery'), findsNothing);
+
+    await tester.tap(find.byKey(const Key('select-picture-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose Picture Source'), findsOneWidget);
+    expect(find.text('Take Photo'), findsOneWidget);
+    expect(find.text('Choose from Gallery'), findsOneWidget);
   });
 }

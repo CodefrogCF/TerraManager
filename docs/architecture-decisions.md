@@ -488,6 +488,11 @@ Animal.pictureMediaId
 The actual media bytes are stored persistently in the local Drift/SQLite
 database.
 
+Pictures selected from the device gallery and pictures newly captured through
+the device camera enter the same persistence flow. TerraManager reads the
+returned `XFile` bytes and stores them as a new `MediaAsset`; it does not retain
+the temporary picker path as the application-owned image.
+
 `Animal.picturePath` remains temporarily available only for migration and
 backward compatibility with data created before persistent media storage was
 introduced.

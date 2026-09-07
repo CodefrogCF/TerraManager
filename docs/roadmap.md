@@ -426,9 +426,9 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Direct Camera Capture
 
-- [ ] Add Camera and Gallery source selection for Animal pictures
-- [ ] Add Camera and Gallery source selection for Box pictures
-- [ ] Keep unsupported platforms and denied permissions recoverable
+- [x] Add Camera and Gallery source selection for Animal pictures
+- [x] Add Camera and Gallery source selection for Box pictures
+- [x] Keep unsupported platforms and denied permissions recoverable
 
 ### Release
 

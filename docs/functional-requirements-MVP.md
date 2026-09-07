@@ -14,6 +14,8 @@ The application must allow the user to:
 - view Box details
 - edit optional Box width, height and depth
 - add, replace or remove a persistent Box picture
+- take a new Box picture with a supported device camera
+- select a Box picture from the device gallery
 - open a Box picture in a full-screen viewer
 - zoom and pan a Box picture in the full-screen viewer
 - display human-readable local Box labels while preserving the permanent QR identifier
@@ -44,6 +46,8 @@ The application must allow the user to:
 - edit Animal data
 - change the associated Box
 - add or remove an Animal picture
+- take a new Animal picture with a supported device camera
+- select an Animal picture from the device gallery
 - open an Animal picture in a full-screen viewer
 - zoom and pan an Animal picture in the full-screen viewer
 - persist Animal pictures across normal application restarts or browser reloads
@@ -70,6 +74,9 @@ Archived Animals must not have an active Box assignment.
 Application-owned Box and Animal pictures must use persistent TerraManager
 storage and must not depend on temporary image-selection paths for normal
 operation.
+
+If a picture source is unavailable or access is denied, the application must
+remain usable and the existing picture must remain unchanged.
 
 ## Contextual Detail Navigation
 

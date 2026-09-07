@@ -69,6 +69,13 @@ void main() {
 
     expect(find.byKey(const Key('new-box-picture')), findsOneWidget);
 
+    expect(
+      find.byKey(const Key('select-new-box-picture-button')),
+      findsOneWidget,
+    );
+
+    expect(find.text('Add Picture'), findsOneWidget);
+
     expect(find.byKey(const Key('new-box-width-field')), findsOneWidget);
 
     expect(find.byKey(const Key('new-box-height-field')), findsOneWidget);

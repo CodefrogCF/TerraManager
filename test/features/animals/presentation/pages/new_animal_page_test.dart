@@ -314,14 +314,14 @@ void main() {
     expect(animals.single.notes, isNull);
   });
 
-  testWidgets('shows picture selection control', (tester) async {
+  testWidgets('shows one Add Picture action', (tester) async {
     await createTestBox();
 
     await pumpPage(tester);
 
     expect(find.byKey(const Key('select-picture-button')), findsOneWidget);
 
-    expect(find.text('Select Picture'), findsOneWidget);
+    expect(find.text('Add Picture'), findsOneWidget);
 
     expect(find.text('No picture'), findsOneWidget);
   });

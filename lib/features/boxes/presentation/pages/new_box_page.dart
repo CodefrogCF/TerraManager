@@ -8,6 +8,7 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/image_media_info.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/box_picture.dart';
 
 class NewBoxPage extends StatefulWidget {
@@ -45,9 +46,9 @@ class _NewBoxPageState extends State<NewBoxPage> {
     super.dispose();
   }
 
-  Future<void> _selectPicture() async {
+  Future<void> _selectPicture(ImageSource source) async {
     try {
-      final image = await _imagePicker.pickImage(source: ImageSource.gallery);
+      final image = await _imagePicker.pickImage(source: source);
 
       if (image == null) {
         return;
@@ -185,30 +186,16 @@ class _NewBoxPageState extends State<NewBoxPage> {
                   ),
                   const SizedBox(height: 8),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          key: const Key('select-new-box-picture-button'),
-                          onPressed: _saving ? null : _selectPicture,
-                          icon: const Icon(Icons.photo_library_outlined),
-                          label: Text(
-                            _pictureBytes == null
-                                ? context.l10n.selectPicture
-                                : context.l10n.changePicture,
-                          ),
-                        ),
-                      ),
-                      if (_pictureBytes != null) ...[
-                        const SizedBox(width: 8),
-                        IconButton(
-                          key: const Key('remove-new-box-picture-button'),
-                          onPressed: _saving ? null : _removePicture,
-                          icon: const Icon(Icons.delete_outline),
-                          tooltip: context.l10n.removePicture,
-                        ),
-                      ],
-                    ],
+                  PictureSelectionControls(
+                    enabled: !_saving,
+                    hasPicture: _pictureBytes != null,
+                    cameraSupported: _imagePicker.supportsImageSource(
+                      ImageSource.camera,
+                    ),
+                    onSelect: _selectPicture,
+                    onRemove: _removePicture,
+                    actionButtonKey: const Key('select-new-box-picture-button'),
+                    removeButtonKey: const Key('remove-new-box-picture-button'),
                   ),
                   const SizedBox(height: 24),
 

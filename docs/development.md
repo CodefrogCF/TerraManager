@@ -172,6 +172,7 @@ Examples:
 - browser downloads
 - printing
 - image picker
+- picture cropping after Camera and Gallery selection
 - persistent database storage
 - System, English and German language selection
 - language persistence and unsupported-locale fallback
@@ -193,6 +194,12 @@ flutter build web
 ```
 
 Then perform manual regression testing on validated target platforms.
+
+For v0.11.0, use the feature-specific validation and release sequence in:
+
+```text
+docs/release-v0.11.0.md
+```
 
 ## Git Workflow
 

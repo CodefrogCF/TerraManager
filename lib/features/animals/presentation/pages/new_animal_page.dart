@@ -9,16 +9,21 @@ import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
-import '../../../../core/media/image_media_info.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
+import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/animal_picture.dart';
 
 class NewAnimalPage extends StatefulWidget {
   final AppDatabase database;
+  final PictureSelectionFlow? pictureSelectionFlow;
 
-  const NewAnimalPage({super.key, required this.database});
+  const NewAnimalPage({
+    super.key,
+    required this.database,
+    this.pictureSelectionFlow,
+  });
 
   @override
   State<NewAnimalPage> createState() => _NewAnimalPageState();
@@ -35,7 +40,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _humidityMaxController = TextEditingController();
   final _notesController = TextEditingController();
 
-  final ImagePicker _imagePicker = ImagePicker();
+  late final PictureSelectionFlow _pictureSelectionFlow;
 
   List<Box> _boxes = [];
 
@@ -57,6 +62,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   @override
   void initState() {
     super.initState();
+    _pictureSelectionFlow =
+        widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
     _loadBoxes();
   }
 
@@ -98,24 +105,20 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   Future<void> _selectPicture(ImageSource source) async {
     try {
-      final image = await _imagePicker.pickImage(source: source);
+      final picture = await _pictureSelectionFlow.selectAndCrop(
+        context: context,
+        source: source,
+      );
 
-      if (image == null) {
-        return;
-      }
-
-      final bytes = await image.readAsBytes();
-
-      final info = ImageMediaInfo.fromXFile(image);
-
-      if (!mounted) {
+      if (picture == null || !mounted) {
         return;
       }
 
       setState(() {
-        _pictureBytes = bytes;
-        _pictureFileName = info.fileName;
-        _pictureMimeType = info.mimeType;
+        _pictureBytes = picture.bytes;
+        _pictureFileName = picture.fileName;
+        _pictureMimeType = picture.mimeType;
+        _saveError = null;
       });
     } catch (_) {
       if (!mounted) {
@@ -258,7 +261,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             PictureSelectionControls(
               enabled: !_saving,
               hasPicture: _pictureBytes != null,
-              cameraSupported: _imagePicker.supportsImageSource(
+              cameraSupported: _pictureSelectionFlow.supportsImageSource(
                 ImageSource.camera,
               ),
               onSelect: _selectPicture,

@@ -493,6 +493,16 @@ the device camera enter the same persistence flow. TerraManager reads the
 returned `XFile` bytes and stores them as a new `MediaAsset`; it does not retain
 the temporary picker path as the application-owned image.
 
+Before a newly selected or captured picture reaches a form, the shared picture
+selection flow opens an in-app cropping route. Source orientation is normalized
+before the free-form crop is calculated. Only a confirmed crop returns new
+image bytes to the form. Cancelling the route returns no result, so an existing
+picture and the form's unsaved-change state remain untouched.
+
+The cropping UI operates on in-memory bytes and is shared by Android and Web.
+Its output continues through the same `MediaAsset` persistence path as an
+uncropped picture did previously.
+
 `Animal.picturePath` remains temporarily available only for migration and
 backward compatibility with data created before persistent media storage was
 introduced.
@@ -530,12 +540,16 @@ Advantages:
 - backup and restore use the same media persistence model on Android and Web
 - cross-platform backup transfer does not depend on local filesystem paths
 - Box and Animal pictures use the same persistent media infrastructure
+- picture selection and cropping use one shared Android/Web workflow
+- cancelling a crop cannot accidentally replace the current picture
 - database transactions can restore domain records and media atomically
 
 Disadvantages:
 
 - binary media increases the size of the local database
 - large image collections may increase backup size and database storage use
+- decoding and cropping large source pictures temporarily uses additional
+  memory
 - deleting or replacing records must also manage referenced MediaAssets
 - legacy picture migration requires temporary compatibility logic
 

@@ -3,12 +3,17 @@ import 'dart:convert';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_edit_page.dart';
+import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
+import 'package:terramanager/features/media/presentation/widgets/picture_selection_controls.dart';
+
+import '../../../media/presentation/fake_picture_selection_flow.dart';
 
 void main() {
   late AppDatabase database;
@@ -41,10 +46,18 @@ void main() {
     );
   }
 
-  Future<void> pumpPage(WidgetTester tester, {required int animalId}) async {
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    required int animalId,
+    PictureSelectionFlow? pictureSelectionFlow,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: AnimalEditPage(database: database, animalId: animalId),
+        home: AnimalEditPage(
+          database: database,
+          animalId: animalId,
+          pictureSelectionFlow: pictureSelectionFlow,
+        ),
       ),
     );
 
@@ -54,6 +67,7 @@ void main() {
   Future<void> pumpPageWithNavigation(
     WidgetTester tester, {
     required int animalId,
+    PictureSelectionFlow? pictureSelectionFlow,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -69,6 +83,7 @@ void main() {
                         builder: (_) => AnimalEditPage(
                           database: database,
                           animalId: animalId,
+                          pictureSelectionFlow: pictureSelectionFlow,
                         ),
                       ),
                     );
@@ -442,5 +457,86 @@ void main() {
     expect(find.text('Choose Picture Source'), findsOneWidget);
     expect(find.text('Take Photo'), findsOneWidget);
     expect(find.text('Choose from Gallery'), findsOneWidget);
+  });
+
+  testWidgets('stores cropped replacement bytes when editing an Animal', (
+    tester,
+  ) async {
+    final pictureBytes = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    );
+    final flow = FakePictureSelectionFlow(
+      result: SelectedPicture(
+        bytes: pictureBytes,
+        fileName: 'edited-animal.png',
+        mimeType: 'image/png',
+      ),
+    );
+    final animalId = await createTestAnimal();
+
+    await pumpPage(
+      tester,
+      animalId: animalId,
+      pictureSelectionFlow: flow,
+    );
+
+    await tester.tap(find.byKey(const Key('select-picture-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(PictureSelectionControls.galleryOptionKey),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Save'));
+    await tester.pumpAndSettle();
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+    final media = await MediaRepository(database).getMediaById(
+      animal!.pictureMediaId!,
+    );
+
+    expect(flow.selectedSources, [ImageSource.gallery]);
+    expect(media, isNotNull);
+    expect(media!.fileName, 'edited-animal.png');
+    expect(media.data, pictureBytes);
+  });
+
+  testWidgets('crop cancellation keeps the existing Animal picture unchanged', (
+    tester,
+  ) async {
+    final existingBytes = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    );
+    final mediaId = await MediaRepository(database).createMedia(
+      fileName: 'existing-animal.png',
+      mimeType: 'image/png',
+      data: existingBytes,
+    );
+    final animalId = await createTestAnimal(pictureMediaId: mediaId);
+    final flow = FakePictureSelectionFlow(result: null);
+
+    await pumpPage(
+      tester,
+      animalId: animalId,
+      pictureSelectionFlow: flow,
+    );
+
+    await tester.tap(find.byKey(const Key('select-picture-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(PictureSelectionControls.galleryOptionKey),
+    );
+    await tester.pumpAndSettle();
+
+    expect(flow.selectedSources, [ImageSource.gallery]);
+    expect(find.text('Change Picture'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Save'));
+    await tester.pumpAndSettle();
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+    expect(animal!.pictureMediaId, mediaId);
+    expect(await MediaRepository(database).getMediaById(mediaId), isNotNull);
   });
 }

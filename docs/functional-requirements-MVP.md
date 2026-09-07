@@ -16,6 +16,7 @@ The application must allow the user to:
 - add, replace or remove a persistent Box picture
 - take a new Box picture with a supported device camera
 - select a Box picture from the device gallery
+- crop a selected or captured Box picture before applying it
 - open a Box picture in a full-screen viewer
 - zoom and pan a Box picture in the full-screen viewer
 - display human-readable local Box labels while preserving the permanent QR identifier
@@ -48,6 +49,7 @@ The application must allow the user to:
 - add or remove an Animal picture
 - take a new Animal picture with a supported device camera
 - select an Animal picture from the device gallery
+- crop a selected or captured Animal picture before applying it
 - open an Animal picture in a full-screen viewer
 - zoom and pan an Animal picture in the full-screen viewer
 - persist Animal pictures across normal application restarts or browser reloads
@@ -77,6 +79,10 @@ operation.
 
 If a picture source is unavailable or access is denied, the application must
 remain usable and the existing picture must remain unchanged.
+
+Cancelling picture cropping must return to the form without replacing the
+current picture. A confirmed crop must be used by the existing preview,
+persistence and portable backup workflows.
 
 ## Contextual Detail Navigation
 

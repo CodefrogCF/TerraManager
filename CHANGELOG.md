@@ -4,6 +4,36 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [Unreleased]
+
+### Added
+
+- shared free-form picture cropping screen for Android and Web
+- picture cropping after Camera and Gallery selection in new and edited Box and
+  Animal forms
+- localized cropping instructions, confirmation and error states
+- injectable picture-selection flow for focused form tests
+
+### Changed
+
+- selected pictures reach the form preview and persistent `MediaAssets` storage
+  only after the crop is confirmed
+- cancelling the crop keeps the current picture and form state unchanged
+- source image orientation is normalized before the crop is calculated
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- cropped pictures use the existing media persistence and backup flow
+- no database or backup-format migration is required
+
+### Testing
+
+- added cropping-screen interaction and navigation tests
+- added cropped-byte persistence tests for new and edited Boxes and Animals
+- added cancellation coverage for existing Box and Animal pictures
+
 ## [0.11.0] - 2026-09-07
 
 ### Added

@@ -1,10 +1,18 @@
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/boxes/presentation/pages/new_box_page.dart';
+import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
+import 'package:terramanager/features/media/presentation/widgets/picture_selection_controls.dart';
+
+import '../../../media/presentation/fake_picture_selection_flow.dart';
 
 void main() {
   late AppDatabase database;
@@ -17,13 +25,26 @@ void main() {
     await database.close();
   });
 
-  Future<void> pumpPage(WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: NewBoxPage(database: database)));
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    PictureSelectionFlow? pictureSelectionFlow,
+  }) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NewBoxPage(
+          database: database,
+          pictureSelectionFlow: pictureSelectionFlow,
+        ),
+      ),
+    );
 
     await tester.pumpAndSettle();
   }
 
-  Future<void> pumpPageWithNavigation(WidgetTester tester) async {
+  Future<void> pumpPageWithNavigation(
+    WidgetTester tester, {
+    PictureSelectionFlow? pictureSelectionFlow,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Builder(
@@ -35,7 +56,10 @@ void main() {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => NewBoxPage(database: database),
+                        builder: (_) => NewBoxPage(
+                          database: database,
+                          pictureSelectionFlow: pictureSelectionFlow,
+                        ),
                       ),
                     );
                   },
@@ -153,5 +177,50 @@ void main() {
     expect(find.text('New Box'), findsNothing);
 
     expect(find.text('Open New Box'), findsOneWidget);
+  });
+
+  testWidgets('stores the cropped picture returned by the shared flow', (
+    tester,
+  ) async {
+    final pictureBytes = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    );
+    final flow = FakePictureSelectionFlow(
+      result: SelectedPicture(
+        bytes: pictureBytes,
+        fileName: 'cropped-box.png',
+        mimeType: 'image/png',
+      ),
+    );
+
+    await pumpPageWithNavigation(tester, pictureSelectionFlow: flow);
+
+    await tester.tap(
+      find.byKey(const Key('select-new-box-picture-button')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(PictureSelectionControls.galleryOptionKey),
+    );
+    await tester.pumpAndSettle();
+
+    expect(flow.selectedSources, [ImageSource.gallery]);
+    expect(find.text('No picture'), findsNothing);
+
+    final createButton = find.byKey(const Key('create-box-button'));
+    await tester.ensureVisible(createButton);
+    await tester.tap(createButton);
+    await tester.pumpAndSettle();
+
+    final box = (await BoxRepository(database).getAllBoxes()).single;
+    final media = await MediaRepository(database).getMediaById(
+      box.pictureMediaId!,
+    );
+
+    expect(media, isNotNull);
+    expect(media!.fileName, 'cropped-box.png');
+    expect(media.mimeType, 'image/png');
+    expect(media.data, pictureBytes);
   });
 }

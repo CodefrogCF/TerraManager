@@ -7,16 +7,22 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
-import '../../../../core/media/image_media_info.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/box_picture.dart';
 
 class BoxEditPage extends StatefulWidget {
   final AppDatabase database;
   final int boxId;
+  final PictureSelectionFlow? pictureSelectionFlow;
 
-  const BoxEditPage({super.key, required this.database, required this.boxId});
+  const BoxEditPage({
+    super.key,
+    required this.database,
+    required this.boxId,
+    this.pictureSelectionFlow,
+  });
 
   @override
   State<BoxEditPage> createState() => _BoxEditPageState();
@@ -29,7 +35,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   final _heightController = TextEditingController();
   final _depthController = TextEditingController();
 
-  final ImagePicker _imagePicker = ImagePicker();
+  late final PictureSelectionFlow _pictureSelectionFlow;
 
   Box? _box;
 
@@ -50,6 +56,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
   @override
   void initState() {
     super.initState();
+    _pictureSelectionFlow =
+        widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
     _loadBox();
   }
 
@@ -132,28 +140,25 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
   Future<void> _selectPicture(ImageSource source) async {
     try {
-      final image = await _imagePicker.pickImage(source: source);
+      final picture = await _pictureSelectionFlow.selectAndCrop(
+        context: context,
+        source: source,
+      );
 
-      if (image == null) {
-        return;
-      }
-
-      final bytes = await image.readAsBytes();
-      final info = ImageMediaInfo.fromXFile(image);
-
-      if (!mounted) {
+      if (picture == null || !mounted) {
         return;
       }
 
       setState(() {
         _pictureMediaId = null;
 
-        _pictureBytes = bytes;
-        _pictureFileName = info.fileName;
-        _pictureMimeType = info.mimeType;
+        _pictureBytes = picture.bytes;
+        _pictureFileName = picture.fileName;
+        _pictureMimeType = picture.mimeType;
 
         _pictureChanged = true;
         _hasUnsavedChanges = true;
+        _error = null;
       });
     } catch (_) {
       if (!mounted) {
@@ -316,7 +321,9 @@ class _BoxEditPageState extends State<BoxEditPage> {
           title: Text(
             _box == null
                 ? context.l10n.editBox
-                : context.l10n.editBoxLabel(context.l10n.boxLabel(_box!.id)),
+                : context.l10n.editBoxLabel(
+                    context.l10n.boxLabel(_box!.id),
+                  ),
           ),
           actions: [
             IconButton(
@@ -374,7 +381,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
             PictureSelectionControls(
               enabled: !_saving,
               hasPicture: _hasPicture,
-              cameraSupported: _imagePicker.supportsImageSource(
+              cameraSupported: _pictureSelectionFlow.supportsImageSource(
                 ImageSource.camera,
               ),
               onSelect: _selectPicture,
@@ -430,7 +437,9 @@ class _BoxEditPageState extends State<BoxEditPage> {
               key: const Key('save-box-form-button'),
               onPressed: _saving ? null : _save,
               icon: const Icon(Icons.save),
-              label: Text(_saving ? context.l10n.saving : context.l10n.save),
+              label: Text(
+                _saving ? context.l10n.saving : context.l10n.save,
+              ),
             ),
           ],
         ),

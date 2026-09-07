@@ -2,6 +2,10 @@
 
 ## Current Status
 
+Current active release milestone:
+
+**v0.12.0 – Media Optimization**
+
 Latest completed release milestone:
 
 **v0.11.0 – Personalization & Capture**
@@ -48,6 +52,7 @@ Completed development areas:
 - camera-light controls in the Box and Feeding Mode scanners
 - context-sensitive Box and Animal picture actions with Camera and Gallery
   source selection
+- shared free-form picture cropping before new media is persisted
 
 v0.7.1 implementation and release validation are complete.
 
@@ -62,6 +67,9 @@ release are complete.
 
 v0.11.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete.
+
+The first v0.12.0 implementation step adds shared Box and Animal picture
+cropping. Automated and platform validation remain in progress.
 
 ---
 
@@ -437,6 +445,40 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Update final release documentation
 - [x] Build the supported release artifacts
 - [x] Release v0.11.0
+
+---
+
+## v0.12.0 – Media Optimization
+
+### Picture Cropping
+
+- [x] Add a shared free-form cropping screen
+- [x] Crop Camera and Gallery pictures before applying them
+- [x] Use the crop flow for new and edited Boxes
+- [x] Use the crop flow for new and edited Animals
+- [x] Keep the existing picture unchanged when cropping is cancelled
+- [x] Normalize source orientation before cropping
+- [x] Persist confirmed crops through the existing MediaAssets workflow
+- [x] Keep cropped pictures compatible with backup and restore
+- [x] Add focused cropping and form integration tests
+- [ ] Validate picture cropping on Android
+- [ ] Validate picture cropping on Web
+
+### Image Storage Optimization
+
+- [ ] Define maximum stored image dimensions and quality
+- [ ] Convert new Box and Animal pictures to WebP
+- [ ] Define migration behavior for existing pictures
+- [ ] Measure database and portable backup size improvements
+- [ ] Preserve backward-compatible backup restore
+
+### Release
+
+- [ ] Complete automated regression tests
+- [ ] Complete Android and Web manual validation
+- [ ] Update final release documentation
+- [ ] Build the supported release artifacts
+- [ ] Release v0.12.0
 
 ---
 

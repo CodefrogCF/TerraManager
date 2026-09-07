@@ -10,20 +10,22 @@ import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
-import '../../../../core/media/image_media_info.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
+import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/animal_picture.dart';
 
 class AnimalEditPage extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
+  final PictureSelectionFlow? pictureSelectionFlow;
 
   const AnimalEditPage({
     super.key,
     required this.database,
     required this.animalId,
+    this.pictureSelectionFlow,
   });
 
   @override
@@ -41,7 +43,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _humidityMaxController = TextEditingController();
   final _notesController = TextEditingController();
 
-  final ImagePicker _imagePicker = ImagePicker();
+  late final PictureSelectionFlow _pictureSelectionFlow;
 
   Sex? _sex;
   BirthDateAccuracy? _birthDateAccuracy;
@@ -71,6 +73,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   @override
   void initState() {
     super.initState();
+    _pictureSelectionFlow =
+        widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
     _loadAnimal();
   }
 
@@ -183,17 +187,12 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   Future<void> _selectPicture(ImageSource source) async {
     try {
-      final image = await _imagePicker.pickImage(source: source);
+      final picture = await _pictureSelectionFlow.selectAndCrop(
+        context: context,
+        source: source,
+      );
 
-      if (image == null) {
-        return;
-      }
-
-      final bytes = await image.readAsBytes();
-
-      final info = ImageMediaInfo.fromXFile(image);
-
-      if (!mounted) {
+      if (picture == null || !mounted) {
         return;
       }
 
@@ -201,12 +200,13 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         _pictureMediaId = null;
         _legacyPicturePath = null;
 
-        _pictureBytes = bytes;
-        _pictureFileName = info.fileName;
-        _pictureMimeType = info.mimeType;
+        _pictureBytes = picture.bytes;
+        _pictureFileName = picture.fileName;
+        _pictureMimeType = picture.mimeType;
 
         _pictureChanged = true;
         _hasUnsavedChanges = true;
+        _error = null;
       });
     } catch (_) {
       if (!mounted) {
@@ -447,7 +447,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             PictureSelectionControls(
               enabled: !_saving,
               hasPicture: _hasPicture,
-              cameraSupported: _imagePicker.supportsImageSource(
+              cameraSupported: _pictureSelectionFlow.supportsImageSource(
                 ImageSource.camera,
               ),
               onSelect: _selectPicture,

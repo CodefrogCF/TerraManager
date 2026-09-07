@@ -8,6 +8,14 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 ## Project Status
 
+Current development milestone:
+
+**v0.12.0 – Media Optimization**
+
+Current development build:
+
+**v0.11.1+19**
+
 Latest completed release milestone:
 
 **v0.11.0 – Personalization & Capture** (`0.11.0+18`)
@@ -26,6 +34,7 @@ Implemented milestones in the current source state:
 - v0.9.0 – Feeding Workflow & Media
 - v0.10.0 – Localization
 - v0.11.0 – Personalization & Capture
+- v0.12.0 – Media Optimization (in progress)
 
 Android and Web are currently validated platforms.
 
@@ -63,6 +72,7 @@ application restarts.
 - persistent Box pictures
 - Add/Change Picture action with Camera and Gallery source selection for Box
   pictures
+- free-form cropping before a selected or captured Box picture is applied
 - full-screen Box picture viewing with zooming and panning
 - Box editing while keeping the QR identifier immutable
 - human-readable local labels (`Box N`)
@@ -88,6 +98,7 @@ application restarts.
 - optional picture
 - Add/Change Picture action with Camera and Gallery source selection for Animal
   pictures
+- free-form cropping before a selected or captured Animal picture is applied
 - full-screen Animal picture viewing with zooming and panning
 - notes
 - active and archived lifecycle states
@@ -230,6 +241,19 @@ Back returns to the overview from which the route was opened.
 
 Detail pages can still be opened without a navigation context. In that case,
 they behave as normal non-swipe detail pages.
+
+### Picture Selection and Cropping
+
+New and edited Box and Animal forms share one picture-selection flow. After the
+user selects a Gallery picture or captures a new photo, a dedicated cropping
+screen opens before the form preview changes.
+
+The crop frame can be moved and resized freely. The underlying picture can also
+be panned and zoomed. Applying the crop returns the resulting image bytes to the
+form, while cancelling keeps the previous picture and form state unchanged.
+
+Source orientation is normalized before cropping. Cropped pictures continue to
+use the existing persistent `MediaAssets` and portable backup flow.
 
 ### Full-Screen Pictures
 
@@ -506,6 +530,8 @@ It is generated from the permanent qrId when needed.
 - mobile_scanner
 - uuid
 - image_picker
+- crop_your_image
+- image
 - file_saver
 - saver_gallery
 - printing
@@ -589,6 +615,14 @@ lib/
 │   │   └── presentation/
 │   │       └── animal_display_names.dart
 │   ├── feedings/
+│   ├── media/
+│   │   └── presentation/
+│   │       ├── picture_selection_flow.dart
+│   │       ├── pages/
+│   │       │   ├── full_screen_image_page.dart
+│   │       │   └── picture_crop_page.dart
+│   │       └── widgets/
+│   │           └── picture_selection_controls.dart
 │   ├── settings/
 │   │   ├── app_accent.dart
 │   │   ├── app_language.dart

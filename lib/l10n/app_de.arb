@@ -239,5 +239,9 @@
   "language": "Sprache",
   "languageSystem": "System",
   "languageEnglish": "English",
-  "languageGerman": "Deutsch"
+  "languageGerman": "Deutsch",
+  "animalNameOrder": "Bevorzugter Tiername",
+  "animalNameOrderDescription": "Lege fest, welcher Name in Tierlisten und Details zuerst angezeigt wird.",
+  "animalNameCommonFirst": "Name zuerst",
+  "animalNameLatinFirst": "Lateinischer Name zuerst"
 }

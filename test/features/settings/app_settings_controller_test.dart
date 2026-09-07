@@ -5,13 +5,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
+import 'package:terramanager/features/settings/animal_name_order.dart';
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('defaults to system theme, green accent, and system language', () async {
+  test('defaults to system theme, green accent, system language, and common '
+      'name first', () async {
     final controller = AppSettingsController();
 
     await controller.load();
@@ -21,6 +23,8 @@ void main() {
     expect(controller.accent, AppAccent.green);
 
     expect(controller.language, AppLanguage.system);
+
+    expect(controller.animalNameOrder, AnimalNameOrder.commonNameFirst);
   });
 
   test('loads persisted settings', () async {
@@ -28,6 +32,7 @@ void main() {
       'theme_mode': 'dark',
       'accent': 'purple',
       'language': 'german',
+      'animal_name_order': 'latinNameFirst',
     });
 
     final controller = AppSettingsController();
@@ -39,6 +44,8 @@ void main() {
     expect(controller.accent, AppAccent.purple);
 
     expect(controller.language, AppLanguage.german);
+
+    expect(controller.animalNameOrder, AnimalNameOrder.latinNameFirst);
   });
 
   test('persists theme mode', () async {
@@ -79,11 +86,26 @@ void main() {
     expect(preferences.getString('language'), 'english');
   });
 
+  test('persists Animal name order', () async {
+    final controller = AppSettingsController();
+
+    await controller.load();
+
+    await controller.setAnimalNameOrder(AnimalNameOrder.latinNameFirst);
+
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(controller.animalNameOrder, AnimalNameOrder.latinNameFirst);
+
+    expect(preferences.getString('animal_name_order'), 'latinNameFirst');
+  });
+
   test('invalid persisted settings fall back safely', () async {
     SharedPreferences.setMockInitialValues({
       'theme_mode': 'invalid-theme',
       'accent': 'invalid-accent',
       'language': 'invalid-language',
+      'animal_name_order': 'invalid-name-order',
     });
 
     final controller = AppSettingsController();
@@ -95,6 +117,8 @@ void main() {
     expect(controller.accent, AppAccent.green);
 
     expect(controller.language, AppLanguage.system);
+
+    expect(controller.animalNameOrder, AnimalNameOrder.commonNameFirst);
   });
 
   test('replaceSettings persists all settings together', () async {
@@ -106,6 +130,7 @@ void main() {
       themeMode: ThemeMode.dark,
       accent: AppAccent.purple,
       language: AppLanguage.german,
+      animalNameOrder: AnimalNameOrder.latinNameFirst,
     );
 
     expect(controller.themeMode, ThemeMode.dark);
@@ -114,6 +139,8 @@ void main() {
 
     expect(controller.language, AppLanguage.german);
 
+    expect(controller.animalNameOrder, AnimalNameOrder.latinNameFirst);
+
     final preferences = await SharedPreferences.getInstance();
 
     expect(preferences.getString('theme_mode'), 'dark');
@@ -121,5 +148,7 @@ void main() {
     expect(preferences.getString('accent'), 'purple');
 
     expect(preferences.getString('language'), 'german');
+
+    expect(preferences.getString('animal_name_order'), 'latinNameFirst');
   });
 }

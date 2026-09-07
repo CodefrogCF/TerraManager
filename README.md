@@ -8,7 +8,7 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 ## Project Status
 
-Current release milestone:
+Current completed release milestone:
 
 **v0.10.0 – Localization**
 
@@ -123,6 +123,8 @@ application restarts.
 - predefined accent colors
 - immediate appearance changes
 - persistent appearance settings
+- selectable Common name first or Latin name first Animal presentation
+- immediate and persistent Animal name-order changes
 - System language mode
 - explicit English and German language selection
 - immediate language changes without an application restart
@@ -133,7 +135,7 @@ application restarts.
 - destructive restore confirmation
 - automatic safety backup before restore
 - full local data restore
-- appearance and language setting backup and restore
+- appearance, language and Animal name-order setting backup and restore
 
 ### Backup & Restore
 
@@ -145,8 +147,9 @@ application restarts.
 - Animal export and restore
 - FeedingEvent export and restore
 - Box and Animal picture export and restore
-- appearance and language setting export and restore
-- backward-compatible restore of backups without a language setting
+- appearance, language and Animal name-order setting export and restore
+- backward-compatible restore of backups without language or Animal
+  name-order settings
 - permanent Box QR identifiers preserved
 - backup validation before destructive operations
 - relationship and lifecycle validation
@@ -188,6 +191,12 @@ The selected language is included in newly created `.tmbackup` files. Restoring
 a backup also restores its language setting. Backups created before language
 selection was introduced remain compatible and use `System` when the language
 field is absent.
+
+Settings also controls whether an Animal's common name or Latin name is shown
+first. The preference is applied immediately to Animal overviews, history,
+details, Box assignments and Quick Feeding Mode. It is stored locally and
+included in newly created `.tmbackup` files. Older backups default to common
+name first.
 
 ### Contextual Detail Navigation
 
@@ -567,10 +576,13 @@ lib/
 │   ├── navigation/
 │   ├── boxes/
 │   ├── animals/
+│   │   └── presentation/
+│   │       └── animal_display_names.dart
 │   ├── feedings/
 │   ├── settings/
 │   │   ├── app_accent.dart
 │   │   ├── app_language.dart
+│   │   ├── animal_name_order.dart
 │   │   ├── app_settings_controller.dart
 │   │   └── presentation/
 │   │

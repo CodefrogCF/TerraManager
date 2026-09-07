@@ -13,6 +13,7 @@ import 'package:terramanager/features/backup/application/backup_export_service.d
 import 'package:terramanager/features/backup/infrastructure/backup_file_service.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
+import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 
 class FakeBackupFileGateway implements BackupFileGateway {
@@ -120,6 +121,7 @@ void main() {
 
   testWidgets('creates and saves backup', (tester) async {
     await settingsController.setLanguage(AppLanguage.german);
+    await settingsController.setAnimalNameOrder(AnimalNameOrder.latinNameFirst);
 
     await database
         .into(database.boxes)
@@ -144,6 +146,11 @@ void main() {
     expect(fileGateway.savedBackups.single.data.boxes.length, 1);
 
     expect(fileGateway.savedBackups.single.settings.language, 'german');
+
+    expect(
+      fileGateway.savedBackups.single.settings.animalNameOrder,
+      'latinNameFirst',
+    );
 
     expect(find.text('Backup created successfully.'), findsOneWidget);
 
@@ -175,6 +182,7 @@ void main() {
       themeMode: ThemeMode.dark,
       accent: settingsController.accent,
       language: AppLanguage.german,
+      animalNameOrder: AnimalNameOrder.latinNameFirst,
       createdAt: DateTime.utc(2026, 9, 2, 15),
     );
 
@@ -230,6 +238,8 @@ void main() {
 
     expect(settingsController.language, AppLanguage.german);
 
+    expect(settingsController.animalNameOrder, AnimalNameOrder.latinNameFirst);
+
     // Restore creates a safety
     // backup before replacing data.
     expect(fileGateway.savedBackups.length, 1);
@@ -240,6 +250,11 @@ void main() {
     );
 
     expect(fileGateway.savedBackups.single.settings.language, 'system');
+
+    expect(
+      fileGateway.savedBackups.single.settings.animalNameOrder,
+      'commonNameFirst',
+    );
 
     expect(find.text('Backup restored successfully.'), findsOneWidget);
   });

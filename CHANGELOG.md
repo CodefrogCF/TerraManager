@@ -4,6 +4,36 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [Unreleased]
+
+### Added
+
+- persistent setting for displaying either the common or Latin Animal name
+  first
+- reusable Animal display-name mapping shared by overview, history, detail,
+  Box-assignment and quick-feeding views
+- stable Animal name-order values in portable backup settings
+
+### Changed
+
+- Animal name-order changes are applied immediately without restarting the app
+- newly created backups include the preferred Animal name order in
+  `settings.json`
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- backups without an Animal name-order field remain restorable and default to
+  common name first
+- no database or backup-format migration is required
+
+### Testing
+
+- added display-name mapping tests
+- added preference persistence, fallback and Settings UI tests
+- extended backup codec, export and restore coverage for the new preference
+
 ## [0.10.0] - Localization
 
 ### Added

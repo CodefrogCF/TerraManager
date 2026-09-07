@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../settings/app_accent.dart';
 import '../../settings/app_language.dart';
+import '../../settings/animal_name_order.dart';
 import '../domain/backup_settings.dart';
 
 class BackupSettingsCodec {
@@ -11,11 +12,13 @@ class BackupSettingsCodec {
     required ThemeMode themeMode,
     required AppAccent accent,
     AppLanguage language = AppLanguage.system,
+    AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
   }) {
     return BackupSettings(
       themeMode: encodeThemeMode(themeMode),
       accent: encodeAccent(accent),
       language: encodeLanguage(language),
+      animalNameOrder: encodeAnimalNameOrder(animalNameOrder),
     );
   }
 
@@ -74,6 +77,23 @@ class BackupSettingsCodec {
       'german' => AppLanguage.german,
       _ => throw FormatException(
         'Unsupported AppLanguage backup value: $value',
+      ),
+    };
+  }
+
+  static String encodeAnimalNameOrder(AnimalNameOrder value) {
+    return switch (value) {
+      AnimalNameOrder.commonNameFirst => 'commonNameFirst',
+      AnimalNameOrder.latinNameFirst => 'latinNameFirst',
+    };
+  }
+
+  static AnimalNameOrder decodeAnimalNameOrder(String value) {
+    return switch (value) {
+      'commonNameFirst' => AnimalNameOrder.commonNameFirst,
+      'latinNameFirst' => AnimalNameOrder.latinNameFirst,
+      _ => throw FormatException(
+        'Unsupported AnimalNameOrder backup value: $value',
       ),
     };
   }

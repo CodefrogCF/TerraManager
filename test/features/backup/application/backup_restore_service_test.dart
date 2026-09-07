@@ -19,6 +19,7 @@ import 'package:terramanager/features/backup/domain/backup_settings.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
+import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:archive/archive.dart';
 import 'package:terramanager/features/backup/domain/backup_format.dart';
 
@@ -131,6 +132,7 @@ void main() {
         themeMode: 'dark',
         accent: 'teal',
         language: 'german',
+        animalNameOrder: 'latinNameFirst',
       ),
       mediaFiles: includePicture
           ? {
@@ -290,6 +292,8 @@ void main() {
     expect(settingsController.accent, AppAccent.teal);
 
     expect(settingsController.language, AppLanguage.german);
+
+    expect(settingsController.animalNameOrder, AnimalNameOrder.latinNameFirst);
   });
 
   test('safety backup failure leaves '

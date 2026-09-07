@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/features/backup/application/backup_settings_codec.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
+import 'package:terramanager/features/settings/animal_name_order.dart';
 
 void main() {
   test('theme modes use stable backup values', () {
@@ -63,5 +64,30 @@ void main() {
       () => BackupSettingsCodec.decodeLanguage('future-language'),
       throwsFormatException,
     );
+
+    expect(
+      () => BackupSettingsCodec.decodeAnimalNameOrder('future-name-order'),
+      throwsFormatException,
+    );
+  });
+
+  test('Animal name orders use stable backup values and round trip', () {
+    expect(
+      BackupSettingsCodec.encodeAnimalNameOrder(
+        AnimalNameOrder.commonNameFirst,
+      ),
+      'commonNameFirst',
+    );
+    expect(
+      BackupSettingsCodec.encodeAnimalNameOrder(AnimalNameOrder.latinNameFirst),
+      'latinNameFirst',
+    );
+
+    for (final value in AnimalNameOrder.values) {
+      final encoded = BackupSettingsCodec.encodeAnimalNameOrder(value);
+      final decoded = BackupSettingsCodec.decodeAnimalNameOrder(encoded);
+
+      expect(decoded, value);
+    }
   });
 }

@@ -276,6 +276,11 @@ TerraManager also supports a user-selectable application language:
 - English
 - German
 
+Animal presentation also has a user-selectable primary name:
+
+- common name first
+- Latin name first
+
 These values are application preferences rather than terrarium domain data.
 
 Storing them in the Drift database would couple UI preferences to the relational
@@ -284,7 +289,8 @@ changes.
 
 ### Decision
 
-Appearance and language preferences are stored through `shared_preferences`.
+Appearance, language and Animal name-order preferences are stored through
+`shared_preferences`.
 
 The Drift/SQLite database remains responsible for domain data such as:
 
@@ -295,8 +301,9 @@ FeedingEvent
 MediaAsset
 ```
 
-The application settings controller loads and persists appearance and language
-preferences and notifies the application when they change.
+The application settings controller loads and persists appearance, language
+and Animal name-order preferences and notifies the application when they
+change.
 
 The application theme is regenerated immediately from the selected theme mode
 and accent color. The application locale changes immediately when a language is
@@ -324,6 +331,7 @@ Default values are:
 ThemeMode.system
 Accent = TerraManager green
 Language = System
+AnimalNameOrder = Common name first
 ```
 
 The System language follows the operating-system locale. Unsupported locales
@@ -402,6 +410,9 @@ Missing Version 2 Box fields from a Version 1 backup are mapped to `null`.
 TerraManager 0.10.0 adds the optional application language to `settings.json`.
 This is a backward-compatible extension of Backup Format Version 2. Older
 backups without the field restore the System language setting.
+
+TerraManager 0.11.0 adds the optional Animal name-order preference to the same
+file. This is also backward compatible; older backups restore common name first.
 
 ### Consequences
 

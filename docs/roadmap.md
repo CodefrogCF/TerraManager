@@ -2,7 +2,11 @@
 
 ## Current Status
 
-Current development milestone:
+Current active release milestone:
+
+**v0.11.0 – Personalization & Capture**
+
+Latest completed release milestone:
 
 **v0.10.0 – Localization**
 
@@ -53,8 +57,11 @@ release are complete.
 v0.9.0 implementation, documentation, Android/Web regression validation and
 release are complete.
 
-v0.10.0 implementation and documentation are complete. Final release validation
-is in progress.
+v0.10.0 implementation, documentation, Android/Web regression validation and
+release are complete.
+
+v0.11.0 development is in progress. Preferred Animal name ordering is the
+first implementation area.
 
 ---
 
@@ -385,13 +392,51 @@ iOS validation is currently deferred because no macOS development environment or
 
 ### Release
 
-- [ ] Regression tests
+- [x] Regression tests
 - [x] Validate English and German on Android
-- [ ] Validate English and German on Web
-- [ ] Build the v0.10.0 Android release APK
-- [ ] Build the v0.10.0 Web release
+- [x] Validate English and German on Web
+- [x] Build the v0.10.0 Android release APK
+- [x] Build the v0.10.0 Web release
 - [x] Update documentation and changelog
-- [ ] Release v0.10.0
+- [x] Release v0.10.0
+
+---
+
+## v0.11.0 – Personalization & Capture
+
+### Preferred Animal Name
+
+- [x] Add Common name first and Latin name first options
+- [x] Persist the selected name order
+- [x] Apply changes immediately without restarting
+- [x] Use the selected order in Animal overview and history
+- [x] Use the selected order in Animal details
+- [x] Use the selected order for Animals assigned to a Box
+- [x] Use the selected order in Quick Feeding Mode
+- [x] Include the preference in backup export and restore
+- [x] Keep legacy backups compatible
+- [ ] Validate the preference on Android
+- [ ] Validate the preference on Web
+
+### Scanner Torch Controls
+
+- [ ] Add a torch control to the Box scanner
+- [ ] Add a torch control to the Feeding scanner
+- [ ] Handle cameras without torch support
+
+### Direct Camera Capture
+
+- [ ] Add Camera and Gallery source selection for Animal pictures
+- [ ] Add Camera and Gallery source selection for Box pictures
+- [ ] Keep unsupported platforms and denied permissions recoverable
+
+### Release
+
+- [ ] Complete automated regression tests
+- [ ] Complete Android and Web manual validation
+- [ ] Update final release documentation
+- [ ] Build the supported release artifacts
+- [ ] Release v0.11.0
 
 ---
 

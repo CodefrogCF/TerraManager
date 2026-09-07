@@ -11,6 +11,7 @@ import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../animal_display_names.dart';
 import '../widgets/animal_picture.dart';
 import 'animal_edit_page.dart';
 
@@ -503,6 +504,11 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     }
 
     final isArchived = animal.status == AnimalStatus.archived;
+    final displayNames = AnimalDisplayNames.fromContext(
+      context,
+      commonName: animal.commonName,
+      latinName: animal.latinName,
+    );
 
     return ListView(
       key: ValueKey<String>('animal-detail-list-$_animalId'),
@@ -538,12 +544,15 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         const SizedBox(height: 24),
 
         Text(
-          animal.commonName,
+          displayNames.primary,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 4),
 
-        Text(animal.latinName, style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          displayNames.secondary,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: 24),
 
         _DetailRow(

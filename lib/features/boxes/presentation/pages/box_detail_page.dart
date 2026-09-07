@@ -10,6 +10,7 @@ import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/pages/animal_detail_page.dart';
+import '../../../animals/presentation/animal_display_names.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import 'box_edit_page.dart';
 import '../widgets/box_picture.dart';
@@ -689,17 +690,27 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 return Column(
                   children: [
                     for (final animal in animals)
-                      Card(
-                        child: ListTile(
-                          key: Key('assigned-animal-${animal.id}'),
-                          leading: const Icon(Icons.pets_outlined),
-                          title: Text(animal.commonName),
-                          subtitle: Text(animal.latinName),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () {
-                            _openAnimalDetail(animal, animals);
-                          },
-                        ),
+                      Builder(
+                        builder: (context) {
+                          final displayNames = AnimalDisplayNames.fromContext(
+                            context,
+                            commonName: animal.commonName,
+                            latinName: animal.latinName,
+                          );
+
+                          return Card(
+                            child: ListTile(
+                              key: Key('assigned-animal-${animal.id}'),
+                              leading: const Icon(Icons.pets_outlined),
+                              title: Text(displayNames.primary),
+                              subtitle: Text(displayNames.secondary),
+                              trailing: const Icon(Icons.chevron_right),
+                              onTap: () {
+                                _openAnimalDetail(animal, animals);
+                              },
+                            ),
+                          );
+                        },
                       ),
                   ],
                 );

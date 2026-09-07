@@ -13,6 +13,7 @@ import '../../../backup/infrastructure/backup_file_service.dart';
 import '../../app_accent.dart';
 import '../../app_language.dart';
 import '../../app_settings_controller.dart';
+import '../../animal_name_order.dart';
 
 typedef AppVersionLoader = Future<String> Function();
 
@@ -92,6 +93,7 @@ class _SettingsPageState extends State<SettingsPage> {
         themeMode: settings.themeMode,
         accent: settings.accent,
         language: settings.language,
+        animalNameOrder: settings.animalNameOrder,
       );
 
       final savedPath = await _backupFileGateway.saveBackup(backup);
@@ -490,6 +492,40 @@ class _SettingsPageState extends State<SettingsPage> {
                 label: Text(context.l10n.appAccentLabel(accent)),
               );
             }).toList(),
+          ),
+
+          const SizedBox(height: 32),
+
+          Text(
+            context.l10n.animalNameOrder,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 4),
+
+          Text(
+            context.l10n.animalNameOrderDescription,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<AnimalNameOrder>(
+              key: const Key('animal-name-order-selector'),
+              showSelectedIcon: false,
+              segments: AnimalNameOrder.values.map((order) {
+                return ButtonSegment<AnimalNameOrder>(
+                  value: order,
+                  label: Text(context.l10n.animalNameOrderLabel(order)),
+                );
+              }).toList(),
+              selected: {settings.animalNameOrder},
+              onSelectionChanged: _backupBusy
+                  ? null
+                  : (selection) {
+                      settings.setAnimalNameOrder(selection.first);
+                    },
+            ),
           ),
 
           const SizedBox(height: 32),

@@ -712,9 +712,16 @@ TerraManager 0.10.0 adds the optional field:
 language
 ```
 
+TerraManager 0.11.0 adds another optional field:
+
+```text
+animalNameOrder
+```
+
 This additive field remains part of Backup Format Version 2. Older Version 1
-and Version 2 backups without `language` remain compatible and are interpreted
-as using the System language setting.
+and Version 2 backups without these optional settings remain compatible.
+Missing `language` uses the System language, while missing `animalNameOrder`
+uses common name first.
 
 Example:
 
@@ -722,7 +729,8 @@ Example:
 {
   "themeMode": "dark",
   "accent": "green",
-  "language": "german"
+  "language": "german",
+  "animalNameOrder": "latinNameFirst"
 }
 ```
 
@@ -786,6 +794,25 @@ AppLanguage.german  -> "german"
 
 If the field is absent, restore uses `AppLanguage.system`. If the field is
 present with an unknown value, backup validation must fail.
+
+## Stable Animal Name-Order Values
+
+The optional Animal name-order field defines:
+
+```text
+commonNameFirst
+latinNameFirst
+```
+
+Mapping:
+
+```text
+AnimalNameOrder.commonNameFirst -> "commonNameFirst"
+AnimalNameOrder.latinNameFirst  -> "latinNameFirst"
+```
+
+If the field is absent, restore uses `AnimalNameOrder.commonNameFirst`. If the
+field is present with an unknown value, backup validation must fail.
 
 ## Archive Validation
 
@@ -904,7 +931,7 @@ Request explicit confirmation
 Create and persist safety backup
       │
       ▼
-Restore appearance and language settings
+Restore application settings
       │
       ▼
 Transactional database replacement
@@ -998,7 +1025,7 @@ If any insertion or integrity check fails, the Drift transaction is rolled
 back.
 
 If database replacement fails after application settings were changed, the
-previous appearance and language settings are restored.
+previous application settings are restored.
 
 The pre-restore safety backup is never deleted automatically as part of
 rollback.
@@ -1209,7 +1236,8 @@ data.json
 settings.json
 ├── themeMode
 ├── accent
-└── language (optional; exported by TerraManager 0.10.0 and later)
+├── language (optional; exported by TerraManager 0.10.0 and later)
+└── animalNameOrder (optional; exported by TerraManager 0.11.0 and later)
 
 media/
 ├── animals/
@@ -1229,7 +1257,7 @@ Version 2 preserves:
 - FeedingEvent IDs and relationships
 - timestamps and notes
 - Animal pictures through portable media references
-- appearance settings and an optional language setting
+- appearance settings and optional language and Animal name-order settings
 
 Version 2 excludes:
 
@@ -1244,7 +1272,7 @@ Version 2 excludes:
 
 ### Version 1 Restore Compatibility
 
-TerraManager 0.10.x continues to restore Backup Format Version 1.
+TerraManager 0.10.x and later continue to restore Backup Format Version 1.
 
 Version 1 Box records do not contain dimensions or Box pictures. During restore,
 the missing Version 2 fields are mapped to null.
@@ -1252,10 +1280,12 @@ the missing Version 2 fields are mapped to null.
 Animal media, IDs, relationships, lifecycle state, FeedingEvents and settings
 from Version 1 retain their existing restore semantics.
 
-Version 1 and older Version 2 backups do not contain a language setting. Their
-missing field is restored as `system`.
+Version 1 and older Version 2 backups do not contain language or Animal
+name-order settings. Missing language is restored as `system`; missing Animal
+name order is restored as `commonNameFirst`.
 
-TerraManager 0.10.x creates new backups exclusively as Backup Format Version 2.
+TerraManager 0.10.x and later create new backups exclusively as Backup Format
+Version 2.
 
 Applications that support only Version 1 must reject Version 2 backups rather
 than silently restore them while discarding Version 2 Box data.

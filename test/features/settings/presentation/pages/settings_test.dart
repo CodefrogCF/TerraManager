@@ -6,6 +6,7 @@ import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
+import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:drift/native.dart';
 import 'package:terramanager/core/database/app_database.dart';
 
@@ -43,12 +44,34 @@ void main() {
     return controller;
   }
 
-  testWidgets('shows theme, accent, and language settings', (tester) async {
+  Future<void> scrollToSetting(WidgetTester tester, Key key) async {
+    final settingsScrollable = find.descendant(
+      of: find.byType(SettingsPage),
+      matching: find.byType(Scrollable),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(key),
+      300,
+      scrollable: settingsScrollable.first,
+    );
+
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('shows appearance, Animal name, and language settings', (
+    tester,
+  ) async {
     await pumpSettings(tester);
 
-    expect(find.byKey(const Key('theme-mode-selector')), findsOneWidget);
+    final themeSelector = find.byKey(const Key('theme-mode-selector'));
 
-    expect(find.text('System'), findsNWidgets(2));
+    expect(themeSelector, findsOneWidget);
+
+    expect(
+      find.descendant(of: themeSelector, matching: find.text('System')),
+      findsOneWidget,
+    );
 
     expect(find.text('Light'), findsOneWidget);
 
@@ -58,7 +81,24 @@ void main() {
       expect(find.byKey(Key('accent-${accent.name}')), findsOneWidget);
     }
 
-    expect(find.byKey(const Key('language-selector')), findsOneWidget);
+    await scrollToSetting(tester, const Key('animal-name-order-selector'));
+
+    expect(find.byKey(const Key('animal-name-order-selector')), findsOneWidget);
+
+    expect(find.text('Common name first'), findsOneWidget);
+
+    expect(find.text('Latin name first'), findsOneWidget);
+
+    await scrollToSetting(tester, const Key('language-selector'));
+
+    final languageSelector = find.byKey(const Key('language-selector'));
+
+    expect(languageSelector, findsOneWidget);
+
+    expect(
+      find.descendant(of: languageSelector, matching: find.text('System')),
+      findsOneWidget,
+    );
 
     expect(find.text('English'), findsOneWidget);
 
@@ -88,7 +128,7 @@ void main() {
   testWidgets('can change language', (tester) async {
     final controller = await pumpSettings(tester);
 
-    await tester.ensureVisible(find.text('Deutsch'));
+    await scrollToSetting(tester, const Key('language-selector'));
 
     await tester.tap(find.text('Deutsch'));
 
@@ -99,5 +139,21 @@ void main() {
     final preferences = await SharedPreferences.getInstance();
 
     expect(preferences.getString('language'), 'german');
+  });
+
+  testWidgets('can change preferred Animal name order', (tester) async {
+    final controller = await pumpSettings(tester);
+
+    await scrollToSetting(tester, const Key('animal-name-order-selector'));
+
+    await tester.tap(find.text('Latin name first'));
+
+    await tester.pumpAndSettle();
+
+    expect(controller.animalNameOrder, AnimalNameOrder.latinNameFirst);
+
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(preferences.getString('animal_name_order'), 'latinNameFirst');
   });
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../animals/presentation/animal_display_names.dart';
 
 class QuickFeedingForm extends StatefulWidget {
   final AppDatabase database;
@@ -211,6 +212,12 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                 ),
               ),
               ...widget.animals.map((animal) {
+                final displayNames = AnimalDisplayNames.fromContext(
+                  context,
+                  commonName: animal.commonName,
+                  latinName: animal.latinName,
+                );
+
                 return CheckboxListTile(
                   key: Key('feeding-mode-animal-${animal.id}'),
                   value: _selectedAnimalIds.contains(animal.id),
@@ -224,8 +231,8 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                         },
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
-                  title: Text(animal.commonName),
-                  subtitle: Text(animal.latinName),
+                  title: Text(displayNames.primary),
+                  subtitle: Text(displayNames.secondary),
                 );
               }),
               const Divider(height: 32),

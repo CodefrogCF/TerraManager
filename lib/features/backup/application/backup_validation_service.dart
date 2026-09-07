@@ -219,6 +219,8 @@ class BackupValidationService {
       BackupSettingsCodec.decodeAccent(settings.accent);
 
       BackupSettingsCodec.decodeLanguage(settings.language);
+
+      BackupSettingsCodec.decodeAnimalNameOrder(settings.animalNameOrder);
     } on FormatException catch (error) {
       throw BackupValidationException(
         code: BackupValidationErrorCode.invalidSettings,

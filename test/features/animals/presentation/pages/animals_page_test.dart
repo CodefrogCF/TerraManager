@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
@@ -12,6 +13,8 @@ import 'package:terramanager/features/animals/presentation/pages/animal_detail_p
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/app_settings_controller.dart';
 
 void main() {
   late AppDatabase database;
@@ -76,6 +79,38 @@ void main() {
     expect(find.text('Test Snake'), findsOneWidget);
 
     expect(find.text('Pantherophis guttatus'), findsOneWidget);
+  });
+
+  testWidgets('updates Animal name order immediately', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+
+    final boxId = await createTestBox();
+    final animalId = await createTestAnimal(boxId: boxId);
+    final controller = AppSettingsController();
+
+    await controller.load();
+
+    await tester.pumpWidget(
+      AppSettingsScope(
+        controller: controller,
+        child: MaterialApp(home: AnimalsPage(database: database)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    ListTile animalTile() =>
+        tester.widget<ListTile>(find.byKey(Key('animal-list-item-$animalId')));
+
+    expect((animalTile().title as Text).data, 'Test Snake');
+    expect((animalTile().subtitle as Text).data, 'Pantherophis guttatus');
+
+    await controller.setAnimalNameOrder(AnimalNameOrder.latinNameFirst);
+    await tester.pumpAndSettle();
+
+    expect((animalTile().title as Text).data, 'Pantherophis guttatus');
+    expect((animalTile().subtitle as Text).data, 'Test Snake');
+
+    controller.dispose();
   });
 
   testWidgets('shows fallback thumbnail when animal has no picture', (

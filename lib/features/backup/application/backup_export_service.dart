@@ -12,6 +12,7 @@ import '../../../core/database/repositories/feeding_repository.dart';
 import '../../../core/database/repositories/media_repository.dart';
 import '../../settings/app_accent.dart';
 import '../../settings/app_language.dart';
+import '../../settings/animal_name_order.dart';
 import '../domain/backup_data.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_format.dart';
@@ -34,6 +35,7 @@ class BackupExportService {
     required ThemeMode themeMode,
     required AppAccent accent,
     AppLanguage language = AppLanguage.system,
+    AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     DateTime? createdAt,
   }) async {
     final backupTime = createdAt ?? DateTime.now();
@@ -132,6 +134,7 @@ class BackupExportService {
       themeMode: themeMode,
       accent: accent,
       language: language,
+      animalNameOrder: animalNameOrder,
     );
 
     final manifest = BackupManifest(

@@ -30,8 +30,14 @@ void main() {
     String themeMode = 'system',
     String accent = 'green',
     String? language = 'system',
+    String? animalNameOrder = 'commonNameFirst',
   }) {
-    return {'themeMode': themeMode, 'accent': accent, 'language': ?language};
+    return {
+      'themeMode': themeMode,
+      'accent': accent,
+      'language': ?language,
+      'animalNameOrder': ?animalNameOrder,
+    };
   }
 
   Map<String, dynamic> activeAnimal({
@@ -166,14 +172,20 @@ void main() {
     expect(result.mediaFileCount, 0);
 
     expect(result.settings.language, 'system');
+
+    expect(result.settings.animalNameOrder, 'commonNameFirst');
   });
 
-  test('accepts legacy settings without language', () {
-    final bytes = createArchive(settings: settingsJson(language: null));
+  test('accepts legacy settings without additive preferences', () {
+    final bytes = createArchive(
+      settings: settingsJson(language: null, animalNameOrder: null),
+    );
 
     final result = validator.validate(bytes);
 
     expect(result.settings.language, 'system');
+
+    expect(result.settings.animalNameOrder, 'commonNameFirst');
   });
 
   test('accepts valid archived animal', () {
@@ -437,6 +449,23 @@ void main() {
   test('rejects unsupported language setting', () {
     final bytes = createArchive(
       settings: settingsJson(language: 'future-language'),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidSettings,
+        ),
+      ),
+    );
+  });
+
+  test('rejects unsupported Animal name-order setting', () {
+    final bytes = createArchive(
+      settings: settingsJson(animalNameOrder: 'future-name-order'),
     );
 
     expect(

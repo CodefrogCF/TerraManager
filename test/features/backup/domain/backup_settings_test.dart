@@ -8,6 +8,7 @@ void main() {
       themeMode: 'dark',
       accent: 'green',
       language: 'german',
+      animalNameOrder: 'latinNameFirst',
     );
 
     final restored = BackupSettings.fromJson(original.toJson());
@@ -17,6 +18,8 @@ void main() {
     expect(restored.accent, 'green');
 
     expect(restored.language, 'german');
+
+    expect(restored.animalNameOrder, 'latinNameFirst');
   });
 
   test('legacy settings without language default to system', () {
@@ -26,5 +29,7 @@ void main() {
     });
 
     expect(restored.language, 'system');
+
+    expect(restored.animalNameOrder, 'commonNameFirst');
   });
 }

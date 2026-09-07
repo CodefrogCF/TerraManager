@@ -10,6 +10,7 @@ import 'package:terramanager/app.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/features/navigation/presentation/pages/app_shell.dart';
 import 'package:terramanager/features/settings/app_language.dart';
+import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
@@ -104,7 +105,18 @@ void main() {
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('Deutsch'));
+    final settingsScrollable = find.descendant(
+      of: find.byType(SettingsPage),
+      matching: find.byType(Scrollable),
+    );
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('language-selector')),
+      300,
+      scrollable: settingsScrollable.first,
+    );
+    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Deutsch'));
     await tester.pumpAndSettle();
 

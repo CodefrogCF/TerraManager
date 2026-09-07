@@ -6,6 +6,7 @@ import '../core/database/enums/sex.dart';
 import '../features/backup/application/backup_validation_exception.dart';
 import '../features/settings/app_accent.dart';
 import '../features/settings/app_language.dart';
+import '../features/settings/animal_name_order.dart';
 import 'generated/app_localizations.dart';
 
 extension AppLocalizationsLabels on AppLocalizations {
@@ -59,6 +60,13 @@ extension AppLocalizationsLabels on AppLocalizations {
       AppLanguage.system => languageSystem,
       AppLanguage.english => languageEnglish,
       AppLanguage.german => languageGerman,
+    };
+  }
+
+  String animalNameOrderLabel(AnimalNameOrder order) {
+    return switch (order) {
+      AnimalNameOrder.commonNameFirst => animalNameCommonFirst,
+      AnimalNameOrder.latinNameFirst => animalNameLatinFirst,
     };
   }
 

@@ -3,19 +3,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app_accent.dart';
 import 'app_language.dart';
+import 'animal_name_order.dart';
 
 class AppSettingsController extends ChangeNotifier {
   static const String _themeModeKey = 'theme_mode';
   static const String _accentKey = 'accent';
   static const String _languageKey = 'language';
+  static const String _animalNameOrderKey = 'animal_name_order';
 
   ThemeMode _themeMode = ThemeMode.system;
   AppAccent _accent = AppAccent.green;
   AppLanguage _language = AppLanguage.system;
+  AnimalNameOrder _animalNameOrder = AnimalNameOrder.commonNameFirst;
 
   ThemeMode get themeMode => _themeMode;
   AppAccent get accent => _accent;
   AppLanguage get language => _language;
+  AnimalNameOrder get animalNameOrder => _animalNameOrder;
 
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
@@ -25,6 +29,10 @@ class AppSettingsController extends ChangeNotifier {
     _accent = _parseAccent(preferences.getString(_accentKey));
 
     _language = _parseLanguage(preferences.getString(_languageKey));
+
+    _animalNameOrder = _parseAnimalNameOrder(
+      preferences.getString(_animalNameOrderKey),
+    );
 
     notifyListeners();
   }
@@ -66,6 +74,19 @@ class AppSettingsController extends ChangeNotifier {
     final preferences = await SharedPreferences.getInstance();
 
     await preferences.setString(_languageKey, language.name);
+  }
+
+  Future<void> setAnimalNameOrder(AnimalNameOrder animalNameOrder) async {
+    if (_animalNameOrder == animalNameOrder) {
+      return;
+    }
+
+    _animalNameOrder = animalNameOrder;
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+
+    await preferences.setString(_animalNameOrderKey, animalNameOrder.name);
   }
 
   ThemeMode _parseThemeMode(String? value) {
@@ -110,22 +131,41 @@ class AppSettingsController extends ChangeNotifier {
     return AppLanguage.system;
   }
 
+  AnimalNameOrder _parseAnimalNameOrder(String? value) {
+    if (value == null) {
+      return AnimalNameOrder.commonNameFirst;
+    }
+
+    for (final order in AnimalNameOrder.values) {
+      if (order.name == value) {
+        return order;
+      }
+    }
+
+    return AnimalNameOrder.commonNameFirst;
+  }
+
   Future<void> replaceSettings({
     required ThemeMode themeMode,
     required AppAccent accent,
     required AppLanguage language,
+    required AnimalNameOrder animalNameOrder,
   }) async {
     final preferences = await SharedPreferences.getInstance();
 
     final previousThemeMode = _themeMode;
     final previousAccent = _accent;
     final previousLanguage = _language;
+    final previousAnimalNameOrder = _animalNameOrder;
 
     final previousStoredTheme = preferences.getString(_themeModeKey);
 
     final previousStoredAccent = preferences.getString(_accentKey);
 
     final previousStoredLanguage = preferences.getString(_languageKey);
+    final previousStoredAnimalNameOrder = preferences.getString(
+      _animalNameOrderKey,
+    );
 
     try {
       final themeSaved = await preferences.setString(
@@ -152,9 +192,19 @@ class AppSettingsController extends ChangeNotifier {
         throw StateError('Failed to persist language');
       }
 
+      final animalNameOrderSaved = await preferences.setString(
+        _animalNameOrderKey,
+        animalNameOrder.name,
+      );
+
+      if (!animalNameOrderSaved) {
+        throw StateError('Failed to persist Animal name order');
+      }
+
       _themeMode = themeMode;
       _accent = accent;
       _language = language;
+      _animalNameOrder = animalNameOrder;
 
       notifyListeners();
     } catch (_) {
@@ -176,9 +226,19 @@ class AppSettingsController extends ChangeNotifier {
         await preferences.setString(_languageKey, previousStoredLanguage);
       }
 
+      if (previousStoredAnimalNameOrder == null) {
+        await preferences.remove(_animalNameOrderKey);
+      } else {
+        await preferences.setString(
+          _animalNameOrderKey,
+          previousStoredAnimalNameOrder,
+        );
+      }
+
       _themeMode = previousThemeMode;
       _accent = previousAccent;
       _language = previousLanguage;
+      _animalNameOrder = previousAnimalNameOrder;
 
       notifyListeners();
 
@@ -195,11 +255,16 @@ class AppSettingsScope extends InheritedNotifier<AppSettingsController> {
   }) : super(notifier: controller);
 
   static AppSettingsController of(BuildContext context) {
-    final scope = context
-        .dependOnInheritedWidgetOfExactType<AppSettingsScope>();
+    final controller = maybeOf(context);
 
-    assert(scope != null, 'No AppSettingsScope found in context');
+    assert(controller != null, 'No AppSettingsScope found in context');
 
-    return scope!.notifier!;
+    return controller!;
+  }
+
+  static AppSettingsController? maybeOf(BuildContext context) {
+    return context
+        .dependOnInheritedWidgetOfExactType<AppSettingsScope>()
+        ?.notifier;
   }
 }

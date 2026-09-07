@@ -357,5 +357,9 @@
   "language": "Language",
   "languageSystem": "System",
   "languageEnglish": "English",
-  "languageGerman": "Deutsch"
+  "languageGerman": "Deutsch",
+  "animalNameOrder": "Preferred Animal name",
+  "animalNameOrderDescription": "Choose which name is shown first in Animal lists and details.",
+  "animalNameCommonFirst": "Common name first",
+  "animalNameLatinFirst": "Latin name first"
 }

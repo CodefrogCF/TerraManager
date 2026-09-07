@@ -6,6 +6,7 @@ import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../animal_display_names.dart';
 import 'animal_detail_page.dart';
 import 'animal_history_page.dart';
 import 'new_animal_page.dart';
@@ -180,6 +181,11 @@ class _AnimalsPageState extends State<AnimalsPage> {
             itemCount: animals.length,
             itemBuilder: (context, index) {
               final animal = animals[index];
+              final displayNames = AnimalDisplayNames.fromContext(
+                context,
+                commonName: animal.commonName,
+                latinName: animal.latinName,
+              );
 
               return ListTile(
                 key: Key('animal-list-item-${animal.id}'),
@@ -196,8 +202,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
                     );
                   },
                 ),
-                title: Text(animal.commonName),
-                subtitle: Text(animal.latinName),
+                title: Text(displayNames.primary),
+                subtitle: Text(displayNames.secondary),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   _openAnimalDetail(animal, animals);

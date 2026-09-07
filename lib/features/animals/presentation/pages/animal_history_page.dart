@@ -5,6 +5,7 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../animal_display_names.dart';
 import 'animal_detail_page.dart';
 
 class AnimalHistoryPage extends StatefulWidget {
@@ -80,15 +81,20 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
             itemCount: animals.length,
             itemBuilder: (context, index) {
               final animal = animals[index];
+              final displayNames = AnimalDisplayNames.fromContext(
+                context,
+                commonName: animal.commonName,
+                latinName: animal.latinName,
+              );
 
               return ListTile(
                 key: Key('archived-animal-list-item-${animal.id}'),
                 leading: const Icon(Icons.history),
-                title: Text(animal.commonName),
+                title: Text(displayNames.primary),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(animal.latinName),
+                    Text(displayNames.secondary),
                     const SizedBox(height: 4),
                     Text(_archiveSummary(context, animal)),
                   ],

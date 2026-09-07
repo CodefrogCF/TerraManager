@@ -40,6 +40,8 @@ class BackupRestoreService {
 
     final previousLanguage = settingsController.language;
 
+    final previousAnimalNameOrder = settingsController.animalNameOrder;
+
     final restoredThemeMode = BackupSettingsCodec.decodeThemeMode(
       backup.settings.themeMode,
     );
@@ -52,6 +54,10 @@ class BackupRestoreService {
       backup.settings.language,
     );
 
+    final restoredAnimalNameOrder = BackupSettingsCodec.decodeAnimalNameOrder(
+      backup.settings.animalNameOrder,
+    );
+
     final BackupExportResult safetyBackup;
 
     try {
@@ -60,6 +66,7 @@ class BackupRestoreService {
         themeMode: previousThemeMode,
         accent: previousAccent,
         language: previousLanguage,
+        animalNameOrder: previousAnimalNameOrder,
       );
     } catch (error) {
       throw BackupRestoreException(
@@ -84,6 +91,7 @@ class BackupRestoreService {
         themeMode: restoredThemeMode,
         accent: restoredAccent,
         language: restoredLanguage,
+        animalNameOrder: restoredAnimalNameOrder,
       );
     } catch (error) {
       throw BackupRestoreException(
@@ -103,6 +111,7 @@ class BackupRestoreService {
           themeMode: previousThemeMode,
           accent: previousAccent,
           language: previousLanguage,
+          animalNameOrder: previousAnimalNameOrder,
         );
       } catch (rollbackError) {
         throw BackupRestoreException(

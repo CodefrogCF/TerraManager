@@ -1,0 +1,1 @@
+enum AnimalNameOrder { commonNameFirst, latinNameFirst }

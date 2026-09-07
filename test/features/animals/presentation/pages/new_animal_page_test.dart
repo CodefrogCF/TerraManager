@@ -368,9 +368,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('select-picture-button')));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(PictureSelectionControls.galleryOptionKey),
-    );
+    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
 
     expect(flow.selectedSources, [ImageSource.gallery]);
@@ -381,9 +379,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final animal = (await AnimalRepository(database).getAllAnimals()).single;
-    final media = await MediaRepository(database).getMediaById(
-      animal.pictureMediaId!,
-    );
+    final media = await MediaRepository(database)
+        .getMediaById(animal.pictureMediaId!);
 
     expect(media, isNotNull);
     expect(media!.fileName, 'cropped-animal.png');

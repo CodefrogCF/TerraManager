@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/media/image_media_info.dart';
+import '../application/picture_optimizer.dart';
 import 'pages/picture_crop_page.dart';
 
 class SelectedPicture {
@@ -29,9 +30,13 @@ abstract interface class PictureSelectionFlow {
 
 class DefaultPictureSelectionFlow implements PictureSelectionFlow {
   final ImagePicker _imagePicker;
+  final PictureOptimizer _pictureOptimizer;
 
-  DefaultPictureSelectionFlow({ImagePicker? imagePicker})
-    : _imagePicker = imagePicker ?? ImagePicker();
+  DefaultPictureSelectionFlow({
+    ImagePicker? imagePicker,
+    PictureOptimizer? pictureOptimizer,
+  }) : _imagePicker = imagePicker ?? ImagePicker(),
+       _pictureOptimizer = pictureOptimizer ?? WebpPictureOptimizer();
 
   @override
   bool supportsImageSource(ImageSource source) {
@@ -66,11 +71,15 @@ class DefaultPictureSelectionFlow implements PictureSelectionFlow {
     }
 
     final info = ImageMediaInfo.fromXFile(image);
+    final optimized = await _pictureOptimizer.optimize(
+      bytes: croppedBytes,
+      sourceFileName: info.fileName,
+    );
 
     return SelectedPicture(
-      bytes: croppedBytes,
-      fileName: info.fileName,
-      mimeType: info.mimeType,
+      bytes: optimized.bytes,
+      fileName: optimized.fileName,
+      mimeType: optimized.mimeType,
     );
   }
 }

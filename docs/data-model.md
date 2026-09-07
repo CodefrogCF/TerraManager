@@ -209,6 +209,14 @@ Box.pictureMediaId ───────┐
 Animal.pictureMediaId ────┘
 ```
 
+Newly selected or captured Box and Animal pictures are cropped and normalized
+before a MediaAsset is created. The stored result uses WebP, a `.webp` filename
+and the `image/webp` MIME type. Its longest edge is limited to 1920 pixels
+without upscaling.
+
+Existing MediaAssets keep their original format and metadata. No database
+migration rewrites previously stored user pictures.
+
 The media bytes are therefore controlled by TerraManager instead of relying on
 temporary or platform-specific paths returned by image selection APIs.
 

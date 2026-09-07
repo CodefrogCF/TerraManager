@@ -196,13 +196,9 @@ void main() {
 
     await pumpPageWithNavigation(tester, pictureSelectionFlow: flow);
 
-    await tester.tap(
-      find.byKey(const Key('select-new-box-picture-button')),
-    );
+    await tester.tap(find.byKey(const Key('select-new-box-picture-button')));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(PictureSelectionControls.galleryOptionKey),
-    );
+    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
 
     expect(flow.selectedSources, [ImageSource.gallery]);
@@ -214,9 +210,8 @@ void main() {
     await tester.pumpAndSettle();
 
     final box = (await BoxRepository(database).getAllBoxes()).single;
-    final media = await MediaRepository(database).getMediaById(
-      box.pictureMediaId!,
-    );
+    final media = await MediaRepository(database)
+        .getMediaById(box.pictureMediaId!);
 
     expect(media, isNotNull);
     expect(media!.fileName, 'cropped-box.png');

@@ -114,6 +114,10 @@ option is disabled if the active platform implementation reports that capture
 is unsupported. Cancelling selection or denying access leaves the existing
 picture unchanged and keeps the form usable.
 
+After crop confirmation, Android encodes new and replaced pictures as WebP with
+quality 82 and limits their longest edge to 1920 pixels without upscaling.
+Existing pictures remain unchanged.
+
 ## Web
 
 Web support has been validated using a Chromium-based browser.
@@ -182,6 +186,9 @@ Validated functionality includes:
 - Gallery picture selection for new and edited Boxes and Animals
 - disabled Camera source when browser capture is unsupported
 
+WebP optimization for new and replaced pictures is implemented through browser
+Canvas encoding but remains pending manual Web milestone validation.
+
 ## Web Database
 
 Web persistence uses Drift with SQLite WASM.
@@ -205,6 +212,10 @@ package resolved by the project.
 
 Persistent Box and Animal pictures are stored as `MediaAssets` through the same
 Drift database abstraction used by the rest of the application.
+
+New picture bytes are normalized before persistence. Backup restore deliberately
+does not recompress restored media, preserving compatibility and avoiding
+generation loss.
 
 ## Backup Portability
 

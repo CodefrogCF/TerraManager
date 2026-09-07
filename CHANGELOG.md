@@ -13,6 +13,9 @@ The project uses semantic versioning while development remains below version 1.0
   Animal forms
 - localized cropping instructions, confirmation and error states
 - injectable picture-selection flow for focused form tests
+- shared WebP picture optimizer for newly selected and captured Box and Animal
+  pictures
+- bounded image dimensions and configurable compression parameters
 
 ### Changed
 
@@ -20,12 +23,19 @@ The project uses semantic versioning while development remains below version 1.0
   only after the crop is confirmed
 - cancelling the crop keeps the current picture and form state unchanged
 - source image orientation is normalized before the crop is calculated
+- confirmed crops are resized to a maximum 1920-pixel longest edge and encoded
+  as WebP with quality 82 before reaching form previews and `MediaAssets`
+- new picture filenames and MIME metadata are normalized to `.webp` and
+  `image/webp`
 
 ### Compatibility
 
 - database schema remains at Version 4
 - portable backup exports remain at Backup Format Version 2
 - cropped pictures use the existing media persistence and backup flow
+- existing stored pictures remain unchanged and continue to support their
+  original formats
+- WebP pictures use the existing Backup Format Version 2 media paths
 - no database or backup-format migration is required
 
 ### Testing
@@ -33,6 +43,8 @@ The project uses semantic versioning while development remains below version 1.0
 - added cropping-screen interaction and navigation tests
 - added cropped-byte persistence tests for new and edited Boxes and Animals
 - added cancellation coverage for existing Box and Animal pictures
+- added focused optimizer tests for landscape and portrait resizing, no-upscale
+  behavior, WebP metadata and invalid encoder output
 
 ## [0.11.0] - 2026-09-07
 

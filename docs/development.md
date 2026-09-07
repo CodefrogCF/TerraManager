@@ -173,10 +173,26 @@ Examples:
 - printing
 - image picker
 - picture cropping after Camera and Gallery selection
+- WebP encoding of confirmed crops on Android and Web
+- maximum 1920-pixel longest edge without upscaling
+- `.webp` filename and `image/webp` MediaAsset metadata
+- unchanged display and backup behavior for existing JPEG and PNG pictures
 - persistent database storage
 - System, English and German language selection
 - language persistence and unsupported-locale fallback
 - language-setting backup and restore
+
+For image-storage measurements, use the same source picture and equivalent crop
+before and after optimization. Record:
+
+- source file byte size and dimensions
+- stored WebP byte size and dimensions
+- `.tmbackup` size or the corresponding archive media-entry size
+- percentage reduction: `(originalBytes - webpBytes) / originalBytes * 100`
+
+Test at least one landscape and one portrait photo. Also confirm that an
+existing JPEG or PNG still opens and survives backup restore without being
+rewritten.
 
 ## Recommended Release Validation
 

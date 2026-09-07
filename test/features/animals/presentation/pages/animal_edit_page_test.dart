@@ -475,25 +475,18 @@ void main() {
     );
     final animalId = await createTestAnimal();
 
-    await pumpPage(
-      tester,
-      animalId: animalId,
-      pictureSelectionFlow: flow,
-    );
+    await pumpPage(tester, animalId: animalId, pictureSelectionFlow: flow);
 
     await tester.tap(find.byKey(const Key('select-picture-button')));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(PictureSelectionControls.galleryOptionKey),
-    );
+    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Save'));
     await tester.pumpAndSettle();
 
     final animal = await AnimalRepository(database).getAnimalById(animalId);
-    final media = await MediaRepository(database).getMediaById(
-      animal!.pictureMediaId!,
-    );
+    final media = await MediaRepository(database)
+        .getMediaById(animal!.pictureMediaId!);
 
     expect(flow.selectedSources, [ImageSource.gallery]);
     expect(media, isNotNull);
@@ -516,17 +509,11 @@ void main() {
     final animalId = await createTestAnimal(pictureMediaId: mediaId);
     final flow = FakePictureSelectionFlow(result: null);
 
-    await pumpPage(
-      tester,
-      animalId: animalId,
-      pictureSelectionFlow: flow,
-    );
+    await pumpPage(tester, animalId: animalId, pictureSelectionFlow: flow);
 
     await tester.tap(find.byKey(const Key('select-picture-button')));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(PictureSelectionControls.galleryOptionKey),
-    );
+    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
 
     expect(flow.selectedSources, [ImageSource.gallery]);

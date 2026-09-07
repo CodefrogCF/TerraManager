@@ -321,9 +321,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
           title: Text(
             _box == null
                 ? context.l10n.editBox
-                : context.l10n.editBoxLabel(
-                    context.l10n.boxLabel(_box!.id),
-                  ),
+                : context.l10n.editBoxLabel(context.l10n.boxLabel(_box!.id)),
           ),
           actions: [
             IconButton(
@@ -437,9 +435,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
               key: const Key('save-box-form-button'),
               onPressed: _saving ? null : _save,
               icon: const Icon(Icons.save),
-              label: Text(
-                _saving ? context.l10n.saving : context.l10n.save,
-              ),
+              label: Text(_saving ? context.l10n.saving : context.l10n.save),
             ),
           ],
         ),

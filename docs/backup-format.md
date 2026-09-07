@@ -635,6 +635,12 @@ Box representation:
 For persistent `MediaAssets`, the archive extension is derived from the stored
 filename or MIME type.
 
+New and replaced pictures are normally stored and exported as `.webp` files.
+Pictures created by earlier versions can remain JPEG, PNG or another supported
+format and retain that format during export. Restore accepts these mixed media
+formats and recreates the matching filename and MIME metadata, so Backup Format
+Version 2 does not require a migration.
+
 Legacy Animal `picturePath` data may still be read during export as a
 compatibility fallback.
 

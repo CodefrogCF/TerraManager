@@ -203,12 +203,8 @@ class _NewBoxPageState extends State<NewBoxPage> {
                     ),
                     onSelect: _selectPicture,
                     onRemove: _removePicture,
-                    actionButtonKey: const Key(
-                      'select-new-box-picture-button',
-                    ),
-                    removeButtonKey: const Key(
-                      'remove-new-box-picture-button',
-                    ),
+                    actionButtonKey: const Key('select-new-box-picture-button'),
+                    removeButtonKey: const Key('remove-new-box-picture-button'),
                   ),
                   const SizedBox(height: 24),
 

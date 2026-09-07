@@ -68,8 +68,10 @@ release are complete.
 v0.11.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete.
 
-The first v0.12.0 implementation step adds shared Box and Animal picture
-cropping. Automated and platform validation remain in progress.
+The first v0.12.0 implementation steps add shared Box and Animal picture
+cropping plus bounded WebP storage for new and replaced pictures. Cropping is
+validated on Android; Web validation and storage-size measurements remain in
+progress.
 
 ---
 
@@ -461,16 +463,16 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Persist confirmed crops through the existing MediaAssets workflow
 - [x] Keep cropped pictures compatible with backup and restore
 - [x] Add focused cropping and form integration tests
-- [ ] Validate picture cropping on Android
+- [x] Validate picture cropping on Android
 - [ ] Validate picture cropping on Web
 
 ### Image Storage Optimization
 
-- [ ] Define maximum stored image dimensions and quality
-- [ ] Convert new Box and Animal pictures to WebP
-- [ ] Define migration behavior for existing pictures
+- [x] Define maximum stored image dimensions and quality
+- [x] Convert new Box and Animal pictures to WebP
+- [x] Define migration behavior for existing pictures
 - [ ] Measure database and portable backup size improvements
-- [ ] Preserve backward-compatible backup restore
+- [x] Preserve backward-compatible backup restore
 
 ### Release
 

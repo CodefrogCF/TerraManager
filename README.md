@@ -14,7 +14,7 @@ Current development milestone:
 
 Current development build:
 
-**v0.11.1+19**
+**v0.11.2+20**
 
 Latest completed release milestone:
 
@@ -73,6 +73,8 @@ application restarts.
 - Add/Change Picture action with Camera and Gallery source selection for Box
   pictures
 - free-form cropping before a selected or captured Box picture is applied
+- WebP optimization with a maximum 1920-pixel longest edge for new and replaced
+  Box pictures
 - full-screen Box picture viewing with zooming and panning
 - Box editing while keeping the QR identifier immutable
 - human-readable local labels (`Box N`)
@@ -99,6 +101,8 @@ application restarts.
 - Add/Change Picture action with Camera and Gallery source selection for Animal
   pictures
 - free-form cropping before a selected or captured Animal picture is applied
+- WebP optimization with a maximum 1920-pixel longest edge for new and replaced
+  Animal pictures
 - full-screen Animal picture viewing with zooming and panning
 - notes
 - active and archived lifecycle states
@@ -254,6 +258,14 @@ form, while cancelling keeps the previous picture and form state unchanged.
 
 Source orientation is normalized before cropping. Cropped pictures continue to
 use the existing persistent `MediaAssets` and portable backup flow.
+
+After confirmation, a crop is resized without upscaling so its longest edge is
+at most 1920 pixels. It is then encoded as WebP with quality 82. The stored
+filename uses `.webp` and the MIME type is `image/webp`.
+
+Existing stored JPEG, PNG and other supported pictures are deliberately not
+rewritten automatically. They remain readable and portable; selecting a
+replacement moves that record to the optimized WebP flow.
 
 ### Full-Screen Pictures
 
@@ -531,6 +543,7 @@ It is generated from the permanent qrId when needed.
 - uuid
 - image_picker
 - crop_your_image
+- flutter_image_compress
 - image
 - file_saver
 - saver_gallery

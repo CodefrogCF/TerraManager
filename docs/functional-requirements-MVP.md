@@ -84,6 +84,11 @@ Cancelling picture cropping must return to the form without replacing the
 current picture. A confirmed crop must be used by the existing preview,
 persistence and portable backup workflows.
 
+Newly selected or captured Box and Animal pictures must be resized without
+upscaling to a maximum 1920-pixel longest edge and stored as WebP with quality
+82. Existing pictures in supported legacy formats must remain usable without an
+automatic destructive conversion.
+
 ## Contextual Detail Navigation
 
 When a detail page is opened from an ordered collection, the application must
@@ -207,6 +212,10 @@ Core domain data is stored with Drift/SQLite.
 
 Application-owned Box and Animal pictures are stored persistently through
 MediaAssets in the local Drift database.
+
+New and replaced pictures use normalized `.webp` filenames and the
+`image/webp` MIME type. Existing MediaAssets retain their original bytes and
+metadata until the user replaces the picture.
 
 Appearance and language preferences are stored separately through
 `shared_preferences`.

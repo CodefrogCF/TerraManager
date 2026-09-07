@@ -503,6 +503,18 @@ The cropping UI operates on in-memory bytes and is shared by Android and Web.
 Its output continues through the same `MediaAsset` persistence path as an
 uncropped picture did previously.
 
+After the crop is confirmed, the shared picture optimizer limits the longest
+edge to 1920 pixels without upscaling and encodes the result as WebP with
+quality 82. Stored filenames are normalized to `.webp`, and the corresponding
+MIME type is `image/webp`. The encoder output signature is checked before the
+optimized bytes are accepted.
+
+Existing `MediaAssets` are not rewritten automatically. JPEG, PNG and other
+previously supported pictures continue to be displayed and exported in their
+stored format. Replacing one of those pictures sends the replacement through
+the new WebP optimization flow. This avoids a database migration, prolonged
+startup work and destructive recompression of existing user media.
+
 `Animal.picturePath` remains temporarily available only for migration and
 backward compatibility with data created before persistent media storage was
 introduced.
@@ -541,6 +553,8 @@ Advantages:
 - cross-platform backup transfer does not depend on local filesystem paths
 - Box and Animal pictures use the same persistent media infrastructure
 - picture selection and cropping use one shared Android/Web workflow
+- new and replaced pictures use bounded dimensions and lossy WebP compression
+- existing pictures and older portable backups remain compatible
 - cancelling a crop cannot accidentally replace the current picture
 - database transactions can restore domain records and media atomically
 
@@ -550,6 +564,8 @@ Disadvantages:
 - large image collections may increase backup size and database storage use
 - decoding and cropping large source pictures temporarily uses additional
   memory
+- WebP encoding depends on the target platform implementation and may take a
+  short time after crop confirmation
 - deleting or replacing records must also manage referenced MediaAssets
 - legacy picture migration requires temporary compatibility logic
 

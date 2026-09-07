@@ -66,10 +66,8 @@ void main() {
         '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
       ),
     );
-    final boxId = await BoxRepository(database).createBox(
-      'test-box-001',
-      pictureMediaId: mediaId,
-    );
+    final boxId = await BoxRepository(database)
+        .createBox('test-box-001', pictureMediaId: mediaId);
 
     await pumpPage(tester, boxId: boxId);
 
@@ -104,25 +102,18 @@ void main() {
     );
     final boxId = await BoxRepository(database).createBox('test-box-001');
 
-    await pumpPage(
-      tester,
-      boxId: boxId,
-      pictureSelectionFlow: flow,
-    );
+    await pumpPage(tester, boxId: boxId, pictureSelectionFlow: flow);
 
     await tester.tap(find.byKey(const Key('select-box-picture-button')));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(PictureSelectionControls.galleryOptionKey),
-    );
+    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('save-box-button')));
     await tester.pumpAndSettle();
 
     final box = await BoxRepository(database).getBoxById(boxId);
-    final media = await MediaRepository(database).getMediaById(
-      box!.pictureMediaId!,
-    );
+    final media = await MediaRepository(database)
+        .getMediaById(box!.pictureMediaId!);
 
     expect(flow.selectedSources, [ImageSource.gallery]);
     expect(media, isNotNull);
@@ -142,23 +133,15 @@ void main() {
       mimeType: 'image/png',
       data: existingBytes,
     );
-    final boxId = await BoxRepository(database).createBox(
-      'test-box-001',
-      pictureMediaId: mediaId,
-    );
+    final boxId = await BoxRepository(database)
+        .createBox('test-box-001', pictureMediaId: mediaId);
     final flow = FakePictureSelectionFlow(result: null);
 
-    await pumpPage(
-      tester,
-      boxId: boxId,
-      pictureSelectionFlow: flow,
-    );
+    await pumpPage(tester, boxId: boxId, pictureSelectionFlow: flow);
 
     await tester.tap(find.byKey(const Key('select-box-picture-button')));
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(PictureSelectionControls.galleryOptionKey),
-    );
+    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
 
     expect(flow.selectedSources, [ImageSource.gallery]);

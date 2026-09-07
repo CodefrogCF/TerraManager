@@ -690,15 +690,15 @@ Do not manually edit generated Drift files.
 
 Additional documentation:
 
-docs/roadmap.md
-docs/development.md
-docs/platform-support.md
-docs/data-model.md
-docs/backup-format.md
-docs/architecture-decisions.md
-docs/functional-requirements-MVP.md
-docs/functional-requirements-non-MVP.md
-CHANGELOG.md
+- docs/roadmap.md
+- docs/development.md
+- docs/platform-support.md
+- docs/data-model.md
+- docs/backup-format.md
+- docs/architecture-decisions.md
+- docs/functional-requirements-MVP.md
+- docs/functional-requirements-non-MVP.md
+- CHANGELOG.md
 
 ## Known Limitations
 

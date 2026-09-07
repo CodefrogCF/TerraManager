@@ -55,6 +55,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   bool _loading = true;
   bool _saving = false;
+  bool _processingPicture = false;
 
   String? _loadError;
   String? _saveError;
@@ -104,6 +105,15 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   }
 
   Future<void> _selectPicture(ImageSource source) async {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
+    setState(() {
+      _processingPicture = true;
+      _saveError = null;
+    });
+
     try {
       final picture = await _pictureSelectionFlow.selectAndCrop(
         context: context,
@@ -118,7 +128,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         _pictureBytes = picture.bytes;
         _pictureFileName = picture.fileName;
         _pictureMimeType = picture.mimeType;
-        _saveError = null;
       });
     } catch (_) {
       if (!mounted) {
@@ -128,10 +137,20 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       setState(() {
         _saveError = context.l10n.failedToSelectPicture;
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _processingPicture = false;
+        });
+      }
     }
   }
 
   void _removePicture() {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
     setState(() {
       _pictureBytes = null;
       _pictureFileName = null;
@@ -140,6 +159,10 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   }
 
   Future<void> _save() async {
+    if (_saving || _processingPicture) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -209,7 +232,10 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         actions: [
           IconButton(
             key: const Key('save-animal-button'),
-            onPressed: _saving || _loading || _boxes.isEmpty ? null : _save,
+            onPressed:
+                _saving || _processingPicture || _loading || _boxes.isEmpty
+                ? null
+                : _save,
             icon: const Icon(Icons.save),
             tooltip: context.l10n.saveAnimal,
           ),
@@ -260,6 +286,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
             PictureSelectionControls(
               enabled: !_saving,
+              processing: _processingPicture,
               hasPicture: _pictureBytes != null,
               cameraSupported: _pictureSelectionFlow.supportsImageSource(
                 ImageSource.camera,
@@ -445,7 +472,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
             FilledButton.icon(
               key: const Key('create-animal-button'),
-              onPressed: _saving ? null : _save,
+              onPressed: _saving || _processingPicture ? null : _save,
               icon: _saving
                   ? const SizedBox(
                       width: 18,

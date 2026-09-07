@@ -461,7 +461,7 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Keep the existing picture unchanged when cropping is cancelled
 - [x] Normalize source orientation before cropping
 - [x] Persist confirmed crops through the existing MediaAssets workflow
-- [x] Keep cropped pictures compatible with backup and restore
+- [ ] Validate cropped and legacy picture backup compatibility
 - [x] Add focused cropping and form integration tests
 - [x] Validate picture cropping on Android
 - [ ] Validate picture cropping on Web
@@ -470,9 +470,19 @@ iOS validation is currently deferred because no macOS development environment or
 
 - [x] Define maximum stored image dimensions and quality
 - [x] Convert new Box and Animal pictures to WebP
+- [x] Use one normalization path for Camera and Gallery imports
+- [x] Integrate normalization into new and edited Box and Animal forms
+- [x] Show picture-processing progress and block duplicate actions
+- [x] Replace referenced media atomically without corrupting the old picture
+- [x] Keep legacy and normalized pictures compatible with all display sizes
+- [x] Cover all four normalized picture workflows with automated tests
 - [x] Define migration behavior for existing pictures
 - [ ] Measure database and portable backup size improvements
-- [x] Preserve backward-compatible backup restore
+- [ ] Verify backup export and restore for legacy and optimized pictures
+
+Replacing most pictures in one existing collection reduced its portable backup
+from approximately 137 MB to 90 MB, an observed reduction of about 34%. A
+controlled comparison with identical source images and crops is still pending.
 
 ### Release
 

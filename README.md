@@ -14,7 +14,7 @@ Current development milestone:
 
 Current development build:
 
-**v0.11.2+20**
+**v0.11.3+21**
 
 Latest completed release milestone:
 
@@ -263,9 +263,17 @@ After confirmation, a crop is resized without upscaling so its longest edge is
 at most 1920 pixels. It is then encoded as WebP with quality 82. The stored
 filename uses `.webp` and the MIME type is `image/webp`.
 
+The form shows a processing indicator while the confirmed crop is normalized.
+During that time, further picture actions and saving are disabled. The handlers
+also reject repeated calls, so rapid taps cannot start parallel processing or
+create duplicate media records.
+
 Existing stored JPEG, PNG and other supported pictures are deliberately not
 rewritten automatically. They remain readable and portable; selecting a
-replacement moves that record to the optimized WebP flow.
+replacement moves that record to the optimized WebP flow. When an existing
+picture is replaced, the new MediaAsset, the Box or Animal update and removal
+of the superseded MediaAsset are committed in one transaction. A processing or
+save failure therefore leaves the previously stored picture intact.
 
 ### Full-Screen Pictures
 

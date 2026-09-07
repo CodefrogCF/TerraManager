@@ -93,6 +93,7 @@
   "addBox": "Add Box",
   "newBox": "New Box",
   "failedToSelectPicture": "Failed to select picture",
+  "processingPicture": "Processing picture...",
   "cropPicture": "Crop Picture",
   "cropPictureInstructions": "Move and resize the frame to choose the visible part of the picture.",
   "applyCrop": "Apply",

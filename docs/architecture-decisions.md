@@ -509,11 +509,22 @@ quality 82. Stored filenames are normalized to `.webp`, and the corresponding
 MIME type is `image/webp`. The encoder output signature is checked before the
 optimized bytes are accepted.
 
+All four create and edit forms expose the same normalization phase as an
+explicit processing state. Picture selection, removal and saving are disabled
+until it completes, and the asynchronous handlers reject re-entry independently
+of the widget state. Camera and Gallery therefore converge on one processing
+path without allowing parallel imports or duplicate save operations.
+
 Existing `MediaAssets` are not rewritten automatically. JPEG, PNG and other
 previously supported pictures continue to be displayed and exported in their
 stored format. Replacing one of those pictures sends the replacement through
 the new WebP optimization flow. This avoids a database migration, prolonged
 startup work and destructive recompression of existing user media.
+
+For a replacement, the new MediaAsset is created before the Box or Animal
+reference changes. The new reference and deletion of the superseded MediaAsset
+run in the same Drift transaction. If normalization or any database operation
+fails, the old reference and media bytes remain committed and readable.
 
 `Animal.picturePath` remains temporarily available only for migration and
 backward compatibility with data created before persistent media storage was
@@ -556,6 +567,8 @@ Advantages:
 - new and replaced pictures use bounded dimensions and lossy WebP compression
 - existing pictures and older portable backups remain compatible
 - cancelling a crop cannot accidentally replace the current picture
+- processing progress is visible and repeated picture/save actions are ignored
+- replacing a picture cannot leave a partial domain/media update
 - database transactions can restore domain records and media atomically
 
 Disadvantages:

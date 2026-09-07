@@ -39,6 +39,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
   String? _pictureMimeType;
 
   bool _saving = false;
+  bool _processingPicture = false;
 
   String? _error;
 
@@ -59,6 +60,15 @@ class _NewBoxPageState extends State<NewBoxPage> {
   }
 
   Future<void> _selectPicture(ImageSource source) async {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
+    setState(() {
+      _processingPicture = true;
+      _error = null;
+    });
+
     try {
       final picture = await _pictureSelectionFlow.selectAndCrop(
         context: context,
@@ -73,7 +83,6 @@ class _NewBoxPageState extends State<NewBoxPage> {
         _pictureBytes = picture.bytes;
         _pictureFileName = picture.fileName;
         _pictureMimeType = picture.mimeType;
-        _error = null;
       });
     } catch (_) {
       if (!mounted) {
@@ -83,10 +92,20 @@ class _NewBoxPageState extends State<NewBoxPage> {
       setState(() {
         _error = context.l10n.failedToSelectPicture;
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _processingPicture = false;
+        });
+      }
     }
   }
 
   void _removePicture() {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
     setState(() {
       _pictureBytes = null;
       _pictureFileName = null;
@@ -95,6 +114,10 @@ class _NewBoxPageState extends State<NewBoxPage> {
   }
 
   Future<void> _createBox() async {
+    if (_saving || _processingPicture) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -197,6 +220,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
 
                   PictureSelectionControls(
                     enabled: !_saving,
+                    processing: _processingPicture,
                     hasPicture: _pictureBytes != null,
                     cameraSupported: _pictureSelectionFlow.supportsImageSource(
                       ImageSource.camera,
@@ -250,7 +274,9 @@ class _NewBoxPageState extends State<NewBoxPage> {
 
                   FilledButton.icon(
                     key: const Key('create-box-button'),
-                    onPressed: _saving ? null : _createBox,
+                    onPressed: _saving || _processingPicture
+                        ? null
+                        : _createBox,
                     icon: _saving
                         ? const SizedBox(
                             width: 18,

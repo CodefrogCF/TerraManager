@@ -176,6 +176,10 @@ Examples:
 - WebP encoding of confirmed crops on Android and Web
 - maximum 1920-pixel longest edge without upscaling
 - `.webp` filename and `image/webp` MediaAsset metadata
+- visible processing feedback and disabled picture/save actions during encoding
+- duplicate-tap protection for picture processing and form saving
+- atomic replacement that retains the old picture after processing/save errors
+- WebP and legacy image display in overview, detail and full-screen contexts
 - unchanged display and backup behavior for existing JPEG and PNG pictures
 - persistent database storage
 - System, English and German language selection
@@ -193,6 +197,11 @@ before and after optimization. Record:
 Test at least one landscape and one portrait photo. Also confirm that an
 existing JPEG or PNG still opens and survives backup restore without being
 rewritten.
+
+As an initial field observation, replacing most pictures in an existing data
+set reduced its backup from roughly 137 MB to 90 MB (about 34%). Keep the formal
+measurement item open until the comparison uses identical source images and
+crops.
 
 ## Recommended Release Validation
 

@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -348,44 +348,68 @@ void main() {
     expect(find.text('No picture'), findsOneWidget);
   });
 
-  testWidgets('stores the cropped picture returned by the shared flow', (
+  testWidgets('stores one normalized picture and blocks duplicate actions', (
     tester,
   ) async {
-    final pictureBytes = base64Decode(
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
-      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
-    );
-    final flow = FakePictureSelectionFlow(
-      result: SelectedPicture(
-        bytes: pictureBytes,
-        fileName: 'cropped-animal.png',
-        mimeType: 'image/png',
-      ),
-    );
+    final selection = Completer<SelectedPicture?>();
+    final flow = FakePictureSelectionFlow(pendingResult: selection.future);
 
     await createTestBox();
     await pumpPageWithNavigation(tester, pictureSelectionFlow: flow);
 
     await tester.tap(find.byKey(const Key('select-picture-button')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
+    await tester.tap(find.byKey(PictureSelectionControls.cameraOptionKey));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+
+    expect(flow.selectedSources, [ImageSource.camera]);
+    expect(
+      find.byKey(PictureSelectionControls.processingIndicatorKey),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.byKey(const Key('select-picture-button')),
+          )
+          .onPressed,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<IconButton>(find.byKey(const Key('save-animal-button')))
+          .onPressed,
+      isNull,
+    );
+
+    selection.complete(normalizedTestPicture('cropped-animal.webp'));
     await tester.pumpAndSettle();
 
-    expect(flow.selectedSources, [ImageSource.gallery]);
+    expect(
+      find.byKey(PictureSelectionControls.processingIndicatorKey),
+      findsNothing,
+    );
     expect(find.text('No picture'), findsNothing);
 
     await fillRequiredFields(tester, boxLabel: 'Box 1');
-    await tester.tap(find.byTooltip('Save Animal'));
+    final saveButton = tester.widget<IconButton>(
+      find.byKey(const Key('save-animal-button')),
+    );
+    saveButton.onPressed!();
+    saveButton.onPressed!();
     await tester.pumpAndSettle();
 
     final animal = (await AnimalRepository(database).getAllAnimals()).single;
     final media = await MediaRepository(database)
         .getMediaById(animal.pictureMediaId!);
+    final allMedia = await database.select(database.mediaAssets).get();
 
     expect(media, isNotNull);
-    expect(media!.fileName, 'cropped-animal.png');
-    expect(media.mimeType, 'image/png');
-    expect(media.data, pictureBytes);
+    expect(media!.fileName, 'cropped-animal.webp');
+    expect(media.mimeType, 'image/webp');
+    expect(media.data, normalizedTestPictureBytes);
+    expect(allMedia, hasLength(1));
   });
 
   testWidgets('shows human readable box labels', (tester) async {

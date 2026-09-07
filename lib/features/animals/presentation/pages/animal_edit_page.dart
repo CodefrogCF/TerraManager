@@ -65,6 +65,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   bool _loading = true;
   bool _saving = false;
+  bool _processingPicture = false;
   bool _hasUnsavedChanges = false;
 
   String? _error;
@@ -186,6 +187,15 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   }
 
   Future<void> _selectPicture(ImageSource source) async {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
+    setState(() {
+      _processingPicture = true;
+      _error = null;
+    });
+
     try {
       final picture = await _pictureSelectionFlow.selectAndCrop(
         context: context,
@@ -206,7 +216,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
         _pictureChanged = true;
         _hasUnsavedChanges = true;
-        _error = null;
       });
     } catch (_) {
       if (!mounted) {
@@ -216,10 +225,20 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       setState(() {
         _error = context.l10n.failedToSelectPicture;
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _processingPicture = false;
+        });
+      }
     }
   }
 
   void _removePicture() {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
     setState(() {
       _pictureMediaId = null;
       _legacyPicturePath = null;
@@ -234,6 +253,10 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   }
 
   Future<void> _save() async {
+    if (_saving || _processingPicture) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate() || _animal == null) {
       return;
     }
@@ -398,7 +421,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           title: Text(context.l10n.editAnimal),
           actions: [
             IconButton(
-              onPressed: _saving ? null : _save,
+              key: const Key('save-animal-button'),
+              onPressed: _saving || _processingPicture ? null : _save,
               icon: const Icon(Icons.save),
               tooltip: context.l10n.save,
             ),
@@ -446,6 +470,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
             PictureSelectionControls(
               enabled: !_saving,
+              processing: _processingPicture,
               hasPicture: _hasPicture,
               cameraSupported: _pictureSelectionFlow.supportsImageSource(
                 ImageSource.camera,
@@ -632,7 +657,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             const SizedBox(height: 24),
 
             FilledButton.icon(
-              onPressed: _saving ? null : _save,
+              key: const Key('save-animal-form-button'),
+              onPressed: _saving || _processingPicture ? null : _save,
               icon: const Icon(Icons.save),
               label: Text(context.l10n.save),
             ),

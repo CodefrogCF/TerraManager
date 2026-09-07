@@ -10,6 +10,7 @@ void main() {
 
   Widget buildControls({
     bool enabled = true,
+    bool processing = false,
     bool hasPicture = false,
     bool cameraSupported = true,
     required Future<void> Function(ImageSource source) onSelect,
@@ -19,6 +20,7 @@ void main() {
       home: Scaffold(
         body: PictureSelectionControls(
           enabled: enabled,
+          processing: processing,
           hasPicture: hasPicture,
           cameraSupported: cameraSupported,
           onSelect: onSelect,
@@ -113,5 +115,45 @@ void main() {
     await tester.pump();
 
     expect(removeCalls, 1);
+  });
+
+  testWidgets('shows progress and disables picture actions while processing', (
+    tester,
+  ) async {
+    var selectCalls = 0;
+    var removeCalls = 0;
+
+    await tester.pumpWidget(
+      buildControls(
+        processing: true,
+        hasPicture: true,
+        onSelect: (_) async {
+          selectCalls++;
+        },
+        onRemove: () {
+          removeCalls++;
+        },
+      ),
+    );
+
+    expect(
+      find.byKey(PictureSelectionControls.processingIndicatorKey),
+      findsOneWidget,
+    );
+    expect(find.text('Processing picture...'), findsOneWidget);
+    expect(
+      tester.widget<OutlinedButton>(find.byKey(actionButtonKey)).onPressed,
+      isNull,
+    );
+    expect(
+      tester.widget<IconButton>(find.byKey(removeButtonKey)).onPressed,
+      isNull,
+    );
+
+    await tester.tap(find.byKey(actionButtonKey), warnIfMissed: false);
+    await tester.tap(find.byKey(removeButtonKey), warnIfMissed: false);
+
+    expect(selectCalls, 0);
+    expect(removeCalls, 0);
   });
 }

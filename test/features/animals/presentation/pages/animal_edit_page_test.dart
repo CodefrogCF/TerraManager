@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/native.dart';
@@ -459,21 +460,80 @@ void main() {
     expect(find.text('Choose from Gallery'), findsOneWidget);
   });
 
-  testWidgets('stores cropped replacement bytes when editing an Animal', (
+  testWidgets('atomically stores one normalized Animal replacement', (
     tester,
   ) async {
-    final pictureBytes = base64Decode(
+    final existingBytes = base64Decode(
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
       '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
     );
-    final flow = FakePictureSelectionFlow(
-      result: SelectedPicture(
-        bytes: pictureBytes,
-        fileName: 'edited-animal.png',
-        mimeType: 'image/png',
-      ),
+    final oldMediaId = await MediaRepository(database).createMedia(
+      fileName: 'existing-animal.png',
+      mimeType: 'image/png',
+      data: existingBytes,
     );
-    final animalId = await createTestAnimal();
+    final selection = Completer<SelectedPicture?>();
+    final flow = FakePictureSelectionFlow(pendingResult: selection.future);
+    final animalId = await createTestAnimal(pictureMediaId: oldMediaId);
+
+    await pumpPage(tester, animalId: animalId, pictureSelectionFlow: flow);
+
+    await tester.tap(find.byKey(const Key('select-picture-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+
+    expect(
+      find.byKey(PictureSelectionControls.processingIndicatorKey),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<IconButton>(find.byKey(const Key('save-animal-button')))
+          .onPressed,
+      isNull,
+    );
+    expect(await MediaRepository(database).getMediaById(oldMediaId), isNotNull);
+
+    selection.complete(normalizedTestPicture('edited-animal.webp'));
+    await tester.pumpAndSettle();
+
+    final saveAction = tester
+        .widget<IconButton>(find.byKey(const Key('save-animal-button')))
+        .onPressed!;
+    saveAction();
+    saveAction();
+    await tester.pumpAndSettle();
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+    final media = await MediaRepository(database)
+        .getMediaById(animal!.pictureMediaId!);
+    final allMedia = await database.select(database.mediaAssets).get();
+
+    expect(flow.selectedSources, [ImageSource.gallery]);
+    expect(media, isNotNull);
+    expect(media!.fileName, 'edited-animal.webp');
+    expect(media.mimeType, 'image/webp');
+    expect(media.data, normalizedTestPictureBytes);
+    expect(await MediaRepository(database).getMediaById(oldMediaId), isNull);
+    expect(allMedia, hasLength(1));
+  });
+
+  testWidgets('failed processing preserves the existing Animal picture', (
+    tester,
+  ) async {
+    final existingBytes = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    );
+    final mediaId = await MediaRepository(database).createMedia(
+      fileName: 'existing-animal.png',
+      mimeType: 'image/png',
+      data: existingBytes,
+    );
+    final animalId = await createTestAnimal(pictureMediaId: mediaId);
+    final flow = FakePictureSelectionFlow(error: StateError('failed'));
 
     await pumpPage(tester, animalId: animalId, pictureSelectionFlow: flow);
 
@@ -481,17 +541,15 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Save'));
-    await tester.pumpAndSettle();
 
     final animal = await AnimalRepository(database).getAnimalById(animalId);
-    final media = await MediaRepository(database)
-        .getMediaById(animal!.pictureMediaId!);
+    final media = await MediaRepository(database).getMediaById(mediaId);
 
-    expect(flow.selectedSources, [ImageSource.gallery]);
-    expect(media, isNotNull);
-    expect(media!.fileName, 'edited-animal.png');
-    expect(media.data, pictureBytes);
+    expect(find.text('Failed to select picture'), findsOneWidget);
+    expect(find.text('Change Picture'), findsOneWidget);
+    expect(animal!.pictureMediaId, mediaId);
+    expect(media!.fileName, 'existing-animal.png');
+    expect(media.data, existingBytes);
   });
 
   testWidgets('crop cancellation keeps the existing Animal picture unchanged', (

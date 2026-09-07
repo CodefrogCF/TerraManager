@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:async';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -179,43 +179,65 @@ void main() {
     expect(find.text('Open New Box'), findsOneWidget);
   });
 
-  testWidgets('stores the cropped picture returned by the shared flow', (
+  testWidgets('stores one normalized picture and blocks duplicate actions', (
     tester,
   ) async {
-    final pictureBytes = base64Decode(
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
-      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
-    );
-    final flow = FakePictureSelectionFlow(
-      result: SelectedPicture(
-        bytes: pictureBytes,
-        fileName: 'cropped-box.png',
-        mimeType: 'image/png',
-      ),
-    );
+    final selection = Completer<SelectedPicture?>();
+    final flow = FakePictureSelectionFlow(pendingResult: selection.future);
 
     await pumpPageWithNavigation(tester, pictureSelectionFlow: flow);
 
     await tester.tap(find.byKey(const Key('select-new-box-picture-button')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
 
     expect(flow.selectedSources, [ImageSource.gallery]);
+    expect(
+      find.byKey(PictureSelectionControls.processingIndicatorKey),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<OutlinedButton>(
+            find.byKey(const Key('select-new-box-picture-button')),
+          )
+          .onPressed,
+      isNull,
+    );
+    expect(
+      tester
+          .widget<FilledButton>(find.byKey(const Key('create-box-button')))
+          .onPressed,
+      isNull,
+    );
+
+    selection.complete(normalizedTestPicture('cropped-box.webp'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(PictureSelectionControls.processingIndicatorKey),
+      findsNothing,
+    );
     expect(find.text('No picture'), findsNothing);
 
     final createButton = find.byKey(const Key('create-box-button'));
     await tester.ensureVisible(createButton);
-    await tester.tap(createButton);
+    final createAction = tester.widget<FilledButton>(createButton).onPressed!;
+    createAction();
+    createAction();
     await tester.pumpAndSettle();
 
     final box = (await BoxRepository(database).getAllBoxes()).single;
     final media = await MediaRepository(database)
         .getMediaById(box.pictureMediaId!);
+    final allMedia = await database.select(database.mediaAssets).get();
 
     expect(media, isNotNull);
-    expect(media!.fileName, 'cropped-box.png');
-    expect(media.mimeType, 'image/png');
-    expect(media.data, pictureBytes);
+    expect(media!.fileName, 'cropped-box.webp');
+    expect(media.mimeType, 'image/webp');
+    expect(media.data, normalizedTestPictureBytes);
+    expect(allMedia, hasLength(1));
   });
 }

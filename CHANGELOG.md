@@ -16,6 +16,8 @@ The project uses semantic versioning while development remains below version 1.0
 - shared WebP picture optimizer for newly selected and captured Box and Animal
   pictures
 - bounded image dimensions and configurable compression parameters
+- localized picture-processing progress in all new and edited Box and Animal
+  forms
 
 ### Changed
 
@@ -27,6 +29,11 @@ The project uses semantic versioning while development remains below version 1.0
   as WebP with quality 82 before reaching form previews and `MediaAssets`
 - new picture filenames and MIME metadata are normalized to `.webp` and
   `image/webp`
+- picture actions and form saving are blocked while normalization is running
+- repeated processing and save calls are ignored to prevent duplicate media
+  records
+- Box and Animal picture replacement now commits the normalized media, record
+  reference and old-media cleanup atomically
 
 ### Compatibility
 
@@ -45,6 +52,11 @@ The project uses semantic versioning while development remains below version 1.0
 - added cancellation coverage for existing Box and Animal pictures
 - added focused optimizer tests for landscape and portrait resizing, no-upscale
   behavior, WebP metadata and invalid encoder output
+- added delayed-processing and duplicate-submission coverage for all four Box
+  and Animal picture workflows
+- added failure-preservation tests for existing Box and Animal pictures
+- added PNG and WebP display coverage for overview thumbnails, detail pictures
+  and the full-screen viewer
 
 ## [0.11.0] - 2026-09-07
 

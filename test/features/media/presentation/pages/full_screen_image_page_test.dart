@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:terramanager/core/media/media_thumbnail.dart';
 import 'package:terramanager/features/animals/presentation/widgets/animal_picture.dart';
 import 'package:terramanager/features/boxes/presentation/widgets/box_picture.dart';
 import 'package:terramanager/features/media/presentation/pages/full_screen_image_page.dart';
@@ -10,6 +11,10 @@ import 'package:terramanager/features/media/presentation/pages/full_screen_image
 const _transparentPixelPng =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+'
     'A8AAQUBAScY42YAAAAASUVORK5CYII=';
+
+const _normalizedPictureWebp =
+    'UklGRjYAAABXRUJQVlA4ICoAAACwAQCdASoCAAIAAgA0JaACdLoABGaAAP7u'
+    'dn/3BmfV2OH9zcW5+hQAAAA=';
 
 void main() {
   testWidgets('animal picture opens and closes the full-screen viewer', (
@@ -92,6 +97,40 @@ void main() {
     );
 
     expect(image.fit, BoxFit.contain);
+  });
+
+  testWidgets('normalized WebP renders in overview, detail and full screen', (
+    tester,
+  ) async {
+    final webpBytes = base64Decode(_normalizedPictureWebp);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Column(
+            children: [
+              MediaThumbnail(
+                pictureBytes: webpBytes,
+                fallbackIcon: Icons.home_outlined,
+              ),
+              BoxPicture(pictureBytes: webpBytes),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Image), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byKey(const Key('open-box-picture-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('full-screen-image-page')), findsOneWidget);
+    expect(find.byKey(const Key('full-screen-image')), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Animal placeholder is not tappable', (tester) async {

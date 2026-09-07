@@ -89,6 +89,16 @@ upscaling to a maximum 1920-pixel longest edge and stored as WebP with quality
 82. Existing pictures in supported legacy formats must remain usable without an
 automatic destructive conversion.
 
+Camera and Gallery pictures must pass through the same crop and normalization
+path. While normalization is running, the form must communicate progress and
+must not allow another picture import or a save operation. Repeated callbacks
+must not create duplicate MediaAssets.
+
+Replacing a stored picture must be atomic. Until the normalized replacement and
+its Box or Animal reference have been saved successfully, the previous
+MediaAsset must remain valid. A processing or persistence error must leave the
+previous picture unchanged.
+
 ## Contextual Detail Navigation
 
 When a detail page is opened from an ordered collection, the application must
@@ -216,6 +226,9 @@ MediaAssets in the local Drift database.
 New and replaced pictures use normalized `.webp` filenames and the
 `image/webp` MIME type. Existing MediaAssets retain their original bytes and
 metadata until the user replaces the picture.
+
+Overview thumbnails, detail pictures and the full-screen viewer must display
+both normalized WebP media and previously supported legacy image formats.
 
 Appearance and language preferences are stored separately through
 `shared_preferences`.

@@ -40,6 +40,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   Box? _box;
 
   int? _pictureMediaId;
+  int? _originalPictureMediaId;
 
   Uint8List? _pictureBytes;
   String? _pictureFileName;
@@ -49,6 +50,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
   bool _loading = true;
   bool _saving = false;
+  bool _processingPicture = false;
   bool _hasUnsavedChanges = false;
 
   String? _error;
@@ -100,6 +102,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
       _box = box;
       _pictureMediaId = box.pictureMediaId;
+      _originalPictureMediaId = box.pictureMediaId;
 
       _widthController.text = _formatEditableNumber(box.widthCm);
 
@@ -139,6 +142,15 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _selectPicture(ImageSource source) async {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
+    setState(() {
+      _processingPicture = true;
+      _error = null;
+    });
+
     try {
       final picture = await _pictureSelectionFlow.selectAndCrop(
         context: context,
@@ -158,7 +170,6 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
         _pictureChanged = true;
         _hasUnsavedChanges = true;
-        _error = null;
       });
     } catch (_) {
       if (!mounted) {
@@ -168,10 +179,20 @@ class _BoxEditPageState extends State<BoxEditPage> {
       setState(() {
         _error = context.l10n.failedToSelectPicture;
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _processingPicture = false;
+        });
+      }
     }
   }
 
   void _removePicture() {
+    if (_processingPicture || _saving) {
+      return;
+    }
+
     setState(() {
       _pictureMediaId = null;
 
@@ -185,6 +206,10 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _save() async {
+    if (_saving || _processingPicture) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate() || _box == null) {
       return;
     }
@@ -226,6 +251,14 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
         if (!updated) {
           throw StateError('Box update failed');
+        }
+
+        final oldMediaId = _originalPictureMediaId;
+
+        if (_pictureChanged &&
+            oldMediaId != null &&
+            oldMediaId != pictureMediaId) {
+          await mediaRepository.deleteMedia(oldMediaId);
         }
       });
 
@@ -326,7 +359,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
           actions: [
             IconButton(
               key: const Key('save-box-button'),
-              onPressed: _saving ? null : _save,
+              onPressed: _saving || _processingPicture ? null : _save,
               icon: _saving
                   ? const SizedBox(
                       width: 20,
@@ -378,6 +411,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
             PictureSelectionControls(
               enabled: !_saving,
+              processing: _processingPicture,
               hasPicture: _hasPicture,
               cameraSupported: _pictureSelectionFlow.supportsImageSource(
                 ImageSource.camera,
@@ -433,7 +467,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
             FilledButton.icon(
               key: const Key('save-box-form-button'),
-              onPressed: _saving ? null : _save,
+              onPressed: _saving || _processingPicture ? null : _save,
               icon: const Icon(Icons.save),
               label: Text(_saving ? context.l10n.saving : context.l10n.save),
             ),

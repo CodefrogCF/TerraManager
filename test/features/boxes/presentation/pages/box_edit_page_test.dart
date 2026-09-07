@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/native.dart';
@@ -86,21 +87,82 @@ void main() {
     expect(find.text('Choose from Gallery'), findsOneWidget);
   });
 
-  testWidgets('stores cropped replacement bytes when editing a Box', (
+  testWidgets('atomically stores one normalized Box replacement', (
     tester,
   ) async {
-    final pictureBytes = base64Decode(
+    final existingBytes = base64Decode(
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
       '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
     );
-    final flow = FakePictureSelectionFlow(
-      result: SelectedPicture(
-        bytes: pictureBytes,
-        fileName: 'edited-box.png',
-        mimeType: 'image/png',
-      ),
+    final oldMediaId = await MediaRepository(database).createMedia(
+      fileName: 'existing-box.png',
+      mimeType: 'image/png',
+      data: existingBytes,
     );
-    final boxId = await BoxRepository(database).createBox('test-box-001');
+    final selection = Completer<SelectedPicture?>();
+    final flow = FakePictureSelectionFlow(pendingResult: selection.future);
+    final boxId = await BoxRepository(database)
+        .createBox('test-box-001', pictureMediaId: oldMediaId);
+
+    await pumpPage(tester, boxId: boxId, pictureSelectionFlow: flow);
+
+    await tester.tap(find.byKey(const Key('select-box-picture-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(PictureSelectionControls.cameraOptionKey));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+
+    expect(
+      find.byKey(PictureSelectionControls.processingIndicatorKey),
+      findsOneWidget,
+    );
+    expect(
+      tester
+          .widget<IconButton>(find.byKey(const Key('save-box-button')))
+          .onPressed,
+      isNull,
+    );
+    expect(await MediaRepository(database).getMediaById(oldMediaId), isNotNull);
+
+    selection.complete(normalizedTestPicture('edited-box.webp'));
+    await tester.pumpAndSettle();
+
+    final saveAction = tester
+        .widget<IconButton>(find.byKey(const Key('save-box-button')))
+        .onPressed!;
+    saveAction();
+    saveAction();
+    await tester.pumpAndSettle();
+
+    final box = await BoxRepository(database).getBoxById(boxId);
+    final media = await MediaRepository(database)
+        .getMediaById(box!.pictureMediaId!);
+    final allMedia = await database.select(database.mediaAssets).get();
+
+    expect(flow.selectedSources, [ImageSource.camera]);
+    expect(media, isNotNull);
+    expect(media!.fileName, 'edited-box.webp');
+    expect(media.mimeType, 'image/webp');
+    expect(media.data, normalizedTestPictureBytes);
+    expect(await MediaRepository(database).getMediaById(oldMediaId), isNull);
+    expect(allMedia, hasLength(1));
+  });
+
+  testWidgets('failed processing preserves the existing Box picture', (
+    tester,
+  ) async {
+    final existingBytes = base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk'
+      '+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+    );
+    final mediaId = await MediaRepository(database).createMedia(
+      fileName: 'existing-box.png',
+      mimeType: 'image/png',
+      data: existingBytes,
+    );
+    final boxId = await BoxRepository(database)
+        .createBox('test-box-001', pictureMediaId: mediaId);
+    final flow = FakePictureSelectionFlow(error: StateError('failed'));
 
     await pumpPage(tester, boxId: boxId, pictureSelectionFlow: flow);
 
@@ -108,17 +170,15 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('save-box-button')));
-    await tester.pumpAndSettle();
 
     final box = await BoxRepository(database).getBoxById(boxId);
-    final media = await MediaRepository(database)
-        .getMediaById(box!.pictureMediaId!);
+    final media = await MediaRepository(database).getMediaById(mediaId);
 
-    expect(flow.selectedSources, [ImageSource.gallery]);
-    expect(media, isNotNull);
-    expect(media!.fileName, 'edited-box.png');
-    expect(media.data, pictureBytes);
+    expect(find.text('Failed to select picture'), findsOneWidget);
+    expect(find.text('Change Picture'), findsOneWidget);
+    expect(box!.pictureMediaId, mediaId);
+    expect(media!.fileName, 'existing-box.png');
+    expect(media.data, existingBytes);
   });
 
   testWidgets('crop cancellation keeps the existing Box picture unchanged', (

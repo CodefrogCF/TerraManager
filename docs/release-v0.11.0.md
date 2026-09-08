@@ -126,8 +126,8 @@ Complete only after every required validation succeeds:
   release
 - [x] Mark v0.11.0 release and validation tasks complete in the Roadmap
 - [x] Update README Project Status to the completed v0.11.0 milestone
-- [ ] Commit and push the final release documentation
-- [ ] Create annotated tag `v0.11.0`
-- [ ] Push tag `v0.11.0`
-- [ ] Publish the GitHub v0.11.0 release with the release APK
-- [ ] Close the v0.11.0 milestone
+- [x] Commit and push the final release documentation
+- [x] Create annotated tag `v0.11.0`
+- [x] Push tag `v0.11.0`
+- [x] Publish the GitHub v0.11.0 release with the release APK
+- [x] Close the v0.11.0 milestone

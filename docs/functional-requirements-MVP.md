@@ -188,6 +188,22 @@ duplicate due-state value. Adding, editing or deleting a FeedingEvent must
 therefore affect the next calculation immediately. Loading overview reminder
 states must aggregate latest feedings without issuing one query per Animal.
 
+When at least one active Animal is due, the Animal Overview must show a
+non-modal reminder summary containing the number of due Animals. Its entries
+must be ordered from most overdue to least overdue and open the corresponding
+Animal. Due Animals must also be visibly marked in the regular overview list.
+Animals that are not due and archived Animals must not appear in the summary.
+
+An Animal with an enabled reminder must show its current due or scheduled state
+and calculated due timestamp on the detail screen. The status must open the
+existing feeding history workflow. Returning after FeedingEvent creation,
+editing or deletion must refresh both the detail state and overview summary.
+Quick Feeding submissions must also invalidate the overview state.
+
+Reminder presentation must be available in English and German, must not open a
+blocking dialog automatically and must not request system-notification
+permissions.
+
 ## QR Codes
 
 The application must allow the user to:

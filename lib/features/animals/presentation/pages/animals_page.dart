@@ -5,6 +5,8 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../feedings/application/feeding_reminder_service.dart';
+import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../animal_display_names.dart';
 import 'animal_detail_page.dart';
@@ -13,15 +15,16 @@ import 'new_animal_page.dart';
 
 class AnimalsPage extends StatefulWidget {
   final AppDatabase database;
+  final FeedingReminderClock? reminderNow;
 
-  const AnimalsPage({super.key, required this.database});
+  const AnimalsPage({super.key, required this.database, this.reminderNow});
 
   @override
   State<AnimalsPage> createState() => _AnimalsPageState();
 }
 
 class _AnimalsPageState extends State<AnimalsPage> {
-  late Future<List<Animal>> _animalsFuture;
+  late Future<_AnimalsOverviewData> _overviewFuture;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -43,7 +46,20 @@ class _AnimalsPageState extends State<AnimalsPage> {
   void _loadAnimals() {
     _pictureFutures.clear();
 
-    _animalsFuture = AnimalRepository(widget.database).getActiveAnimals();
+    _overviewFuture = _fetchOverview();
+  }
+
+  Future<_AnimalsOverviewData> _fetchOverview() async {
+    final animalsFuture = AnimalRepository(widget.database).getActiveAnimals();
+    final remindersFuture = FeedingReminderService(
+      widget.database,
+      now: widget.reminderNow,
+    ).getDueReminderStates();
+
+    final animals = await animalsFuture;
+    final dueReminders = await remindersFuture;
+
+    return _AnimalsOverviewData(animals: animals, dueReminders: dueReminders);
   }
 
   Future<void> _reloadAnimalsPreservingScroll(double previousOffset) async {
@@ -52,7 +68,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     });
 
     try {
-      await _animalsFuture;
+      await _overviewFuture;
     } catch (_) {
       return;
     }
@@ -111,6 +127,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
         builder: (_) => AnimalDetailPage(
           database: widget.database,
           animalId: animal.id,
+          reminderNow: widget.reminderNow,
           navigationContext: DetailNavigationContext.activeAnimals(
             animalIds: animals.map((animal) => animal.id),
             currentAnimalId: animal.id,
@@ -124,6 +141,79 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
 
     await _reloadAnimalsPreservingScroll(previousOffset);
+  }
+
+  Widget _buildReminderSummary(
+    BuildContext context,
+    List<FeedingReminderState> reminders,
+    List<Animal> animals,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      key: const Key('feeding-reminder-summary'),
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      color: colorScheme.errorContainer,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.notification_important_outlined,
+                  color: colorScheme.onErrorContainer,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.l10n.feedingReminders,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(color: colorScheme.onErrorContainer),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        context.l10n.animalsDueForFeeding(reminders.length),
+                        key: const Key('feeding-reminder-summary-count'),
+                        style: TextStyle(color: colorScheme.onErrorContainer),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          for (final reminder in reminders) ...[
+            Divider(
+              height: 1,
+              color: colorScheme.onErrorContainer.withAlpha(64),
+            ),
+            ListTile(
+              key: Key('feeding-reminder-summary-item-${reminder.animalId}'),
+              title: Text(
+                AnimalDisplayNames.fromContext(
+                  context,
+                  commonName: reminder.animal.commonName,
+                  latinName: reminder.animal.latinName,
+                ).primary,
+              ),
+              subtitle: Text(
+                context.l10n.feedingDueSince(_formatDateTime(reminder.dueAt)),
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                _openAnimalDetail(reminder.animal, animals);
+              },
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   Future<void> _openAnimalHistory() async {
@@ -158,8 +248,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
           ),
         ],
       ),
-      body: FutureBuilder<List<Animal>>(
-        future: _animalsFuture,
+      body: FutureBuilder<_AnimalsOverviewData>(
+        future: _overviewFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text(context.l10n.failedToLoadAnimals));
@@ -169,18 +259,32 @@ class _AnimalsPageState extends State<AnimalsPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final animals = snapshot.data ?? [];
+          final data = snapshot.data;
+          final animals = data?.animals ?? const <Animal>[];
+          final dueReminders =
+              data?.dueReminders ?? const <FeedingReminderState>[];
 
           if (animals.isEmpty) {
             return Center(child: Text(context.l10n.noAnimalsAvailable));
           }
 
+          final dueRemindersByAnimalId = {
+            for (final reminder in dueReminders) reminder.animalId: reminder,
+          };
+          final hasReminderSummary = dueReminders.isNotEmpty;
+
           return ListView.builder(
             key: const PageStorageKey<String>('animals-overview-list'),
             controller: _scrollController,
-            itemCount: animals.length,
+            itemCount: animals.length + (hasReminderSummary ? 1 : 0),
             itemBuilder: (context, index) {
-              final animal = animals[index];
+              if (hasReminderSummary && index == 0) {
+                return _buildReminderSummary(context, dueReminders, animals);
+              }
+
+              final animalIndex = hasReminderSummary ? index - 1 : index;
+              final animal = animals[animalIndex];
+              final dueReminder = dueRemindersByAnimalId[animal.id];
               final displayNames = AnimalDisplayNames.fromContext(
                 context,
                 commonName: animal.commonName,
@@ -204,7 +308,37 @@ class _AnimalsPageState extends State<AnimalsPage> {
                 ),
                 title: Text(displayNames.primary),
                 subtitle: Text(displayNames.secondary),
-                trailing: const Icon(Icons.chevron_right),
+                trailing: dueReminder == null
+                    ? const Icon(Icons.chevron_right)
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            key: Key('animal-due-marker-${animal.id}'),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .errorContainer,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              context.l10n.due,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onErrorContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
                 onTap: () {
                   _openAnimalDetail(animal, animals);
                 },
@@ -221,4 +355,24 @@ class _AnimalsPageState extends State<AnimalsPage> {
       ),
     );
   }
+}
+
+class _AnimalsOverviewData {
+  final List<Animal> animals;
+  final List<FeedingReminderState> dueReminders;
+
+  const _AnimalsOverviewData({
+    required this.animals,
+    required this.dueReminders,
+  });
+}
+
+String _formatDateTime(DateTime dateTime) {
+  final localDateTime = dateTime.toLocal();
+  final day = localDateTime.day.toString().padLeft(2, '0');
+  final month = localDateTime.month.toString().padLeft(2, '0');
+  final hour = localDateTime.hour.toString().padLeft(2, '0');
+  final minute = localDateTime.minute.toString().padLeft(2, '0');
+
+  return '$day.$month.${localDateTime.year} $hour:$minute';
 }

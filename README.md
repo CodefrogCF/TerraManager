@@ -18,7 +18,7 @@ Current development milestone:
 
 Current development build:
 
-**v0.12.2+25**
+**v0.12.3+26**
 
 Implemented milestones in the current source state:
 
@@ -126,6 +126,12 @@ application restarts.
 - due timestamps calculated from the later of reminder baseline and latest
   feeding
 - disabled and archived Animals excluded from active reminder results
+- non-modal overview summary listing currently due Animals
+- visible due markers in the Animal Overview
+- most-overdue-first reminder ordering
+- due or scheduled status with calculated date on Animal details
+- direct navigation from reminder entries to the Animal and feeding workflow
+- immediate reminder refresh after normal and Quick Feeding changes
 
 ### Feeding
 

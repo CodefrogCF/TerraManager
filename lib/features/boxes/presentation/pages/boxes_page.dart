@@ -13,8 +13,9 @@ import 'new_box_page.dart';
 
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
+  final VoidCallback? onFeedingChanged;
 
-  const BoxesPage({super.key, required this.database});
+  const BoxesPage({super.key, required this.database, this.onFeedingChanged});
 
   @override
   State<BoxesPage> createState() => _BoxesPageState();
@@ -173,7 +174,10 @@ class _BoxesPageState extends State<BoxesPage> {
   Future<void> _openFeedingMode() {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
-        builder: (_) => FeedingScannerPage(database: widget.database),
+        builder: (_) => FeedingScannerPage(
+          database: widget.database,
+          onFeedingChanged: widget.onFeedingChanged,
+        ),
       ),
     );
   }

@@ -296,6 +296,7 @@ void main() {
     late Future<void> Function(String) scan;
     var stopCalls = 0;
     var startCalls = 0;
+    var feedingChangedCalls = 0;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -309,6 +310,9 @@ void main() {
           },
           startScanner: () async {
             startCalls++;
+          },
+          onFeedingChanged: () {
+            feedingChangedCalls++;
           },
         ),
       ),
@@ -330,6 +334,7 @@ void main() {
     expect(find.byKey(const Key('feeding-mode-saved-message')), findsOneWidget);
     expect(stopCalls, 1);
     expect(startCalls, 1);
+    expect(feedingChangedCalls, 1);
 
     final feedings = await FeedingRepository(database)
         .getFeedingsForAnimal(animal.id);

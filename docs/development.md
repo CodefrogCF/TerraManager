@@ -194,6 +194,16 @@ Examples:
 - disabled and archived Animal exclusion from reminder results
 - due ordering from most overdue to least overdue
 - reminder calculation after restoring current backup data
+- absence of a reminder summary when no active Animal is due
+- non-modal due summary, due count and due markers in the Animal Overview
+- most-overdue-first order and navigation to the correct Animal
+- due and scheduled status cards with the calculated due timestamp on Animal
+  details
+- immediate refresh after FeedingEvent creation, editing and deletion
+- Animal Overview refresh after a QR Quick Feeding submission
+- English and German reminder counts and status labels
+- absence of automatically opened dialogs or system-notification permission
+  requests
 - atomic replacement that retains the old picture after processing/save errors
 - WebP and legacy image display in overview, detail and full-screen contexts
 - unchanged display and backup behavior for existing JPEG and PNG pictures

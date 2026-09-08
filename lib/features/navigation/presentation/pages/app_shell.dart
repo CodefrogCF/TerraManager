@@ -25,12 +25,19 @@ class _AppShellState extends State<AppShell> {
     });
   }
 
+  void _handleFeedingChanged() {
+    setState(() {
+      _dataRevision++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final pages = [
       BoxesPage(
         key: ValueKey('boxes-$_dataRevision'),
         database: widget.database,
+        onFeedingChanged: _handleFeedingChanged,
       ),
       AnimalsPage(
         key: ValueKey('animals-$_dataRevision'),

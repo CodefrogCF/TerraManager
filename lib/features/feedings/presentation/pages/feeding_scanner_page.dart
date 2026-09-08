@@ -17,6 +17,7 @@ class FeedingScannerPage extends StatefulWidget {
 
   final Future<void> Function()? stopScanner;
   final Future<void> Function()? startScanner;
+  final VoidCallback? onFeedingChanged;
 
   const FeedingScannerPage({
     super.key,
@@ -24,6 +25,7 @@ class FeedingScannerPage extends StatefulWidget {
     this.onHandlerReady,
     this.stopScanner,
     this.startScanner,
+    this.onFeedingChanged,
   });
 
   @override
@@ -137,6 +139,8 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
       }
 
       if (saved == true) {
+        widget.onFeedingChanged?.call();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

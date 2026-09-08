@@ -903,3 +903,59 @@ Disadvantages:
   that boundary or when it becomes active again
 - the database query and calculation service must continue to use identical
   eligibility rules for active, configured Animals
+
+---
+
+## ADR-013: Present feeding reminders as derived, non-modal UI state
+
+**Status:** Accepted
+
+**Date:** 2026-09-08
+
+### Context
+
+Due Animals must be visible without interrupting normal application startup or
+navigation. Reminder state also changes through both the Animal feeding history
+and the Box-based Quick Feeding workflow. A presentation cache without explicit
+invalidation could therefore show an Animal as overdue after a new feeding was
+already stored.
+
+### Decision
+
+The Animal Overview loads active Animals and derived due reminder states
+together. It renders a non-modal summary only when at least one Animal is due,
+orders entries using the reminder service's most-overdue-first result and marks
+the corresponding rows in the normal Animal list.
+
+Selecting a summary entry opens the existing Animal detail route with its
+normal contextual navigation. Animal details calculate one reminder state and
+show either a due or scheduled status card with the calculated due timestamp.
+Selecting that card opens the existing feeding history workflow.
+
+Returning from feeding history recalculates the latest feeding and reminder
+state. Returning from Animal details reloads the overview while preserving its
+scroll position. Quick Feeding reports a successful write to the application
+shell, which recreates the overview data source before the Animals tab is shown
+again.
+
+All reminder text is localized through the existing ARB catalogs. The in-app
+presentation neither opens an automatic dialog nor requests operating-system
+notification permissions.
+
+### Consequences
+
+Advantages:
+
+- due Animals are prominent without blocking the user
+- the summary, list marker and detail card use the same calculation service
+- existing detail navigation and feeding workflows remain reusable
+- normal and Quick Feeding paths invalidate stale reminder presentation
+- system-notification permissions remain outside the local-only milestone
+
+Disadvantages:
+
+- the overview performs reminder queries whenever it is reloaded
+- a due boundary crossed while a screen remains continuously visible still
+  requires a later screen reload to appear
+- the application shell must propagate successful Quick Feeding changes to the
+  Animals page

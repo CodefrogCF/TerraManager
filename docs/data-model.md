@@ -229,6 +229,12 @@ excluded from reminder results.
 Due results are sorted by ascending `dueAt`. This places the most overdue
 Animal first and provides deterministic ordering for the reminder UI.
 
+Reminder states remain derived presentation data. The Animal Overview requests
+the current due subset for its non-modal summary and list markers. Animal
+details request the state for one Animal and display its due or scheduled
+timestamp. Feeding history changes trigger a new calculation; no presentation
+state is written back to the database.
+
 ## MediaAsset
 
 A MediaAsset represents application-owned binary media stored persistently by

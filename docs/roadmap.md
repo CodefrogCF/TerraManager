@@ -12,7 +12,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.12.2+25**
+**v0.12.3+26**
 
 Completed development areas:
 
@@ -66,6 +66,11 @@ Completed development areas:
 - deterministic feeding reminder calculation using the later of the baseline
   and latest FeedingEvent
 - efficient aggregate lookup and recalculation after FeedingEvent changes
+- non-modal, localized Feeding Reminder summary and due markers in the Animal
+  Overview
+- due and scheduled reminder status on Animal details
+- reminder navigation and immediate refresh after normal and Quick Feeding
+  changes
 
 v0.7.1 implementation and release validation are complete.
 
@@ -84,9 +89,10 @@ regression validation and release packaging are complete.
 v0.12.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete.
 
-v0.13.0 is the active development milestone. Issues #74 and #75 provide the
-persistent per-Animal configuration and deterministic reminder calculation
-required by the presentation work in Issue #76.
+v0.13.0 is the active development milestone. Issues #74, #75 and #76 provide
+the persistent per-Animal configuration, deterministic calculation and in-app
+presentation required for Feeding Reminders. Issue #77 covers final regression,
+documentation and release work.
 
 ---
 
@@ -534,13 +540,13 @@ roughly one sixth of its previous size.
 
 ### In-App Reminder Presentation — Issue #76
 
-- [ ] Show a non-modal due summary in the Animal Overview
-- [ ] Mark due Animals and order them by most overdue first
-- [ ] Show due state and due date on Animal details
-- [ ] Open the corresponding Animal and feeding workflow from a reminder
-- [ ] Refresh immediately after feeding history changes
-- [ ] Localize reminder status text in English and German
-- [ ] Add empty, due and refreshed widget tests
+- [x] Show a non-modal due summary in the Animal Overview
+- [x] Mark due Animals and order them by most overdue first
+- [x] Show due state and due date on Animal details
+- [x] Open the corresponding Animal and feeding workflow from a reminder
+- [x] Refresh immediately after feeding history changes
+- [x] Localize reminder status text in English and German
+- [x] Add empty, due and refreshed widget tests
 
 ### Release — Issue #77
 

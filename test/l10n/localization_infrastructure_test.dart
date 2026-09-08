@@ -41,6 +41,12 @@ void main() {
     expect(l10n.saveFeedings(3), 'Save 3 Feedings');
     expect(l10n.feedingReminder, 'Feeding reminder');
     expect(l10n.feedingReminderIntervalDays, 'Reminder interval (days)');
+    expect(l10n.animalsDueForFeeding(1), '1 Animal is due for feeding');
+    expect(l10n.animalsDueForFeeding(3), '3 Animals are due for feeding');
+    expect(
+      l10n.feedingDueSince('08.09.2026 12:00'),
+      'Due since 08.09.2026 12:00',
+    );
   });
 
   test('German catalog covers every English message', () {
@@ -79,6 +85,12 @@ void main() {
     expect(l10n.saveFeedings(3), '3 Fütterungen speichern');
     expect(l10n.feedingReminder, 'Fütterungserinnerung');
     expect(l10n.feedingReminderIntervalDays, 'Erinnerungsintervall (Tage)');
+    expect(l10n.animalsDueForFeeding(1), '1 Tier ist zur Fütterung fällig');
+    expect(l10n.animalsDueForFeeding(3), '3 Tiere sind zur Fütterung fällig');
+    expect(
+      l10n.feedingDueSince('08.09.2026 12:00'),
+      'Fällig seit 08.09.2026 12:00',
+    );
   });
 
   testWidgets('supports selecting a fixed English locale', (tester) async {

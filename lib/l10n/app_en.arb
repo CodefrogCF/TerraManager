@@ -377,5 +377,34 @@
   "animalNameOrder": "Preferred Animal name",
   "animalNameOrderDescription": "Choose which name is shown first in Animal lists and details.",
   "animalNameCommonFirst": "Common name first",
-  "animalNameLatinFirst": "Latin name first"
+  "animalNameLatinFirst": "Latin name first",
+  "feedingReminders": "Feeding reminders",
+  "animalsDueForFeeding": "{count, plural, =1{1 Animal is due for feeding} other{{count} Animals are due for feeding}}",
+  "@animalsDueForFeeding": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "due": "Due",
+  "feedingDue": "Feeding due",
+  "feedingScheduled": "Next feeding scheduled",
+  "feedingDueSince": "Due since {dateTime}",
+  "@feedingDueSince": {
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "feedingDueOn": "Due on {dateTime}",
+  "@feedingDueOn": {
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToLoadFeedingReminder": "Failed to load feeding reminder"
 }

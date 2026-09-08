@@ -9,6 +9,8 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
+import '../../../feedings/application/feeding_reminder_service.dart';
+import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../animal_display_names.dart';
@@ -19,12 +21,14 @@ class AnimalDetailPage extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
   final DetailNavigationContext? navigationContext;
+  final FeedingReminderClock? reminderNow;
 
   AnimalDetailPage({
     super.key,
     required this.database,
     required this.animalId,
     this.navigationContext,
+    this.reminderNow,
   }) : assert(
          navigationContext == null ||
              navigationContext.source != DetailNavigationSource.boxes,
@@ -47,6 +51,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
   DetailNavigationContext? _navigationContext;
   late Future<Animal?> _animalFuture;
   late Future<FeedingEvent?> _latestFeedingFuture;
+  late Future<FeedingReminderState?> _feedingReminderFuture;
   late Future<MediaAsset?> _pictureMediaFuture;
 
   double _horizontalDragDistance = 0;
@@ -62,6 +67,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
     _loadAnimal();
     _loadLatestFeeding();
+    _loadFeedingReminder();
   }
 
   void _loadAnimal() {
@@ -81,6 +87,13 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
   void _loadLatestFeeding() {
     _latestFeedingFuture = FeedingRepository(widget.database)
         .getLatestFeeding(_animalId);
+  }
+
+  void _loadFeedingReminder() {
+    _feedingReminderFuture = FeedingReminderService(
+      widget.database,
+      now: widget.reminderNow,
+    ).getReminderStateForAnimal(_animalId);
   }
 
   Future<void> _openEditPage() async {
@@ -109,6 +122,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     setState(() {
       _invalidateNavigationContextIfNeeded(animal);
       _loadAnimal();
+      _loadFeedingReminder();
     });
   }
 
@@ -126,6 +140,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
     setState(() {
       _loadLatestFeeding();
+      _loadFeedingReminder();
     });
   }
 
@@ -173,6 +188,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         _lifecycleActionInProgress = false;
         _navigationContext = null;
         _loadAnimal();
+        _loadFeedingReminder();
       });
 
       ScaffoldMessenger.of(context)
@@ -276,6 +292,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         _lifecycleActionInProgress = false;
         _navigationContext = null;
         _loadAnimal();
+        _loadFeedingReminder();
       });
 
       ScaffoldMessenger.of(context)
@@ -435,7 +452,76 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       _lifecycleError = null;
       _loadAnimal();
       _loadLatestFeeding();
+      _loadFeedingReminder();
     });
+  }
+
+  Widget _buildFeedingReminderStatus(BuildContext context) {
+    return FutureBuilder<FeedingReminderState?>(
+      future: _feedingReminderFuture,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text(
+            context.l10n.failedToLoadFeedingReminder,
+            key: const Key('feeding-reminder-error'),
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          );
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const LinearProgressIndicator(
+            key: Key('feeding-reminder-loading'),
+          );
+        }
+
+        final reminder = snapshot.data;
+
+        if (reminder == null) {
+          return const SizedBox.shrink();
+        }
+
+        final colorScheme = Theme.of(context).colorScheme;
+        final containerColor = reminder.isDue
+            ? colorScheme.errorContainer
+            : colorScheme.secondaryContainer;
+        final contentColor = reminder.isDue
+            ? colorScheme.onErrorContainer
+            : colorScheme.onSecondaryContainer;
+
+        return Card(
+          key: const Key('feeding-reminder-status'),
+          color: containerColor,
+          child: ListTile(
+            leading: Icon(
+              reminder.isDue
+                  ? Icons.notification_important_outlined
+                  : Icons.schedule_outlined,
+              color: contentColor,
+            ),
+            title: Text(
+              reminder.isDue
+                  ? context.l10n.feedingDue
+                  : context.l10n.feedingScheduled,
+              style: TextStyle(
+                color: contentColor,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              reminder.isDue
+                  ? context.l10n.feedingDueSince(
+                      _formatDateTime(reminder.dueAt),
+                    )
+                  : context.l10n.feedingDueOn(_formatDateTime(reminder.dueAt)),
+              key: const Key('feeding-reminder-due-date'),
+              style: TextStyle(color: contentColor),
+            ),
+            trailing: Icon(Icons.chevron_right, color: contentColor),
+            onTap: _openFeedingHistory,
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -599,6 +685,10 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             animal.humidityMax.toString(),
           ),
         ),
+
+        const SizedBox(height: 16),
+
+        _buildFeedingReminderStatus(context),
 
         const SizedBox(height: 16),
 

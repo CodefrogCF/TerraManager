@@ -21,6 +21,10 @@ The project uses semantic versioning while development remains below version 1.0
   Animals
 - due-state results containing the relevant Animal, reference timestamp and
   calculated due timestamp
+- non-modal Feeding Reminder summary in the Animal Overview
+- due markers on affected Animal list entries
+- due and scheduled reminder status cards on Animal details
+- localized English and German reminder counts, states and due-date labels
 
 ### Changed
 
@@ -37,6 +41,10 @@ The project uses semantic versioning while development remains below version 1.0
   it
 - due reminder results are ordered by due timestamp, with the most overdue
   Animal first
+- reminder presentation refreshes after FeedingEvent creation, editing or
+  deletion and after Quick Feeding submissions
+- reminder entries open the corresponding Animal, whose reminder status card
+  links directly to the existing feeding history workflow
 
 ### Compatibility
 
@@ -61,6 +69,9 @@ The project uses semantic versioning while development remains below version 1.0
 - added reminder recalculation coverage after FeedingEvent creation, editing and
   deletion
 - verified reminder calculation from restored backup data
+- added reminder widget coverage for empty, due, ordered, localized and updated
+  states
+- added Quick Feeding change-notification coverage
 
 ## [0.12.0] - 2026-09-08
 

@@ -259,5 +259,34 @@
   "animalNameOrder": "Bevorzugter Tiername",
   "animalNameOrderDescription": "Lege fest, welcher Name in Tierlisten und Details zuerst angezeigt wird.",
   "animalNameCommonFirst": "Name zuerst",
-  "animalNameLatinFirst": "Lateinischer Name zuerst"
+  "animalNameLatinFirst": "Lateinischer Name zuerst",
+  "feedingReminders": "Fütterungserinnerungen",
+  "animalsDueForFeeding": "{count, plural, =1{1 Tier ist zur Fütterung fällig} other{{count} Tiere sind zur Fütterung fällig}}",
+  "@animalsDueForFeeding": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "due": "Fällig",
+  "feedingDue": "Fütterung fällig",
+  "feedingScheduled": "Nächste Fütterung geplant",
+  "feedingDueSince": "Fällig seit {dateTime}",
+  "@feedingDueSince": {
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "feedingDueOn": "Fällig am {dateTime}",
+  "@feedingDueOn": {
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToLoadFeedingReminder": "Fütterungserinnerung konnte nicht geladen werden"
 }

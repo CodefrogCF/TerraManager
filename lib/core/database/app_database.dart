@@ -79,6 +79,17 @@ class AppDatabase extends _$AppDatabase {
 
                 await m.addColumn(schema.boxes, schema.boxes.pictureMediaId);
               },
+              from4To5: (m, schema) async {
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.feedingReminderIntervalDays,
+                );
+
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.feedingReminderBaseline,
+                );
+              },
             ),
           );
 
@@ -103,5 +114,5 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 }

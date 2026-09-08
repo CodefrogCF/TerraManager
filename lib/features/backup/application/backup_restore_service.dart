@@ -297,6 +297,10 @@ class BackupRestoreService {
                 archiveReason: Value(archiveReason),
                 archivedAt: Value(animal.archivedAt),
                 archiveNotes: Value(animal.archiveNotes),
+                feedingReminderIntervalDays: Value(
+                  animal.feedingReminderIntervalDays,
+                ),
+                feedingReminderBaseline: Value(animal.feedingReminderBaseline),
                 createdAt: Value(animal.createdAt),
                 updatedAt: Value(animal.updatedAt),
               ),

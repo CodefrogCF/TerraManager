@@ -50,6 +50,10 @@ class Animals extends Table {
 
   TextColumn get archiveNotes => text().nullable()();
 
+  IntColumn get feedingReminderIntervalDays => integer().nullable()();
+
+  DateTimeColumn get feedingReminderBaseline => dateTime().nullable()();
+
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();

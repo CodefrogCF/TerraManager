@@ -67,6 +67,9 @@ The application must allow the user to:
 - restore an archived Animal to a selected Box
 - preserve feeding history while an Animal is archived
 - preserve its picture while an Animal is archived
+- optionally configure a feeding reminder interval in positive whole days
+- capture a reminder baseline when the reminder is enabled
+- retain reminder configuration while the Animal is archived
 - permanently delete an archived Animal through an explicit confirmation workflow
 
 Active Animals must have a Box assignment.
@@ -166,6 +169,13 @@ Repeated save submissions must not create duplicate FeedingEvents.
 
 Feeding Mode must use the existing FeedingEvent model so new entries remain
 visible and editable through the existing Animal feeding history.
+
+Per-Animal feeding reminders must be disabled by default. When enabled, both a
+positive whole-day interval and a baseline timestamp must be stored. Invalid or
+incomplete reminder configuration must not be saved.
+
+Archiving an Animal must retain its configuration for a later restore, while
+archived Animals must not produce active reminder results.
 
 ## QR Codes
 
@@ -275,6 +285,8 @@ The application must allow the user to:
 - restore persistent Animal pictures
 - restore appearance and language settings
 - restore older backups without a language field using the System setting
+- export and restore optional per-Animal feeding reminder configuration
+- restore older backups without reminder fields with reminders disabled
 
 Backup Format Version 2 must support archives containing legacy PNG/JPEG media,
 normalized WebP media or both at the same time. Export and restore must preserve

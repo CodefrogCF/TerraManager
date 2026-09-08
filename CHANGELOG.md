@@ -8,6 +8,42 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Added
 
+- optional per-Animal feeding reminder configuration in the new and edited
+  Animal workflows
+- localized English and German controls for enabling reminders and entering a
+  positive whole-day interval
+- persisted reminder baseline captured at the time a reminder is enabled
+- database schema Version 5 with nullable reminder interval and baseline
+  columns on Animals
+- portable backup export, validation and restore for reminder configuration
+
+### Changed
+
+- Animal archive and restore operations retain reminder configuration
+- Animal repository writes reject incomplete or non-positive reminder
+  configurations
+
+### Compatibility
+
+- existing databases migrate from schema Version 4 to Version 5 without
+  changing existing Animal data
+- existing Animals receive disabled reminders because both new columns default
+  to `null`
+- portable backup exports remain at Backup Format Version 2
+- older backups without reminder fields remain restorable and produce disabled
+  reminders
+
+### Testing
+
+- added repository persistence and lifecycle-retention coverage
+- added schema Version 4 to Version 5 migration coverage
+- added new and edited Animal form validation and persistence coverage
+- extended backup model, export, validation and restore round-trip coverage
+
+## [0.12.0] - 2026-09-08
+
+### Added
+
 - shared free-form picture cropping screen for Android and Web
 - picture cropping after Camera and Gallery selection in new and edited Box and
   Animal forms
@@ -73,6 +109,18 @@ The project uses semantic versioning while development remains below version 1.0
 - a backup with 44 Boxes, 45 Animals, 20 FeedingEvents and 67 pictures decreased
   from approximately 140 MB to 22.7 MB after normalization, a reduction of
   about 83.8%
+
+### Validated
+
+- complete static analysis and automated test suite
+- Android debug and release APK builds
+- Web release build
+- Android and Web regression testing
+- Camera and Gallery cropping for new and edited Boxes and Animals
+- portrait and landscape orientation handling
+- normalized WebP persistence in overview, detail and full-screen views
+- legacy picture display without automatic conversion
+- mixed legacy and WebP backup export and restore across Android and Web
 
 ## [0.11.0] - 2026-09-07
 

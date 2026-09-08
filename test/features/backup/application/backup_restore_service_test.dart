@@ -145,12 +145,13 @@ void main() {
   ValidatedBackup createV2TargetBackup() {
     const boxPicturePath = 'media/boxes/5.png';
     const animalPicturePath = 'media/animals/12.webp';
+    final reminderBaseline = DateTime(2026, 9, 3, 8, 45);
 
     return ValidatedBackup(
       manifest: BackupManifest(
         backupFormatVersion: BackupFormat.currentVersion,
         appVersion: '0.7.0',
-        databaseSchemaVersion: 4,
+        databaseSchemaVersion: 5,
         createdAt: DateTime.utc(2026, 9, 3),
       ),
       data: BackupData(
@@ -185,6 +186,8 @@ void main() {
             archiveReason: null,
             archivedAt: null,
             archiveNotes: null,
+            feedingReminderIntervalDays: 9,
+            feedingReminderBaseline: reminderBaseline,
             createdAt: DateTime(2026, 9, 1),
             updatedAt: DateTime(2026, 9, 2),
           ),
@@ -254,6 +257,11 @@ void main() {
     expect(animal.boxId, 5);
 
     expect(animal.commonName, 'Restored Animal');
+
+    // Backups created before reminder configuration was introduced omit both
+    // fields. Restore must keep reminders disabled for those Animals.
+    expect(animal.feedingReminderIntervalDays, isNull);
+    expect(animal.feedingReminderBaseline, isNull);
 
     // External paths are no longer
     // restored.
@@ -534,6 +542,9 @@ void main() {
     final animal = animals.single;
 
     expect(animal.pictureMediaId, isNotNull);
+
+    expect(animal.feedingReminderIntervalDays, 9);
+    expect(animal.feedingReminderBaseline, DateTime(2026, 9, 3, 8, 45));
 
     expect(animal.pictureMediaId, isNot(box.pictureMediaId));
 

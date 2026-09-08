@@ -48,6 +48,8 @@ void main() {
     String? archivedAt,
     String? archiveNotes,
     String? pictureMediaPath,
+    int? feedingReminderIntervalDays,
+    String? feedingReminderBaseline,
   }) {
     return {
       'id': id,
@@ -67,6 +69,8 @@ void main() {
       'archiveReason': archiveReason,
       'archivedAt': archivedAt,
       'archiveNotes': archiveNotes,
+      'feedingReminderIntervalDays': ?feedingReminderIntervalDays,
+      'feedingReminderBaseline': ?feedingReminderBaseline,
       'createdAt': '2026-08-01T10:00:00.000',
       'updatedAt': '2026-08-01T10:00:00.000',
     };
@@ -196,6 +200,72 @@ void main() {
     expect(result.data.animals.single.status, 'archived');
 
     expect(result.data.animals.single.boxId, isNull);
+  });
+
+  test('accepts valid feeding reminder configuration', () {
+    final bytes = createArchive(
+      data: dataJson(
+        animals: [
+          activeAnimal(
+            feedingReminderIntervalDays: 7,
+            feedingReminderBaseline: '2026-09-08T12:00:00.000',
+          ),
+        ],
+      ),
+    );
+
+    final result = validator.validate(bytes);
+    final animal = result.data.animals.single;
+
+    expect(animal.feedingReminderIntervalDays, 7);
+    expect(animal.feedingReminderBaseline, DateTime(2026, 9, 8, 12));
+  });
+
+  test('allows archived Animals to retain reminder configuration', () {
+    final animal = archivedAnimal()
+      ..['feedingReminderIntervalDays'] = 14
+      ..['feedingReminderBaseline'] = '2026-09-08T12:00:00.000';
+    final bytes = createArchive(data: dataJson(animals: [animal]));
+
+    final result = validator.validate(bytes);
+
+    expect(result.data.animals.single.status, 'archived');
+    expect(result.data.animals.single.feedingReminderIntervalDays, 14);
+  });
+
+  test('rejects incomplete feeding reminder configuration', () {
+    final bytes = createArchive(
+      data: dataJson(animals: [activeAnimal(feedingReminderIntervalDays: 7)]),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidData,
+        ),
+      ),
+    );
+  });
+
+  test('rejects non-positive feeding reminder interval', () {
+    final animal = activeAnimal(
+      feedingReminderBaseline: '2026-09-08T12:00:00.000',
+    )..['feedingReminderIntervalDays'] = 0;
+    final bytes = createArchive(data: dataJson(animals: [animal]));
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidData,
+        ),
+      ),
+    );
   });
 
   test('accepts legacy backup format version 1', () {

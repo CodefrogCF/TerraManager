@@ -114,6 +114,9 @@ class BackupAnimal {
   final DateTime? archivedAt;
   final String? archiveNotes;
 
+  final int? feedingReminderIntervalDays;
+  final DateTime? feedingReminderBaseline;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -135,6 +138,8 @@ class BackupAnimal {
     required this.archiveReason,
     required this.archivedAt,
     required this.archiveNotes,
+    this.feedingReminderIntervalDays,
+    this.feedingReminderBaseline,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -158,6 +163,8 @@ class BackupAnimal {
       'archiveReason': archiveReason,
       'archivedAt': archivedAt?.toIso8601String(),
       'archiveNotes': archiveNotes,
+      'feedingReminderIntervalDays': feedingReminderIntervalDays,
+      'feedingReminderBaseline': feedingReminderBaseline?.toIso8601String(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -186,6 +193,10 @@ class BackupAnimal {
           ? null
           : DateTime.parse(json['archivedAt'] as String),
       archiveNotes: json['archiveNotes'] as String?,
+      feedingReminderIntervalDays: json['feedingReminderIntervalDays'] as int?,
+      feedingReminderBaseline: json['feedingReminderBaseline'] == null
+          ? null
+          : DateTime.parse(json['feedingReminderBaseline'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );

@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **4**.
+The current Drift database schema version is **5**.
 
 The current database model consists of:
 
@@ -107,6 +107,8 @@ Animal
 ├── archiveReason
 ├── archivedAt
 ├── archiveNotes
+├── feedingReminderIntervalDays
+├── feedingReminderBaseline
 ├── createdAt
 └── updatedAt
 ```
@@ -131,6 +133,8 @@ Animal
 - archiveReason – optional archive reason
 - archivedAt – optional archive date
 - archiveNotes – optional archive notes
+- feedingReminderIntervalDays – optional positive whole-day feeding interval
+- feedingReminderBaseline – optional timestamp from which the interval starts
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
@@ -163,7 +167,8 @@ archiveNotes = optional
 ```
 
 Archiving an Animal does not remove its Animal record, picture or feeding
-history.
+history. It also retains the optional feeding reminder configuration. Reminder
+queries suppress archived Animals instead of deleting their configuration.
 
 Restoring an archived Animal requires assigning a Box again.
 
@@ -174,6 +179,27 @@ considered permanently removed.
 Lifecycle consistency is enforced by the repository/application layer.
 
 Nullable Animal fields can be explicitly cleared when an Animal is edited.
+
+### Feeding Reminder Configuration
+
+A feeding reminder is disabled when both reminder fields are `null`:
+
+```text
+feedingReminderIntervalDays = null
+feedingReminderBaseline = null
+```
+
+An enabled reminder requires both fields:
+
+```text
+feedingReminderIntervalDays > 0
+feedingReminderBaseline = timestamp captured when enabled
+```
+
+The create and edit workflows validate this pair before persistence. Capturing
+the baseline when a reminder is first enabled prevents an existing Animal with
+no feeding history from becoming overdue immediately. Changing only the
+interval of an enabled reminder preserves its existing baseline.
 
 ## MediaAsset
 
@@ -422,7 +448,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 4.
+The current Drift database schema version is 5.
 
 ### Schema Version 1
 
@@ -482,3 +508,19 @@ Box.pictureMediaId added
 The v3 → v4 migration preserves existing Boxes, Animals, FeedingEvents and
 MediaAssets. Existing Boxes receive `null` for the newly introduced optional
 fields.
+
+### Schema Version 5
+
+Schema version 5 introduced optional per-Animal feeding reminder
+configuration.
+
+Changes:
+
+```text
+Animal.feedingReminderIntervalDays added
+Animal.feedingReminderBaseline added
+```
+
+Both columns are nullable. The v4 → v5 migration preserves all existing data
+and initializes both fields to `null`, so reminders remain disabled for every
+existing Animal until explicitly enabled.

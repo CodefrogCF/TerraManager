@@ -32,6 +32,8 @@ void main() {
     int boxId, {
     String commonName = 'Corn Snake',
     String latinName = 'Pantherophis guttatus',
+    int? feedingReminderIntervalDays,
+    DateTime? feedingReminderBaseline,
   }) {
     return animalRepository.createAnimal(
       boxId: boxId,
@@ -41,6 +43,8 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      feedingReminderIntervalDays: feedingReminderIntervalDays,
+      feedingReminderBaseline: feedingReminderBaseline,
     );
   }
 
@@ -153,6 +157,38 @@ void main() {
     );
 
     expect(await animalRepository.getAnimalsForBox(boxId), isEmpty);
+  });
+
+  test('archive and restore retain feeding reminder configuration', () async {
+    final boxId = await createBox(
+      'TM:BOX:56565656-5656-4656-8656-565656565656',
+    );
+    final baseline = DateTime(2026, 9, 8, 12);
+    final animalId = await createAnimal(
+      boxId,
+      feedingReminderIntervalDays: 10,
+      feedingReminderBaseline: baseline,
+    );
+
+    await animalRepository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.rehomed,
+      archivedAt: DateTime(2026, 9, 9),
+    );
+
+    final archivedAnimal = await animalRepository.getAnimalById(animalId);
+
+    expect(archivedAnimal!.status, AnimalStatus.archived);
+    expect(archivedAnimal.feedingReminderIntervalDays, 10);
+    expect(archivedAnimal.feedingReminderBaseline, baseline);
+
+    await animalRepository.restoreAnimal(animalId: animalId, boxId: boxId);
+
+    final restoredAnimal = await animalRepository.getAnimalById(animalId);
+
+    expect(restoredAnimal!.status, AnimalStatus.active);
+    expect(restoredAnimal.feedingReminderIntervalDays, 10);
+    expect(restoredAnimal.feedingReminderBaseline, baseline);
   });
 
   test('active and archived queries return separate animals', () async {

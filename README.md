@@ -8,17 +8,17 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 ## Project Status
 
-Current development milestone:
+Current completed release milestone:
 
 **v0.12.0 – Media Optimization**
 
+Current development milestone:
+
+**v0.13.0 – Feeding Reminders**
+
 Current development build:
 
-**v0.12.0+23** (release candidate)
-
-Latest completed release milestone:
-
-**v0.11.0 – Personalization & Capture** (`0.11.0+18`)
+**v0.12.1+24**
 
 Implemented milestones in the current source state:
 
@@ -34,13 +34,13 @@ Implemented milestones in the current source state:
 - v0.9.0 – Feeding Workflow & Media
 - v0.10.0 – Localization
 - v0.11.0 – Personalization & Capture
-- v0.12.0 – Media Optimization (release candidate)
+- v0.12.0 – Media Optimization
 
 Android and Web are currently validated platforms.
 
-The v0.12.0 implementation is complete. Final Android/Web regression,
-release-build validation and publication are tracked in
-`docs/release-v0.12.0.md`.
+The v0.12.0 implementation, automated regression, Android/Web validation and
+release builds are complete. The validation record and release notes are
+available in `docs/release-v0.12.0.md`.
 
 Portable backup and restore has been validated:
 
@@ -119,6 +119,10 @@ application restarts.
 - preserved Animal overview scroll position after detail navigation
 - contextual swipe navigation through Active Animals, Animal History and
   Box-specific Animal collections
+- optional per-Animal feeding reminder configuration
+- positive whole-day reminder intervals
+- reminder baselines set when reminders are enabled
+- reminder configuration retained while an Animal is archived
 
 ### Feeding
 
@@ -177,6 +181,9 @@ application restarts.
 - appearance, language and Animal name-order setting export and restore
 - backward-compatible restore of backups without language or Animal
   name-order settings
+- per-Animal feeding reminder configuration export and restore
+- backward-compatible restore of backups without reminder fields, with
+  reminders disabled
 - permanent Box QR identifiers preserved
 - backup validation before destructive operations
 - relationship and lifecycle validation

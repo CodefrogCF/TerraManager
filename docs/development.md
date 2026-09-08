@@ -72,6 +72,11 @@ dart run drift_dev make-migrations
 
 Migration output must be reviewed and covered by schema migration tests.
 
+Schema Version 5 adds the nullable Animal columns
+`feedingReminderIntervalDays` and `feedingReminderBaseline`. Migration tests
+must verify that Version 4 data is preserved and both fields are initialized to
+`null` for existing Animals.
+
 ## Android Development
 
 List available devices:
@@ -178,6 +183,11 @@ Examples:
 - `.webp` filename and `image/webp` MediaAsset metadata
 - visible processing feedback and disabled picture/save actions during encoding
 - duplicate-tap protection for picture processing and form saving
+- reminder controls disabled by default for new Animals
+- positive whole-day validation when a reminder is enabled
+- reminder interval and baseline persistence after an application restart
+- reminder configuration retention across archive and restore
+- current and legacy backup round trips for reminder configuration
 - atomic replacement that retains the old picture after processing/save errors
 - WebP and legacy image display in overview, detail and full-screen contexts
 - unchanged display and backup behavior for existing JPEG and PNG pictures
@@ -222,8 +232,7 @@ flutter build web
 
 Then perform manual regression testing on validated target platforms.
 
-For the current v0.12.0 release candidate, use the complete validation and
-release sequence in:
+The completed v0.12.0 validation and release record is available in:
 
 ```text
 docs/release-v0.12.0.md

@@ -110,6 +110,8 @@ class BackupExportService {
               : BackupEnumCodec.encodeArchiveReason(animal.archiveReason!),
           archivedAt: animal.archivedAt,
           archiveNotes: animal.archiveNotes,
+          feedingReminderIntervalDays: animal.feedingReminderIntervalDays,
+          feedingReminderBaseline: animal.feedingReminderBaseline,
           createdAt: animal.createdAt,
           updatedAt: animal.updatedAt,
         ),

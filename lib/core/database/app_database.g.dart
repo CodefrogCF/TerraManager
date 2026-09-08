@@ -1116,6 +1116,28 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _feedingReminderIntervalDaysMeta =
+      const VerificationMeta('feedingReminderIntervalDays');
+  @override
+  late final GeneratedColumn<int> feedingReminderIntervalDays =
+      GeneratedColumn<int>(
+        'feeding_reminder_interval_days',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _feedingReminderBaselineMeta =
+      const VerificationMeta('feedingReminderBaseline');
+  @override
+  late final GeneratedColumn<DateTime> feedingReminderBaseline =
+      GeneratedColumn<DateTime>(
+        'feeding_reminder_baseline',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1160,6 +1182,8 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     archiveReason,
     archivedAt,
     archiveNotes,
+    feedingReminderIntervalDays,
+    feedingReminderBaseline,
     createdAt,
     updatedAt,
   ];
@@ -1283,6 +1307,24 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         ),
       );
     }
+    if (data.containsKey('feeding_reminder_interval_days')) {
+      context.handle(
+        _feedingReminderIntervalDaysMeta,
+        feedingReminderIntervalDays.isAcceptableOrUnknown(
+          data['feeding_reminder_interval_days']!,
+          _feedingReminderIntervalDaysMeta,
+        ),
+      );
+    }
+    if (data.containsKey('feeding_reminder_baseline')) {
+      context.handle(
+        _feedingReminderBaselineMeta,
+        feedingReminderBaseline.isAcceptableOrUnknown(
+          data['feeding_reminder_baseline']!,
+          _feedingReminderBaselineMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1384,6 +1426,14 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.string,
         data['${effectivePrefix}archive_notes'],
       ),
+      feedingReminderIntervalDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}feeding_reminder_interval_days'],
+      ),
+      feedingReminderBaseline: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}feeding_reminder_baseline'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1436,6 +1486,8 @@ class Animal extends DataClass implements Insertable<Animal> {
   final AnimalArchiveReason? archiveReason;
   final DateTime? archivedAt;
   final String? archiveNotes;
+  final int? feedingReminderIntervalDays;
+  final DateTime? feedingReminderBaseline;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Animal({
@@ -1457,6 +1509,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     this.archiveReason,
     this.archivedAt,
     this.archiveNotes,
+    this.feedingReminderIntervalDays,
+    this.feedingReminderBaseline,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -1509,6 +1563,16 @@ class Animal extends DataClass implements Insertable<Animal> {
     if (!nullToAbsent || archiveNotes != null) {
       map['archive_notes'] = Variable<String>(archiveNotes);
     }
+    if (!nullToAbsent || feedingReminderIntervalDays != null) {
+      map['feeding_reminder_interval_days'] = Variable<int>(
+        feedingReminderIntervalDays,
+      );
+    }
+    if (!nullToAbsent || feedingReminderBaseline != null) {
+      map['feeding_reminder_baseline'] = Variable<DateTime>(
+        feedingReminderBaseline,
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -1552,6 +1616,13 @@ class Animal extends DataClass implements Insertable<Animal> {
       archiveNotes: archiveNotes == null && nullToAbsent
           ? const Value.absent()
           : Value(archiveNotes),
+      feedingReminderIntervalDays:
+          feedingReminderIntervalDays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedingReminderIntervalDays),
+      feedingReminderBaseline: feedingReminderBaseline == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedingReminderBaseline),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -1585,6 +1656,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       ),
       archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
       archiveNotes: serializer.fromJson<String?>(json['archiveNotes']),
+      feedingReminderIntervalDays: serializer.fromJson<int?>(
+        json['feedingReminderIntervalDays'],
+      ),
+      feedingReminderBaseline: serializer.fromJson<DateTime?>(
+        json['feedingReminderBaseline'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -1613,6 +1690,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       'archiveReason': serializer.toJson<AnimalArchiveReason?>(archiveReason),
       'archivedAt': serializer.toJson<DateTime?>(archivedAt),
       'archiveNotes': serializer.toJson<String?>(archiveNotes),
+      'feedingReminderIntervalDays': serializer.toJson<int?>(
+        feedingReminderIntervalDays,
+      ),
+      'feedingReminderBaseline': serializer.toJson<DateTime?>(
+        feedingReminderBaseline,
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -1637,6 +1720,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     Value<AnimalArchiveReason?> archiveReason = const Value.absent(),
     Value<DateTime?> archivedAt = const Value.absent(),
     Value<String?> archiveNotes = const Value.absent(),
+    Value<int?> feedingReminderIntervalDays = const Value.absent(),
+    Value<DateTime?> feedingReminderBaseline = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Animal(
@@ -1664,6 +1749,12 @@ class Animal extends DataClass implements Insertable<Animal> {
         : this.archiveReason,
     archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
     archiveNotes: archiveNotes.present ? archiveNotes.value : this.archiveNotes,
+    feedingReminderIntervalDays: feedingReminderIntervalDays.present
+        ? feedingReminderIntervalDays.value
+        : this.feedingReminderIntervalDays,
+    feedingReminderBaseline: feedingReminderBaseline.present
+        ? feedingReminderBaseline.value
+        : this.feedingReminderBaseline,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -1705,6 +1796,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       archiveNotes: data.archiveNotes.present
           ? data.archiveNotes.value
           : this.archiveNotes,
+      feedingReminderIntervalDays: data.feedingReminderIntervalDays.present
+          ? data.feedingReminderIntervalDays.value
+          : this.feedingReminderIntervalDays,
+      feedingReminderBaseline: data.feedingReminderBaseline.present
+          ? data.feedingReminderBaseline.value
+          : this.feedingReminderBaseline,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -1731,6 +1828,8 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('archiveReason: $archiveReason, ')
           ..write('archivedAt: $archivedAt, ')
           ..write('archiveNotes: $archiveNotes, ')
+          ..write('feedingReminderIntervalDays: $feedingReminderIntervalDays, ')
+          ..write('feedingReminderBaseline: $feedingReminderBaseline, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -1738,7 +1837,7 @@ class Animal extends DataClass implements Insertable<Animal> {
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     boxId,
     status,
@@ -1757,9 +1856,11 @@ class Animal extends DataClass implements Insertable<Animal> {
     archiveReason,
     archivedAt,
     archiveNotes,
+    feedingReminderIntervalDays,
+    feedingReminderBaseline,
     createdAt,
     updatedAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1782,6 +1883,9 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.archiveReason == this.archiveReason &&
           other.archivedAt == this.archivedAt &&
           other.archiveNotes == this.archiveNotes &&
+          other.feedingReminderIntervalDays ==
+              this.feedingReminderIntervalDays &&
+          other.feedingReminderBaseline == this.feedingReminderBaseline &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -1805,6 +1909,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<AnimalArchiveReason?> archiveReason;
   final Value<DateTime?> archivedAt;
   final Value<String?> archiveNotes;
+  final Value<int?> feedingReminderIntervalDays;
+  final Value<DateTime?> feedingReminderBaseline;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const AnimalsCompanion({
@@ -1826,6 +1932,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.archiveReason = const Value.absent(),
     this.archivedAt = const Value.absent(),
     this.archiveNotes = const Value.absent(),
+    this.feedingReminderIntervalDays = const Value.absent(),
+    this.feedingReminderBaseline = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -1848,6 +1956,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.archiveReason = const Value.absent(),
     this.archivedAt = const Value.absent(),
     this.archiveNotes = const Value.absent(),
+    this.feedingReminderIntervalDays = const Value.absent(),
+    this.feedingReminderBaseline = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : commonName = Value(commonName),
@@ -1875,6 +1985,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<String>? archiveReason,
     Expression<DateTime>? archivedAt,
     Expression<String>? archiveNotes,
+    Expression<int>? feedingReminderIntervalDays,
+    Expression<DateTime>? feedingReminderBaseline,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -1897,6 +2009,10 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       if (archiveReason != null) 'archive_reason': archiveReason,
       if (archivedAt != null) 'archived_at': archivedAt,
       if (archiveNotes != null) 'archive_notes': archiveNotes,
+      if (feedingReminderIntervalDays != null)
+        'feeding_reminder_interval_days': feedingReminderIntervalDays,
+      if (feedingReminderBaseline != null)
+        'feeding_reminder_baseline': feedingReminderBaseline,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -1921,6 +2037,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<AnimalArchiveReason?>? archiveReason,
     Value<DateTime?>? archivedAt,
     Value<String?>? archiveNotes,
+    Value<int?>? feedingReminderIntervalDays,
+    Value<DateTime?>? feedingReminderBaseline,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -1943,6 +2061,10 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       archiveReason: archiveReason ?? this.archiveReason,
       archivedAt: archivedAt ?? this.archivedAt,
       archiveNotes: archiveNotes ?? this.archiveNotes,
+      feedingReminderIntervalDays:
+          feedingReminderIntervalDays ?? this.feedingReminderIntervalDays,
+      feedingReminderBaseline:
+          feedingReminderBaseline ?? this.feedingReminderBaseline,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -2015,6 +2137,16 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     if (archiveNotes.present) {
       map['archive_notes'] = Variable<String>(archiveNotes.value);
     }
+    if (feedingReminderIntervalDays.present) {
+      map['feeding_reminder_interval_days'] = Variable<int>(
+        feedingReminderIntervalDays.value,
+      );
+    }
+    if (feedingReminderBaseline.present) {
+      map['feeding_reminder_baseline'] = Variable<DateTime>(
+        feedingReminderBaseline.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2045,6 +2177,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('archiveReason: $archiveReason, ')
           ..write('archivedAt: $archivedAt, ')
           ..write('archiveNotes: $archiveNotes, ')
+          ..write('feedingReminderIntervalDays: $feedingReminderIntervalDays, ')
+          ..write('feedingReminderBaseline: $feedingReminderBaseline, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -3241,6 +3375,8 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<AnimalArchiveReason?> archiveReason,
   Value<DateTime?> archivedAt,
   Value<String?> archiveNotes,
+  Value<int?> feedingReminderIntervalDays,
+  Value<DateTime?> feedingReminderBaseline,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -3263,6 +3399,8 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<AnimalArchiveReason?> archiveReason,
   Value<DateTime?> archivedAt,
   Value<String?> archiveNotes,
+  Value<int?> feedingReminderIntervalDays,
+  Value<DateTime?> feedingReminderBaseline,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -3418,6 +3556,16 @@ class $$AnimalsTableFilterComposer
 
   ColumnFilters<String> get archiveNotes => $composableBuilder(
     column: $table.archiveNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get feedingReminderIntervalDays => $composableBuilder(
+    column: $table.feedingReminderIntervalDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get feedingReminderBaseline => $composableBuilder(
+    column: $table.feedingReminderBaseline,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3592,6 +3740,16 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get feedingReminderIntervalDays => $composableBuilder(
+    column: $table.feedingReminderIntervalDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get feedingReminderBaseline => $composableBuilder(
+    column: $table.feedingReminderBaseline,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3721,6 +3879,16 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<String> get archiveNotes => $composableBuilder(
     column: $table.archiveNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get feedingReminderIntervalDays => $composableBuilder(
+    column: $table.feedingReminderIntervalDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get feedingReminderBaseline => $composableBuilder(
+    column: $table.feedingReminderBaseline,
     builder: (column) => column,
   );
 
@@ -3854,6 +4022,8 @@ class $$AnimalsTableTableManager
                     const Value.absent(),
                 Value<DateTime?> archivedAt = const Value.absent(),
                 Value<String?> archiveNotes = const Value.absent(),
+                Value<int?> feedingReminderIntervalDays = const Value.absent(),
+                Value<DateTime?> feedingReminderBaseline = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => AnimalsCompanion(
@@ -3875,6 +4045,8 @@ class $$AnimalsTableTableManager
                 archiveReason: archiveReason,
                 archivedAt: archivedAt,
                 archiveNotes: archiveNotes,
+                feedingReminderIntervalDays: feedingReminderIntervalDays,
+                feedingReminderBaseline: feedingReminderBaseline,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -3900,6 +4072,8 @@ class $$AnimalsTableTableManager
                     const Value.absent(),
                 Value<DateTime?> archivedAt = const Value.absent(),
                 Value<String?> archiveNotes = const Value.absent(),
+                Value<int?> feedingReminderIntervalDays = const Value.absent(),
+                Value<DateTime?> feedingReminderBaseline = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => AnimalsCompanion.insert(
@@ -3921,6 +4095,8 @@ class $$AnimalsTableTableManager
                 archiveReason: archiveReason,
                 archivedAt: archivedAt,
                 archiveNotes: archiveNotes,
+                feedingReminderIntervalDays: feedingReminderIntervalDays,
+                feedingReminderBaseline: feedingReminderBaseline,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

@@ -184,6 +184,8 @@ void main() {
     expect(animal.birthDateAccuracy, isNull);
     expect(animal.picturePath, isNull);
     expect(animal.notes, isNull);
+    expect(animal.feedingReminderIntervalDays, isNull);
+    expect(animal.feedingReminderBaseline, isNull);
   });
 
   test('can update an animal', () async {
@@ -375,5 +377,80 @@ void main() {
     expect(updatedAnimal.humidityMin, 40);
     expect(updatedAnimal.humidityMax, 60);
     expect(updatedAnimal.notes, 'Updated notes');
+  });
+
+  test('stores independent optional feeding reminder configurations', () async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'reminder-box'));
+    final firstBaseline = DateTime(2026, 9, 8, 10);
+    final secondBaseline = DateTime(2026, 9, 8, 11);
+
+    final firstAnimalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'First Animal',
+      latinName: 'Species one',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      feedingReminderIntervalDays: 7,
+      feedingReminderBaseline: firstBaseline,
+    );
+    final secondAnimalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Second Animal',
+      latinName: 'Species two',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      feedingReminderIntervalDays: 14,
+      feedingReminderBaseline: secondBaseline,
+    );
+
+    final firstAnimal = await repository.getAnimalById(firstAnimalId);
+    final secondAnimal = await repository.getAnimalById(secondAnimalId);
+
+    expect(firstAnimal!.feedingReminderIntervalDays, 7);
+    expect(firstAnimal.feedingReminderBaseline, firstBaseline);
+    expect(secondAnimal!.feedingReminderIntervalDays, 14);
+    expect(secondAnimal.feedingReminderBaseline, secondBaseline);
+  });
+
+  test('rejects incomplete or non-positive feeding reminders', () async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'invalid-reminder-box'));
+    final baseline = DateTime(2026, 9, 8, 10);
+
+    expect(
+      () => repository.createAnimal(
+        boxId: boxId,
+        commonName: 'Incomplete Animal',
+        latinName: 'Species one',
+        tempMin: 20,
+        tempMax: 25,
+        humidityMin: 40,
+        humidityMax: 60,
+        feedingReminderIntervalDays: 7,
+      ),
+      throwsArgumentError,
+    );
+
+    expect(
+      () => repository.createAnimal(
+        boxId: boxId,
+        commonName: 'Invalid Animal',
+        latinName: 'Species two',
+        tempMin: 20,
+        tempMax: 25,
+        humidityMin: 40,
+        humidityMax: 60,
+        feedingReminderIntervalDays: 0,
+        feedingReminderBaseline: baseline,
+      ),
+      throwsArgumentError,
+    );
   });
 }

@@ -36,6 +36,8 @@ void main() {
           archiveReason: null,
           archivedAt: null,
           archiveNotes: null,
+          feedingReminderIntervalDays: 7,
+          feedingReminderBaseline: DateTime(2026, 8, 2, 9, 30),
           createdAt: DateTime(2026, 8, 1),
           updatedAt: DateTime(2026, 8, 2),
         ),
@@ -74,6 +76,13 @@ void main() {
     expect(restored.animals.single.sex, 'female');
 
     expect(restored.animals.single.birthDateAccuracy, 'yearKnown');
+
+    expect(restored.animals.single.feedingReminderIntervalDays, 7);
+
+    expect(
+      restored.animals.single.feedingReminderBaseline,
+      DateTime(2026, 8, 2, 9, 30),
+    );
 
     expect(restored.feedingEvents.single.notes, 'Mouse');
   });
@@ -125,5 +134,32 @@ void main() {
     expect(restored.heightCm, isNull);
     expect(restored.depthCm, isNull);
     expect(restored.pictureMediaPath, isNull);
+  });
+
+  test('older Animal json restores with reminders disabled', () {
+    final restored = BackupAnimal.fromJson({
+      'id': 10,
+      'boxId': 1,
+      'status': 'active',
+      'commonName': 'Legacy Animal',
+      'latinName': 'Legacy species',
+      'sex': null,
+      'birthDate': null,
+      'birthDateAccuracy': null,
+      'tempMin': 20.0,
+      'tempMax': 25.0,
+      'humidityMin': 40.0,
+      'humidityMax': 60.0,
+      'pictureMediaPath': null,
+      'notes': null,
+      'archiveReason': null,
+      'archivedAt': null,
+      'archiveNotes': null,
+      'createdAt': '2026-08-01T10:00:00.000',
+      'updatedAt': '2026-08-02T12:00:00.000',
+    });
+
+    expect(restored.feedingReminderIntervalDays, isNull);
+    expect(restored.feedingReminderBaseline, isNull);
   });
 }

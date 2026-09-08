@@ -1,7 +1,10 @@
 // dart format width=80
 // ignore_for_file: unused_local_variable, unused_import
 
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'dart:io';
+
+import 'package:drift/drift.dart' show Value, driftRuntimeOptions;
+import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -347,4 +350,135 @@ void main() {
       );
     },
   );
+
+  test(
+    'migration from v4 to v5 preserves Animals and disables reminders',
+    () async {
+      final directory = await Directory.systemTemp.createTemp(
+        'terramanager-v4-v5-',
+      );
+      final databaseFile = File('${directory.path}/terramanager.sqlite');
+
+      v4.DatabaseAtV4? oldDatabase;
+      AppDatabase? migratedDatabase;
+
+      try {
+        oldDatabase = v4.DatabaseAtV4(NativeDatabase(databaseFile));
+
+        final boxId = await oldDatabase
+            .into(oldDatabase.boxes)
+            .insert(
+              v4.BoxesCompanion.insert(
+                qrId: 'TM:BOX:55555555-5555-4555-8555-555555555555',
+              ),
+            );
+
+        await oldDatabase
+            .into(oldDatabase.animals)
+            .insert(
+              v4.AnimalsCompanion.insert(
+                boxId: Value(boxId),
+                commonName: 'Existing Animal',
+                latinName: 'Test species',
+                tempMin: 24,
+                tempMax: 28,
+                humidityMin: 40,
+                humidityMax: 60,
+                notes: const Value('Preserve me'),
+              ),
+            );
+
+        await oldDatabase.close();
+        oldDatabase = null;
+
+        final openedDatabase = AppDatabase.test(NativeDatabase(databaseFile));
+        migratedDatabase = openedDatabase;
+
+        final animal = await openedDatabase
+            .select(openedDatabase.animals)
+            .getSingle();
+
+        expect(openedDatabase.schemaVersion, 5);
+        expect(animal.commonName, 'Existing Animal');
+        expect(animal.notes, 'Preserve me');
+        expect(animal.feedingReminderIntervalDays, isNull);
+        expect(animal.feedingReminderBaseline, isNull);
+
+        final columns = await openedDatabase
+            .customSelect('PRAGMA table_info(animals)')
+            .get();
+        final columnNames = columns
+            .map((row) => row.read<String>('name'))
+            .toSet();
+
+        expect(columnNames, contains('feeding_reminder_interval_days'));
+        expect(columnNames, contains('feeding_reminder_baseline'));
+      } finally {
+        await oldDatabase?.close();
+        await migratedDatabase?.close();
+
+        if (await directory.exists()) {
+          await directory.delete(recursive: true);
+        }
+      }
+    },
+  );
+
+  test('schema v5 persists reminder configuration after reopening', () async {
+    final directory = await Directory.systemTemp.createTemp(
+      'terramanager-v5-reopen-',
+    );
+    final databaseFile = File('${directory.path}/terramanager.sqlite');
+    final baseline = DateTime(2026, 9, 8, 15, 30);
+
+    AppDatabase? openDatabase;
+
+    try {
+      final createdDatabase = AppDatabase.test(NativeDatabase(databaseFile));
+      openDatabase = createdDatabase;
+
+      final boxId = await createdDatabase
+          .into(createdDatabase.boxes)
+          .insert(
+            BoxesCompanion.insert(
+              qrId: 'TM:BOX:66666666-6666-4666-8666-666666666666',
+            ),
+          );
+
+      await createdDatabase
+          .into(createdDatabase.animals)
+          .insert(
+            AnimalsCompanion.insert(
+              boxId: Value(boxId),
+              commonName: 'Persistent Animal',
+              latinName: 'Persistent species',
+              tempMin: 24,
+              tempMax: 28,
+              humidityMin: 40,
+              humidityMax: 60,
+              feedingReminderIntervalDays: const Value(7),
+              feedingReminderBaseline: Value(baseline),
+            ),
+          );
+
+      await createdDatabase.close();
+      openDatabase = null;
+
+      final reopenedDatabase = AppDatabase.test(NativeDatabase(databaseFile));
+      openDatabase = reopenedDatabase;
+
+      final animal = await reopenedDatabase
+          .select(reopenedDatabase.animals)
+          .getSingle();
+
+      expect(animal.feedingReminderIntervalDays, 7);
+      expect(animal.feedingReminderBaseline, baseline);
+    } finally {
+      await openDatabase?.close();
+
+      if (await directory.exists()) {
+        await directory.delete(recursive: true);
+      }
+    }
+  });
 }

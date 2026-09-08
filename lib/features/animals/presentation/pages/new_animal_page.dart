@@ -11,6 +11,7 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
+import '../../../feedings/presentation/widgets/feeding_reminder_form_fields.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/animal_picture.dart';
@@ -18,11 +19,13 @@ import '../widgets/animal_picture.dart';
 class NewAnimalPage extends StatefulWidget {
   final AppDatabase database;
   final PictureSelectionFlow? pictureSelectionFlow;
+  final DateTime Function()? now;
 
   const NewAnimalPage({
     super.key,
     required this.database,
     this.pictureSelectionFlow,
+    this.now,
   });
 
   @override
@@ -39,6 +42,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _humidityMinController = TextEditingController();
   final _humidityMaxController = TextEditingController();
   final _notesController = TextEditingController();
+  final _feedingReminderIntervalDaysController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
 
@@ -48,6 +52,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   Sex? _sex;
   DateTime? _birthDate;
   BirthDateAccuracy? _birthDateAccuracy;
+  bool _feedingReminderEnabled = false;
+  DateTime? _feedingReminderBaseline;
 
   Uint8List? _pictureBytes;
   String? _pictureFileName;
@@ -77,6 +83,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     _humidityMinController.dispose();
     _humidityMaxController.dispose();
     _notesController.dispose();
+    _feedingReminderIntervalDaysController.dispose();
     super.dispose();
   }
 
@@ -204,6 +211,12 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
           notes: _notesController.text.trim().isEmpty
               ? null
               : _notesController.text.trim(),
+          feedingReminderIntervalDays: _feedingReminderEnabled
+              ? int.parse(_feedingReminderIntervalDaysController.text.trim())
+              : null,
+          feedingReminderBaseline: _feedingReminderEnabled
+              ? _feedingReminderBaseline
+              : null,
         );
       });
 
@@ -458,6 +471,14 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             ),
             const SizedBox(height: 16),
 
+            FeedingReminderFormFields(
+              reminderEnabled: _feedingReminderEnabled,
+              controlsEnabled: !_saving && !_processingPicture,
+              intervalDaysController: _feedingReminderIntervalDaysController,
+              onReminderEnabledChanged: _setFeedingReminderEnabled,
+            ),
+            const SizedBox(height: 16),
+
             TextFormField(
               key: const Key('notes-field'),
               controller: _notesController,
@@ -528,6 +549,15 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         _birthDate = selected;
       });
     }
+  }
+
+  void _setFeedingReminderEnabled(bool enabled) {
+    setState(() {
+      _feedingReminderEnabled = enabled;
+      _feedingReminderBaseline = enabled
+          ? (widget.now ?? DateTime.now)()
+          : null;
+    });
   }
 
   String _formatDate(DateTime date) {

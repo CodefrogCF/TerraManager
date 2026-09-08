@@ -53,6 +53,7 @@ void main() {
       mimeType: 'image/png',
       data: pictureBytes,
     );
+    final reminderBaseline = DateTime(2026, 9, 2, 9, 15);
 
     final animalId = await AnimalRepository(database).createAnimal(
       boxId: boxId,
@@ -67,6 +68,8 @@ void main() {
       humidityMax: 60,
       pictureMediaId: pictureMediaId,
       notes: 'Test animal',
+      feedingReminderIntervalDays: 7,
+      feedingReminderBaseline: reminderBaseline,
     );
 
     await FeedingRepository(database)
@@ -118,6 +121,13 @@ void main() {
 
     expect(result.data.feedingEvents.length, 1);
 
+    expect(result.data.animals.single.feedingReminderIntervalDays, 7);
+
+    expect(
+      result.data.animals.single.feedingReminderBaseline,
+      reminderBaseline,
+    );
+
     expect(result.mediaFileCount, 1);
 
     final archive = ZipDecoder().decodeBytes(result.bytes, verify: true);
@@ -166,6 +176,13 @@ void main() {
     expect(animal['birthDateAccuracy'], 'yearKnown');
 
     expect(animal['pictureMediaPath'], 'media/animals/$animalId.png');
+
+    expect(animal['feedingReminderIntervalDays'], 7);
+
+    expect(
+      animal['feedingReminderBaseline'],
+      reminderBaseline.toIso8601String(),
+    );
 
     final feedingEvents = dataJson['feedingEvents'] as List<dynamic>;
 

@@ -152,9 +152,9 @@ Example:
 ```json
 {
   "backupFormatVersion": 2,
-  "appVersion": "0.10.0",
-  "databaseSchemaVersion": 4,
-  "createdAt": "2026-09-03T13:30:00.000Z"
+  "appVersion": "0.12.1",
+  "databaseSchemaVersion": 5,
+  "createdAt": "2026-09-08T13:30:00.000Z"
 }
 ```
 
@@ -168,7 +168,7 @@ Backup Format Version 2 uses:
 2
 ```
 
-TerraManager 0.10.x accepts Backup Format Versions 1 and 2 for restore.
+TerraManager 0.12.1 accepts Backup Format Versions 1 and 2 for restore.
 
 Version 1 is interpreted using the legacy Box representation. Missing Version 2
 Box fields are mapped to `null`.
@@ -182,7 +182,7 @@ Contains the TerraManager application version that created the backup.
 Example:
 
 ```text
-0.10.0
+0.12.1
 ```
 
 This value is informational and may also be used during compatibility
@@ -395,6 +395,8 @@ notes
 archiveReason
 archivedAt
 archiveNotes
+feedingReminderIntervalDays
+feedingReminderBaseline
 createdAt
 updatedAt
 ```
@@ -420,6 +422,8 @@ Example active Animal:
   "archiveReason": null,
   "archivedAt": null,
   "archiveNotes": null,
+  "feedingReminderIntervalDays": 7,
+  "feedingReminderBaseline": "2026-09-08T12:00:00.000",
   "createdAt": "2026-08-01T10:00:00.000",
   "updatedAt": "2026-08-02T12:00:00.000"
 }
@@ -446,10 +450,33 @@ Example archived Animal:
   "archiveReason": "rehomed",
   "archivedAt": "2026-09-01T00:00:00.000",
   "archiveNotes": "Moved to another keeper",
+  "feedingReminderIntervalDays": 14,
+  "feedingReminderBaseline": "2026-08-25T09:00:00.000",
   "createdAt": "2026-08-01T10:00:00.000",
   "updatedAt": "2026-09-01T00:00:00.000"
 }
 ```
+
+### Feeding Reminder Fields
+
+TerraManager 0.12.1 adds two optional Animal fields without changing Backup
+Format Version 2:
+
+```text
+feedingReminderIntervalDays
+feedingReminderBaseline
+```
+
+A disabled reminder uses `null` for both fields. An enabled reminder requires a
+positive whole-day interval and an ISO 8601 baseline timestamp. A backup with
+only one field or with a non-positive interval is invalid.
+
+Archived Animals may retain a valid reminder configuration. They remain
+excluded from active reminder results by application logic.
+
+Backups created before these fields were introduced omit them. Missing fields
+are decoded as `null`, which restores the Animal with reminders disabled. The
+change is additive and therefore does not require Backup Format Version 3.
 
 ## Animal Lifecycle Invariants
 
@@ -1164,6 +1191,7 @@ For example:
 TerraManager 0.6.0 -> Backup Format 1
 TerraManager 0.7.x -> Backup Format 2
 TerraManager 0.10.0 -> Backup Format 2 with an optional language setting
+TerraManager 0.12.1 -> Backup Format 2 with optional Animal reminder fields
 ```
 
 A later application release may continue to use Backup Format 2 if its portable
@@ -1279,6 +1307,7 @@ Version 2 preserves:
 - active and archived lifecycle state
 - Box assignments for active Animals
 - archive metadata
+- optional per-Animal feeding reminder interval and baseline
 - FeedingEvent IDs and relationships
 - timestamps and notes
 - Animal pictures through portable media references
@@ -1308,6 +1337,10 @@ from Version 1 retain their existing restore semantics.
 Version 1 and older Version 2 backups do not contain language or Animal
 name-order settings. Missing language is restored as `system`; missing Animal
 name order is restored as `commonNameFirst`.
+
+Backups created before TerraManager 0.12.1 do not contain Animal reminder
+fields. Missing reminder interval and baseline values restore as `null`, so the
+reminder remains disabled.
 
 TerraManager 0.10.x and later create new backups exclusively as Backup Format
 Version 2.

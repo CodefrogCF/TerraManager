@@ -308,6 +308,8 @@ class BackupValidationService {
       _validateAnimalEnums(animal);
 
       _validateAnimalLifecycle(animal, boxIds);
+
+      _validateFeedingReminder(animal);
     }
 
     final feedingIds = <int>{};
@@ -383,6 +385,24 @@ class BackupValidationService {
             'Animal ${animal.id} contains '
             'an unsupported enum value.',
         cause: error,
+      );
+    }
+  }
+
+  void _validateFeedingReminder(BackupAnimal animal) {
+    final intervalDays = animal.feedingReminderIntervalDays;
+    final baseline = animal.feedingReminderBaseline;
+
+    if (intervalDays == null && baseline == null) {
+      return;
+    }
+
+    if (intervalDays == null || baseline == null || intervalDays <= 0) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidData,
+        message:
+            'Animal ${animal.id} contains an invalid '
+            'feeding reminder configuration.',
       );
     }
   }

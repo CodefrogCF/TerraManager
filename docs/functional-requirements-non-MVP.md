@@ -70,7 +70,7 @@ Possible future features may include:
 - health/event tracking
 - breeding records
 - enclosure maintenance history
-- feeding schedules and reminders
+- system-level feeding reminder notifications
 
 These features are not part of the current MVP unless explicitly moved into a
 future milestone.

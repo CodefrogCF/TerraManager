@@ -767,3 +767,72 @@ Disadvantages:
   were created by the same grouped feeding
 - changing a grouped feeding later requires editing its individual events
 - every selected Animal currently receives the same timestamp and note
+
+---
+
+## ADR-011: Store feeding reminder configuration on each Animal
+
+**Status:** Accepted
+
+**Date:** 2026-09-08
+
+### Context
+
+Feeding intervals differ between individual Animals. A reminder must therefore
+be configurable independently instead of being a global application setting.
+
+Some existing Animals have no FeedingEvents. Deriving an initial reminder only
+from Animal creation time or an empty feeding history could make those Animals
+appear overdue immediately when the feature is enabled.
+
+Archiving is reversible, so reminder preferences should remain available if an
+Animal is restored later. At the same time, archived Animals must not create
+active reminders.
+
+### Decision
+
+TerraManager stores two nullable fields directly on each Animal:
+
+```text
+feedingReminderIntervalDays
+feedingReminderBaseline
+```
+
+The pair has two valid states:
+
+```text
+Disabled: interval = null, baseline = null
+Enabled:  interval > 0, baseline = enable timestamp
+```
+
+The presentation and repository layers enforce this invariant. Enabling a
+reminder captures the current time through an injectable clock. Editing the
+interval of an already enabled reminder preserves the baseline; disabling the
+reminder clears both fields.
+
+Archive and restore operations do not modify the pair. Reminder queries are
+responsible for excluding archived Animals.
+
+The fields are optional in portable Animal backup records. Existing backups
+that omit them decode to the disabled state, while incomplete or non-positive
+configurations are rejected during validation.
+
+### Consequences
+
+Advantages:
+
+- every Animal can use an independent feeding interval
+- reminder configuration persists with the Animal across restarts and archive
+  transitions
+- newly enabled reminders start from a predictable baseline
+- later due-state calculations can use the later of baseline and latest feeding
+- older backups and migrated databases naturally default to disabled reminders
+
+Disadvantages:
+
+- two nullable columns represent one logical configuration and require
+  cross-field validation
+- the baseline is stored even after FeedingEvents exist because deleting the
+  latest event may make it relevant again
+- archive suppression belongs to reminder queries rather than the persisted
+  configuration itself

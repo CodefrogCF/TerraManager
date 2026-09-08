@@ -34,12 +34,14 @@ void main() {
   Future<void> pumpPage(
     WidgetTester tester, {
     PictureSelectionFlow? pictureSelectionFlow,
+    DateTime Function()? now,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
         home: NewAnimalPage(
           database: database,
           pictureSelectionFlow: pictureSelectionFlow,
+          now: now,
         ),
       ),
     );
@@ -50,6 +52,7 @@ void main() {
   Future<void> pumpPageWithNavigation(
     WidgetTester tester, {
     PictureSelectionFlow? pictureSelectionFlow,
+    DateTime Function()? now,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -65,6 +68,7 @@ void main() {
                         builder: (_) => NewAnimalPage(
                           database: database,
                           pictureSelectionFlow: pictureSelectionFlow,
+                          now: now,
                         ),
                       ),
                     );
@@ -152,6 +156,16 @@ void main() {
     expect(find.byKey(const Key('humidity-min-field')), findsOneWidget);
 
     expect(find.byKey(const Key('humidity-max-field')), findsOneWidget);
+
+    final reminderSwitch = tester.widget<SwitchListTile>(
+      find.byKey(const Key('feeding-reminder-enabled-switch')),
+    );
+
+    expect(reminderSwitch.value, isFalse);
+    expect(
+      find.byKey(const Key('feeding-reminder-interval-days-field')),
+      findsNothing,
+    );
   });
 
   testWidgets('shows message when no boxes exist', (tester) async {
@@ -427,5 +441,63 @@ void main() {
       find.text('TM:BOX:12345678-1234-4123-8123-123456789abc'),
       findsNothing,
     );
+  });
+
+  testWidgets('requires a positive reminder interval when enabled', (
+    tester,
+  ) async {
+    await createTestBox();
+    await pumpPageWithNavigation(tester);
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
+
+    final reminderSwitch = find.byKey(
+      const Key('feeding-reminder-enabled-switch'),
+    );
+    await tester.ensureVisible(reminderSwitch);
+    await tester.tap(reminderSwitch);
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('feeding-reminder-interval-days-field')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byTooltip('Save Animal'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Please enter a positive whole number of days'),
+      findsOneWidget,
+    );
+    expect(await AnimalRepository(database).getAllAnimals(), isEmpty);
+  });
+
+  testWidgets('stores reminder interval and enable-time baseline', (
+    tester,
+  ) async {
+    final baseline = DateTime(2026, 9, 8, 14, 30);
+
+    await createTestBox();
+    await pumpPageWithNavigation(tester, now: () => baseline);
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
+
+    final reminderSwitch = find.byKey(
+      const Key('feeding-reminder-enabled-switch'),
+    );
+    await tester.ensureVisible(reminderSwitch);
+    await tester.tap(reminderSwitch);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('feeding-reminder-interval-days-field')),
+      '7',
+    );
+    await tester.tap(find.byTooltip('Save Animal'));
+    await tester.pumpAndSettle();
+
+    final animal = (await AnimalRepository(database).getAllAnimals()).single;
+
+    expect(animal.feedingReminderIntervalDays, 7);
+    expect(animal.feedingReminderBaseline, baseline);
   });
 }

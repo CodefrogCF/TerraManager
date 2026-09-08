@@ -2,13 +2,17 @@
 
 ## Current Status
 
-Current active release milestone:
+Latest completed release milestone:
 
 **v0.12.0 – Media Optimization**
 
-Latest completed release milestone:
+Active development milestone:
 
-**v0.11.0 – Personalization & Capture**
+**v0.13.0 – Feeding Reminders**
+
+Current development build:
+
+**v0.12.1+24**
 
 Completed development areas:
 
@@ -56,6 +60,9 @@ Completed development areas:
 - bounded WebP normalization for every new and replaced Box and Animal picture
 - atomic picture replacement with processing and duplicate-action protection
 - mixed legacy and optimized picture backup export and restore
+- optional per-Animal feeding reminder configuration with persistent interval
+  and baseline
+- reminder configuration backup and restore with legacy-backup compatibility
 
 v0.7.1 implementation and release validation are complete.
 
@@ -71,11 +78,12 @@ release are complete.
 v0.11.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete.
 
-The v0.12.0 implementation is complete. Shared cropping, bounded WebP storage,
-atomic replacement and mixed-format backup compatibility are covered by the
-automated suite. Android feature validation and the storage-size measurement
-are complete. Final Android/Web regression and release publication remain in
-progress.
+v0.12.0 implementation, documentation, automated testing, Android/Web
+regression validation and release packaging are complete.
+
+v0.13.0 is the active development milestone. Issue #74 adds the persistent
+per-Animal configuration required by the reminder calculation and presentation
+work in Issues #75 and #76.
 
 ---
 
@@ -468,7 +476,7 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Validate cropped and legacy picture backup compatibility
 - [x] Add focused cropping and form integration tests
 - [x] Validate picture cropping on Android
-- [ ] Validate picture cropping on Web
+- [x] Validate picture cropping on Web
 
 ### Image Storage Optimization
 
@@ -491,11 +499,56 @@ roughly one sixth of its previous size.
 
 ### Release
 
-- [ ] Complete automated regression tests
-- [ ] Complete Android and Web manual validation
-- [ ] Update final release documentation
-- [ ] Build the supported release artifacts
-- [ ] Release v0.12.0
+- [x] Complete automated regression tests
+- [x] Complete Android and Web manual validation
+- [x] Update final release documentation
+- [x] Build the supported release artifacts
+- [x] Release v0.12.0
+
+---
+
+## v0.13.0 – Feeding Reminders
+
+### Per-Animal Configuration — Issue #74
+
+- [x] Store an optional reminder interval in whole days
+- [x] Store the baseline captured when a reminder is enabled
+- [x] Keep reminders disabled by default
+- [x] Add localized controls to new and edited Animal forms
+- [x] Require a positive interval while reminders are enabled
+- [x] Retain configuration while an Animal is archived
+- [x] Preserve configuration in current backups
+- [x] Restore older backups with reminders disabled
+- [x] Add repository, migration, form and backup tests
+
+### Reminder Calculation — Issue #75
+
+- [ ] Calculate the due time from the later of baseline and latest feeding
+- [ ] Exclude archived Animals and disabled reminders
+- [ ] Recalculate after feeding creation, editing and deletion
+- [ ] Use an injectable clock and an efficient aggregate query
+- [ ] Add deterministic domain and repository tests
+
+### In-App Reminder Presentation — Issue #76
+
+- [ ] Show a non-modal due summary in the Animal Overview
+- [ ] Mark due Animals and order them by most overdue first
+- [ ] Show due state and due date on Animal details
+- [ ] Open the corresponding Animal and feeding workflow from a reminder
+- [ ] Refresh immediately after feeding history changes
+- [ ] Localize reminder status text in English and German
+- [ ] Add empty, due and refreshed widget tests
+
+### Release — Issue #77
+
+- [ ] Complete migration, backup and reminder regression tests
+- [ ] Validate reminder configuration and date boundaries manually
+- [ ] Validate feeding create, edit and delete refresh behavior
+- [ ] Validate archived Animal behavior
+- [ ] Review English and German reminder text
+- [ ] Update final documentation and release notes
+- [ ] Build and manually test supported release artifacts
+- [ ] Release v0.13.0
 
 ---
 

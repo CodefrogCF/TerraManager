@@ -62,7 +62,14 @@ class AnimalRepository {
     int? pictureMediaId,
     String? picturePath,
     String? notes,
+    int? feedingReminderIntervalDays,
+    DateTime? feedingReminderBaseline,
   }) {
+    _validateFeedingReminder(
+      intervalDays: feedingReminderIntervalDays,
+      baseline: feedingReminderBaseline,
+    );
+
     return database
         .into(database.animals)
         .insert(
@@ -80,6 +87,12 @@ class AnimalRepository {
             pictureMediaId: Value.absentIfNull(pictureMediaId),
             picturePath: Value.absentIfNull(picturePath),
             notes: Value.absentIfNull(notes),
+            feedingReminderIntervalDays: Value.absentIfNull(
+              feedingReminderIntervalDays,
+            ),
+            feedingReminderBaseline: Value.absentIfNull(
+              feedingReminderBaseline,
+            ),
           ),
         );
   }
@@ -99,7 +112,14 @@ class AnimalRepository {
     int? pictureMediaId,
     String? picturePath,
     String? notes,
+    int? feedingReminderIntervalDays,
+    DateTime? feedingReminderBaseline,
   }) async {
+    _validateFeedingReminder(
+      intervalDays: feedingReminderIntervalDays,
+      baseline: feedingReminderBaseline,
+    );
+
     final updatedRows =
         await (database.update(database.animals)..where(
               (animal) =>
@@ -121,6 +141,8 @@ class AnimalRepository {
                 pictureMediaId: Value(pictureMediaId),
                 picturePath: Value(picturePath),
                 notes: Value(notes),
+                feedingReminderIntervalDays: Value(feedingReminderIntervalDays),
+                feedingReminderBaseline: Value(feedingReminderBaseline),
                 updatedAt: Value(DateTime.now()),
               ),
             );
@@ -255,5 +277,28 @@ class AnimalRepository {
 
       return true;
     });
+  }
+
+  static void _validateFeedingReminder({
+    required int? intervalDays,
+    required DateTime? baseline,
+  }) {
+    if (intervalDays == null && baseline == null) {
+      return;
+    }
+
+    if (intervalDays == null || baseline == null) {
+      throw ArgumentError(
+        'A feeding reminder requires both an interval and a baseline.',
+      );
+    }
+
+    if (intervalDays <= 0) {
+      throw ArgumentError.value(
+        intervalDays,
+        'feedingReminderIntervalDays',
+        'Reminder interval must be greater than zero.',
+      );
+    }
   }
 }

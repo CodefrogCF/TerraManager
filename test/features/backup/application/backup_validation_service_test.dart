@@ -497,6 +497,51 @@ void main() {
     expect(result.mediaFiles[mediaPath], Uint8List.fromList([1, 2, 3]));
   });
 
+  test('accepts mixed legacy and normalized media references', () {
+    const boxMediaPath = 'media/boxes/1.png';
+    const animalMediaPath = 'media/animals/10.webp';
+    final boxBytes = Uint8List.fromList([1, 2, 3]);
+    final animalBytes = Uint8List.fromList([
+      0x52,
+      0x49,
+      0x46,
+      0x46,
+      0,
+      0,
+      0,
+      0,
+      0x57,
+      0x45,
+      0x42,
+      0x50,
+    ]);
+
+    final bytes = createArchive(
+      data: dataJson(
+        boxes: [
+          {
+            'id': 1,
+            'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'widthCm': null,
+            'heightCm': null,
+            'depthCm': null,
+            'pictureMediaPath': boxMediaPath,
+            'createdAt': '2026-08-01T10:00:00.000',
+            'updatedAt': '2026-08-01T10:00:00.000',
+          },
+        ],
+        animals: [activeAnimal(pictureMediaPath: animalMediaPath)],
+      ),
+      media: {boxMediaPath: boxBytes, animalMediaPath: animalBytes},
+    );
+
+    final result = validator.validate(bytes);
+
+    expect(result.mediaFileCount, 2);
+    expect(result.mediaFiles[boxMediaPath], boxBytes);
+    expect(result.mediaFiles[animalMediaPath], animalBytes);
+  });
+
   test('rejects missing referenced media', () {
     final bytes = createArchive(
       data: dataJson(

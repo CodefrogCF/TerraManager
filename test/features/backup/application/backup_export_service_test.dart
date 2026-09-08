@@ -544,4 +544,68 @@ void main() {
 
     expect(boxJson['pictureMediaPath'], 'media/boxes/$boxId.webp');
   });
+
+  test('exports legacy PNG and normalized WebP in one backup', () async {
+    final legacyBoxBytes = Uint8List.fromList([1, 2, 3]);
+    final normalizedAnimalBytes = Uint8List.fromList([
+      0x52,
+      0x49,
+      0x46,
+      0x46,
+      0,
+      0,
+      0,
+      0,
+      0x57,
+      0x45,
+      0x42,
+      0x50,
+    ]);
+
+    final boxMediaId = await MediaRepository(database).createMedia(
+      fileName: 'legacy-box.png',
+      mimeType: 'image/png',
+      data: legacyBoxBytes,
+    );
+    final boxId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:99999999-9999-4999-8999-999999999999',
+            pictureMediaId: drift.Value(boxMediaId),
+          ),
+        );
+
+    final animalMediaId = await MediaRepository(database).createMedia(
+      fileName: 'normalized-animal.webp',
+      mimeType: 'image/webp',
+      data: normalizedAnimalBytes,
+    );
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Mixed Media Animal',
+      latinName: 'Test species',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      pictureMediaId: animalMediaId,
+    );
+
+    final result = await BackupExportService(database).createBackup(
+      appVersion: '0.11.4',
+      themeMode: ThemeMode.system,
+      accent: AppAccent.green,
+    );
+    final archive = ZipDecoder().decodeBytes(result.bytes, verify: true);
+
+    final boxPath = 'media/boxes/$boxId.png';
+    final animalPath = 'media/animals/$animalId.webp';
+
+    expect(result.mediaFileCount, 2);
+    expect(result.data.boxes.single.pictureMediaPath, boxPath);
+    expect(result.data.animals.single.pictureMediaPath, animalPath);
+    expect(archive.find(boxPath)!.readBytes(), legacyBoxBytes);
+    expect(archive.find(animalPath)!.readBytes(), normalizedAnimalBytes);
+  });
 }

@@ -461,7 +461,7 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Keep the existing picture unchanged when cropping is cancelled
 - [x] Normalize source orientation before cropping
 - [x] Persist confirmed crops through the existing MediaAssets workflow
-- [ ] Validate cropped and legacy picture backup compatibility
+- [x] Validate cropped and legacy picture backup compatibility
 - [x] Add focused cropping and form integration tests
 - [x] Validate picture cropping on Android
 - [ ] Validate picture cropping on Web
@@ -477,12 +477,13 @@ iOS validation is currently deferred because no macOS development environment or
 - [x] Keep legacy and normalized pictures compatible with all display sizes
 - [x] Cover all four normalized picture workflows with automated tests
 - [x] Define migration behavior for existing pictures
-- [ ] Measure database and portable backup size improvements
-- [ ] Verify backup export and restore for legacy and optimized pictures
+- [x] Measure portable backup size improvements on an existing data set
+- [x] Verify backup export and restore for legacy and optimized pictures
 
-Replacing most pictures in one existing collection reduced its portable backup
-from approximately 137 MB to 90 MB, an observed reduction of about 34%. A
-controlled comparison with identical source images and crops is still pending.
+For an existing data set with 44 Boxes, 45 Animals, 20 FeedingEvents and 67
+pictures, normalization reduced the portable backup from approximately 140 MB
+to 22.7 MB. That is about 117.3 MB or 83.8% smaller, reducing the archive to
+roughly one sixth of its previous size.
 
 ### Release
 

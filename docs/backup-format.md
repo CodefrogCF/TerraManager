@@ -641,6 +641,25 @@ format and retain that format during export. Restore accepts these mixed media
 formats and recreates the matching filename and MIME metadata, so Backup Format
 Version 2 does not require a migration.
 
+The shared backup media mapping recognizes:
+
+```text
+.jpg / .jpeg  -> image/jpeg
+.png          -> image/png
+.webp         -> image/webp
+.gif          -> image/gif
+.bmp          -> image/bmp
+.heic         -> image/heic
+.heif         -> image/heif
+.img          -> application/octet-stream
+```
+
+When a supported stored filename extension agrees with its MIME type, the
+extension is preserved. If known MIME metadata conflicts with a stale filename,
+the MIME type determines the exported extension. A legacy source without known
+extension or MIME metadata uses `.img`. Media bytes are copied into and out of
+the archive unchanged; backup operations never recompress them.
+
 Legacy Animal `picturePath` data may still be read during export as a
 compatibility fallback.
 

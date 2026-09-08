@@ -538,6 +538,17 @@ causing database migration or application startup to fail.
 
 Portable backup files do not preserve `MediaAsset.id`.
 
+Backup export and restore share one media-format mapping. Export retains a
+supported filename extension when it agrees with the stored MIME type. If known
+MIME metadata and a stale filename disagree, the MIME type determines the
+portable extension. Restore derives the recreated MediaAsset MIME type from the
+portable filename. Unknown legacy media keeps the existing `.img` and
+`application/octet-stream` fallback.
+
+This mapping transports legacy PNG/JPEG media and normalized WebP media in the
+same Backup Format Version 2 archive without decoding or recompressing the
+stored bytes.
+
 Pictures are exported as portable archive entries such as:
 
 ```text
@@ -566,6 +577,7 @@ Advantages:
 - picture selection and cropping use one shared Android/Web workflow
 - new and replaced pictures use bounded dimensions and lossy WebP compression
 - existing pictures and older portable backups remain compatible
+- mixed legacy and WebP backups preserve their original media bytes and types
 - cancelling a crop cannot accidentally replace the current picture
 - processing progress is visible and repeated picture/save actions are ignored
 - replacing a picture cannot leave a partial domain/media update

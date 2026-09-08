@@ -276,6 +276,12 @@ The application must allow the user to:
 - restore appearance and language settings
 - restore older backups without a language field using the System setting
 
+Backup Format Version 2 must support archives containing legacy PNG/JPEG media,
+normalized WebP media or both at the same time. Export and restore must preserve
+the original media bytes without recompression. Restore must recreate a MIME
+type matching the portable filename, while known stored MIME metadata takes
+precedence over a stale filename during export.
+
 The backup format must be independent from the raw SQLite database file.
 
 Backups must use an explicit backup format version that is independent from the

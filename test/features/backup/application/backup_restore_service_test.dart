@@ -144,7 +144,7 @@ void main() {
 
   ValidatedBackup createV2TargetBackup() {
     const boxPicturePath = 'media/boxes/5.png';
-    const animalPicturePath = 'media/animals/12.jpg';
+    const animalPicturePath = 'media/animals/12.webp';
 
     return ValidatedBackup(
       manifest: BackupManifest(
@@ -499,8 +499,7 @@ void main() {
     expect(settingsController.accent, AppAccent.green);
   });
 
-  test('restores v2 box dimensions and box picture '
-      'alongside animal picture', () async {
+  test('restores mixed legacy PNG and normalized WebP media', () async {
     await createExistingData();
 
     final service = BackupRestoreService(
@@ -555,8 +554,8 @@ void main() {
       (media) => media.id == animal.pictureMediaId,
     );
 
-    expect(animalMedia.fileName, '12.jpg');
-    expect(animalMedia.mimeType, 'image/jpeg');
+    expect(animalMedia.fileName, '12.webp');
+    expect(animalMedia.mimeType, 'image/webp');
 
     expect(animalMedia.data, Uint8List.fromList([40, 50, 60]));
   });

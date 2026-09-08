@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../core/database/app_database.dart';
 import '../../settings/app_settings_controller.dart';
 import '../domain/backup_enum_codec.dart';
+import '../domain/backup_media_format.dart';
 import 'backup_export_result.dart';
 import 'backup_export_service.dart';
 import 'backup_restore_exception.dart';
@@ -191,7 +192,7 @@ class BackupRestoreService {
               .insert(
                 MediaAssetsCompanion.insert(
                   fileName: fileName,
-                  mimeType: _mimeTypeFromFileName(fileName),
+                  mimeType: BackupMediaFormat.mimeTypeFromFileName(fileName),
                   data: bytes,
                   createdAt: Value(box.createdAt),
                   updatedAt: Value(box.updatedAt),
@@ -264,7 +265,7 @@ class BackupRestoreService {
               .insert(
                 MediaAssetsCompanion.insert(
                   fileName: fileName,
-                  mimeType: _mimeTypeFromFileName(fileName),
+                  mimeType: BackupMediaFormat.mimeTypeFromFileName(fileName),
                   data: bytes,
                   createdAt: Value(animal.createdAt),
                   updatedAt: Value(animal.updatedAt),
@@ -344,39 +345,5 @@ class BackupRestoreService {
     }
 
     return fileName;
-  }
-
-  static String _mimeTypeFromFileName(String fileName) {
-    final lower = fileName.toLowerCase();
-
-    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
-      return 'image/jpeg';
-    }
-
-    if (lower.endsWith('.png')) {
-      return 'image/png';
-    }
-
-    if (lower.endsWith('.webp')) {
-      return 'image/webp';
-    }
-
-    if (lower.endsWith('.gif')) {
-      return 'image/gif';
-    }
-
-    if (lower.endsWith('.bmp')) {
-      return 'image/bmp';
-    }
-
-    if (lower.endsWith('.heic')) {
-      return 'image/heic';
-    }
-
-    if (lower.endsWith('.heif')) {
-      return 'image/heif';
-    }
-
-    return 'application/octet-stream';
   }
 }

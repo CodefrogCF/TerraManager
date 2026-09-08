@@ -18,6 +18,8 @@ The project uses semantic versioning while development remains below version 1.0
 - bounded image dimensions and configurable compression parameters
 - localized picture-processing progress in all new and edited Box and Animal
   forms
+- shared backup-media format mapping for legacy pictures and normalized WebP
+  media
 
 ### Changed
 
@@ -34,6 +36,10 @@ The project uses semantic versioning while development remains below version 1.0
   records
 - Box and Animal picture replacement now commits the normalized media, record
   reference and old-media cleanup atomically
+- backup export preserves matching legacy extensions and uses known MIME
+  metadata to resolve stale filenames
+- backup restore recreates the filename, MIME type and original bytes for mixed
+  legacy and WebP media without recompression
 
 ### Compatibility
 
@@ -43,6 +49,8 @@ The project uses semantic versioning while development remains below version 1.0
 - existing stored pictures remain unchanged and continue to support their
   original formats
 - WebP pictures use the existing Backup Format Version 2 media paths
+- mixed PNG, JPEG and WebP archives remain supported without changing Backup
+  Format Version 2
 - no database or backup-format migration is required
 
 ### Testing
@@ -57,6 +65,14 @@ The project uses semantic versioning while development remains below version 1.0
 - added failure-preservation tests for existing Box and Animal pictures
 - added PNG and WebP display coverage for overview thumbnails, detail pictures
   and the full-screen viewer
+- added mixed-media export, validation and restore coverage
+- added focused backup-media extension, MIME and fallback mapping tests
+
+### Measured
+
+- a backup with 44 Boxes, 45 Animals, 20 FeedingEvents and 67 pictures decreased
+  from approximately 140 MB to 22.7 MB after normalization, a reduction of
+  about 83.8%
 
 ## [0.11.0] - 2026-09-07
 

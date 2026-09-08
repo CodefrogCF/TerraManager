@@ -181,6 +181,8 @@ Examples:
 - atomic replacement that retains the old picture after processing/save errors
 - WebP and legacy image display in overview, detail and full-screen contexts
 - unchanged display and backup behavior for existing JPEG and PNG pictures
+- mixed PNG/JPEG and WebP backup export, validation and restore
+- restored filename, MIME type and byte-for-byte media equality
 - persistent database storage
 - System, English and German language selection
 - language persistence and unsupported-locale fallback
@@ -198,10 +200,10 @@ Test at least one landscape and one portrait photo. Also confirm that an
 existing JPEG or PNG still opens and survives backup restore without being
 rewritten.
 
-As an initial field observation, replacing most pictures in an existing data
-set reduced its backup from roughly 137 MB to 90 MB (about 34%). Keep the formal
-measurement item open until the comparison uses identical source images and
-crops.
+The completed real-world measurement used a data set containing 44 Boxes, 45
+Animals, 20 FeedingEvents and 67 pictures. Its portable backup decreased from
+approximately 140 MB to 22.7 MB after normalization: about 117.3 MB or 83.8%
+smaller, and roughly 6.2 times smaller overall.
 
 ## Recommended Release Validation
 

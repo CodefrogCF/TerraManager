@@ -14,7 +14,7 @@ Current development milestone:
 
 Current development build:
 
-**v0.11.3+21**
+**v0.11.4+22**
 
 Latest completed release milestone:
 
@@ -168,6 +168,8 @@ application restarts.
 - Animal export and restore
 - FeedingEvent export and restore
 - Box and Animal picture export and restore
+- mixed legacy PNG/JPEG and normalized WebP picture backups
+- centralized archive-extension and restored MIME-type mapping
 - appearance, language and Animal name-order setting export and restore
 - backward-compatible restore of backups without language or Animal
   name-order settings
@@ -182,6 +184,10 @@ application restarts.
 - Android → Web restore validation
 - Web → Android restore validation
 - generated QR images excluded from backups
+
+A real-world backup containing 44 Boxes, 45 Animals, 20 FeedingEvents and 67
+pictures decreased from approximately 140 MB to 22.7 MB after picture
+normalization. This is a reduction of about 83.8%, or roughly 6.2 times smaller.
 
 ### Platform Support
 

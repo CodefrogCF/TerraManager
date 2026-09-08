@@ -17,6 +17,7 @@ import '../domain/backup_data.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_format.dart';
 import '../domain/backup_manifest.dart';
+import '../domain/backup_media_format.dart';
 import 'backup_export_exception.dart';
 import 'backup_export_result.dart';
 import 'backup_settings_codec.dart';
@@ -212,7 +213,10 @@ class BackupExportService {
       );
     }
 
-    final extension = _mediaExtension(media.fileName, mimeType: media.mimeType);
+    final extension = BackupMediaFormat.extensionForExport(
+      source: media.fileName,
+      mimeType: media.mimeType,
+    );
 
     final mediaPath =
         '${BackupFormat.boxMediaDirectory}/'
@@ -247,8 +251,8 @@ class BackupExportService {
         );
       }
 
-      final extension = _mediaExtension(
-        media.fileName,
+      final extension = BackupMediaFormat.extensionForExport(
+        source: media.fileName,
         mimeType: media.mimeType,
       );
 
@@ -288,7 +292,7 @@ class BackupExportService {
       );
     }
 
-    final extension = _mediaExtension(sourcePath);
+    final extension = BackupMediaFormat.extensionForExport(source: sourcePath);
 
     final mediaPath =
         '${BackupFormat.animalMediaDirectory}/'
@@ -301,61 +305,6 @@ class BackupExportService {
 
   static Future<Uint8List> _readLegacyMediaFromPath(String path) {
     return XFile(path).readAsBytes();
-  }
-
-  static String _mediaExtension(String source, {String? mimeType}) {
-    final withoutQuery = source.split('?').first.split('#').first;
-
-    final normalized = withoutQuery.replaceAll('\\', '/');
-
-    final fileName = normalized.split('/').last;
-
-    final dotIndex = fileName.lastIndexOf('.');
-
-    if (dotIndex != -1 && dotIndex < fileName.length - 1) {
-      final extension = fileName.substring(dotIndex + 1).toLowerCase();
-
-      const supportedExtensions = {
-        'jpg',
-        'jpeg',
-        'png',
-        'webp',
-        'gif',
-        'bmp',
-        'heic',
-        'heif',
-      };
-
-      if (supportedExtensions.contains(extension)) {
-        return extension;
-      }
-    }
-
-    switch (mimeType?.trim().toLowerCase()) {
-      case 'image/jpeg':
-        return 'jpg';
-
-      case 'image/png':
-        return 'png';
-
-      case 'image/webp':
-        return 'webp';
-
-      case 'image/gif':
-        return 'gif';
-
-      case 'image/bmp':
-        return 'bmp';
-
-      case 'image/heic':
-        return 'heic';
-
-      case 'image/heif':
-        return 'heif';
-
-      default:
-        return 'img';
-    }
   }
 
   static String _buildBackupFileName(DateTime dateTime) {

@@ -16,6 +16,7 @@ import 'package:terramanager/features/backup/application/validated_backup.dart';
 import 'package:terramanager/features/backup/domain/backup_data.dart';
 import 'package:terramanager/features/backup/domain/backup_manifest.dart';
 import 'package:terramanager/features/backup/domain/backup_settings.dart';
+import 'package:terramanager/features/feedings/application/feeding_reminder_service.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
@@ -570,6 +571,36 @@ void main() {
 
     expect(animalMedia.data, Uint8List.fromList([40, 50, 60]));
   });
+
+  test(
+    'restored reminder configuration participates in due calculation',
+    () async {
+      await createExistingData();
+
+      final restoreService = BackupRestoreService(
+        database: database,
+        settingsController: settingsController,
+        safetyBackupWriter: (_) async {},
+      );
+
+      await restoreService.restore(
+        backup: createV2TargetBackup(),
+        currentAppVersion: '0.12.2',
+      );
+
+      final reminderService = FeedingReminderService(
+        database,
+        now: () => DateTime(2026, 9, 12, 8, 45),
+      );
+
+      final state = await reminderService.getReminderStateForAnimal(12);
+
+      expect(state, isNotNull);
+      expect(state!.referenceAt, DateTime(2026, 9, 3, 8, 45));
+      expect(state.dueAt, DateTime(2026, 9, 12, 8, 45));
+      expect(state.isDue, isTrue);
+    },
+  );
 
   test('safety backup includes box dimensions and picture', () async {
     final pictureBytes = Uint8List.fromList([7, 8, 9]);

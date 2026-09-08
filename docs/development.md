@@ -188,6 +188,12 @@ Examples:
 - reminder interval and baseline persistence after an application restart
 - reminder configuration retention across archive and restore
 - current and legacy backup round trips for reminder configuration
+- reminder calculation from the later of baseline and latest FeedingEvent
+- exact due-boundary behavior with an injected clock
+- recalculation after FeedingEvent creation, editing and deletion
+- disabled and archived Animal exclusion from reminder results
+- due ordering from most overdue to least overdue
+- reminder calculation after restoring current backup data
 - atomic replacement that retains the old picture after processing/save errors
 - WebP and legacy image display in overview, detail and full-screen contexts
 - unchanged display and backup behavior for existing JPEG and PNG pictures

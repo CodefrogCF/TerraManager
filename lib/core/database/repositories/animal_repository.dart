@@ -22,6 +22,19 @@ class AnimalRepository {
     return query.get();
   }
 
+  Future<List<Animal>> getActiveAnimalsWithFeedingReminders() {
+    final query = database.select(database.animals)
+      ..where(
+        (animal) =>
+            animal.status.equalsValue(AnimalStatus.active) &
+            animal.feedingReminderIntervalDays.isNotNull() &
+            animal.feedingReminderIntervalDays.isBiggerThanValue(0) &
+            animal.feedingReminderBaseline.isNotNull(),
+      );
+
+    return query.get();
+  }
+
   Future<List<Animal>> getArchivedAnimals() {
     final query = database.select(database.animals)
       ..where((animal) => animal.status.equalsValue(AnimalStatus.archived))

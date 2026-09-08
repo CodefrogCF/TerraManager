@@ -201,6 +201,34 @@ the baseline when a reminder is first enabled prevents an existing Animal with
 no feeding history from becoming overdue immediately. Changing only the
 interval of an enabled reminder preserves its existing baseline.
 
+### Feeding Reminder Calculation
+
+The due state is derived and is not persisted as another Animal field:
+
+```text
+referenceAt = max(feedingReminderBaseline, latest FeedingEvent.fedAt)
+dueAt = referenceAt + feedingReminderIntervalDays
+isDue = evaluatedAt >= dueAt
+```
+
+Persisted timestamps are normalized to the same UTC or local representation as
+the injected calculation clock before they are exposed in a reminder state.
+Their absolute moments remain unchanged, which keeps calculations and tests
+consistent across platform time zones.
+
+When no FeedingEvent exists, the baseline is the reference. FeedingEvents older
+than the baseline do not move the reference backwards. Equality at the due
+timestamp counts as due.
+
+The application queries all active Animals with valid reminder configuration
+and aggregates the latest FeedingEvent timestamps for their IDs in one query.
+The calculation service does not cache derived state, so a later call reflects
+created, edited or deleted FeedingEvents. Disabled and archived Animals are
+excluded from reminder results.
+
+Due results are sorted by ascending `dueAt`. This places the most overdue
+Animal first and provides deterministic ordering for the reminder UI.
+
 ## MediaAsset
 
 A MediaAsset represents application-owned binary media stored persistently by

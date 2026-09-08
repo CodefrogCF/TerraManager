@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
-## [0.12.0] - 2026-09-08
+## [Unreleased]
 
 ### Added
 
@@ -16,12 +16,27 @@ The project uses semantic versioning while development remains below version 1.0
 - database schema Version 5 with nullable reminder interval and baseline
   columns on Animals
 - portable backup export, validation and restore for reminder configuration
+- centralized feeding-reminder calculation with an injectable clock
+- efficient bulk lookup of the latest FeedingEvent for all configured active
+  Animals
+- due-state results containing the relevant Animal, reference timestamp and
+  calculated due timestamp
 
 ### Changed
 
 - Animal archive and restore operations retain reminder configuration
 - Animal repository writes reject incomplete or non-positive reminder
   configurations
+- reminder calculations use the later of the configured baseline and latest
+  FeedingEvent
+- reminder timestamps are normalized to the injected clock's UTC or local
+  representation so calculations remain consistent across platform time zones
+- reminder states are recalculated from current feeding history after event
+  creation, editing or deletion
+- an Animal is considered due at the exact due timestamp and remains due after
+  it
+- due reminder results are ordered by due timestamp, with the most overdue
+  Animal first
 
 ### Compatibility
 
@@ -32,6 +47,8 @@ The project uses semantic versioning while development remains below version 1.0
 - portable backup exports remain at Backup Format Version 2
 - older backups without reminder fields remain restorable and produce disabled
   reminders
+- reminder calculation adds no persisted derived state and requires no further
+  schema or backup-format migration
 
 ### Testing
 
@@ -39,6 +56,11 @@ The project uses semantic versioning while development remains below version 1.0
 - added schema Version 4 to Version 5 migration coverage
 - added new and edited Animal form validation and persistence coverage
 - extended backup model, export, validation and restore round-trip coverage
+- added deterministic reminder tests for no, one and multiple FeedingEvents
+- added exact-boundary, archived/disabled Animal and due-order coverage
+- added reminder recalculation coverage after FeedingEvent creation, editing and
+  deletion
+- verified reminder calculation from restored backup data
 
 ## [0.12.0] - 2026-09-08
 

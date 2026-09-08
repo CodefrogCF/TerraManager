@@ -836,3 +836,70 @@ Disadvantages:
   latest event may make it relevant again
 - archive suppression belongs to reminder queries rather than the persisted
   configuration itself
+
+---
+
+## ADR-012: Derive feeding reminder state from current history
+
+**Status:** Accepted
+
+**Date:** 2026-09-08
+
+### Context
+
+A feeding reminder changes when its baseline, interval or FeedingEvent history
+changes. Persisting another `dueAt` or `isDue` field would duplicate derived
+information and require every feeding creation, edit, deletion and backup
+restore to keep that duplicate state synchronized.
+
+Loading the latest FeedingEvent separately for every Animal would avoid stored
+derived state, but would create an N+1 query pattern in the Animal Overview.
+Due-state tests also need a deterministic current time instead of depending on
+the system clock.
+
+### Decision
+
+TerraManager calculates reminder state on demand. For every active Animal with
+a valid enabled reminder:
+
+```text
+referenceAt = max(feedingReminderBaseline, latest FeedingEvent.fedAt)
+dueAt = referenceAt + feedingReminderIntervalDays
+isDue = evaluatedAt >= dueAt
+```
+
+Database timestamps are converted to the injected clock's UTC or local
+representation before the state is returned. This preserves each absolute
+moment while avoiding platform-dependent timestamp representations.
+
+If no FeedingEvent exists, the configured baseline is used. An event older than
+the baseline cannot move the reminder backwards.
+
+The service loads configured active Animals once and obtains their latest
+feeding timestamps through one grouped `MAX(fedAt)` query. It receives the
+current time through an injectable clock and uses one captured value for every
+Animal in the same calculation. Results are sorted by `dueAt` and Animal ID for
+stable, most-overdue-first presentation.
+
+The service keeps no cache. Calling it after a FeedingEvent is created, edited
+or deleted therefore recalculates from the current database state.
+
+### Consequences
+
+Advantages:
+
+- reminder state cannot drift away from FeedingEvent history
+- no new schema or portable backup field is required
+- creation, editing, deletion and restore use the same calculation path
+- bulk reminder loading uses a fixed number of queries rather than one query
+  per Animal
+- an injected clock makes exact boundary behavior deterministic in tests
+- the calculated state already provides the data required by the reminder UI
+
+Disadvantages:
+
+- the calculation must run again whenever a screen needs refreshed state
+- a screen that remains open across a due boundary must explicitly refresh at
+  that boundary or when it becomes active again
+- the database query and calculation service must continue to use identical
+  eligibility rules for active, configured Animals

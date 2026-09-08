@@ -80,6 +80,36 @@ class FeedingRepository {
     return feeding?.fedAt;
   }
 
+  Future<Map<int, DateTime>> getLatestFeedingTimes(
+    Iterable<int> animalIds,
+  ) async {
+    final ids = animalIds.toSet().toList(growable: false);
+
+    if (ids.isEmpty) {
+      return const {};
+    }
+
+    final latestFedAt = database.feedingEvents.fedAt.max();
+    final query = database.selectOnly(database.feedingEvents)
+      ..addColumns([database.feedingEvents.animalId, latestFedAt])
+      ..where(database.feedingEvents.animalId.isIn(ids))
+      ..groupBy([database.feedingEvents.animalId]);
+
+    final rows = await query.get();
+    final latestByAnimalId = <int, DateTime>{};
+
+    for (final row in rows) {
+      final animalId = row.read(database.feedingEvents.animalId);
+      final fedAt = row.read(latestFedAt);
+
+      if (animalId != null && fedAt != null) {
+        latestByAnimalId[animalId] = fedAt;
+      }
+    }
+
+    return Map<int, DateTime>.unmodifiable(latestByAnimalId);
+  }
+
   Future<FeedingEvent?> getFeedingById(int feedingId) {
     return (database.select(
       database.feedingEvents,

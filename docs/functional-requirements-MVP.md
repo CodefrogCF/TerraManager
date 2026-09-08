@@ -70,6 +70,7 @@ The application must allow the user to:
 - optionally configure a feeding reminder interval in positive whole days
 - capture a reminder baseline when the reminder is enabled
 - retain reminder configuration while the Animal is archived
+- calculate a reminder due timestamp from its configuration and feeding history
 - permanently delete an archived Animal through an explicit confirmation workflow
 
 Active Animals must have a Box assignment.
@@ -176,6 +177,16 @@ incomplete reminder configuration must not be saved.
 
 Archiving an Animal must retain its configuration for a later restore, while
 archived Animals must not produce active reminder results.
+
+For each active Animal with an enabled reminder, the reminder reference is the
+later of the configured baseline and latest FeedingEvent timestamp. The due
+timestamp is that reference plus the configured whole-day interval. The Animal
+is due when the current time is equal to or later than this timestamp.
+
+Reminder calculations must use current FeedingEvent data rather than storing a
+duplicate due-state value. Adding, editing or deleting a FeedingEvent must
+therefore affect the next calculation immediately. Loading overview reminder
+states must aggregate latest feedings without issuing one query per Animal.
 
 ## QR Codes
 

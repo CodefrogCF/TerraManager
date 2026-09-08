@@ -18,7 +18,7 @@ Current development milestone:
 
 Current development build:
 
-**v0.12.1+24**
+**v0.12.2+25**
 
 Implemented milestones in the current source state:
 
@@ -123,6 +123,9 @@ application restarts.
 - positive whole-day reminder intervals
 - reminder baselines set when reminders are enabled
 - reminder configuration retained while an Animal is archived
+- due timestamps calculated from the later of reminder baseline and latest
+  feeding
+- disabled and archived Animals excluded from active reminder results
 
 ### Feeding
 
@@ -134,6 +137,10 @@ application restarts.
 - latest feeding lookup
 - latest feeding displayed directly on animal details
 - automatic refresh after feeding edits and deletions
+- efficient bulk lookup of reminder state without one feeding query per Animal
+- deterministic due-state calculation at exact timestamp boundaries
+- automatic reminder rescheduling from current history after feeding creation,
+  editing or deletion
 - dedicated QR Feeding Mode from the Box Overview
 - scanned Box resolution to its currently assigned active Animals
 - empty state for Boxes without active Animals

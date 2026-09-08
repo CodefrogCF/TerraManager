@@ -12,7 +12,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.12.1+24**
+**v0.12.2+25**
 
 Completed development areas:
 
@@ -63,6 +63,9 @@ Completed development areas:
 - optional per-Animal feeding reminder configuration with persistent interval
   and baseline
 - reminder configuration backup and restore with legacy-backup compatibility
+- deterministic feeding reminder calculation using the later of the baseline
+  and latest FeedingEvent
+- efficient aggregate lookup and recalculation after FeedingEvent changes
 
 v0.7.1 implementation and release validation are complete.
 
@@ -81,9 +84,9 @@ regression validation and release packaging are complete.
 v0.12.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete.
 
-v0.13.0 is the active development milestone. Issue #74 adds the persistent
-per-Animal configuration required by the reminder calculation and presentation
-work in Issues #75 and #76.
+v0.13.0 is the active development milestone. Issues #74 and #75 provide the
+persistent per-Animal configuration and deterministic reminder calculation
+required by the presentation work in Issue #76.
 
 ---
 
@@ -523,11 +526,11 @@ roughly one sixth of its previous size.
 
 ### Reminder Calculation — Issue #75
 
-- [ ] Calculate the due time from the later of baseline and latest feeding
-- [ ] Exclude archived Animals and disabled reminders
-- [ ] Recalculate after feeding creation, editing and deletion
-- [ ] Use an injectable clock and an efficient aggregate query
-- [ ] Add deterministic domain and repository tests
+- [x] Calculate the due time from the later of baseline and latest feeding
+- [x] Exclude archived Animals and disabled reminders
+- [x] Recalculate after feeding creation, editing and deletion
+- [x] Use an injectable clock and an efficient aggregate query
+- [x] Add deterministic domain and repository tests
 
 ### In-App Reminder Presentation — Issue #76
 

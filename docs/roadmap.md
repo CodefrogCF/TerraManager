@@ -53,6 +53,9 @@ Completed development areas:
 - context-sensitive Box and Animal picture actions with Camera and Gallery
   source selection
 - shared free-form picture cropping before new media is persisted
+- bounded WebP normalization for every new and replaced Box and Animal picture
+- atomic picture replacement with processing and duplicate-action protection
+- mixed legacy and optimized picture backup export and restore
 
 v0.7.1 implementation and release validation are complete.
 
@@ -68,9 +71,10 @@ release are complete.
 v0.11.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete.
 
-The first v0.12.0 implementation steps add shared Box and Animal picture
-cropping plus bounded WebP storage for new and replaced pictures. Cropping is
-validated on Android; Web validation and storage-size measurements remain in
+The v0.12.0 implementation is complete. Shared cropping, bounded WebP storage,
+atomic replacement and mixed-format backup compatibility are covered by the
+automated suite. Android feature validation and the storage-size measurement
+are complete. Final Android/Web regression and release publication remain in
 progress.
 
 ---

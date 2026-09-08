@@ -222,7 +222,14 @@ flutter build web
 
 Then perform manual regression testing on validated target platforms.
 
-For v0.11.0, use the feature-specific validation and release sequence in:
+For the current v0.12.0 release candidate, use the complete validation and
+release sequence in:
+
+```text
+docs/release-v0.12.0.md
+```
+
+The completed v0.11.0 validation remains available in:
 
 ```text
 docs/release-v0.11.0.md

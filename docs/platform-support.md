@@ -13,6 +13,10 @@ This document describes the current platform validation status of TerraManager.
 The completed v0.11.0 release validation is documented in
 `release-v0.11.0.md`. The platform lists below include this regression.
 
+The final Android/Web regression for the v0.12.0 release candidate is tracked
+in `release-v0.12.0.md`. Platform claims are updated only after those checks
+have completed.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 

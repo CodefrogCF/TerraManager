@@ -14,7 +14,7 @@ Current development milestone:
 
 Current development build:
 
-**v0.11.4+22**
+**v0.12.0+23** (release candidate)
 
 Latest completed release milestone:
 
@@ -34,9 +34,13 @@ Implemented milestones in the current source state:
 - v0.9.0 – Feeding Workflow & Media
 - v0.10.0 – Localization
 - v0.11.0 – Personalization & Capture
-- v0.12.0 – Media Optimization (in progress)
+- v0.12.0 – Media Optimization (release candidate)
 
 Android and Web are currently validated platforms.
+
+The v0.12.0 implementation is complete. Final Android/Web regression,
+release-build validation and publication are tracked in
+`docs/release-v0.12.0.md`.
 
 Portable backup and restore has been validated:
 

@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
-## [Unreleased]
+## [0.12.0] - 2026-09-08
 
 ### Added
 

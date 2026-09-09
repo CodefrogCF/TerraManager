@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
-## [Unreleased]
+## [0.13.0] - 2026-09-09
 
 ### Added
 
@@ -72,6 +72,16 @@ The project uses semantic versioning while development remains below version 1.0
 - added reminder widget coverage for empty, due, ordered, localized and updated
   states
 - added Quick Feeding change-notification coverage
+
+### Validated
+
+- complete Dart formatting, static-analysis and automated-test regression
+- focused schema migration, current/legacy backup and feeding-reminder tests
+- Android debug APK, Android release APK and Web release builds
+- reminder workflows and general regression on a physical Android device
+- reminder workflows and general regression in a Chromium-based browser
+- English and German reminder configuration, validation and status text
+- Version 4 to Version 5 upgrade and reminder backup compatibility
 
 ## [0.12.0] - 2026-09-08
 

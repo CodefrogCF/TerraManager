@@ -248,6 +248,12 @@ flutter build web
 
 Then perform manual regression testing on validated target platforms.
 
+The completed v0.13.0 validation record and release notes are available in:
+
+```text
+docs/release-v0.13.0.md
+```
+
 The completed v0.12.0 validation and release record is available in:
 
 ```text

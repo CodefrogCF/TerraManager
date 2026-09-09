@@ -10,15 +10,15 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Current completed release milestone:
 
-**v0.12.0 – Media Optimization**
-
-Current development milestone:
-
 **v0.13.0 – Feeding Reminders**
 
-Current development build:
+Next planned development milestone:
 
-**v0.12.3+26**
+**v0.14.0 – Pre-1.0 UX Polish**
+
+Current release build:
+
+**v0.13.0+27**
 
 Implemented milestones in the current source state:
 
@@ -35,12 +35,16 @@ Implemented milestones in the current source state:
 - v0.10.0 – Localization
 - v0.11.0 – Personalization & Capture
 - v0.12.0 – Media Optimization
+- v0.13.0 – Feeding Reminders
 
 Android and Web are currently validated platforms.
 
-The v0.12.0 implementation, automated regression, Android/Web validation and
+The v0.13.0 implementation, automated regression, Android/Web validation and
 release builds are complete. The validation record and release notes are
-available in `docs/release-v0.12.0.md`.
+available in `docs/release-v0.13.0.md`.
+
+The completed v0.12.0 validation record remains available in
+`docs/release-v0.12.0.md`.
 
 Portable backup and restore has been validated:
 

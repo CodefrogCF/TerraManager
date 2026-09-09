@@ -13,9 +13,12 @@ This document describes the current platform validation status of TerraManager.
 The completed v0.11.0 release validation is documented in
 `release-v0.11.0.md`. The platform lists below include this regression.
 
-The final Android/Web regression for the v0.12.0 release candidate is tracked
-in `release-v0.12.0.md`. Platform claims are updated only after those checks
-have completed.
+The completed v0.12.0 media and Android/Web regression is documented in
+`release-v0.12.0.md`. The platform lists below include this validation.
+
+The completed v0.13.0 Feeding Reminder regression and release-build validation
+is documented in `release-v0.13.0.md`. The platform lists below include this
+validation.
 
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
@@ -100,6 +103,19 @@ Validated functionality includes:
 - Camera and Gallery picture selection for new and edited Boxes and Animals
 - compact Add Picture and Change Picture actions
 - recoverable picture-source cancellation and denied camera permission
+- free-form Camera and Gallery picture cropping for new and edited Boxes and
+  Animals
+- source-orientation normalization for portrait and landscape pictures
+- bounded WebP persistence for new and replaced pictures
+- legacy and WebP display in overview, detail and full-screen views
+- mixed legacy and WebP backup export and restore
+- optional per-Animal feeding reminder configuration and persistence
+- non-modal due summary, due markers and scheduled or due detail status
+- direct reminder navigation to the existing feeding workflow
+- immediate reminder refresh after normal and Quick Feeding changes
+- archived-Animal reminder suppression with retained configuration
+- schema Version 4 to Version 5 migration and reminder backup compatibility
+- English and German reminder configuration and presentation
 
 QR images saved on Android are stored through the platform media/gallery system
 so they remain accessible to the user outside the application.
@@ -189,9 +205,21 @@ Validated functionality includes:
 - compact Add Picture and Change Picture actions
 - Gallery picture selection for new and edited Boxes and Animals
 - disabled Camera source when browser capture is unsupported
+- free-form Gallery picture cropping for new and edited Boxes and Animals
+- source-orientation normalization for portrait and landscape pictures
+- bounded WebP persistence for new and replaced pictures
+- legacy and WebP display in overview, detail and full-screen views
+- mixed legacy and WebP backup export and restore
+- optional per-Animal feeding reminder configuration and persistence
+- non-modal due summary, due markers and scheduled or due detail status
+- direct reminder navigation to the existing feeding workflow
+- immediate reminder refresh after normal and Quick Feeding changes
+- archived-Animal reminder suppression with retained configuration
+- schema Version 4 to Version 5 migration and reminder backup compatibility
+- English and German reminder configuration and presentation
 
-WebP optimization for new and replaced pictures is implemented through browser
-Canvas encoding but remains pending manual Web milestone validation.
+WebP optimization for new and replaced pictures uses browser Canvas encoding
+and has been validated as part of the v0.12.0 Web regression.
 
 ## Web Database
 

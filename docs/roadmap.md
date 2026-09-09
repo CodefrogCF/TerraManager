@@ -4,15 +4,15 @@
 
 Latest completed release milestone:
 
-**v0.12.0 – Media Optimization**
-
-Active development milestone:
-
 **v0.13.0 – Feeding Reminders**
 
-Current development build:
+Next planned development milestone:
 
-**v0.12.3+26**
+**v0.14.0 – Pre-1.0 UX Polish**
+
+Current release build:
+
+**v0.13.0+27**
 
 Completed development areas:
 
@@ -89,10 +89,11 @@ regression validation and release packaging are complete.
 v0.12.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete.
 
-v0.13.0 is the active development milestone. Issues #74, #75 and #76 provide
-the persistent per-Animal configuration, deterministic calculation and in-app
-presentation required for Feeding Reminders. Issue #77 covers final regression,
-documentation and release work.
+v0.13.0 implementation, documentation, automated testing, Android/Web
+regression validation and release packaging are complete. Issues #74, #75 and
+#76 provide the persistent per-Animal configuration, deterministic calculation
+and in-app presentation required for Feeding Reminders. Issue #77 retains the
+publication checklist for release build `0.13.0+27`.
 
 ---
 
@@ -550,13 +551,13 @@ roughly one sixth of its previous size.
 
 ### Release — Issue #77
 
-- [ ] Complete migration, backup and reminder regression tests
-- [ ] Validate reminder configuration and date boundaries manually
-- [ ] Validate feeding create, edit and delete refresh behavior
-- [ ] Validate archived Animal behavior
-- [ ] Review English and German reminder text
-- [ ] Update final documentation and release notes
-- [ ] Build and manually test supported release artifacts
+- [x] Complete migration, backup and reminder regression tests
+- [x] Validate reminder configuration and date boundaries manually
+- [x] Validate feeding create, edit and delete refresh behavior
+- [x] Validate archived Animal behavior
+- [x] Review English and German reminder text
+- [x] Update final documentation and release notes
+- [x] Build and manually test supported release artifacts
 - [ ] Release v0.13.0
 
 ---

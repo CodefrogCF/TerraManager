@@ -12,7 +12,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.3+35**
+**v0.14.5+37**
 
 Completed development areas:
 
@@ -81,6 +81,10 @@ Completed development areas:
   latest FeedingEvent
 - deterministic missing-value ordering, bulk FeedingEvent lookup and matching
   contextual Animal navigation
+- GPL-3.0-or-later open-source licensing
+- public privacy, permissions, installation, updates, support, security and
+  contribution documentation
+- explicit Quick Feeding cancellation through Scan a different Box
 
 v0.7.1 implementation and release validation are complete.
 
@@ -131,6 +135,11 @@ load credentials only from an ignored local file or explicit environment
 variables, while Debug builds remain independent of release secrets. Creating,
 backing up and validating the private production key remains a local release
 owner task.
+
+Issue #91 establishes GPL-3.0-or-later as the public project licence and adds
+the privacy, permission, installation, update, support, security and
+contribution information needed for a public release. Historical v0.11.0 and
+v0.12.0 publication actions now reflect their completed release state.
 
 ---
 
@@ -709,10 +718,19 @@ roughly one sixth of its previous size.
 
 ### Public Release Documentation — Issue #91
 
-- [ ] Add the selected open-source license
-- [ ] Document privacy, permissions, installation, updates and support
-- [ ] Correct historical issue references
+- [x] Add the selected open-source license
+- [x] Document privacy, permissions, installation, updates and support
+- [x] Correct historical issue references
 - [ ] Complete the public v1.0 documentation review
+
+### Feeding Mode Scanner Return — Pre-release Fix
+
+- [x] Replace the ambiguous Scan another Box action
+- [x] Label the action as Scan a different Box in English and German
+- [x] Cancel the unsaved Box-specific feeding form without creating events
+- [x] Return to Feeding Mode and restart the scanner
+- [x] Add localization, cancellation and scanner-resume regression coverage
+- [ ] Validate the action manually on Android
 
 ### Quality Gates and Toolchain Baseline — Issue #92
 

@@ -6,6 +6,15 @@ The application is developed with Flutter and currently supports Android and Web
 
 iOS support is planned, but has not yet been validated because no macOS build environment or physical iOS test device is currently available.
 
+Public project information:
+
+- [Installation and updates](docs/installation-and-updates.md)
+- [Privacy](PRIVACY.md)
+- [Support](SUPPORT.md)
+- [Security](SECURITY.md)
+- [Contributing](CONTRIBUTING.md)
+- [GPL-3.0-or-later license](LICENSE)
+
 ## Project Status
 
 Current completed release milestone:
@@ -18,7 +27,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.3+35**
+**v0.14.5+37**
 
 Implemented milestones in the current source state:
 
@@ -68,6 +77,16 @@ The production key has been created and backed up, both signed Android
 artifacts have been built and verified, and the one-time physical-device
 transition has been completed successfully. Future directly distributed
 Android builds must retain this production certificate.
+
+Development build `0.14.4+36` adds the GPL-3.0-or-later project licence and
+the public privacy, permission, installation, update, support, security and
+contribution documentation required by Issue #91. It also corrects completion
+states in historical v0.11.0 and v0.12.0 release records.
+
+Development build `0.14.5+37` replaces the ambiguous Continue-style Quick
+Feeding action with an explicit **Scan a different Box** cancellation action.
+It discards the unsaved Box-specific feeding form, returns to Feeding Mode and
+restarts the scanner without creating a FeedingEvent.
 
 ### Android transition to the permanent application ID
 
@@ -219,7 +238,7 @@ application restarts.
 - optional shared quick-feeding notes
 - atomic creation of one FeedingEvent per selected Animal
 - duplicate-submission protection
-- immediate return to scanning after saving or cancelling
+- immediate return to scanning after saving or choosing Scan a different Box
 
 ### Settings
 
@@ -420,9 +439,11 @@ Saving creates one normal FeedingEvent for every selected Animal inside a single
 database transaction. If one insert fails, none of the grouped feeding remains.
 While the transaction is running, repeated submissions are ignored.
 
-After saving or cancelling, the scanner resumes so the next Box can be scanned
-immediately. Newly created entries are available through the existing Animal
-feeding history and latest-feeding display.
+After saving or choosing **Scan a different Box**, the scanner resumes so the
+next Box can be scanned immediately. The second action cancels the unsaved
+Box-specific feeding form without creating a FeedingEvent. Newly created
+entries are available through the existing Animal feeding history and latest-
+feeding display.
 
 Both the normal Box scanner and the Feeding Mode scanner provide a camera-light
 control when the active camera reports torch support. The control is omitted on
@@ -786,6 +807,58 @@ lib/core/database/app_database.g.dart
 
 must not be edited manually.
 
+## Installation and Updates
+
+Android users install the trusted Release APK. The Android App Bundle is meant
+for store distribution and is not directly installed on a device. Web
+operators deploy the complete static build to one stable HTTPS origin because
+browser data is tied to its origin and profile.
+
+Create a current `.tmbackup` before every application update or Web deployment.
+The complete installation, artifact-verification, production-certificate and
+pre-v1.0 transition guidance is in
+[docs/installation-and-updates.md](docs/installation-and-updates.md).
+
+## Privacy and Permissions
+
+TerraManager stores application data locally and has no TerraManager-operated
+account, backend, cloud sync, advertising, analytics, telemetry or crash-
+reporting service. Camera, gallery, file and printing access is requested only
+for the corresponding user-initiated feature. Feeding reminders remain inside
+the application and do not request system notification permission.
+
+Portable `.tmbackup` archives include records, settings and pictures and are
+not encrypted. Store them as sensitive files. The complete data and permission
+description is available in [PRIVACY.md](PRIVACY.md).
+
+## Support and Security
+
+Report reproducible problems and feature requests through
+[GitHub Issues](https://github.com/CodefrogCF/TerraManager/issues), following
+[SUPPORT.md](SUPPORT.md). Do not publish real backups, private notes, pictures,
+passwords or signing material. Potential vulnerabilities should follow the
+private-first process in [SECURITY.md](SECURITY.md).
+
+## License and Commercial Use
+
+Copyright (C) 2026 CodefrogCF.
+
+TerraManager is free software licensed under the
+[GNU General Public License v3.0 or later](LICENSE), identified as
+`GPL-3.0-or-later`. The licence permits private and commercial use,
+modification and redistribution subject to its terms. In particular, a
+distributed modified version must preserve the recipients' GPL freedoms and
+provide its corresponding source as required by the licence.
+
+The maintainer may separately offer services, official builds, support,
+custom development or alternative commercial licence terms. Those offerings
+do not reduce the rights granted for the GPL-licensed project.
+
+Before submitting source code, translations, artwork or substantial
+documentation, read [CONTRIBUTING.md](CONTRIBUTING.md). The current
+contribution policy deliberately preserves the option of consistent future
+dual licensing.
+
 ## Development Workflow
 
 Development is tracked with:
@@ -865,15 +938,21 @@ Do not manually edit generated Drift files.
 
 Additional documentation:
 
-docs/roadmap.md
-docs/development.md
-docs/platform-support.md
-docs/data-model.md
-docs/backup-format.md
-docs/architecture-decisions.md
-docs/functional-requirements-MVP.md
-docs/functional-requirements-non-MVP.md
-CHANGELOG.md
+- [Roadmap](docs/roadmap.md)
+- [Development guide](docs/development.md)
+- [Installation and updates](docs/installation-and-updates.md)
+- [Platform support](docs/platform-support.md)
+- [Data model](docs/data-model.md)
+- [Backup format](docs/backup-format.md)
+- [Architecture decisions](docs/architecture-decisions.md)
+- [MVP functional requirements](docs/functional-requirements-MVP.md)
+- [Non-MVP functional requirements](docs/functional-requirements-non-MVP.md)
+- [Android release signing](docs/android-release-signing.md)
+- [Privacy](PRIVACY.md)
+- [Support](SUPPORT.md)
+- [Security policy](SECURITY.md)
+- [Contribution policy](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
 
 ## Known Limitations
 

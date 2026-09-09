@@ -31,6 +31,27 @@ Run tests:
 flutter test
 ```
 
+## Public Project Documentation
+
+The public repository must keep these root documents current:
+
+- `LICENSE` — GPL-3.0-or-later licence text
+- `PRIVACY.md` — local data, permissions, exports and Web-hosting boundaries
+- `SUPPORT.md` — supported platforms and useful issue reports
+- `SECURITY.md` — private-first vulnerability reporting
+- `CONTRIBUTING.md` — contribution and copyright policy
+
+User-facing installation and update guidance is maintained in
+`docs/installation-and-updates.md`. A release change affecting persistence,
+permissions, platform services, distribution, signing, network behaviour or
+support must review these documents before the issue is closed.
+
+TerraManager is licensed under GPL-3.0-or-later. Do not copy code, artwork,
+translations or documentation from an incompatible or unknown source. The
+current contribution policy requires prior agreement for substantial external
+contributions so that copyright ownership remains suitable for a possible
+future commercial dual-licensing model.
+
 ## Localization Generation
 
 English and German source messages are stored in:
@@ -205,6 +226,15 @@ flutter test
 ```
 
 If platform-related code changed, additionally validate the affected platform manually.
+
+For public-documentation changes, also run:
+
+```text
+flutter test test/platform/public_release_documentation_test.dart
+```
+
+Review all Markdown links in the rendered GitHub repository and confirm that
+no example contains a real password, backup, private path or signing secret.
 
 Examples:
 

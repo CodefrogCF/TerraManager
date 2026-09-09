@@ -771,6 +771,11 @@ The presentation layer prevents a second save while the first transaction is in
 progress. After a successful transaction, it closes the Box-specific feeding
 route and restarts the scanner.
 
+The secondary **Scan a different Box** action is an explicit cancellation. It
+closes the Box-specific route with a negative result, creates no FeedingEvent
+and restarts the Feeding Mode scanner so another QR code can be scanned
+immediately. The same action returns an empty scanned Box to the scanner.
+
 ### Consequences
 
 Advantages:
@@ -1115,3 +1120,58 @@ Disadvantages:
   decision
 - debug-signed `0.14.2+34` installations require one final backup-based
   transition
+
+---
+
+## ADR-016: License TerraManager under GPL-3.0-or-later
+
+**Status:** Accepted
+
+**Date:** 2026-09-09
+
+### Context
+
+TerraManager should remain free to use, inspect and modify for private users.
+The same public source may also be useful to commercial terrarium keepers and
+businesses. Open-source licensing cannot prohibit commercial use, but the
+project should prevent distributed proprietary derivatives from removing the
+freedoms granted to their recipients.
+
+The maintainer may later provide paid services, official distribution,
+customization or separate commercial licence terms. Accepting outside
+contributions without clear copyright terms could make consistent relicensing
+impossible.
+
+### Decision
+
+TerraManager is distributed under the GNU General Public License version 3 or
+any later version, using the SPDX identifier `GPL-3.0-or-later`. The repository
+contains the complete GPLv3 text and identifies CodefrogCF as the 2026
+copyright holder for the project notice.
+
+Private and commercial use are allowed under the GPL. Anyone distributing the
+application or a derivative must meet the licence obligations, including
+preserving notices and providing corresponding source when required.
+
+The GPL grant does not prevent the copyright holder from separately offering
+services or alternative licence terms. Until a contributor agreement is
+published, substantial external source, translation, artwork and documentation
+contributions require prior agreement with the maintainer.
+
+### Consequences
+
+Advantages:
+
+- private use, inspection, modification and sharing remain protected
+- commercial users receive the same GPL rights
+- distributed derivatives cannot become closed-source without separate terms
+- paid support, official builds and a future commercial licence remain possible
+- cautious contribution intake preserves the maintainer's relicensing options
+
+Disadvantages:
+
+- businesses cannot distribute proprietary derivatives solely under the GPL
+- integrations with incompatible proprietary code may require separate terms
+- contribution onboarding needs explicit copyright and licensing review
+- dual licensing becomes harder if copyright is shared without suitable
+  contributor agreements

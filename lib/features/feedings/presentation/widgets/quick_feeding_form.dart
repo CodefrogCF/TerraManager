@@ -299,10 +299,10 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
-                  key: const Key('scan-another-box-button'),
+                  key: const Key('scan-different-box-button'),
                   onPressed: _saving ? null : widget.onCancel,
                   icon: const Icon(Icons.qr_code_scanner),
-                  label: Text(context.l10n.scanAnotherBox),
+                  label: Text(context.l10n.scanDifferentBox),
                 ),
               ],
             ),

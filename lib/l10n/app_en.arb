@@ -37,7 +37,7 @@
   "saving": "Saving...",
   "ok": "OK",
   "optional": "Optional",
-  "scanAnotherBox": "Scan another Box",
+  "scanDifferentBox": "Scan a different Box",
   "feedingBoxTitle": "Feeding – {boxLabel}",
   "@feedingBoxTitle": {
     "placeholders": {
@@ -54,7 +54,7 @@
       }
     }
   },
-  "returnToScannerHint": "Return to the scanner and scan another Box.",
+  "returnToScannerHint": "Return to the scanner to scan a different Box.",
   "scanBoxTitle": "Scan Box",
   "feedingModeTitle": "Feeding Mode",
   "invalidTerraManagerQrCode": "Invalid TerraManager QR code",

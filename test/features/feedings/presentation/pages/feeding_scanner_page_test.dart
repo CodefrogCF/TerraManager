@@ -6,6 +6,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_box_animals_page.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_scanner_page.dart';
 import 'package:terramanager/features/scanning/presentation/widgets/scanner_torch_button.dart';
@@ -92,7 +93,7 @@ void main() {
     expect(find.text('Box not found'), findsOneWidget);
   });
 
-  testWidgets('shows only active Animals assigned to the scanned Box', (
+  testWidgets('different Box action cancels and resumes the scanner', (
     tester,
   ) async {
     final targetBoxId = await BoxRepository(database).createBox(_targetQrId);
@@ -119,6 +120,7 @@ void main() {
     late Future<void> Function(String) scan;
     var stopCalls = 0;
     var startCalls = 0;
+    var feedingChangedCalls = 0;
 
     await tester.pumpWidget(
       MaterialApp(
@@ -132,6 +134,9 @@ void main() {
           },
           startScanner: () async {
             startCalls++;
+          },
+          onFeedingChanged: () {
+            feedingChangedCalls++;
           },
         ),
       ),
@@ -150,6 +155,7 @@ void main() {
     expect(find.text('Active Snake'), findsOneWidget);
     expect(find.text('Archived Snake'), findsNothing);
     expect(find.text('Other Snake'), findsNothing);
+    expect(find.text('Scan a different Box'), findsOneWidget);
     expect(
       find.byKey(Key('feeding-mode-animal-$activeAnimalId')),
       findsOneWidget,
@@ -157,12 +163,14 @@ void main() {
     expect(stopCalls, 1);
     expect(startCalls, 0);
 
-    await tester.tap(find.byKey(const Key('scan-another-box-button')));
+    await tester.tap(find.byKey(const Key('scan-different-box-button')));
     await tester.pumpAndSettle();
     await scanFuture;
 
     expect(find.text('Feeding Mode'), findsOneWidget);
     expect(startCalls, 1);
+    expect(feedingChangedCalls, 0);
+    expect(await FeedingRepository(database).getAllFeedings(), isEmpty);
   });
 
   testWidgets('shows an empty state for a Box without active Animals', (
@@ -195,8 +203,9 @@ void main() {
     expect(find.byType(FeedingBoxAnimalsPage), findsOneWidget);
     expect(find.text('No active animals assigned to Box 1'), findsOneWidget);
     expect(find.byKey(const Key('feeding-box-empty-message')), findsOneWidget);
+    expect(find.text('Scan a different Box'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('scan-another-box-button')));
+    await tester.tap(find.byKey(const Key('scan-different-box-button')));
     await tester.pumpAndSettle();
     await scanFuture;
   });

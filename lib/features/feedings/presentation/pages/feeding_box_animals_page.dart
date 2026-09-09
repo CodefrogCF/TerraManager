@@ -32,7 +32,7 @@ class FeedingBoxAnimalsPage extends StatelessWidget {
       body: animals.isEmpty
           ? _EmptyAnimalList(
               boxLabel: boxLabel,
-              onScanAnother: () {
+              onScanDifferentBox: () {
                 Navigator.of(context).pop(false);
               },
             )
@@ -54,9 +54,12 @@ class FeedingBoxAnimalsPage extends StatelessWidget {
 
 class _EmptyAnimalList extends StatelessWidget {
   final String boxLabel;
-  final VoidCallback onScanAnother;
+  final VoidCallback onScanDifferentBox;
 
-  const _EmptyAnimalList({required this.boxLabel, required this.onScanAnother});
+  const _EmptyAnimalList({
+    required this.boxLabel,
+    required this.onScanDifferentBox,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -94,10 +97,10 @@ class _EmptyAnimalList extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                key: const Key('scan-another-box-button'),
-                onPressed: onScanAnother,
+                key: const Key('scan-different-box-button'),
+                onPressed: onScanDifferentBox,
                 icon: const Icon(Icons.qr_code_scanner),
-                label: Text(context.l10n.scanAnotherBox),
+                label: Text(context.l10n.scanDifferentBox),
               ),
             ),
           ),

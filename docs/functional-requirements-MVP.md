@@ -171,7 +171,8 @@ The application must provide a dedicated Feeding Mode that allows the user to:
 - adjust the feeding timestamp
 - enter an optional note shared by the selected Animals
 - create one FeedingEvent for every selected Animal
-- return to the scanner after saving or cancelling
+- provide an explicit Scan a different Box action that cancels the unsaved
+  Box-specific feeding form and returns to the scanner
 
 All active Animals displayed after a scan should be selected by default so a
 single-Animal Box can be recorded with a minimal number of actions.

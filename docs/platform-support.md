@@ -109,7 +109,7 @@ Validated functionality includes:
 - active-Animal resolution for a scanned Box
 - single- and multi-Animal quick feeding entries
 - atomic grouped FeedingEvent creation and duplicate-submission protection
-- scanner restart after saving or cancelling a quick feeding
+- scanner restart after saving or choosing Scan a different Box
 - preserved overview scroll position after detail navigation
 - contextual horizontal swipe navigation between Box details
 - contextual horizontal swipe navigation between Animal details from Active
@@ -226,7 +226,7 @@ Validated functionality includes:
 - active-Animal resolution for a scanned Box
 - single- and multi-Animal quick feeding entries
 - atomic grouped FeedingEvent creation and duplicate-submission protection
-- scanner restart after saving or cancelling a quick feeding
+- scanner restart after saving or choosing Scan a different Box
 - preserved overview scroll position after detail navigation
 - contextual horizontal swipe navigation between Box details
 - contextual horizontal swipe navigation between Animal details from Active

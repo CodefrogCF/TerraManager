@@ -6,6 +6,16 @@ The project uses semantic versioning while development remains below version 1.0
 
 ## [Unreleased]
 
+### Added
+
+- added the complete GNU General Public License under the
+  `GPL-3.0-or-later` identifier
+- added public privacy and permission documentation for local data, camera,
+  gallery, file, printing and Web-hosting behaviour
+- added Android and Web installation, update, artifact-verification and
+  pre-v1.0 transition guidance
+- added support, private-first security-reporting and contribution policies
+
 ### Changed
 
 - adopted `com.codefrog.terramanager` as the permanent application identifier
@@ -21,7 +31,14 @@ The project uses semantic versioning while development remains below version 1.0
 - made Release builds fail with a clear configuration error when credentials
   or the configured keystore are missing while keeping Debug builds independent
   of release secrets
-- advanced the development version to `0.14.3+35`
+- corrected the recorded final publication actions for the completed v0.11.0
+  and v0.12.0 releases
+- linked public release documentation from the project overview
+- replaced the ambiguous Scan another Box Quick Feeding action with an
+  explicit Scan a different Box cancellation action
+- clarified that this action discards the unsaved Box-specific feeding form,
+  returns to Feeding Mode and restarts the scanner without creating events
+- advanced the development version to `0.14.5+37`
 
 ### Compatibility
 
@@ -45,6 +62,10 @@ The project uses semantic versioning while development remains below version 1.0
 - added a cross-platform placeholder identity regression check
 - added static regression coverage for the production signing configuration,
   supported credential sources and ignored secret files
+- added static regression coverage for the public licence, documentation,
+  production permission statement and corrected historical release records
+- added localized cancellation and scanner-resume coverage for the Scan a
+  different Box action, including protection against accidental FeedingEvents
 
 ### Validated
 

@@ -284,6 +284,28 @@ void main() {
     expect(find.text('Select an Animal'), findsOneWidget);
   });
 
+  testWidgets('different Box action cancels without creating a feeding', (
+    tester,
+  ) async {
+    final box = await createBox();
+    final animal = await createAnimal(boxId: box.id, commonName: 'Test Snake');
+
+    final result = await openPageAsRoute(
+      tester,
+      box: box,
+      animals: [animal],
+      initialFedAt: DateTime(2026, 9, 5, 14, 30),
+    );
+
+    expect(find.text('Scan a different Box'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('scan-different-box-button')));
+    await tester.pumpAndSettle();
+
+    expect(await result.future, isFalse);
+    expect(await FeedingRepository(database).getAllFeedings(), isEmpty);
+  });
+
   testWidgets('returns to the scanner and confirms a successful feeding', (
     tester,
   ) async {

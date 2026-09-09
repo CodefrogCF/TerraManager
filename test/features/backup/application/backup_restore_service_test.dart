@@ -139,7 +139,7 @@ void main() {
         language: 'german',
         animalNameOrder: 'latinNameFirst',
         animalSortOrder: 'latestFeedingOldestFirst',
-        boxSortOrder: 'labelDescending',
+        boxSortOrder: 'createdNewestFirst',
       ),
       mediaFiles: includePicture
           ? {
@@ -149,7 +149,9 @@ void main() {
     );
   }
 
-  ValidatedBackup createV2TargetBackup() {
+  ValidatedBackup createV2TargetBackup({
+    List<BackupFeedingEvent> feedingEvents = const [],
+  }) {
     const boxPicturePath = 'media/boxes/5.png';
     const animalPicturePath = 'media/animals/12.webp';
     final reminderBaseline = DateTime(2026, 9, 3, 8, 45);
@@ -199,7 +201,7 @@ void main() {
             updatedAt: DateTime(2026, 9, 2),
           ),
         ],
-        feedingEvents: const [],
+        feedingEvents: feedingEvents,
       ),
       settings: const BackupSettings(themeMode: 'dark', accent: 'teal'),
       mediaFiles: {
@@ -223,7 +225,7 @@ void main() {
 
         expect(backup.data.animals.single.commonName, 'Old Animal');
         expect(backup.settings.animalSortOrder, 'ageYoungestFirst');
-        expect(backup.settings.boxSortOrder, 'createdNewestFirst');
+        expect(backup.settings.boxSortOrder, 'labelDescending');
       },
     );
 
@@ -360,7 +362,7 @@ void main() {
       AnimalSortOrder.ageYoungestFirst,
     );
 
-    expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
+    expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
   });
 
   test('missing media in unvalidated backup '
@@ -534,7 +536,7 @@ void main() {
       AnimalSortOrder.createdOldestFirst,
     );
 
-    expect(settingsController.boxSortOrder, BoxSortOrder.createdOldestFirst);
+    expect(settingsController.boxSortOrder, BoxSortOrder.labelAscending);
   });
 
   test('restores mixed legacy PNG and normalized WebP media', () async {
@@ -630,6 +632,41 @@ void main() {
       expect(state.isDue, isTrue);
     },
   );
+
+  test('restored feeding history predating the reminder baseline stays authoritative', () async {
+    await createExistingData();
+    final latestFeedingAt = DateTime(2026, 8, 25, 8, 45);
+    final restoreService = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (_) async {},
+    );
+
+    await restoreService.restore(
+      backup: createV2TargetBackup(
+        feedingEvents: [
+          BackupFeedingEvent(
+            id: 30,
+            animalId: 12,
+            fedAt: latestFeedingAt,
+            notes: 'Feeding before reminder activation',
+          ),
+        ],
+      ),
+      currentAppVersion: '0.14.1',
+    );
+
+    final reminderService = FeedingReminderService(
+      database,
+      now: () => DateTime(2026, 9, 12, 8, 45),
+    );
+    final state = await reminderService.getReminderStateForAnimal(12);
+
+    expect(state, isNotNull);
+    expect(state!.referenceAt, latestFeedingAt);
+    expect(state.dueAt, DateTime(2026, 9, 3, 8, 45));
+    expect(state.isDue, isTrue);
+  });
 
   test('safety backup includes box dimensions and picture', () async {
     final pictureBytes = Uint8List.fromList([7, 8, 9]);

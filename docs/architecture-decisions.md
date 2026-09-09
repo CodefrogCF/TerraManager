@@ -283,7 +283,6 @@ Animal presentation also has a user-selectable primary name:
 
 The Box Overview has a user-selectable order:
 
-- oldest or newest creation time first
 - ascending or descending natural Box number
 
 The Animal Overview has a user-selectable order:
@@ -345,7 +344,7 @@ Accent = TerraManager green
 Language = System
 AnimalNameOrder = Common name first
 AnimalSortOrder = Oldest created first
-BoxSortOrder = Oldest created first
+BoxSortOrder = Box number ascending
 ```
 
 The System language follows the operating-system locale. Unsupported locales
@@ -428,9 +427,11 @@ backups without the field restore the System language setting.
 TerraManager 0.11.0 adds the optional Animal name-order preference to the same
 file. This is also backward compatible; older backups restore common name first.
 
-TerraManager 0.13.3 adds the optional Box sort-order preference. Older backups
-restore oldest-created Box first, so the extension remains backward compatible
-without a new backup-format version.
+TerraManager 0.13.3 adds the optional Box sort-order preference. TerraManager
+0.14.1 limits new values to ascending or descending Box number. Missing and
+legacy oldest-created values map to ascending; legacy newest-created values map
+to descending. The extension remains backward compatible without a new
+backup-format version.
 
 TerraManager 0.13.4 adds the optional Animal sort-order preference with the same
 compatibility strategy. Older backups restore oldest-created Animal first.
@@ -846,7 +847,8 @@ Advantages:
 - reminder configuration persists with the Animal across restarts and archive
   transitions
 - newly enabled reminders start from a predictable baseline
-- later due-state calculations can use the later of baseline and latest feeding
+- due-state calculations use the latest feeding when present and the baseline
+  only when no feeding history exists
 - older backups and migrated databases naturally default to disabled reminders
 
 Disadvantages:
@@ -884,7 +886,7 @@ TerraManager calculates reminder state on demand. For every active Animal with
 a valid enabled reminder:
 
 ```text
-referenceAt = max(feedingReminderBaseline, latest FeedingEvent.fedAt)
+referenceAt = latest FeedingEvent.fedAt ?? feedingReminderBaseline
 dueAt = referenceAt + feedingReminderIntervalDays
 isDue = evaluatedAt >= dueAt
 ```
@@ -893,8 +895,10 @@ Database timestamps are converted to the injected clock's UTC or local
 representation before the state is returned. This preserves each absolute
 moment while avoiding platform-dependent timestamp representations.
 
-If no FeedingEvent exists, the configured baseline is used. An event older than
-the baseline cannot move the reminder backwards.
+If no FeedingEvent exists, the configured baseline is used. If feeding history
+exists, its latest event remains authoritative even when it predates reminder
+activation. Enabling a reminder can therefore immediately produce a due state
+for an Animal whose most recent feeding is older than the configured interval.
 
 The service loads configured active Animals once and obtains their latest
 feeding timestamps through one grouped `MAX(fedAt)` query. It receives the

@@ -12,7 +12,7 @@ class BackupSettings {
     this.language = 'system',
     this.animalNameOrder = 'commonNameFirst',
     this.animalSortOrder = 'createdOldestFirst',
-    this.boxSortOrder = 'createdOldestFirst',
+    this.boxSortOrder = 'labelAscending',
   });
 
   Map<String, dynamic> toJson() {
@@ -34,7 +34,7 @@ class BackupSettings {
       animalNameOrder: json['animalNameOrder'] as String? ?? 'commonNameFirst',
       animalSortOrder:
           json['animalSortOrder'] as String? ?? 'createdOldestFirst',
-      boxSortOrder: json['boxSortOrder'] as String? ?? 'createdOldestFirst',
+      boxSortOrder: json['boxSortOrder'] as String? ?? 'labelAscending',
     );
   }
 }

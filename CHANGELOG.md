@@ -4,6 +4,45 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [Unreleased]
+
+## [0.14.1] - 2026-09-09
+
+### Changed
+
+- feeding reminders now use the latest FeedingEvent whenever feeding history
+  exists, even when that event predates the reminder baseline
+- the reminder baseline is now used only for Animals without FeedingEvents
+- the Box Overview sort menu now contains only ascending and descending natural
+  Box-number ordering
+- ascending Box number is the new default ordering
+
+### Compatibility
+
+- existing `createdOldestFirst` Box preferences map to `labelAscending`
+- existing `createdNewestFirst` Box preferences map to `labelDescending`
+- legacy Box sort values remain valid during backup validation and restore
+- new backups write only `labelAscending` or `labelDescending`
+- Database Schema Version 5 and Portable Backup Format Version 2 remain
+  unchanged
+
+### Testing
+
+- updated reminder tests for feedings that predate reminder activation
+- retained baseline fallback coverage after deleting the final FeedingEvent
+- reduced Box sorting unit and widget coverage to the two supported directions
+- added local-settings migration and legacy-backup mapping coverage
+
+### Validated
+
+- `flutter analyze` without issues
+- complete automated test suite with 433 passing tests
+- successful Android and Web builds
+- corrected reminder behavior for Animals with and without feeding history
+- ascending and descending Box-number sorting, including persistence
+- legacy Box sort preference and backup compatibility
+- manual regression on a physical Android device
+
 ## [0.14.0] - 2026-09-09
 
 ### Added

@@ -4,15 +4,15 @@
 
 Latest completed release milestone:
 
-**v0.14.0 – Pre-1.0 UX Polish**
+**v0.14.1 – Post-release Fixes**
 
-Next planned milestone:
+Active development milestone:
 
 **v1.0.0 – MVP Release**
 
-Current release build:
+Current application version and build:
 
-**v0.14.0+32**
+**v0.14.1+33**
 
 Completed development areas:
 
@@ -63,8 +63,8 @@ Completed development areas:
 - optional per-Animal feeding reminder configuration with persistent interval
   and baseline
 - reminder configuration backup and restore with legacy-backup compatibility
-- deterministic feeding reminder calculation using the later of the baseline
-  and latest FeedingEvent
+- deterministic feeding reminder calculation using the latest FeedingEvent
+  when present and the baseline only without feeding history
 - efficient aggregate lookup and recalculation after FeedingEvent changes
 - non-modal, localized Feeding Reminder summary and due markers in the Animal
   Overview
@@ -75,8 +75,7 @@ Completed development areas:
 - one explicit Unknown sex choice with a legacy-null display fallback
 - direct Animal creation from empty and populated Box detail assignments
 - originating Box preselection and immediate assignment-list refresh
-- persistent localized Box Overview sorting by creation time or natural Box
-  number
+- persistent localized Box Overview sorting by natural Box number
 - backup-compatible Box ordering and matching contextual detail navigation
 - persistent Animal Overview sorting by creation time, displayed name, age or
   latest FeedingEvent
@@ -113,7 +112,12 @@ Issues #80 and #81 add persistent, backup-compatible Box and Animal Overview
 sorting with contextual detail navigation. Issue #82 completes release build
 `0.14.0+32`.
 
-The next planned milestone is v1.0.0, focused on final MVP release preparation
+v0.14.1 implementation, documentation, automated testing, supported builds and
+manual regression validation are complete. The patch corrects the reminder
+reference for existing feeding history and reduces Box sorting to the two
+meaningful Box-number directions while preserving legacy settings and backups.
+
+v1.0.0 is now the active milestone, focused on final MVP release preparation
 without expanding the established feature scope.
 
 ---
@@ -554,7 +558,8 @@ roughly one sixth of its previous size.
 
 ### Reminder Calculation — Issue #75
 
-- [x] Calculate the due time from the later of baseline and latest feeding
+- [x] Calculate the due time from the latest feeding when present, otherwise
+  from the baseline
 - [x] Exclude archived Animals and disabled reminders
 - [x] Recalculate after feeding creation, editing and deletion
 - [x] Use an injectable clock and an efficient aggregate query
@@ -631,6 +636,38 @@ roughly one sixth of its previous size.
 - [x] Update documentation and release notes
 - [x] Build the supported release artifacts
 - [x] Release v0.14.0
+
+---
+
+## v0.14.1 – Post-release Fixes
+
+### Feeding Reminder Reference
+
+- [x] Use the latest FeedingEvent whenever feeding history exists
+- [x] Use the reminder baseline only without FeedingEvents
+- [x] Allow old feeding history to produce an immediately due reminder
+- [x] Recalculate after FeedingEvent creation, editing and deletion
+- [x] Fall back to the baseline after deleting the final FeedingEvent
+- [x] Add deterministic regression coverage
+- [x] Validate the corrected reminder behavior manually on Android
+
+### Box Overview Sorting Simplification
+
+- [x] Keep only ascending and descending Box-number sorting
+- [x] Use ascending Box number as the default
+- [x] Migrate stored oldest/newest-created preferences
+- [x] Accept and map legacy Box sort values from backups
+- [x] Write only current Box sort values to new backups
+- [x] Keep contextual navigation aligned with the visible order
+- [x] Update localization and automated regression coverage
+- [x] Validate both Box ordering modes manually on Android
+
+### Patch Release
+
+- [x] Complete static analysis and automated regression testing
+- [x] Build and manually test the supported release artifacts
+- [x] Finalize v0.14.1 documentation and release notes
+- [x] Release v0.14.1
 
 ---
 

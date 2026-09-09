@@ -785,7 +785,7 @@ animalSortOrder
 These additive fields remain part of Backup Format Version 2. Older Version 1
 and Version 2 backups without these optional settings remain compatible.
 Missing `language` uses the System language, while missing `animalNameOrder`
-uses common name first, missing `boxSortOrder` uses oldest-created Box first and
+uses common name first, missing `boxSortOrder` uses ascending Box number and
 missing `animalSortOrder` uses oldest-created Animal first.
 
 Example:
@@ -904,14 +904,15 @@ the field is present with an unknown value, backup validation must fail.
 The optional Box sort-order field defines:
 
 ```text
-createdOldestFirst
-createdNewestFirst
 labelAscending
 labelDescending
 ```
 
-If the field is absent, restore uses `BoxSortOrder.createdOldestFirst`. If the
-field is present with an unknown value, backup validation must fail.
+If the field is absent, restore uses `BoxSortOrder.labelAscending`. Legacy
+`createdOldestFirst` values map to `labelAscending`, while
+`createdNewestFirst` maps to `labelDescending`. If the field is present with any
+other unknown value, backup validation must fail. New backups write only the
+two current label values.
 
 ## Archive Validation
 
@@ -1242,6 +1243,7 @@ TerraManager 0.12.1 -> Backup Format 2 with optional Animal reminder fields
 TerraManager 0.13.3 -> Backup Format 2 with an optional Box sort-order setting
 TerraManager 0.13.4 -> Backup Format 2 with an optional Animal sort-order setting
 TerraManager 0.14.0 -> Backup Format 2 (unchanged)
+TerraManager 0.14.1 -> Backup Format 2 with legacy Box-sort value mapping
 ```
 
 A later application release may continue to use Backup Format 2 if its portable
@@ -1390,7 +1392,9 @@ from Version 1 retain their existing restore semantics.
 Version 1 and older Version 2 backups do not contain language, Animal
 name-order, Animal sort-order or Box sort-order settings. Missing language is
 restored as `system`; missing Animal name order as `commonNameFirst`; and
-missing Animal and Box sort orders as `createdOldestFirst`.
+missing Animal sort order as `createdOldestFirst`; and missing Box sort order as
+`labelAscending`. Legacy Box creation-order values map to their corresponding
+ascending or descending Box-number direction.
 
 Backups created before TerraManager 0.12.1 do not contain Animal reminder
 fields. Missing reminder interval and baseline values restore as `null`, so the

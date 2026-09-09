@@ -94,44 +94,35 @@ void main() {
     expect(state!.isDue, isTrue);
   });
 
-  test(
-    'uses only the latest feeding that is later than the baseline',
-    () async {
-      final baseline = DateTime.utc(2026, 9, 10, 9);
-      final animalId = await createAnimal(
-        commonName: 'Multiple Feedings',
-        intervalDays: 5,
-        baseline: baseline,
-      );
-      await feedingRepository.addFeeding(
-        animalId,
-        DateTime.utc(2026, 9, 8, 18),
-      );
-      await feedingRepository.addFeeding(
-        animalId,
-        DateTime.utc(2026, 9, 12, 8),
-      );
-      await feedingRepository.addFeeding(
-        animalId,
-        DateTime.utc(2026, 9, 14, 20, 15),
-      );
-      final service = FeedingReminderService(
-        database,
-        now: () => DateTime.utc(2026, 9, 18),
-      );
+  test('uses the latest feeding when multiple feedings exist', () async {
+    final baseline = DateTime.utc(2026, 9, 10, 9);
+    final animalId = await createAnimal(
+      commonName: 'Multiple Feedings',
+      intervalDays: 5,
+      baseline: baseline,
+    );
+    await feedingRepository.addFeeding(animalId, DateTime.utc(2026, 9, 8, 18));
+    await feedingRepository.addFeeding(animalId, DateTime.utc(2026, 9, 12, 8));
+    await feedingRepository.addFeeding(
+      animalId,
+      DateTime.utc(2026, 9, 14, 20, 15),
+    );
+    final service = FeedingReminderService(
+      database,
+      now: () => DateTime.utc(2026, 9, 18),
+    );
 
-      final state = await service.getReminderStateForAnimal(animalId);
+    final state = await service.getReminderStateForAnimal(animalId);
 
-      expect(state, isNotNull);
-      expect(state!.latestFeedingAt, DateTime.utc(2026, 9, 14, 20, 15));
-      expect(state.latestFeedingAt!.isUtc, isTrue);
-      expect(state.referenceAt, DateTime.utc(2026, 9, 14, 20, 15));
-      expect(state.dueAt, DateTime.utc(2026, 9, 19, 20, 15));
-      expect(state.isDue, isFalse);
-    },
-  );
+    expect(state, isNotNull);
+    expect(state!.latestFeedingAt, DateTime.utc(2026, 9, 14, 20, 15));
+    expect(state.latestFeedingAt!.isUtc, isTrue);
+    expect(state.referenceAt, DateTime.utc(2026, 9, 14, 20, 15));
+    expect(state.dueAt, DateTime.utc(2026, 9, 19, 20, 15));
+    expect(state.isDue, isFalse);
+  });
 
-  test('ignores a latest feeding that predates the baseline', () async {
+  test('uses a latest feeding that predates the reminder baseline', () async {
     final baseline = DateTime.utc(2026, 9, 10, 9);
     final animalId = await createAnimal(
       commonName: 'Old Feeding',
@@ -148,8 +139,8 @@ void main() {
 
     expect(state, isNotNull);
     expect(state!.latestFeedingAt, DateTime.utc(2026, 9, 8, 18));
-    expect(state.referenceAt, baseline);
-    expect(state.dueAt, DateTime.utc(2026, 9, 15, 9));
+    expect(state.referenceAt, DateTime.utc(2026, 9, 8, 18));
+    expect(state.dueAt, DateTime.utc(2026, 9, 13, 18));
     expect(state.isDue, isTrue);
   });
 

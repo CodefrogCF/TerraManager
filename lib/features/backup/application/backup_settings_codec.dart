@@ -16,7 +16,7 @@ class BackupSettingsCodec {
     AppLanguage language = AppLanguage.system,
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
-    BoxSortOrder boxSortOrder = BoxSortOrder.createdOldestFirst,
+    BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
   }) {
     return BackupSettings(
       themeMode: encodeThemeMode(themeMode),
@@ -106,8 +106,6 @@ class BackupSettingsCodec {
 
   static String encodeBoxSortOrder(BoxSortOrder value) {
     return switch (value) {
-      BoxSortOrder.createdOldestFirst => 'createdOldestFirst',
-      BoxSortOrder.createdNewestFirst => 'createdNewestFirst',
       BoxSortOrder.labelAscending => 'labelAscending',
       BoxSortOrder.labelDescending => 'labelDescending',
     };
@@ -115,10 +113,8 @@ class BackupSettingsCodec {
 
   static BoxSortOrder decodeBoxSortOrder(String value) {
     return switch (value) {
-      'createdOldestFirst' => BoxSortOrder.createdOldestFirst,
-      'createdNewestFirst' => BoxSortOrder.createdNewestFirst,
-      'labelAscending' => BoxSortOrder.labelAscending,
-      'labelDescending' => BoxSortOrder.labelDescending,
+      'labelAscending' || 'createdOldestFirst' => BoxSortOrder.labelAscending,
+      'labelDescending' || 'createdNewestFirst' => BoxSortOrder.labelDescending,
       _ => throw FormatException(
         'Unsupported BoxSortOrder backup value: $value',
       ),

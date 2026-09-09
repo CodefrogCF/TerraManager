@@ -40,6 +40,6 @@ void main() {
 
     expect(restored.animalSortOrder, 'createdOldestFirst');
 
-    expect(restored.boxSortOrder, 'createdOldestFirst');
+    expect(restored.boxSortOrder, 'labelAscending');
   });
 }

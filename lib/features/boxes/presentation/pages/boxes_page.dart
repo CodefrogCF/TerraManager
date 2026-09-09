@@ -189,8 +189,7 @@ class _BoxesPageState extends State<BoxesPage> {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.maybeOf(context);
-    final boxSortOrder =
-        settings?.boxSortOrder ?? BoxSortOrder.createdOldestFirst;
+    final boxSortOrder = settings?.boxSortOrder ?? BoxSortOrder.labelAscending;
 
     return Scaffold(
       appBar: AppBar(

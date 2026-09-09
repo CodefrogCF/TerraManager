@@ -10,15 +10,15 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Current completed release milestone:
 
-**v0.14.0 – Pre-1.0 UX Polish**
+**v0.14.1 – Post-release Fixes**
 
-Next planned milestone:
+Active development milestone:
 
 **v1.0.0 – MVP Release**
 
-Current release build:
+Current application version and build:
 
-**v0.14.0+32**
+**v0.14.1+33**
 
 Implemented milestones in the current source state:
 
@@ -37,16 +37,21 @@ Implemented milestones in the current source state:
 - v0.12.0 – Media Optimization
 - v0.13.0 – Feeding Reminders
 - v0.14.0 – Pre-1.0 UX Polish
+- v0.14.1 – Post-release Fixes
 
 Android and Web are currently validated platforms.
 
-The v0.14.0 implementation, automated regression, supported builds and manual
-validation are complete. The release provides consistent Animal form labels,
-direct preassigned Animal creation from Box details and persistent Box and
-Animal Overview sorting. The validation record and release notes are available
-in `docs/release-v0.14.0.md`.
+The v0.14.1 patch implementation, automated regression, supported builds and
+manual validation are complete. The release corrects reminder calculation for
+Animals with existing feeding history and simplifies Box Overview sorting to
+ascending or descending Box number while preserving legacy settings and backup
+compatibility. The validation record and release notes are available in
+`docs/release-v0.14.1.md`.
 
 TerraManager now enters preparation for the v1.0.0 MVP release.
+
+The completed v0.14.0 validation record remains available in
+`docs/release-v0.14.0.md`.
 
 The completed v0.13.0 validation record remains available in
 `docs/release-v0.13.0.md`.
@@ -97,8 +102,7 @@ application restarts.
 - Box editing while keeping the QR identifier immutable
 - human-readable local labels (`Box N`)
 - Box thumbnails in the overview
-- localized Box Overview sorting by oldest/newest creation time or ascending/
-  descending natural Box number
+- localized Box Overview sorting by ascending or descending natural Box number
 - persistent Box Overview ordering across application restarts
 - preserved Box overview scroll position after detail navigation
 - contextual swipe navigation through the Box Overview ordering
@@ -145,8 +149,8 @@ application restarts.
 - positive whole-day reminder intervals
 - reminder baselines set when reminders are enabled
 - reminder configuration retained while an Animal is archived
-- due timestamps calculated from the later of reminder baseline and latest
-  feeding
+- due timestamps calculated from the latest feeding when one exists, otherwise
+  from the reminder baseline
 - disabled and archived Animals excluded from active reminder results
 - non-modal overview summary listing currently due Animals
 - visible due markers in the Animal Overview
@@ -275,11 +279,12 @@ details, Box assignments and Quick Feeding Mode. It is stored locally and
 included in newly created `.tmbackup` files. Older backups default to common
 name first.
 
-The Box Overview sort menu offers oldest or newest creation time and ascending
-or descending Box number. Box numbers are compared numerically, so `Box 10`
-correctly follows `Box 2` in ascending order. The selected ordering is applied
-to both the list and contextual Box detail navigation, stored locally and
-included in new backups. Older backups default to oldest-created Box first.
+The Box Overview sort menu offers ascending or descending Box number. Box
+numbers are compared numerically, so `Box 10` correctly follows `Box 2` in
+ascending order. The selected ordering is applied to both the list and
+contextual Box detail navigation, stored locally and included in new backups.
+Older missing or oldest-created-first values map to ascending Box number;
+newest-created-first values map to descending Box number.
 
 The Animal Overview sort menu offers oldest/newest creation time, displayed
 name A–Z/Z–A, oldest/youngest age and newest/oldest latest feeding. Name sorting

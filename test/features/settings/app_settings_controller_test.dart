@@ -15,7 +15,7 @@ void main() {
   });
 
   test('defaults to system theme, green accent, system language, common '
-      'name first, and oldest records first', () async {
+      'name first, oldest Animals first, and ascending Boxes', () async {
     final controller = AppSettingsController();
 
     await controller.load();
@@ -30,7 +30,7 @@ void main() {
 
     expect(controller.animalSortOrder, AnimalSortOrder.createdOldestFirst);
 
-    expect(controller.boxSortOrder, BoxSortOrder.createdOldestFirst);
+    expect(controller.boxSortOrder, BoxSortOrder.labelAscending);
   });
 
   test('loads persisted settings', () async {
@@ -120,13 +120,39 @@ void main() {
 
     await controller.load();
 
-    await controller.setBoxSortOrder(BoxSortOrder.createdNewestFirst);
+    await controller.setBoxSortOrder(BoxSortOrder.labelDescending);
 
     final preferences = await SharedPreferences.getInstance();
 
-    expect(controller.boxSortOrder, BoxSortOrder.createdNewestFirst);
+    expect(controller.boxSortOrder, BoxSortOrder.labelDescending);
 
-    expect(preferences.getString('box_sort_order'), 'createdNewestFirst');
+    expect(preferences.getString('box_sort_order'), 'labelDescending');
+  });
+
+  test('maps legacy newest-created Boxes to descending numbers', () async {
+    SharedPreferences.setMockInitialValues({
+      'box_sort_order': 'createdNewestFirst',
+    });
+    final controller = AppSettingsController();
+
+    await controller.load();
+
+    expect(controller.boxSortOrder, BoxSortOrder.labelDescending);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('box_sort_order'), 'labelDescending');
+  });
+
+  test('maps legacy oldest-created Boxes to ascending numbers', () async {
+    SharedPreferences.setMockInitialValues({
+      'box_sort_order': 'createdOldestFirst',
+    });
+    final controller = AppSettingsController();
+
+    await controller.load();
+
+    expect(controller.boxSortOrder, BoxSortOrder.labelAscending);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('box_sort_order'), 'labelAscending');
   });
 
   test('persists Animal sort order', () async {
@@ -167,7 +193,7 @@ void main() {
 
     expect(controller.animalSortOrder, AnimalSortOrder.createdOldestFirst);
 
-    expect(controller.boxSortOrder, BoxSortOrder.createdOldestFirst);
+    expect(controller.boxSortOrder, BoxSortOrder.labelAscending);
   });
 
   test('replaceSettings persists all settings together', () async {

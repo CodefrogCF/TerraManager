@@ -32,7 +32,7 @@ void main() {
     String? language = 'system',
     String? animalNameOrder = 'commonNameFirst',
     String? animalSortOrder = 'createdOldestFirst',
-    String? boxSortOrder = 'createdOldestFirst',
+    String? boxSortOrder = 'labelAscending',
   }) {
     return {
       'themeMode': themeMode,
@@ -185,7 +185,7 @@ void main() {
 
     expect(result.settings.animalSortOrder, 'createdOldestFirst');
 
-    expect(result.settings.boxSortOrder, 'createdOldestFirst');
+    expect(result.settings.boxSortOrder, 'labelAscending');
   });
 
   test('accepts legacy settings without additive preferences', () {
@@ -206,7 +206,25 @@ void main() {
 
     expect(result.settings.animalSortOrder, 'createdOldestFirst');
 
-    expect(result.settings.boxSortOrder, 'createdOldestFirst');
+    expect(result.settings.boxSortOrder, 'labelAscending');
+  });
+
+  test('accepts legacy Box creation sort values', () {
+    final oldestBytes = createArchive(
+      settings: settingsJson(boxSortOrder: 'createdOldestFirst'),
+    );
+    final newestBytes = createArchive(
+      settings: settingsJson(boxSortOrder: 'createdNewestFirst'),
+    );
+
+    expect(
+      validator.validate(oldestBytes).settings.boxSortOrder,
+      'createdOldestFirst',
+    );
+    expect(
+      validator.validate(newestBytes).settings.boxSortOrder,
+      'createdNewestFirst',
+    );
   });
 
   test('accepts valid archived animal', () {

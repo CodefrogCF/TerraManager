@@ -108,11 +108,10 @@ class FeedingReminderService {
     final normalizedLatestFeedingAt = latestFeedingAt == null
         ? null
         : _inClockTimeZone(latestFeedingAt, evaluatedAt);
-    final referenceAt =
-        normalizedLatestFeedingAt != null &&
-            normalizedLatestFeedingAt.isAfter(normalizedBaseline)
-        ? normalizedLatestFeedingAt
-        : normalizedBaseline;
+
+    // Feeding history is authoritative whenever it exists. The baseline only
+    // gives Animals without any FeedingEvent a defined starting point.
+    final referenceAt = normalizedLatestFeedingAt ?? normalizedBaseline;
     final dueAt = referenceAt.add(Duration(days: intervalDays));
 
     return FeedingReminderState(

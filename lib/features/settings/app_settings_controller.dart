@@ -20,7 +20,7 @@ class AppSettingsController extends ChangeNotifier {
   AppLanguage _language = AppLanguage.system;
   AnimalNameOrder _animalNameOrder = AnimalNameOrder.commonNameFirst;
   AnimalSortOrder _animalSortOrder = AnimalSortOrder.createdOldestFirst;
-  BoxSortOrder _boxSortOrder = BoxSortOrder.createdOldestFirst;
+  BoxSortOrder _boxSortOrder = BoxSortOrder.labelAscending;
 
   ThemeMode get themeMode => _themeMode;
   AppAccent get accent => _accent;
@@ -46,7 +46,13 @@ class AppSettingsController extends ChangeNotifier {
       preferences.getString(_animalSortOrderKey),
     );
 
-    _boxSortOrder = _parseBoxSortOrder(preferences.getString(_boxSortOrderKey));
+    final storedBoxSortOrder = preferences.getString(_boxSortOrderKey);
+    _boxSortOrder = _parseBoxSortOrder(storedBoxSortOrder);
+
+    if (storedBoxSortOrder == 'createdOldestFirst' ||
+        storedBoxSortOrder == 'createdNewestFirst') {
+      await preferences.setString(_boxSortOrderKey, _boxSortOrder.name);
+    }
 
     notifyListeners();
   }
@@ -186,17 +192,11 @@ class AppSettingsController extends ChangeNotifier {
   }
 
   BoxSortOrder _parseBoxSortOrder(String? value) {
-    if (value == null) {
-      return BoxSortOrder.createdOldestFirst;
-    }
-
-    for (final order in BoxSortOrder.values) {
-      if (order.name == value) {
-        return order;
-      }
-    }
-
-    return BoxSortOrder.createdOldestFirst;
+    return switch (value) {
+      'labelAscending' || 'createdOldestFirst' => BoxSortOrder.labelAscending,
+      'labelDescending' || 'createdNewestFirst' => BoxSortOrder.labelDescending,
+      _ => BoxSortOrder.labelAscending,
+    };
   }
 
   AnimalSortOrder _parseAnimalSortOrder(String? value) {

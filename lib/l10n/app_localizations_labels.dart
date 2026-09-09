@@ -74,8 +74,6 @@ extension AppLocalizationsLabels on AppLocalizations {
 
   String boxSortOrderLabel(BoxSortOrder order) {
     return switch (order) {
-      BoxSortOrder.createdOldestFirst => boxSortCreatedOldestFirst,
-      BoxSortOrder.createdNewestFirst => boxSortCreatedNewestFirst,
       BoxSortOrder.labelAscending => boxSortLabelAscending,
       BoxSortOrder.labelDescending => boxSortLabelDescending,
     };

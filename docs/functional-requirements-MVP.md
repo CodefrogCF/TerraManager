@@ -11,7 +11,6 @@ The application must allow the user to:
 - create a new Box
 - automatically assign a permanent unique QR identifier
 - view the Box overview
-- sort the Box overview by oldest or newest creation time
 - sort the Box overview by ascending or descending natural Box number
 - persist the selected Box Overview order between application restarts
 - view Box details
@@ -192,10 +191,11 @@ incomplete reminder configuration must not be saved.
 Archiving an Animal must retain its configuration for a later restore, while
 archived Animals must not produce active reminder results.
 
-For each active Animal with an enabled reminder, the reminder reference is the
-later of the configured baseline and latest FeedingEvent timestamp. The due
-timestamp is that reference plus the configured whole-day interval. The Animal
-is due when the current time is equal to or later than this timestamp.
+For each active Animal with an enabled reminder, the reminder reference is its
+latest FeedingEvent timestamp whenever feeding history exists. The configured
+baseline is used only when no FeedingEvent exists. The due timestamp is that
+reference plus the configured whole-day interval. The Animal is due when the
+current time is equal to or later than this timestamp.
 
 Reminder calculations must use current FeedingEvent data rather than storing a
 duplicate due-state value. Adding, editing or deleting a FeedingEvent must
@@ -326,8 +326,10 @@ The application must allow the user to:
 - restore persistent Animal pictures
 - restore appearance, language and overview-order settings
 - restore older backups without a language field using the System setting
-- restore older backups without a Box sort-order field using oldest-created
-  Box first
+- restore older backups without a Box sort-order field using ascending Box
+  number
+- map legacy oldest/newest-created Box sort values to ascending/descending Box
+  number
 - restore older backups without an Animal sort-order field using
   oldest-created Animal first
 - export and restore optional per-Animal feeding reminder configuration

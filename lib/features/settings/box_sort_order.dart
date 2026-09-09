@@ -1,6 +1,1 @@
-enum BoxSortOrder {
-  createdOldestFirst,
-  createdNewestFirst,
-  labelAscending,
-  labelDescending,
-}
+enum BoxSortOrder { labelAscending, labelDescending }

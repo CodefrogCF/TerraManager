@@ -210,28 +210,30 @@ void main() {
     await tester.tap(find.byKey(const Key('box-sort-button')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Oldest created first'), findsOneWidget);
-    expect(find.text('Newest created first'), findsOneWidget);
+    expect(find.text('Oldest created first'), findsNothing);
+    expect(find.text('Newest created first'), findsNothing);
     expect(find.text('Box number ascending'), findsOneWidget);
     expect(find.text('Box number descending'), findsOneWidget);
 
-    await tester.tap(find.text('Newest created first'));
+    await tester.tap(find.text('Box number descending'));
     await tester.pumpAndSettle();
 
     expect(
-      tester.getTopLeft(find.byKey(Key('box-list-item-$secondId'))).dy,
-      lessThan(tester.getTopLeft(find.byKey(Key('box-list-item-$thirdId'))).dy),
+      tester.getTopLeft(find.byKey(Key('box-list-item-$thirdId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('box-list-item-$secondId'))).dy,
+      ),
     );
     expect(
-      tester.getTopLeft(find.byKey(Key('box-list-item-$thirdId'))).dy,
+      tester.getTopLeft(find.byKey(Key('box-list-item-$secondId'))).dy,
       lessThan(tester.getTopLeft(find.byKey(Key('box-list-item-$firstId'))).dy),
     );
 
-    expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
+    expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
 
     final preferences = await SharedPreferences.getInstance();
 
-    expect(preferences.getString('box_sort_order'), 'createdNewestFirst');
+    expect(preferences.getString('box_sort_order'), 'labelDescending');
 
     await tester.tap(find.byKey(Key('box-list-item-$thirdId')));
     await tester.pumpAndSettle();
@@ -239,8 +241,8 @@ void main() {
     final detailPage = tester.widget<BoxDetailPage>(find.byType(BoxDetailPage));
 
     expect(detailPage.navigationContext!.recordIds, [
-      secondId,
       thirdId,
+      secondId,
       firstId,
     ]);
   });

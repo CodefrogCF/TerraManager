@@ -200,7 +200,7 @@ void main() {
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
       animalSortOrder: AnimalSortOrder.ageYoungestFirst,
-      boxSortOrder: BoxSortOrder.createdNewestFirst,
+      boxSortOrder: BoxSortOrder.labelDescending,
       createdAt: DateTime.utc(2026, 9, 2, 15),
     );
 
@@ -263,7 +263,7 @@ void main() {
       AnimalSortOrder.ageYoungestFirst,
     );
 
-    expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
+    expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
 
     // Restore creates a safety
     // backup before replacing data.
@@ -283,7 +283,7 @@ void main() {
 
     expect(
       fileGateway.savedBackups.single.settings.boxSortOrder,
-      'createdOldestFirst',
+      'labelAscending',
     );
 
     expect(

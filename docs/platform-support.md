@@ -24,6 +24,10 @@ The completed v0.14.0 Pre-1.0 UX Polish regression and release-build validation
 is documented in `release-v0.14.0.md`. The platform lists below include this
 validation.
 
+The completed v0.14.1 Post-release Fixes regression and release-build
+validation is documented in `release-v0.14.1.md`. The platform lists below
+include this validation.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 
@@ -46,7 +50,8 @@ Validated functionality includes:
 - core navigation
 - Drift/SQLite persistence
 - box creation and persistence
-- oldest/newest and natural ascending/descending Box Overview sorting
+- natural ascending/descending Box Overview sorting, including migrated legacy
+  ordering preferences
 - persistent Box ordering and matching contextual detail navigation
 - creation-time, displayed-name, age and latest-feeding Animal Overview sorting
 - deterministic missing-data ordering, persistent Animal sorting and matching
@@ -123,6 +128,8 @@ Validated functionality includes:
 - legacy and WebP display in overview, detail and full-screen views
 - mixed legacy and WebP backup export and restore
 - optional per-Animal feeding reminder configuration and persistence
+- latest-FeedingEvent reminder reference with baseline fallback only for
+  Animals without feeding history
 - non-modal due summary, due markers and scheduled or due detail status
 - direct reminder navigation to the existing feeding workflow
 - immediate reminder refresh after normal and Quick Feeding changes
@@ -163,7 +170,8 @@ Validated functionality includes:
 - Drift database operation
 - persistence across normal browser reloads
 - box and animal workflows
-- oldest/newest and natural ascending/descending Box Overview sorting
+- natural ascending/descending Box Overview sorting, including legacy backup
+  order mapping
 - creation-time, displayed-name, age and latest-feeding Animal Overview sorting
 - persistent overview ordering and matching contextual detail navigation
 - Box editing and optional dimensions
@@ -228,6 +236,8 @@ Validated functionality includes:
 - legacy and WebP display in overview, detail and full-screen views
 - mixed legacy and WebP backup export and restore
 - optional per-Animal feeding reminder configuration and persistence
+- latest-FeedingEvent reminder reference with baseline fallback only for
+  Animals without feeding history
 - non-modal due summary, due markers and scheduled or due detail status
 - direct reminder navigation to the existing feeding workflow
 - immediate reminder refresh after normal and Quick Feeding changes

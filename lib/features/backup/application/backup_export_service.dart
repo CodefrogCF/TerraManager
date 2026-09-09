@@ -40,7 +40,7 @@ class BackupExportService {
     AppLanguage language = AppLanguage.system,
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
-    BoxSortOrder boxSortOrder = BoxSortOrder.createdOldestFirst,
+    BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
     DateTime? createdAt,
   }) async {
     final backupTime = createdAt ?? DateTime.now();

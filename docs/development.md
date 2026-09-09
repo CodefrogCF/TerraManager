@@ -188,7 +188,8 @@ Examples:
 - reminder interval and baseline persistence after an application restart
 - reminder configuration retention across archive and restore
 - current and legacy backup round trips for reminder configuration
-- reminder calculation from the later of baseline and latest FeedingEvent
+- reminder calculation from the latest FeedingEvent when present, otherwise
+  from the reminder baseline
 - exact due-boundary behavior with an injected clock
 - recalculation after FeedingEvent creation, editing and deletion
 - disabled and archived Animal exclusion from reminder results
@@ -213,10 +214,10 @@ Examples:
 - System, English and German language selection
 - language persistence and unsupported-locale fallback
 - language-setting backup and restore
-- oldest/newest and natural ascending/descending Box Overview sorting
+- natural ascending/descending Box Overview sorting
 - Box sort-order persistence after an application restart
 - contextual Box detail swiping in the currently visible order
-- Box sort-order backup, restore and legacy-backup default behavior
+- Box sort-order backup, restore and legacy creation-order migration behavior
 - oldest/newest creation order and natural ascending/descending Animal sorting
 - oldest/youngest Animal sorting with missing birth dates placed deterministically
 - newest/oldest FeedingEvent sorting with never-fed Animals placed deterministically
@@ -259,6 +260,12 @@ flutter build web
 ```
 
 Then perform manual regression testing on validated target platforms.
+
+The completed v0.14.1 validation record and release notes are available in:
+
+```text
+docs/release-v0.14.1.md
+```
 
 The completed v0.14.0 validation record and release notes are available in:
 

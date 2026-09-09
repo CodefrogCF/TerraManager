@@ -134,7 +134,7 @@ Animal
 - archivedAt – optional archive date
 - archiveNotes – optional archive notes
 - feedingReminderIntervalDays – optional positive whole-day feeding interval
-- feedingReminderBaseline – optional timestamp from which the interval starts
+- feedingReminderBaseline – fallback timestamp used when no FeedingEvent exists
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
@@ -206,7 +206,7 @@ interval of an enabled reminder preserves its existing baseline.
 The due state is derived and is not persisted as another Animal field:
 
 ```text
-referenceAt = max(feedingReminderBaseline, latest FeedingEvent.fedAt)
+referenceAt = latest FeedingEvent.fedAt ?? feedingReminderBaseline
 dueAt = referenceAt + feedingReminderIntervalDays
 isDue = evaluatedAt >= dueAt
 ```
@@ -216,8 +216,9 @@ the injected calculation clock before they are exposed in a reminder state.
 Their absolute moments remain unchanged, which keeps calculations and tests
 consistent across platform time zones.
 
-When no FeedingEvent exists, the baseline is the reference. FeedingEvents older
-than the baseline do not move the reference backwards. Equality at the due
+When no FeedingEvent exists, the baseline is the reference. When feeding
+history exists, the latest FeedingEvent remains authoritative even if it
+predates the reminder baseline. Equality at the due
 timestamp counts as due.
 
 The application queries all active Animals with valid reminder configuration

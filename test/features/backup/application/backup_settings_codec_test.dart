@@ -106,14 +106,6 @@ void main() {
 
   test('Box sort orders use stable backup values and round trip', () {
     expect(
-      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.createdOldestFirst),
-      'createdOldestFirst',
-    );
-    expect(
-      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.createdNewestFirst),
-      'createdNewestFirst',
-    );
-    expect(
       BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.labelAscending),
       'labelAscending',
     );
@@ -128,6 +120,17 @@ void main() {
 
       expect(decoded, value);
     }
+  });
+
+  test('legacy Box creation orders map to Box number orders', () {
+    expect(
+      BackupSettingsCodec.decodeBoxSortOrder('createdOldestFirst'),
+      BoxSortOrder.labelAscending,
+    );
+    expect(
+      BackupSettingsCodec.decodeBoxSortOrder('createdNewestFirst'),
+      BoxSortOrder.labelDescending,
+    );
   });
 
   test('Animal sort orders use stable backup values and round trip', () {

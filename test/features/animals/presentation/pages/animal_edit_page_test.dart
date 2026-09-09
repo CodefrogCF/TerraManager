@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
@@ -31,6 +32,7 @@ void main() {
     int? pictureMediaId,
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
+    Sex? sex = Sex.female,
   }) async {
     final boxId = await database
         .into(database.boxes)
@@ -40,7 +42,7 @@ void main() {
       boxId: boxId,
       commonName: 'Test Snake',
       latinName: 'Pantherophis guttatus',
-      sex: Sex.female,
+      sex: sex,
       birthDate: DateTime(2024, 5, 10),
       tempMin: 24,
       tempMax: 28,
@@ -190,7 +192,7 @@ void main() {
 
     expect(find.byKey(const Key('sex-field')), findsOneWidget);
 
-    expect(find.text('Sex.female'), findsOneWidget);
+    expect(find.text('Female'), findsOneWidget);
 
     expect(find.byKey(const Key('birth-date-field')), findsOneWidget);
 
@@ -199,6 +201,64 @@ void main() {
     expect(find.byKey(const Key('box-field')), findsOneWidget);
 
     expect(find.text('Box 1'), findsOneWidget);
+  });
+
+  testWidgets('shows localized sex and birth accuracy options', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPage(tester, animalId: animalId);
+
+    final sexDropdown = tester.widget<DropdownButton<Sex>>(
+      find.descendant(
+        of: find.byKey(const Key('sex-field')),
+        matching: find.byType(DropdownButton<Sex>),
+      ),
+    );
+
+    expect(sexDropdown.value, Sex.female);
+    expect(sexDropdown.items!.map((item) => item.value), Sex.values);
+    expect(sexDropdown.items!.map((item) => (item.child as Text).data), [
+      'Male',
+      'Female',
+      'Unknown',
+    ]);
+
+    final birthAccuracyDropdown = tester
+        .widget<DropdownButton<BirthDateAccuracy?>>(
+          find.descendant(
+            of: find.byKey(const Key('birth-date-accuracy-field')),
+            matching: find.byType(DropdownButton<BirthDateAccuracy?>),
+          ),
+        );
+
+    expect(
+      birthAccuracyDropdown.items!.map((item) => (item.child as Text).data),
+      ['Unknown', 'Exact', 'Month known', 'Year known'],
+    );
+  });
+
+  testWidgets('maps a legacy missing sex to the Unknown option', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal(sex: null);
+
+    await pumpPage(tester, animalId: animalId);
+
+    final sexDropdown = tester.widget<DropdownButton<Sex>>(
+      find.descendant(
+        of: find.byKey(const Key('sex-field')),
+        matching: find.byType(DropdownButton<Sex>),
+      ),
+    );
+
+    expect(sexDropdown.value, Sex.unknown);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('sex-field')),
+        matching: find.text('Unknown'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows error when animal does not exist', (tester) async {

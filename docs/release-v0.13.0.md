@@ -227,3 +227,60 @@ Get-FileHash build/app/outputs/flutter-apk/app-release.apk -Algorithm SHA256
 - [x] Backup Format Version 2 compatibility documented
 - [x] Android/Web platform validation reference added
 - [x] final validation results recorded after local testing
+
+## GitHub Release Description
+
+Use the following text after every required validation succeeds:
+
+```markdown
+## TerraManager v0.13.0 – Feeding Reminders
+
+TerraManager v0.13.0 introduces optional, local feeding schedules and visible
+in-app reminders for individual Animals.
+
+### Highlights
+
+- Configure an independent feeding interval for each Animal.
+- Keep reminders disabled by default and validate positive whole-day intervals.
+- Calculate the next feeding from the later of the reminder baseline and latest
+  FeedingEvent.
+- See due Animals in a non-modal, most-overdue-first overview summary.
+- Identify due Animals directly in the normal Animal list.
+- View the due or scheduled timestamp on Animal details.
+- Open the existing feeding workflow directly from a reminder.
+- Refresh reminders after feeding creation, editing, deletion and QR Quick
+  Feeding.
+- Use the complete reminder workflow in English or German.
+
+### Compatibility
+
+- Database Schema Version: 5
+- Portable Backup Format Version: 2 (unchanged)
+- Existing databases migrate with reminders disabled and without data loss.
+- Current backups preserve reminder configuration.
+- Older backups restore with reminders disabled.
+- Archived Animals retain configuration but do not produce active reminders.
+- Android and Web are supported and regression-tested.
+- System notifications and iOS validation remain stretch goals.
+```
+
+## Final Release Actions
+
+Complete only after every required validation succeeds:
+
+- [x] record all confirmed results in this checklist
+- [x] update README and Roadmap from release candidate to completed release
+- [x] mark all validated Issue #77 Roadmap items complete
+- [x] commit and push the final release documentation
+- [x] create annotated tag `v0.13.0`
+- [x] push tag `v0.13.0`
+- [x] publish the GitHub v0.13.0 release with the release APK and checksum
+- [x] close Issue #77
+- [x] close the v0.13.0 milestone
+
+Recommended Git commands after the final documentation commit:
+
+```text
+git tag -a v0.13.0 -m "TerraManager v0.13.0"
+git push origin v0.13.0
+```

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
@@ -168,6 +169,44 @@ void main() {
     );
   });
 
+  testWidgets('shows localized sex and birth accuracy options', (tester) async {
+    await createTestBox();
+
+    await pumpPage(tester);
+
+    final sexDropdown = tester.widget<DropdownButton<Sex>>(
+      find.descendant(
+        of: find.byKey(const Key('sex-field')),
+        matching: find.byType(DropdownButton<Sex>),
+      ),
+    );
+    final sexItems = sexDropdown.items!;
+
+    expect(sexDropdown.value, Sex.unknown);
+    expect(sexItems.map((item) => item.value), Sex.values);
+    expect(sexItems.map((item) => (item.child as Text).data), [
+      'Male',
+      'Female',
+      'Unknown',
+    ]);
+
+    final birthAccuracyDropdown = tester
+        .widget<DropdownButton<BirthDateAccuracy?>>(
+          find.descendant(
+            of: find.byKey(const Key('birth-date-accuracy-field')),
+            matching: find.byType(DropdownButton<BirthDateAccuracy?>),
+          ),
+        );
+    final birthAccuracyItems = birthAccuracyDropdown.items!;
+
+    expect(birthAccuracyItems.map((item) => (item.child as Text).data), [
+      'Unknown',
+      'Exact',
+      'Month known',
+      'Year known',
+    ]);
+  });
+
   testWidgets('shows message when no boxes exist', (tester) async {
     await pumpPage(tester);
 
@@ -243,6 +282,7 @@ void main() {
     expect(animal.tempMax, 28);
     expect(animal.humidityMin, 40);
     expect(animal.humidityMax, 60);
+    expect(animal.sex, Sex.unknown);
   });
 
   testWidgets('can create animal with optional sex', (tester) async {
@@ -260,9 +300,9 @@ void main() {
     await tester.tap(sexField);
     await tester.pumpAndSettle();
 
-    expect(find.text('Sex.female'), findsWidgets);
+    expect(find.text('Female'), findsWidgets);
 
-    await tester.tap(find.text('Sex.female').last);
+    await tester.tap(find.text('Female').last);
 
     await tester.pumpAndSettle();
 

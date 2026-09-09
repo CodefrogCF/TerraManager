@@ -49,7 +49,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   List<Box> _boxes = [];
 
   int? _boxId;
-  Sex? _sex;
+  Sex _sex = Sex.unknown;
   DateTime? _birthDate;
   BirthDateAccuracy? _birthDateAccuracy;
   bool _feedingReminderEnabled = false;
@@ -372,25 +372,25 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             ),
             const SizedBox(height: 16),
 
-            DropdownButtonFormField<Sex?>(
+            DropdownButtonFormField<Sex>(
               key: const Key('sex-field'),
               initialValue: _sex,
               decoration: InputDecoration(labelText: context.l10n.sex),
-              items: [
-                DropdownMenuItem<Sex?>(
-                  value: null,
-                  child: Text(context.l10n.unknown),
-                ),
-                ...Sex.values.map(
-                  (sex) => DropdownMenuItem<Sex?>(
-                    value: sex,
-                    child: Text(context.l10n.animalSexLabel(sex)),
-                  ),
-                ),
-              ],
+              items: Sex.values
+                  .map(
+                    (sex) => DropdownMenuItem<Sex>(
+                      value: sex,
+                      child: Text(context.l10n.animalSexLabel(sex)),
+                    ),
+                  )
+                  .toList(),
               onChanged: _saving
                   ? null
                   : (value) {
+                      if (value == null) {
+                        return;
+                      }
+
                       setState(() {
                         _sex = value;
                       });

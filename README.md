@@ -12,13 +12,13 @@ Current completed release milestone:
 
 **v0.13.0 – Feeding Reminders**
 
-Next planned development milestone:
+Active development milestone:
 
 **v0.14.0 – Pre-1.0 UX Polish**
 
-Current release build:
+Current development build:
 
-**v0.13.0+27**
+**v0.13.1+28**
 
 Implemented milestones in the current source state:
 
@@ -42,6 +42,10 @@ Android and Web are currently validated platforms.
 The v0.13.0 implementation, automated regression, Android/Web validation and
 release builds are complete. The validation record and release notes are
 available in `docs/release-v0.13.0.md`.
+
+Development of v0.14.0 is in progress. Its first update replaces raw enum text
+in Animal sex and birth-date-accuracy controls with consistent English and
+German labels and removes the duplicate Unknown sex option.
 
 The completed v0.12.0 validation record remains available in
 `docs/release-v0.12.0.md`.
@@ -100,9 +104,10 @@ application restarts.
 - animal editing
 - box assignment
 - common and Latin names
-- sex
+- localized Male, Female and Unknown sex values without duplicate options
 - birth date
 - birth date accuracy
+- localized Exact, Month known and Year known birth-date-accuracy values
 - preferred temperature range
 - preferred humidity range
 - optional picture

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
@@ -29,6 +30,7 @@ void main() {
       latinName: 'Pantherophis guttatus',
       sex: Sex.female,
       birthDate: DateTime(2024, 5, 10),
+      birthDateAccuracy: BirthDateAccuracy.yearKnown,
       tempMin: 24,
       tempMax: 28,
       humidityMin: 40,
@@ -61,16 +63,45 @@ void main() {
     expect(find.text('Test Snake'), findsOneWidget);
     expect(find.text('Pantherophis guttatus'), findsOneWidget);
     expect(find.text('Sex'), findsOneWidget);
-    expect(find.text('Sex.female'), findsOneWidget);
+    expect(find.text('Female'), findsOneWidget);
     expect(find.text('10.05.2024'), findsOneWidget);
+    expect(find.text('Year known'), findsOneWidget);
     expect(find.text('24.0 °C – 28.0 °C'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('40.0% – 60.0%'), 200);
+    await tester.pumpAndSettle();
+
     expect(find.text('40.0% – 60.0%'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('Test notes'), 300);
-
     await tester.pumpAndSettle();
 
     expect(find.text('Test notes'), findsOneWidget);
+  });
+
+  testWidgets('shows legacy missing sex as Unknown', (tester) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Unknown Snake',
+      latinName: 'Serpentes',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sex'), findsOneWidget);
+    expect(find.text('Unknown'), findsOneWidget);
   });
 
   testWidgets('shows not found state for unknown animal', (tester) async {

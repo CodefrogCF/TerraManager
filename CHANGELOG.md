@@ -4,7 +4,40 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
-## [0.13.0] - 2026-09-09
+## [Unreleased]
+
+### Changed
+
+- replaced raw English Animal sex values with Male, Female and Unknown
+- removed the duplicate Unknown entry from the New Animal and Edit Animal sex
+  selectors
+- made Unknown the explicit default for newly created Animals and the UI
+  fallback for legacy Animals without a stored sex value
+- replaced raw English birth-date-accuracy values with Exact, Month known and
+  Year known
+- kept the existing localized German sex and birth-date-accuracy labels
+
+### Compatibility
+
+- persisted Sex and BirthDateAccuracy enum values remain unchanged
+- legacy nullable Animal sex values display as Unknown
+- no database or portable-backup migration is required
+
+### Testing
+
+- added New Animal and Edit Animal option-list regression coverage
+- added legacy missing-sex detail presentation coverage
+- extended English and German localization expectations
+
+### Validated
+
+- complete automated test suite
+- New Animal and Edit Animal sex selections without duplicate options
+- localized sex and birth-date-accuracy labels in English and German
+- legacy missing-sex presentation and normal Animal detail rendering
+- manual regression on a physical Android device
+
+## [0.13.0] - 2026-09-08
 
 ### Added
 

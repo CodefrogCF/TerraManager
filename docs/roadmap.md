@@ -6,13 +6,13 @@ Latest completed release milestone:
 
 **v0.13.0 – Feeding Reminders**
 
-Next planned development milestone:
+Active development milestone:
 
 **v0.14.0 – Pre-1.0 UX Polish**
 
-Current release build:
+Current development build:
 
-**v0.13.0+27**
+**v0.13.1+28**
 
 Completed development areas:
 
@@ -71,6 +71,8 @@ Completed development areas:
 - due and scheduled reminder status on Animal details
 - reminder navigation and immediate refresh after normal and Quick Feeding
   changes
+- localized Animal sex and birth-date-accuracy labels without raw enum text
+- one explicit Unknown sex choice with a legacy-null display fallback
 
 v0.7.1 implementation and release validation are complete.
 
@@ -92,8 +94,13 @@ regression validation and release packaging are complete.
 v0.13.0 implementation, documentation, automated testing, Android/Web
 regression validation and release packaging are complete. Issues #74, #75 and
 #76 provide the persistent per-Animal configuration, deterministic calculation
-and in-app presentation required for Feeding Reminders. Issue #77 retains the
-publication checklist for release build `0.13.0+27`.
+and in-app presentation required for Feeding Reminders. Issue #77 completed the
+publication of release build `0.13.0+27`.
+
+v0.14.0 is the active Pre-1.0 UX Polish milestone. Development begins with
+consistent, localized Animal form labels in Issue #78. The remaining issues add
+direct Animal creation from Box details, persistent Box and Animal sorting and
+the final v0.14.0 release regression.
 
 ---
 
@@ -558,7 +565,53 @@ roughly one sixth of its previous size.
 - [x] Review English and German reminder text
 - [x] Update final documentation and release notes
 - [x] Build and manually test supported release artifacts
-- [ ] Release v0.13.0
+- [x] Release v0.13.0
+
+---
+
+## v0.14.0 – Pre-1.0 UX Polish
+
+### Animal Form Labels — Issue #78
+
+- [x] Replace raw English Sex enum labels
+- [x] Show exactly Male, Female and Unknown in the sex selector
+- [x] Use Unknown as the default and legacy-null presentation
+- [x] Replace raw English BirthDateAccuracy enum labels
+- [x] Keep English and German labels consistent
+- [x] Preserve existing database and backup values without migration
+- [x] Add form, detail and localization regression tests
+- [x] Validate the updated controls manually on Android
+
+### Add Animal from Box Details — Issue #79
+
+- [ ] Show Add Animal below empty and populated assigned-Animal sections
+- [ ] Open New Animal with the originating Box preselected
+- [ ] Refresh Box details after saving and preserve normal navigation
+- [ ] Add localized widget regression coverage
+
+### Box Overview Sorting — Issue #80
+
+- [ ] Add created-date and natural Box-label sorting modes
+- [ ] Persist and back up the selected Box ordering
+- [ ] Keep contextual Box detail navigation aligned with the visible order
+- [ ] Add sorting, settings and backup regression tests
+
+### Animal Overview Sorting — Issue #81
+
+- [ ] Add created-date, displayed-name, age and latest-feeding sorting modes
+- [ ] Handle missing birth and FeedingEvent data deterministically
+- [ ] Load latest FeedingEvents efficiently in bulk
+- [ ] Persist and back up the selected Animal ordering
+- [ ] Keep contextual Animal detail navigation aligned with the visible order
+- [ ] Add sorting, settings and backup regression tests
+
+### Release — Issue #82
+
+- [ ] Complete automated and manual regression testing
+- [ ] Review English and German presentation
+- [ ] Update documentation and release notes
+- [ ] Build the supported release artifacts
+- [ ] Release v0.14.0
 
 ---
 

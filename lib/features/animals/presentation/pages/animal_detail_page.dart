@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/animal_archive_reason.dart';
 import '../../../../core/database/enums/animal_status.dart';
+import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
@@ -652,11 +653,10 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             value: context.l10n.boxLabel(animal.boxId!),
           ),
 
-        if (animal.sex != null)
-          _DetailRow(
-            label: context.l10n.sex,
-            value: context.l10n.animalSexLabel(animal.sex!),
-          ),
+        _DetailRow(
+          label: context.l10n.sex,
+          value: context.l10n.animalSexLabel(animal.sex ?? Sex.unknown),
+        ),
 
         if (animal.birthDate != null)
           _DetailRow(

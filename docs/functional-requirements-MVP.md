@@ -57,7 +57,10 @@ The application must allow the user to:
 - store preferred temperature values
 - store preferred humidity values
 - store optional birth information
-- store optional sex information
+- store and display Male, Female or Unknown sex information
+- display legacy Animals without a stored sex value as Unknown
+- present sex and birth-date-accuracy choices as localized user-facing labels
+  without raw enum values
 - archive an Animal without losing its data
 - select an archive reason and archive date
 - store an optional archive note

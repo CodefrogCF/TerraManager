@@ -41,6 +41,12 @@ void main() {
     expect(l10n.saveFeedings(3), 'Save 3 Feedings');
     expect(l10n.feedingReminder, 'Feeding reminder');
     expect(l10n.feedingReminderIntervalDays, 'Reminder interval (days)');
+    expect(l10n.sexMale, 'Male');
+    expect(l10n.sexFemale, 'Female');
+    expect(l10n.sexUnknown, 'Unknown');
+    expect(l10n.birthDateAccuracyExact, 'Exact');
+    expect(l10n.birthDateAccuracyMonthKnown, 'Month known');
+    expect(l10n.birthDateAccuracyYearKnown, 'Year known');
     expect(l10n.animalsDueForFeeding(1), '1 Animal is due for feeding');
     expect(l10n.animalsDueForFeeding(3), '3 Animals are due for feeding');
     expect(
@@ -85,6 +91,12 @@ void main() {
     expect(l10n.saveFeedings(3), '3 Fütterungen speichern');
     expect(l10n.feedingReminder, 'Fütterungserinnerung');
     expect(l10n.feedingReminderIntervalDays, 'Erinnerungsintervall (Tage)');
+    expect(l10n.sexMale, 'Männlich');
+    expect(l10n.sexFemale, 'Weiblich');
+    expect(l10n.sexUnknown, 'Unbekannt');
+    expect(l10n.birthDateAccuracyExact, 'Genau');
+    expect(l10n.birthDateAccuracyMonthKnown, 'Monat bekannt');
+    expect(l10n.birthDateAccuracyYearKnown, 'Jahr bekannt');
     expect(l10n.animalsDueForFeeding(1), '1 Tier ist zur Fütterung fällig');
     expect(l10n.animalsDueForFeeding(3), '3 Tiere sind zur Fütterung fällig');
     expect(

@@ -49,7 +49,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   late final PictureSelectionFlow _pictureSelectionFlow;
 
-  Sex? _sex;
+  Sex _sex = Sex.unknown;
   BirthDateAccuracy? _birthDateAccuracy;
   DateTime? _birthDate;
   int? _boxId;
@@ -149,7 +149,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _humidityMaxController.text = animal.humidityMax.toString();
       _notesController.text = animal.notes ?? '';
 
-      _sex = animal.sex;
+      _sex = animal.sex ?? Sex.unknown;
       _birthDate = animal.birthDate;
       _birthDateAccuracy = animal.birthDateAccuracy;
       _boxId = animal.boxId;
@@ -566,25 +566,25 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             ),
             const SizedBox(height: 16),
 
-            DropdownButtonFormField<Sex?>(
+            DropdownButtonFormField<Sex>(
               key: const Key('sex-field'),
               initialValue: _sex,
               decoration: InputDecoration(labelText: context.l10n.sex),
-              items: [
-                DropdownMenuItem<Sex?>(
-                  value: null,
-                  child: Text(context.l10n.unknown),
-                ),
-                ...Sex.values.map(
-                  (sex) => DropdownMenuItem<Sex?>(
-                    value: sex,
-                    child: Text(context.l10n.animalSexLabel(sex)),
-                  ),
-                ),
-              ],
+              items: Sex.values
+                  .map(
+                    (sex) => DropdownMenuItem<Sex>(
+                      value: sex,
+                      child: Text(context.l10n.animalSexLabel(sex)),
+                    ),
+                  )
+                  .toList(),
               onChanged: _saving
                   ? null
                   : (value) {
+                      if (value == null) {
+                        return;
+                      }
+
                       setState(() {
                         _sex = value;
                         _hasUnsavedChanges = true;

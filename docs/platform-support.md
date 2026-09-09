@@ -86,6 +86,7 @@ Validated functionality includes:
 - immediate Animal name-order changes and persistence across application
   restarts
 - complete English and German interfaces
+- localized Animal sex and birth-date-accuracy controls without raw enum labels
 - System / English / Deutsch language selection
 - immediate language changes and persistence across application restarts
 - portable `.tmbackup` creation

@@ -27,7 +27,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.5+37**
+**v0.14.6+38**
 
 Implemented milestones in the current source state:
 
@@ -87,6 +87,12 @@ Development build `0.14.5+37` replaces the ambiguous Continue-style Quick
 Feeding action with an explicit **Scan a different Box** cancellation action.
 It discards the unsaved Box-specific feeding form, returns to Feeding Mode and
 restarts the scanner without creating a FeedingEvent.
+
+Development build `0.14.6+38` adds reproducible GitHub Actions quality gates
+for dependency-lock verification, localization generation, formatting,
+analysis, tests, Android Debug and Web Release builds. The supported Flutter,
+Dart, Java, Gradle and dependency baseline, including the current upstream
+Kotlin-plugin warning, is documented in `docs/toolchain-baseline.md`.
 
 ### Android transition to the permanent application ID
 
@@ -940,6 +946,7 @@ Additional documentation:
 
 - [Roadmap](docs/roadmap.md)
 - [Development guide](docs/development.md)
+- [Toolchain and quality-gate baseline](docs/toolchain-baseline.md)
 - [Installation and updates](docs/installation-and-updates.md)
 - [Platform support](docs/platform-support.md)
 - [Data model](docs/data-model.md)

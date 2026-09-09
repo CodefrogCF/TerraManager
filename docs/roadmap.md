@@ -12,7 +12,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.5+37**
+**v0.14.6+38**
 
 Completed development areas:
 
@@ -85,6 +85,8 @@ Completed development areas:
 - public privacy, permissions, installation, updates, support, security and
   contribution documentation
 - explicit Quick Feeding cancellation through Scan a different Box
+- reproducible CI formatting, analysis, test and supported build gates
+- documented Flutter, Dart, Java, Gradle and locked-dependency baseline
 
 v0.7.1 implementation and release validation are complete.
 
@@ -140,6 +142,11 @@ Issue #91 establishes GPL-3.0-or-later as the public project licence and adds
 the privacy, permission, installation, update, support, security and
 contribution information needed for a public release. Historical v0.11.0 and
 v0.12.0 publication actions now reflect their completed release state.
+
+Issue #92 adds pinned GitHub Actions quality gates and documents the supported
+toolchain and dependency baseline. Android production signing stays outside CI,
+and the remaining Built-in Kotlin warning is tracked as an upstream plugin
+migration dependency rather than being hidden by unsafe configuration.
 
 ---
 
@@ -734,9 +741,11 @@ roughly one sixth of its previous size.
 
 ### Quality Gates and Toolchain Baseline — Issue #92
 
-- [ ] Add reproducible CI formatting, analysis, test and build checks
-- [ ] Record the supported Flutter and dependency baseline
-- [ ] Review current Kotlin and Gradle compatibility warnings
+- [x] Add reproducible CI formatting, analysis, test and build checks
+- [x] Record the supported Flutter and dependency baseline
+- [x] Review current Kotlin and Gradle compatibility warnings
+- [x] Remove the remaining sort-menu widget-test hit-test warnings
+- [ ] Confirm the first GitHub Actions run after push
 
 ### Stable MVP Release — Issue #93
 

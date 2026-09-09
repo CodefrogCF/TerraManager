@@ -2,14 +2,20 @@
 
 ## Requirements
 
-Current development environment:
+Supported toolchain baseline:
 
 - Windows 11
-- Flutter stable
-- Dart
+- Flutter 3.47.2 stable
+- the Dart SDK bundled with Flutter 3.47.2
+- Java 17
 - Android Studio
 - Visual Studio Code
 - Git
+
+The complete Flutter, Android, Java, dependency and CI baseline is maintained
+in [toolchain-baseline.md](toolchain-baseline.md). Use a separate maintenance
+change for upgrades; do not change the toolchain implicitly while closing a
+feature or release Issue.
 
 ## Initial Setup
 
@@ -30,6 +36,10 @@ Run tests:
 ```text
 flutter test
 ```
+
+The same core checks and Android Debug/Web Release builds run in GitHub Actions
+for every push and pull request. Production Android signing remains a local,
+protected release task and is never required by the public quality-gate job.
 
 ## Public Project Documentation
 
@@ -231,6 +241,12 @@ For public-documentation changes, also run:
 
 ```text
 flutter test test/platform/public_release_documentation_test.dart
+```
+
+For CI or toolchain changes, also run:
+
+```text
+flutter test test/platform/toolchain_quality_gates_test.dart
 ```
 
 Review all Markdown links in the rendered GitHub repository and confirm that

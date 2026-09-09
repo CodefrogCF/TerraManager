@@ -22,7 +22,8 @@ proprietary code or incompatible third-party content.
 
 ## Development checks
 
-For an agreed change, follow [docs/development.md](docs/development.md) and run
-the relevant formatting, analysis and test checks. Platform-dependent changes
-also require manual validation on their affected target.
-
+For an agreed change, follow [docs/development.md](docs/development.md) and the
+[toolchain baseline](docs/toolchain-baseline.md), then run the relevant
+formatting, analysis and test checks. Platform-dependent changes also require
+manual validation on their affected target. Every push and pull request is
+checked by the public Quality Gates workflow.

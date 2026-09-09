@@ -1175,3 +1175,58 @@ Disadvantages:
 - contribution onboarding needs explicit copyright and licensing review
 - dual licensing becomes harder if copyright is shared without suitable
   contributor agreements
+
+---
+
+## ADR-017: Pin reproducible public quality gates and keep signing private
+
+**Status:** Accepted
+
+**Date:** 2026-09-09
+
+### Context
+
+Release confidence previously depended on commands run manually on one Windows
+development machine. Flutter, Java and dependency updates could change the
+result without a recorded baseline. Android production signing must not expose
+the private TerraManager key to public pull requests or ordinary CI jobs.
+
+The Android build also reports a future Built-in Kotlin incompatibility for
+resolved plugins that still apply the Kotlin Gradle Plugin. Enabling migration
+flags before those plugins are compatible would not resolve the actual
+dependency and could break builds.
+
+### Decision
+
+TerraManager pins Flutter 3.47.2 stable and Temurin Java 17 in a GitHub Actions
+workflow. Third-party actions are referenced by complete commit hashes. Every
+push and pull request verifies the committed dependency lock, generated
+localizations, formatting, static analysis, the complete test suite, an
+Android Debug APK and a Web Release build.
+
+The committed `pubspec.lock` is the exact dependency baseline. Upgrades occur
+only in focused changes with regression validation. The supported Gradle,
+Android Gradle Plugin and Kotlin declarations and their upgrade procedure are
+recorded in `docs/toolchain-baseline.md`.
+
+Public CI does not receive production signing credentials and does not build a
+Release APK or AAB. Those artifacts remain in the documented authorized local
+release process. The current Built-in Kotlin compatibility flags remain false
+until all resolved plugins support the migration.
+
+### Consequences
+
+Advantages:
+
+- every push receives the same formatting, analysis, test and build checks
+- the Flutter and Java baseline is visible and reviewable
+- accidental dependency-lock drift fails before merge
+- public contributions cannot access production signing material
+- upstream Kotlin migration work is tracked without hiding warnings
+
+Disadvantages:
+
+- CI does not prove that private production signing credentials are available
+- signed APK and AAB verification remains a manual release-owner task
+- pinned toolchains and action commits require intentional maintenance
+- plugin compatibility warnings remain until upstream releases are available

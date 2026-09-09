@@ -8,6 +8,11 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Added
 
+- added a GitHub Actions quality-gate workflow for locked dependency
+  resolution, localization generation, formatting, analysis, complete tests,
+  Android Debug and Web Release builds
+- added a documented Flutter 3.47.2, Dart 3.13, Java 17, Android Gradle Plugin
+  9.1.0 and Gradle 9.3.1 baseline with an explicit upgrade procedure
 - added the complete GNU General Public License under the
   `GPL-3.0-or-later` identifier
 - added public privacy and permission documentation for local data, camera,
@@ -38,7 +43,9 @@ The project uses semantic versioning while development remains below version 1.0
   explicit Scan a different Box cancellation action
 - clarified that this action discards the unsaved Box-specific feeding form,
   returns to Feeding Mode and restarts the scanner without creating events
-- advanced the development version to `0.14.5+37`
+- made overview sort widget tests target stable menu-item keys instead of text
+  render positions
+- advanced the development version to `0.14.6+38`
 
 ### Compatibility
 
@@ -52,6 +59,10 @@ The project uses semantic versioning while development remains below version 1.0
   signing certificate introduced with `0.14.3+35`
 - Database Schema Version 5 and Portable Backup Format Version 2 remain
   unchanged
+- CI builds an unsigned Android Debug APK; production-signed APK and AAB
+  artifacts remain part of the protected local release workflow
+- the temporary Built-in Kotlin compatibility flags remain enabled because
+  three resolved plugins still apply the Kotlin Gradle Plugin
 - iOS, macOS, Linux and Windows identity metadata is prepared but those
   platforms are not newly validated or promoted to supported status
 
@@ -66,6 +77,9 @@ The project uses semantic versioning while development remains below version 1.0
   production permission statement and corrected historical release records
 - added localized cancellation and scanner-resume coverage for the Scan a
   different Box action, including protection against accidental FeedingEvents
+- added static regression coverage for the pinned CI workflow, toolchain
+  baseline, dependency lock and protected production-signing boundary
+- removed hit-test warnings from the Animal and Box sort-menu widget tests
 
 ### Validated
 

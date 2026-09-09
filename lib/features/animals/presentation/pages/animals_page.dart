@@ -273,6 +273,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
             itemBuilder: (context) {
               return AnimalSortOrder.values.map((sortOrder) {
                 return CheckedPopupMenuItem<AnimalSortOrder>(
+                  key: Key('animal-sort-option-${sortOrder.name}'),
                   value: sortOrder,
                   checked: sortOrder == animalSortOrder,
                   child: Text(context.l10n.animalSortOrderLabel(sortOrder)),

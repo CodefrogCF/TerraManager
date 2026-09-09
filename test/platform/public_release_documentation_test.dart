@@ -72,8 +72,8 @@ void main() {
     final releaseV011 = read('docs/release-v0.11.0.md');
     final releaseV012 = read('docs/release-v0.12.0.md');
 
-    expect(pubspec, contains('version: 0.14.5+37'));
-    expect(roadmap, contains('**v0.14.5+37**'));
+    expect(pubspec, contains('version: 0.14.6+38'));
+    expect(roadmap, contains('**v0.14.6+38**'));
     expect(releaseV011, contains('- [x] Publish the GitHub v0.11.0 release'));
     expect(releaseV012, contains('- [x] Close Issue #73'));
     expect(releaseV012, contains('- [x] Close the v0.12.0 milestone'));

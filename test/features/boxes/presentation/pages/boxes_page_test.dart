@@ -215,7 +215,13 @@ void main() {
     expect(find.text('Box number ascending'), findsOneWidget);
     expect(find.text('Box number descending'), findsOneWidget);
 
-    await tester.tap(find.text('Box number descending'));
+    final descendingOption = find.byKey(
+      const Key('box-sort-option-labelDescending'),
+    );
+
+    await tester.ensureVisible(descendingOption);
+    await tester.pumpAndSettle();
+    await tester.tap(descendingOption);
     await tester.pumpAndSettle();
 
     expect(

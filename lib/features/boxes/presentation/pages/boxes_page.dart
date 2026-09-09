@@ -206,6 +206,7 @@ class _BoxesPageState extends State<BoxesPage> {
             itemBuilder: (context) {
               return BoxSortOrder.values.map((sortOrder) {
                 return CheckedPopupMenuItem<BoxSortOrder>(
+                  key: Key('box-sort-option-${sortOrder.name}'),
                   value: sortOrder,
                   checked: sortOrder == boxSortOrder,
                   child: Text(context.l10n.boxSortOrderLabel(sortOrder)),

@@ -260,7 +260,13 @@ void main() {
     expect(find.text('Newest feeding first'), findsOneWidget);
     expect(find.text('Oldest feeding first'), findsOneWidget);
 
-    await tester.tap(find.text('Oldest feeding first'));
+    final oldestFeedingOption = find.byKey(
+      const Key('animal-sort-option-latestFeedingOldestFirst'),
+    );
+
+    await tester.ensureVisible(oldestFeedingOption);
+    await tester.pumpAndSettle();
+    await tester.tap(oldestFeedingOption);
     await tester.pumpAndSettle();
 
     expect(

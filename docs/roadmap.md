@@ -12,7 +12,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.13.1+28**
+**v0.13.2+29**
 
 Completed development areas:
 
@@ -73,6 +73,8 @@ Completed development areas:
   changes
 - localized Animal sex and birth-date-accuracy labels without raw enum text
 - one explicit Unknown sex choice with a legacy-null display fallback
+- direct Animal creation from empty and populated Box detail assignments
+- originating Box preselection and immediate assignment-list refresh
 
 v0.7.1 implementation and release validation are complete.
 
@@ -584,10 +586,13 @@ roughly one sixth of its previous size.
 
 ### Add Animal from Box Details — Issue #79
 
-- [ ] Show Add Animal below empty and populated assigned-Animal sections
-- [ ] Open New Animal with the originating Box preselected
-- [ ] Refresh Box details after saving and preserve normal navigation
-- [ ] Add localized widget regression coverage
+- [x] Show Add Animal below empty and populated assigned-Animal sections
+- [x] Open New Animal with the originating Box preselected
+- [x] Keep the preselected Box editable
+- [x] Refresh Box details after saving and preserve normal navigation
+- [x] Block repeated Add Animal actions while the route is open
+- [x] Add localized widget regression coverage
+- [x] Validate direct creation manually on Android
 
 ### Box Overview Sorting — Issue #80
 

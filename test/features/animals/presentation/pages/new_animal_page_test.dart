@@ -34,6 +34,7 @@ void main() {
 
   Future<void> pumpPage(
     WidgetTester tester, {
+    int? initialBoxId,
     PictureSelectionFlow? pictureSelectionFlow,
     DateTime Function()? now,
   }) async {
@@ -41,6 +42,7 @@ void main() {
       MaterialApp(
         home: NewAnimalPage(
           database: database,
+          initialBoxId: initialBoxId,
           pictureSelectionFlow: pictureSelectionFlow,
           now: now,
         ),
@@ -167,6 +169,38 @@ void main() {
       find.byKey(const Key('feeding-reminder-interval-days-field')),
       findsNothing,
     );
+  });
+
+  testWidgets('preselects a requested Box while keeping the field editable', (
+    tester,
+  ) async {
+    final firstBoxId = await createTestBox(qrId: 'test-box-001');
+    final secondBoxId = await createTestBox(qrId: 'test-box-002');
+
+    await pumpPage(tester, initialBoxId: secondBoxId);
+
+    final boxDropdown = tester.widget<DropdownButton<int>>(
+      find.descendant(
+        of: find.byKey(const Key('box-field')),
+        matching: find.byType(DropdownButton<int>),
+      ),
+    );
+
+    expect(boxDropdown.value, secondBoxId);
+
+    await tester.tap(find.byKey(const Key('box-field')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Box 1').last);
+    await tester.pumpAndSettle();
+
+    final changedDropdown = tester.widget<DropdownButton<int>>(
+      find.descendant(
+        of: find.byKey(const Key('box-field')),
+        matching: find.byType(DropdownButton<int>),
+      ),
+    );
+
+    expect(changedDropdown.value, firstBoxId);
   });
 
   testWidgets('shows localized sex and birth accuracy options', (tester) async {

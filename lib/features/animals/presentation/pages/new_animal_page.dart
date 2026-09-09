@@ -18,12 +18,14 @@ import '../widgets/animal_picture.dart';
 
 class NewAnimalPage extends StatefulWidget {
   final AppDatabase database;
+  final int? initialBoxId;
   final PictureSelectionFlow? pictureSelectionFlow;
   final DateTime Function()? now;
 
   const NewAnimalPage({
     super.key,
     required this.database,
+    this.initialBoxId,
     this.pictureSelectionFlow,
     this.now,
   });
@@ -97,6 +99,9 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
       setState(() {
         _boxes = boxes;
+        if (boxes.any((box) => box.id == widget.initialBoxId)) {
+          _boxId = widget.initialBoxId;
+        }
         _loading = false;
       });
     } catch (_) {

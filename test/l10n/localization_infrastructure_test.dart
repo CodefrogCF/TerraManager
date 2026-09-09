@@ -29,6 +29,7 @@ void main() {
     final l10n = lookupAppLocalizations(const Locale('en'));
 
     expect(l10n.boxLabel(7), 'Box 7');
+    expect(l10n.addAnimal, 'Add Animal');
     expect(
       l10n.activeAnimalsAssignedToBox(1, 'Box 7'),
       '1 active animal assigned to Box 7',
@@ -79,6 +80,7 @@ void main() {
     final l10n = lookupAppLocalizations(const Locale('de'));
 
     expect(l10n.boxLabel(7), 'Box 7');
+    expect(l10n.addAnimal, 'Tier hinzufügen');
     expect(
       l10n.activeAnimalsAssignedToBox(1, 'Box 7'),
       '1 aktives Tier ist Box 7 zugewiesen',

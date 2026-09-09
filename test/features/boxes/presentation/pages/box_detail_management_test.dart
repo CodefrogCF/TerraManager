@@ -6,6 +6,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
+import 'package:terramanager/features/animals/presentation/pages/new_animal_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
@@ -63,6 +64,30 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> scrollToAddAnimal(WidgetTester tester) async {
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('add-animal-to-box-button')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> fillRequiredAnimalFields(WidgetTester tester) async {
+    await tester.enterText(
+      find.byKey(const Key('common-name-field')),
+      'New Snake',
+    );
+    await tester.enterText(
+      find.byKey(const Key('latin-name-field')),
+      'Pantherophis alleghaniensis',
+    );
+    await tester.enterText(find.byKey(const Key('temp-min-field')), '24');
+    await tester.enterText(find.byKey(const Key('temp-max-field')), '28');
+    await tester.enterText(find.byKey(const Key('humidity-min-field')), '40');
+    await tester.enterText(find.byKey(const Key('humidity-max-field')), '60');
+  }
+
   testWidgets('shows empty state when no animals are assigned', (tester) async {
     final box = await createTestBox();
 
@@ -75,6 +100,10 @@ void main() {
     expect(find.byKey(const Key('no-assigned-animals')), findsOneWidget);
 
     expect(find.text('No animals assigned to this box'), findsOneWidget);
+
+    await scrollToAddAnimal(tester);
+
+    expect(find.text('Add Animal'), findsOneWidget);
   });
 
   testWidgets('shows animals assigned to the box', (tester) async {
@@ -103,6 +132,75 @@ void main() {
     expect(find.text('Rose Hair'), findsOneWidget);
 
     expect(find.text('Grammostola rosea'), findsOneWidget);
+
+    await scrollToAddAnimal(tester);
+
+    expect(find.text('Add Animal'), findsOneWidget);
+  });
+
+  testWidgets('creates a preassigned Animal from an empty Box', (tester) async {
+    final box = await createTestBox();
+
+    await pumpDetailPage(tester, box: box);
+    await scrollToAddAnimal(tester);
+
+    await tester.tap(find.byKey(const Key('add-animal-to-box-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NewAnimalPage), findsOneWidget);
+
+    final boxDropdown = tester.widget<DropdownButton<int>>(
+      find.descendant(
+        of: find.byKey(const Key('box-field')),
+        matching: find.byType(DropdownButton<int>),
+      ),
+    );
+
+    expect(boxDropdown.value, box.id);
+
+    await fillRequiredAnimalFields(tester);
+    await tester.tap(find.byKey(const Key('save-animal-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NewAnimalPage), findsNothing);
+
+    final animals = await AnimalRepository(database).getAnimalsForBox(box.id);
+
+    expect(animals, hasLength(1));
+    expect(animals.single.commonName, 'New Snake');
+
+    await tester.scrollUntilVisible(
+      find.text('New Snake'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Snake'), findsOneWidget);
+  });
+
+  testWidgets('cancelling direct Animal creation keeps the Box unchanged', (
+    tester,
+  ) async {
+    final box = await createTestBox();
+
+    await pumpDetailPage(tester, box: box);
+    await scrollToAddAnimal(tester);
+
+    await tester.tap(find.byKey(const Key('add-animal-to-box-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NewAnimalPage), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NewAnimalPage), findsNothing);
+    expect(await AnimalRepository(database).getAnimalsForBox(box.id), isEmpty);
+
+    await scrollToAddAnimal(tester);
+
+    expect(find.byKey(const Key('add-animal-to-box-button')), findsOneWidget);
   });
 
   testWidgets('opens animal detail when assigned animal is tapped', (

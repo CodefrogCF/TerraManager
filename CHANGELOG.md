@@ -6,6 +6,12 @@ The project uses semantic versioning while development remains below version 1.0
 
 ## [Unreleased]
 
+### Added
+
+- Add Animal action below both empty and populated assigned-Animal sections on
+  Box details
+- optional initial Box selection for the existing New Animal workflow
+
 ### Changed
 
 - replaced raw English Animal sex values with Male, Female and Unknown
@@ -16,6 +22,9 @@ The project uses semantic versioning while development remains below version 1.0
 - replaced raw English birth-date-accuracy values with Exact, Month known and
   Year known
 - kept the existing localized German sex and birth-date-accuracy labels
+- direct Animal creation returns to the originating Box and refreshes its
+  assigned-Animal list immediately after saving
+- repeated Add Animal actions are blocked while the creation route is open
 
 ### Compatibility
 
@@ -28,13 +37,20 @@ The project uses semantic versioning while development remains below version 1.0
 - added New Animal and Edit Animal option-list regression coverage
 - added legacy missing-sex detail presentation coverage
 - extended English and German localization expectations
+- added New Animal preselection and editability coverage
+- added empty, populated, save, cancel and refresh coverage for direct Animal
+  creation from Box details
 
 ### Validated
 
+- `flutter analyze` without issues
 - complete automated test suite
 - New Animal and Edit Animal sex selections without duplicate options
 - localized sex and birth-date-accuracy labels in English and German
 - legacy missing-sex presentation and normal Animal detail rendering
+- direct Animal creation from empty and populated Box details
+- originating Box preselection, editable reassignment, cancellation and
+  immediate assignment-list refresh
 - manual regression on a physical Android device
 
 ## [0.13.0] - 2026-09-08

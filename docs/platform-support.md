@@ -42,6 +42,8 @@ Validated functionality includes:
 - core navigation
 - Drift/SQLite persistence
 - box creation and persistence
+- direct Animal creation from empty and populated Box details with the Box
+  preselected
 - Box editing and optional dimensions
 - persistent Box pictures
 - Box picture persistence across normal application restarts

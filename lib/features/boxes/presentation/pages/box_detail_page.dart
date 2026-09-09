@@ -9,8 +9,9 @@ import '../../../../core/qr/qr_file_name.dart';
 import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
-import '../../../animals/presentation/pages/animal_detail_page.dart';
 import '../../../animals/presentation/animal_display_names.dart';
+import '../../../animals/presentation/pages/animal_detail_page.dart';
+import '../../../animals/presentation/pages/new_animal_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import 'box_edit_page.dart';
 import '../widgets/box_picture.dart';
@@ -61,6 +62,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   bool _savingQr = false;
   bool _printingQr = false;
   bool _deleting = false;
+  bool _openingNewAnimal = false;
 
   String? _saveError;
   String? _printError;
@@ -169,6 +171,49 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     setState(() {
       _loadAnimals();
     });
+  }
+
+  Future<void> _openNewAnimalPage() async {
+    if (_switchingBox || _deleting || _openingNewAnimal) {
+      return;
+    }
+
+    setState(() {
+      _openingNewAnimal = true;
+    });
+
+    final created = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) =>
+            NewAnimalPage(database: widget.database, initialBoxId: _box.id),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _openingNewAnimal = false;
+
+      if (created == true) {
+        _loadAnimals();
+      }
+    });
+  }
+
+  Widget _buildAddAnimalButton() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: FilledButton.tonalIcon(
+        key: const Key('add-animal-to-box-button'),
+        onPressed: _switchingBox || _deleting || _openingNewAnimal
+            ? null
+            : _openNewAnimalPage,
+        icon: const Icon(Icons.add),
+        label: Text(context.l10n.addAnimal),
+      ),
+    );
   }
 
   Future<void> _saveQrCode() async {
@@ -678,12 +723,18 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 final animals = snapshot.data ?? [];
 
                 if (animals.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      context.l10n.noAnimalsAssigned,
-                      key: const Key('no-assigned-animals'),
-                    ),
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          context.l10n.noAnimalsAssigned,
+                          key: const Key('no-assigned-animals'),
+                        ),
+                      ),
+                      _buildAddAnimalButton(),
+                    ],
                   );
                 }
 
@@ -712,6 +763,8 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                           );
                         },
                       ),
+                    const SizedBox(height: 8),
+                    _buildAddAnimalButton(),
                   ],
                 );
               },

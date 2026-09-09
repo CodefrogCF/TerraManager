@@ -23,6 +23,8 @@ The application must allow the user to:
 - display Box thumbnails where pictures are available
 - view Animals assigned to a Box
 - open an assigned Animal from the Box detail screen
+- create a new Animal directly from Box details with that Box preselected
+- refresh assigned Animals immediately after direct creation
 - delete an empty Box
 - require confirmation before deleting a Box
 - prevent accidental deletion of a Box containing Animals

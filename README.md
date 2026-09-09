@@ -18,7 +18,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.13.1+28**
+**v0.13.2+29**
 
 Implemented milestones in the current source state:
 
@@ -43,9 +43,9 @@ The v0.13.0 implementation, automated regression, Android/Web validation and
 release builds are complete. The validation record and release notes are
 available in `docs/release-v0.13.0.md`.
 
-Development of v0.14.0 is in progress. Its first update replaces raw enum text
-in Animal sex and birth-date-accuracy controls with consistent English and
-German labels and removes the duplicate Unknown sex option.
+Development of v0.14.0 is in progress. The current build provides consistent
+Animal sex and birth-date-accuracy labels and direct, preassigned Animal
+creation from Box details.
 
 The completed v0.12.0 validation record remains available in
 `docs/release-v0.12.0.md`.
@@ -80,6 +80,8 @@ application restarts.
 - unknown and invalid QR handling
 - assigned animal list on box detail
 - navigation from box to assigned animal
+- Add Animal action below empty and populated Box assignment sections
+- direct New Animal navigation with the originating Box preselected
 - optional width, height and depth
 - persistent Box pictures
 - Add/Change Picture action with Camera and Gallery source selection for Box

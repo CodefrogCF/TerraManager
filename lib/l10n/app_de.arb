@@ -288,5 +288,10 @@
       }
     }
   },
-  "failedToLoadFeedingReminder": "Fütterungserinnerung konnte nicht geladen werden"
+  "failedToLoadFeedingReminder": "Fütterungserinnerung konnte nicht geladen werden",
+  "sortBoxes": "Boxen sortieren",
+  "boxSortCreatedOldestFirst": "Älteste zuerst",
+  "boxSortCreatedNewestFirst": "Neueste zuerst",
+  "boxSortLabelAscending": "Boxnummer aufsteigend",
+  "boxSortLabelDescending": "Boxnummer absteigend"
 }

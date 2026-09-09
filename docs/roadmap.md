@@ -12,7 +12,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.13.2+29**
+**v0.13.3+30**
 
 Completed development areas:
 
@@ -75,6 +75,9 @@ Completed development areas:
 - one explicit Unknown sex choice with a legacy-null display fallback
 - direct Animal creation from empty and populated Box detail assignments
 - originating Box preselection and immediate assignment-list refresh
+- persistent localized Box Overview sorting by creation time or natural Box
+  number
+- backup-compatible Box ordering and matching contextual detail navigation
 
 v0.7.1 implementation and release validation are complete.
 
@@ -99,10 +102,10 @@ regression validation and release packaging are complete. Issues #74, #75 and
 and in-app presentation required for Feeding Reminders. Issue #77 completed the
 publication of release build `0.13.0+27`.
 
-v0.14.0 is the active Pre-1.0 UX Polish milestone. Development begins with
-consistent, localized Animal form labels in Issue #78. The remaining issues add
-direct Animal creation from Box details, persistent Box and Animal sorting and
-the final v0.14.0 release regression.
+v0.14.0 is the active Pre-1.0 UX Polish milestone. Issues #78 and #79 provide
+consistent Animal form labels and direct Animal creation from Box details.
+Issue #80 adds persistent Box Overview sorting. The remaining issues add
+persistent Animal sorting and complete the final v0.14.0 release regression.
 
 ---
 
@@ -596,10 +599,11 @@ roughly one sixth of its previous size.
 
 ### Box Overview Sorting — Issue #80
 
-- [ ] Add created-date and natural Box-label sorting modes
-- [ ] Persist and back up the selected Box ordering
-- [ ] Keep contextual Box detail navigation aligned with the visible order
-- [ ] Add sorting, settings and backup regression tests
+- [x] Add created-date and natural Box-label sorting modes
+- [x] Persist and back up the selected Box ordering
+- [x] Keep contextual Box detail navigation aligned with the visible order
+- [x] Add sorting, settings and backup regression tests
+- [x] Validate all Box ordering modes manually on Android
 
 ### Animal Overview Sorting — Issue #81
 

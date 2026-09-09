@@ -9,6 +9,7 @@ void main() {
       accent: 'green',
       language: 'german',
       animalNameOrder: 'latinNameFirst',
+      boxSortOrder: 'labelDescending',
     );
 
     final restored = BackupSettings.fromJson(original.toJson());
@@ -20,6 +21,8 @@ void main() {
     expect(restored.language, 'german');
 
     expect(restored.animalNameOrder, 'latinNameFirst');
+
+    expect(restored.boxSortOrder, 'labelDescending');
   });
 
   test('legacy settings without language default to system', () {
@@ -31,5 +34,7 @@ void main() {
     expect(restored.language, 'system');
 
     expect(restored.animalNameOrder, 'commonNameFirst');
+
+    expect(restored.boxSortOrder, 'createdOldestFirst');
   });
 }

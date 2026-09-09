@@ -213,6 +213,10 @@ Examples:
 - System, English and German language selection
 - language persistence and unsupported-locale fallback
 - language-setting backup and restore
+- oldest/newest and natural ascending/descending Box Overview sorting
+- Box sort-order persistence after an application restart
+- contextual Box detail swiping in the currently visible order
+- Box sort-order backup, restore and legacy-backup default behavior
 
 For image-storage measurements, use the same source picture and equivalent crop
 before and after optimization. Record:

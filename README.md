@@ -18,7 +18,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.13.2+29**
+**v0.13.3+30**
 
 Implemented milestones in the current source state:
 
@@ -45,7 +45,8 @@ available in `docs/release-v0.13.0.md`.
 
 Development of v0.14.0 is in progress. The current build provides consistent
 Animal sex and birth-date-accuracy labels and direct, preassigned Animal
-creation from Box details.
+creation from Box details. It also adds persistent Box Overview sorting by
+creation time or natural Box number.
 
 The completed v0.12.0 validation record remains available in
 `docs/release-v0.12.0.md`.
@@ -93,6 +94,9 @@ application restarts.
 - Box editing while keeping the QR identifier immutable
 - human-readable local labels (`Box N`)
 - Box thumbnails in the overview
+- localized Box Overview sorting by oldest/newest creation time or ascending/
+  descending natural Box number
+- persistent Box Overview ordering across application restarts
 - preserved Box overview scroll position after detail navigation
 - contextual swipe navigation through the Box Overview ordering
 - safe deletion of empty boxes
@@ -178,6 +182,7 @@ application restarts.
 - persistent appearance settings
 - selectable Common name first or Latin name first Animal presentation
 - immediate and persistent Animal name-order changes
+- immediate and persistent Box Overview sort-order changes
 - System language mode
 - explicit English and German language selection
 - immediate language changes without an application restart
@@ -188,7 +193,8 @@ application restarts.
 - destructive restore confirmation
 - automatic safety backup before restore
 - full local data restore
-- appearance, language and Animal name-order setting backup and restore
+- appearance, language, Animal name-order and Box sort-order setting backup and
+  restore
 
 ### Backup & Restore
 
@@ -202,9 +208,10 @@ application restarts.
 - Box and Animal picture export and restore
 - mixed legacy PNG/JPEG and normalized WebP picture backups
 - centralized archive-extension and restored MIME-type mapping
-- appearance, language and Animal name-order setting export and restore
-- backward-compatible restore of backups without language or Animal
-  name-order settings
+- appearance, language, Animal name-order and Box sort-order setting export and
+  restore
+- backward-compatible restore of backups without language, Animal name-order
+  or Box sort-order settings
 - per-Animal feeding reminder configuration export and restore
 - backward-compatible restore of backups without reminder fields, with
   reminders disabled
@@ -259,6 +266,12 @@ first. The preference is applied immediately to Animal overviews, history,
 details, Box assignments and Quick Feeding Mode. It is stored locally and
 included in newly created `.tmbackup` files. Older backups default to common
 name first.
+
+The Box Overview sort menu offers oldest or newest creation time and ascending
+or descending Box number. Box numbers are compared numerically, so `Box 10`
+correctly follows `Box 2` in ascending order. The selected ordering is applied
+to both the list and contextual Box detail navigation, stored locally and
+included in new backups. Older backups default to oldest-created Box first.
 
 ### Contextual Detail Navigation
 
@@ -689,6 +702,7 @@ lib/
 │   │   ├── app_accent.dart
 │   │   ├── app_language.dart
 │   │   ├── animal_name_order.dart
+│   │   ├── box_sort_order.dart
 │   │   ├── app_settings_controller.dart
 │   │   └── presentation/
 │   │

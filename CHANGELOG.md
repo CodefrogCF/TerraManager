@@ -8,12 +8,18 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Added
 
+- localized Box Overview sorting by creation time or natural Box number in
+  ascending and descending directions
+- a checked sort menu in the Box Overview app bar
 - Add Animal action below both empty and populated assigned-Animal sections on
   Box details
 - optional initial Box selection for the existing New Animal workflow
 
 ### Changed
 
+- the selected Box order is applied immediately and persisted between
+  application restarts
+- contextual Box detail navigation now receives the exact visible sorted order
 - replaced raw English Animal sex values with Male, Female and Unknown
 - removed the duplicate Unknown entry from the New Animal and Edit Animal sex
   selectors
@@ -28,12 +34,19 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Compatibility
 
+- Box sorting is a UI preference and requires no database migration
+- portable backups include the optional `boxSortOrder` setting; older backups
+  default to oldest-created Box first
 - persisted Sex and BirthDateAccuracy enum values remain unchanged
 - legacy nullable Animal sex values display as Unknown
 - no database or portable-backup migration is required
 
 ### Testing
 
+- added deterministic creation-time and natural-number sorting unit tests
+- added Box Overview selection, persistence and contextual-navigation coverage
+- extended settings export, validation, restore and legacy-default tests for
+  Box sorting
 - added New Animal and Edit Animal option-list regression coverage
 - added legacy missing-sex detail presentation coverage
 - extended English and German localization expectations
@@ -45,13 +58,18 @@ The project uses semantic versioning while development remains below version 1.0
 
 - `flutter analyze` without issues
 - complete automated test suite
+- all four Box Overview sort modes and their immediate list ordering
+- persistent Box sorting after changing the selection
+- contextual Box detail navigation following the visible sorted order
+- Box sort-order backup, restore and legacy-backup fallback coverage
 - New Animal and Edit Animal sex selections without duplicate options
 - localized sex and birth-date-accuracy labels in English and German
 - legacy missing-sex presentation and normal Animal detail rendering
 - direct Animal creation from empty and populated Box details
 - originating Box preselection, editable reassignment, cancellation and
   immediate assignment-list refresh
-- manual regression on a physical Android device
+- manual regression, including Box Overview sorting, on a physical Android
+  device
 
 ## [0.13.0] - 2026-09-08
 

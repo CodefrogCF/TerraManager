@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../settings/app_accent.dart';
 import '../../settings/app_language.dart';
 import '../../settings/animal_name_order.dart';
+import '../../settings/box_sort_order.dart';
 import '../domain/backup_settings.dart';
 
 class BackupSettingsCodec {
@@ -13,12 +14,14 @@ class BackupSettingsCodec {
     required AppAccent accent,
     AppLanguage language = AppLanguage.system,
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
+    BoxSortOrder boxSortOrder = BoxSortOrder.createdOldestFirst,
   }) {
     return BackupSettings(
       themeMode: encodeThemeMode(themeMode),
       accent: encodeAccent(accent),
       language: encodeLanguage(language),
       animalNameOrder: encodeAnimalNameOrder(animalNameOrder),
+      boxSortOrder: encodeBoxSortOrder(boxSortOrder),
     );
   }
 
@@ -94,6 +97,27 @@ class BackupSettingsCodec {
       'latinNameFirst' => AnimalNameOrder.latinNameFirst,
       _ => throw FormatException(
         'Unsupported AnimalNameOrder backup value: $value',
+      ),
+    };
+  }
+
+  static String encodeBoxSortOrder(BoxSortOrder value) {
+    return switch (value) {
+      BoxSortOrder.createdOldestFirst => 'createdOldestFirst',
+      BoxSortOrder.createdNewestFirst => 'createdNewestFirst',
+      BoxSortOrder.labelAscending => 'labelAscending',
+      BoxSortOrder.labelDescending => 'labelDescending',
+    };
+  }
+
+  static BoxSortOrder decodeBoxSortOrder(String value) {
+    return switch (value) {
+      'createdOldestFirst' => BoxSortOrder.createdOldestFirst,
+      'createdNewestFirst' => BoxSortOrder.createdNewestFirst,
+      'labelAscending' => BoxSortOrder.labelAscending,
+      'labelDescending' => BoxSortOrder.labelDescending,
+      _ => throw FormatException(
+        'Unsupported BoxSortOrder backup value: $value',
       ),
     };
   }

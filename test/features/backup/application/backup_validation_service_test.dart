@@ -31,12 +31,14 @@ void main() {
     String accent = 'green',
     String? language = 'system',
     String? animalNameOrder = 'commonNameFirst',
+    String? boxSortOrder = 'createdOldestFirst',
   }) {
     return {
       'themeMode': themeMode,
       'accent': accent,
       'language': ?language,
       'animalNameOrder': ?animalNameOrder,
+      'boxSortOrder': ?boxSortOrder,
     };
   }
 
@@ -178,11 +180,17 @@ void main() {
     expect(result.settings.language, 'system');
 
     expect(result.settings.animalNameOrder, 'commonNameFirst');
+
+    expect(result.settings.boxSortOrder, 'createdOldestFirst');
   });
 
   test('accepts legacy settings without additive preferences', () {
     final bytes = createArchive(
-      settings: settingsJson(language: null, animalNameOrder: null),
+      settings: settingsJson(
+        language: null,
+        animalNameOrder: null,
+        boxSortOrder: null,
+      ),
     );
 
     final result = validator.validate(bytes);
@@ -190,6 +198,8 @@ void main() {
     expect(result.settings.language, 'system');
 
     expect(result.settings.animalNameOrder, 'commonNameFirst');
+
+    expect(result.settings.boxSortOrder, 'createdOldestFirst');
   });
 
   test('accepts valid archived animal', () {
@@ -536,6 +546,23 @@ void main() {
   test('rejects unsupported Animal name-order setting', () {
     final bytes = createArchive(
       settings: settingsJson(animalNameOrder: 'future-name-order'),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidSettings,
+        ),
+      ),
+    );
+  });
+
+  test('rejects unsupported Box sort-order setting', () {
+    final bytes = createArchive(
+      settings: settingsJson(boxSortOrder: 'future-box-sort-order'),
     );
 
     expect(

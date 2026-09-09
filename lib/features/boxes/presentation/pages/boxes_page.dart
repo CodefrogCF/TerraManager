@@ -5,8 +5,12 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/presentation/pages/feeding_scanner_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../../../settings/app_settings_controller.dart';
+import '../../../settings/box_sort_order.dart';
+import '../box_overview_sorting.dart';
 import 'box_detail_page.dart';
 import 'box_scanner_page.dart';
 import 'new_box_page.dart';
@@ -184,10 +188,32 @@ class _BoxesPageState extends State<BoxesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = AppSettingsScope.maybeOf(context);
+    final boxSortOrder =
+        settings?.boxSortOrder ?? BoxSortOrder.createdOldestFirst;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.navigationBoxes),
         actions: [
+          PopupMenuButton<BoxSortOrder>(
+            key: const Key('box-sort-button'),
+            initialValue: boxSortOrder,
+            onSelected: (sortOrder) {
+              settings?.setBoxSortOrder(sortOrder);
+            },
+            icon: const Icon(Icons.sort),
+            tooltip: context.l10n.sortBoxes,
+            itemBuilder: (context) {
+              return BoxSortOrder.values.map((sortOrder) {
+                return CheckedPopupMenuItem<BoxSortOrder>(
+                  value: sortOrder,
+                  checked: sortOrder == boxSortOrder,
+                  child: Text(context.l10n.boxSortOrderLabel(sortOrder)),
+                );
+              }).toList();
+            },
+          ),
           IconButton(
             key: const Key('scan-box-button'),
             onPressed: _openScannerPage,
@@ -213,7 +239,10 @@ class _BoxesPageState extends State<BoxesPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final boxes = snapshot.data ?? [];
+          final boxes = sortBoxesForOverview(
+            snapshot.data ?? const <Box>[],
+            boxSortOrder,
+          );
 
           if (boxes.isEmpty) {
             return Center(child: Text(context.l10n.noBoxesAvailable));

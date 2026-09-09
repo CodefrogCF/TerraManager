@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
@@ -10,11 +12,15 @@ import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
+import 'package:terramanager/features/settings/app_settings_controller.dart';
+import 'package:terramanager/features/settings/box_sort_order.dart';
 
 void main() {
   late AppDatabase database;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
+
     database = AppDatabase.test(NativeDatabase.memory());
   });
 
@@ -30,8 +36,17 @@ void main() {
     );
   }
 
-  Future<void> pumpPage(WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: BoxesPage(database: database)));
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    AppSettingsController? settingsController,
+  }) async {
+    final app = MaterialApp(home: BoxesPage(database: database));
+
+    await tester.pumpWidget(
+      settingsController == null
+          ? app
+          : AppSettingsScope(controller: settingsController, child: app),
+    );
 
     await tester.pumpAndSettle();
   }
@@ -158,6 +173,76 @@ void main() {
     expect(navigationContext.recordIds, [firstId, secondId, thirdId]);
     expect(navigationContext.currentRecordId, secondId);
     expect(navigationContext.currentIndex, 1);
+  });
+
+  testWidgets('changes, persists, and passes the selected Box order', (
+    tester,
+  ) async {
+    final firstId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'box-oldest',
+            createdAt: drift.Value(DateTime(2026, 9, 1)),
+          ),
+        );
+    final secondId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'box-newest',
+            createdAt: drift.Value(DateTime(2026, 9, 3)),
+          ),
+        );
+    final thirdId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'box-middle',
+            createdAt: drift.Value(DateTime(2026, 9, 2)),
+          ),
+        );
+    final settingsController = AppSettingsController();
+
+    await settingsController.load();
+    await pumpPage(tester, settingsController: settingsController);
+
+    await tester.tap(find.byKey(const Key('box-sort-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Oldest created first'), findsOneWidget);
+    expect(find.text('Newest created first'), findsOneWidget);
+    expect(find.text('Box number ascending'), findsOneWidget);
+    expect(find.text('Box number descending'), findsOneWidget);
+
+    await tester.tap(find.text('Newest created first'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.byKey(Key('box-list-item-$secondId'))).dy,
+      lessThan(tester.getTopLeft(find.byKey(Key('box-list-item-$thirdId'))).dy),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(Key('box-list-item-$thirdId'))).dy,
+      lessThan(tester.getTopLeft(find.byKey(Key('box-list-item-$firstId'))).dy),
+    );
+
+    expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
+
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(preferences.getString('box_sort_order'), 'createdNewestFirst');
+
+    await tester.tap(find.byKey(Key('box-list-item-$thirdId')));
+    await tester.pumpAndSettle();
+
+    final detailPage = tester.widget<BoxDetailPage>(find.byType(BoxDetailPage));
+
+    expect(detailPage.navigationContext!.recordIds, [
+      secondId,
+      thirdId,
+      firstId,
+    ]);
   });
 
   testWidgets('add button opens new box page', (tester) async {

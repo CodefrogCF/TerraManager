@@ -406,5 +406,10 @@
       }
     }
   },
-  "failedToLoadFeedingReminder": "Failed to load feeding reminder"
+  "failedToLoadFeedingReminder": "Failed to load feeding reminder",
+  "sortBoxes": "Sort boxes",
+  "boxSortCreatedOldestFirst": "Oldest created first",
+  "boxSortCreatedNewestFirst": "Newest created first",
+  "boxSortLabelAscending": "Box number ascending",
+  "boxSortLabelDescending": "Box number descending"
 }

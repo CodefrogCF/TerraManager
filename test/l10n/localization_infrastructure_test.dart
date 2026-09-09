@@ -48,6 +48,11 @@ void main() {
     expect(l10n.birthDateAccuracyExact, 'Exact');
     expect(l10n.birthDateAccuracyMonthKnown, 'Month known');
     expect(l10n.birthDateAccuracyYearKnown, 'Year known');
+    expect(l10n.sortBoxes, 'Sort boxes');
+    expect(l10n.boxSortCreatedOldestFirst, 'Oldest created first');
+    expect(l10n.boxSortCreatedNewestFirst, 'Newest created first');
+    expect(l10n.boxSortLabelAscending, 'Box number ascending');
+    expect(l10n.boxSortLabelDescending, 'Box number descending');
     expect(l10n.animalsDueForFeeding(1), '1 Animal is due for feeding');
     expect(l10n.animalsDueForFeeding(3), '3 Animals are due for feeding');
     expect(
@@ -99,6 +104,11 @@ void main() {
     expect(l10n.birthDateAccuracyExact, 'Genau');
     expect(l10n.birthDateAccuracyMonthKnown, 'Monat bekannt');
     expect(l10n.birthDateAccuracyYearKnown, 'Jahr bekannt');
+    expect(l10n.sortBoxes, 'Boxen sortieren');
+    expect(l10n.boxSortCreatedOldestFirst, 'Älteste zuerst');
+    expect(l10n.boxSortCreatedNewestFirst, 'Neueste zuerst');
+    expect(l10n.boxSortLabelAscending, 'Boxnummer aufsteigend');
+    expect(l10n.boxSortLabelDescending, 'Boxnummer absteigend');
     expect(l10n.animalsDueForFeeding(1), '1 Tier ist zur Fütterung fällig');
     expect(l10n.animalsDueForFeeding(3), '3 Tiere sind zur Fütterung fällig');
     expect(

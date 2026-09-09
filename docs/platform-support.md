@@ -42,6 +42,8 @@ Validated functionality includes:
 - core navigation
 - Drift/SQLite persistence
 - box creation and persistence
+- oldest/newest and natural ascending/descending Box Overview sorting
+- persistent Box ordering and matching contextual detail navigation
 - direct Animal creation from empty and populated Box details with the Box
   preselected
 - Box editing and optional dimensions

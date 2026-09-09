@@ -21,6 +21,7 @@ import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:archive/archive.dart';
 import 'package:terramanager/features/backup/domain/backup_format.dart';
 
@@ -33,6 +34,7 @@ void main() {
       'theme_mode': 'light',
       'accent': 'red',
       'language': 'english',
+      'box_sort_order': 'createdNewestFirst',
     });
 
     database = AppDatabase.test(NativeDatabase.memory());
@@ -134,6 +136,7 @@ void main() {
         accent: 'teal',
         language: 'german',
         animalNameOrder: 'latinNameFirst',
+        boxSortOrder: 'labelDescending',
       ),
       mediaFiles: includePicture
           ? {
@@ -216,6 +219,7 @@ void main() {
         safetyBackupWritten = true;
 
         expect(backup.data.animals.single.commonName, 'Old Animal');
+        expect(backup.settings.boxSortOrder, 'createdNewestFirst');
       },
     );
 
@@ -303,6 +307,8 @@ void main() {
     expect(settingsController.language, AppLanguage.german);
 
     expect(settingsController.animalNameOrder, AnimalNameOrder.latinNameFirst);
+
+    expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
   });
 
   test('safety backup failure leaves '
@@ -339,6 +345,8 @@ void main() {
     expect(settingsController.accent, AppAccent.red);
 
     expect(settingsController.language, AppLanguage.english);
+
+    expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
   });
 
   test('missing media in unvalidated backup '
@@ -506,6 +514,8 @@ void main() {
     expect(settingsController.themeMode, ThemeMode.system);
 
     expect(settingsController.accent, AppAccent.green);
+
+    expect(settingsController.boxSortOrder, BoxSortOrder.createdOldestFirst);
   });
 
   test('restores mixed legacy PNG and normalized WebP media', () async {

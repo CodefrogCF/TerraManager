@@ -221,10 +221,12 @@ class BackupValidationService {
       BackupSettingsCodec.decodeLanguage(settings.language);
 
       BackupSettingsCodec.decodeAnimalNameOrder(settings.animalNameOrder);
+
+      BackupSettingsCodec.decodeBoxSortOrder(settings.boxSortOrder);
     } on FormatException catch (error) {
       throw BackupValidationException(
         code: BackupValidationErrorCode.invalidSettings,
-        message: 'Backup contains unsupported appearance settings.',
+        message: 'Backup contains unsupported application settings.',
         cause: error,
       );
     }

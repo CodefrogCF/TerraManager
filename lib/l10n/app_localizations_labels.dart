@@ -7,6 +7,7 @@ import '../features/backup/application/backup_validation_exception.dart';
 import '../features/settings/app_accent.dart';
 import '../features/settings/app_language.dart';
 import '../features/settings/animal_name_order.dart';
+import '../features/settings/box_sort_order.dart';
 import 'generated/app_localizations.dart';
 
 extension AppLocalizationsLabels on AppLocalizations {
@@ -67,6 +68,15 @@ extension AppLocalizationsLabels on AppLocalizations {
     return switch (order) {
       AnimalNameOrder.commonNameFirst => animalNameCommonFirst,
       AnimalNameOrder.latinNameFirst => animalNameLatinFirst,
+    };
+  }
+
+  String boxSortOrderLabel(BoxSortOrder order) {
+    return switch (order) {
+      BoxSortOrder.createdOldestFirst => boxSortCreatedOldestFirst,
+      BoxSortOrder.createdNewestFirst => boxSortCreatedNewestFirst,
+      BoxSortOrder.labelAscending => boxSortLabelAscending,
+      BoxSortOrder.labelDescending => boxSortLabelDescending,
     };
   }
 

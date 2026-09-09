@@ -281,6 +281,11 @@ Animal presentation also has a user-selectable primary name:
 - common name first
 - Latin name first
 
+The Box Overview has a user-selectable order:
+
+- oldest or newest creation time first
+- ascending or descending natural Box number
+
 These values are application preferences rather than terrarium domain data.
 
 Storing them in the Drift database would couple UI preferences to the relational
@@ -289,8 +294,8 @@ changes.
 
 ### Decision
 
-Appearance, language and Animal name-order preferences are stored through
-`shared_preferences`.
+Appearance, language, Animal name-order and overview sort-order preferences are
+stored through `shared_preferences`.
 
 The Drift/SQLite database remains responsible for domain data such as:
 
@@ -301,9 +306,9 @@ FeedingEvent
 MediaAsset
 ```
 
-The application settings controller loads and persists appearance, language
-and Animal name-order preferences and notifies the application when they
-change.
+The application settings controller loads and persists appearance, language,
+Animal name-order and overview sort-order preferences and notifies the
+application when they change.
 
 The application theme is regenerated immediately from the selected theme mode
 and accent color. The application locale changes immediately when a language is
@@ -332,6 +337,7 @@ ThemeMode.system
 Accent = TerraManager green
 Language = System
 AnimalNameOrder = Common name first
+BoxSortOrder = Oldest created first
 ```
 
 The System language follows the operating-system locale. Unsupported locales
@@ -413,6 +419,10 @@ backups without the field restore the System language setting.
 
 TerraManager 0.11.0 adds the optional Animal name-order preference to the same
 file. This is also backward compatible; older backups restore common name first.
+
+TerraManager 0.13.3 adds the optional Box sort-order preference. Older backups
+restore oldest-created Box first, so the extension remains backward compatible
+without a new backup-format version.
 
 ### Consequences
 

@@ -5,6 +5,7 @@ import 'package:terramanager/features/backup/application/backup_settings_codec.d
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/box_sort_order.dart';
 
 void main() {
   test('theme modes use stable backup values', () {
@@ -69,6 +70,11 @@ void main() {
       () => BackupSettingsCodec.decodeAnimalNameOrder('future-name-order'),
       throwsFormatException,
     );
+
+    expect(
+      () => BackupSettingsCodec.decodeBoxSortOrder('future-box-sort-order'),
+      throwsFormatException,
+    );
   });
 
   test('Animal name orders use stable backup values and round trip', () {
@@ -86,6 +92,32 @@ void main() {
     for (final value in AnimalNameOrder.values) {
       final encoded = BackupSettingsCodec.encodeAnimalNameOrder(value);
       final decoded = BackupSettingsCodec.decodeAnimalNameOrder(encoded);
+
+      expect(decoded, value);
+    }
+  });
+
+  test('Box sort orders use stable backup values and round trip', () {
+    expect(
+      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.createdOldestFirst),
+      'createdOldestFirst',
+    );
+    expect(
+      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.createdNewestFirst),
+      'createdNewestFirst',
+    );
+    expect(
+      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.labelAscending),
+      'labelAscending',
+    );
+    expect(
+      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.labelDescending),
+      'labelDescending',
+    );
+
+    for (final value in BoxSortOrder.values) {
+      final encoded = BackupSettingsCodec.encodeBoxSortOrder(value);
+      final decoded = BackupSettingsCodec.decodeBoxSortOrder(encoded);
 
       expect(decoded, value);
     }

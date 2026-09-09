@@ -11,6 +11,9 @@ The application must allow the user to:
 - create a new Box
 - automatically assign a permanent unique QR identifier
 - view the Box overview
+- sort the Box overview by oldest or newest creation time
+- sort the Box overview by ascending or descending natural Box number
+- persist the selected Box Overview order between application restarts
 - view Box details
 - edit optional Box width, height and depth
 - add, replace or remove a persistent Box picture
@@ -249,8 +252,8 @@ The application must allow the user to:
 - persist the selected language between application restarts
 - fall back to English when the system language is unsupported
 
-Appearance and language settings must be included in portable TerraManager
-backups.
+Appearance, language and overview-order settings must be included in portable
+TerraManager backups.
 
 ## Persistence
 
@@ -272,8 +275,8 @@ metadata until the user replaces the picture.
 Overview thumbnails, detail pictures and the full-screen viewer must display
 both normalized WebP media and previously supported legacy image formats.
 
-Appearance and language preferences are stored separately through
-`shared_preferences`.
+Appearance, language and overview-order preferences are stored separately
+through `shared_preferences`.
 
 Domain data, Box and Animal pictures, appearance preferences and manual language
 selection must survive normal application restarts or browser reloads on
@@ -301,7 +304,7 @@ The application must allow the user to:
 - export FeedingEvents
 - export Box pictures
 - export Animal pictures
-- export appearance and language settings
+- export appearance, language and overview-order settings
 - select an existing TerraManager backup
 - inspect backup metadata before restore
 - restore a compatible TerraManager backup
@@ -315,8 +318,10 @@ The application must allow the user to:
 - restore Box dimensions
 - restore persistent Box pictures
 - restore persistent Animal pictures
-- restore appearance and language settings
+- restore appearance, language and overview-order settings
 - restore older backups without a language field using the System setting
+- restore older backups without a Box sort-order field using oldest-created
+  Box first
 - export and restore optional per-Animal feeding reminder configuration
 - restore older backups without reminder fields with reminders disabled
 

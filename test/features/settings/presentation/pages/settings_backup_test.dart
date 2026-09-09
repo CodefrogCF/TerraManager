@@ -14,6 +14,7 @@ import 'package:terramanager/features/backup/infrastructure/backup_file_service.
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 
 class FakeBackupFileGateway implements BackupFileGateway {
@@ -122,6 +123,7 @@ void main() {
   testWidgets('creates and saves backup', (tester) async {
     await settingsController.setLanguage(AppLanguage.german);
     await settingsController.setAnimalNameOrder(AnimalNameOrder.latinNameFirst);
+    await settingsController.setBoxSortOrder(BoxSortOrder.labelDescending);
 
     await database
         .into(database.boxes)
@@ -150,6 +152,11 @@ void main() {
     expect(
       fileGateway.savedBackups.single.settings.animalNameOrder,
       'latinNameFirst',
+    );
+
+    expect(
+      fileGateway.savedBackups.single.settings.boxSortOrder,
+      'labelDescending',
     );
 
     expect(find.text('Backup created successfully.'), findsOneWidget);
@@ -183,6 +190,7 @@ void main() {
       accent: settingsController.accent,
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
+      boxSortOrder: BoxSortOrder.createdNewestFirst,
       createdAt: DateTime.utc(2026, 9, 2, 15),
     );
 
@@ -240,6 +248,8 @@ void main() {
 
     expect(settingsController.animalNameOrder, AnimalNameOrder.latinNameFirst);
 
+    expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
+
     // Restore creates a safety
     // backup before replacing data.
     expect(fileGateway.savedBackups.length, 1);
@@ -254,6 +264,11 @@ void main() {
     expect(
       fileGateway.savedBackups.single.settings.animalNameOrder,
       'commonNameFirst',
+    );
+
+    expect(
+      fileGateway.savedBackups.single.settings.boxSortOrder,
+      'createdOldestFirst',
     );
 
     expect(find.text('Backup restored successfully.'), findsOneWidget);

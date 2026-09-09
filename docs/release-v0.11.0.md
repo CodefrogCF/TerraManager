@@ -117,17 +117,3 @@ Validated release artifacts:
   unsupported
 - [x] Confirm picture persistence after reload and backup/restore
 - [x] Complete a general Box, Animal and Feeding workflow regression
-
-## Final Release Actions
-
-Complete only after every required validation succeeds:
-
-- [x] Change the Changelog heading from `Unreleased` to the dated `0.11.0`
-  release
-- [x] Mark v0.11.0 release and validation tasks complete in the Roadmap
-- [x] Update README Project Status to the completed v0.11.0 milestone
-- [ ] Commit and push the final release documentation
-- [ ] Create annotated tag `v0.11.0`
-- [ ] Push tag `v0.11.0`
-- [ ] Publish the GitHub v0.11.0 release with the release APK
-- [ ] Close the v0.11.0 milestone

@@ -4,6 +4,34 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
+## [Unreleased]
+
+### Changed
+
+- adopted `com.codefrog.terramanager` as the permanent application identifier
+  and Android namespace
+- replaced remaining Flutter placeholder names in the prepared platform
+  projects with TerraManager identity
+- replaced placeholder Web title, description and installation metadata
+- replaced the default Flutter Web icons and favicon with TerraManager artwork
+- advanced the development version to `0.14.2+34`
+
+### Compatibility
+
+- Android installations using the previous
+  `com.example.flutter_application_1` identifier cannot be updated in place;
+  users must export a backup in v0.14.1 and restore it into the new application
+- Database Schema Version 5 and Portable Backup Format Version 2 remain
+  unchanged
+- iOS, macOS, Linux and Windows identity metadata is prepared but those
+  platforms are not newly validated or promoted to supported status
+
+### Testing
+
+- added static regression coverage for Android application identity
+- added Web manifest, page metadata and icon-dimension coverage
+- added a cross-platform placeholder identity regression check
+
 ## [0.14.1] - 2026-09-09
 
 ### Changed

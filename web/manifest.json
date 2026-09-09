@@ -1,11 +1,11 @@
 {
-    "name": "flutter_application_1",
-    "short_name": "flutter_application_1",
+    "name": "TerraManager",
+    "short_name": "TerraManager",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0B5D36",
+    "theme_color": "#0B5D36",
+    "description": "TerraManager is a local-first application for managing terrarium boxes, animals and feeding records.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

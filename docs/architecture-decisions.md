@@ -984,3 +984,64 @@ Disadvantages:
   requires a later screen reload to appear
 - the application shell must propagate successful Quick Feeding changes to the
   Animals page
+
+---
+
+## ADR-014: Adopt a permanent cross-platform application identity
+
+**Status:** Accepted
+
+**Date:** 2026-09-09
+
+### Context
+
+The Flutter project was originally created with
+`com.example.flutter_application_1` and `flutter_application_1` placeholders.
+Those values still identified the Android package and appeared in prepared Web
+and desktop platform metadata. Android application IDs become part of the
+installed application's identity and update path, so a stable identifier is
+required before v1.0 and production signing.
+
+The Web project also used Flutter's default title, description, colors and
+icons, which did not identify TerraManager when installed as a progressive Web
+application.
+
+### Decision
+
+TerraManager adopts the following permanent identifier:
+
+```text
+com.codefrog.terramanager
+```
+
+Android uses this value as both namespace and application ID. Prepared Apple
+and Linux projects use the matching bundle or application identifier. Windows,
+Linux and macOS user-facing names and executable metadata use TerraManager
+instead of Flutter template values.
+
+The Web manifest and HTML metadata use the TerraManager name, the local-first
+application description and dark green `#0B5D36` theme color. Web launcher and
+maskable icons plus the favicon are derived from the existing TerraManager app
+icon.
+
+The identifier must not change after v1.0. Platform identity preparation does
+not itself promote iOS, macOS, Linux or Windows to validated status.
+
+### Consequences
+
+Advantages:
+
+- Android releases have a stable non-placeholder identity
+- production signing can target the final application ID
+- Web installation and browser metadata clearly identify TerraManager
+- prepared platform projects no longer expose Flutter template identity
+- automated regression tests protect identity and core metadata
+
+Disadvantages:
+
+- Android considers the new identifier a separate application
+- builds through v0.14.1 cannot be updated in place
+- existing users must export a portable backup, install the permanent-ID build
+  and restore their data
+- prepared but unsupported platform identity changes cannot be fully validated
+  until suitable build environments are available

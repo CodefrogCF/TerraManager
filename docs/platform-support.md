@@ -38,6 +38,20 @@ Android → Web
 Web → Android
 ```
 
+## Permanent Application Identity
+
+Development build `0.14.2+34` adopts `com.codefrog.terramanager` as the
+permanent application identifier. Android and Web remain the validated target
+platforms. Matching identifiers and names in the prepared iOS, macOS, Linux and
+Windows projects remove Flutter placeholders but do not constitute platform
+validation.
+
+Android releases through v0.14.1 used
+`com.example.flutter_application_1`. Android installs the permanent-ID build as
+a separate application. Users must create a `.tmbackup` with the old version,
+restore it in the new application and verify their data before removing the old
+installation.
+
 ## Android
 
 Android support has been validated on physical hardware.
@@ -47,6 +61,8 @@ Validated functionality includes:
 - debug APK build
 - release APK build
 - application startup
+- permanent `com.codefrog.terramanager` application identity
+- TerraManager application name and launcher icon
 - core navigation
 - Drift/SQLite persistence
 - box creation and persistence
@@ -166,6 +182,7 @@ Validated functionality includes:
 
 - Web build
 - application startup
+- TerraManager page title, install metadata, theme color, icons and favicon
 - navigation
 - Drift database operation
 - persistence across normal browser reloads

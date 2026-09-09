@@ -18,7 +18,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.1+33**
+**v0.14.2+34**
 
 Implemented milestones in the current source state:
 
@@ -49,6 +49,30 @@ compatibility. The validation record and release notes are available in
 `docs/release-v0.14.1.md`.
 
 TerraManager now enters preparation for the v1.0.0 MVP release.
+
+Development build `0.14.2+34` establishes `com.codefrog.terramanager` as the
+permanent application identity, replaces the remaining Flutter placeholder
+metadata and uses the TerraManager icon throughout the Android and Web
+projects. This work is tracked by Issue #89.
+
+### Android transition to the permanent application ID
+
+Releases through v0.14.1 used the temporary Android identifier
+`com.example.flutter_application_1`. Android treats
+`com.codefrog.terramanager` as a separate application, so the new build cannot
+update an existing pre-v1.0 installation in place.
+
+Before moving to a build with the permanent identifier:
+
+1. Create a current `.tmbackup` file in v0.14.1.
+2. Keep the old installation until the backup file is stored safely.
+3. Install the new TerraManager application.
+4. Restore the backup through Settings.
+5. Verify Animals, Boxes, FeedingEvents, settings and pictures before removing
+   the old installation.
+
+No database or backup-format conversion is required. Portable Backup Format
+Version 2 remains compatible with the new application identity.
 
 The completed v0.14.0 validation record remains available in
 `docs/release-v0.14.0.md`.

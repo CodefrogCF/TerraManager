@@ -79,6 +79,28 @@ must verify that Version 4 data is preserved and both fields are initialized to
 
 ## Android Development
 
+TerraManager uses the permanent Android namespace and application ID:
+
+```text
+com.codefrog.terramanager
+```
+
+The main Activity is located at:
+
+```text
+android/app/src/main/kotlin/com/codefrog/terramanager/MainActivity.kt
+```
+
+Do not change the application ID after v1.0. Android uses it as part of the
+installed application's identity, storage isolation and update path.
+
+Builds through v0.14.1 used the temporary identifier
+`com.example.flutter_application_1`. They cannot be updated in place by a build
+using the permanent identifier. Export a `.tmbackup` from the old installation,
+install the permanent-ID build and restore that backup before removing the old
+application. Database Schema Version 5 and Portable Backup Format Version 2 do
+not change for this transition.
+
 List available devices:
 
 ```text

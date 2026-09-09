@@ -12,7 +12,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.1+33**
+**v0.14.2+34**
 
 Completed development areas:
 
@@ -119,6 +119,12 @@ meaningful Box-number directions while preserving legacy settings and backups.
 
 v1.0.0 is now the active milestone, focused on final MVP release preparation
 without expanding the established feature scope.
+
+Issue #89 introduces the permanent `com.codefrog.terramanager` application
+identity and replaces remaining Flutter placeholder platform metadata. Android
+users of builds through v0.14.1 migrate through the existing portable backup
+and restore workflow because Android treats the permanent identifier as a new
+application.
 
 ---
 
@@ -668,6 +674,51 @@ roughly one sixth of its previous size.
 - [x] Build and manually test the supported release artifacts
 - [x] Finalize v0.14.1 documentation and release notes
 - [x] Release v0.14.1
+
+---
+
+## v1.0.0 – MVP Release
+
+### Application Identity and Platform Metadata — Issue #89
+
+- [x] Select `com.codefrog.terramanager` as the permanent application ID
+- [x] Update the Android namespace, application ID and MainActivity package
+- [x] Preserve TerraManager as the visible Android application name
+- [x] Replace placeholder Web name, title, description and theme metadata
+- [x] Replace default Flutter Web icons and favicon with TerraManager artwork
+- [x] Remove remaining Flutter identity placeholders from prepared platforms
+- [x] Document the backup-and-restore transition from pre-v1.0 Android builds
+- [x] Add automated platform metadata regression coverage
+- [ ] Validate Android builds, installation and application identity
+- [ ] Validate the Web build and install metadata
+
+### Android Production Signing — Issue #90
+
+- [ ] Configure a private production signing key outside version control
+- [ ] Keep debug builds independent of release credentials
+- [ ] Build and verify production-signed APK and AAB artifacts
+- [ ] Document key backup, recovery and the previous-signature transition
+
+### Public Release Documentation — Issue #91
+
+- [ ] Add the selected open-source license
+- [ ] Document privacy, permissions, installation, updates and support
+- [ ] Correct historical issue references
+- [ ] Complete the public v1.0 documentation review
+
+### Quality Gates and Toolchain Baseline — Issue #92
+
+- [ ] Add reproducible CI formatting, analysis, test and build checks
+- [ ] Record the supported Flutter and dependency baseline
+- [ ] Review current Kotlin and Gradle compatibility warnings
+
+### Stable MVP Release — Issue #93
+
+- [ ] Complete Android and Web regression testing
+- [ ] Validate current and legacy backup migration paths
+- [ ] Build and verify final signed release artifacts
+- [ ] Finalize v1.0.0 documentation and release notes
+- [ ] Publish the v1.0.0 tag and GitHub release
 
 ---
 

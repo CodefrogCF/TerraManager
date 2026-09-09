@@ -3,6 +3,7 @@ class BackupSettings {
   final String accent;
   final String language;
   final String animalNameOrder;
+  final String animalSortOrder;
   final String boxSortOrder;
 
   const BackupSettings({
@@ -10,6 +11,7 @@ class BackupSettings {
     required this.accent,
     this.language = 'system',
     this.animalNameOrder = 'commonNameFirst',
+    this.animalSortOrder = 'createdOldestFirst',
     this.boxSortOrder = 'createdOldestFirst',
   });
 
@@ -19,6 +21,7 @@ class BackupSettings {
       'accent': accent,
       'language': language,
       'animalNameOrder': animalNameOrder,
+      'animalSortOrder': animalSortOrder,
       'boxSortOrder': boxSortOrder,
     };
   }
@@ -29,6 +32,8 @@ class BackupSettings {
       accent: json['accent'] as String,
       language: json['language'] as String? ?? 'system',
       animalNameOrder: json['animalNameOrder'] as String? ?? 'commonNameFirst',
+      animalSortOrder:
+          json['animalSortOrder'] as String? ?? 'createdOldestFirst',
       boxSortOrder: json['boxSortOrder'] as String? ?? 'createdOldestFirst',
     );
   }

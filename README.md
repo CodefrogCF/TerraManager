@@ -18,7 +18,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.13.3+30**
+**v0.13.4+31**
 
 Implemented milestones in the current source state:
 
@@ -46,7 +46,8 @@ available in `docs/release-v0.13.0.md`.
 Development of v0.14.0 is in progress. The current build provides consistent
 Animal sex and birth-date-accuracy labels and direct, preassigned Animal
 creation from Box details. It also adds persistent Box Overview sorting by
-creation time or natural Box number.
+creation time or natural Box number and persistent Animal Overview sorting by
+creation time, displayed name, age or latest feeding.
 
 The completed v0.12.0 validation record remains available in
 `docs/release-v0.12.0.md`.
@@ -131,6 +132,10 @@ application restarts.
 - permanent deletion of archived animals
 - preserved feeding history while archived
 - Animal thumbnails in the overview
+- localized Animal Overview sorting by creation time, displayed primary name,
+  age or latest FeedingEvent
+- deterministic placement of Animals without birth or feeding data
+- persistent Animal Overview ordering across application restarts
 - preserved Animal overview scroll position after detail navigation
 - contextual swipe navigation through Active Animals, Animal History and
   Box-specific Animal collections
@@ -182,6 +187,7 @@ application restarts.
 - persistent appearance settings
 - selectable Common name first or Latin name first Animal presentation
 - immediate and persistent Animal name-order changes
+- immediate and persistent Animal Overview sort-order changes
 - immediate and persistent Box Overview sort-order changes
 - System language mode
 - explicit English and German language selection
@@ -193,8 +199,8 @@ application restarts.
 - destructive restore confirmation
 - automatic safety backup before restore
 - full local data restore
-- appearance, language, Animal name-order and Box sort-order setting backup and
-  restore
+- appearance, language, Animal name-order, Animal sort-order and Box sort-order
+  setting backup and restore
 
 ### Backup & Restore
 
@@ -208,10 +214,10 @@ application restarts.
 - Box and Animal picture export and restore
 - mixed legacy PNG/JPEG and normalized WebP picture backups
 - centralized archive-extension and restored MIME-type mapping
-- appearance, language, Animal name-order and Box sort-order setting export and
-  restore
-- backward-compatible restore of backups without language, Animal name-order
-  or Box sort-order settings
+- appearance, language, Animal name-order, Animal sort-order and Box sort-order
+  setting export and restore
+- backward-compatible restore of backups without language, Animal name-order,
+  Animal sort-order or Box sort-order settings
 - per-Animal feeding reminder configuration export and restore
 - backward-compatible restore of backups without reminder fields, with
   reminders disabled
@@ -272,6 +278,14 @@ or descending Box number. Box numbers are compared numerically, so `Box 10`
 correctly follows `Box 2` in ascending order. The selected ordering is applied
 to both the list and contextual Box detail navigation, stored locally and
 included in new backups. Older backups default to oldest-created Box first.
+
+The Animal Overview sort menu offers oldest/newest creation time, displayed
+name A–Z/Z–A, oldest/youngest age and newest/oldest latest feeding. Name sorting
+uses the currently preferred primary Animal name. Missing birth dates remain
+last in both age directions. Never-fed Animals appear first when sorting by the
+oldest feeding and last when sorting by the newest feeding. The selected order
+also controls contextual Animal detail navigation, persists locally and is
+included in new backups. Older backups default to oldest-created Animal first.
 
 ### Contextual Detail Navigation
 
@@ -702,6 +716,7 @@ lib/
 │   │   ├── app_accent.dart
 │   │   ├── app_language.dart
 │   │   ├── animal_name_order.dart
+│   │   ├── animal_sort_order.dart
 │   │   ├── box_sort_order.dart
 │   │   ├── app_settings_controller.dart
 │   │   └── presentation/

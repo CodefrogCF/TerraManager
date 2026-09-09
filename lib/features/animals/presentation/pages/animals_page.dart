@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../../../settings/animal_name_order.dart';
+import '../../../settings/animal_sort_order.dart';
+import '../../../settings/app_settings_controller.dart';
 import '../animal_display_names.dart';
+import '../animal_overview_sorting.dart';
 import 'animal_detail_page.dart';
 import 'animal_history_page.dart';
 import 'new_animal_page.dart';
@@ -50,16 +56,26 @@ class _AnimalsPageState extends State<AnimalsPage> {
   }
 
   Future<_AnimalsOverviewData> _fetchOverview() async {
-    final animalsFuture = AnimalRepository(widget.database).getActiveAnimals();
-    final remindersFuture = FeedingReminderService(
+    final animals = await AnimalRepository(widget.database).getActiveAnimals();
+    final latestFeedingTimes = await FeedingRepository(widget.database)
+        .getLatestFeedingTimes(animals.map((animal) => animal.id));
+    final reminderService = FeedingReminderService(
       widget.database,
       now: widget.reminderNow,
-    ).getDueReminderStates();
+    );
+    final dueReminders = reminderService
+        .calculateReminderStates(
+          animals: animals,
+          latestFeedingTimes: latestFeedingTimes,
+        )
+        .where((state) => state.isDue)
+        .toList(growable: false);
 
-    final animals = await animalsFuture;
-    final dueReminders = await remindersFuture;
-
-    return _AnimalsOverviewData(animals: animals, dueReminders: dueReminders);
+    return _AnimalsOverviewData(
+      animals: animals,
+      latestFeedingTimes: latestFeedingTimes,
+      dueReminders: dueReminders,
+    );
   }
 
   Future<void> _reloadAnimalsPreservingScroll(double previousOffset) async {
@@ -236,10 +252,34 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = AppSettingsScope.maybeOf(context);
+    final animalSortOrder =
+        settings?.animalSortOrder ?? AnimalSortOrder.createdOldestFirst;
+    final animalNameOrder =
+        settings?.animalNameOrder ?? AnimalNameOrder.commonNameFirst;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(context.l10n.navigationAnimals),
         actions: [
+          PopupMenuButton<AnimalSortOrder>(
+            key: const Key('animal-sort-button'),
+            initialValue: animalSortOrder,
+            onSelected: (sortOrder) {
+              settings?.setAnimalSortOrder(sortOrder);
+            },
+            icon: const Icon(Icons.sort),
+            tooltip: context.l10n.sortAnimals,
+            itemBuilder: (context) {
+              return AnimalSortOrder.values.map((sortOrder) {
+                return CheckedPopupMenuItem<AnimalSortOrder>(
+                  value: sortOrder,
+                  checked: sortOrder == animalSortOrder,
+                  child: Text(context.l10n.animalSortOrderLabel(sortOrder)),
+                );
+              }).toList();
+            },
+          ),
           IconButton(
             key: const Key('animal-history-button'),
             onPressed: _openAnimalHistory,
@@ -260,7 +300,13 @@ class _AnimalsPageState extends State<AnimalsPage> {
           }
 
           final data = snapshot.data;
-          final animals = data?.animals ?? const <Animal>[];
+          final animals = sortAnimalsForOverview(
+            data?.animals ?? const <Animal>[],
+            sortOrder: animalSortOrder,
+            nameOrder: animalNameOrder,
+            latestFeedingTimes:
+                data?.latestFeedingTimes ?? const <int, DateTime>{},
+          );
           final dueReminders =
               data?.dueReminders ?? const <FeedingReminderState>[];
 
@@ -359,10 +405,12 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
 class _AnimalsOverviewData {
   final List<Animal> animals;
+  final Map<int, DateTime> latestFeedingTimes;
   final List<FeedingReminderState> dueReminders;
 
   const _AnimalsOverviewData({
     required this.animals,
+    required this.latestFeedingTimes,
     required this.dueReminders,
   });
 }

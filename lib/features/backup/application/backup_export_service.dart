@@ -13,6 +13,7 @@ import '../../../core/database/repositories/media_repository.dart';
 import '../../settings/app_accent.dart';
 import '../../settings/app_language.dart';
 import '../../settings/animal_name_order.dart';
+import '../../settings/animal_sort_order.dart';
 import '../../settings/box_sort_order.dart';
 import '../domain/backup_data.dart';
 import '../domain/backup_enum_codec.dart';
@@ -38,6 +39,7 @@ class BackupExportService {
     required AppAccent accent,
     AppLanguage language = AppLanguage.system,
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
+    AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
     BoxSortOrder boxSortOrder = BoxSortOrder.createdOldestFirst,
     DateTime? createdAt,
   }) async {
@@ -140,6 +142,7 @@ class BackupExportService {
       accent: accent,
       language: language,
       animalNameOrder: animalNameOrder,
+      animalSortOrder: animalSortOrder,
       boxSortOrder: boxSortOrder,
     );
 

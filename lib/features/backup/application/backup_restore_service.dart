@@ -43,6 +43,8 @@ class BackupRestoreService {
 
     final previousAnimalNameOrder = settingsController.animalNameOrder;
 
+    final previousAnimalSortOrder = settingsController.animalSortOrder;
+
     final previousBoxSortOrder = settingsController.boxSortOrder;
 
     final restoredThemeMode = BackupSettingsCodec.decodeThemeMode(
@@ -61,6 +63,10 @@ class BackupRestoreService {
       backup.settings.animalNameOrder,
     );
 
+    final restoredAnimalSortOrder = BackupSettingsCodec.decodeAnimalSortOrder(
+      backup.settings.animalSortOrder,
+    );
+
     final restoredBoxSortOrder = BackupSettingsCodec.decodeBoxSortOrder(
       backup.settings.boxSortOrder,
     );
@@ -74,6 +80,7 @@ class BackupRestoreService {
         accent: previousAccent,
         language: previousLanguage,
         animalNameOrder: previousAnimalNameOrder,
+        animalSortOrder: previousAnimalSortOrder,
         boxSortOrder: previousBoxSortOrder,
       );
     } catch (error) {
@@ -100,6 +107,7 @@ class BackupRestoreService {
         accent: restoredAccent,
         language: restoredLanguage,
         animalNameOrder: restoredAnimalNameOrder,
+        animalSortOrder: restoredAnimalSortOrder,
         boxSortOrder: restoredBoxSortOrder,
       );
     } catch (error) {
@@ -121,6 +129,7 @@ class BackupRestoreService {
           accent: previousAccent,
           language: previousLanguage,
           animalNameOrder: previousAnimalNameOrder,
+          animalSortOrder: previousAnimalSortOrder,
           boxSortOrder: previousBoxSortOrder,
         );
       } catch (rollbackError) {

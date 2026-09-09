@@ -53,6 +53,15 @@ void main() {
     expect(l10n.boxSortCreatedNewestFirst, 'Newest created first');
     expect(l10n.boxSortLabelAscending, 'Box number ascending');
     expect(l10n.boxSortLabelDescending, 'Box number descending');
+    expect(l10n.sortAnimals, 'Sort animals');
+    expect(l10n.animalSortCreatedOldestFirst, 'Oldest added first');
+    expect(l10n.animalSortCreatedNewestFirst, 'Newest added first');
+    expect(l10n.animalSortNameAscending, 'Name A–Z');
+    expect(l10n.animalSortNameDescending, 'Name Z–A');
+    expect(l10n.animalSortAgeOldestFirst, 'Oldest animals first');
+    expect(l10n.animalSortAgeYoungestFirst, 'Youngest animals first');
+    expect(l10n.animalSortLatestFeedingNewestFirst, 'Newest feeding first');
+    expect(l10n.animalSortLatestFeedingOldestFirst, 'Oldest feeding first');
     expect(l10n.animalsDueForFeeding(1), '1 Animal is due for feeding');
     expect(l10n.animalsDueForFeeding(3), '3 Animals are due for feeding');
     expect(
@@ -109,6 +118,15 @@ void main() {
     expect(l10n.boxSortCreatedNewestFirst, 'Neueste zuerst');
     expect(l10n.boxSortLabelAscending, 'Boxnummer aufsteigend');
     expect(l10n.boxSortLabelDescending, 'Boxnummer absteigend');
+    expect(l10n.sortAnimals, 'Tiere sortieren');
+    expect(l10n.animalSortCreatedOldestFirst, 'Zuerst hinzugefügt');
+    expect(l10n.animalSortCreatedNewestFirst, 'Zuletzt hinzugefügt');
+    expect(l10n.animalSortNameAscending, 'Name A–Z');
+    expect(l10n.animalSortNameDescending, 'Name Z–A');
+    expect(l10n.animalSortAgeOldestFirst, 'Älteste Tiere zuerst');
+    expect(l10n.animalSortAgeYoungestFirst, 'Jüngste Tiere zuerst');
+    expect(l10n.animalSortLatestFeedingNewestFirst, 'Neueste Fütterung zuerst');
+    expect(l10n.animalSortLatestFeedingOldestFirst, 'Älteste Fütterung zuerst');
     expect(l10n.animalsDueForFeeding(1), '1 Tier ist zur Fütterung fällig');
     expect(l10n.animalsDueForFeeding(3), '3 Tiere sind zur Fütterung fällig');
     expect(

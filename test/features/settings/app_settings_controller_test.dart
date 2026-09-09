@@ -6,6 +6,7 @@ import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 
 void main() {
@@ -14,7 +15,7 @@ void main() {
   });
 
   test('defaults to system theme, green accent, system language, common '
-      'name first, and oldest Boxes first', () async {
+      'name first, and oldest records first', () async {
     final controller = AppSettingsController();
 
     await controller.load();
@@ -27,6 +28,8 @@ void main() {
 
     expect(controller.animalNameOrder, AnimalNameOrder.commonNameFirst);
 
+    expect(controller.animalSortOrder, AnimalSortOrder.createdOldestFirst);
+
     expect(controller.boxSortOrder, BoxSortOrder.createdOldestFirst);
   });
 
@@ -36,6 +39,7 @@ void main() {
       'accent': 'purple',
       'language': 'german',
       'animal_name_order': 'latinNameFirst',
+      'animal_sort_order': 'latestFeedingOldestFirst',
       'box_sort_order': 'labelDescending',
     });
 
@@ -50,6 +54,11 @@ void main() {
     expect(controller.language, AppLanguage.german);
 
     expect(controller.animalNameOrder, AnimalNameOrder.latinNameFirst);
+
+    expect(
+      controller.animalSortOrder,
+      AnimalSortOrder.latestFeedingOldestFirst,
+    );
 
     expect(controller.boxSortOrder, BoxSortOrder.labelDescending);
   });
@@ -120,12 +129,27 @@ void main() {
     expect(preferences.getString('box_sort_order'), 'createdNewestFirst');
   });
 
+  test('persists Animal sort order', () async {
+    final controller = AppSettingsController();
+
+    await controller.load();
+
+    await controller.setAnimalSortOrder(AnimalSortOrder.ageYoungestFirst);
+
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(controller.animalSortOrder, AnimalSortOrder.ageYoungestFirst);
+
+    expect(preferences.getString('animal_sort_order'), 'ageYoungestFirst');
+  });
+
   test('invalid persisted settings fall back safely', () async {
     SharedPreferences.setMockInitialValues({
       'theme_mode': 'invalid-theme',
       'accent': 'invalid-accent',
       'language': 'invalid-language',
       'animal_name_order': 'invalid-name-order',
+      'animal_sort_order': 'invalid-animal-sort-order',
       'box_sort_order': 'invalid-box-sort-order',
     });
 
@@ -141,6 +165,8 @@ void main() {
 
     expect(controller.animalNameOrder, AnimalNameOrder.commonNameFirst);
 
+    expect(controller.animalSortOrder, AnimalSortOrder.createdOldestFirst);
+
     expect(controller.boxSortOrder, BoxSortOrder.createdOldestFirst);
   });
 
@@ -154,6 +180,7 @@ void main() {
       accent: AppAccent.purple,
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
+      animalSortOrder: AnimalSortOrder.latestFeedingNewestFirst,
       boxSortOrder: BoxSortOrder.labelDescending,
     );
 
@@ -164,6 +191,11 @@ void main() {
     expect(controller.language, AppLanguage.german);
 
     expect(controller.animalNameOrder, AnimalNameOrder.latinNameFirst);
+
+    expect(
+      controller.animalSortOrder,
+      AnimalSortOrder.latestFeedingNewestFirst,
+    );
 
     expect(controller.boxSortOrder, BoxSortOrder.labelDescending);
 
@@ -176,6 +208,11 @@ void main() {
     expect(preferences.getString('language'), 'german');
 
     expect(preferences.getString('animal_name_order'), 'latinNameFirst');
+
+    expect(
+      preferences.getString('animal_sort_order'),
+      'latestFeedingNewestFirst',
+    );
 
     expect(preferences.getString('box_sort_order'), 'labelDescending');
   });

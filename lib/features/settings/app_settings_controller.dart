@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_accent.dart';
 import 'app_language.dart';
 import 'animal_name_order.dart';
+import 'animal_sort_order.dart';
 import 'box_sort_order.dart';
 
 class AppSettingsController extends ChangeNotifier {
@@ -11,18 +12,21 @@ class AppSettingsController extends ChangeNotifier {
   static const String _accentKey = 'accent';
   static const String _languageKey = 'language';
   static const String _animalNameOrderKey = 'animal_name_order';
+  static const String _animalSortOrderKey = 'animal_sort_order';
   static const String _boxSortOrderKey = 'box_sort_order';
 
   ThemeMode _themeMode = ThemeMode.system;
   AppAccent _accent = AppAccent.green;
   AppLanguage _language = AppLanguage.system;
   AnimalNameOrder _animalNameOrder = AnimalNameOrder.commonNameFirst;
+  AnimalSortOrder _animalSortOrder = AnimalSortOrder.createdOldestFirst;
   BoxSortOrder _boxSortOrder = BoxSortOrder.createdOldestFirst;
 
   ThemeMode get themeMode => _themeMode;
   AppAccent get accent => _accent;
   AppLanguage get language => _language;
   AnimalNameOrder get animalNameOrder => _animalNameOrder;
+  AnimalSortOrder get animalSortOrder => _animalSortOrder;
   BoxSortOrder get boxSortOrder => _boxSortOrder;
 
   Future<void> load() async {
@@ -36,6 +40,10 @@ class AppSettingsController extends ChangeNotifier {
 
     _animalNameOrder = _parseAnimalNameOrder(
       preferences.getString(_animalNameOrderKey),
+    );
+
+    _animalSortOrder = _parseAnimalSortOrder(
+      preferences.getString(_animalSortOrderKey),
     );
 
     _boxSortOrder = _parseBoxSortOrder(preferences.getString(_boxSortOrderKey));
@@ -108,6 +116,19 @@ class AppSettingsController extends ChangeNotifier {
     await preferences.setString(_boxSortOrderKey, boxSortOrder.name);
   }
 
+  Future<void> setAnimalSortOrder(AnimalSortOrder animalSortOrder) async {
+    if (_animalSortOrder == animalSortOrder) {
+      return;
+    }
+
+    _animalSortOrder = animalSortOrder;
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+
+    await preferences.setString(_animalSortOrderKey, animalSortOrder.name);
+  }
+
   ThemeMode _parseThemeMode(String? value) {
     if (value == null) {
       return ThemeMode.system;
@@ -178,11 +199,26 @@ class AppSettingsController extends ChangeNotifier {
     return BoxSortOrder.createdOldestFirst;
   }
 
+  AnimalSortOrder _parseAnimalSortOrder(String? value) {
+    if (value == null) {
+      return AnimalSortOrder.createdOldestFirst;
+    }
+
+    for (final order in AnimalSortOrder.values) {
+      if (order.name == value) {
+        return order;
+      }
+    }
+
+    return AnimalSortOrder.createdOldestFirst;
+  }
+
   Future<void> replaceSettings({
     required ThemeMode themeMode,
     required AppAccent accent,
     required AppLanguage language,
     required AnimalNameOrder animalNameOrder,
+    required AnimalSortOrder animalSortOrder,
     required BoxSortOrder boxSortOrder,
   }) async {
     final preferences = await SharedPreferences.getInstance();
@@ -191,6 +227,7 @@ class AppSettingsController extends ChangeNotifier {
     final previousAccent = _accent;
     final previousLanguage = _language;
     final previousAnimalNameOrder = _animalNameOrder;
+    final previousAnimalSortOrder = _animalSortOrder;
     final previousBoxSortOrder = _boxSortOrder;
 
     final previousStoredTheme = preferences.getString(_themeModeKey);
@@ -200,6 +237,9 @@ class AppSettingsController extends ChangeNotifier {
     final previousStoredLanguage = preferences.getString(_languageKey);
     final previousStoredAnimalNameOrder = preferences.getString(
       _animalNameOrderKey,
+    );
+    final previousStoredAnimalSortOrder = preferences.getString(
+      _animalSortOrderKey,
     );
     final previousStoredBoxSortOrder = preferences.getString(_boxSortOrderKey);
 
@@ -237,6 +277,15 @@ class AppSettingsController extends ChangeNotifier {
         throw StateError('Failed to persist Animal name order');
       }
 
+      final animalSortOrderSaved = await preferences.setString(
+        _animalSortOrderKey,
+        animalSortOrder.name,
+      );
+
+      if (!animalSortOrderSaved) {
+        throw StateError('Failed to persist Animal sort order');
+      }
+
       final boxSortOrderSaved = await preferences.setString(
         _boxSortOrderKey,
         boxSortOrder.name,
@@ -250,6 +299,7 @@ class AppSettingsController extends ChangeNotifier {
       _accent = accent;
       _language = language;
       _animalNameOrder = animalNameOrder;
+      _animalSortOrder = animalSortOrder;
       _boxSortOrder = boxSortOrder;
 
       notifyListeners();
@@ -281,6 +331,15 @@ class AppSettingsController extends ChangeNotifier {
         );
       }
 
+      if (previousStoredAnimalSortOrder == null) {
+        await preferences.remove(_animalSortOrderKey);
+      } else {
+        await preferences.setString(
+          _animalSortOrderKey,
+          previousStoredAnimalSortOrder,
+        );
+      }
+
       if (previousStoredBoxSortOrder == null) {
         await preferences.remove(_boxSortOrderKey);
       } else {
@@ -294,6 +353,7 @@ class AppSettingsController extends ChangeNotifier {
       _accent = previousAccent;
       _language = previousLanguage;
       _animalNameOrder = previousAnimalNameOrder;
+      _animalSortOrder = previousAnimalSortOrder;
       _boxSortOrder = previousBoxSortOrder;
 
       notifyListeners();

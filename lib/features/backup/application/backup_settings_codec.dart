@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../settings/app_accent.dart';
 import '../../settings/app_language.dart';
 import '../../settings/animal_name_order.dart';
+import '../../settings/animal_sort_order.dart';
 import '../../settings/box_sort_order.dart';
 import '../domain/backup_settings.dart';
 
@@ -14,6 +15,7 @@ class BackupSettingsCodec {
     required AppAccent accent,
     AppLanguage language = AppLanguage.system,
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
+    AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
     BoxSortOrder boxSortOrder = BoxSortOrder.createdOldestFirst,
   }) {
     return BackupSettings(
@@ -21,6 +23,7 @@ class BackupSettingsCodec {
       accent: encodeAccent(accent),
       language: encodeLanguage(language),
       animalNameOrder: encodeAnimalNameOrder(animalNameOrder),
+      animalSortOrder: encodeAnimalSortOrder(animalSortOrder),
       boxSortOrder: encodeBoxSortOrder(boxSortOrder),
     );
   }
@@ -118,6 +121,35 @@ class BackupSettingsCodec {
       'labelDescending' => BoxSortOrder.labelDescending,
       _ => throw FormatException(
         'Unsupported BoxSortOrder backup value: $value',
+      ),
+    };
+  }
+
+  static String encodeAnimalSortOrder(AnimalSortOrder value) {
+    return switch (value) {
+      AnimalSortOrder.createdOldestFirst => 'createdOldestFirst',
+      AnimalSortOrder.createdNewestFirst => 'createdNewestFirst',
+      AnimalSortOrder.displayNameAscending => 'displayNameAscending',
+      AnimalSortOrder.displayNameDescending => 'displayNameDescending',
+      AnimalSortOrder.ageOldestFirst => 'ageOldestFirst',
+      AnimalSortOrder.ageYoungestFirst => 'ageYoungestFirst',
+      AnimalSortOrder.latestFeedingNewestFirst => 'latestFeedingNewestFirst',
+      AnimalSortOrder.latestFeedingOldestFirst => 'latestFeedingOldestFirst',
+    };
+  }
+
+  static AnimalSortOrder decodeAnimalSortOrder(String value) {
+    return switch (value) {
+      'createdOldestFirst' => AnimalSortOrder.createdOldestFirst,
+      'createdNewestFirst' => AnimalSortOrder.createdNewestFirst,
+      'displayNameAscending' => AnimalSortOrder.displayNameAscending,
+      'displayNameDescending' => AnimalSortOrder.displayNameDescending,
+      'ageOldestFirst' => AnimalSortOrder.ageOldestFirst,
+      'ageYoungestFirst' => AnimalSortOrder.ageYoungestFirst,
+      'latestFeedingNewestFirst' => AnimalSortOrder.latestFeedingNewestFirst,
+      'latestFeedingOldestFirst' => AnimalSortOrder.latestFeedingOldestFirst,
+      _ => throw FormatException(
+        'Unsupported AnimalSortOrder backup value: $value',
       ),
     };
   }

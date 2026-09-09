@@ -222,6 +222,8 @@ class BackupValidationService {
 
       BackupSettingsCodec.decodeAnimalNameOrder(settings.animalNameOrder);
 
+      BackupSettingsCodec.decodeAnimalSortOrder(settings.animalSortOrder);
+
       BackupSettingsCodec.decodeBoxSortOrder(settings.boxSortOrder);
     } on FormatException catch (error) {
       throw BackupValidationException(

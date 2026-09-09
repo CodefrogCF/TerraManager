@@ -5,6 +5,7 @@ import 'package:terramanager/features/backup/application/backup_settings_codec.d
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 
 void main() {
@@ -75,6 +76,12 @@ void main() {
       () => BackupSettingsCodec.decodeBoxSortOrder('future-box-sort-order'),
       throwsFormatException,
     );
+
+    expect(
+      () =>
+          BackupSettingsCodec.decodeAnimalSortOrder('future-animal-sort-order'),
+      throwsFormatException,
+    );
   });
 
   test('Animal name orders use stable backup values and round trip', () {
@@ -120,6 +127,27 @@ void main() {
       final decoded = BackupSettingsCodec.decodeBoxSortOrder(encoded);
 
       expect(decoded, value);
+    }
+  });
+
+  test('Animal sort orders use stable backup values and round trip', () {
+    const stableValues = {
+      AnimalSortOrder.createdOldestFirst: 'createdOldestFirst',
+      AnimalSortOrder.createdNewestFirst: 'createdNewestFirst',
+      AnimalSortOrder.displayNameAscending: 'displayNameAscending',
+      AnimalSortOrder.displayNameDescending: 'displayNameDescending',
+      AnimalSortOrder.ageOldestFirst: 'ageOldestFirst',
+      AnimalSortOrder.ageYoungestFirst: 'ageYoungestFirst',
+      AnimalSortOrder.latestFeedingNewestFirst: 'latestFeedingNewestFirst',
+      AnimalSortOrder.latestFeedingOldestFirst: 'latestFeedingOldestFirst',
+    };
+
+    for (final entry in stableValues.entries) {
+      final encoded = BackupSettingsCodec.encodeAnimalSortOrder(entry.key);
+      final decoded = BackupSettingsCodec.decodeAnimalSortOrder(encoded);
+
+      expect(encoded, entry.value);
+      expect(decoded, entry.key);
     }
   });
 }

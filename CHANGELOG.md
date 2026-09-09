@@ -8,6 +8,9 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Added
 
+- localized Animal Overview sorting by creation time, displayed name, age or
+  latest FeedingEvent in both relevant directions
+- deterministic handling for Animals without a birth date or FeedingEvent
 - localized Box Overview sorting by creation time or natural Box number in
   ascending and descending directions
 - a checked sort menu in the Box Overview app bar
@@ -17,6 +20,13 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Changed
 
+- the Animal name sort follows the currently preferred displayed primary name
+- Animals without a birth date remain last for both age directions; never-fed
+  Animals appear first for oldest-feeding-first and last for newest-first
+- Animal Overview reminder calculation and FeedingEvent sorting share one bulk
+  latest-feeding lookup instead of querying per Animal
+- contextual Animal detail navigation now receives the exact visible sorted
+  order
 - the selected Box order is applied immediately and persisted between
   application restarts
 - contextual Box detail navigation now receives the exact visible sorted order
@@ -34,6 +44,9 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Compatibility
 
+- Animal sorting is a UI preference and requires no database migration
+- portable backups include the optional `animalSortOrder` setting; older
+  backups default to oldest-created Animal first
 - Box sorting is a UI preference and requires no database migration
 - portable backups include the optional `boxSortOrder` setting; older backups
   default to oldest-created Box first
@@ -43,6 +56,12 @@ The project uses semantic versioning while development remains below version 1.0
 
 ### Testing
 
+- added deterministic Animal creation-time, displayed-name, age and
+  latest-feeding sorting unit tests
+- added Animal Overview selection, persistence and contextual-navigation
+  coverage
+- extended settings export, validation, restore and legacy-default tests for
+  Animal sorting
 - added deterministic creation-time and natural-number sorting unit tests
 - added Box Overview selection, persistence and contextual-navigation coverage
 - extended settings export, validation, restore and legacy-default tests for

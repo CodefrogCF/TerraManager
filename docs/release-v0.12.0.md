@@ -1,10 +1,9 @@
 # v0.12.0 Release Validation
 
-This checklist tracks the final validation and publication of TerraManager
-`0.12.0+23`.
+This checklist records the completed validation and publication preparation for
+TerraManager `0.12.0+23`.
 
-Release-candidate preparation started on 2026-09-08. The final release date is
-recorded after every required Android and Web check has succeeded.
+Validation completed successfully on 2026-09-08.
 
 The release contains:
 
@@ -163,3 +162,60 @@ Required results:
 - [x] Confirm Android/Web platform notes
 - [x] Confirm Backup Format Version 2 mixed-media compatibility documentation
 - [x] Confirm Changelog v0.12.0 release date and validation results
+
+## GitHub Release Description
+
+Use the following text for the GitHub release after final validation:
+
+```markdown
+## TerraManager v0.12.0 – Media Optimization
+
+TerraManager v0.12.0 adds a complete picture-processing workflow for Box and
+Animal media.
+
+### Highlights
+
+- Crop Camera and Gallery pictures before saving them.
+- Normalize source orientation and limit the longest edge to 1920 pixels.
+- Store new and replaced pictures as WebP at quality 82.
+- Show processing progress and prevent duplicate picture or save actions.
+- Replace pictures atomically so a failed update keeps the previous picture.
+- Continue displaying and restoring existing legacy picture formats.
+- Export and restore mixed legacy/WebP media with Backup Format Version 2.
+
+In a real TerraManager data set with 67 pictures, the portable backup decreased
+from approximately 140 MB to 22.7 MB after replacing the pictures through the
+optimized workflow—about 83.8% smaller.
+
+### Compatibility
+
+- Database Schema Version: 4 (unchanged)
+- Portable Backup Format Version: 2 (unchanged)
+- Existing pictures are not converted automatically.
+- Android and Web are supported and regression-tested.
+- iOS validation remains a stretch goal.
+```
+
+## Final Release Actions
+
+Complete only after every required validation succeeds:
+
+- [x] Replace the Changelog `Unreleased` heading with
+  `[0.12.0] - 2026-09-08`
+- [x] Record the successful results in this checklist
+- [x] Mark v0.12.0 validation and release tasks complete in the Roadmap
+- [x] Update README Project Status to the completed v0.12.0 milestone
+- [x] Update platform validation notes with the v0.12.0 regression
+- [ ] Commit and push the final release documentation
+- [ ] Create annotated tag `v0.12.0`
+- [ ] Push tag `v0.12.0`
+- [ ] Publish the GitHub v0.12.0 release with the release APK
+- [ ] Close Issue #73
+- [ ] Close the v0.12.0 milestone
+
+Recommended Git commands after the documentation commit:
+
+```text
+git tag -a v0.12.0 -m "TerraManager v0.12.0"
+git push origin v0.12.0
+```

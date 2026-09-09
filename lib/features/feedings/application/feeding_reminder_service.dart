@@ -27,8 +27,19 @@ class FeedingReminderService {
     final latestFeedingTimes = await _feedingRepository.getLatestFeedingTimes(
       animals.map((animal) => animal.id),
     );
+    return calculateReminderStates(
+      animals: animals,
+      latestFeedingTimes: latestFeedingTimes,
+    );
+  }
+
+  List<FeedingReminderState> calculateReminderStates({
+    required Iterable<Animal> animals,
+    required Map<int, DateTime> latestFeedingTimes,
+  }) {
     final evaluatedAt = _now();
     final states = animals
+        .where(_hasEnabledReminder)
         .map(
           (animal) => _calculateState(
             animal: animal,

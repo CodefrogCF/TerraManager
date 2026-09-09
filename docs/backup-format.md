@@ -776,11 +776,17 @@ TerraManager 0.13.3 adds another optional field:
 boxSortOrder
 ```
 
-This additive field remains part of Backup Format Version 2. Older Version 1
+TerraManager 0.13.4 adds another optional field:
+
+```text
+animalSortOrder
+```
+
+These additive fields remain part of Backup Format Version 2. Older Version 1
 and Version 2 backups without these optional settings remain compatible.
 Missing `language` uses the System language, while missing `animalNameOrder`
-uses common name first and missing `boxSortOrder` uses oldest-created Box
-first.
+uses common name first, missing `boxSortOrder` uses oldest-created Box first and
+missing `animalSortOrder` uses oldest-created Animal first.
 
 Example:
 
@@ -790,6 +796,7 @@ Example:
   "accent": "green",
   "language": "german",
   "animalNameOrder": "latinNameFirst",
+  "animalSortOrder": "latestFeedingOldestFirst",
   "boxSortOrder": "labelDescending"
 }
 ```
@@ -873,6 +880,24 @@ AnimalNameOrder.latinNameFirst  -> "latinNameFirst"
 
 If the field is absent, restore uses `AnimalNameOrder.commonNameFirst`. If the
 field is present with an unknown value, backup validation must fail.
+
+## Stable Animal Sort-Order Values
+
+The optional Animal sort-order field defines:
+
+```text
+createdOldestFirst
+createdNewestFirst
+displayNameAscending
+displayNameDescending
+ageOldestFirst
+ageYoungestFirst
+latestFeedingNewestFirst
+latestFeedingOldestFirst
+```
+
+If the field is absent, restore uses `AnimalSortOrder.createdOldestFirst`. If
+the field is present with an unknown value, backup validation must fail.
 
 ## Stable Box Sort-Order Values
 
@@ -1215,6 +1240,7 @@ TerraManager 0.7.x -> Backup Format 2
 TerraManager 0.10.0 -> Backup Format 2 with an optional language setting
 TerraManager 0.12.1 -> Backup Format 2 with optional Animal reminder fields
 TerraManager 0.13.3 -> Backup Format 2 with an optional Box sort-order setting
+TerraManager 0.13.4 -> Backup Format 2 with an optional Animal sort-order setting
 ```
 
 A later application release may continue to use Backup Format 2 if its portable
@@ -1314,6 +1340,7 @@ settings.json
 ├── accent
 ├── language (optional; exported by TerraManager 0.10.0 and later)
 ├── animalNameOrder (optional; exported by TerraManager 0.11.0 and later)
+├── animalSortOrder (optional; exported by TerraManager 0.13.4 and later)
 └── boxSortOrder (optional; exported by TerraManager 0.13.3 and later)
 
 media/
@@ -1335,8 +1362,8 @@ Version 2 preserves:
 - FeedingEvent IDs and relationships
 - timestamps and notes
 - Animal pictures through portable media references
-- appearance settings and optional language, Animal name-order and Box
-  sort-order settings
+- appearance settings and optional language, Animal name-order, Animal
+  sort-order and Box sort-order settings
 
 Version 2 excludes:
 
@@ -1360,9 +1387,9 @@ Animal media, IDs, relationships, lifecycle state, FeedingEvents and settings
 from Version 1 retain their existing restore semantics.
 
 Version 1 and older Version 2 backups do not contain language, Animal
-name-order or Box sort-order settings. Missing language is restored as
-`system`; missing Animal name order as `commonNameFirst`; and missing Box sort
-order as `createdOldestFirst`.
+name-order, Animal sort-order or Box sort-order settings. Missing language is
+restored as `system`; missing Animal name order as `commonNameFirst`; and
+missing Animal and Box sort orders as `createdOldestFirst`.
 
 Backups created before TerraManager 0.12.1 do not contain Animal reminder
 fields. Missing reminder interval and baseline values restore as `null`, so the

@@ -14,6 +14,7 @@ import 'package:terramanager/features/backup/infrastructure/backup_file_service.
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 
@@ -123,6 +124,9 @@ void main() {
   testWidgets('creates and saves backup', (tester) async {
     await settingsController.setLanguage(AppLanguage.german);
     await settingsController.setAnimalNameOrder(AnimalNameOrder.latinNameFirst);
+    await settingsController.setAnimalSortOrder(
+      AnimalSortOrder.latestFeedingOldestFirst,
+    );
     await settingsController.setBoxSortOrder(BoxSortOrder.labelDescending);
 
     await database
@@ -159,6 +163,11 @@ void main() {
       'labelDescending',
     );
 
+    expect(
+      fileGateway.savedBackups.single.settings.animalSortOrder,
+      'latestFeedingOldestFirst',
+    );
+
     expect(find.text('Backup created successfully.'), findsOneWidget);
 
     expect(find.byKey(const Key('backup-progress')), findsNothing);
@@ -190,6 +199,7 @@ void main() {
       accent: settingsController.accent,
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
+      animalSortOrder: AnimalSortOrder.ageYoungestFirst,
       boxSortOrder: BoxSortOrder.createdNewestFirst,
       createdAt: DateTime.utc(2026, 9, 2, 15),
     );
@@ -248,6 +258,11 @@ void main() {
 
     expect(settingsController.animalNameOrder, AnimalNameOrder.latinNameFirst);
 
+    expect(
+      settingsController.animalSortOrder,
+      AnimalSortOrder.ageYoungestFirst,
+    );
+
     expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
 
     // Restore creates a safety
@@ -268,6 +283,11 @@ void main() {
 
     expect(
       fileGateway.savedBackups.single.settings.boxSortOrder,
+      'createdOldestFirst',
+    );
+
+    expect(
+      fileGateway.savedBackups.single.settings.animalSortOrder,
       'createdOldestFirst',
     );
 

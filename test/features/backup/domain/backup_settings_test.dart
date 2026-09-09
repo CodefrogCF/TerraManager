@@ -9,6 +9,7 @@ void main() {
       accent: 'green',
       language: 'german',
       animalNameOrder: 'latinNameFirst',
+      animalSortOrder: 'latestFeedingOldestFirst',
       boxSortOrder: 'labelDescending',
     );
 
@@ -22,6 +23,8 @@ void main() {
 
     expect(restored.animalNameOrder, 'latinNameFirst');
 
+    expect(restored.animalSortOrder, 'latestFeedingOldestFirst');
+
     expect(restored.boxSortOrder, 'labelDescending');
   });
 
@@ -34,6 +37,8 @@ void main() {
     expect(restored.language, 'system');
 
     expect(restored.animalNameOrder, 'commonNameFirst');
+
+    expect(restored.animalSortOrder, 'createdOldestFirst');
 
     expect(restored.boxSortOrder, 'createdOldestFirst');
   });

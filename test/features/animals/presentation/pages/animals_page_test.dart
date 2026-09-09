@@ -8,18 +8,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 
 void main() {
   late AppDatabase database;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
+
     database = AppDatabase.test(NativeDatabase.memory());
   });
 
@@ -57,8 +61,17 @@ void main() {
     );
   }
 
-  Future<void> pumpPage(WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: AnimalsPage(database: database)));
+  Future<void> pumpPage(
+    WidgetTester tester, {
+    AppSettingsController? settingsController,
+  }) async {
+    final app = MaterialApp(home: AnimalsPage(database: database));
+
+    await tester.pumpWidget(
+      settingsController == null
+          ? app
+          : AppSettingsScope(controller: settingsController, child: app),
+    );
 
     await tester.pumpAndSettle();
   }
@@ -216,6 +229,73 @@ void main() {
     expect(navigationContext.recordIds, [firstId, secondId, thirdId]);
     expect(navigationContext.currentRecordId, secondId);
     expect(navigationContext.currentIndex, 1);
+  });
+
+  testWidgets('changes, persists, and passes the selected Animal order', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+    final recentId = await createTestAnimal(boxId: boxId, commonName: 'Recent');
+    final oldId = await createTestAnimal(boxId: boxId, commonName: 'Old');
+    final neverId = await createTestAnimal(boxId: boxId, commonName: 'Never');
+
+    await FeedingRepository(database)
+        .addFeeding(recentId, DateTime(2026, 9, 8));
+    await FeedingRepository(database).addFeeding(oldId, DateTime(2026, 9, 2));
+
+    final settingsController = AppSettingsController();
+
+    await settingsController.load();
+    await pumpPage(tester, settingsController: settingsController);
+
+    await tester.tap(find.byKey(const Key('animal-sort-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Oldest added first'), findsOneWidget);
+    expect(find.text('Newest added first'), findsOneWidget);
+    expect(find.text('Name A–Z'), findsOneWidget);
+    expect(find.text('Name Z–A'), findsOneWidget);
+    expect(find.text('Oldest animals first'), findsOneWidget);
+    expect(find.text('Youngest animals first'), findsOneWidget);
+    expect(find.text('Newest feeding first'), findsOneWidget);
+    expect(find.text('Oldest feeding first'), findsOneWidget);
+
+    await tester.tap(find.text('Oldest feeding first'));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.byKey(Key('animal-list-item-$neverId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
+      ),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('animal-list-item-$recentId'))).dy,
+      ),
+    );
+
+    expect(
+      settingsController.animalSortOrder,
+      AnimalSortOrder.latestFeedingOldestFirst,
+    );
+
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(
+      preferences.getString('animal_sort_order'),
+      'latestFeedingOldestFirst',
+    );
+
+    await tester.tap(find.byKey(Key('animal-list-item-$oldId')));
+    await tester.pumpAndSettle();
+
+    final detailPage = tester.widget<AnimalDetailPage>(
+      find.byType(AnimalDetailPage),
+    );
+
+    expect(detailPage.navigationContext!.recordIds, [neverId, oldId, recentId]);
   });
 
   testWidgets('add button opens new animal page', (tester) async {

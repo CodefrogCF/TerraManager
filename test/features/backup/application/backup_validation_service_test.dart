@@ -31,6 +31,7 @@ void main() {
     String accent = 'green',
     String? language = 'system',
     String? animalNameOrder = 'commonNameFirst',
+    String? animalSortOrder = 'createdOldestFirst',
     String? boxSortOrder = 'createdOldestFirst',
   }) {
     return {
@@ -38,6 +39,7 @@ void main() {
       'accent': accent,
       'language': ?language,
       'animalNameOrder': ?animalNameOrder,
+      'animalSortOrder': ?animalSortOrder,
       'boxSortOrder': ?boxSortOrder,
     };
   }
@@ -181,6 +183,8 @@ void main() {
 
     expect(result.settings.animalNameOrder, 'commonNameFirst');
 
+    expect(result.settings.animalSortOrder, 'createdOldestFirst');
+
     expect(result.settings.boxSortOrder, 'createdOldestFirst');
   });
 
@@ -189,6 +193,7 @@ void main() {
       settings: settingsJson(
         language: null,
         animalNameOrder: null,
+        animalSortOrder: null,
         boxSortOrder: null,
       ),
     );
@@ -198,6 +203,8 @@ void main() {
     expect(result.settings.language, 'system');
 
     expect(result.settings.animalNameOrder, 'commonNameFirst');
+
+    expect(result.settings.animalSortOrder, 'createdOldestFirst');
 
     expect(result.settings.boxSortOrder, 'createdOldestFirst');
   });
@@ -563,6 +570,23 @@ void main() {
   test('rejects unsupported Box sort-order setting', () {
     final bytes = createArchive(
       settings: settingsJson(boxSortOrder: 'future-box-sort-order'),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidSettings,
+        ),
+      ),
+    );
+  });
+
+  test('rejects unsupported Animal sort-order setting', () {
+    final bytes = createArchive(
+      settings: settingsJson(animalSortOrder: 'future-animal-sort-order'),
     );
 
     expect(

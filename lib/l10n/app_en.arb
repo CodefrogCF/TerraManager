@@ -411,5 +411,14 @@
   "boxSortCreatedOldestFirst": "Oldest created first",
   "boxSortCreatedNewestFirst": "Newest created first",
   "boxSortLabelAscending": "Box number ascending",
-  "boxSortLabelDescending": "Box number descending"
+  "boxSortLabelDescending": "Box number descending",
+  "sortAnimals": "Sort animals",
+  "animalSortCreatedOldestFirst": "Oldest added first",
+  "animalSortCreatedNewestFirst": "Newest added first",
+  "animalSortNameAscending": "Name A–Z",
+  "animalSortNameDescending": "Name Z–A",
+  "animalSortAgeOldestFirst": "Oldest animals first",
+  "animalSortAgeYoungestFirst": "Youngest animals first",
+  "animalSortLatestFeedingNewestFirst": "Newest feeding first",
+  "animalSortLatestFeedingOldestFirst": "Oldest feeding first"
 }

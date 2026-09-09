@@ -21,6 +21,7 @@ import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:archive/archive.dart';
 import 'package:terramanager/features/backup/domain/backup_format.dart';
@@ -34,6 +35,7 @@ void main() {
       'theme_mode': 'light',
       'accent': 'red',
       'language': 'english',
+      'animal_sort_order': 'ageYoungestFirst',
       'box_sort_order': 'createdNewestFirst',
     });
 
@@ -136,6 +138,7 @@ void main() {
         accent: 'teal',
         language: 'german',
         animalNameOrder: 'latinNameFirst',
+        animalSortOrder: 'latestFeedingOldestFirst',
         boxSortOrder: 'labelDescending',
       ),
       mediaFiles: includePicture
@@ -219,6 +222,7 @@ void main() {
         safetyBackupWritten = true;
 
         expect(backup.data.animals.single.commonName, 'Old Animal');
+        expect(backup.settings.animalSortOrder, 'ageYoungestFirst');
         expect(backup.settings.boxSortOrder, 'createdNewestFirst');
       },
     );
@@ -308,6 +312,11 @@ void main() {
 
     expect(settingsController.animalNameOrder, AnimalNameOrder.latinNameFirst);
 
+    expect(
+      settingsController.animalSortOrder,
+      AnimalSortOrder.latestFeedingOldestFirst,
+    );
+
     expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
   });
 
@@ -345,6 +354,11 @@ void main() {
     expect(settingsController.accent, AppAccent.red);
 
     expect(settingsController.language, AppLanguage.english);
+
+    expect(
+      settingsController.animalSortOrder,
+      AnimalSortOrder.ageYoungestFirst,
+    );
 
     expect(settingsController.boxSortOrder, BoxSortOrder.createdNewestFirst);
   });
@@ -514,6 +528,11 @@ void main() {
     expect(settingsController.themeMode, ThemeMode.system);
 
     expect(settingsController.accent, AppAccent.green);
+
+    expect(
+      settingsController.animalSortOrder,
+      AnimalSortOrder.createdOldestFirst,
+    );
 
     expect(settingsController.boxSortOrder, BoxSortOrder.createdOldestFirst);
   });

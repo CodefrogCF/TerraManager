@@ -7,6 +7,7 @@ import '../features/backup/application/backup_validation_exception.dart';
 import '../features/settings/app_accent.dart';
 import '../features/settings/app_language.dart';
 import '../features/settings/animal_name_order.dart';
+import '../features/settings/animal_sort_order.dart';
 import '../features/settings/box_sort_order.dart';
 import 'generated/app_localizations.dart';
 
@@ -77,6 +78,21 @@ extension AppLocalizationsLabels on AppLocalizations {
       BoxSortOrder.createdNewestFirst => boxSortCreatedNewestFirst,
       BoxSortOrder.labelAscending => boxSortLabelAscending,
       BoxSortOrder.labelDescending => boxSortLabelDescending,
+    };
+  }
+
+  String animalSortOrderLabel(AnimalSortOrder order) {
+    return switch (order) {
+      AnimalSortOrder.createdOldestFirst => animalSortCreatedOldestFirst,
+      AnimalSortOrder.createdNewestFirst => animalSortCreatedNewestFirst,
+      AnimalSortOrder.displayNameAscending => animalSortNameAscending,
+      AnimalSortOrder.displayNameDescending => animalSortNameDescending,
+      AnimalSortOrder.ageOldestFirst => animalSortAgeOldestFirst,
+      AnimalSortOrder.ageYoungestFirst => animalSortAgeYoungestFirst,
+      AnimalSortOrder.latestFeedingNewestFirst =>
+        animalSortLatestFeedingNewestFirst,
+      AnimalSortOrder.latestFeedingOldestFirst =>
+        animalSortLatestFeedingOldestFirst,
     };
   }
 

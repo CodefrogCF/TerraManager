@@ -94,6 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
         accent: settings.accent,
         language: settings.language,
         animalNameOrder: settings.animalNameOrder,
+        animalSortOrder: settings.animalSortOrder,
         boxSortOrder: settings.boxSortOrder,
       );
 

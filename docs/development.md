@@ -217,6 +217,14 @@ Examples:
 - Box sort-order persistence after an application restart
 - contextual Box detail swiping in the currently visible order
 - Box sort-order backup, restore and legacy-backup default behavior
+- oldest/newest creation order and natural ascending/descending Animal sorting
+- oldest/youngest Animal sorting with missing birth dates placed deterministically
+- newest/oldest FeedingEvent sorting with never-fed Animals placed deterministically
+- Animal sorting based on the currently selected common/Latin primary name
+- Animal sort-order persistence after an application restart
+- contextual Animal detail swiping in the currently visible order
+- Animal sort-order backup, restore and legacy-backup default behavior
+- one bulk latest-feeding lookup for Animal sorting and reminder summaries
 
 For image-storage measurements, use the same source picture and equivalent crop
 before and after optimization. Record:

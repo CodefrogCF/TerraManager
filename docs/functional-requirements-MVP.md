@@ -45,6 +45,12 @@ The application must allow the user to:
 - create an Animal
 - assign an Animal to a Box
 - view the Animal overview
+- sort the Animal overview by oldest or newest creation time
+- sort the Animal overview by the displayed primary name in both directions
+- sort the Animal overview by oldest or youngest age
+- sort the Animal overview by newest or oldest latest FeedingEvent
+- place missing birth and FeedingEvent data deterministically
+- persist the selected Animal Overview order between application restarts
 - display Animal thumbnails where pictures are available
 - preserve Animal Overview scroll position after returning from related detail/history workflows
 - view Animal details
@@ -322,6 +328,8 @@ The application must allow the user to:
 - restore older backups without a language field using the System setting
 - restore older backups without a Box sort-order field using oldest-created
   Box first
+- restore older backups without an Animal sort-order field using
+  oldest-created Animal first
 - export and restore optional per-Animal feeding reminder configuration
 - restore older backups without reminder fields with reminders disabled
 

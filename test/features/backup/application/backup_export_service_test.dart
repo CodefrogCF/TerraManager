@@ -23,6 +23,7 @@ import 'package:terramanager/features/backup/domain/backup_settings.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 
 void main() {
@@ -93,6 +94,7 @@ void main() {
       accent: AppAccent.purple,
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
+      animalSortOrder: AnimalSortOrder.latestFeedingOldestFirst,
       boxSortOrder: BoxSortOrder.labelDescending,
       createdAt: DateTime(2026, 9, 2, 15, 30),
     );
@@ -116,6 +118,8 @@ void main() {
     expect(result.settings.language, 'german');
 
     expect(result.settings.animalNameOrder, 'latinNameFirst');
+
+    expect(result.settings.animalSortOrder, 'latestFeedingOldestFirst');
 
     expect(result.settings.boxSortOrder, 'labelDescending');
 
@@ -164,6 +168,8 @@ void main() {
     expect(settingsJson['language'], 'german');
 
     expect(settingsJson['animalNameOrder'], 'latinNameFirst');
+
+    expect(settingsJson['animalSortOrder'], 'latestFeedingOldestFirst');
 
     expect(settingsJson['boxSortOrder'], 'labelDescending');
 

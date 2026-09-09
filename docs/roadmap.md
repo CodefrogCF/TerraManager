@@ -12,7 +12,7 @@ Active development milestone:
 
 Current development build:
 
-**v0.13.3+30**
+**v0.13.4+31**
 
 Completed development areas:
 
@@ -78,6 +78,10 @@ Completed development areas:
 - persistent localized Box Overview sorting by creation time or natural Box
   number
 - backup-compatible Box ordering and matching contextual detail navigation
+- persistent Animal Overview sorting by creation time, displayed name, age or
+  latest FeedingEvent
+- deterministic missing-value ordering, bulk FeedingEvent lookup and matching
+  contextual Animal navigation
 
 v0.7.1 implementation and release validation are complete.
 
@@ -104,8 +108,9 @@ publication of release build `0.13.0+27`.
 
 v0.14.0 is the active Pre-1.0 UX Polish milestone. Issues #78 and #79 provide
 consistent Animal form labels and direct Animal creation from Box details.
-Issue #80 adds persistent Box Overview sorting. The remaining issues add
-persistent Animal sorting and complete the final v0.14.0 release regression.
+Issue #80 adds persistent Box Overview sorting, and Issue #81 adds persistent
+Animal Overview sorting. The remaining issue completes the final v0.14.0
+release regression.
 
 ---
 
@@ -607,12 +612,12 @@ roughly one sixth of its previous size.
 
 ### Animal Overview Sorting — Issue #81
 
-- [ ] Add created-date, displayed-name, age and latest-feeding sorting modes
-- [ ] Handle missing birth and FeedingEvent data deterministically
-- [ ] Load latest FeedingEvents efficiently in bulk
-- [ ] Persist and back up the selected Animal ordering
-- [ ] Keep contextual Animal detail navigation aligned with the visible order
-- [ ] Add sorting, settings and backup regression tests
+- [x] Add created-date, displayed-name, age and latest-feeding sorting modes
+- [x] Handle missing birth and FeedingEvent data deterministically
+- [x] Load latest FeedingEvents efficiently in bulk
+- [x] Persist and back up the selected Animal ordering
+- [x] Keep contextual Animal detail navigation aligned with the visible order
+- [x] Add sorting, settings and backup regression tests
 
 ### Release — Issue #82
 

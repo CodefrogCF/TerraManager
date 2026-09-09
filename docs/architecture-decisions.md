@@ -286,6 +286,13 @@ The Box Overview has a user-selectable order:
 - oldest or newest creation time first
 - ascending or descending natural Box number
 
+The Animal Overview has a user-selectable order:
+
+- oldest or newest creation time first
+- displayed primary name A–Z or Z–A
+- oldest or youngest Animal first
+- newest or oldest latest FeedingEvent first
+
 These values are application preferences rather than terrarium domain data.
 
 Storing them in the Drift database would couple UI preferences to the relational
@@ -337,6 +344,7 @@ ThemeMode.system
 Accent = TerraManager green
 Language = System
 AnimalNameOrder = Common name first
+AnimalSortOrder = Oldest created first
 BoxSortOrder = Oldest created first
 ```
 
@@ -423,6 +431,9 @@ file. This is also backward compatible; older backups restore common name first.
 TerraManager 0.13.3 adds the optional Box sort-order preference. Older backups
 restore oldest-created Box first, so the extension remains backward compatible
 without a new backup-format version.
+
+TerraManager 0.13.4 adds the optional Animal sort-order preference with the same
+compatibility strategy. Older backups restore oldest-created Animal first.
 
 ### Consequences
 

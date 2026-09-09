@@ -14,6 +14,10 @@ Third-party builds may contain changes not reviewed by the TerraManager
 maintainer. Their distributor is responsible for documenting those changes,
 signing identity, support and privacy behaviour.
 
+TerraManager v1.0.0 is the first stable MVP release using the permanent
+application identity and production signing certificate. Version 1.0.0 keeps
+Database Schema Version 5 and Portable Backup Format Version 2.
+
 ## Android installation
 
 The release APK is the directly installable Android artifact. Android may ask
@@ -61,6 +65,12 @@ For either one-time transition:
 Portable Backup Format Version 2 remains compatible across this identity and
 signature transition.
 
+Production-signed builds beginning with `0.14.3+35` already use the permanent
+identity and certificate. They can be updated directly to v1.0.0 when the
+replacement APK has the expected certificate and the higher build number 39.
+Create a current backup before updating even when an in-place update is
+available.
+
 ## Web installation and updates
 
 A Web release is a static build produced with `flutter build web`. Deploy the
@@ -92,4 +102,3 @@ backup where supported.
 
 For format details and compatibility rules, see
 [backup-format.md](backup-format.md).
-

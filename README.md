@@ -27,7 +27,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.6+38**
+**v1.0.0+39**
 
 Implemented milestones in the current source state:
 
@@ -93,6 +93,11 @@ for dependency-lock verification, localization generation, formatting,
 analysis, tests, Android Debug and Web Release builds. The supported Flutter,
 Dart, Java, Gradle and dependency baseline, including the current upstream
 Kotlin-plugin warning, is documented in `docs/toolchain-baseline.md`.
+
+Release candidate `1.0.0+39` is the stable MVP candidate. It introduces no new
+database or backup format and is now undergoing the final Android, Web, backup,
+localization, signing and artifact regression defined in
+`docs/release-v1.0.0.md`.
 
 ### Android transition to the permanent application ID
 
@@ -955,6 +960,7 @@ Additional documentation:
 - [MVP functional requirements](docs/functional-requirements-MVP.md)
 - [Non-MVP functional requirements](docs/functional-requirements-non-MVP.md)
 - [Android release signing](docs/android-release-signing.md)
+- [v1.0.0 release validation](docs/release-v1.0.0.md)
 - [Privacy](PRIVACY.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

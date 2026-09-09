@@ -12,7 +12,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.6+38**
+**v1.0.0+39**
 
 Completed development areas:
 
@@ -147,6 +147,11 @@ Issue #92 adds pinned GitHub Actions quality gates and documents the supported
 toolchain and dependency baseline. Android production signing stays outside CI,
 and the remaining Built-in Kotlin warning is tracked as an upstream plugin
 migration dependency rather than being hidden by unsafe configuration.
+
+Issue #93 prepares release candidate `1.0.0+39` without expanding the MVP
+scope. Database Schema Version 5 and Portable Backup Format Version 2 remain
+unchanged while Android, Web, backup, localization, signing and release
+artifacts undergo their final regression.
 
 ---
 
@@ -728,7 +733,7 @@ roughly one sixth of its previous size.
 - [x] Add the selected open-source license
 - [x] Document privacy, permissions, installation, updates and support
 - [x] Correct historical issue references
-- [ ] Complete the public v1.0 documentation review
+- [x] Complete the public v1.0 documentation review
 
 ### Feeding Mode Scanner Return — Pre-release Fix
 
@@ -745,7 +750,7 @@ roughly one sixth of its previous size.
 - [x] Record the supported Flutter and dependency baseline
 - [x] Review current Kotlin and Gradle compatibility warnings
 - [x] Remove the remaining sort-menu widget-test hit-test warnings
-- [ ] Confirm the first GitHub Actions run after push
+- [x] Confirm the first GitHub Actions run after push
 
 ### Stable MVP Release — Issue #93
 

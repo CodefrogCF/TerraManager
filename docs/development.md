@@ -12,6 +12,16 @@ Supported toolchain baseline:
 - Visual Studio Code
 - Git
 
+On Windows, enable **Developer Mode** so Flutter can create the symbolic links
+required by plugin builds:
+
+```powershell
+start ms-settings:developers
+```
+
+Enable **Developer Mode** in the opened Windows settings page before running
+`flutter pub get` or rebuilding after `flutter clean`.
+
 The complete Flutter, Android, Java, dependency and CI baseline is maintained
 in [toolchain-baseline.md](toolchain-baseline.md). Use a separate maintenance
 change for upgrades; do not change the toolchain implicitly while closing a
@@ -330,6 +340,15 @@ approximately 140 MB to 22.7 MB after normalization: about 117.3 MB or 83.8%
 smaller, and roughly 6.2 times smaller overall.
 
 ## Recommended Release Validation
+
+The active v1.0.0 release checklist is maintained in:
+
+```text
+docs/release-v1.0.0.md
+```
+
+Do not create the release tag until every blocking automated, build, artifact,
+backup and manual validation item in that document is complete.
 
 Before a milestone release:
 

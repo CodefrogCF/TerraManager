@@ -28,6 +28,11 @@ The completed v0.14.1 Post-release Fixes regression and release-build
 validation is documented in `release-v0.14.1.md`. The platform lists below
 include this validation.
 
+The final Android and Web regression for release candidate `1.0.0+39` is
+tracked in `release-v1.0.0.md`. Its result is not considered complete until the
+automated checks, signed artifacts, backup paths and manual platform checklist
+in that document have been confirmed.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 

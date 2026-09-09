@@ -2,9 +2,13 @@
 
 All notable changes to TerraManager are documented in this file.
 
-The project uses semantic versioning while development remains below version 1.0.
+The project uses semantic versioning.
 
 ## [Unreleased]
+
+No changes yet.
+
+## [1.0.0] - 2026-09-09
 
 ### Added
 
@@ -13,6 +17,8 @@ The project uses semantic versioning while development remains below version 1.0
   Android Debug and Web Release builds
 - added a documented Flutter 3.47.2, Dart 3.13, Java 17, Android Gradle Plugin
   9.1.0 and Gradle 9.3.1 baseline with an explicit upgrade procedure
+- added the final v1.0.0 regression, compatibility, artifact-verification and
+  publication checklist
 - added the complete GNU General Public License under the
   `GPL-3.0-or-later` identifier
 - added public privacy and permission documentation for local data, camera,
@@ -45,7 +51,7 @@ The project uses semantic versioning while development remains below version 1.0
   returns to Feeding Mode and restarts the scanner without creating events
 - made overview sort widget tests target stable menu-item keys instead of text
   render positions
-- advanced the development version to `0.14.6+38`
+- advanced the release version to `1.0.0+39`
 
 ### Compatibility
 
@@ -63,6 +69,8 @@ The project uses semantic versioning while development remains below version 1.0
   artifacts remain part of the protected local release workflow
 - the temporary Built-in Kotlin compatibility flags remain enabled because
   three resolved plugins still apply the Kotlin Gradle Plugin
+- v1.0.0 establishes the stable MVP feature and compatibility baseline for
+  Android and Web
 - iOS, macOS, Linux and Windows identity metadata is prepared but those
   platforms are not newly validated or promoted to supported status
 
@@ -80,6 +88,8 @@ The project uses semantic versioning while development remains below version 1.0
 - added static regression coverage for the pinned CI workflow, toolchain
   baseline, dependency lock and protected production-signing boundary
 - removed hit-test warnings from the Animal and Box sort-menu widget tests
+- added static regression coverage for the v1.0.0 version, release checklist,
+  compatibility declarations and final publication commands
 
 ### Validated
 

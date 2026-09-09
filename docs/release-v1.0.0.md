@@ -5,8 +5,8 @@ TerraManager `1.0.0+39`.
 
 Source and documentation preparation started on 2026-09-09. The complete local
 regression, artifact verification and manual validation finished successfully
-on the same day. The final GitHub Actions Quality gates run remains open until
-the release commit has been pushed.
+on the same day. The final GitHub Actions Quality gates run also passed on the
+release commit.
 
 Version 1.0.0 establishes the first stable TerraManager MVP baseline. It does
 not introduce a new database schema or portable backup format beyond the
@@ -86,7 +86,7 @@ Record the final result:
 - [x] toolchain and quality-gate regression tests passed
 - [x] v1.0.0 release-documentation regression tests passed
 - [x] complete automated test suite passed with 450 tests
-- [ ] the final GitHub Actions **Quality gates** run passed on the release commit
+- [x] the final GitHub Actions **Quality gates** run passed on the release commit
 
 Dependency availability notices are informational. Do not update the locked
 dependency graph during this release regression. The known future Built-in

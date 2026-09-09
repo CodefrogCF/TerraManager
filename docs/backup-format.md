@@ -1241,6 +1241,7 @@ TerraManager 0.10.0 -> Backup Format 2 with an optional language setting
 TerraManager 0.12.1 -> Backup Format 2 with optional Animal reminder fields
 TerraManager 0.13.3 -> Backup Format 2 with an optional Box sort-order setting
 TerraManager 0.13.4 -> Backup Format 2 with an optional Animal sort-order setting
+TerraManager 0.14.0 -> Backup Format 2 (unchanged)
 ```
 
 A later application release may continue to use Backup Format 2 if its portable

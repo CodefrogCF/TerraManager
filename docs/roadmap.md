@@ -4,15 +4,15 @@
 
 Latest completed release milestone:
 
-**v0.13.0 – Feeding Reminders**
-
-Active development milestone:
-
 **v0.14.0 – Pre-1.0 UX Polish**
 
-Current development build:
+Next planned milestone:
 
-**v0.13.4+31**
+**v1.0.0 – MVP Release**
+
+Current release build:
+
+**v0.14.0+32**
 
 Completed development areas:
 
@@ -106,11 +106,15 @@ regression validation and release packaging are complete. Issues #74, #75 and
 and in-app presentation required for Feeding Reminders. Issue #77 completed the
 publication of release build `0.13.0+27`.
 
-v0.14.0 is the active Pre-1.0 UX Polish milestone. Issues #78 and #79 provide
+v0.14.0 implementation, documentation, automated testing, supported builds and
+manual regression validation are complete. Issues #78 and #79 provide
 consistent Animal form labels and direct Animal creation from Box details.
-Issue #80 adds persistent Box Overview sorting, and Issue #81 adds persistent
-Animal Overview sorting. The remaining issue completes the final v0.14.0
-release regression.
+Issues #80 and #81 add persistent, backup-compatible Box and Animal Overview
+sorting with contextual detail navigation. Issue #82 completes release build
+`0.14.0+32`.
+
+The next planned milestone is v1.0.0, focused on final MVP release preparation
+without expanding the established feature scope.
 
 ---
 
@@ -618,14 +622,15 @@ roughly one sixth of its previous size.
 - [x] Persist and back up the selected Animal ordering
 - [x] Keep contextual Animal detail navigation aligned with the visible order
 - [x] Add sorting, settings and backup regression tests
+- [x] Validate all Animal ordering modes manually on Android
 
 ### Release — Issue #82
 
-- [ ] Complete automated and manual regression testing
-- [ ] Review English and German presentation
-- [ ] Update documentation and release notes
-- [ ] Build the supported release artifacts
-- [ ] Release v0.14.0
+- [x] Complete automated and manual regression testing
+- [x] Review English and German presentation
+- [x] Update documentation and release notes
+- [x] Build the supported release artifacts
+- [x] Release v0.14.0
 
 ---
 

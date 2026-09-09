@@ -20,6 +20,10 @@ The completed v0.13.0 Feeding Reminder regression and release-build validation
 is documented in `release-v0.13.0.md`. The platform lists below include this
 validation.
 
+The completed v0.14.0 Pre-1.0 UX Polish regression and release-build validation
+is documented in `release-v0.14.0.md`. The platform lists below include this
+validation.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 
@@ -44,6 +48,9 @@ Validated functionality includes:
 - box creation and persistence
 - oldest/newest and natural ascending/descending Box Overview sorting
 - persistent Box ordering and matching contextual detail navigation
+- creation-time, displayed-name, age and latest-feeding Animal Overview sorting
+- deterministic missing-data ordering, persistent Animal sorting and matching
+  contextual detail navigation
 - direct Animal creation from empty and populated Box details with the Box
   preselected
 - Box editing and optional dimensions
@@ -101,7 +108,8 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- appearance-, language- and Animal-name-setting backup and restore
+- appearance-, language-, Animal-name- and overview-sort-setting backup and
+  restore
 - restore compatibility for backups without a language setting
 - restore of Web-created backups
 - camera-light controls in the Box and Feeding Mode scanners
@@ -155,6 +163,9 @@ Validated functionality includes:
 - Drift database operation
 - persistence across normal browser reloads
 - box and animal workflows
+- oldest/newest and natural ascending/descending Box Overview sorting
+- creation-time, displayed-name, age and latest-feeding Animal Overview sorting
+- persistent overview ordering and matching contextual detail navigation
 - Box editing and optional dimensions
 - persistent Box pictures
 - Box picture persistence across normal browser reloads
@@ -203,7 +214,8 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- appearance-, language- and Animal-name-setting backup and restore
+- appearance-, language-, Animal-name- and overview-sort-setting backup and
+  restore
 - restore compatibility for backups without a language setting
 - restore of Android-created backups
 - both QR scanners with camera-light controls hidden when unsupported
@@ -281,9 +293,10 @@ Backups do not depend on:
 Box and Animal pictures are exported as portable media files and restored into
 the local `MediaAssets` persistence layer.
 
-`settings.json` preserves theme mode, accent color, application language and
-preferred Animal name order. Backups without the newer settings fields remain
-compatible and restore their documented defaults.
+`settings.json` preserves theme mode, accent color, application language,
+preferred Animal name order and the Animal and Box Overview sort orders.
+Backups without the newer settings fields remain compatible and restore their
+documented defaults.
 
 The following transfers have been manually validated:
 

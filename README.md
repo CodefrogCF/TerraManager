@@ -10,15 +10,15 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Current completed release milestone:
 
-**v0.13.0 – Feeding Reminders**
-
-Active development milestone:
-
 **v0.14.0 – Pre-1.0 UX Polish**
 
-Current development build:
+Next planned milestone:
 
-**v0.13.4+31**
+**v1.0.0 – MVP Release**
+
+Current release build:
+
+**v0.14.0+32**
 
 Implemented milestones in the current source state:
 
@@ -36,18 +36,20 @@ Implemented milestones in the current source state:
 - v0.11.0 – Personalization & Capture
 - v0.12.0 – Media Optimization
 - v0.13.0 – Feeding Reminders
+- v0.14.0 – Pre-1.0 UX Polish
 
 Android and Web are currently validated platforms.
 
-The v0.13.0 implementation, automated regression, Android/Web validation and
-release builds are complete. The validation record and release notes are
-available in `docs/release-v0.13.0.md`.
+The v0.14.0 implementation, automated regression, supported builds and manual
+validation are complete. The release provides consistent Animal form labels,
+direct preassigned Animal creation from Box details and persistent Box and
+Animal Overview sorting. The validation record and release notes are available
+in `docs/release-v0.14.0.md`.
 
-Development of v0.14.0 is in progress. The current build provides consistent
-Animal sex and birth-date-accuracy labels and direct, preassigned Animal
-creation from Box details. It also adds persistent Box Overview sorting by
-creation time or natural Box number and persistent Animal Overview sorting by
-creation time, displayed name, age or latest feeding.
+TerraManager now enters preparation for the v1.0.0 MVP release.
+
+The completed v0.13.0 validation record remains available in
+`docs/release-v0.13.0.md`.
 
 The completed v0.12.0 validation record remains available in
 `docs/release-v0.12.0.md`.

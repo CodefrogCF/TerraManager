@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning while development remains below version 1.0.
 
-## [Unreleased]
+## [0.14.0] - 2026-09-09
 
 ### Added
 
@@ -77,6 +77,13 @@ The project uses semantic versioning while development remains below version 1.0
 
 - `flutter analyze` without issues
 - complete automated test suite
+- successful application build for the current development version
+- all eight Animal Overview sort modes and their immediate list ordering
+- deterministic placement of Animals without birth dates or FeedingEvents
+- Animal name sorting with both Common-name-first and Latin-name-first display
+- persistent Animal sorting after changing the selection
+- contextual Animal detail navigation following the visible sorted order
+- Animal sort-order backup, restore and legacy-backup fallback coverage
 - all four Box Overview sort modes and their immediate list ordering
 - persistent Box sorting after changing the selection
 - contextual Box detail navigation following the visible sorted order
@@ -87,8 +94,8 @@ The project uses semantic versioning while development remains below version 1.0
 - direct Animal creation from empty and populated Box details
 - originating Box preselection, editable reassignment, cancellation and
   immediate assignment-list refresh
-- manual regression, including Box Overview sorting, on a physical Android
-  device
+- manual regression, including Box and Animal Overview sorting, on a physical
+  Android device
 
 ## [0.13.0] - 2026-09-08
 

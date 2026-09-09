@@ -1,0 +1,7 @@
+# Copy this file to android/key.properties and replace every placeholder.
+# Keep the real file and keystore outside version control.
+# On Windows, use forward slashes or escaped backslashes in storeFile.
+storeFile=C:/path/outside/the/repository/terramanager-release.p12
+storePassword=CHANGE_ME
+keyAlias=terramanager
+keyPassword=CHANGE_ME

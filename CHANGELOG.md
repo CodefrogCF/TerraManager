@@ -14,13 +14,25 @@ The project uses semantic versioning while development remains below version 1.0
   projects with TerraManager identity
 - replaced placeholder Web title, description and installation metadata
 - replaced the default Flutter Web icons and favicon with TerraManager artwork
-- advanced the development version to `0.14.2+34`
+- configured Android Release builds to use a dedicated production signing
+  configuration instead of the debug signing key
+- added ignored local-property and environment-variable credential sources for
+  Android release signing
+- made Release builds fail with a clear configuration error when credentials
+  or the configured keystore are missing while keeping Debug builds independent
+  of release secrets
+- advanced the development version to `0.14.3+35`
 
 ### Compatibility
 
 - Android installations using the previous
   `com.example.flutter_application_1` identifier cannot be updated in place;
   users must export a backup in v0.14.1 and restore it into the new application
+- debug-signed permanent-ID builds through `0.14.2+34` cannot be updated in
+  place by the production-signed build; the existing backup, uninstall,
+  install and restore transition must be used once more
+- every later directly distributed Android update must use the same production
+  signing certificate introduced with `0.14.3+35`
 - Database Schema Version 5 and Portable Backup Format Version 2 remain
   unchanged
 - iOS, macOS, Linux and Windows identity metadata is prepared but those
@@ -31,6 +43,24 @@ The project uses semantic versioning while development remains below version 1.0
 - added static regression coverage for Android application identity
 - added Web manifest, page metadata and icon-dimension coverage
 - added a cross-platform placeholder identity regression check
+- added static regression coverage for the production signing configuration,
+  supported credential sources and ignored secret files
+
+### Validated
+
+- Android Debug and pre-production Release builds with the permanent
+  application identity
+- installation, startup and manual regression on a physical Android device
+- Web build and TerraManager installation metadata
+- `flutter analyze` without issues and the complete suite with 440 passing
+  tests
+- production-signed APK and AAB construction with the private key stored
+  outside version control
+- APK Signature Scheme v2 verification with the expected RSA 4096-bit
+  production certificate
+- AAB signature verification and SHA-256 release-artifact checksums
+- backup, uninstall, production installation and restore transition on a
+  physical Android device
 
 ## [0.14.1] - 2026-09-09
 

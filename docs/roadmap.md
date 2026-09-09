@@ -12,7 +12,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.2+34**
+**v0.14.3+35**
 
 Completed development areas:
 
@@ -125,6 +125,12 @@ identity and replaces remaining Flutter placeholder platform metadata. Android
 users of builds through v0.14.1 migrate through the existing portable backup
 and restore workflow because Android treats the permanent identifier as a new
 application.
+
+Issue #90 introduces fail-closed Android production signing. Release builds
+load credentials only from an ignored local file or explicit environment
+variables, while Debug builds remain independent of release secrets. Creating,
+backing up and validating the private production key remains a local release
+owner task.
 
 ---
 
@@ -689,15 +695,17 @@ roughly one sixth of its previous size.
 - [x] Remove remaining Flutter identity placeholders from prepared platforms
 - [x] Document the backup-and-restore transition from pre-v1.0 Android builds
 - [x] Add automated platform metadata regression coverage
-- [ ] Validate Android builds, installation and application identity
-- [ ] Validate the Web build and install metadata
+- [x] Validate Android builds, installation and application identity
+- [x] Validate the Web build and install metadata
 
 ### Android Production Signing — Issue #90
 
-- [ ] Configure a private production signing key outside version control
-- [ ] Keep debug builds independent of release credentials
-- [ ] Build and verify production-signed APK and AAB artifacts
-- [ ] Document key backup, recovery and the previous-signature transition
+- [x] Add ignored local-file and environment-variable signing configuration
+- [x] Reject Release builds that lack a complete production configuration
+- [x] Keep Debug builds independent of release credentials
+- [x] Create and securely back up the private production signing key
+- [x] Build and verify production-signed APK and AAB artifacts
+- [x] Document key backup, recovery and the previous-signature transition
 
 ### Public Release Documentation — Issue #91
 

@@ -18,7 +18,7 @@ Active development milestone:
 
 Current application version and build:
 
-**v0.14.2+34**
+**v0.14.3+35**
 
 Implemented milestones in the current source state:
 
@@ -54,6 +54,20 @@ Development build `0.14.2+34` establishes `com.codefrog.terramanager` as the
 permanent application identity, replaces the remaining Flutter placeholder
 metadata and uses the TerraManager icon throughout the Android and Web
 projects. This work is tracked by Issue #89.
+
+Development build `0.14.3+35` replaces the temporary Android debug signing of
+release artifacts with an explicit production-signing configuration. Local
+credentials are loaded from the ignored `android/key.properties` file or from
+`TERRAMANAGER_*` environment variables; Release builds fail clearly when the
+configuration is incomplete. Key creation, secure backup, build verification
+and the one-time transition from earlier debug-signed installations are
+documented in `docs/android-release-signing.md`. This work is tracked by Issue
+#90.
+
+The production key has been created and backed up, both signed Android
+artifacts have been built and verified, and the one-time physical-device
+transition has been completed successfully. Future directly distributed
+Android builds must retain this production certificate.
 
 ### Android transition to the permanent application ID
 

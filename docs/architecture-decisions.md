@@ -1045,3 +1045,73 @@ Disadvantages:
   and restore their data
 - prepared but unsupported platform identity changes cannot be fully validated
   until suitable build environments are available
+
+---
+
+## ADR-015: Require external production credentials for Android Release builds
+
+**Status:** Accepted
+
+**Date:** 2026-09-09
+
+### Context
+
+Android Release builds still used Flutter's temporary debug signing
+configuration. A debug certificate is unsuitable as the permanent update
+identity for production artifacts. Embedding a keystore or passwords in Gradle
+files would expose credentials through version control, while requiring release
+credentials during ordinary development would make Debug builds unnecessarily
+fragile.
+
+The permanent application identifier was introduced in `0.14.2+34`, but that
+development build was still debug-signed. Android accepts an in-place update
+only when the installed and replacement packages have compatible signing
+certificates.
+
+### Decision
+
+The Android build reads the four required signing values from either the
+ignored `android/key.properties` file or these environment variables:
+
+```text
+TERRAMANAGER_KEYSTORE_FILE
+TERRAMANAGER_KEYSTORE_PASSWORD
+TERRAMANAGER_KEY_ALIAS
+TERRAMANAGER_KEY_PASSWORD
+```
+
+Environment variables take precedence over local properties. The keystore is
+stored outside the repository, and `.jks`, `.keystore` and `.p12` files beneath
+the Android project are ignored as a final safeguard. The committed
+`android/key.properties.example` contains placeholders only.
+
+The Release build type uses a dedicated `release` signing configuration and
+never falls back to the debug key. A requested Release task fails during Gradle
+configuration when a value or keystore file is missing. Debug configuration,
+testing and builds continue without production credentials.
+
+The first production-signed build establishes the certificate that must sign
+later directly distributed updates. A user running the debug-signed permanent-
+ID development build must perform a one-time backup, uninstall, install and
+restore transition.
+
+### Consequences
+
+Advantages:
+
+- production artifacts cannot be created accidentally with the debug key
+- credentials remain outside tracked source files
+- local ignored properties and CI-friendly environment variables share one
+  signing path
+- missing configuration produces an actionable error before packaging
+- normal Debug development does not depend on access to production secrets
+- static tests protect the intended configuration and ignore rules
+
+Disadvantages:
+
+- each authorized release environment needs the private key and four values
+- losing a self-managed app-signing key prevents compatible direct updates
+- compromised credentials require an explicit key-response and distribution
+  decision
+- debug-signed `0.14.2+34` installations require one final backup-based
+  transition

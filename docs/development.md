@@ -101,6 +101,13 @@ install the permanent-ID build and restore that backup before removing the old
 application. Database Schema Version 5 and Portable Backup Format Version 2 do
 not change for this transition.
 
+Android Debug builds remain available without release credentials. Android
+Release builds require a dedicated local production key and refuse to fall back
+to the debug certificate. Follow `android-release-signing.md` to create the
+keystore, configure either `android/key.properties` or environment variables,
+back up the key and verify the resulting artifacts. Never commit the real
+keystore or passwords.
+
 List available devices:
 
 ```text
@@ -125,10 +132,17 @@ Build release APK:
 flutter build apk --release
 ```
 
-Generated APKs are located under:
+Build release Android App Bundle:
+
+```text
+flutter build appbundle --release
+```
+
+Generated Android artifacts are located under:
 
 ```text
 build/app/outputs/flutter-apk
+build/app/outputs/bundle/release
 ```
 
 ## Web Development
@@ -218,6 +232,9 @@ Examples:
 - due ordering from most overdue to least overdue
 - reminder calculation after restoring current backup data
 - absence of a reminder summary when no active Animal is due
+- Debug Android build without `android/key.properties`
+- production-signed APK and AAB builds with local release credentials
+- APK certificate verification and SHA-256 checksums
 - non-modal due summary, due count and due markers in the Animal Overview
 - most-overdue-first order and navigation to the correct Animal
 - due and scheduled status cards with the calculated due timestamp on Animal

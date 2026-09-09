@@ -52,6 +52,26 @@ a separate application. Users must create a `.tmbackup` with the old version,
 restore it in the new application and verify their data before removing the old
 installation.
 
+## Android Production Signing
+
+Development build `0.14.3+35` removes debug signing from the Android Release
+build type. The build reads production credentials from the ignored
+`android/key.properties` file or from `TERRAMANAGER_*` environment variables.
+Debug builds do not require either source. Release builds stop before packaging
+when configuration is missing, incomplete or points to a missing keystore.
+
+The signing key itself is deliberately not part of the repository. Production
+APK and AAB construction, certificate verification, secure key backup and the
+physical-device transition were validated by the release owner. The complete
+procedure remains documented in `android-release-signing.md`.
+
+Build `0.14.2+34` already uses the permanent application ID but is signed with
+the Android debug certificate. Android therefore cannot install the first
+production-signed build as an update over it. Create and verify a `.tmbackup`,
+uninstall the debug-signed application, install the production-signed build and
+restore the backup. Future directly distributed builds must keep the same
+production signing certificate.
+
 ## Android
 
 Android support has been validated on physical hardware.
@@ -59,7 +79,12 @@ Android support has been validated on physical hardware.
 Validated functionality includes:
 
 - debug APK build
-- release APK build
+- pre-production release APK builds through `0.14.2+34`
+- production-signed APK and AAB builds from `0.14.3+35`
+- APK Signature Scheme v2 verification with the expected RSA 4096-bit
+  production certificate
+- AAB signature and release-artifact checksum verification
+- backup-based transition from the debug-signed permanent-ID build
 - application startup
 - permanent `com.codefrog.terramanager` application identity
 - TerraManager application name and launcher icon

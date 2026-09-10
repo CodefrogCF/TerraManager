@@ -4,10 +4,6 @@
 
 Latest completed release milestone:
 
-**v0.14.1 – Post-release Fixes**
-
-Active development milestone:
-
 **v1.0.0 – MVP Release**
 
 Current application version and build:

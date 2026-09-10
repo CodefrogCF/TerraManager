@@ -52,10 +52,7 @@ void main() {
     expect(
       privacy,
       contains(
-        RegExp(
-          r'system[-\s]+notification\s+permission',
-          caseSensitive: false,
-        ),
+        RegExp(r'system[-\s]+notification\s+permission', caseSensitive: false),
       ),
     );
 
@@ -78,15 +75,13 @@ void main() {
     expect(
       removesPermission('android.permission.ACCESS_NETWORK_STATE'),
       isTrue,
-      reason:
-          'The production manifest must remove ACCESS_NETWORK_STATE from dependencies.',
+      reason: 'The production manifest must remove ACCESS_NETWORK_STATE from dependencies.',
     );
 
     expect(
       removesPermission('android.permission.READ_EXTERNAL_STORAGE'),
       isTrue,
-      reason:
-          'The production manifest must remove unrestricted external-storage read access.',
+      reason: 'The production manifest must remove unrestricted external-storage read access.',
     );
   });
 

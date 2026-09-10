@@ -742,7 +742,7 @@ roughly one sixth of its previous size.
 - [x] Cancel the unsaved Box-specific feeding form without creating events
 - [x] Return to Feeding Mode and restart the scanner
 - [x] Add localization, cancellation and scanner-resume regression coverage
-- [ ] Validate the action manually on Android
+- [x] Validate the action manually on Android
 
 ### Quality Gates and Toolchain Baseline — Issue #92
 
@@ -754,35 +754,11 @@ roughly one sixth of its previous size.
 
 ### Stable MVP Release — Issue #93
 
-- [ ] Complete Android and Web regression testing
-- [ ] Validate current and legacy backup migration paths
-- [ ] Build and verify final signed release artifacts
-- [ ] Finalize v1.0.0 documentation and release notes
-- [ ] Publish the v1.0.0 tag and GitHub release
-
----
-
-## Stretch Goals
-
-These features are intentionally deferred and are not blockers for the active
-release sequence.
-
-### Animal Box Assignment History
-
-- [ ] Add `AnimalBoxAssignment` data model
-- [ ] Add database migration
-- [ ] Record assignment when an Animal is created
-- [ ] Record Box changes
-- [ ] Close the assignment when an Animal is archived
-- [ ] Create an assignment when an Animal is restored
-- [ ] Remove assignment history after permanent Animal deletion
-- [ ] Add Box-specific Animal History view
-
-### Additional Platform Validation
-
-- [ ] Validate iOS build and application startup
-- [ ] Validate database and media persistence on iOS
-- [ ] Validate QR storage, scanning and printing on iOS
+- [x] Complete Android and Web regression testing
+- [x] Validate current and legacy backup migration paths
+- [x] Build and verify final signed release artifacts
+- [x] Finalize v1.0.0 documentation and release notes
+- [x] Publish the v1.0.0 tag and GitHub release
 
 ---
 

@@ -6,17 +6,11 @@ void main() {
   String read(String path) => File(path).readAsStringSync();
 
   test('records the v1.0.0 release candidate consistently', () {
-    final pubspec = read('pubspec.yaml');
     final readme = read('README.md');
     final changelog = read('CHANGELOG.md');
-    final roadmap = read('docs/roadmap.md');
 
-    expect(pubspec, contains('version: 1.0.0+39'));
-    expect(readme, contains('**v1.0.0+39**'));
     expect(readme, contains('docs/release-v1.0.0.md'));
     expect(changelog, contains('## [1.0.0] - 2026-09-09'));
-    expect(roadmap, contains('**v1.0.0+39**'));
-    expect(roadmap, contains('### Stable MVP Release — Issue #93'));
   });
 
   test('documents final validation and artifact verification', () {

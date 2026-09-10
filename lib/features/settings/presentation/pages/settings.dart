@@ -14,6 +14,7 @@ import '../../app_accent.dart';
 import '../../app_language.dart';
 import '../../app_settings_controller.dart';
 import '../../animal_name_order.dart';
+import 'privacy_policy_page.dart';
 
 typedef AppVersionLoader = Future<String> Function();
 
@@ -614,6 +615,35 @@ class _SettingsPageState extends State<SettingsPage> {
               child: CircularProgressIndicator(key: Key('backup-progress')),
             ),
           ],
+
+          const SizedBox(height: 40),
+          const Divider(),
+          const SizedBox(height: 24),
+
+          Text(
+            context.l10n.legalAndPrivacy,
+            key: const Key('legal-section-heading'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+
+          const SizedBox(height: 8),
+
+          ListTile(
+            key: const Key('privacy-policy-tile'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.privacy_tip_outlined),
+            title: Text(context.l10n.privacyPolicyTitle),
+            subtitle: Text(context.l10n.privacyPolicySubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      PrivacyPolicyPage(title: context.l10n.privacyPolicyTitle),
+                ),
+              );
+            },
+          ),
 
           const SizedBox(height: 32),
         ],

@@ -11,10 +11,6 @@ import 'package:drift/native.dart';
 import 'package:terramanager/core/database/app_database.dart';
 
 void main() {
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-  });
-
   late AppDatabase database;
 
   setUp(() async {
@@ -155,5 +151,22 @@ void main() {
     final preferences = await SharedPreferences.getInstance();
 
     expect(preferences.getString('animal_name_order'), 'latinNameFirst');
+  });
+
+  testWidgets('opens Privacy Policy from Settings', (tester) async {
+    await pumpSettings(tester);
+
+    await scrollToSetting(tester, const Key('privacy-policy-tile'));
+
+    final privacyTile = find.byKey(const Key('privacy-policy-tile'));
+
+    expect(privacyTile, findsOneWidget);
+
+    await tester.tap(privacyTile);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('privacy-policy-page')), findsOneWidget);
+    expect(find.text('Privacy Policy'), findsWidgets);
+    expect(find.byKey(const Key('privacy-policy-content')), findsOneWidget);
   });
 }

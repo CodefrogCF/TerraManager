@@ -1,3 +1,8 @@
+---
+layout: default
+title: TerraManager
+---
+
 # TerraManager Privacy Policy
 
 **Effective date:** September 10, 2026

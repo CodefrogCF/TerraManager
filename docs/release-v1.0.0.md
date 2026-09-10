@@ -188,7 +188,7 @@ Use a physical Android device and the final production-signed APK.
 
 ### Boxes and QR workflows
 
-- [x] create and edit a Box with optional dimensions and notes
+- [x] create and edit a Box with optional dimensions
 - [x] add, crop, replace, remove and open a Box picture full-screen
 - [x] create a picture from Camera and select one from Gallery
 - [x] display, export and print a Box QR code

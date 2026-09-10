@@ -44,13 +44,50 @@ void main() {
 
     expect(privacy, contains('local-first'));
     expect(privacy, contains('Camera'));
-    expect(privacy, contains('Photos or gallery'));
-    expect(privacy, contains('Files or documents'));
-    expect(privacy, contains('Printing'));
+    expect(privacy, contains('photo picker'));
+    expect(privacy, contains('file picker'));
+    expect(privacy, contains('print service'));
     expect(privacy, contains('not encrypted'));
     expect(privacy, contains('analytics'));
-    expect(privacy, contains(RegExp(r'system\s+notification\s+access')));
-    expect(productionManifest, isNot(contains('android.permission.INTERNET')));
+    expect(
+      privacy,
+      contains(
+        RegExp(
+          r'system[-\s]+notification\s+permission',
+          caseSensitive: false,
+        ),
+      ),
+    );
+
+    bool removesPermission(String permission) {
+      return RegExp(
+        '<uses-permission\\s+'
+        '[^>]*android:name="$permission"'
+        '[^>]*tools:node="remove"'
+        '[^>]*/>',
+        multiLine: true,
+      ).hasMatch(productionManifest);
+    }
+
+    expect(
+      removesPermission('android.permission.INTERNET'),
+      isTrue,
+      reason: 'The production manifest must remove INTERNET from dependencies.',
+    );
+
+    expect(
+      removesPermission('android.permission.ACCESS_NETWORK_STATE'),
+      isTrue,
+      reason:
+          'The production manifest must remove ACCESS_NETWORK_STATE from dependencies.',
+    );
+
+    expect(
+      removesPermission('android.permission.READ_EXTERNAL_STORAGE'),
+      isTrue,
+      reason:
+          'The production manifest must remove unrestricted external-storage read access.',
+    );
   });
 
   test('documents trusted installation and safe support reports', () {

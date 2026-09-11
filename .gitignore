@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+*play-signing-key*.zip
 
 # IntelliJ related
 *.iml

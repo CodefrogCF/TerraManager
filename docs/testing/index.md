@@ -23,19 +23,23 @@ Bitte schicke mir deshalb zuerst diese E-Mail-Adresse.
 
 ## 2. Am Test teilnehmen und TerraManager installieren
 
-Sobald deine Google-E-Mail-Adresse freigeschaltet ist, erhältst du von mir den Link zum geschlossenen Google-Play-Test.
+Sobald deine Google-E-Mail-Adresse freigeschaltet ist, kannst du dem geschlossenen Test beitreten.
 
-**Testlink:** https://play.google.com/store/apps/details?id=com.codefrog.terramanager
+### 1. Dem Test beitreten
 
-Am besten öffnest du den Link direkt auf deinem Android-Smartphone.
+Öffne:
 
-1. Öffne den Testlink.
-2. Tippe auf **„Tester werden“** bzw. **„Am Test teilnehmen“**.
-3. Bestätige die Teilnahme.
-4. Öffne anschließend den angebotenen Link zum Google Play Store.
-5. Installiere **TerraManager**.
+https://play.google.com/apps/testing/com.codefrog.terramanager
 
-Falls Google meldet, dass dein Konto nicht für den Test freigeschaltet ist, prüfe bitte zuerst, ob im Play Store das richtige Google-Konto ausgewählt ist.
+Tippe dort auf **„Tester werden“** bzw. **„Am Test teilnehmen“** und bestätige die Teilnahme.
+
+### 2. TerraManager installieren
+
+Anschließend kannst du TerraManager über den Google Play Store installieren:
+
+https://play.google.com/store/apps/details?id=com.codefrog.terramanager
+
+Wichtig: Im Google Play Store muss dasselbe Google-Konto ausgewählt sein, dessen E-Mail-Adresse für den Test freigeschaltet wurde.
 
 ## 3. Wichtig für die nächsten 14 Tage
 

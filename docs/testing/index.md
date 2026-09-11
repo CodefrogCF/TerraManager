@@ -29,7 +29,7 @@ Sobald deine Google-E-Mail-Adresse freigeschaltet ist, kannst du dem geschlossen
 
 Öffne:
 
-https://play.google.com/apps/testing/com.codefrog.terramanager
+[ANMELDUNG ZUM TEST](https://play.google.com/apps/testing/com.codefrog.terramanager)
 
 Tippe dort auf **„Tester werden“** bzw. **„Am Test teilnehmen“** und bestätige die Teilnahme.
 
@@ -37,7 +37,7 @@ Tippe dort auf **„Tester werden“** bzw. **„Am Test teilnehmen“** und bes
 
 Anschließend kannst du TerraManager über den Google Play Store installieren:
 
-https://play.google.com/store/apps/details?id=com.codefrog.terramanager
+[APP-DOWNLOAD](https://play.google.com/store/apps/details?id=com.codefrog.terramanager)
 
 Wichtig: Im Google Play Store muss dasselbe Google-Konto ausgewählt sein, dessen E-Mail-Adresse für den Test freigeschaltet wurde.
 

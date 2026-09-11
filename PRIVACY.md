@@ -1,7 +1,6 @@
 # TerraManager Privacy Policy
 
 **Effective date:** September 10, 2026
-
 **Application:** TerraManager
 **Developer:** CodefrogCF
 **Privacy and support contact:** See the TerraManager project repository for the current contact and support channels.

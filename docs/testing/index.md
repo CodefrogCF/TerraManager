@@ -25,7 +25,7 @@ Bitte schicke mir deshalb zuerst diese E-Mail-Adresse.
 
 Sobald deine Google-E-Mail-Adresse freigeschaltet ist, erhältst du von mir den Link zum geschlossenen Google-Play-Test.
 
-**Testlink:** `[GOOGLE-PLAY-TESTLINK]`
+**Testlink:** https://play.google.com/store/apps/details?id=com.codefrog.terramanager
 
 Am besten öffnest du den Link direkt auf deinem Android-Smartphone.
 

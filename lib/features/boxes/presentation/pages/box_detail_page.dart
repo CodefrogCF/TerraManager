@@ -4,6 +4,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
 import '../../../../core/qr/qr_print_service.dart';
@@ -57,6 +58,8 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   late Future<List<Animal>> _animalsFuture;
   late Future<MediaAsset?> _pictureFuture;
 
+  final Map<int, Future<MediaAsset?>> _animalPictureFutures = {};
+
   double _horizontalDragDistance = 0;
   bool _switchingBox = false;
   bool _savingQr = false;
@@ -81,8 +84,21 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   void _loadAnimals() {
+    _animalPictureFutures.clear();
+
     _animalsFuture = AnimalRepository(widget.database)
         .getAnimalsForBox(_box.id);
+  }
+
+  Future<MediaAsset?> _animalPictureFutureFor(int? mediaId) {
+    if (mediaId == null) {
+      return Future<MediaAsset?>.value(null);
+    }
+
+    return _animalPictureFutures.putIfAbsent(
+      mediaId,
+      () => MediaRepository(widget.database).getMediaById(mediaId),
+    );
   }
 
   void _loadPicture() {
@@ -752,7 +768,23 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                           return Card(
                             child: ListTile(
                               key: Key('assigned-animal-${animal.id}'),
-                              leading: const Icon(Icons.pets_outlined),
+                              leading: FutureBuilder<MediaAsset?>(
+                                future: _animalPictureFutureFor(
+                                  animal.pictureMediaId,
+                                ),
+                                builder: (context, pictureSnapshot) {
+                                  return MediaThumbnail(
+                                    key: Key(
+                                      'assigned-animal-thumbnail-${animal.id}',
+                                    ),
+                                    pictureBytes: pictureSnapshot.data?.data,
+                                    picturePath: pictureSnapshot.data == null
+                                        ? animal.picturePath
+                                        : null,
+                                    fallbackIcon: Icons.emoji_nature_outlined,
+                                  );
+                                },
+                              ),
                               title: Text(displayNames.primary),
                               subtitle: Text(displayNames.secondary),
                               trailing: const Icon(Icons.chevron_right),

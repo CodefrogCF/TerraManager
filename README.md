@@ -23,7 +23,7 @@ Current completed release milestone:
 
 Current application version and build:
 
-**v1.0.0+39**
+**v1.0.1+43**
 
 Implemented milestones in the current source state:
 
@@ -43,6 +43,7 @@ Implemented milestones in the current source state:
 - v0.13.0 – Feeding Reminders
 - v0.14.0 – Pre-1.0 UX Polish
 - v0.14.1 – Post-release Fixes
+- v1.0.0 – MVP Release
 
 Android and Web are currently validated platforms.
 
@@ -53,7 +54,8 @@ ascending or descending Box number while preserving legacy settings and backup
 compatibility. The validation record and release notes are available in
 `docs/release-v0.14.1.md`.
 
-TerraManager now enters preparation for the v1.0.0 MVP release.
+TerraManager v1.0.0 is released as the stable MVP baseline. Development now
+continues with the v1.1.0 Detail & Workflow Polish milestone.
 
 Development build `0.14.2+34` establishes `com.codefrog.terramanager` as the
 permanent application identity, replaces the remaining Flutter placeholder
@@ -90,10 +92,12 @@ analysis, tests, Android Debug and Web Release builds. The supported Flutter,
 Dart, Java, Gradle and dependency baseline, including the current upstream
 Kotlin-plugin warning, is documented in `docs/toolchain-baseline.md`.
 
-Release candidate `1.0.0+39` is the stable MVP candidate. It introduces no new
-database or backup format and is now undergoing the final Android, Web, backup,
-localization, signing and artifact regression defined in
-`docs/release-v1.0.0.md`.
+Release `1.0.0+39` completed the final Android, Web, backup, localization,
+signing and artifact regression defined in `docs/release-v1.0.0.md`.
+
+Development build `1.0.1+43` begins the v1.1.0 milestone. Issue #94 displays
+the current Animal picture as a thumbnail in the assigned-Animal list on Box
+details and retains the existing fallback icon when no usable picture exists.
 
 ### Android transition to the permanent application ID
 
@@ -152,6 +156,7 @@ application restarts.
 - optional camera-light controls in the Box and Feeding Mode scanners
 - unknown and invalid QR handling
 - assigned animal list on box detail
+- current Animal picture thumbnails in Box-detail assignment lists
 - navigation from box to assigned animal
 - Add Animal action below empty and populated Box assignment sections
 - direct New Animal navigation with the originating Box preselected

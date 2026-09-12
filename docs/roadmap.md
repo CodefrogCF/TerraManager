@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.0+39**
+**v1.0.1+43**
 
 Completed development areas:
 
@@ -83,6 +83,8 @@ Completed development areas:
 - explicit Quick Feeding cancellation through Scan a different Box
 - reproducible CI formatting, analysis, test and supported build gates
 - documented Flutter, Dart, Java, Gradle and locked-dependency baseline
+- current Animal picture thumbnails in Box-detail assignment lists with a safe
+  fallback
 
 v0.7.1 implementation and release validation are complete.
 
@@ -119,8 +121,10 @@ manual regression validation are complete. The patch corrects the reminder
 reference for existing feeding history and reduces Box sorting to the two
 meaningful Box-number directions while preserving legacy settings and backups.
 
-v1.0.0 is now the active milestone, focused on final MVP release preparation
-without expanding the established feature scope.
+v1.0.0 implementation, documentation, automated testing, supported builds,
+manual regression and publication are complete. It establishes the stable MVP
+baseline without changing Database Schema Version 5 or Portable Backup Format
+Version 2.
 
 Issue #89 introduces the permanent `com.codefrog.terramanager` application
 identity and replaces remaining Flutter placeholder platform metadata. Android
@@ -144,10 +148,15 @@ toolchain and dependency baseline. Android production signing stays outside CI,
 and the remaining Built-in Kotlin warning is tracked as an upstream plugin
 migration dependency rather than being hidden by unsafe configuration.
 
-Issue #93 prepares release candidate `1.0.0+39` without expanding the MVP
-scope. Database Schema Version 5 and Portable Backup Format Version 2 remain
-unchanged while Android, Web, backup, localization, signing and release
-artifacts undergo their final regression.
+Issue #93 completed release `1.0.0+39` without expanding the MVP scope.
+Database Schema Version 5 and Portable Backup Format Version 2 remain
+unchanged after the final Android, Web, backup, localization, signing and
+release-artifact regression.
+
+v1.1.0 is now the active milestone for detail and workflow polish. Development
+build `1.0.1+43` starts Issue #94 by displaying current Animal pictures in the
+Box-detail assignment list while preserving the existing fallback and
+navigation behaviour.
 
 ---
 
@@ -755,6 +764,30 @@ roughly one sixth of its previous size.
 - [x] Build and verify final signed release artifacts
 - [x] Finalize v1.0.0 documentation and release notes
 - [x] Publish the v1.0.0 tag and GitHub release
+
+---
+
+## v1.1.0 – Detail & Workflow Polish
+
+### Assigned Animal Thumbnails — Issue #94
+
+- [x] Reuse the shared media thumbnail for assigned Animals
+- [x] Display the current Animal picture when stored media is available
+- [x] Preserve legacy picture-path support through the shared thumbnail
+- [x] Keep a safe fallback for missing or invalid pictures
+- [x] Preserve assigned-Animal names and detail navigation
+- [x] Add focused Box-detail widget coverage
+- [x] Complete automated and manual validation with 456 passing tests
+
+### Remaining Milestone Scope
+
+- [ ] Reorganize Box QR information and remove printing — Issue #95
+- [ ] Add optional Box notes — Issue #96
+- [ ] Move Box deletion into Edit Box — Issue #97
+- [ ] Expose Animal Feeding History and reminder actions — Issue #98
+- [ ] Add About information and compact accent selection — Issue #99
+- [ ] Make the pre-restore safety backup optional — Issue #100
+- [ ] Complete v1.1.0 regression, documentation and release — Issue #101
 
 ---
 

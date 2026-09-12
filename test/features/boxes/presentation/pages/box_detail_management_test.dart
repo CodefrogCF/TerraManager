@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,11 +8,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/new_animal_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
+
+const _transparentPixelPng =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+'
+    'A8AAQUBAScY42YAAAAASUVORK5CYII=';
 
 void main() {
   late AppDatabase database;
@@ -36,6 +44,7 @@ void main() {
     required int boxId,
     String commonName = 'Corn Snake',
     String latinName = 'Pantherophis guttatus',
+    int? pictureMediaId,
   }) {
     return AnimalRepository(database).createAnimal(
       boxId: boxId,
@@ -45,6 +54,17 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      pictureMediaId: pictureMediaId,
+    );
+  }
+
+  Future<int> createTestMedia({bool corrupt = false}) {
+    return MediaRepository(database).createMedia(
+      fileName: 'assigned-animal.png',
+      mimeType: 'image/png',
+      data: corrupt
+          ? Uint8List.fromList([1, 2, 3])
+          : base64Decode(_transparentPixelPng),
     );
   }
 
@@ -136,6 +156,95 @@ void main() {
     await scrollToAddAnimal(tester);
 
     expect(find.text('Add Animal'), findsOneWidget);
+  });
+
+  testWidgets('shows fallback thumbnail when assigned Animal has no picture', (
+    tester,
+  ) async {
+    final box = await createTestBox();
+    final animalId = await createTestAnimal(boxId: box.id);
+
+    await pumpDetailPage(tester, box: box);
+
+    final thumbnail = find.byKey(
+      Key('assigned-animal-thumbnail-$animalId'),
+    );
+    await tester.scrollUntilVisible(
+      thumbnail,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(thumbnail, findsOneWidget);
+    expect(
+      find.descendant(
+        of: thumbnail,
+        matching: find.byIcon(Icons.emoji_nature_outlined),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shows picture thumbnail when assigned Animal has media', (
+    tester,
+  ) async {
+    final box = await createTestBox();
+    final mediaId = await createTestMedia();
+    final animalId = await createTestAnimal(
+      boxId: box.id,
+      pictureMediaId: mediaId,
+    );
+
+    await pumpDetailPage(tester, box: box);
+
+    final thumbnail = find.byKey(
+      Key('assigned-animal-thumbnail-$animalId'),
+    );
+    await tester.scrollUntilVisible(
+      thumbnail,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(thumbnail, findsOneWidget);
+    expect(
+      find.descendant(of: thumbnail, matching: find.byType(Image)),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('falls back safely when assigned Animal media is invalid', (
+    tester,
+  ) async {
+    final box = await createTestBox();
+    final mediaId = await createTestMedia(corrupt: true);
+    final animalId = await createTestAnimal(
+      boxId: box.id,
+      pictureMediaId: mediaId,
+    );
+
+    await pumpDetailPage(tester, box: box);
+
+    final thumbnail = find.byKey(
+      Key('assigned-animal-thumbnail-$animalId'),
+    );
+    await tester.scrollUntilVisible(
+      thumbnail,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.descendant(
+        of: thumbnail,
+        matching: find.byIcon(Icons.emoji_nature_outlined),
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('creates a preassigned Animal from an empty Box', (tester) async {

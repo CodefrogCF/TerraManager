@@ -4,9 +4,9 @@ This document defines the functionality intended for the TerraManager MVP.
 
 Implementation progress is tracked separately in `roadmap.md`.
 
-The documented MVP scope is implemented in release candidate `1.0.0+39`.
-Final platform, backup and release-artifact validation is tracked by Issue #93
-and `release-v1.0.0.md`.
+The documented MVP scope is implemented in release `1.0.0+39`. Final platform,
+backup and release-artifact validation is recorded in
+`release-v1.0.0.md`.
 
 ## Boxes
 
@@ -28,6 +28,8 @@ The application must allow the user to:
 - display human-readable local Box labels while preserving the permanent QR identifier
 - display Box thumbnails where pictures are available
 - view Animals assigned to a Box
+- display the current Animal picture as a thumbnail for assigned Animals where
+  available, with a fallback icon otherwise
 - open an assigned Animal from the Box detail screen
 - create a new Animal directly from Box details with that Box preselected
 - refresh assigned Animals immediately after direct creation

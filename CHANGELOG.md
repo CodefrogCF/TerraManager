@@ -6,7 +6,27 @@ The project uses semantic versioning.
 
 ## [Unreleased]
 
-No changes yet.
+### Added
+
+- added current Animal picture thumbnails to the assigned-Animal list on Box
+  details, with the existing Animal fallback icon when no usable picture is
+  available
+
+### Changed
+
+- advanced the development version to `1.0.1+43`
+
+### Testing
+
+- added Box-detail widget coverage for assigned Animals with no picture, a
+  stored picture and invalid image data
+
+### Validated
+
+- `flutter analyze` without issues
+- complete automated test suite with 456 passing tests
+- assigned-Animal thumbnails, missing-picture fallback, picture refresh and
+  Animal-detail navigation through manual testing
 
 ## [1.0.0] - 2026-09-09
 

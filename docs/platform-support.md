@@ -131,7 +131,6 @@ Validated functionality includes:
 - QR display
 - QR PNG generation
 - QR image storage in the Android media gallery
-- QR printing
 - camera permission handling
 - QR scanning
 - invalid QR handling
@@ -247,7 +246,6 @@ Validated functionality includes:
 - QR PNG download
 - QR scanning
 - camera permission handling
-- QR printing
 - animal lifecycle and archiving
 - Animal History
 - restoring archived animals
@@ -417,13 +415,6 @@ facilities.
 The final download location therefore depends on browser and operating-system
 settings.
 
-### Printing
-
-QR printing uses browser/system printing facilities.
-
-Available printers and print options depend on the browser and operating
-system.
-
 ### Application preferences
 
 Appearance and language settings are stored locally through
@@ -451,7 +442,6 @@ The following therefore remain unverified:
 - camera permissions
 - QR scanning
 - QR image storage
-- QR printing
 - backup creation
 - backup file selection
 - backup restore

@@ -267,7 +267,6 @@ Examples:
 - camera access
 - gallery storage
 - browser downloads
-- printing
 - image picker
 - picture cropping after Camera and Gallery selection
 - WebP encoding of confirmed crops on Android and Web

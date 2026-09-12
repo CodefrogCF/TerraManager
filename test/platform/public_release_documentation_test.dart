@@ -46,7 +46,9 @@ void main() {
     expect(privacy, contains('Camera'));
     expect(privacy, contains('photo picker'));
     expect(privacy, contains('file picker'));
-    expect(privacy, contains('print service'));
+    expect(privacy, contains('saving a QR-code image'));
+    expect(privacy, isNot(contains('print service')));
+    expect(privacy, isNot(contains('PDF generation and printing')));
     expect(privacy, contains('not encrypted'));
     expect(privacy, contains('analytics'));
     expect(

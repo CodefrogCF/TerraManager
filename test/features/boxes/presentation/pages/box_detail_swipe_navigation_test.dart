@@ -8,7 +8,6 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/qr/qr_export_service.dart';
 import 'package:terramanager/core/qr/qr_file_name.dart';
-import 'package:terramanager/core/qr/qr_print_service.dart';
 import 'package:terramanager/core/qr/qr_storage_service.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_edit_page.dart';
@@ -43,18 +42,6 @@ class RecordingQrStorage implements QrStorage {
   }
 }
 
-class RecordingQrPrinter implements QrPrinter {
-  String? printedQrId;
-
-  @override
-  Future<void> printQrCode({
-    required Uint8List pngBytes,
-    required String qrId,
-  }) async {
-    printedQrId = qrId;
-  }
-}
-
 void main() {
   late AppDatabase database;
   late BoxRepository boxRepository;
@@ -81,7 +68,6 @@ void main() {
     required List<int> boxIds,
     QrExporter qrExporter = const QrExportService(),
     QrStorage qrStorage = const QrStorageService(),
-    QrPrinter qrPrinter = const QrPrintService(),
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -94,7 +80,6 @@ void main() {
           ),
           qrExporter: qrExporter,
           qrStorage: qrStorage,
-          qrPrinter: qrPrinter,
         ),
       ),
     );
@@ -114,6 +99,15 @@ void main() {
     await tester.drag(
       find.byKey(const Key('box-detail-swipe-area')),
       const Offset(300, 0),
+    );
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> scrollToSaveQrButton(WidgetTester tester) async {
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-qr-button')),
+      300,
+      scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
   }
@@ -194,12 +188,11 @@ void main() {
     expect(find.text('75 cm'), findsOneWidget);
   });
 
-  testWidgets('QR actions use the currently displayed box', (tester) async {
+  testWidgets('QR export uses the currently displayed box', (tester) async {
     final firstBox = await createBox('qr-box-one');
     final secondBox = await createBox('qr-box-two');
     final exporter = RecordingQrExporter();
     final storage = RecordingQrStorage();
-    final printer = RecordingQrPrinter();
 
     await pumpDetail(
       tester,
@@ -207,20 +200,17 @@ void main() {
       boxIds: [firstBox.id, secondBox.id],
       qrExporter: exporter,
       qrStorage: storage,
-      qrPrinter: printer,
     );
 
     await swipeLeft(tester);
 
+    await scrollToSaveQrButton(tester);
+
     await tester.tap(find.byKey(const Key('save-qr-button')));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('print-qr-button')));
-    await tester.pumpAndSettle();
-
-    expect(exporter.exportedQrIds, [secondBox.qrId, secondBox.qrId]);
+    expect(exporter.exportedQrIds, [secondBox.qrId]);
     expect(storage.savedFileName, buildBoxQrFileName(secondBox.qrId));
-    expect(printer.printedQrId, secondBox.qrId);
   });
 
   testWidgets('deleting the swiped box safely returns to the overview', (

@@ -10,7 +10,6 @@ import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.d
 import 'package:terramanager/features/boxes/presentation/widgets/box_qr_code.dart';
 import 'package:terramanager/core/qr/qr_file_name.dart';
 import 'package:terramanager/core/qr/qr_export_service.dart';
-import 'package:terramanager/core/qr/qr_print_service.dart';
 import 'package:terramanager/core/qr/qr_storage_service.dart';
 
 class FakeQrExporter implements QrExporter {
@@ -57,30 +56,6 @@ class FailingQrStorage implements QrStorage {
   }
 }
 
-class FakeQrPrinter implements QrPrinter {
-  Uint8List? printedBytes;
-  String? printedQrId;
-
-  @override
-  Future<void> printQrCode({
-    required Uint8List pngBytes,
-    required String qrId,
-  }) async {
-    printedBytes = pngBytes;
-    printedQrId = qrId;
-  }
-}
-
-class FailingQrPrinter implements QrPrinter {
-  @override
-  Future<void> printQrCode({
-    required Uint8List pngBytes,
-    required String qrId,
-  }) {
-    throw StateError('Test print failure');
-  }
-}
-
 void main() {
   late AppDatabase database;
 
@@ -111,6 +86,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> scrollToQrAction(WidgetTester tester) async {
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-qr-button')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('shows box details', (tester) async {
     final box = await createTestBox();
 
@@ -123,6 +107,17 @@ void main() {
 
     expect(find.text('Box 1'), findsOneWidget);
 
+    await tester.scrollUntilVisible(find.text('Box ID'), 200);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Box ID'), findsOneWidget);
+
+    expect(find.text(box.id.toString()), findsOneWidget);
+
+    expect(find.text('Created'), findsOneWidget);
+
+    expect(find.text('Updated'), findsOneWidget);
+
     await tester.scrollUntilVisible(find.byKey(const Key('box-qr-id')), 300);
 
     await tester.pumpAndSettle();
@@ -133,20 +128,14 @@ void main() {
     );
 
     expect(find.byKey(const Key('box-qr-id')), findsOneWidget);
-
-    expect(find.text('Box ID'), findsOneWidget);
-
-    expect(find.text(box.id.toString()), findsOneWidget);
-
-    expect(find.text('Created'), findsOneWidget);
-
-    expect(find.text('Updated'), findsOneWidget);
   });
 
   testWidgets('shows QR code', (tester) async {
     final box = await createTestBox();
 
     await pumpPage(tester, box: box);
+
+    await scrollToQrAction(tester);
 
     expect(find.byKey(const Key('box-qr-code')), findsOneWidget);
 
@@ -160,11 +149,44 @@ void main() {
 
     await pumpPage(tester, box: box);
 
+    await scrollToQrAction(tester);
+
     final boxQrCode = tester.widget<BoxQrCode>(
       find.byKey(const Key('box-qr-code')),
     );
 
     expect(boxQrCode.qrId, box.qrId);
+  });
+
+  testWidgets('places Box content and assigned Animals before the QR section', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final box = await createTestBox();
+
+    await pumpPage(tester, box: box);
+
+    final detailsTop = tester
+        .getTopLeft(find.byKey(const Key('box-width-row')))
+        .dy;
+    final animalsTop = tester
+        .getTopLeft(find.byKey(const Key('assigned-animals-heading')))
+        .dy;
+    final qrTop = tester
+        .getTopLeft(find.byKey(const Key('box-qr-section-heading')))
+        .dy;
+
+    expect(detailsTop, lessThan(animalsTop));
+    expect(animalsTop, lessThan(qrTop));
+    expect(find.byKey(const Key('box-qr-code')), findsOneWidget);
+    expect(find.byKey(const Key('box-qr-id')), findsOneWidget);
+    expect(find.byKey(const Key('save-qr-button')), findsOneWidget);
+    expect(find.byKey(const Key('print-qr-button')), findsNothing);
+    expect(find.text('Print QR Code'), findsNothing);
   });
 
   testWidgets('back navigation returns to previous page', (tester) async {
@@ -212,6 +234,8 @@ void main() {
 
     await pumpPage(tester, box: box);
 
+    await scrollToQrAction(tester);
+
     expect(find.byKey(const Key('save-qr-button')), findsOneWidget);
   });
 
@@ -231,6 +255,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    await scrollToQrAction(tester);
+
     await tester.tap(find.byKey(const Key('save-qr-button')));
 
     await tester.pumpAndSettle();
@@ -238,14 +264,6 @@ void main() {
     expect(find.text('Failed to save QR code'), findsOneWidget);
 
     expect(find.byKey(const Key('qr-save-error')), findsOneWidget);
-  });
-
-  testWidgets('shows QR save button', (tester) async {
-    final box = await createTestBox();
-
-    await pumpPage(tester, box: box);
-
-    expect(find.byKey(const Key('save-qr-button')), findsOneWidget);
   });
 
   testWidgets('saves QR code as PNG', (tester) async {
@@ -266,6 +284,8 @@ void main() {
     );
 
     await tester.pumpAndSettle();
+
+    await scrollToQrAction(tester);
 
     await tester.tap(find.byKey(const Key('save-qr-button')));
 
@@ -300,6 +320,8 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    await scrollToQrAction(tester);
+
     await tester.tap(find.byKey(const Key('save-qr-button')));
 
     await tester.pumpAndSettle();
@@ -307,79 +329,5 @@ void main() {
     expect(find.text('Failed to save QR code'), findsOneWidget);
 
     expect(find.byKey(const Key('qr-save-error')), findsOneWidget);
-  });
-
-  testWidgets('shows QR print button', (tester) async {
-    final box = await createTestBox();
-
-    await pumpPage(tester, box: box);
-
-    expect(find.byKey(const Key('print-qr-button')), findsOneWidget);
-  });
-
-  testWidgets('prints QR code', (tester) async {
-    final box = await createTestBox();
-
-    final exporter = FakeQrExporter();
-    final storage = FakeQrStorage();
-    final printer = FakeQrPrinter();
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BoxDetailPage(
-          database: database,
-          box: box,
-          qrExporter: exporter,
-          qrStorage: storage,
-          qrPrinter: printer,
-        ),
-      ),
-    );
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('print-qr-button')));
-
-    await tester.pumpAndSettle();
-
-    expect(exporter.exportedQrId, box.qrId);
-
-    expect(printer.printedBytes, isNotNull);
-
-    expect(printer.printedBytes, isNotEmpty);
-
-    expect(printer.printedQrId, box.qrId);
-
-    expect(find.text('QR code sent to printer'), findsOneWidget);
-
-    expect(find.text('Failed to print QR code'), findsNothing);
-  });
-
-  testWidgets('shows error when printing QR code fails', (tester) async {
-    final box = await createTestBox();
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BoxDetailPage(
-          database: database,
-          box: box,
-          qrExporter: FakeQrExporter(),
-          qrStorage: FakeQrStorage(),
-          qrPrinter: FailingQrPrinter(),
-        ),
-      ),
-    );
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('print-qr-button')));
-
-    await tester.pumpAndSettle();
-
-    expect(find.byKey(const Key('qr-print-error')), findsOneWidget);
-
-    expect(find.text('Failed to print QR code'), findsOneWidget);
-
-    expect(find.text('QR code sent to printer'), findsNothing);
   });
 }

@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.1+43**
+**v1.0.2+44**
 
 Completed development areas:
 
@@ -18,7 +18,7 @@ Completed development areas:
 - box and animal workflows
 - feeding history
 - notes and animal pictures
-- QR generation, export, storage, printing and scanning
+- QR generation, export, storage and scanning
 - Android validation
 - Web validation
 - safe box management
@@ -85,6 +85,8 @@ Completed development areas:
 - documented Flutter, Dart, Java, Gradle and locked-dependency baseline
 - current Animal picture thumbnails in Box-detail assignment lists with a safe
   fallback
+- Box details and assigned Animals presented before a consolidated QR section
+  with the permanent identifier and PNG export action
 
 v0.7.1 implementation and release validation are complete.
 
@@ -157,6 +159,10 @@ v1.1.0 is now the active milestone for detail and workflow polish. Development
 build `1.0.1+43` starts Issue #94 by displaying current Animal pictures in the
 Box-detail assignment list while preserving the existing fallback and
 navigation behaviour.
+
+Development build `1.0.2+44` implements Issue #95 by moving the permanent QR
+identifier and PNG export into a final Box-detail section and removing the
+former single-code printing workflow without changing QR identity or scanning.
 
 ---
 
@@ -250,7 +256,6 @@ navigation behaviour.
 - [ ] Validate QR storage
 - [ ] Validate camera permissions
 - [ ] Validate QR scanning
-- [ ] Validate printing
 
 iOS validation is currently deferred because no macOS development environment or physical iOS test device is available.
 
@@ -779,9 +784,20 @@ roughly one sixth of its previous size.
 - [x] Add focused Box-detail widget coverage
 - [x] Complete automated and manual validation with 456 passing tests
 
+### Box QR Information — Issue #95
+
+- [x] Move the QR code and permanent textual identifier to the bottom of Box
+  details
+- [x] Place Box information and assigned Animals before the QR section
+- [x] Keep QR PNG export available within the consolidated QR section
+- [x] Remove the Box-detail Print action
+- [x] Preserve permanent QR identifiers and scanner compatibility
+- [x] Remove the obsolete print service, dependencies, labels and tests
+- [x] Add revised layout and contextual QR-export widget coverage
+- [ ] Complete automated and manual validation
+
 ### Remaining Milestone Scope
 
-- [ ] Reorganize Box QR information and remove printing — Issue #95
 - [ ] Add optional Box notes — Issue #96
 - [ ] Move Box deletion into Edit Box — Issue #97
 - [ ] Expose Animal Feeding History and reminder actions — Issue #98

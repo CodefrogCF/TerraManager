@@ -127,18 +127,17 @@ Probiere ruhig auch einmal aus, Daten nachträglich zu ändern und erneut zu spe
 
 Eine der zentralen Funktionen von TerraManager ist die Zuordnung von Boxen über QR-Codes.
 
-Erzeuge für eine deiner Testboxen einen QR-Code.
+Öffne eine Testbox und speichere ihren QR-Code als Bild.
 
-Du musst ihn für den Test nicht dauerhaft an einer Box befestigen. Du kannst ihn zum Beispiel:
+Du musst ihn für den Test nicht dauerhaft an einer Box befestigen. Zeige das
+gespeicherte Bild zum Beispiel auf einem zweiten Bildschirm oder Gerät an.
 
-- ausdrucken oder
-- auf einem zweiten Bildschirm bzw. Gerät anzeigen.
+Für gedruckte Etiketten können mehrere exportierte QR-Bilder außerhalb von
+TerraManager in der gewünschten Größe auf einer Seite angeordnet werden.
 
 Öffne anschließend den **QR-Scanner** in TerraManager und scanne den Code.
 
 Nach erfolgreichem Scan sollte TerraManager die zugehörige Box erkennen und öffnen.
-
-Falls du einen Ausdruck testen möchtest: Im normalen Einsatz können auch sehr kleine QR-Codes von etwa **10 × 10 mm** verwendet werden.
 
 ## 9. Eine Fütterung eintragen
 

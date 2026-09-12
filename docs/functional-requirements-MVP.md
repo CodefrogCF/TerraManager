@@ -234,7 +234,6 @@ The application must allow the user to:
 - display the QR code
 - export the QR code as PNG
 - save/download the QR image
-- print the QR code
 - scan a QR code
 - allow the camera light to be switched on and off while scanning when the
   active camera supports it
@@ -246,6 +245,9 @@ The application must allow the user to:
 - report valid but unknown TerraManager QR identifiers
 
 The QR code must contain only the stable Box identifier.
+
+On Box details, the QR code, permanent textual identifier and PNG export
+action must appear together after the Box information and assigned Animals.
 
 Generated QR images are derived data and do not need to be persisted in the
 domain database or portable backups.

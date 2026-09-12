@@ -14,12 +14,27 @@ The project uses semantic versioning.
 
 ### Changed
 
-- advanced the development version to `1.0.1+43`
+- moved the Box QR code, permanent identifier and remaining export action into
+  one section at the bottom of Box details so Box information and assigned
+  Animals appear first
+- moved QR export from the Box-detail app bar into the QR section
+- advanced the development version to `1.0.2+44`
+
+### Removed
+
+- removed QR printing from Box details
+- removed the obsolete QR print service and its `printing` and `pdf`
+  dependencies
+- removed print-only localization and automated tests
 
 ### Testing
 
 - added Box-detail widget coverage for assigned Animals with no picture, a
   stored picture and invalid image data
+- added Box-detail layout coverage for the revised information order, QR
+  export and absence of the removed Print action
+- updated contextual-navigation coverage so QR export still targets the
+  currently displayed Box after swiping
 
 ### Validated
 

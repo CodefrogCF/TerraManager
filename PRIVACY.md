@@ -1,6 +1,6 @@
 # TerraManager Privacy Policy
 
-**Effective date:** September 10, 2026
+**Effective date:** September 12, 2026
 **Application:** TerraManager
 **Developer:** CodefrogCF
 **Privacy and support contact:** See the TerraManager project repository for the current contact and support channels.
@@ -94,11 +94,10 @@ Examples include:
 * exporting a TerraManager backup;
 * saving an exported file;
 * saving a QR-code image;
-* generating or printing a QR document;
 * selecting a file through an operating-system file picker;
 * choosing another application or operating-system service as an export or sharing destination.
 
-Once data is deliberately transferred to another application, storage provider, printer service, operating-system component or other third-party destination, that service may process the data according to its own privacy terms.
+Once data is deliberately transferred to another application, storage provider, operating-system component or other third-party destination, that service may process the data according to its own privacy terms.
 
 TerraManager does not control third-party applications or services selected by the user.
 
@@ -284,7 +283,6 @@ TerraManager uses third-party libraries and platform components to provide funct
 * QR generation and scanning;
 * image processing;
 * file selection and saving;
-* PDF generation and printing;
 * backup creation and extraction.
 
 The inclusion of a software library does not mean that TerraManager provides that library with users' collection data over a network.
@@ -301,7 +299,6 @@ Examples may include:
 
 * the Android photo picker;
 * the Android file picker;
-* a system print service;
 * a file manager;
 * a gallery application;
 * a cloud-storage application explicitly selected by the user;

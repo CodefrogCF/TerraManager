@@ -7,7 +7,6 @@ import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
-import '../../../../core/qr/qr_print_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/animal_display_names.dart';
@@ -24,7 +23,6 @@ class BoxDetailPage extends StatefulWidget {
   final DetailNavigationContext? navigationContext;
   final QrExporter qrExporter;
   final QrStorage qrStorage;
-  final QrPrinter qrPrinter;
 
   BoxDetailPage({
     super.key,
@@ -33,7 +31,6 @@ class BoxDetailPage extends StatefulWidget {
     this.navigationContext,
     this.qrExporter = const QrExportService(),
     this.qrStorage = const QrStorageService(),
-    this.qrPrinter = const QrPrintService(),
   }) : assert(
          navigationContext == null ||
              navigationContext.source == DetailNavigationSource.boxes,
@@ -63,12 +60,10 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   double _horizontalDragDistance = 0;
   bool _switchingBox = false;
   bool _savingQr = false;
-  bool _printingQr = false;
   bool _deleting = false;
   bool _openingNewAnimal = false;
 
   String? _saveError;
-  String? _printError;
   String? _deleteError;
   String? _refreshError;
 
@@ -271,44 +266,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     }
   }
 
-  Future<void> _printQrCode() async {
-    if (_switchingBox || _printingQr) {
-      return;
-    }
-
-    setState(() {
-      _printingQr = true;
-      _printError = null;
-    });
-
-    try {
-      final pngBytes = await widget.qrExporter.exportPng(qrId: _box.qrId);
-
-      await widget.qrPrinter.printQrCode(pngBytes: pngBytes, qrId: _box.qrId);
-
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _printingQr = false;
-      });
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(context.l10n.qrCodeSentToPrinter)));
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _printingQr = false;
-        _printError = context.l10n.failedToPrintQrCode;
-      });
-    }
-  }
-
   Future<void> _deleteBox() async {
     if (_switchingBox || _deleting) {
       return;
@@ -428,7 +385,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
     _horizontalDragDistance = 0;
 
-    if (_switchingBox || _savingQr || _printingQr || _deleting) {
+    if (_switchingBox || _savingQr || _deleting) {
       return;
     }
 
@@ -489,7 +446,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         _navigationContext = navigationContext.selectRecord(targetBoxId);
         _switchingBox = false;
         _saveError = null;
-        _printError = null;
         _deleteError = null;
         _refreshError = null;
 
@@ -524,30 +480,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             onPressed: _switchingBox || _deleting ? null : _openEditPage,
             icon: const Icon(Icons.edit_outlined),
             tooltip: context.l10n.editBoxTooltip,
-          ),
-          IconButton(
-            key: const Key('save-qr-button'),
-            onPressed: _switchingBox || _savingQr ? null : _saveQrCode,
-            icon: _savingQr
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.download_outlined),
-            tooltip: context.l10n.saveQrCode,
-          ),
-          IconButton(
-            key: const Key('print-qr-button'),
-            onPressed: _switchingBox || _printingQr ? null : _printQrCode,
-            icon: _printingQr
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.print_outlined),
-            tooltip: context.l10n.printQrCode,
           ),
           IconButton(
             key: const Key('delete-box-button'),
@@ -593,24 +525,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               Text(
                 _refreshError!,
                 key: const Key('box-refresh-error'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            if (_saveError != null) ...[
-              Text(
-                _saveError!,
-                key: const Key('qr-save-error'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            if (_printError != null) ...[
-              Text(
-                _printError!,
-                key: const Key('qr-print-error'),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               const SizedBox(height: 16),
@@ -672,20 +586,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             ),
 
             const SizedBox(height: 12),
-
-            Center(
-              child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
-            ),
-            const SizedBox(height: 24),
-
-            Text(
-              context.l10n.qrIdentifier,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-
-            SelectableText(box.qrId, key: const Key('box-qr-id')),
-            const SizedBox(height: 24),
 
             _DetailRow(label: context.l10n.boxId, value: box.id.toString()),
 
@@ -801,6 +701,56 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 );
               },
             ),
+
+            const SizedBox(height: 24),
+
+            const Divider(),
+            const SizedBox(height: 16),
+
+            Text(
+              context.l10n.qrIdentifier,
+              key: const Key('box-qr-section-heading'),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+
+            Center(
+              child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
+            ),
+            const SizedBox(height: 16),
+
+            SelectableText(
+              box.qrId,
+              key: const Key('box-qr-id'),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+
+            Align(
+              alignment: Alignment.center,
+              child: FilledButton.tonalIcon(
+                key: const Key('save-qr-button'),
+                onPressed: _switchingBox || _savingQr ? null : _saveQrCode,
+                icon: _savingQr
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.download_outlined),
+                label: Text(context.l10n.saveQrCode),
+              ),
+            ),
+
+            if (_saveError != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                _saveError!,
+                key: const Key('qr-save-error'),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ],
 
             const SizedBox(height: 24),
           ],

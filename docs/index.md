@@ -23,7 +23,7 @@ Current completed release milestone:
 
 Current application version and build:
 
-**v1.0.0+39**
+**v1.0.2+44**
 
 Implemented milestones in the current source state:
 
@@ -43,6 +43,7 @@ Implemented milestones in the current source state:
 - v0.13.0 – Feeding Reminders
 - v0.14.0 – Pre-1.0 UX Polish
 - v0.14.1 – Post-release Fixes
+- v1.0.0 – MVP Release
 
 Android and Web are currently validated platforms.
 
@@ -53,7 +54,8 @@ ascending or descending Box number while preserving legacy settings and backup
 compatibility. The validation record and release notes are available in
 `docs/release-v0.14.1.md`.
 
-TerraManager now enters preparation for the v1.0.0 MVP release.
+TerraManager v1.0.0 is released as the stable MVP baseline. Development now
+continues with the v1.1.0 Detail & Workflow Polish milestone.
 
 Development build `0.14.2+34` establishes `com.codefrog.terramanager` as the
 permanent application identity, replaces the remaining Flutter placeholder
@@ -90,10 +92,17 @@ analysis, tests, Android Debug and Web Release builds. The supported Flutter,
 Dart, Java, Gradle and dependency baseline, including the current upstream
 Kotlin-plugin warning, is documented in `docs/toolchain-baseline.md`.
 
-Release candidate `1.0.0+39` is the stable MVP candidate. It introduces no new
-database or backup format and is now undergoing the final Android, Web, backup,
-localization, signing and artifact regression defined in
-`docs/release-v1.0.0.md`.
+Release `1.0.0+39` completed the final Android, Web, backup, localization,
+signing and artifact regression defined in `docs/release-v1.0.0.md`.
+
+Development build `1.0.1+43` begins the v1.1.0 milestone. Issue #94 displays
+the current Animal picture as a thumbnail in the assigned-Animal list on Box
+details and retains the existing fallback icon when no usable picture exists.
+
+Development build `1.0.2+44` moves the Box QR code, permanent identifier and
+PNG export action into one section at the bottom of Box details. Issue #95
+removes the former print action and its dedicated dependencies while keeping
+existing QR identifiers and scanner compatibility unchanged.
 
 ### Android transition to the permanent application ID
 
@@ -147,11 +156,14 @@ application restarts.
 - QR code display
 - QR code export as PNG
 - local QR image storage
-- QR code printing
 - QR code scanning
 - optional camera-light controls in the Box and Feeding Mode scanners
 - unknown and invalid QR handling
 - assigned animal list on box detail
+- current Animal picture thumbnails in Box-detail assignment lists
+- Box information and assigned Animals before the consolidated bottom QR
+  section
+- permanent QR identifier and PNG export action grouped with the QR code
 - navigation from box to assigned animal
 - Add Animal action below empty and populated Box assignment sections
 - direct New Animal navigation with the originating Box preselected
@@ -649,8 +661,7 @@ Box.qrId
     │       ▼
     │    PNG bytes
     │       │
-    │       ├── QrStorage
-    │       └── QrPrinter
+    │       └── QrStorage
     │
     └── QR Scanner
             │
@@ -696,8 +707,6 @@ It is generated from the permanent qrId when needed.
 - image
 - file_saver
 - saver_gallery
-- printing
-- pdf
 
 ### Development
 
@@ -766,7 +775,6 @@ lib/
 │       ├── qr_export_service.dart
 │       ├── qr_file_name.dart
 │       ├── qr_id_generator.dart
-│       ├── qr_print_service.dart
 │       ├── qr_storage_service.dart
 │       └── qr_validator.dart
 │
@@ -830,9 +838,9 @@ pre-v1.0 transition guidance is in
 
 TerraManager stores application data locally and has no TerraManager-operated
 account, backend, cloud sync, advertising, analytics, telemetry or crash-
-reporting service. Camera, gallery, file and printing access is requested only
-for the corresponding user-initiated feature. Feeding reminders remain inside
-the application and do not request system notification permission.
+reporting service. Camera, gallery and file access is requested only for the
+corresponding user-initiated feature. Feeding reminders remain inside the
+application and do not request system notification permission.
 
 Portable `.tmbackup` archives include records, settings and pictures and are
 not encrypted. Store them as sensitive files. The complete data and permission
@@ -912,9 +920,9 @@ Run the complete automated test suite:
 flutter test
 ```
 
-Platform-specific functionality such as camera access, gallery storage and
-printing must additionally be validated on the target platform. Language
-selection should be checked using supported and unsupported system locales.
+Platform-specific functionality such as camera access and gallery storage must
+additionally be validated on the target platform. Language selection should be
+checked using supported and unsupported system locales.
 
 ## Code Generation
 

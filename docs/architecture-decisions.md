@@ -207,15 +207,17 @@ Disadvantages:
 
 ---
 
-## ADR-005: Platform-specific QR operations behind services
+## ADR-005: Platform-specific QR export behind services
 
 **Status**: Accepted
 
 **Date**: 2026-08-27
 
+**Updated**: 2026-09-12 for Issue #95
+
 ### Context
 
-QR codes must be generated, saved and printed on multiple target platforms.
+QR codes must be generated and saved on multiple target platforms.
 
 Direct platform-specific implementation in presentation widgets would make the UI difficult to test and maintain.
 
@@ -233,13 +235,12 @@ QrExporter
 QrStorage
     │
     └── persist or download PNG
-
-QrPrinter
-    │
-    └── create printable document and invoke printing
 ```
 
-The UI communicates with these abstractions rather than directly implementing file or print operations.
+The UI communicates with these abstractions rather than directly implementing
+file operations. The earlier print abstraction was removed because a
+single-code print layout could not offer the practical sizing and multi-code
+layout control available after exporting QR images.
 
 ### Consequences
 
@@ -248,7 +249,7 @@ Advantages:
 - presentation layer remains platform-neutral
 - services can be replaced by fakes in tests
 - Android and Web storage behavior can differ without changing UI code
-- printing and export logic are reusable
+- export logic remains reusable
 
 Disadvantages:
 

@@ -229,6 +229,15 @@ void main() {
     await swipeLeft(tester);
     expect(find.text('Box ${secondBox.id}'), findsOneWidget);
 
+    expect(find.byKey(const Key('delete-box-button')), findsNothing);
+    await tester.tap(find.byKey(const Key('edit-box-button')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('delete-box-button')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('delete-box-button')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('confirm-delete-box-button')));

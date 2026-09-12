@@ -60,11 +60,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   double _horizontalDragDistance = 0;
   bool _switchingBox = false;
   bool _savingQr = false;
-  bool _deleting = false;
   bool _openingNewAnimal = false;
 
   String? _saveError;
-  String? _deleteError;
   String? _refreshError;
 
   @override
@@ -147,13 +145,19 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       return;
     }
 
-    final changed = await Navigator.of(context).push<bool>(
+    final result = await Navigator.of(context).push<BoxEditResult>(
       MaterialPageRoute(
         builder: (_) => BoxEditPage(database: widget.database, boxId: _box.id),
       ),
     );
 
-    if (!mounted || changed != true) {
+    if (!mounted || result == null) {
+      return;
+    }
+
+    if (result == BoxEditResult.deleted) {
+      Navigator.of(context).pop(true);
+
       return;
     }
 
@@ -185,7 +189,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _openNewAnimalPage() async {
-    if (_switchingBox || _deleting || _openingNewAnimal) {
+    if (_switchingBox || _openingNewAnimal) {
       return;
     }
 
@@ -218,7 +222,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       alignment: Alignment.centerLeft,
       child: FilledButton.tonalIcon(
         key: const Key('add-animal-to-box-button'),
-        onPressed: _switchingBox || _deleting || _openingNewAnimal
+        onPressed: _switchingBox || _openingNewAnimal
             ? null
             : _openNewAnimalPage,
         icon: const Icon(Icons.add),
@@ -266,112 +270,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
     }
   }
 
-  Future<void> _deleteBox() async {
-    if (_switchingBox || _deleting) {
-      return;
-    }
-
-    setState(() {
-      _deleteError = null;
-    });
-
-    try {
-      final animals = await AnimalRepository(widget.database)
-          .getAnimalsForBox(_box.id);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (animals.isNotEmpty) {
-        await _showCannotDeleteDialog(animals.length);
-
-        return;
-      }
-
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(context.l10n.deleteBoxQuestion),
-            content: Text(context.l10n.deleteBoxWarning),
-            actions: [
-              TextButton(
-                key: const Key('cancel-delete-box-button'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: Text(context.l10n.cancel),
-              ),
-              FilledButton(
-                key: const Key('confirm-delete-box-button'),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: Text(context.l10n.delete),
-              ),
-            ],
-          );
-        },
-      );
-
-      if (confirmed != true || !mounted) {
-        return;
-      }
-
-      setState(() {
-        _deleting = true;
-      });
-
-      final deleted = await BoxRepository(widget.database).deleteBox(_box.id);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (!deleted) {
-        setState(() {
-          _deleting = false;
-          _deleteError = context.l10n.failedToDeleteBox;
-        });
-
-        return;
-      }
-
-      Navigator.of(context).pop(true);
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _deleting = false;
-        _deleteError = context.l10n.failedToDeleteBox;
-      });
-    }
-  }
-
-  Future<void> _showCannotDeleteDialog(int animalCount) {
-    return showDialog<void>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(context.l10n.cannotDeleteBox),
-          content: Text(context.l10n.assignedAnimalsPreventDelete(animalCount)),
-          actions: [
-            TextButton(
-              key: const Key('close-cannot-delete-button'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(context.l10n.ok),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _handleHorizontalDragStart(DragStartDetails _) {
     _horizontalDragDistance = 0;
   }
@@ -385,7 +283,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
     _horizontalDragDistance = 0;
 
-    if (_switchingBox || _savingQr || _deleting) {
+    if (_switchingBox || _savingQr) {
       return;
     }
 
@@ -446,7 +344,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         _navigationContext = navigationContext.selectRecord(targetBoxId);
         _switchingBox = false;
         _saveError = null;
-        _deleteError = null;
         _refreshError = null;
 
         _loadPicture();
@@ -477,21 +374,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         actions: [
           IconButton(
             key: const Key('edit-box-button'),
-            onPressed: _switchingBox || _deleting ? null : _openEditPage,
+            onPressed: _switchingBox ? null : _openEditPage,
             icon: const Icon(Icons.edit_outlined),
             tooltip: context.l10n.editBoxTooltip,
-          ),
-          IconButton(
-            key: const Key('delete-box-button'),
-            onPressed: _switchingBox || _deleting ? null : _deleteBox,
-            icon: _deleting
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.delete_outline),
-            tooltip: context.l10n.deleteBox,
           ),
         ],
       ),
@@ -525,15 +410,6 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               Text(
                 _refreshError!,
                 key: const Key('box-refresh-error'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            if (_deleteError != null) ...[
-              Text(
-                _deleteError!,
-                key: const Key('box-delete-error'),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
               const SizedBox(height: 16),

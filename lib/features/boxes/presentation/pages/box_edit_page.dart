@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/box_picture.dart';
+
+enum BoxEditResult { saved, deleted }
 
 class BoxEditPage extends StatefulWidget {
   final AppDatabase database;
@@ -51,6 +54,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
   bool _loading = true;
   bool _saving = false;
+  bool _deleteFlowActive = false;
+  bool _deleting = false;
   bool _processingPicture = false;
   bool _hasUnsavedChanges = false;
 
@@ -146,7 +151,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _selectPicture(ImageSource source) async {
-    if (_processingPicture || _saving) {
+    if (_processingPicture || _saving || _deleteFlowActive) {
       return;
     }
 
@@ -193,7 +198,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   void _removePicture() {
-    if (_processingPicture || _saving) {
+    if (_processingPicture || _saving || _deleteFlowActive) {
       return;
     }
 
@@ -210,7 +215,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _save() async {
-    if (_saving || _processingPicture) {
+    if (_saving || _deleteFlowActive || _processingPicture) {
       return;
     }
 
@@ -275,7 +280,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
       _hasUnsavedChanges = false;
 
-      Navigator.of(context).pop(true);
+      Navigator.of(context).pop(BoxEditResult.saved);
     } catch (_) {
       if (!mounted) {
         return;
@@ -286,6 +291,133 @@ class _BoxEditPageState extends State<BoxEditPage> {
         _error = context.l10n.failedToSaveBox;
       });
     }
+  }
+
+  Future<void> _deleteBox() async {
+    if (_saving || _deleteFlowActive || _processingPicture || _box == null) {
+      return;
+    }
+
+    setState(() {
+      _deleteFlowActive = true;
+      _error = null;
+    });
+
+    try {
+      final animals = await AnimalRepository(widget.database)
+          .getAnimalsForBox(_box!.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (animals.isNotEmpty) {
+        await _showCannotDeleteDialog(animals.length);
+
+        if (mounted) {
+          setState(() {
+            _deleteFlowActive = false;
+          });
+        }
+
+        return;
+      }
+
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(context.l10n.deleteBoxQuestion),
+            content: Text(context.l10n.deleteBoxWarning),
+            actions: [
+              TextButton(
+                key: const Key('cancel-delete-box-button'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text(context.l10n.cancel),
+              ),
+              FilledButton(
+                key: const Key('confirm-delete-box-button'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text(context.l10n.delete),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmed != true || !mounted) {
+        if (mounted) {
+          setState(() {
+            _deleteFlowActive = false;
+          });
+        }
+
+        return;
+      }
+
+      setState(() {
+        _deleting = true;
+      });
+
+      final deleted = await BoxRepository(widget.database).deleteBox(_box!.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (!deleted) {
+        setState(() {
+          _deleteFlowActive = false;
+          _deleting = false;
+          _error = context.l10n.failedToDeleteBox;
+        });
+
+        return;
+      }
+
+      _hasUnsavedChanges = false;
+
+      Navigator.of(context).pop(BoxEditResult.deleted);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _deleteFlowActive = false;
+        _deleting = false;
+        _error = context.l10n.failedToDeleteBox;
+      });
+    }
+  }
+
+  Future<void> _showCannotDeleteDialog(int animalCount) {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(context.l10n.cannotDeleteBox),
+          content: Text(context.l10n.assignedAnimalsPreventDelete(animalCount)),
+          actions: [
+            TextButton(
+              key: const Key('close-cannot-delete-button'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(context.l10n.ok),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<bool> _showDiscardDialog() async {
@@ -319,12 +451,12 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _handleBack() async {
-    if (_saving) {
+    if (_saving || _deleteFlowActive) {
       return;
     }
 
     if (!_hasUnsavedChanges) {
-      Navigator.of(context).pop(false);
+      Navigator.of(context).pop();
       return;
     }
 
@@ -338,13 +470,13 @@ class _BoxEditPageState extends State<BoxEditPage> {
       _hasUnsavedChanges = false;
     });
 
-    Navigator.of(context).pop(false);
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: !_hasUnsavedChanges && !_saving,
+      canPop: !_hasUnsavedChanges && !_saving && !_deleteFlowActive,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           return;
@@ -366,7 +498,9 @@ class _BoxEditPageState extends State<BoxEditPage> {
           actions: [
             IconButton(
               key: const Key('save-box-button'),
-              onPressed: _saving || _processingPicture ? null : _save,
+              onPressed: _saving || _deleteFlowActive || _processingPicture
+                  ? null
+                  : _save,
               icon: _saving
                   ? const SizedBox(
                       width: 20,
@@ -417,7 +551,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
             const SizedBox(height: 8),
 
             PictureSelectionControls(
-              enabled: !_saving,
+              enabled: !_saving && !_deleteFlowActive,
               processing: _processingPicture,
               hasPicture: _hasPicture,
               cameraSupported: _pictureSelectionFlow.supportsImageSource(
@@ -487,9 +621,37 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
             FilledButton.icon(
               key: const Key('save-box-form-button'),
-              onPressed: _saving || _processingPicture ? null : _save,
+              onPressed: _saving || _deleteFlowActive || _processingPicture
+                  ? null
+                  : _save,
               icon: const Icon(Icons.save),
               label: Text(_saving ? context.l10n.saving : context.l10n.save),
+            ),
+            const SizedBox(height: 32),
+
+            const Divider(),
+            const SizedBox(height: 16),
+
+            OutlinedButton.icon(
+              key: const Key('delete-box-button'),
+              onPressed: _saving || _deleteFlowActive || _processingPicture
+                  ? null
+                  : _deleteBox,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+                side: BorderSide(color: Theme.of(context).colorScheme.error),
+              ),
+              icon: _deleting
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    )
+                  : const Icon(Icons.delete_outline),
+              label: Text(context.l10n.deleteBox),
             ),
           ],
         ),

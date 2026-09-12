@@ -35,9 +35,12 @@ The application must allow the user to:
 - open an assigned Animal from the Box detail screen
 - create a new Animal directly from Box details with that Box preselected
 - refresh assigned Animals immediately after direct creation
-- delete an empty Box
+- delete an empty Box through a destructive action at the bottom of Edit Box
+- keep Box deletion unavailable from the Box-detail app bar
 - require confirmation before deleting a Box
 - prevent accidental deletion of a Box containing Animals
+- prevent conflicting save, picture and navigation actions while deletion is
+  in progress
 - identify a Box by QR code
 - preserve Box Overview scroll position after returning from related detail workflows
 - swipe between Box details using the ordering of the Box Overview

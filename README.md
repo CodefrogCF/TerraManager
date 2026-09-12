@@ -23,7 +23,7 @@ Current completed release milestone:
 
 Current application version and build:
 
-**v1.0.4+45**
+**v1.0.5+46**
 
 Implemented milestones in the current source state:
 
@@ -109,6 +109,12 @@ persists them through Database Schema Version 6, displays non-empty notes on
 Box details and preserves them in current backups while older backups restore
 with empty Box notes.
 
+Development build `1.0.5+46` moves the Box deletion action out of Box details
+and into a destructive section at the bottom of Edit Box. Issue #97 preserves
+confirmation and assigned-Animal protection while returning safely to the Box
+Overview after deletion, including from a contextually swiped Box. Automated
+and manual validation are complete.
+
 ### Android transition to the permanent application ID
 
 Releases through v0.14.1 used the temporary Android identifier
@@ -188,7 +194,7 @@ application restarts.
 - persistent Box Overview ordering across application restarts
 - preserved Box overview scroll position after detail navigation
 - contextual swipe navigation through the Box Overview ordering
-- safe deletion of empty boxes
+- safe deletion of empty boxes from the bottom of Edit Box
 - deletion protection for boxes containing active animals
 
 ### Animals

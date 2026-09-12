@@ -59,8 +59,10 @@ void main() {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) =>
-                            BoxEditPage(database: database, boxId: boxId),
+                        builder: (_) => BoxEditPage(
+                          database: database,
+                          boxId: boxId,
+                        ),
                       ),
                     );
                   },
@@ -87,6 +89,35 @@ void main() {
     expect(find.byKey(const Key('select-box-picture-button')), findsOneWidget);
     expect(find.text('Add Picture'), findsOneWidget);
     expect(find.byKey(const Key('remove-box-picture-button')), findsNothing);
+  });
+
+  testWidgets('places the destructive Delete Box action at the form bottom', (
+    tester,
+  ) async {
+    final boxId = await BoxRepository(database).createBox('delete-action-box');
+
+    await pumpPage(tester, boxId: boxId);
+
+    final deleteButton = find.byKey(const Key('delete-box-button'));
+
+    await tester.scrollUntilVisible(
+      deleteButton,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+
+    expect(deleteButton, findsOneWidget);
+    expect(find.text('Delete Box'), findsOneWidget);
+    expect(tester.widget<OutlinedButton>(deleteButton).onPressed, isNotNull);
+    expect(
+      tester.getTopLeft(deleteButton).dy,
+      greaterThan(
+        tester
+            .getTopLeft(find.byKey(const Key('save-box-form-button')))
+            .dy,
+      ),
+    );
   });
 
   testWidgets('loads, edits, and clears optional Box notes', (tester) async {

@@ -688,6 +688,11 @@ only if the Animal still belongs to the original source collection. A missing
 adjacent Box is removed from the in-memory navigation context without replacing
 the currently displayed Box.
 
+Edit Box returns an explicit `BoxEditResult`. A saved result refreshes the
+currently displayed Box, while a deleted result closes the now-stale Box detail
+route and returns to the originating overview. This remains valid when the
+detail route has moved to another Box through contextual swipe navigation.
+
 Navigation context is optional. Detail pages opened without one keep their
 normal non-swipe behavior.
 
@@ -699,6 +704,7 @@ Advantages:
 - active, archived and Box-specific Animal collections remain separate
 - detail actions always target the currently displayed record
 - editing can refresh a record without losing its current identity
+- Box deletion cannot leave a detail route displaying a removed record
 - Back returns through one detail route to the original overview
 - the navigation model is shared by Animal and Box features
 - existing non-swipe callers remain compatible

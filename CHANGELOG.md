@@ -24,7 +24,13 @@ The project uses semantic versioning.
   Version 5 to Version 6 migration
 - extended Backup Format Version 2 with backward-compatible optional Box notes;
   backups without the field restore with empty notes
-- advanced the development version to `1.0.4+45`
+- moved Box deletion from the Box-detail app bar to a dedicated destructive
+  action at the bottom of Edit Box
+- distinguished saved and deleted Edit Box results so successful deletion
+  closes the stale detail route and refreshes the originating overview
+- disabled saving, picture changes and navigation while Box deletion is in
+  progress to prevent conflicting actions
+- advanced the development version to `1.0.5+46`
 
 ### Removed
 
@@ -45,6 +51,10 @@ The project uses semantic versioning.
   conditionally displaying Box notes
 - added schema migration, persistence, backup export, validation and restore
   coverage for Box notes
+- moved Box deletion confirmation, cancellation and assigned-Animal protection
+  coverage through the Edit Box workflow
+- added coverage for the bottom destructive action and deletion after
+  contextual Box-detail swiping
 
 ### Validated
 
@@ -52,6 +62,12 @@ The project uses semantic versioning.
 - complete automated test suite with 453 passing tests after Issue #95
 - revised Box-detail order, QR export and removed printing workflow through
   manual testing
+- complete automated test suite with 466 passing tests after Issue #96
+- optional Box note creation, editing, clearing, display, backup and restore
+  workflows through manual testing
+- complete automated test suite after Issue #97
+- Edit Box deletion confirmation, cancellation, assigned-Animal protection and
+  overview return through manual testing
 
 ## [1.0.0] - 2026-09-09
 

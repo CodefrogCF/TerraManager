@@ -106,6 +106,8 @@ Validated functionality includes:
   preselected
 - Box editing and optional dimensions
 - optional multiline Box notes in create, edit and detail workflows
+- safe empty-Box deletion from the bottom of Edit Box with confirmation,
+  assigned-Animal protection and return to the Box Overview
 - persistent Box pictures
 - Box picture persistence across normal application restarts
 - full-screen Box picture viewing with zooming and panning

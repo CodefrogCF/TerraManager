@@ -93,6 +93,20 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> openEditAndScrollToDelete(WidgetTester tester) async {
+    expect(find.byKey(const Key('delete-box-button')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('edit-box-button')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('delete-box-button')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+  }
+
   Future<void> fillRequiredAnimalFields(WidgetTester tester) async {
     await tester.enterText(
       find.byKey(const Key('common-name-field')),
@@ -371,10 +385,13 @@ void main() {
     expect(navigationContext.currentIndex, 1);
   });
 
-  testWidgets('shows delete confirmation for empty box', (tester) async {
+  testWidgets('offers empty Box deletion only from Edit Box', (tester) async {
     final box = await createTestBox();
 
     await pumpDetailPage(tester, box: box);
+    await openEditAndScrollToDelete(tester);
+
+    expect(find.byKey(const Key('delete-box-button')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('delete-box-button')));
 
@@ -391,6 +408,7 @@ void main() {
     final box = await createTestBox();
 
     await pumpDetailPage(tester, box: box);
+    await openEditAndScrollToDelete(tester);
 
     await tester.tap(find.byKey(const Key('delete-box-button')));
 
@@ -411,6 +429,7 @@ void main() {
     await createTestAnimal(boxId: box.id);
 
     await pumpDetailPage(tester, box: box);
+    await openEditAndScrollToDelete(tester);
 
     await tester.tap(find.byKey(const Key('delete-box-button')));
 
@@ -449,6 +468,7 @@ void main() {
     expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
 
     expect(find.text('Box 1'), findsOneWidget);
+    await openEditAndScrollToDelete(tester);
 
     await tester.tap(find.byKey(const Key('delete-box-button')));
 

@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.4+45**
+**v1.0.5+46**
 
 Completed development areas:
 
@@ -87,6 +87,8 @@ Completed development areas:
   fallback
 - Box details and assigned Animals presented before a consolidated QR section
   with the permanent identifier and PNG export action
+- Box deletion available only as a destructive action at the bottom of Edit
+  Box, with confirmation and assigned-Animal protection
 
 v0.7.1 implementation and release validation are complete.
 
@@ -167,6 +169,11 @@ former single-code printing workflow without changing QR identity or scanning.
 Development build `1.0.4+45` implements Issue #96 by adding optional multiline
 Box notes, Database Schema Version 6 persistence and backward-compatible
 Backup Format Version 2 export and restore.
+
+Development build `1.0.5+46` implements Issue #97 by moving Box deletion from
+the detail app bar to the bottom of Edit Box. Saved and deleted edit results
+are handled separately so deletion closes the detail route and refreshes the
+originating overview, including after contextual Box navigation.
 
 ---
 
@@ -810,11 +817,23 @@ roughly one sixth of its previous size.
 - [x] Preserve Box notes in Backup Format Version 2
 - [x] Restore older backups without Box notes using an empty default
 - [x] Add repository, widget, migration and backup regression coverage
-- [ ] Complete automated and manual validation
+- [x] Complete automated and manual validation with 466 passing tests
+
+### Edit Box Deletion — Issue #97
+
+- [x] Remove the delete action from the Box-detail app bar
+- [x] Add a localized destructive Delete Box action at the bottom of Edit Box
+- [x] Retain confirmation and cancellation for empty Box deletion
+- [x] Retain deletion protection for Boxes with assigned Animals
+- [x] Distinguish saved and deleted Edit Box navigation results
+- [x] Close the deleted Box detail and refresh the originating overview
+- [x] Preserve deletion behaviour after contextual Box-detail swiping
+- [x] Block conflicting save, picture and navigation actions during deletion
+- [x] Update focused Box edit, detail-management and swipe-navigation tests
+- [x] Complete automated and manual validation
 
 ### Remaining Milestone Scope
 
-- [ ] Move Box deletion into Edit Box — Issue #97
 - [ ] Expose Animal Feeding History and reminder actions — Issue #98
 - [ ] Add About information and compact accent selection — Issue #99
 - [ ] Make the pre-restore safety backup optional — Issue #100

@@ -886,17 +886,11 @@ class _AboutInformationRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
+          child: Text(label, style: Theme.of(context).textTheme.labelLarge),
         ),
         const SizedBox(width: 24),
         Flexible(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: valueWidget,
-          ),
+          child: Align(alignment: Alignment.centerRight, child: valueWidget),
         ),
       ],
     );

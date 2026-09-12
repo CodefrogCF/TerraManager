@@ -18,6 +18,11 @@ TerraManager v1.0.0 is the first stable MVP release using the permanent
 application identity and production signing certificate. Version 1.0.0 keeps
 Database Schema Version 5 and Portable Backup Format Version 2.
 
+TerraManager v1.1.0 keeps the same application identity, production signing
+certificate and Portable Backup Format Version 2. It advances the local
+database to Schema Version 6 for optional Box notes; the migration preserves
+existing Boxes, Animals, FeedingEvents and media.
+
 ## Android installation
 
 The release APK is the directly installable Android artifact. Android may ask
@@ -66,10 +71,10 @@ Portable Backup Format Version 2 remains compatible across this identity and
 signature transition.
 
 Production-signed builds beginning with `0.14.3+35` already use the permanent
-identity and certificate. They can be updated directly to v1.0.0 when the
-replacement APK has the expected certificate and the higher build number 39.
-Create a current backup before updating even when an in-place update is
-available.
+identity and certificate. They can be updated directly to a newer official
+release when the replacement APK has the expected certificate and a higher
+build number. Create a current backup before updating even when an in-place
+update is available.
 
 ## Web installation and updates
 
@@ -97,8 +102,9 @@ see [PRIVACY.md](../PRIVACY.md).
 `.tmbackup` archives include application data, settings and Box and Animal
 pictures. They are portable between the validated Android and Web platforms but
 are not encrypted. Store and transfer them as sensitive files. Restore performs
-validated full replacement of the current local state and creates a safety
-backup where supported.
+validated full replacement of the current local state. Its pre-restore safety
+backup is enabled by default where supported and can be disabled for the
+current operation.
 
 For format details and compatibility rules, see
 [backup-format.md](backup-format.md).

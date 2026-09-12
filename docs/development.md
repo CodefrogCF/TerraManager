@@ -354,10 +354,16 @@ The completed v1.0.0 release checklist is maintained in:
 docs/release-v1.0.0.md
 ```
 
-For the active v1.1.0 milestone, keep the corresponding issue and milestone
-checklists in `roadmap.md` current. Do not create a release tag until every
-blocking automated, build, artifact, backup and manual validation item in the
-new release checklist is complete.
+The active v1.1.0 release checklist is maintained in:
+
+```text
+docs/release-v1.1.0.md
+```
+
+Keep the corresponding Issue #101 and milestone checklists in `roadmap.md`
+current. Do not create a release tag until every blocking automated, build,
+artifact, backup and manual validation item in the release checklist is
+complete.
 
 Before a milestone release:
 
@@ -369,7 +375,8 @@ flutter analyze
 flutter test
 flutter build apk --debug
 flutter build apk --release
-flutter build web
+flutter build appbundle --release
+flutter build web --release
 ```
 
 Then perform manual regression testing on validated target platforms.

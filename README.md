@@ -19,11 +19,7 @@ Public project information:
 
 Current completed release milestone:
 
-**v1.0.0 – MVP Release**
-
-Current application version and build:
-
-**v1.0.8+49**
+**v1.1.0+50**
 
 Implemented milestones in the current source state:
 
@@ -44,6 +40,7 @@ Implemented milestones in the current source state:
 - v0.14.0 – Pre-1.0 UX Polish
 - v0.14.1 – Post-release Fixes
 - v1.0.0 – MVP Release
+- v1.1.0 – Detail & Workflow Polish
 
 Android and Web are currently validated platforms.
 
@@ -130,6 +127,11 @@ Development build `1.0.8+49` implements Issue #100. The destructive Restore
 confirmation now offers a safety-backup checkbox that is enabled by default
 but can be disabled for an individual restore, including when the current
 database is empty.
+
+Release candidate `1.1.0+50` consolidates Issues #94–#100 for the final
+Android, Web, migration, backup and localization regression tracked by Issue
+#101. The pending validation record is maintained in
+`docs/release-v1.1.0.md`.
 
 ### Android transition to the permanent application ID
 
@@ -999,6 +1001,7 @@ Additional documentation:
 - [Non-MVP functional requirements](docs/functional-requirements-non-MVP.md)
 - [Android release signing](docs/android-release-signing.md)
 - [v1.0.0 release validation](docs/release-v1.0.0.md)
+- [v1.1.0 release validation](docs/release-v1.1.0.md)
 - [Privacy](PRIVACY.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

@@ -30,6 +30,7 @@ void main() {
       'docs/installation-and-updates.md',
       'docs/toolchain-baseline.md',
       'docs/release-v1.0.0.md',
+      'docs/release-v1.1.0.md',
     ];
 
     for (final path in requiredFiles) {

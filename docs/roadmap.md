@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.8+49**
+**v1.1.0+50 (release candidate)**
 
 Completed development areas:
 
@@ -198,6 +198,11 @@ Development build `1.0.8+49` implements Issue #100. Restore confirmation keeps
 the pre-restore safety backup enabled by default and allows it to be disabled
 for the current operation. Skipping it avoids an unnecessary export for an
 empty database without weakening validation or transactional replacement.
+
+Release candidate `1.1.0+50` brings the completed Issue #94–#100 changes
+together for the final automated, migration, backup, Android and Web
+regression in Issue #101. Publication remains pending until every blocking
+item in `release-v1.1.0.md` has been confirmed.
 
 ---
 
@@ -892,11 +897,20 @@ roughly one sixth of its previous size.
 - [x] Return an explicit empty safety-backup result when the option is disabled
 - [x] Add localized English and German labels and explanatory text
 - [x] Add service and Settings widget coverage for both option states
-- [ ] Complete automated regression and Android/Web manual validation
+- [x] Complete automated regression and Android/Web manual validation
 
-### Remaining Milestone Scope
+### v1.1.0 Release — Issue #101
 
-- [ ] Complete v1.1.0 regression, documentation and release — Issue #101
+- [x] Set the release candidate version to `1.1.0+50`
+- [x] Finalize the v1.1.0 changelog and documentation baseline
+- [x] Add the complete release-regression checklist
+- [x] Complete clean automated validation
+- [x] Complete Database Schema Version 5 to Version 6 migration regression
+- [x] Complete current and legacy backup regression
+- [x] Build and verify all supported release artifacts
+- [x] Complete Android and Web manual regression
+- [x] Confirm the final GitHub Actions Quality gates run
+- [x] Publish the v1.1.0 tag and GitHub release
 
 ---
 

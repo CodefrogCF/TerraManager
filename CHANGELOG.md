@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
-## [Unreleased]
+## [1.1.0] - 2026-09-12
 
 ### Added
 
@@ -51,7 +51,7 @@ The project uses semantic versioning.
   closes the stale detail route and refreshes the originating overview
 - disabled saving, picture changes and navigation while Box deletion is in
   progress to prevent conflicting actions
-- advanced the development version to `1.0.8+49`
+- prepared release version `1.1.0+50`
 
 ### Removed
 
@@ -102,6 +102,8 @@ The project uses semantic versioning.
 - Edit Box deletion confirmation, cancellation, assigned-Animal protection and
   overview return through manual testing
 - complete automated and manual validation after Issue #99
+- complete automated and manual validation after Issue #100
+- prepared the v1.1.0 regression, compatibility and release checklist
 
 ## [1.0.0] - 2026-09-09
 

@@ -8,6 +8,8 @@ The project uses semantic versioning.
 
 ### Added
 
+- added an About TerraManager dialog under Legal & Privacy with the installed
+  version, build number and developer information
 - added a dedicated Feeding Reminder action to active Animal details so an
   existing Animal's reminder can be configured without opening Edit Animal
 - added a targeted repository operation for updating only an active Animal's
@@ -20,6 +22,8 @@ The project uses semantic versioning.
 
 ### Changed
 
+- replaced the accent-color chip group with one compact localized dropdown
+  while preserving immediate application and existing preference persistence
 - made the Latest Feeding card on Animal details open the complete feeding
   history directly
 - removed reminder controls from Edit Animal while preserving the Animal's
@@ -40,7 +44,7 @@ The project uses semantic versioning.
   closes the stale detail route and refreshes the originating overview
 - disabled saving, picture changes and navigation while Box deletion is in
   progress to prevent conflicting actions
-- advanced the development version to `1.0.6+47`
+- advanced the development version to `1.0.7+48`
 
 ### Removed
 
@@ -51,6 +55,8 @@ The project uses semantic versioning.
 
 ### Testing
 
+- added Settings widget coverage for compact accent selection and installed
+  application information
 - added repository and widget coverage for dedicated reminder activation,
   validation, interval updates, disabling and archived-Animal protection
 - added Animal-detail coverage for Latest Feeding history navigation and the

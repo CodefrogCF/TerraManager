@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum AppAccent {
-  green(color: Color.fromARGB(255, 0, 255, 76)),
+  green(color: Color.fromARGB(255, 0, 163, 49)),
   blue(color: Colors.blue),
   teal(color: Colors.teal),
   orange(color: Colors.orange),

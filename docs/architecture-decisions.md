@@ -321,6 +321,10 @@ The application theme is regenerated immediately from the selected theme mode
 and accent color. The application locale changes immediately when a language is
 selected.
 
+The accent choices are presented through one compact localized dropdown. This
+is a presentation-only change; the existing serialized accent names and
+fallback behaviour remain unchanged.
+
 ### Consequences
 
 Advantages:

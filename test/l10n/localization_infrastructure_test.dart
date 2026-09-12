@@ -44,6 +44,9 @@ void main() {
     expect(l10n.feedingReminder, 'Feeding reminder');
     expect(l10n.feedingReminderIntervalDays, 'Reminder interval (days)');
     expect(l10n.failedToSaveFeedingReminder, 'Failed to save feeding reminder');
+    expect(l10n.aboutTerraManager, 'About TerraManager');
+    expect(l10n.buildNumber, 'Build');
+    expect(l10n.developer, 'Developer');
     expect(l10n.sexMale, 'Male');
     expect(l10n.sexFemale, 'Female');
     expect(l10n.sexUnknown, 'Unknown');
@@ -112,6 +115,9 @@ void main() {
       l10n.failedToSaveFeedingReminder,
       'Fütterungserinnerung konnte nicht gespeichert werden',
     );
+    expect(l10n.aboutTerraManager, 'Über TerraManager');
+    expect(l10n.buildNumber, 'Build');
+    expect(l10n.developer, 'Entwickler');
     expect(l10n.sexMale, 'Männlich');
     expect(l10n.sexFemale, 'Weiblich');
     expect(l10n.sexUnknown, 'Unbekannt');

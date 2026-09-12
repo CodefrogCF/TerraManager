@@ -23,7 +23,7 @@ Current completed release milestone:
 
 Current application version and build:
 
-**v1.0.6+47**
+**v1.0.7+48**
 
 Implemented milestones in the current source state:
 
@@ -120,6 +120,11 @@ Animal details now opens the complete feeding history, while a dedicated
 top-level action opens Feeding Reminder settings for active Animals. Reminder
 controls no longer occupy Edit Animal, and ordinary Animal changes preserve
 the existing reminder configuration.
+
+Development build `1.0.7+48` implements Issue #99. Settings now uses one
+compact, localized accent-color dropdown and provides an About TerraManager
+dialog under Legal & Privacy with the installed application version, build
+number and developer information.
 
 ### Android transition to the permanent application ID
 
@@ -284,7 +289,7 @@ application restarts.
 - System theme mode
 - Light theme mode
 - Dark theme mode
-- predefined accent colors
+- predefined accent colors in a compact dropdown
 - immediate appearance changes
 - persistent appearance settings
 - selectable Common name first or Latin name first Animal presentation
@@ -295,6 +300,8 @@ application restarts.
 - explicit English and German language selection
 - immediate language changes without an application restart
 - persistent language selection
+- installed version, build number and developer information under Legal &
+  Privacy
 - portable `.tmbackup` backup creation
 - backup file selection and validation
 - pre-restore backup information

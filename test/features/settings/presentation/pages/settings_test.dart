@@ -23,7 +23,10 @@ void main() {
     await database.close();
   });
 
-  Future<AppSettingsController> pumpSettings(WidgetTester tester) async {
+  Future<AppSettingsController> pumpSettings(
+    WidgetTester tester, {
+    AppInformationLoader? appInformationLoader,
+  }) async {
     final controller = AppSettingsController();
 
     await controller.load();
@@ -31,7 +34,12 @@ void main() {
     await tester.pumpWidget(
       AppSettingsScope(
         controller: controller,
-        child: MaterialApp(home: SettingsPage(database: database)),
+        child: MaterialApp(
+          home: SettingsPage(
+            database: database,
+            appInformationLoader: appInformationLoader,
+          ),
+        ),
       ),
     );
 
@@ -73,9 +81,8 @@ void main() {
 
     expect(find.text('Dark'), findsOneWidget);
 
-    for (final accent in AppAccent.values) {
-      expect(find.byKey(Key('accent-${accent.name}')), findsOneWidget);
-    }
+    expect(find.byKey(const Key('accent-color-selector')), findsOneWidget);
+    expect(find.text('Green'), findsOneWidget);
 
     await scrollToSetting(tester, const Key('animal-name-order-selector'));
 
@@ -114,7 +121,11 @@ void main() {
   testWidgets('can change accent color', (tester) async {
     final controller = await pumpSettings(tester);
 
-    await tester.tap(find.byKey(const Key('accent-purple')));
+    await tester.tap(find.byKey(const Key('accent-color-selector')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Purple').last);
 
     await tester.pumpAndSettle();
 
@@ -168,5 +179,75 @@ void main() {
     expect(find.byKey(const Key('privacy-policy-page')), findsOneWidget);
     expect(find.text('Privacy Policy'), findsWidgets);
     expect(find.byKey(const Key('privacy-policy-content')), findsOneWidget);
+  });
+
+  testWidgets('shows current app and developer information', (tester) async {
+    await pumpSettings(
+      tester,
+      appInformationLoader: () async =>
+          const AppInformation(version: '1.0.7', buildNumber: '48'),
+    );
+
+    await scrollToSetting(tester, const Key('about-terramanager-tile'));
+
+    await tester.tap(find.byKey(const Key('about-terramanager-tile')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('about-terramanager-dialog')), findsOneWidget);
+    expect(find.text('Version'), findsOneWidget);
+    expect(find.text('1.0.7'), findsOneWidget);
+    expect(find.text('Build'), findsOneWidget);
+    expect(find.text('48'), findsOneWidget);
+    expect(find.text('Developer'), findsOneWidget);
+    expect(find.text('Codefrog'), findsOneWidget);
+    expect(
+      find.ancestor(
+        of: find.byKey(const Key('developer-name')),
+        matching: find.byType(InkWell),
+      ),
+      findsNothing,
+    );
+    expect(find.byKey(const Key('developer-surprise-image')), findsNothing);
+  });
+
+  testWidgets('keeps the developer surprise behind five taps', (tester) async {
+    await pumpSettings(
+      tester,
+      appInformationLoader: () async =>
+          const AppInformation(version: '1.0.7', buildNumber: '48'),
+    );
+
+    await scrollToSetting(tester, const Key('about-terramanager-tile'));
+    await tester.tap(find.byKey(const Key('about-terramanager-tile')));
+    await tester.pumpAndSettle();
+
+    for (var tapCount = 1; tapCount < 5; tapCount += 1) {
+      await tester.tap(find.byKey(const Key('developer-name')));
+      await tester.pump();
+      expect(find.byKey(const Key('developer-surprise-image')), findsNothing);
+    }
+
+    await tester.tap(find.byKey(const Key('developer-name')));
+    await tester.pump();
+
+    expect(find.byKey(const Key('developer-surprise-image')), findsOneWidget);
+  });
+
+  testWidgets('reports unavailable app information without a broken dialog', (
+    tester,
+  ) async {
+    await pumpSettings(
+      tester,
+      appInformationLoader: () async {
+        throw StateError('Package information unavailable');
+      },
+    );
+
+    await scrollToSetting(tester, const Key('about-terramanager-tile'));
+    await tester.tap(find.byKey(const Key('about-terramanager-tile')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('about-terramanager-dialog')), findsNothing);
+    expect(find.text('App information could not be loaded.'), findsOneWidget);
   });
 }

@@ -17,6 +17,14 @@ import '../../animal_name_order.dart';
 import 'privacy_policy_page.dart';
 
 typedef AppVersionLoader = Future<String> Function();
+typedef AppInformationLoader = Future<AppInformation> Function();
+
+class AppInformation {
+  final String version;
+  final String buildNumber;
+
+  const AppInformation({required this.version, required this.buildNumber});
+}
 
 class SettingsPage extends StatefulWidget {
   final AppDatabase database;
@@ -26,6 +34,7 @@ class SettingsPage extends StatefulWidget {
   final BackupValidationService? backupValidationService;
 
   final AppVersionLoader? appVersionLoader;
+  final AppInformationLoader? appInformationLoader;
 
   final VoidCallback? onRestoreCompleted;
 
@@ -36,6 +45,7 @@ class SettingsPage extends StatefulWidget {
     this.backupExportService,
     this.backupValidationService,
     this.appVersionLoader,
+    this.appInformationLoader,
     this.onRestoreCompleted,
   });
 
@@ -69,9 +79,47 @@ class _SettingsPageState extends State<SettingsPage> {
       return widget.appVersionLoader!();
     }
 
+    return (await _loadAppInformation()).version;
+  }
+
+  Future<AppInformation> _loadAppInformation() async {
+    if (widget.appInformationLoader != null) {
+      return widget.appInformationLoader!();
+    }
+
     final packageInfo = await PackageInfo.fromPlatform();
 
-    return packageInfo.version;
+    return AppInformation(
+      version: packageInfo.version,
+      buildNumber: packageInfo.buildNumber,
+    );
+  }
+
+  Future<void> _showAboutTerraManager() async {
+    try {
+      final information = await _loadAppInformation();
+
+      if (!mounted) {
+        return;
+      }
+
+      await showDialog<void>(
+        context: context,
+        builder: (context) {
+          return _AboutTerraManagerDialog(information: information);
+        },
+      );
+    } catch (error, stackTrace) {
+      debugPrint('App information loading failed: $error');
+      debugPrintStack(
+        label: 'App information loading stack trace',
+        stackTrace: stackTrace,
+      );
+
+      if (mounted) {
+        _showMessage(context.l10n.failedToLoadAppInformation, error: true);
+      }
+    }
   }
 
   Future<void> _createBackup() async {
@@ -477,24 +525,52 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           const SizedBox(height: 12),
 
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: AppAccent.values.map((accent) {
-              final selected = accent == settings.accent;
-
-              return ChoiceChip(
-                key: Key('accent-${accent.name}'),
-                selected: selected,
-                onSelected: _backupBusy
+          InputDecorator(
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 4,
+              ),
+              enabled: !_backupBusy,
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<AppAccent>(
+                key: const Key('accent-color-selector'),
+                value: settings.accent,
+                isExpanded: true,
+                borderRadius: BorderRadius.circular(12),
+                items: AppAccent.values.map((accent) {
+                  return DropdownMenuItem<AppAccent>(
+                    value: accent,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: accent.color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(context.l10n.appAccentLabel(accent)),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: _backupBusy
                     ? null
-                    : (_) {
-                        settings.setAccent(accent);
+                    : (accent) {
+                        if (accent != null) {
+                          settings.setAccent(accent);
+                        }
                       },
-                avatar: CircleAvatar(backgroundColor: accent.color),
-                label: Text(context.l10n.appAccentLabel(accent)),
-              );
-            }).toList(),
+              ),
+            ),
           ),
 
           const SizedBox(height: 32),
@@ -645,9 +721,153 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
 
+          const Divider(),
+
+          ListTile(
+            key: const Key('about-terramanager-tile'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.info_outline),
+            title: Text(context.l10n.aboutTerraManager),
+            subtitle: Text(context.l10n.aboutTerraManagerSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _showAboutTerraManager,
+          ),
+
           const SizedBox(height: 32),
         ],
       ),
+    );
+  }
+}
+
+class _AboutTerraManagerDialog extends StatefulWidget {
+  final AppInformation information;
+
+  const _AboutTerraManagerDialog({required this.information});
+
+  @override
+  State<_AboutTerraManagerDialog> createState() =>
+      _AboutTerraManagerDialogState();
+}
+
+class _AboutTerraManagerDialogState extends State<_AboutTerraManagerDialog> {
+  static const int _requiredDeveloperTaps = 5;
+
+  int _developerTapCount = 0;
+  bool _showDeveloperSurprise = false;
+
+  void _handleDeveloperTap() {
+    if (_showDeveloperSurprise) {
+      return;
+    }
+
+    _developerTapCount += 1;
+
+    if (_developerTapCount >= _requiredDeveloperTaps) {
+      setState(() {
+        _showDeveloperSurprise = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      key: const Key('about-terramanager-dialog'),
+      title: Text(context.l10n.aboutTerraManager),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _AboutInformationRow(
+              label: context.l10n.version,
+              value: widget.information.version,
+            ),
+            const SizedBox(height: 12),
+            _AboutInformationRow(
+              label: context.l10n.buildNumber,
+              value: widget.information.buildNumber,
+            ),
+            const SizedBox(height: 12),
+            _AboutInformationRow(
+              label: context.l10n.developer,
+              value: 'Codefrog',
+              valueKey: const Key('developer-name'),
+              onValueTap: _handleDeveloperTap,
+            ),
+            if (_showDeveloperSurprise) ...[
+              const SizedBox(height: 16),
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/pictures/frog.webp',
+                    key: const Key('developer-surprise-image'),
+                    width: 96,
+                    height: 96,
+                    fit: BoxFit.cover,
+                    excludeFromSemantics: true,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        FilledButton(
+          key: const Key('close-about-terramanager-button'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(context.l10n.ok),
+        ),
+      ],
+    );
+  }
+}
+
+class _AboutInformationRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final Key? valueKey;
+  final VoidCallback? onValueTap;
+
+  const _AboutInformationRow({
+    required this.label,
+    required this.value,
+    this.valueKey,
+    this.onValueTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget valueWidget;
+
+    if (onValueTap == null) {
+      valueWidget = SelectableText(value, textAlign: TextAlign.end);
+    } else {
+      valueWidget = GestureDetector(
+        key: valueKey,
+        behavior: HitTestBehavior.opaque,
+        excludeFromSemantics: true,
+        onTap: onValueTap,
+        child: Text(value, textAlign: TextAlign.end),
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(label, style: Theme.of(context).textTheme.labelLarge),
+        ),
+        const SizedBox(width: 24),
+        Flexible(
+          child: Align(alignment: Alignment.centerRight, child: valueWidget),
+        ),
+      ],
     );
   }
 }

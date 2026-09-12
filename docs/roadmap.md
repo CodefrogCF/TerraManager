@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.6+47**
+**v1.0.7+48**
 
 Completed development areas:
 
@@ -93,6 +93,9 @@ Completed development areas:
 - dedicated Feeding Reminder settings action on active Animal details
 - ordinary Animal edits preserve reminder configuration without exposing its
   controls
+- compact localized accent-color selection in Settings
+- installed version, build number and developer information under Legal &
+  Privacy
 
 v0.7.1 implementation and release validation are complete.
 
@@ -184,6 +187,11 @@ Issue #98. Latest Feeding is now an explicit history shortcut, and active
 Animal details expose a dedicated Feeding Reminder settings action. The
 ordinary Edit Animal workflow preserves existing reminder configuration while
 the dedicated page owns reminder validation and persistence.
+
+Development build `1.0.7+48` implements Issue #99. The former group of accent
+chips is replaced by one compact localized dropdown without changing the
+stored preference, and an About TerraManager dialog now reports the installed
+version, build number and developer under Legal & Privacy.
 
 ---
 
@@ -853,11 +861,21 @@ roughly one sixth of its previous size.
 - [x] Add localized English and German reminder settings/error text
 - [x] Add repository and widget coverage for activation, validation, updates,
   disabling, archive protection and detail navigation
-- [ ] Complete automated regression, Android/Web manual validation and release
+- [x] Complete automated regression and manual validation
+
+### About Information and Compact Accent Selection — Issue #99
+
+- [x] Replace the accent-color chip group with one compact dropdown
+- [x] Preserve localized color labels and immediate persistent theme updates
+- [x] Add About TerraManager under Legal & Privacy
+- [x] Load the installed version and build number from platform package data
+- [x] Display the developer in the localized About dialog
+- [x] Handle unavailable package information without opening a broken dialog
+- [x] Add localized English and German About labels
+- [x] Add focused Settings and localization coverage
 
 ### Remaining Milestone Scope
 
-- [ ] Add About information and compact accent selection — Issue #99
 - [ ] Make the pre-restore safety backup optional — Issue #100
 - [ ] Complete v1.1.0 regression, documentation and release — Issue #101
 

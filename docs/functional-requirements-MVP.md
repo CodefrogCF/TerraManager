@@ -275,13 +275,16 @@ The application must allow the user to:
 - use the operating system theme
 - explicitly select Light mode
 - explicitly select Dark mode
-- select an application accent color
+- select an application accent color from a compact localized dropdown
 - persist appearance settings between application restarts
 - follow the operating-system language by default
 - explicitly select English or German
 - apply language changes without restarting the application
 - persist the selected language between application restarts
 - fall back to English when the system language is unsupported
+- open About TerraManager under Legal & Privacy
+- inspect the installed application version, build number and developer
+  information
 
 Appearance, language and overview-order settings must be included in portable
 TerraManager backups.

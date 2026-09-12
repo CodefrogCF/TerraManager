@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.7+48**
+**v1.0.8+49**
 
 Completed development areas:
 
@@ -96,6 +96,7 @@ Completed development areas:
 - compact localized accent-color selection in Settings
 - installed version, build number and developer information under Legal &
   Privacy
+- optional per-restore safety backup with a safe enabled default
 
 v0.7.1 implementation and release validation are complete.
 
@@ -192,6 +193,11 @@ Development build `1.0.7+48` implements Issue #99. The former group of accent
 chips is replaced by one compact localized dropdown without changing the
 stored preference, and an About TerraManager dialog now reports the installed
 version, build number and developer under Legal & Privacy.
+
+Development build `1.0.8+49` implements Issue #100. Restore confirmation keeps
+the pre-restore safety backup enabled by default and allows it to be disabled
+for the current operation. Skipping it avoids an unnecessary export for an
+empty database without weakening validation or transactional replacement.
 
 ---
 
@@ -873,10 +879,23 @@ roughly one sixth of its previous size.
 - [x] Handle unavailable package information without opening a broken dialog
 - [x] Add localized English and German About labels
 - [x] Add focused Settings and localization coverage
+- [x] Complete automated and manual validation
+
+### Optional Pre-Restore Safety Backup — Issue #100
+
+- [x] Add a safety-backup checkbox to destructive Restore confirmation
+- [x] Keep the checkbox enabled by default for every Restore attempt
+- [x] Allow the user to disable it for the current Restore operation
+- [x] Skip safety-backup creation and file persistence when disabled
+- [x] Keep validation, confirmation and transactional replacement unchanged
+- [x] Keep safety-backup failures blocking while the option is enabled
+- [x] Return an explicit empty safety-backup result when the option is disabled
+- [x] Add localized English and German labels and explanatory text
+- [x] Add service and Settings widget coverage for both option states
+- [ ] Complete automated regression and Android/Web manual validation
 
 ### Remaining Milestone Scope
 
-- [ ] Make the pre-restore safety backup optional — Issue #100
 - [ ] Complete v1.1.0 regression, documentation and release — Issue #101
 
 ---

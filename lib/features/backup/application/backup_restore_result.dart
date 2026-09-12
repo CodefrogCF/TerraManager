@@ -1,7 +1,7 @@
 import 'backup_export_result.dart';
 
 class BackupRestoreResult {
-  final BackupExportResult safetyBackup;
+  final BackupExportResult? safetyBackup;
 
   final int boxCount;
   final int animalCount;

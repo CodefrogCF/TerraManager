@@ -237,6 +237,8 @@ void main() {
 
     expect(safetyBackupWritten, isTrue);
 
+    expect(result.safetyBackup, isNotNull);
+
     expect(result.boxCount, 1);
 
     expect(result.animalCount, 1);
@@ -322,6 +324,35 @@ void main() {
     );
 
     expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
+  });
+
+  test('can restore without creating or writing a safety backup', () async {
+    await createExistingData();
+
+    var safetyBackupWritten = false;
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (_) async {
+        safetyBackupWritten = true;
+        throw StateError('Safety backup writer must not be called.');
+      },
+    );
+
+    final result = await service.restore(
+      backup: createTargetBackup(includePicture: false),
+      currentAppVersion: null,
+      createSafetyBackup: false,
+    );
+
+    expect(safetyBackupWritten, isFalse);
+    expect(result.safetyBackup, isNull);
+
+    final animals = await database.select(database.animals).get();
+
+    expect(animals.length, 1);
+    expect(animals.single.commonName, 'Restored Animal');
   });
 
   test('safety backup failure leaves '

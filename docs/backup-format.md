@@ -1035,9 +1035,11 @@ Show backup information
       │
       ▼
 Request explicit confirmation
+and safety-backup choice
       │
       ▼
 Create and persist safety backup
+when enabled
       │
       ▼
 Restore application settings
@@ -1062,8 +1064,10 @@ confirmation succeed.
 
 ## Pre-Restore Safety Backup
 
-Before replacing existing TerraManager data, the current application state must
-be backed up.
+Before replacing existing TerraManager data, the confirmation dialog offers a
+safety backup of the current state. The option is enabled by default for each
+Restore attempt and can be disabled for that operation, for example when the
+current database is empty.
 
 The safety backup exists to reduce the risk of accidental data loss caused by:
 
@@ -1072,7 +1076,11 @@ The safety backup exists to reduce the risk of accidental data loss caused by:
 - restore failure
 - unexpected compatibility problems
 
-The restore workflow must not silently discard the current state.
+When enabled, a failure to create or persist the safety backup stops Restore
+before destructive changes begin. When disabled, no safety-backup archive is
+created and no save destination is requested. Backup validation, explicit
+confirmation, settings rollback and transactional database replacement remain
+unchanged.
 
 ## Restore Failure
 
@@ -1136,8 +1144,8 @@ back.
 If database replacement fails after application settings were changed, the
 previous application settings are restored.
 
-The pre-restore safety backup is never deleted automatically as part of
-rollback.
+When created, the pre-restore safety backup is never deleted automatically as
+part of rollback.
 
 ## Full Replacement vs Merge
 

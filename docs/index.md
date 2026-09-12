@@ -23,7 +23,7 @@ Current completed release milestone:
 
 Current application version and build:
 
-**v1.0.7+48**
+**v1.0.8+49**
 
 Implemented milestones in the current source state:
 
@@ -125,6 +125,11 @@ Development build `1.0.7+48` implements Issue #99. Settings now uses one
 compact, localized accent-color dropdown and provides an About TerraManager
 dialog under Legal & Privacy with the installed application version, build
 number and developer information.
+
+Development build `1.0.8+49` implements Issue #100. The destructive Restore
+confirmation now offers a safety-backup checkbox that is enabled by default
+but can be disabled for an individual restore, including when the current
+database is empty.
 
 ### Android transition to the permanent application ID
 
@@ -306,7 +311,7 @@ application restarts.
 - backup file selection and validation
 - pre-restore backup information
 - destructive restore confirmation
-- automatic safety backup before restore
+- optional safety backup before restore, enabled by default
 - full local data restore
 - appearance, language, Animal name-order, Animal sort-order and Box sort-order
   setting backup and restore
@@ -334,7 +339,7 @@ application restarts.
 - backup validation before destructive operations
 - relationship and lifecycle validation
 - archive path safety validation
-- pre-restore safety backup
+- per-restore safety-backup choice, enabled by default
 - explicit destructive restore confirmation
 - transactional database replacement
 - Android and Web portability

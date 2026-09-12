@@ -47,6 +47,7 @@ void main() {
     expect(l10n.aboutTerraManager, 'About TerraManager');
     expect(l10n.buildNumber, 'Build');
     expect(l10n.developer, 'Developer');
+    expect(l10n.createSafetyBackup, 'Back up current data before restoring');
     expect(l10n.sexMale, 'Male');
     expect(l10n.sexFemale, 'Female');
     expect(l10n.sexUnknown, 'Unknown');
@@ -118,6 +119,10 @@ void main() {
     expect(l10n.aboutTerraManager, 'Über TerraManager');
     expect(l10n.buildNumber, 'Build');
     expect(l10n.developer, 'Entwickler');
+    expect(
+      l10n.createSafetyBackup,
+      'Aktuelle Daten vor Wiederherstellung sichern',
+    );
     expect(l10n.sexMale, 'Männlich');
     expect(l10n.sexFemale, 'Weiblich');
     expect(l10n.sexUnknown, 'Unbekannt');

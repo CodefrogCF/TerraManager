@@ -157,7 +157,7 @@ Validated functionality includes:
 - user-selectable backup destination through the Android system file picker
 - backup file selection
 - backup validation
-- pre-restore safety backup
+- optional pre-restore safety backup, enabled by default
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
@@ -270,7 +270,7 @@ Validated functionality includes:
 - portable `.tmbackup` download
 - backup file selection
 - backup validation
-- pre-restore safety backup
+- optional pre-restore safety backup, enabled by default
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore

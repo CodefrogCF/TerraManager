@@ -412,9 +412,17 @@ Restore version 1 uses full replacement rather than merge semantics.
 Before destructive restore:
 
 - the selected backup is validated
-- a backup of the current state is created
 - explicit user confirmation is required
+- a current-state safety backup is offered and enabled by default
+- the user may disable that safety backup for the current operation
 - replacement may begin
+
+When the option is enabled, failure to create or persist the safety backup
+still stops Restore before application settings or domain data are replaced.
+When it is disabled, safety-backup export and file selection are skipped while
+the same validation, settings rollback and transactional database replacement
+remain in force. This is a workflow change only and does not alter Portable
+Backup Format Version 2.
 
 ### Implementation update – Backup Format Version 2
 

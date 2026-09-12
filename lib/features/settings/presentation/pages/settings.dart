@@ -109,13 +109,7 @@ class _SettingsPageState extends State<SettingsPage> {
           return _AboutTerraManagerDialog(information: information);
         },
       );
-    } catch (error, stackTrace) {
-      debugPrint('App information loading failed: $error');
-      debugPrintStack(
-        label: 'App information loading stack trace',
-        stackTrace: stackTrace,
-      );
-
+    } catch (_) {
       if (mounted) {
         _showMessage(context.l10n.failedToLoadAppInformation, error: true);
       }
@@ -236,9 +230,9 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
 
-      final confirmed = await _showRestoreConfirmation();
+      final createSafetyBackup = await _showRestoreConfirmation();
 
-      if (!confirmed || !mounted) {
+      if (createSafetyBackup == null || !mounted) {
         return;
       }
 
@@ -250,7 +244,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
       final settings = AppSettingsScope.of(context);
 
-      final appVersion = await _loadAppVersion();
+      final appVersion = createSafetyBackup ? await _loadAppVersion() : null;
 
       final restoreService = BackupRestoreService(
         database: widget.database,
@@ -268,6 +262,7 @@ class _SettingsPageState extends State<SettingsPage> {
       await restoreService.restore(
         backup: backup,
         currentAppVersion: appVersion,
+        createSafetyBackup: createSafetyBackup,
       );
 
       widget.onRestoreCompleted?.call();
@@ -387,35 +382,65 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<bool> _showRestoreConfirmation() async {
+  Future<bool?> _showRestoreConfirmation() async {
+    var createSafetyBackup = true;
+
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          key: const Key('restore-confirmation-dialog'),
-          title: Text(context.l10n.replaceExistingDataQuestion),
-          content: Text(context.l10n.replaceExistingDataWarning),
-          actions: [
-            TextButton(
-              key: const Key('restore-cancel-button'),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text(context.l10n.cancel),
-            ),
-            FilledButton(
-              key: const Key('restore-confirm-button'),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: Text(context.l10n.restore),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              key: const Key('restore-confirmation-dialog'),
+              title: Text(context.l10n.replaceExistingDataQuestion),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.l10n.replaceExistingDataWarning),
+                    const SizedBox(height: 16),
+                    CheckboxListTile(
+                      key: const Key('create-safety-backup-checkbox'),
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      value: createSafetyBackup,
+                      onChanged: (value) {
+                        setDialogState(() {
+                          createSafetyBackup = value ?? true;
+                        });
+                      },
+                      title: Text(context.l10n.createSafetyBackup),
+                      subtitle: Text(
+                        context.l10n.createSafetyBackupDescription,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  key: const Key('restore-cancel-button'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(context.l10n.cancel),
+                ),
+                FilledButton(
+                  key: const Key('restore-confirm-button'),
+                  onPressed: () {
+                    Navigator.of(context).pop(createSafetyBackup);
+                  },
+                  child: Text(context.l10n.restore),
+                ),
+              ],
+            );
+          },
         );
       },
     );
 
-    return result ?? false;
+    return result;
   }
 
   Future<void> _showValidationError(BackupValidationException error) {
@@ -861,11 +886,17 @@ class _AboutInformationRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Text(label, style: Theme.of(context).textTheme.labelLarge),
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
         ),
         const SizedBox(width: 24),
         Flexible(
-          child: Align(alignment: Alignment.centerRight, child: valueWidget),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: valueWidget,
+          ),
         ),
       ],
     );

@@ -8,6 +8,8 @@ The project uses semantic versioning.
 
 ### Added
 
+- added an enabled-by-default checkbox for creating a safety backup during
+  destructive Restore confirmation
 - added an About TerraManager dialog under Legal & Privacy with the installed
   version, build number and developer information
 - added a dedicated Feeding Reminder action to active Animal details so an
@@ -22,6 +24,11 @@ The project uses semantic versioning.
 
 ### Changed
 
+- made the pre-restore safety backup optional for the current operation so an
+  empty database can be restored without creating an unnecessary archive
+- kept backup validation, explicit confirmation, settings rollback and
+  transactional database replacement unchanged when the safety backup is
+  disabled
 - replaced the accent-color chip group with one compact localized dropdown
   while preserving immediate application and existing preference persistence
 - made the Latest Feeding card on Animal details open the complete feeding
@@ -44,7 +51,7 @@ The project uses semantic versioning.
   closes the stale detail route and refreshes the originating overview
 - disabled saving, picture changes and navigation while Box deletion is in
   progress to prevent conflicting actions
-- advanced the development version to `1.0.7+48`
+- advanced the development version to `1.0.8+49`
 
 ### Removed
 
@@ -55,6 +62,10 @@ The project uses semantic versioning.
 
 ### Testing
 
+- added application-service coverage proving disabled safety backups skip both
+  creation results and file persistence
+- added Settings widget coverage for the enabled default and an empty-database
+  Restore with the option disabled
 - added Settings widget coverage for compact accent selection and installed
   application information
 - added repository and widget coverage for dedicated reminder activation,
@@ -90,6 +101,7 @@ The project uses semantic versioning.
 - complete automated test suite after Issue #97
 - Edit Box deletion confirmation, cancellation, assigned-Animal protection and
   overview return through manual testing
+- complete automated and manual validation after Issue #99
 
 ## [1.0.0] - 2026-09-09
 

@@ -238,6 +238,12 @@ void main() {
       findsOneWidget,
     );
 
+    final safetyBackupCheckbox = tester.widget<CheckboxListTile>(
+      find.byKey(const Key('create-safety-backup-checkbox')),
+    );
+
+    expect(safetyBackupCheckbox.value, isTrue);
+
     await tester.tap(find.byKey(const Key('restore-confirm-button')));
 
     await pumpUntil(tester, () => restoreCompleted);
@@ -291,6 +297,68 @@ void main() {
       'createdOldestFirst',
     );
 
+    expect(find.text('Backup restored successfully.'), findsOneWidget);
+  });
+
+  testWidgets('can restore an empty database without a safety backup', (
+    tester,
+  ) async {
+    await sourceDatabase
+        .into(sourceDatabase.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:44444444-4444-4444-8444-444444444444',
+          ),
+        );
+
+    final sourceBackup = await BackupExportService(sourceDatabase).createBackup(
+      appVersion: '1.0.8',
+      themeMode: ThemeMode.dark,
+      accent: settingsController.accent,
+    );
+
+    fileGateway.pickedFile = PickedBackupFile(
+      name: sourceBackup.fileName,
+      bytes: sourceBackup.bytes,
+    );
+
+    var restoreCompleted = false;
+
+    await tester.pumpWidget(
+      buildApp(
+        onRestoreCompleted: () {
+          restoreCompleted = true;
+        },
+      ),
+    );
+
+    await scrollToKey(tester, const Key('restore-backup-button'));
+    await tester.tap(find.byKey(const Key('restore-backup-button')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('backup-info-continue-button')));
+    await tester.pumpAndSettle();
+
+    final checkboxFinder = find.byKey(
+      const Key('create-safety-backup-checkbox'),
+    );
+
+    expect(tester.widget<CheckboxListTile>(checkboxFinder).value, isTrue);
+
+    await tester.tap(checkboxFinder);
+    await tester.pump();
+
+    expect(tester.widget<CheckboxListTile>(checkboxFinder).value, isFalse);
+
+    await tester.tap(find.byKey(const Key('restore-confirm-button')));
+    await pumpUntil(tester, () => restoreCompleted);
+    await tester.pump();
+
+    final boxes = await database.select(database.boxes).get();
+
+    expect(boxes.length, 1);
+    expect(boxes.single.qrId, 'TM:BOX:44444444-4444-4444-8444-444444444444');
+    expect(fileGateway.savedBackups, isEmpty);
     expect(find.text('Backup restored successfully.'), findsOneWidget);
   });
 

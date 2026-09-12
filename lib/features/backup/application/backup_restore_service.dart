@@ -33,7 +33,8 @@ class BackupRestoreService {
 
   Future<BackupRestoreResult> restore({
     required ValidatedBackup backup,
-    required String currentAppVersion,
+    required String? currentAppVersion,
+    bool createSafetyBackup = true,
   }) async {
     final previousThemeMode = settingsController.themeMode;
 
@@ -71,34 +72,49 @@ class BackupRestoreService {
       backup.settings.boxSortOrder,
     );
 
-    final BackupExportResult safetyBackup;
+    BackupExportResult? safetyBackup;
 
-    try {
-      safetyBackup = await _exportService.createBackup(
-        appVersion: currentAppVersion,
-        themeMode: previousThemeMode,
-        accent: previousAccent,
-        language: previousLanguage,
-        animalNameOrder: previousAnimalNameOrder,
-        animalSortOrder: previousAnimalSortOrder,
-        boxSortOrder: previousBoxSortOrder,
-      );
-    } catch (error) {
-      throw BackupRestoreException(
-        stage: BackupRestoreStage.safetyBackup,
-        message: 'Failed to create safety backup.',
-        cause: error,
-      );
-    }
+    if (createSafetyBackup) {
+      late final BackupExportResult createdSafetyBackup;
 
-    try {
-      await safetyBackupWriter(safetyBackup);
-    } catch (error) {
-      throw BackupRestoreException(
-        stage: BackupRestoreStage.safetyBackup,
-        message: 'Failed to persist safety backup.',
-        cause: error,
-      );
+      try {
+        final appVersion = currentAppVersion;
+
+        if (appVersion == null || appVersion.trim().isEmpty) {
+          throw StateError(
+            'The current application version is required '
+            'for a safety backup.',
+          );
+        }
+
+        createdSafetyBackup = await _exportService.createBackup(
+          appVersion: appVersion,
+          themeMode: previousThemeMode,
+          accent: previousAccent,
+          language: previousLanguage,
+          animalNameOrder: previousAnimalNameOrder,
+          animalSortOrder: previousAnimalSortOrder,
+          boxSortOrder: previousBoxSortOrder,
+        );
+      } catch (error) {
+        throw BackupRestoreException(
+          stage: BackupRestoreStage.safetyBackup,
+          message: 'Failed to create safety backup.',
+          cause: error,
+        );
+      }
+
+      safetyBackup = createdSafetyBackup;
+
+      try {
+        await safetyBackupWriter(createdSafetyBackup);
+      } catch (error) {
+        throw BackupRestoreException(
+          stage: BackupRestoreStage.safetyBackup,
+          message: 'Failed to persist safety backup.',
+          cause: error,
+        );
+      }
     }
 
     try {

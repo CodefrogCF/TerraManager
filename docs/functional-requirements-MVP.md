@@ -347,7 +347,9 @@ The application must allow the user to:
 - validate lifecycle state
 - validate referenced media
 - validate permanent Box QR identifiers
-- create a safety backup before destructive database replacement
+- offer a safety backup before destructive database replacement
+- enable the safety-backup option by default for every restore attempt
+- allow the safety backup to be disabled for the current restore operation
 - explicitly confirm replacement of existing local data
 - restore Box dimensions
 - restore optional Box notes

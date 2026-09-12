@@ -3,6 +3,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
@@ -418,6 +419,85 @@ void main() {
     expect(secondAnimal.feedingReminderBaseline, secondBaseline);
   });
 
+  test('updates and disables an active Animal feeding reminder', () async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'update-reminder-box'));
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Reminder Animal',
+      latinName: 'Species reminder',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+    final baseline = DateTime(2026, 9, 12, 10);
+
+    final enabled = await repository.updateFeedingReminder(
+      animalId: animalId,
+      intervalDays: 8,
+      baseline: baseline,
+    );
+
+    expect(enabled, isTrue);
+
+    var animal = await repository.getAnimalById(animalId);
+
+    expect(animal!.feedingReminderIntervalDays, 8);
+    expect(animal.feedingReminderBaseline, baseline);
+
+    final disabled = await repository.updateFeedingReminder(
+      animalId: animalId,
+      intervalDays: null,
+      baseline: null,
+    );
+
+    expect(disabled, isTrue);
+
+    animal = await repository.getAnimalById(animalId);
+
+    expect(animal!.feedingReminderIntervalDays, isNull);
+    expect(animal.feedingReminderBaseline, isNull);
+  });
+
+  test('does not update reminder configuration for archived Animals', () async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'archived-reminder-box'));
+    final baseline = DateTime(2026, 9, 12, 10);
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Archived Animal',
+      latinName: 'Species archived',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      feedingReminderIntervalDays: 7,
+      feedingReminderBaseline: baseline,
+    );
+
+    await repository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 12),
+    );
+
+    final updated = await repository.updateFeedingReminder(
+      animalId: animalId,
+      intervalDays: 14,
+      baseline: DateTime(2026, 9, 13),
+    );
+
+    expect(updated, isFalse);
+
+    final animal = await repository.getAnimalById(animalId);
+
+    expect(animal!.feedingReminderIntervalDays, 7);
+    expect(animal.feedingReminderBaseline, baseline);
+  });
+
   test('rejects incomplete or non-positive feeding reminders', () async {
     final boxId = await database
         .into(database.boxes)
@@ -449,6 +529,15 @@ void main() {
         humidityMax: 60,
         feedingReminderIntervalDays: 0,
         feedingReminderBaseline: baseline,
+      ),
+      throwsArgumentError,
+    );
+
+    await expectLater(
+      repository.updateFeedingReminder(
+        animalId: 999,
+        intervalDays: 7,
+        baseline: null,
       ),
       throwsArgumentError,
     );

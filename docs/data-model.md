@@ -199,10 +199,12 @@ feedingReminderIntervalDays > 0
 feedingReminderBaseline = timestamp captured when enabled
 ```
 
-The create and edit workflows validate this pair before persistence. Capturing
-the baseline when a reminder is first enabled prevents an existing Animal with
-no feeding history from becoming overdue immediately. Changing only the
-interval of an enabled reminder preserves its existing baseline.
+The create workflow and the dedicated active-Animal reminder settings workflow
+validate this pair before persistence. Capturing the baseline when a reminder
+is first enabled prevents an existing Animal with no feeding history from
+becoming overdue immediately. Changing only the interval of an enabled
+reminder preserves its existing baseline. Ordinary Animal edits carry the
+persisted pair through unchanged.
 
 ### Feeding Reminder Calculation
 
@@ -438,6 +440,7 @@ BoxRepository
 AnimalRepository
 ├── create Animal
 ├── retrieve active Animals
+├── update Animal reminder configuration
 ├── retrieve archived Animals
 ├── retrieve active Animals for Box
 ├── update active Animal

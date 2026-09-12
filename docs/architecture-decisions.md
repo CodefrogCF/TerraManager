@@ -844,6 +844,13 @@ reminder captures the current time through an injectable clock. Editing the
 interval of an already enabled reminder preserves the baseline; disabling the
 reminder clears both fields.
 
+New Animals may configure the pair during creation. For an existing active
+Animal, reminder changes are exposed through a dedicated action on Animal
+details and persisted with a targeted repository update. The ordinary Edit
+Animal workflow carries the loaded pair through unchanged so saving unrelated
+fields cannot silently reset reminder settings. Archived Animal details do not
+expose the configuration action.
+
 Archive and restore operations do not modify the pair. Reminder queries are
 responsible for excluding archived Animals.
 
@@ -968,6 +975,11 @@ Selecting a summary entry opens the existing Animal detail route with its
 normal contextual navigation. Animal details calculate one reminder state and
 show either a due or scheduled status card with the calculated due timestamp.
 Selecting that card opens the existing feeding history workflow.
+
+The detail app bar also exposes a dedicated reminder-settings action for active
+Animals. Saving that page reloads the detail Animal and its derived reminder
+state immediately. The Latest Feeding card is an additional direct entry to
+the complete feeding history; it remains absent when no FeedingEvent exists.
 
 Returning from feeding history recalculates the latest feeding and reminder
 state. Returning from Animal details reloads the overview while preserving its

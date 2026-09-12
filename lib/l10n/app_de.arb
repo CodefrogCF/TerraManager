@@ -289,6 +289,7 @@
     }
   },
   "failedToLoadFeedingReminder": "Fütterungserinnerung konnte nicht geladen werden",
+  "failedToSaveFeedingReminder": "Fütterungserinnerung konnte nicht gespeichert werden",
   "sortBoxes": "Boxen sortieren",
   "boxSortLabelAscending": "Boxnummer aufsteigend",
   "boxSortLabelDescending": "Boxnummer absteigend",

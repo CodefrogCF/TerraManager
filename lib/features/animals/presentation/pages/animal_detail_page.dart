@@ -13,6 +13,7 @@ import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
+import '../../../feedings/presentation/pages/feeding_reminder_settings_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../animal_display_names.dart';
 import '../widgets/animal_picture.dart';
@@ -141,6 +142,27 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
     setState(() {
       _loadLatestFeeding();
+      _loadFeedingReminder();
+    });
+  }
+
+  Future<void> _openFeedingReminderSettings() async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => FeedingReminderSettingsPage(
+          database: widget.database,
+          animalId: _animalId,
+          now: widget.reminderNow,
+        ),
+      ),
+    );
+
+    if (!mounted || changed != true) {
+      return;
+    }
+
+    setState(() {
+      _loadAnimal();
       _loadFeedingReminder();
     });
   }
@@ -546,6 +568,15 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                 ),
               if (animal != null && animal.status == AnimalStatus.active)
                 IconButton(
+                  key: const Key('feeding-reminder-button'),
+                  onPressed: _lifecycleActionInProgress
+                      ? null
+                      : _openFeedingReminderSettings,
+                  icon: const Icon(Icons.notifications_outlined),
+                  tooltip: context.l10n.feedingReminder,
+                ),
+              if (animal != null && animal.status == AnimalStatus.active)
+                IconButton(
                   key: const Key('edit-animal-button'),
                   onPressed: _lifecycleActionInProgress ? null : _openEditPage,
                   icon: const Icon(Icons.edit),
@@ -729,35 +760,41 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
             return Card(
               key: const Key('latest-feeding-section'),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.restaurant),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            _formatDateTime(feeding.fedAt),
-                            key: const Key('latest-feeding-date'),
-                            style: Theme.of(context).textTheme.titleSmall,
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                key: const Key('latest-feeding-history-action'),
+                onTap: _openFeedingHistory,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.restaurant),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _formatDateTime(feeding.fedAt),
+                              key: const Key('latest-feeding-date'),
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
                           ),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+
+                      if (feeding.notes != null &&
+                          feeding.notes!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 12),
+
+                        Text(
+                          feeding.notes!,
+                          key: const Key('latest-feeding-note'),
                         ),
                       ],
-                    ),
-
-                    if (feeding.notes != null &&
-                        feeding.notes!.trim().isNotEmpty) ...[
-                      const SizedBox(height: 12),
-
-                      Text(
-                        feeding.notes!,
-                        key: const Key('latest-feeding-note'),
-                      ),
                     ],
-                  ],
+                  ),
                 ),
               ),
             );

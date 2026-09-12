@@ -64,8 +64,10 @@ The application must allow the user to:
 - display Animal thumbnails where pictures are available
 - preserve Animal Overview scroll position after returning from related detail/history workflows
 - view Animal details
+- open the complete feeding history by selecting the Latest Feeding card
 - swipe between Animal details using the ordering of the source collection
 - edit Animal data
+- open dedicated Feeding Reminder settings from active Animal details
 - change the associated Box
 - add or remove an Animal picture
 - take a new Animal picture with a supported device camera
@@ -94,6 +96,7 @@ The application must allow the user to:
 - optionally configure a feeding reminder interval in positive whole days
 - capture a reminder baseline when the reminder is enabled
 - retain reminder configuration while the Animal is archived
+- preserve reminder configuration while editing other Animal fields
 - calculate a reminder due timestamp from its configuration and feeding history
 - permanently delete an archived Animal through an explicit confirmation workflow
 
@@ -170,6 +173,9 @@ in the Animal record.
 The Animal detail screen must display the most recent FeedingEvent, including
 its timestamp and optional note.
 
+When a FeedingEvent exists, its Latest Feeding card must be visibly actionable
+and open the complete feeding history for that Animal.
+
 The displayed value must refresh after the feeding history is modified.
 
 The application must provide a dedicated Feeding Mode that allows the user to:
@@ -225,6 +231,11 @@ and calculated due timestamp on the detail screen. The status must open the
 existing feeding history workflow. Returning after FeedingEvent creation,
 editing or deletion must refresh both the detail state and overview summary.
 Quick Feeding submissions must also invalidate the overview state.
+
+Active Animal details must expose a dedicated action for configuring the
+feeding reminder. The ordinary Edit Animal form must not clear or change the
+reminder configuration when other Animal fields are saved. Archived Animals
+must not expose reminder editing controls.
 
 Reminder presentation must be available in English and German, must not open a
 blocking dialog automatically and must not request system-notification

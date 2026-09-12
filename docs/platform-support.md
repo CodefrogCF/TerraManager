@@ -177,10 +177,12 @@ Validated functionality includes:
 - legacy and WebP display in overview, detail and full-screen views
 - mixed legacy and WebP backup export and restore
 - optional per-Animal feeding reminder configuration and persistence
+- dedicated Feeding Reminder settings from active Animal details
 - latest-FeedingEvent reminder reference with baseline fallback only for
   Animals without feeding history
 - non-modal due summary, due markers and scheduled or due detail status
 - direct reminder navigation to the existing feeding workflow
+- Latest Feeding card navigation to complete feeding history
 - immediate reminder refresh after normal and Quick Feeding changes
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility
@@ -287,10 +289,12 @@ Validated functionality includes:
 - legacy and WebP display in overview, detail and full-screen views
 - mixed legacy and WebP backup export and restore
 - optional per-Animal feeding reminder configuration and persistence
+- dedicated Feeding Reminder settings from active Animal details
 - latest-FeedingEvent reminder reference with baseline fallback only for
   Animals without feeding history
 - non-modal due summary, due markers and scheduled or due detail status
 - direct reminder navigation to the existing feeding workflow
+- Latest Feeding card navigation to complete feeding history
 - immediate reminder refresh after normal and Quick Feeding changes
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility

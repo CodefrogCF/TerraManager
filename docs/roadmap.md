@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.5+46**
+**v1.0.6+47**
 
 Completed development areas:
 
@@ -89,6 +89,10 @@ Completed development areas:
   with the permanent identifier and PNG export action
 - Box deletion available only as a destructive action at the bottom of Edit
   Box, with confirmation and assigned-Animal protection
+- direct Latest Feeding navigation into the complete Animal feeding history
+- dedicated Feeding Reminder settings action on active Animal details
+- ordinary Animal edits preserve reminder configuration without exposing its
+  controls
 
 v0.7.1 implementation and release validation are complete.
 
@@ -174,6 +178,12 @@ Development build `1.0.5+46` implements Issue #97 by moving Box deletion from
 the detail app bar to the bottom of Edit Box. Saved and deleted edit results
 are handled separately so deletion closes the detail route and refreshes the
 originating overview, including after contextual Box navigation.
+
+Development build `1.0.6+47` implements the detail and workflow changes for
+Issue #98. Latest Feeding is now an explicit history shortcut, and active
+Animal details expose a dedicated Feeding Reminder settings action. The
+ordinary Edit Animal workflow preserves existing reminder configuration while
+the dedicated page owns reminder validation and persistence.
 
 ---
 
@@ -832,9 +842,21 @@ roughly one sixth of its previous size.
 - [x] Update focused Box edit, detail-management and swipe-navigation tests
 - [x] Complete automated and manual validation
 
+### Animal Feeding History and Reminder Actions — Issue #98
+
+- [x] Make the Latest Feeding card open the complete Animal feeding history
+- [x] Add a dedicated reminder settings action to active Animal details
+- [x] Move reminder editing out of Edit Animal while preserving its data
+- [x] Persist reminder changes through a targeted repository operation
+- [x] Keep the injected clock available for deterministic reminder baselines
+- [x] Hide reminder configuration for archived Animals
+- [x] Add localized English and German reminder settings/error text
+- [x] Add repository and widget coverage for activation, validation, updates,
+  disabling, archive protection and detail navigation
+- [ ] Complete automated regression, Android/Web manual validation and release
+
 ### Remaining Milestone Scope
 
-- [ ] Expose Animal Feeding History and reminder actions — Issue #98
 - [ ] Add About information and compact accent selection — Issue #99
 - [ ] Make the pre-restore safety backup optional — Issue #100
 - [ ] Complete v1.1.0 regression, documentation and release — Issue #101

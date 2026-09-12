@@ -43,6 +43,7 @@ void main() {
     expect(l10n.scanDifferentBox, 'Scan a different Box');
     expect(l10n.feedingReminder, 'Feeding reminder');
     expect(l10n.feedingReminderIntervalDays, 'Reminder interval (days)');
+    expect(l10n.failedToSaveFeedingReminder, 'Failed to save feeding reminder');
     expect(l10n.sexMale, 'Male');
     expect(l10n.sexFemale, 'Female');
     expect(l10n.sexUnknown, 'Unknown');
@@ -107,6 +108,10 @@ void main() {
     expect(l10n.scanDifferentBox, 'Andere Box scannen');
     expect(l10n.feedingReminder, 'Fütterungserinnerung');
     expect(l10n.feedingReminderIntervalDays, 'Erinnerungsintervall (Tage)');
+    expect(
+      l10n.failedToSaveFeedingReminder,
+      'Fütterungserinnerung konnte nicht gespeichert werden',
+    );
     expect(l10n.sexMale, 'Männlich');
     expect(l10n.sexFemale, 'Weiblich');
     expect(l10n.sexUnknown, 'Unbekannt');

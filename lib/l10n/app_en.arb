@@ -407,6 +407,7 @@
     }
   },
   "failedToLoadFeedingReminder": "Failed to load feeding reminder",
+  "failedToSaveFeedingReminder": "Failed to save feeding reminder",
   "sortBoxes": "Sort boxes",
   "boxSortLabelAscending": "Box number ascending",
   "boxSortLabelDescending": "Box number descending",

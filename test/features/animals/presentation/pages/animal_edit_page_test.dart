@@ -59,7 +59,6 @@ void main() {
     WidgetTester tester, {
     required int animalId,
     PictureSelectionFlow? pictureSelectionFlow,
-    DateTime Function()? now,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -67,7 +66,6 @@ void main() {
           database: database,
           animalId: animalId,
           pictureSelectionFlow: pictureSelectionFlow,
-          now: now,
         ),
       ),
     );
@@ -653,69 +651,38 @@ void main() {
     expect(await MediaRepository(database).getMediaById(mediaId), isNotNull);
   });
 
-  testWidgets('loads and updates an existing reminder without resetting it', (
-    tester,
-  ) async {
-    final baseline = DateTime(2026, 9, 1, 9);
-    final animalId = await createTestAnimal(
-      feedingReminderIntervalDays: 7,
-      feedingReminderBaseline: baseline,
-    );
+  testWidgets(
+    'ordinary Animal edits hide and preserve reminder configuration',
+    (tester) async {
+      final baseline = DateTime(2026, 9, 1, 9);
+      final animalId = await createTestAnimal(
+        feedingReminderIntervalDays: 7,
+        feedingReminderBaseline: baseline,
+      );
 
-    await pumpPage(
-      tester,
-      animalId: animalId,
-      now: () => DateTime(2026, 9, 8, 18),
-    );
+      await pumpPageWithNavigation(tester, animalId: animalId);
 
-    final reminderSwitch = tester.widget<SwitchListTile>(
-      find.byKey(const Key('feeding-reminder-enabled-switch')),
-    );
-    final intervalField = find.byKey(
-      const Key('feeding-reminder-interval-days-field'),
-    );
+      expect(
+        find.byKey(const Key('feeding-reminder-enabled-switch')),
+        findsNothing,
+      );
+      expect(
+        find.byKey(const Key('feeding-reminder-interval-days-field')),
+        findsNothing,
+      );
 
-    expect(reminderSwitch.value, isTrue);
-    expect(tester.widget<TextFormField>(intervalField).controller!.text, '7');
+      await tester.enterText(
+        find.byKey(const Key('common-name-field')),
+        'Updated Snake',
+      );
+      await tester.tap(find.byTooltip('Save'));
+      await tester.pumpAndSettle();
 
-    await tester.enterText(intervalField, '10');
-    await tester.tap(find.byTooltip('Save'));
-    await tester.pumpAndSettle();
+      final animal = await AnimalRepository(database).getAnimalById(animalId);
 
-    final animal = await AnimalRepository(database).getAnimalById(animalId);
-
-    expect(animal!.feedingReminderIntervalDays, 10);
-    expect(animal.feedingReminderBaseline, baseline);
-  });
-
-  testWidgets('disabling a reminder clears its persisted configuration', (
-    tester,
-  ) async {
-    final animalId = await createTestAnimal(
-      feedingReminderIntervalDays: 7,
-      feedingReminderBaseline: DateTime(2026, 9, 1, 9),
-    );
-
-    await pumpPage(tester, animalId: animalId);
-
-    final reminderSwitch = find.byKey(
-      const Key('feeding-reminder-enabled-switch'),
-    );
-    await tester.ensureVisible(reminderSwitch);
-    await tester.tap(reminderSwitch);
-    await tester.pumpAndSettle();
-
-    expect(
-      find.byKey(const Key('feeding-reminder-interval-days-field')),
-      findsNothing,
-    );
-
-    await tester.tap(find.byTooltip('Save'));
-    await tester.pumpAndSettle();
-
-    final animal = await AnimalRepository(database).getAnimalById(animalId);
-
-    expect(animal!.feedingReminderIntervalDays, isNull);
-    expect(animal.feedingReminderBaseline, isNull);
-  });
+      expect(animal!.commonName, 'Updated Snake');
+      expect(animal.feedingReminderIntervalDays, 7);
+      expect(animal.feedingReminderBaseline, baseline);
+    },
+  );
 }

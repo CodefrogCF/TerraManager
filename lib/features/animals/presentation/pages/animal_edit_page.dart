@@ -12,7 +12,6 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
-import '../../../feedings/presentation/widgets/feeding_reminder_form_fields.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/animal_picture.dart';
@@ -21,14 +20,12 @@ class AnimalEditPage extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
   final PictureSelectionFlow? pictureSelectionFlow;
-  final DateTime Function()? now;
 
   const AnimalEditPage({
     super.key,
     required this.database,
     required this.animalId,
     this.pictureSelectionFlow,
-    this.now,
   });
 
   @override
@@ -45,7 +42,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _humidityMinController = TextEditingController();
   final _humidityMaxController = TextEditingController();
   final _notesController = TextEditingController();
-  final _feedingReminderIntervalDaysController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
 
@@ -53,8 +49,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   BirthDateAccuracy? _birthDateAccuracy;
   DateTime? _birthDate;
   int? _boxId;
-  bool _feedingReminderEnabled = false;
-  DateTime? _feedingReminderBaseline;
 
   int? _pictureMediaId;
   int? _originalPictureMediaId;
@@ -94,7 +88,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     _humidityMinController.dispose();
     _humidityMaxController.dispose();
     _notesController.dispose();
-    _feedingReminderIntervalDaysController.dispose();
     super.dispose();
   }
 
@@ -153,15 +146,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _birthDate = animal.birthDate;
       _birthDateAccuracy = animal.birthDateAccuracy;
       _boxId = animal.boxId;
-
-      final reminderIntervalDays = animal.feedingReminderIntervalDays;
-      final reminderBaseline = animal.feedingReminderBaseline;
-
-      _feedingReminderEnabled =
-          reminderIntervalDays != null && reminderBaseline != null;
-      _feedingReminderIntervalDaysController.text =
-          reminderIntervalDays?.toString() ?? '';
-      _feedingReminderBaseline = reminderBaseline;
 
       _pictureMediaId = animal.pictureMediaId;
 
@@ -328,12 +312,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           notes: _notesController.text.trim().isEmpty
               ? null
               : _notesController.text.trim(),
-          feedingReminderIntervalDays: _feedingReminderEnabled
-              ? int.parse(_feedingReminderIntervalDaysController.text.trim())
-              : null,
-          feedingReminderBaseline: _feedingReminderEnabled
-              ? _feedingReminderBaseline
-              : null,
+          feedingReminderIntervalDays: _animal!.feedingReminderIntervalDays,
+          feedingReminderBaseline: _animal!.feedingReminderBaseline,
         );
 
         if (!updated) {
@@ -666,15 +646,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             ),
             const SizedBox(height: 16),
 
-            FeedingReminderFormFields(
-              reminderEnabled: _feedingReminderEnabled,
-              controlsEnabled: !_saving && !_processingPicture,
-              intervalDaysController: _feedingReminderIntervalDaysController,
-              onReminderEnabledChanged: _setFeedingReminderEnabled,
-              onIntervalChanged: (_) => _markAsChanged(),
-            ),
-            const SizedBox(height: 16),
-
             TextFormField(
               key: const Key('notes-field'),
               controller: _notesController,
@@ -738,16 +709,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         _hasUnsavedChanges = true;
       });
     }
-  }
-
-  void _setFeedingReminderEnabled(bool enabled) {
-    setState(() {
-      _feedingReminderEnabled = enabled;
-      _feedingReminderBaseline = enabled
-          ? (widget.now ?? DateTime.now)()
-          : null;
-      _hasUnsavedChanges = true;
-    });
   }
 
   String _formatDate(DateTime date) {

@@ -23,7 +23,7 @@ Current completed release milestone:
 
 Current application version and build:
 
-**v1.0.5+46**
+**v1.0.6+47**
 
 Implemented milestones in the current source state:
 
@@ -114,6 +114,12 @@ and into a destructive section at the bottom of Edit Box. Issue #97 preserves
 confirmation and assigned-Animal protection while returning safely to the Box
 Overview after deletion, including from a contextually swiped Box. Automated
 and manual validation are complete.
+
+Development build `1.0.6+47` implements Issue #98. The Latest Feeding card on
+Animal details now opens the complete feeding history, while a dedicated
+top-level action opens Feeding Reminder settings for active Animals. Reminder
+controls no longer occupy Edit Animal, and ordinary Animal changes preserve
+the existing reminder configuration.
 
 ### Android transition to the permanent application ID
 
@@ -234,6 +240,7 @@ application restarts.
 - contextual swipe navigation through Active Animals, Animal History and
   Box-specific Animal collections
 - optional per-Animal feeding reminder configuration
+- dedicated Feeding Reminder settings from active Animal details
 - positive whole-day reminder intervals
 - reminder baselines set when reminders are enabled
 - reminder configuration retained while an Animal is archived
@@ -256,6 +263,7 @@ application restarts.
 - FeedingEvent deletion with confirmation
 - latest feeding lookup
 - latest feeding displayed directly on animal details
+- direct feeding-history navigation from the Latest Feeding card
 - automatic refresh after feeding edits and deletions
 - efficient bulk lookup of reminder state without one feeding query per Animal
 - deterministic due-state calculation at exact timestamp boundaries

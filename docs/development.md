@@ -291,6 +291,9 @@ Examples:
 - disabled and archived Animal exclusion from reminder results
 - due ordering from most overdue to least overdue
 - reminder calculation after restoring current backup data
+- dedicated reminder settings from active Animal details
+- ordinary Animal edits preserve reminder configuration
+- Latest Feeding card navigation to complete feeding history
 - absence of a reminder summary when no active Animal is due
 - Debug Android build without `android/key.properties`
 - production-signed APK and AAB builds with local release credentials
@@ -345,14 +348,16 @@ smaller, and roughly 6.2 times smaller overall.
 
 ## Recommended Release Validation
 
-The active v1.0.0 release checklist is maintained in:
+The completed v1.0.0 release checklist is maintained in:
 
 ```text
 docs/release-v1.0.0.md
 ```
 
-Do not create the release tag until every blocking automated, build, artifact,
-backup and manual validation item in that document is complete.
+For the active v1.1.0 milestone, keep the corresponding issue and milestone
+checklists in `roadmap.md` current. Do not create a release tag until every
+blocking automated, build, artifact, backup and manual validation item in the
+new release checklist is complete.
 
 Before a milestone release:
 

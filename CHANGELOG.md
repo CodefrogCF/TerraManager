@@ -8,6 +8,10 @@ The project uses semantic versioning.
 
 ### Added
 
+- added a dedicated Feeding Reminder action to active Animal details so an
+  existing Animal's reminder can be configured without opening Edit Animal
+- added a targeted repository operation for updating only an active Animal's
+  reminder interval and baseline
 - added current Animal picture thumbnails to the assigned-Animal list on Box
   details, with the existing Animal fallback icon when no usable picture is
   available
@@ -16,6 +20,12 @@ The project uses semantic versioning.
 
 ### Changed
 
+- made the Latest Feeding card on Animal details open the complete feeding
+  history directly
+- removed reminder controls from Edit Animal while preserving the Animal's
+  current reminder configuration during ordinary detail changes
+- refreshed the Animal-detail reminder state immediately after its dedicated
+  configuration is saved
 - moved the Box QR code, permanent identifier and remaining export action into
   one section at the bottom of Box details so Box information and assigned
   Animals appear first
@@ -30,7 +40,7 @@ The project uses semantic versioning.
   closes the stale detail route and refreshes the originating overview
 - disabled saving, picture changes and navigation while Box deletion is in
   progress to prevent conflicting actions
-- advanced the development version to `1.0.5+46`
+- advanced the development version to `1.0.6+47`
 
 ### Removed
 
@@ -41,6 +51,12 @@ The project uses semantic versioning.
 
 ### Testing
 
+- added repository and widget coverage for dedicated reminder activation,
+  validation, interval updates, disabling and archived-Animal protection
+- added Animal-detail coverage for Latest Feeding history navigation and the
+  dedicated reminder action
+- verified that ordinary Animal edits hide and preserve existing reminder
+  configuration
 - added Box-detail widget coverage for assigned Animals with no picture, a
   stored picture and invalid image data
 - added Box-detail layout coverage for the revised information order, QR

@@ -163,6 +163,30 @@ class AnimalRepository {
     return updatedRows > 0;
   }
 
+  Future<bool> updateFeedingReminder({
+    required int animalId,
+    required int? intervalDays,
+    required DateTime? baseline,
+  }) async {
+    _validateFeedingReminder(intervalDays: intervalDays, baseline: baseline);
+
+    final updatedRows =
+        await (database.update(database.animals)..where(
+              (animal) =>
+                  animal.id.equals(animalId) &
+                  animal.status.equalsValue(AnimalStatus.active),
+            ))
+            .write(
+              AnimalsCompanion(
+                feedingReminderIntervalDays: Value(intervalDays),
+                feedingReminderBaseline: Value(baseline),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+
+    return updatedRows > 0;
+  }
+
   Future<bool> archiveAnimal({
     required int animalId,
     required AnimalArchiveReason reason,

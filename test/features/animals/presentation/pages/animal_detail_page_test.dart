@@ -193,6 +193,104 @@ void main() {
     expect(find.byKey(const Key('add-feeding-button')), findsOneWidget);
   });
 
+  testWidgets('latest feeding opens the Animal feeding history', (
+    tester,
+  ) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'latest-feeding-history-box'));
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'History Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+    await FeedingRepository(database).addFeeding(
+      animalId,
+      DateTime(2026, 9, 10, 18, 30),
+      notes: 'Detail shortcut feeding',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final latestFeedingAction = find.byKey(
+      const Key('latest-feeding-history-action'),
+    );
+    await tester.scrollUntilVisible(latestFeedingAction, 300);
+    await tester.pumpAndSettle();
+
+    await tester.tap(latestFeedingAction);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Feeding History'), findsOneWidget);
+    expect(find.text('Detail shortcut feeding'), findsOneWidget);
+  });
+
+  testWidgets('reminder button configures and refreshes the reminder state', (
+    tester,
+  ) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'detail-reminder-box'));
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Reminder Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+    final now = DateTime(2026, 9, 12, 12);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(
+          database: database,
+          animalId: animalId,
+          reminderNow: () => now,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('feeding-reminder-button')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('feeding-reminder-button')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('feeding-reminder-settings-page')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('feeding-reminder-enabled-switch')));
+    await tester.pump();
+    await tester.enterText(
+      find.byKey(const Key('feeding-reminder-interval-days-field')),
+      '7',
+    );
+    await tester.tap(find.byKey(const Key('save-feeding-reminder-button')));
+    await tester.pumpAndSettle();
+
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('feeding-reminder-status')),
+      300,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Next feeding scheduled'), findsOneWidget);
+    expect(find.text('Due on 19.09.2026 12:00'), findsOneWidget);
+  });
+
   testWidgets('shows picture placeholder when animal has no picture', (
     tester,
   ) async {
@@ -421,6 +519,8 @@ void main() {
     );
 
     await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('feeding-reminder-button')), findsNothing);
 
     await tester.scrollUntilVisible(
       find.byKey(const Key('restore-animal-button')),

@@ -103,6 +103,11 @@ The project uses semantic versioning.
   overview return through manual testing
 - complete automated and manual validation after Issue #99
 - complete automated and manual validation after Issue #100
+- completed the v1.1.0 automated, migration, backup and Android/Web manual
+  regression for Issue #101
+- completed supported release builds, production-signature verification and
+  the final Quality gates run for Issue #101
+- recorded final release artifact hashes for the APK and Android App Bundle
 - prepared the v1.1.0 regression, compatibility and release checklist
 
 ## [1.0.0] - 2026-09-09

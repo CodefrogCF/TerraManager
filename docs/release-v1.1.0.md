@@ -7,6 +7,11 @@ the corresponding command, artifact or manual workflow has actually been
 verified. Do not create the release tag while a release-blocking item remains
 unresolved.
 
+The automated, migration, backup and Android/Web regression, supported builds,
+release-artifact verification and final Quality gates run completed
+successfully on 2026-09-12. Only tag and GitHub release publication remain
+pending.
+
 Version 1.1.0 completes the Detail & Workflow Polish milestone implemented by
 Issues #94–#100. It advances the local database to Schema Version 6 for
 optional Box notes while retaining Portable Backup Format Version 2.
@@ -80,7 +85,7 @@ Record the result:
 - [x] public release-documentation tests passed
 - [x] v1.1.0 release-documentation tests passed
 - [x] complete automated test suite passed
-- [ ] final GitHub Actions **Quality gates** run passed on the release commit
+- [x] final GitHub Actions **Quality gates** run passed on the release commit
 
 ## Focused Regression
 
@@ -153,8 +158,8 @@ Get-FileHash build\app\outputs\bundle\release\app-release.aab -Algorithm SHA256
 ```
 
 ```text
-APK SHA-256: _________________________________________________
-AAB SHA-256: _________________________________________________
+APK SHA-256: E523032E398CBBCA832464E6A06474D23ED8345D20926D2BE217F52299FF65B1
+AAB SHA-256: E42BA3C7149CDC32CB805A9E33A6EEC95486DD93038AC438A6DFDCA090EFD828
 ```
 
 - [x] APK signature verification succeeded
@@ -170,9 +175,10 @@ Use a physical Android device and the final production-signed APK.
 
 ### Installation and general behaviour
 
-- [x] install or update the production build successfully
-- [x] confirm TerraManager name, icon, Version `1.1.0` and Build `50`
-- [x] confirm existing local data survives an in-place update
+- [x] install or update the final production build successfully
+- [x] confirm the final artifact reports TerraManager, Version `1.1.0` and
+  Build `50`
+- [x] confirm existing local data survives an in-place production update
 - [x] confirm navigation, language, appearance and overview ordering settings
   persist after restart
 - [x] complete representative Box, Animal, FeedingEvent and QR workflows
@@ -251,7 +257,8 @@ Use a physical Android device and the final production-signed APK.
 - [x] Roadmap records Issues #94–#100 and the pending Issue #101 validation
 - [x] installation, platform, development, schema and backup documentation was
   reviewed for v1.1.0
-- [x] final automated, build, signature, hash and manual results are recorded
+- [x] automated and manual functional-regression results are recorded
+- [x] final build, signature and artifact-hash results are recorded
 - [x] Issue #101 is closed after all blocking validation succeeds
-- [x] annotated tag `v1.1.0` is created and pushed
-- [x] GitHub release `v1.1.0` is published with the verified APK
+- [ ] annotated tag `v1.1.0` is created and pushed
+- [ ] GitHub release `v1.1.0` is published with the verified APK

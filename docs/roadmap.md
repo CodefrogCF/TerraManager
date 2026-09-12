@@ -910,7 +910,7 @@ roughly one sixth of its previous size.
 - [x] Build and verify all supported release artifacts
 - [x] Complete Android and Web manual regression
 - [x] Confirm the final GitHub Actions Quality gates run
-- [x] Publish the v1.1.0 tag and GitHub release
+- [ ] Publish the v1.1.0 tag and GitHub release
 
 ---
 

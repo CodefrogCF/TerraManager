@@ -42,5 +42,17 @@ void main() {
     expect(release, contains('Version 5 to Version 6'));
     expect(release, contains('APK SHA-256:'));
     expect(release, contains('AAB SHA-256:'));
+    expect(
+      release,
+      contains(
+        'E523032E398CBBCA832464E6A06474D23ED8345D20926D2BE217F52299FF65B1',
+      ),
+    );
+    expect(
+      release,
+      contains(
+        'E42BA3C7149CDC32CB805A9E33A6EEC95486DD93038AC438A6DFDCA090EFD828',
+      ),
+    );
   });
 }

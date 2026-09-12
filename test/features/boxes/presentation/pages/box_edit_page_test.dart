@@ -59,10 +59,8 @@ void main() {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) => BoxEditPage(
-                          database: database,
-                          boxId: boxId,
-                        ),
+                        builder: (_) =>
+                            BoxEditPage(database: database, boxId: boxId),
                       ),
                     );
                   },
@@ -113,9 +111,7 @@ void main() {
     expect(
       tester.getTopLeft(deleteButton).dy,
       greaterThan(
-        tester
-            .getTopLeft(find.byKey(const Key('save-box-form-button')))
-            .dy,
+        tester.getTopLeft(find.byKey(const Key('save-box-form-button'))).dy,
       ),
     );
   });

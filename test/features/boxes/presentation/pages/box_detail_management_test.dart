@@ -166,9 +166,7 @@ void main() {
 
     await pumpDetailPage(tester, box: box);
 
-    final thumbnail = find.byKey(
-      Key('assigned-animal-thumbnail-$animalId'),
-    );
+    final thumbnail = find.byKey(Key('assigned-animal-thumbnail-$animalId'));
     await tester.scrollUntilVisible(
       thumbnail,
       300,
@@ -198,9 +196,7 @@ void main() {
 
     await pumpDetailPage(tester, box: box);
 
-    final thumbnail = find.byKey(
-      Key('assigned-animal-thumbnail-$animalId'),
-    );
+    final thumbnail = find.byKey(Key('assigned-animal-thumbnail-$animalId'));
     await tester.scrollUntilVisible(
       thumbnail,
       300,
@@ -227,9 +223,7 @@ void main() {
 
     await pumpDetailPage(tester, box: box);
 
-    final thumbnail = find.byKey(
-      Key('assigned-animal-thumbnail-$animalId'),
-    );
+    final thumbnail = find.byKey(Key('assigned-animal-thumbnail-$animalId'));
     await tester.scrollUntilVisible(
       thumbnail,
       300,

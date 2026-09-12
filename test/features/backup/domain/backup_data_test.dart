@@ -12,6 +12,7 @@ void main() {
           widthCm: 60,
           heightCm: 40,
           depthCm: 40,
+          notes: 'Heat cable below the left side',
           pictureMediaPath: 'media/boxes/1.png',
           createdAt: DateTime(2026, 8, 1),
           updatedAt: DateTime(2026, 8, 2),
@@ -65,6 +66,7 @@ void main() {
     expect(restored.boxes.single.widthCm, 60);
     expect(restored.boxes.single.heightCm, 40);
     expect(restored.boxes.single.depthCm, 40);
+    expect(restored.boxes.single.notes, 'Heat cable below the left side');
     expect(restored.boxes.single.pictureMediaPath, 'media/boxes/1.png');
 
     expect(restored.animals.single.boxId, 1);
@@ -131,6 +133,7 @@ void main() {
 
     expect(restored.id, 4);
     expect(restored.widthCm, isNull);
+    expect(restored.notes, isNull);
     expect(restored.heightCm, isNull);
     expect(restored.depthCm, isNull);
     expect(restored.pictureMediaPath, isNull);

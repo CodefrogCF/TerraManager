@@ -118,6 +118,10 @@ Schema Version 5 adds the nullable Animal columns
 must verify that Version 4 data is preserved and both fields are initialized to
 `null` for existing Animals.
 
+Schema Version 6 adds the nullable Box column `notes`. Migration tests must
+verify that Version 5 Box, Animal, FeedingEvent and MediaAsset data is preserved
+and that existing Boxes receive `null` notes.
+
 ## Android Development
 
 TerraManager uses the permanent Android namespace and application ID:
@@ -139,8 +143,9 @@ Builds through v0.14.1 used the temporary identifier
 `com.example.flutter_application_1`. They cannot be updated in place by a build
 using the permanent identifier. Export a `.tmbackup` from the old installation,
 install the permanent-ID build and restore that backup before removing the old
-application. Database Schema Version 5 and Portable Backup Format Version 2 do
-not change for this transition.
+application. The application-ID transition itself did not change Database
+Schema Version 5 or Portable Backup Format Version 2. Current development uses
+Database Schema Version 6 for optional Box notes.
 
 Android Debug builds remain available without release credentials. Android
 Release builds require a dedicated local production key and refuse to fall back

@@ -524,6 +524,7 @@ void main() {
             widthCm: const drift.Value(60),
             heightCm: const drift.Value(40),
             depthCm: const drift.Value(45),
+            notes: const drift.Value('Bioactive setup'),
             pictureMediaId: drift.Value(pictureMediaId),
           ),
         );
@@ -544,6 +545,7 @@ void main() {
     expect(box.widthCm, 60);
     expect(box.heightCm, 40);
     expect(box.depthCm, 45);
+    expect(box.notes, 'Bioactive setup');
 
     expect(box.pictureMediaPath, 'media/boxes/$boxId.webp');
 
@@ -570,6 +572,7 @@ void main() {
     expect(boxJson['widthCm'], 60.0);
     expect(boxJson['heightCm'], 40.0);
     expect(boxJson['depthCm'], 45.0);
+    expect(boxJson['notes'], 'Bioactive setup');
 
     expect(boxJson['pictureMediaPath'], 'media/boxes/$boxId.webp');
   });

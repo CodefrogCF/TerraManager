@@ -11,6 +11,8 @@ The project uses semantic versioning.
 - added current Animal picture thumbnails to the assigned-Animal list on Box
   details, with the existing Animal fallback icon when no usable picture is
   available
+- added optional multiline Box notes to New Box and Edit Box
+- added a non-empty Box notes section to Box details
 
 ### Changed
 
@@ -18,7 +20,11 @@ The project uses semantic versioning.
   one section at the bottom of Box details so Box information and assigned
   Animals appear first
 - moved QR export from the Box-detail app bar into the QR section
-- advanced the development version to `1.0.2+44`
+- added nullable `Box.notes` in Database Schema Version 6 with a data-preserving
+  Version 5 to Version 6 migration
+- extended Backup Format Version 2 with backward-compatible optional Box notes;
+  backups without the field restore with empty notes
+- advanced the development version to `1.0.4+45`
 
 ### Removed
 
@@ -35,13 +41,17 @@ The project uses semantic versioning.
   export and absence of the removed Print action
 - updated contextual-navigation coverage so QR export still targets the
   currently displayed Box after swiping
+- added repository and widget coverage for creating, editing, clearing and
+  conditionally displaying Box notes
+- added schema migration, persistence, backup export, validation and restore
+  coverage for Box notes
 
 ### Validated
 
 - `flutter analyze` without issues
-- complete automated test suite with 456 passing tests
-- assigned-Animal thumbnails, missing-picture fallback, picture refresh and
-  Animal-detail navigation through manual testing
+- complete automated test suite with 453 passing tests after Issue #95
+- revised Box-detail order, QR export and removed printing workflow through
+  manual testing
 
 ## [1.0.0] - 2026-09-09
 

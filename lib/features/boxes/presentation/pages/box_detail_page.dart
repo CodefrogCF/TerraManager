@@ -599,6 +599,19 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               value: _formatDateTime(box.updatedAt),
             ),
 
+            if (box.notes != null && box.notes!.trim().isNotEmpty) ...[
+              const SizedBox(height: 16),
+
+              Text(
+                context.l10n.notes,
+                key: const Key('box-notes-heading'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+
+              Text(box.notes!, key: const Key('box-notes')),
+            ],
+
             const SizedBox(height: 16),
 
             Row(

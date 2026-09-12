@@ -105,6 +105,7 @@ Validated functionality includes:
 - direct Animal creation from empty and populated Box details with the Box
   preselected
 - Box editing and optional dimensions
+- optional multiline Box notes in create, edit and detail workflows
 - persistent Box pictures
 - Box picture persistence across normal application restarts
 - full-screen Box picture viewing with zooming and panning
@@ -158,6 +159,7 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
+- Box notes backup and backward-compatible restore
 - appearance-, language-, Animal-name- and overview-sort-setting backup and
   restore
 - restore compatibility for backups without a language setting
@@ -180,6 +182,7 @@ Validated functionality includes:
 - immediate reminder refresh after normal and Quick Feeding changes
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility
+- schema Version 5 to Version 6 migration and Box-notes backup compatibility
 - English and German reminder configuration and presentation
 
 QR images saved on Android are stored through the platform media/gallery system
@@ -267,6 +270,7 @@ Validated functionality includes:
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
+- Box notes backup and backward-compatible restore
 - appearance-, language-, Animal-name- and overview-sort-setting backup and
   restore
 - restore compatibility for backups without a language setting
@@ -288,6 +292,7 @@ Validated functionality includes:
 - immediate reminder refresh after normal and Quick Feeding changes
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility
+- schema Version 5 to Version 6 migration and Box-notes backup compatibility
 - English and German reminder configuration and presentation
 
 WebP optimization for new and replaced pictures uses browser Canvas encoding

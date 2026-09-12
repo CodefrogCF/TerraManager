@@ -171,6 +171,7 @@ void main() {
             widthCm: 60,
             heightCm: 40,
             depthCm: 45,
+            notes: 'Restored Box notes',
             pictureMediaPath: boxPicturePath,
             createdAt: DateTime(2026, 9, 1),
             updatedAt: DateTime(2026, 9, 2),
@@ -255,6 +256,7 @@ void main() {
     expect(boxes.single.widthCm, isNull);
     expect(boxes.single.heightCm, isNull);
     expect(boxes.single.depthCm, isNull);
+    expect(boxes.single.notes, isNull);
     expect(boxes.single.pictureMediaId, isNull);
 
     final animals = await database.select(database.animals).get();
@@ -565,6 +567,7 @@ void main() {
     expect(box.widthCm, 60);
     expect(box.heightCm, 40);
     expect(box.depthCm, 45);
+    expect(box.notes, 'Restored Box notes');
     expect(box.pictureMediaId, isNotNull);
 
     final animals = await database.select(database.animals).get();

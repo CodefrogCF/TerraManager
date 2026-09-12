@@ -44,6 +44,8 @@ class BackupBox {
   final double? heightCm;
   final double? depthCm;
 
+  final String? notes;
+
   final String? pictureMediaPath;
 
   final DateTime createdAt;
@@ -55,6 +57,7 @@ class BackupBox {
     this.widthCm,
     this.heightCm,
     this.depthCm,
+    this.notes,
     this.pictureMediaPath,
     required this.createdAt,
     required this.updatedAt,
@@ -67,6 +70,7 @@ class BackupBox {
       'widthCm': widthCm,
       'heightCm': heightCm,
       'depthCm': depthCm,
+      'notes': notes,
       'pictureMediaPath': pictureMediaPath,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -80,6 +84,7 @@ class BackupBox {
       widthCm: (json['widthCm'] as num?)?.toDouble(),
       heightCm: (json['heightCm'] as num?)?.toDouble(),
       depthCm: (json['depthCm'] as num?)?.toDouble(),
+      notes: json['notes'] as String?,
       pictureMediaPath: json['pictureMediaPath'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

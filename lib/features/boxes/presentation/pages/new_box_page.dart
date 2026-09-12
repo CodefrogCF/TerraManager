@@ -31,6 +31,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
   final _depthController = TextEditingController();
+  final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
 
@@ -55,6 +56,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
     _widthController.dispose();
     _heightController.dispose();
     _depthController.dispose();
+    _notesController.dispose();
 
     super.dispose();
   }
@@ -134,6 +136,8 @@ class _NewBoxPageState extends State<NewBoxPage> {
 
       final depthCm = _parseOptionalNumber(_depthController.text);
 
+      final notes = _notesController.text.trim();
+
       await widget.database.transaction(() async {
         int? pictureMediaId;
 
@@ -149,6 +153,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
           widthCm: widthCm,
           heightCm: heightCm,
           depthCm: depthCm,
+          notes: notes.isEmpty ? null : notes,
           pictureMediaId: pictureMediaId,
         );
       });
@@ -256,6 +261,19 @@ class _NewBoxPageState extends State<NewBoxPage> {
                     key: const Key('new-box-depth-field'),
                     controller: _depthController,
                     label: context.l10n.depthCentimeters,
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextFormField(
+                    key: const Key('new-box-notes-field'),
+                    controller: _notesController,
+                    enabled: !_saving,
+                    maxLines: 5,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.notes,
+                      helperText: context.l10n.optional,
+                      alignLabelWithHint: true,
+                    ),
                   ),
 
                   if (_error != null) ...[

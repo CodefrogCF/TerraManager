@@ -90,6 +90,9 @@ class AppDatabase extends _$AppDatabase {
                   schema.animals.feedingReminderBaseline,
                 );
               },
+              from5To6: (m, schema) async {
+                await m.addColumn(schema.boxes, schema.boxes.notes);
+              },
             ),
           );
 
@@ -114,5 +117,5 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 }

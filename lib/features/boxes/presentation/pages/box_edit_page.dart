@@ -34,6 +34,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
   final _depthController = TextEditingController();
+  final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
 
@@ -68,6 +69,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
     _widthController.dispose();
     _heightController.dispose();
     _depthController.dispose();
+    _notesController.dispose();
 
     super.dispose();
   }
@@ -109,6 +111,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
       _heightController.text = _formatEditableNumber(box.heightCm);
 
       _depthController.text = _formatEditableNumber(box.depthCm);
+
+      _notesController.text = box.notes ?? '';
 
       if (pictureMedia != null) {
         _pictureBytes = pictureMedia.data;
@@ -226,6 +230,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
       final depthCm = _parseOptionalNumber(_depthController.text);
 
+      final notes = _notesController.text.trim();
+
       await widget.database.transaction(() async {
         final mediaRepository = MediaRepository(widget.database);
 
@@ -244,6 +250,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
           widthCm: drift.Value(widthCm),
           heightCm: drift.Value(heightCm),
           depthCm: drift.Value(depthCm),
+          notes: drift.Value(notes.isEmpty ? null : notes),
           pictureMediaId: _pictureChanged
               ? drift.Value(pictureMediaId)
               : const drift.Value.absent(),
@@ -462,6 +469,19 @@ class _BoxEditPageState extends State<BoxEditPage> {
               key: const Key('box-depth-field'),
               controller: _depthController,
               label: context.l10n.depthCentimeters,
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              key: const Key('box-notes-field'),
+              controller: _notesController,
+              onChanged: (_) => _markAsChanged(),
+              maxLines: 5,
+              decoration: InputDecoration(
+                labelText: context.l10n.notes,
+                helperText: context.l10n.optional,
+                alignLabelWithHint: true,
+              ),
             ),
             const SizedBox(height: 24),
 

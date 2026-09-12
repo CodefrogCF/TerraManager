@@ -76,6 +76,13 @@ void main() {
     return box!;
   }
 
+  Future<Box> createBoxWithNotes(String? notes) async {
+    final boxId = await BoxRepository(database)
+        .createBox('TM:BOX:22222222-2222-4222-8222-222222222222', notes: notes);
+
+    return (await BoxRepository(database).getBoxById(boxId))!;
+  }
+
   Future<void> pumpPage(WidgetTester tester, {required Box box}) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -142,6 +149,37 @@ void main() {
     expect(find.byKey(const Key('box-qr-image')), findsOneWidget);
 
     expect(find.byType(QrImageView), findsOneWidget);
+  });
+
+  testWidgets('shows non-empty Box notes', (tester) async {
+    final box = await createBoxWithNotes('Mist every evening\nClean monthly');
+
+    await pumpPage(tester, box: box);
+
+    final notesHeading = find.byKey(const Key('box-notes-heading'));
+
+    await tester.scrollUntilVisible(notesHeading, 200);
+    await tester.pumpAndSettle();
+
+    expect(notesHeading, findsOneWidget);
+    expect(find.text('Notes'), findsOneWidget);
+
+    final notes = find.byKey(const Key('box-notes'));
+
+    await tester.scrollUntilVisible(notes, 50);
+    await tester.pumpAndSettle();
+
+    expect(notes, findsOneWidget);
+    expect(find.text('Mist every evening\nClean monthly'), findsOneWidget);
+  });
+
+  testWidgets('does not show an empty Box notes section', (tester) async {
+    final box = await createBoxWithNotes(null);
+
+    await pumpPage(tester, box: box);
+
+    expect(find.byKey(const Key('box-notes-heading')), findsNothing);
+    expect(find.byKey(const Key('box-notes')), findsNothing);
   });
 
   testWidgets('QR code receives box QR ID', (tester) async {

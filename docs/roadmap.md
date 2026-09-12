@@ -8,7 +8,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.0.2+44**
+**v1.0.4+45**
 
 Completed development areas:
 
@@ -156,13 +156,17 @@ unchanged after the final Android, Web, backup, localization, signing and
 release-artifact regression.
 
 v1.1.0 is now the active milestone for detail and workflow polish. Development
-build `1.0.1+43` starts Issue #94 by displaying current Animal pictures in the
+build `1.0.2+43` starts Issue #94 by displaying current Animal pictures in the
 Box-detail assignment list while preserving the existing fallback and
 navigation behaviour.
 
-Development build `1.0.2+44` implements Issue #95 by moving the permanent QR
+Development build `1.0.3+44` implements Issue #95 by moving the permanent QR
 identifier and PNG export into a final Box-detail section and removing the
 former single-code printing workflow without changing QR identity or scanning.
+
+Development build `1.0.4+45` implements Issue #96 by adding optional multiline
+Box notes, Database Schema Version 6 persistence and backward-compatible
+Backup Format Version 2 export and restore.
 
 ---
 
@@ -794,11 +798,22 @@ roughly one sixth of its previous size.
 - [x] Preserve permanent QR identifiers and scanner compatibility
 - [x] Remove the obsolete print service, dependencies, labels and tests
 - [x] Add revised layout and contextual QR-export widget coverage
+- [x] Complete automated and manual validation with 453 passing tests
+
+### Box Notes — Issue #96
+
+- [x] Add nullable Box notes in Database Schema Version 6
+- [x] Preserve existing data during the Version 5 to Version 6 migration
+- [x] Add localized multiline notes controls to New Box and Edit Box
+- [x] Allow notes to be added, changed and cleared
+- [x] Display non-empty notes on Box details without an empty placeholder
+- [x] Preserve Box notes in Backup Format Version 2
+- [x] Restore older backups without Box notes using an empty default
+- [x] Add repository, widget, migration and backup regression coverage
 - [ ] Complete automated and manual validation
 
 ### Remaining Milestone Scope
 
-- [ ] Add optional Box notes — Issue #96
 - [ ] Move Box deletion into Edit Box — Issue #97
 - [ ] Expose Animal Feeding History and reminder actions — Issue #98
 - [ ] Add About information and compact accent selection — Issue #99

@@ -105,7 +105,8 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
 
 Backup Format Version 2 is the current format.
 
-It extends portable Box data with dimensions and Box pictures.
+It extends portable Box data with dimensions and Box pictures. Current Version
+2 records can additionally contain optional Box notes.
 
 Archive structure:
 
@@ -119,12 +120,14 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
     └── boxes/
 ```
 
-Version 2 adds the following portable Box fields:
+Version 2 adds the following portable Box fields. `notes` is a later,
+backward-compatible optional extension of the same format:
 
 ```text
 widthCm
 heightCm
 depthCm
+notes
 pictureMediaPath
 ```
 
@@ -152,8 +155,8 @@ Example:
 ```json
 {
   "backupFormatVersion": 2,
-  "appVersion": "0.12.1",
-  "databaseSchemaVersion": 5,
+  "appVersion": "1.0.4",
+  "databaseSchemaVersion": 6,
   "createdAt": "2026-09-08T13:30:00.000Z"
 }
 ```
@@ -168,7 +171,7 @@ Backup Format Version 2 uses:
 2
 ```
 
-TerraManager 0.12.1 accepts Backup Format Versions 1 and 2 for restore.
+Current TerraManager builds accept Backup Format Versions 1 and 2 for restore.
 
 Version 1 is interpreted using the legacy Box representation. Missing Version 2
 Box fields are mapped to `null`.
@@ -182,7 +185,7 @@ Contains the TerraManager application version that created the backup.
 Example:
 
 ```text
-0.12.1
+1.0.4
 ```
 
 This value is informational and may also be used during compatibility
@@ -319,6 +322,7 @@ in Version 2 are initialized as:
 widthCm = null
 heightCm = null
 depthCm = null
+notes = null
 pictureMediaPath = null
 ```
 
@@ -332,6 +336,7 @@ qrId
 widthCm
 heightCm
 depthCm
+notes
 pictureMediaPath
 createdAt
 updatedAt
@@ -346,15 +351,19 @@ Example:
   "widthCm": 60.0,
   "heightCm": 40.0,
   "depthCm": 45.0,
+  "notes": "Quarantine enclosure near the window",
   "pictureMediaPath": "media/boxes/1.jpg",
   "createdAt": "2026-08-01T10:00:00.000",
   "updatedAt": "2026-08-02T12:00:00.000"
 }
 ```
 
-Box dimensions are optional.
+Box dimensions and notes are optional.
 
 When present, dimensions must be greater than zero.
+
+When present, `notes` contains free-form text. Missing or explicit `null`
+values restore as empty Box notes.
 
 `pictureMediaPath` is optional.
 
@@ -1356,6 +1365,7 @@ Version 2 preserves:
 - Box IDs
 - permanent Box QR identifiers
 - optional Box width, height and depth
+- optional Box notes
 - Box pictures through portable media references
 - Animal IDs
 - active and archived lifecycle state
@@ -1383,8 +1393,8 @@ Version 2 excludes:
 
 TerraManager 0.10.x and later continue to restore Backup Format Version 1.
 
-Version 1 Box records do not contain dimensions or Box pictures. During restore,
-the missing Version 2 fields are mapped to null.
+Version 1 Box records do not contain dimensions, notes or Box pictures. During
+restore, the missing Version 2 fields are mapped to null.
 
 Animal media, IDs, relationships, lifecycle state, FeedingEvents and settings
 from Version 1 retain their existing restore semantics.
@@ -1399,6 +1409,10 @@ ascending or descending Box-number direction.
 Backups created before TerraManager 0.12.1 do not contain Animal reminder
 fields. Missing reminder interval and baseline values restore as `null`, so the
 reminder remains disabled.
+
+Backups created before TerraManager 1.0.4 do not contain Box notes. A missing
+`notes` field restores as `null`, so older Backup Format Version 1 and Version 2
+archives remain compatible without a format-version increase.
 
 TerraManager 0.10.x and later create new backups exclusively as Backup Format
 Version 2.

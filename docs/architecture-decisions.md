@@ -1231,3 +1231,48 @@ Disadvantages:
 - signed APK and AAB verification remains a manual release-owner task
 - pinned toolchains and action commits require intentional maintenance
 - plugin compatibility warnings remain until upstream releases are available
+
+---
+
+## ADR-018: Store optional Box notes as a backward-compatible field
+
+**Status:** Accepted
+
+**Date:** 2026-09-12
+
+### Context
+
+Boxes need free-form operational notes that remain available after application
+restarts and backup transfers. Existing databases and both supported portable
+backup versions do not contain this field.
+
+### Decision
+
+TerraManager stores Box notes as a nullable text column on `Box`. Database
+Schema Version 6 adds the column without changing existing rows; migrated Boxes
+receive `null` notes.
+
+Backup Format Version 2 includes an optional `notes` property for every Box.
+The property is a backward-compatible extension because restore already treats
+missing optional Box properties as absent values. Backup Format Version 1 and
+older Version 2 archives therefore restore with `null` Box notes and do not
+require conversion or a new portable format version.
+
+New Box and Edit Box trim surrounding whitespace before persistence and store
+empty input as `null`. Box details render the section only for non-empty notes.
+
+### Consequences
+
+Advantages:
+
+- Box notes persist with the Box instead of depending on UI state
+- existing databases migrate without rewriting Box records
+- current backups preserve notes across Android and Web
+- legacy backups remain restorable without a format-version increase
+- empty notes do not create an empty detail section
+
+Disadvantages:
+
+- free-form notes can increase database and backup size
+- notes are included in unencrypted backups and must be handled as sensitive
+  user data

@@ -106,6 +106,8 @@ void main() {
 
     expect(find.byKey(const Key('new-box-depth-field')), findsOneWidget);
 
+    expect(find.byKey(const Key('new-box-notes-field')), findsOneWidget);
+
     expect(find.text('Format: TM:BOX:<UUID>'), findsOneWidget);
 
     expect(find.byKey(const Key('create-box-button')), findsOneWidget);
@@ -114,7 +116,7 @@ void main() {
   testWidgets('does not require manual QR ID', (tester) async {
     await pumpPage(tester);
 
-    expect(find.byType(TextFormField), findsNWidgets(3));
+    expect(find.byType(TextFormField), findsNWidgets(4));
 
     expect(find.byKey(const Key('new-box-width-field')), findsOneWidget);
 
@@ -122,9 +124,49 @@ void main() {
 
     expect(find.byKey(const Key('new-box-depth-field')), findsOneWidget);
 
+    expect(find.byKey(const Key('new-box-notes-field')), findsOneWidget);
+
     expect(find.text('Format: TM:BOX:<UUID>'), findsOneWidget);
 
     expect(find.byKey(const Key('qr-id-field')), findsNothing);
+  });
+
+  testWidgets('creates a box with trimmed optional notes', (tester) async {
+    await pumpPageWithNavigation(tester);
+
+    final notesField = find.byKey(const Key('new-box-notes-field'));
+
+    await tester.ensureVisible(notesField);
+    await tester.enterText(
+      notesField,
+      '  Quarantine setup\nCheck ventilation  ',
+    );
+
+    final createButton = find.byKey(const Key('create-box-button'));
+
+    await tester.ensureVisible(createButton);
+    await tester.tap(createButton);
+    await tester.pumpAndSettle();
+
+    final box = (await BoxRepository(database).getAllBoxes()).single;
+
+    expect(box.notes, 'Quarantine setup\nCheck ventilation');
+  });
+
+  testWidgets('creates a box without notes when the field is empty', (
+    tester,
+  ) async {
+    await pumpPageWithNavigation(tester);
+
+    final createButton = find.byKey(const Key('create-box-button'));
+
+    await tester.ensureVisible(createButton);
+    await tester.tap(createButton);
+    await tester.pumpAndSettle();
+
+    final box = (await BoxRepository(database).getAllBoxes()).single;
+
+    expect(box.notes, isNull);
   });
 
   testWidgets('creates box with generated QR ID', (tester) async {

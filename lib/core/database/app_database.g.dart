@@ -464,6 +464,15 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _pictureMediaIdMeta = const VerificationMeta(
     'pictureMediaId',
   );
@@ -509,6 +518,7 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
     widthCm,
     heightCm,
     depthCm,
+    notes,
     pictureMediaId,
     createdAt,
     updatedAt,
@@ -552,6 +562,12 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
       context.handle(
         _depthCmMeta,
         depthCm.isAcceptableOrUnknown(data['depth_cm']!, _depthCmMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
     if (data.containsKey('picture_media_id')) {
@@ -604,6 +620,10 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
         DriftSqlType.double,
         data['${effectivePrefix}depth_cm'],
       ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
       pictureMediaId: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}picture_media_id'],
@@ -631,6 +651,7 @@ class Box extends DataClass implements Insertable<Box> {
   final double? widthCm;
   final double? heightCm;
   final double? depthCm;
+  final String? notes;
   final int? pictureMediaId;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -640,6 +661,7 @@ class Box extends DataClass implements Insertable<Box> {
     this.widthCm,
     this.heightCm,
     this.depthCm,
+    this.notes,
     this.pictureMediaId,
     required this.createdAt,
     required this.updatedAt,
@@ -657,6 +679,9 @@ class Box extends DataClass implements Insertable<Box> {
     }
     if (!nullToAbsent || depthCm != null) {
       map['depth_cm'] = Variable<double>(depthCm);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
     }
     if (!nullToAbsent || pictureMediaId != null) {
       map['picture_media_id'] = Variable<int>(pictureMediaId);
@@ -679,6 +704,9 @@ class Box extends DataClass implements Insertable<Box> {
       depthCm: depthCm == null && nullToAbsent
           ? const Value.absent()
           : Value(depthCm),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
       pictureMediaId: pictureMediaId == null && nullToAbsent
           ? const Value.absent()
           : Value(pictureMediaId),
@@ -698,6 +726,7 @@ class Box extends DataClass implements Insertable<Box> {
       widthCm: serializer.fromJson<double?>(json['widthCm']),
       heightCm: serializer.fromJson<double?>(json['heightCm']),
       depthCm: serializer.fromJson<double?>(json['depthCm']),
+      notes: serializer.fromJson<String?>(json['notes']),
       pictureMediaId: serializer.fromJson<int?>(json['pictureMediaId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -712,6 +741,7 @@ class Box extends DataClass implements Insertable<Box> {
       'widthCm': serializer.toJson<double?>(widthCm),
       'heightCm': serializer.toJson<double?>(heightCm),
       'depthCm': serializer.toJson<double?>(depthCm),
+      'notes': serializer.toJson<String?>(notes),
       'pictureMediaId': serializer.toJson<int?>(pictureMediaId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -724,6 +754,7 @@ class Box extends DataClass implements Insertable<Box> {
     Value<double?> widthCm = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
     Value<double?> depthCm = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
     Value<int?> pictureMediaId = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -733,6 +764,7 @@ class Box extends DataClass implements Insertable<Box> {
     widthCm: widthCm.present ? widthCm.value : this.widthCm,
     heightCm: heightCm.present ? heightCm.value : this.heightCm,
     depthCm: depthCm.present ? depthCm.value : this.depthCm,
+    notes: notes.present ? notes.value : this.notes,
     pictureMediaId: pictureMediaId.present
         ? pictureMediaId.value
         : this.pictureMediaId,
@@ -746,6 +778,7 @@ class Box extends DataClass implements Insertable<Box> {
       widthCm: data.widthCm.present ? data.widthCm.value : this.widthCm,
       heightCm: data.heightCm.present ? data.heightCm.value : this.heightCm,
       depthCm: data.depthCm.present ? data.depthCm.value : this.depthCm,
+      notes: data.notes.present ? data.notes.value : this.notes,
       pictureMediaId: data.pictureMediaId.present
           ? data.pictureMediaId.value
           : this.pictureMediaId,
@@ -762,6 +795,7 @@ class Box extends DataClass implements Insertable<Box> {
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
           ..write('depthCm: $depthCm, ')
+          ..write('notes: $notes, ')
           ..write('pictureMediaId: $pictureMediaId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -776,6 +810,7 @@ class Box extends DataClass implements Insertable<Box> {
     widthCm,
     heightCm,
     depthCm,
+    notes,
     pictureMediaId,
     createdAt,
     updatedAt,
@@ -789,6 +824,7 @@ class Box extends DataClass implements Insertable<Box> {
           other.widthCm == this.widthCm &&
           other.heightCm == this.heightCm &&
           other.depthCm == this.depthCm &&
+          other.notes == this.notes &&
           other.pictureMediaId == this.pictureMediaId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -800,6 +836,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   final Value<double?> widthCm;
   final Value<double?> heightCm;
   final Value<double?> depthCm;
+  final Value<String?> notes;
   final Value<int?> pictureMediaId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -809,6 +846,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
     this.depthCm = const Value.absent(),
+    this.notes = const Value.absent(),
     this.pictureMediaId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -819,6 +857,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
     this.depthCm = const Value.absent(),
+    this.notes = const Value.absent(),
     this.pictureMediaId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -829,6 +868,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     Expression<double>? widthCm,
     Expression<double>? heightCm,
     Expression<double>? depthCm,
+    Expression<String>? notes,
     Expression<int>? pictureMediaId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -839,6 +879,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
       if (widthCm != null) 'width_cm': widthCm,
       if (heightCm != null) 'height_cm': heightCm,
       if (depthCm != null) 'depth_cm': depthCm,
+      if (notes != null) 'notes': notes,
       if (pictureMediaId != null) 'picture_media_id': pictureMediaId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -851,6 +892,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     Value<double?>? widthCm,
     Value<double?>? heightCm,
     Value<double?>? depthCm,
+    Value<String?>? notes,
     Value<int?>? pictureMediaId,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
@@ -861,6 +903,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
       widthCm: widthCm ?? this.widthCm,
       heightCm: heightCm ?? this.heightCm,
       depthCm: depthCm ?? this.depthCm,
+      notes: notes ?? this.notes,
       pictureMediaId: pictureMediaId ?? this.pictureMediaId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -885,6 +928,9 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     if (depthCm.present) {
       map['depth_cm'] = Variable<double>(depthCm.value);
     }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
     if (pictureMediaId.present) {
       map['picture_media_id'] = Variable<int>(pictureMediaId.value);
     }
@@ -905,6 +951,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
           ..write('depthCm: $depthCm, ')
+          ..write('notes: $notes, ')
           ..write('pictureMediaId: $pictureMediaId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -2917,6 +2964,7 @@ typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
   Value<double?> widthCm,
   Value<double?> heightCm,
   Value<double?> depthCm,
+  Value<String?> notes,
   Value<int?> pictureMediaId,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -2927,6 +2975,7 @@ typedef $$BoxesTableUpdateCompanionBuilder = BoxesCompanion Function({
   Value<double?> widthCm,
   Value<double?> heightCm,
   Value<double?> depthCm,
+  Value<String?> notes,
   Value<int?> pictureMediaId,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
@@ -3003,6 +3052,11 @@ class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
 
   ColumnFilters<double> get depthCm => $composableBuilder(
     column: $table.depthCm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3099,6 +3153,11 @@ class $$BoxesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3156,6 +3215,9 @@ class $$BoxesTableAnnotationComposer
 
   GeneratedColumn<double> get depthCm =>
       $composableBuilder(column: $table.depthCm, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -3245,6 +3307,7 @@ class $$BoxesTableTableManager
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
                 Value<double?> depthCm = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
                 Value<int?> pictureMediaId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -3254,6 +3317,7 @@ class $$BoxesTableTableManager
                 widthCm: widthCm,
                 heightCm: heightCm,
                 depthCm: depthCm,
+                notes: notes,
                 pictureMediaId: pictureMediaId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -3265,6 +3329,7 @@ class $$BoxesTableTableManager
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
                 Value<double?> depthCm = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
                 Value<int?> pictureMediaId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
@@ -3274,6 +3339,7 @@ class $$BoxesTableTableManager
                 widthCm: widthCm,
                 heightCm: heightCm,
                 depthCm: depthCm,
+                notes: notes,
                 pictureMediaId: pictureMediaId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

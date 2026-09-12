@@ -45,6 +45,7 @@ Depending on how the application is used, this may include:
 * animal pictures;
 * enclosure or Box records;
 * enclosure dimensions;
+* enclosure or Box notes;
 * associations between animals and Boxes;
 * creation and modification dates;
 * FeedingEvents and feeding history;
@@ -273,7 +274,7 @@ The user is responsible for selecting an appropriate and secure method for trans
 
 TerraManager is intended to manage animals and enclosures, not personal profiles.
 
-However, free-text fields such as animal notes may technically allow a user to enter arbitrary information.
+However, free-text fields such as Animal and Box notes may technically allow a user to enter arbitrary information.
 
 Users should avoid entering personal or sensitive information that is unnecessary for managing their collection.
 

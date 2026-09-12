@@ -88,7 +88,41 @@ void main() {
     expect(box.widthCm, isNull);
     expect(box.heightCm, isNull);
     expect(box.depthCm, isNull);
+    expect(box.notes, isNull);
     expect(box.pictureMediaId, isNull);
+  });
+
+  test('can create, edit, and clear box notes', () async {
+    final boxId = await repository.createBox(
+      'box-with-notes',
+      notes: 'Initial setup notes',
+    );
+
+    var box = await repository.getBoxById(boxId);
+
+    expect(box!.notes, 'Initial setup notes');
+
+    final edited = await repository.updateBox(
+      boxId: boxId,
+      notes: const drift.Value('Updated care notes'),
+    );
+
+    expect(edited, isTrue);
+
+    box = await repository.getBoxById(boxId);
+
+    expect(box!.notes, 'Updated care notes');
+
+    final cleared = await repository.updateBox(
+      boxId: boxId,
+      notes: const drift.Value<String?>(null),
+    );
+
+    expect(cleared, isTrue);
+
+    box = await repository.getBoxById(boxId);
+
+    expect(box!.notes, isNull);
   });
 
   test('can create a box with dimensions', () async {
@@ -156,6 +190,7 @@ void main() {
       widthCm: 60.0,
       heightCm: 45.0,
       depthCm: 40.0,
+      notes: 'Keep this note',
     );
 
     final updated = await repository.updateBox(
@@ -171,6 +206,7 @@ void main() {
     expect(box!.widthCm, 80.0);
     expect(box.heightCm, 45.0);
     expect(box.depthCm, 40.0);
+    expect(box.notes, 'Keep this note');
   });
 
   test('can clear box dimensions', () async {

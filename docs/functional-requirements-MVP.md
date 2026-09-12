@@ -19,6 +19,8 @@ The application must allow the user to:
 - persist the selected Box Overview order between application restarts
 - view Box details
 - edit optional Box width, height and depth
+- add, edit and clear optional multiline Box notes
+- display Box notes on details only when content is present
 - add, replace or remove a persistent Box picture
 - take a new Box picture with a supported device camera
 - select a Box picture from the device gallery
@@ -314,7 +316,7 @@ Android and Web are validated platforms.
 The application must allow the user to:
 
 - create a portable backup of local TerraManager data
-- export Boxes, including optional dimensions
+- export Boxes, including optional dimensions and notes
 - export Animals
 - export FeedingEvents
 - export Box pictures
@@ -331,6 +333,8 @@ The application must allow the user to:
 - create a safety backup before destructive database replacement
 - explicitly confirm replacement of existing local data
 - restore Box dimensions
+- restore optional Box notes
+- restore older backups without Box notes using an empty default
 - restore persistent Box pictures
 - restore persistent Animal pictures
 - restore appearance, language and overview-order settings

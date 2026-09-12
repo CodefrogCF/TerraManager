@@ -44,6 +44,39 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> pumpPageWithNavigation(
+    WidgetTester tester, {
+    required int boxId,
+  }) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  key: const Key('open-box-edit-button'),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            BoxEditPage(database: database, boxId: boxId),
+                      ),
+                    );
+                  },
+                  child: const Text('Open Edit Box'),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('open-box-edit-button')));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('shows one Add Picture action without an existing picture', (
     tester,
   ) async {
@@ -54,6 +87,47 @@ void main() {
     expect(find.byKey(const Key('select-box-picture-button')), findsOneWidget);
     expect(find.text('Add Picture'), findsOneWidget);
     expect(find.byKey(const Key('remove-box-picture-button')), findsNothing);
+  });
+
+  testWidgets('loads, edits, and clears optional Box notes', (tester) async {
+    final repository = BoxRepository(database);
+    final boxId = await repository.createBox(
+      'box-notes',
+      notes: 'Original notes',
+    );
+
+    await pumpPageWithNavigation(tester, boxId: boxId);
+
+    final notesField = find.byKey(const Key('box-notes-field'));
+
+    await tester.ensureVisible(notesField);
+    expect(
+      tester.widget<TextFormField>(notesField).controller!.text,
+      'Original notes',
+    );
+
+    await tester.enterText(notesField, '  Updated\nmultiline notes  ');
+    await tester.tap(find.byKey(const Key('save-box-button')));
+    await tester.pumpAndSettle();
+
+    var box = await repository.getBoxById(boxId);
+
+    expect(box!.notes, 'Updated\nmultiline notes');
+
+    await tester.tap(find.byKey(const Key('open-box-edit-button')));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(notesField);
+    expect(
+      tester.widget<TextFormField>(notesField).controller!.text,
+      'Updated\nmultiline notes',
+    );
+    await tester.enterText(notesField, '   ');
+    await tester.tap(find.byKey(const Key('save-box-button')));
+    await tester.pumpAndSettle();
+
+    box = await repository.getBoxById(boxId);
+
+    expect(box!.notes, isNull);
   });
 
   testWidgets('shows Change Picture and delete for an existing picture', (

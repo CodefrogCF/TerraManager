@@ -229,6 +229,7 @@ class BackupRestoreService {
                 widthCm: Value(box.widthCm),
                 heightCm: Value(box.heightCm),
                 depthCm: Value(box.depthCm),
+                notes: Value(box.notes),
                 pictureMediaId: Value(pictureMediaId),
                 createdAt: Value(box.createdAt),
                 updatedAt: Value(box.updatedAt),

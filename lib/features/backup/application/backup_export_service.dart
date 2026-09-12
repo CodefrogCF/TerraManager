@@ -71,6 +71,7 @@ class BackupExportService {
           widthCm: box.widthCm,
           heightCm: box.heightCm,
           depthCm: box.depthCm,
+          notes: box.notes,
           pictureMediaPath: pictureMediaPath,
           createdAt: box.createdAt,
           updatedAt: box.updatedAt,

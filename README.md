@@ -23,7 +23,7 @@ Current completed release milestone:
 
 Current application version and build:
 
-**v1.0.2+44**
+**v1.0.4+45**
 
 Implemented milestones in the current source state:
 
@@ -95,14 +95,19 @@ Kotlin-plugin warning, is documented in `docs/toolchain-baseline.md`.
 Release `1.0.0+39` completed the final Android, Web, backup, localization,
 signing and artifact regression defined in `docs/release-v1.0.0.md`.
 
-Development build `1.0.1+43` begins the v1.1.0 milestone. Issue #94 displays
+Development build `1.0.2+43` begins the v1.1.0 milestone. Issue #94 displays
 the current Animal picture as a thumbnail in the assigned-Animal list on Box
 details and retains the existing fallback icon when no usable picture exists.
 
-Development build `1.0.2+44` moves the Box QR code, permanent identifier and
+Development build `1.0.3+44` moves the Box QR code, permanent identifier and
 PNG export action into one section at the bottom of Box details. Issue #95
 removes the former print action and its dedicated dependencies while keeping
 existing QR identifiers and scanner compatibility unchanged.
+
+Development build `1.0.4+45` adds optional multiline notes to Boxes. Issue #96
+persists them through Database Schema Version 6, displays non-empty notes on
+Box details and preserves them in current backups while older backups restore
+with empty Box notes.
 
 ### Android transition to the permanent application ID
 
@@ -168,6 +173,7 @@ application restarts.
 - Add Animal action below empty and populated Box assignment sections
 - direct New Animal navigation with the originating Box preselected
 - optional width, height and depth
+- optional multiline Box notes
 - persistent Box pictures
 - Add/Change Picture action with Camera and Gallery source selection for Box
   pictures
@@ -290,7 +296,7 @@ application restarts.
 - Backup Format Version 2 for current exports
 - backward-compatible restore of Backup Format Version 1
 - backup format version independent from database schema version
-- Box export and restore, including dimensions and pictures
+- Box export and restore, including dimensions, notes and pictures
 - Animal export and restore
 - FeedingEvent export and restore
 - Box and Animal picture export and restore
@@ -561,12 +567,14 @@ Box
 ├── widthCm
 ├── heightCm
 ├── depthCm
+├── notes
 ├── pictureMediaId
 ├── createdAt
 └── updatedAt
 ```
 
-`qrId` is unique and permanently identifies the box. Width, height and depth are optional.
+`qrId` is unique and permanently identifies the box. Width, height, depth and
+notes are optional.
 `pictureMediaId` optionally references persistent image data stored in `MediaAssets`.
 
 The QR format is:

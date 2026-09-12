@@ -314,6 +314,8 @@ void main() {
 
     expect(result.data.boxes.single.widthCm, isNull);
 
+    expect(result.data.boxes.single.notes, isNull);
+
     expect(result.data.boxes.single.pictureMediaPath, isNull);
   });
 
@@ -828,6 +830,7 @@ void main() {
             'widthCm': 60.0,
             'heightCm': 40.0,
             'depthCm': 45.0,
+            'notes': 'Keep the substrate dry',
             'pictureMediaPath': mediaPath,
             'createdAt': '2026-08-01T10:00:00.000',
             'updatedAt': '2026-08-01T10:00:00.000',
@@ -846,6 +849,7 @@ void main() {
     expect(box.widthCm, 60);
     expect(box.heightCm, 40);
     expect(box.depthCm, 45);
+    expect(box.notes, 'Keep the substrate dry');
 
     expect(box.pictureMediaPath, mediaPath);
 

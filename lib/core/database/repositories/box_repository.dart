@@ -29,6 +29,7 @@ class BoxRepository {
     double? widthCm,
     double? heightCm,
     double? depthCm,
+    String? notes,
     int? pictureMediaId,
   }) {
     return database
@@ -39,6 +40,7 @@ class BoxRepository {
             widthCm: Value(widthCm),
             heightCm: Value(heightCm),
             depthCm: Value(depthCm),
+            notes: Value(notes),
             pictureMediaId: Value(pictureMediaId),
           ),
         );
@@ -48,6 +50,7 @@ class BoxRepository {
     double? widthCm,
     double? heightCm,
     double? depthCm,
+    String? notes,
     int? pictureMediaId,
   }) {
     return createBox(
@@ -55,6 +58,7 @@ class BoxRepository {
       widthCm: widthCm,
       heightCm: heightCm,
       depthCm: depthCm,
+      notes: notes,
       pictureMediaId: pictureMediaId,
     );
   }
@@ -64,6 +68,7 @@ class BoxRepository {
     Value<double?> widthCm = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
     Value<double?> depthCm = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
     Value<int?> pictureMediaId = const Value.absent(),
   }) async {
     return database.transaction(() async {
@@ -83,6 +88,7 @@ class BoxRepository {
               widthCm: widthCm,
               heightCm: heightCm,
               depthCm: depthCm,
+              notes: notes,
               pictureMediaId: pictureMediaId,
               updatedAt: Value(DateTime.now()),
             ),

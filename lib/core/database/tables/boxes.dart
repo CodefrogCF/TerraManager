@@ -14,6 +14,8 @@ class Boxes extends Table {
 
   RealColumn get depthCm => real().nullable()();
 
+  TextColumn get notes => text().nullable()();
+
   IntColumn get pictureMediaId =>
       integer().nullable().references(MediaAssets, #id)();
 

@@ -35,6 +35,11 @@ migrate_working_dir/
 /coverage/
 /lib/l10n/generated/
 
+# Generated Drift Web worker output. The worker is compiled before Web builds.
+/web/drift_worker.dart.js
+/web/drift_worker.dart.js.deps
+/web/drift_worker.dart.js.map
+
 # Symbolication related
 app.*.symbols
 

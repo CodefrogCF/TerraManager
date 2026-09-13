@@ -28,16 +28,10 @@ The completed v0.14.1 Post-release Fixes regression and release-build
 validation is documented in `release-v0.14.1.md`. The platform lists below
 include this validation.
 
-The completed v1.0.0 Android and Web regression is documented in
-`release-v1.0.0.md`.
-
-The completed Android and Web regression for release `1.1.0+50` is documented
-in `release-v1.1.0.md`.
-
-Development build `1.1.1+51` adds optional Box names through Database Schema
-Version 7 and keeps Portable Backup Format Version 2. Its Android and Web
-regression remains pending until the tester-feedback checklist in `roadmap.md`
-has been confirmed.
+The final Android and Web regression for release candidate `1.0.0+39` is
+tracked in `release-v1.0.0.md`. Its result is not considered complete until the
+automated checks, signed artifacts, backup paths and manual platform checklist
+in that document have been confirmed.
 
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
@@ -111,9 +105,6 @@ Validated functionality includes:
 - direct Animal creation from empty and populated Box details with the Box
   preselected
 - Box editing and optional dimensions
-- optional multiline Box notes in create, edit and detail workflows
-- safe empty-Box deletion from the bottom of Edit Box with confirmation,
-  assigned-Animal protection and return to the Box Overview
 - persistent Box pictures
 - Box picture persistence across normal application restarts
 - full-screen Box picture viewing with zooming and panning
@@ -140,6 +131,7 @@ Validated functionality includes:
 - QR display
 - QR PNG generation
 - QR image storage in the Android media gallery
+- QR printing
 - camera permission handling
 - QR scanning
 - invalid QR handling
@@ -163,11 +155,10 @@ Validated functionality includes:
 - user-selectable backup destination through the Android system file picker
 - backup file selection
 - backup validation
-- optional pre-restore safety backup, enabled by default
+- pre-restore safety backup
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- Box notes backup and backward-compatible restore
 - appearance-, language-, Animal-name- and overview-sort-setting backup and
   restore
 - restore compatibility for backups without a language setting
@@ -183,16 +174,13 @@ Validated functionality includes:
 - legacy and WebP display in overview, detail and full-screen views
 - mixed legacy and WebP backup export and restore
 - optional per-Animal feeding reminder configuration and persistence
-- dedicated Feeding Reminder settings from active Animal details
 - latest-FeedingEvent reminder reference with baseline fallback only for
   Animals without feeding history
 - non-modal due summary, due markers and scheduled or due detail status
 - direct reminder navigation to the existing feeding workflow
-- Latest Feeding card navigation to complete feeding history
 - immediate reminder refresh after normal and Quick Feeding changes
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility
-- schema Version 5 to Version 6 migration and Box-notes backup compatibility
 - English and German reminder configuration and presentation
 
 QR images saved on Android are stored through the platform media/gallery system
@@ -259,6 +247,7 @@ Validated functionality includes:
 - QR PNG download
 - QR scanning
 - camera permission handling
+- QR printing
 - animal lifecycle and archiving
 - Animal History
 - restoring archived animals
@@ -276,11 +265,10 @@ Validated functionality includes:
 - portable `.tmbackup` download
 - backup file selection
 - backup validation
-- optional pre-restore safety backup, enabled by default
+- pre-restore safety backup
 - full backup restore
 - Box and Animal picture backup and restore
 - Box dimension backup and restore
-- Box notes backup and backward-compatible restore
 - appearance-, language-, Animal-name- and overview-sort-setting backup and
   restore
 - restore compatibility for backups without a language setting
@@ -295,16 +283,13 @@ Validated functionality includes:
 - legacy and WebP display in overview, detail and full-screen views
 - mixed legacy and WebP backup export and restore
 - optional per-Animal feeding reminder configuration and persistence
-- dedicated Feeding Reminder settings from active Animal details
 - latest-FeedingEvent reminder reference with baseline fallback only for
   Animals without feeding history
 - non-modal due summary, due markers and scheduled or due detail status
 - direct reminder navigation to the existing feeding workflow
-- Latest Feeding card navigation to complete feeding history
 - immediate reminder refresh after normal and Quick Feeding changes
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility
-- schema Version 5 to Version 6 migration and Box-notes backup compatibility
 - English and German reminder configuration and presentation
 
 WebP optimization for new and replaced pictures uses browser Canvas encoding
@@ -314,19 +299,21 @@ and has been validated as part of the v0.12.0 Web regression.
 
 Web persistence uses Drift with SQLite WASM.
 
-Required files:
+Repository-managed files:
 
 ```text
 web/sqlite3.wasm
 web/drift_worker.dart
-web/drift_worker.dart.js
 ```
 
-The Drift worker is compiled using:
+The Drift worker is compiled before a Web build using:
 
 ```text
 dart compile js -O4 web/drift_worker.dart -o web/drift_worker.dart.js
 ```
+
+The generated worker JavaScript, dependency list and source map are ignored by
+Git and are included in the generated Web build output by this step.
 
 The `sqlite3.wasm` version must remain compatible with the `sqlite3` Dart
 package resolved by the project.
@@ -432,6 +419,13 @@ facilities.
 The final download location therefore depends on browser and operating-system
 settings.
 
+### Printing
+
+QR printing uses browser/system printing facilities.
+
+Available printers and print options depend on the browser and operating
+system.
+
 ### Application preferences
 
 Appearance and language settings are stored locally through
@@ -459,6 +453,7 @@ The following therefore remain unverified:
 - camera permissions
 - QR scanning
 - QR image storage
+- QR printing
 - backup creation
 - backup file selection
 - backup restore

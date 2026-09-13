@@ -65,5 +65,8 @@ jobs:
       - name: Build Android Debug APK
         run: flutter build apk --debug
 
+      - name: Build Drift Web worker
+        run: dart compile js -O4 web/drift_worker.dart -o web/drift_worker.dart.js
+
       - name: Build Web release
         run: flutter build web --release

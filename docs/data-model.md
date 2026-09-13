@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **7**.
+The current Drift database schema version is **5**.
 
 The current database model consists of:
 
@@ -53,11 +53,9 @@ TerraManager.
 Box
 ├── id
 ├── qrId
-├── name
 ├── widthCm
 ├── heightCm
 ├── depthCm
-├── notes
 ├── pictureMediaId
 ├── createdAt
 └── updatedAt
@@ -67,11 +65,9 @@ Box
 
 - id – auto-incrementing primary key
 - qrId – unique permanent QR identifier
-- name – optional free-form Box name
 - widthCm – optional enclosure width in centimeters
 - heightCm – optional enclosure height in centimeters
 - depthCm – optional enclosure depth in centimeters
-- notes – optional free-form Box notes
 - pictureMediaId – nullable foreign key referencing MediaAsset
 - createdAt – creation timestamp
 - updatedAt – last modification timestamp
@@ -82,9 +78,7 @@ The QR identifier uses the following format:
 TM:BOX:<UUID-v4>
 ```
 
-A Box can contain multiple active Animals, store an optional name and multiline
-notes, and optionally reference a persistent picture through
-`pictureMediaId`.
+A Box can contain multiple active Animals and can optionally reference a persistent picture through `pictureMediaId`.
 
 The QR identifier does not contain Animal or Box data. It only identifies the
 corresponding database record.
@@ -202,12 +196,10 @@ feedingReminderIntervalDays > 0
 feedingReminderBaseline = timestamp captured when enabled
 ```
 
-The create workflow and the dedicated active-Animal reminder settings workflow
-validate this pair before persistence. Capturing the baseline when a reminder
-is first enabled prevents an existing Animal with no feeding history from
-becoming overdue immediately. Changing only the interval of an enabled
-reminder preserves its existing baseline. Ordinary Animal edits carry the
-persisted pair through unchanged.
+The create and edit workflows validate this pair before persistence. Capturing
+the baseline when a reminder is first enabled prevents an existing Animal with
+no feeding history from becoming overdue immediately. Changing only the
+interval of an enabled reminder preserves its existing baseline.
 
 ### Feeding Reminder Calculation
 
@@ -443,7 +435,6 @@ BoxRepository
 AnimalRepository
 ├── create Animal
 ├── retrieve active Animals
-├── update Animal reminder configuration
 ├── retrieve archived Animals
 ├── retrieve active Animals for Box
 ├── update active Animal
@@ -478,12 +469,15 @@ Box and Animal pictures are stored as MediaAssets in the local database.
 
 Drift uses SQLite WASM and a Web worker.
 
-Required assets:
+Web runtime assets:
 
 ```text
 web/sqlite3.wasm
-web/drift_worker.dart.js
+web/drift_worker.dart
 ```
+
+The compiled `drift_worker.dart.js` is generated before the Web build and is
+not committed.
 
 Box and Animal pictures are also stored through MediaAssets.
 
@@ -492,7 +486,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 7.
+The current Drift database schema version is 5.
 
 ### Schema Version 1
 
@@ -568,31 +562,3 @@ Animal.feedingReminderBaseline added
 Both columns are nullable. The v4 → v5 migration preserves all existing data
 and initializes both fields to `null`, so reminders remain disabled for every
 existing Animal until explicitly enabled.
-
-### Schema Version 6
-
-Schema version 6 introduced optional Box notes.
-
-Changes:
-
-```text
-Box.notes added
-```
-
-The column is nullable. The v5 → v6 migration preserves all existing Boxes,
-Animals, FeedingEvents and MediaAssets. Existing Boxes receive `null` notes
-until the user adds content explicitly.
-
-### Schema Version 7
-
-Schema version 7 introduced optional free-form Box names.
-
-Changes:
-
-```text
-Box.name added
-```
-
-The column is nullable. The v6 → v7 migration preserves all existing Boxes,
-Animals, FeedingEvents, MediaAssets, Box notes and pictures. Existing Boxes
-receive `null` names until the user assigns one explicitly.

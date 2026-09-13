@@ -38,6 +38,7 @@ void main() {
       'flutter analyze',
       'flutter test',
       'flutter build apk --debug',
+      'dart compile js -O4 web/drift_worker.dart -o web/drift_worker.dart.js',
       'flutter build web --release',
     ];
 

@@ -118,14 +118,6 @@ Schema Version 5 adds the nullable Animal columns
 must verify that Version 4 data is preserved and both fields are initialized to
 `null` for existing Animals.
 
-Schema Version 6 adds the nullable Box column `notes`. Migration tests must
-verify that Version 5 Box, Animal, FeedingEvent and MediaAsset data is preserved
-and that existing Boxes receive `null` notes.
-
-Schema Version 7 adds the nullable Box column `name`. Migration tests must
-verify that Version 6 data, Box notes and media references are preserved and
-that existing Boxes receive `null` names.
-
 ## Android Development
 
 TerraManager uses the permanent Android namespace and application ID:
@@ -147,10 +139,8 @@ Builds through v0.14.1 used the temporary identifier
 `com.example.flutter_application_1`. They cannot be updated in place by a build
 using the permanent identifier. Export a `.tmbackup` from the old installation,
 install the permanent-ID build and restore that backup before removing the old
-application. The application-ID transition itself did not change Database
-Schema Version 5 or Portable Backup Format Version 2. Current development uses
-Database Schema Version 7 for optional Box names. Schema Version 6 introduced
-optional Box notes.
+application. Database Schema Version 5 and Portable Backup Format Version 2 do
+not change for this transition.
 
 Android Debug builds remain available without release credentials. Android
 Release builds require a dedicated local production key and refuse to fall back
@@ -200,13 +190,16 @@ build/app/outputs/bundle/release
 
 TerraManager uses SQLite WASM through Drift on Web.
 
-Required files:
+Repository-managed Web assets:
 
 ```text
 web/sqlite3.wasm
 web/drift_worker.dart
-web/drift_worker.dart.js
 ```
+
+The compiled Drift worker is generated locally and in CI before a Web build.
+The generated JavaScript, dependency list and source map are intentionally not
+committed because they contain bundled dependency and Dart runtime code.
 
 ## Drift Worker
 
@@ -221,6 +214,8 @@ Compile the worker with:
 ```text
 dart compile js -O4 web/drift_worker.dart -o web/drift_worker.dart.js
 ```
+
+Run this command after `flutter pub get` and before `flutter build web`.
 
 ## SQLite WASM
 
@@ -277,6 +272,7 @@ Examples:
 - camera access
 - gallery storage
 - browser downloads
+- printing
 - image picker
 - picture cropping after Camera and Gallery selection
 - WebP encoding of confirmed crops on Android and Web
@@ -296,9 +292,6 @@ Examples:
 - disabled and archived Animal exclusion from reminder results
 - due ordering from most overdue to least overdue
 - reminder calculation after restoring current backup data
-- dedicated reminder settings from active Animal details
-- ordinary Animal edits preserve reminder configuration
-- Latest Feeding card navigation to complete feeding history
 - absence of a reminder summary when no active Animal is due
 - Debug Android build without `android/key.properties`
 - production-signed APK and AAB builds with local release credentials
@@ -321,9 +314,7 @@ Examples:
 - System, English and German language selection
 - language persistence and unsupported-locale fallback
 - language-setting backup and restore
-- natural ascending/descending Box-number sorting and alphabetical Box-name
-  sorting in both directions
-- deterministic placement of unnamed Boxes after named Boxes
+- natural ascending/descending Box Overview sorting
 - Box sort-order persistence after an application restart
 - contextual Box detail swiping in the currently visible order
 - Box sort-order backup, restore and legacy creation-order migration behavior
@@ -355,22 +346,14 @@ smaller, and roughly 6.2 times smaller overall.
 
 ## Recommended Release Validation
 
-The completed v1.0.0 release checklist is maintained in:
+The active v1.0.0 release checklist is maintained in:
 
 ```text
 docs/release-v1.0.0.md
 ```
 
-The active v1.1.0 release checklist is maintained in:
-
-```text
-docs/release-v1.1.0.md
-```
-
-Keep the corresponding Issue #101 and milestone checklists in `roadmap.md`
-current. Do not create a release tag until every blocking automated, build,
-artifact, backup and manual validation item in the release checklist is
-complete.
+Do not create the release tag until every blocking automated, build, artifact,
+backup and manual validation item in that document is complete.
 
 Before a milestone release:
 
@@ -382,8 +365,7 @@ flutter analyze
 flutter test
 flutter build apk --debug
 flutter build apk --release
-flutter build appbundle --release
-flutter build web --release
+flutter build web
 ```
 
 Then perform manual regression testing on validated target platforms.
@@ -440,6 +422,10 @@ Close issue
 
 Use focused commits where practical.
 
-Generated build output should not be committed.
+Generated build output should not be committed. This includes
+`web/drift_worker.dart.js`, `web/drift_worker.dart.js.deps` and
+`web/drift_worker.dart.js.map`; the quality-gate workflow regenerates them
+before building the Web release.
 
-Web runtime assets required by the application, such as `sqlite3.wasm` and the compiled Drift worker, must be present according to the project's repository policy.
+Web runtime assets required by the application, such as `sqlite3.wasm` and the
+compiled Drift worker, must be present in the generated Web build output.

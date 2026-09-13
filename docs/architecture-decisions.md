@@ -175,13 +175,16 @@ TerraManager also requires persistent browser-side data after a page reload.
 
 The Web version uses Drift with SQLite WASM.
 
-Required Web assets include:
+Repository-managed Web assets include:
 
 ```text
 web/sqlite3.wasm
 web/drift_worker.dart
-web/drift_worker.dart.js
 ```
+
+The compiled worker is generated before each Web build and is not committed.
+This keeps bundled Dart runtime and dependency code out of the source tree and
+allows the worker to be regenerated from the resolved toolchain.
 
 AppDatabase configures DriftWebOptions with the SQLite WASM file and Drift worker.
 
@@ -207,17 +210,15 @@ Disadvantages:
 
 ---
 
-## ADR-005: Platform-specific QR export behind services
+## ADR-005: Platform-specific QR operations behind services
 
 **Status**: Accepted
 
 **Date**: 2026-08-27
 
-**Updated**: 2026-09-12 for Issue #95
-
 ### Context
 
-QR codes must be generated and saved on multiple target platforms.
+QR codes must be generated, saved and printed on multiple target platforms.
 
 Direct platform-specific implementation in presentation widgets would make the UI difficult to test and maintain.
 
@@ -235,12 +236,13 @@ QrExporter
 QrStorage
     │
     └── persist or download PNG
+
+QrPrinter
+    │
+    └── create printable document and invoke printing
 ```
 
-The UI communicates with these abstractions rather than directly implementing
-file operations. The earlier print abstraction was removed because a
-single-code print layout could not offer the practical sizing and multi-code
-layout control available after exporting QR images.
+The UI communicates with these abstractions rather than directly implementing file or print operations.
 
 ### Consequences
 
@@ -249,7 +251,7 @@ Advantages:
 - presentation layer remains platform-neutral
 - services can be replaced by fakes in tests
 - Android and Web storage behavior can differ without changing UI code
-- export logic remains reusable
+- printing and export logic are reusable
 
 Disadvantages:
 
@@ -285,7 +287,6 @@ Animal presentation also has a user-selectable primary name:
 The Box Overview has a user-selectable order:
 
 - ascending or descending natural Box number
-- Box name A–Z or Z–A, with unnamed Boxes placed last
 
 The Animal Overview has a user-selectable order:
 
@@ -321,10 +322,6 @@ application when they change.
 The application theme is regenerated immediately from the selected theme mode
 and accent color. The application locale changes immediately when a language is
 selected.
-
-The accent choices are presented through one compact localized dropdown. This
-is a presentation-only change; the existing serialized accent names and
-fallback behaviour remain unchanged.
 
 ### Consequences
 
@@ -413,17 +410,9 @@ Restore version 1 uses full replacement rather than merge semantics.
 Before destructive restore:
 
 - the selected backup is validated
+- a backup of the current state is created
 - explicit user confirmation is required
-- a current-state safety backup is offered and enabled by default
-- the user may disable that safety backup for the current operation
 - replacement may begin
-
-When the option is enabled, failure to create or persist the safety backup
-still stops Restore before application settings or domain data are replaced.
-When it is disabled, safety-backup export and file selection are skipped while
-the same validation, settings rollback and transactional database replacement
-remain in force. This is a workflow change only and does not alter Portable
-Backup Format Version 2.
 
 ### Implementation update – Backup Format Version 2
 
@@ -446,11 +435,6 @@ TerraManager 0.13.3 adds the optional Box sort-order preference. TerraManager
 legacy oldest-created values map to ascending; legacy newest-created values map
 to descending. The extension remains backward compatible without a new
 backup-format version.
-
-TerraManager 1.1.1 adds `nameAscending` and `nameDescending` while preserving
-the existing Box-number values and fallbacks. It also adds an optional `name`
-property to each portable Box. Older Version 2 backups remain compatible and
-restore Boxes without that property as unnamed.
 
 TerraManager 0.13.4 adds the optional Animal sort-order preference with the same
 compatibility strategy. Older backups restore oldest-created Animal first.
@@ -706,11 +690,6 @@ only if the Animal still belongs to the original source collection. A missing
 adjacent Box is removed from the in-memory navigation context without replacing
 the currently displayed Box.
 
-Edit Box returns an explicit `BoxEditResult`. A saved result refreshes the
-currently displayed Box, while a deleted result closes the now-stale Box detail
-route and returns to the originating overview. This remains valid when the
-detail route has moved to another Box through contextual swipe navigation.
-
 Navigation context is optional. Detail pages opened without one keep their
 normal non-swipe behavior.
 
@@ -722,7 +701,6 @@ Advantages:
 - active, archived and Box-specific Animal collections remain separate
 - detail actions always target the currently displayed record
 - editing can refresh a record without losing its current identity
-- Box deletion cannot leave a detail route displaying a removed record
 - Back returns through one detail route to the original overview
 - the navigation model is shared by Animal and Box features
 - existing non-swipe callers remain compatible
@@ -862,13 +840,6 @@ reminder captures the current time through an injectable clock. Editing the
 interval of an already enabled reminder preserves the baseline; disabling the
 reminder clears both fields.
 
-New Animals may configure the pair during creation. For an existing active
-Animal, reminder changes are exposed through a dedicated action on Animal
-details and persisted with a targeted repository update. The ordinary Edit
-Animal workflow carries the loaded pair through unchanged so saving unrelated
-fields cannot silently reset reminder settings. Archived Animal details do not
-expose the configuration action.
-
 Archive and restore operations do not modify the pair. Reminder queries are
 responsible for excluding archived Animals.
 
@@ -993,11 +964,6 @@ Selecting a summary entry opens the existing Animal detail route with its
 normal contextual navigation. Animal details calculate one reminder state and
 show either a due or scheduled status card with the calculated due timestamp.
 Selecting that card opens the existing feeding history workflow.
-
-The detail app bar also exposes a dedicated reminder-settings action for active
-Animals. Saving that page reloads the detail Animal and its derived reminder
-state immediately. The Latest Feeding card is an additional direct entry to
-the complete feeding history; it remains absent when no FeedingEvent exists.
 
 Returning from feeding history recalculates the latest feeding and reminder
 state. Returning from Animal details reloads the overview while preserving its
@@ -1267,95 +1233,3 @@ Disadvantages:
 - signed APK and AAB verification remains a manual release-owner task
 - pinned toolchains and action commits require intentional maintenance
 - plugin compatibility warnings remain until upstream releases are available
-
----
-
-## ADR-018: Store optional Box notes as a backward-compatible field
-
-**Status:** Accepted
-
-**Date:** 2026-09-12
-
-### Context
-
-Boxes need free-form operational notes that remain available after application
-restarts and backup transfers. Existing databases and both supported portable
-backup versions do not contain this field.
-
-### Decision
-
-TerraManager stores Box notes as a nullable text column on `Box`. Database
-Schema Version 6 adds the column without changing existing rows; migrated Boxes
-receive `null` notes.
-
-Backup Format Version 2 includes an optional `notes` property for every Box.
-The property is a backward-compatible extension because restore already treats
-missing optional Box properties as absent values. Backup Format Version 1 and
-older Version 2 archives therefore restore with `null` Box notes and do not
-require conversion or a new portable format version.
-
-New Box and Edit Box trim surrounding whitespace before persistence and store
-empty input as `null`. Box details render the section only for non-empty notes.
-
-### Consequences
-
-Advantages:
-
-- Box notes persist with the Box instead of depending on UI state
-- existing databases migrate without rewriting Box records
-- current backups preserve notes across Android and Web
-- legacy backups remain restorable without a format-version increase
-- empty notes do not create an empty detail section
-
-Disadvantages:
-
-- free-form notes can increase database and backup size
-- notes are included in unencrypted backups and must be handled as sensitive
-  user data
-
----
-
-## ADR-019: Store optional Box names and sort unnamed Boxes last
-
-**Status:** Accepted
-
-**Date:** 2026-09-13
-
-### Context
-
-Testers need recognizable enclosure names in addition to generated local Box
-numbers. Names are optional, may not be unique and must survive application
-restarts and backup transfers. Alphabetical overview sorting must remain useful
-when only some Boxes have names.
-
-### Decision
-
-Database Schema Version 7 adds nullable `Box.name`. New Box and Edit Box trim
-surrounding whitespace and persist empty input as `null`. Duplicate names are
-allowed because the permanent identity remains the unique `qrId`; the local Box
-number also remains visible in the overview.
-
-The Box Overview adds name A–Z and Z–A orders. Comparison is case-insensitive,
-then uses the exact text and Box ID for deterministic ties. Unnamed Boxes are
-placed after named Boxes in both directions so reversing the alphabet does not
-make incomplete records dominate the list.
-
-Backup Format Version 2 carries `name` as an optional property. Existing
-backups without it restore as unnamed Boxes. Existing Box-number sort values
-and their legacy mappings remain valid.
-
-### Consequences
-
-Advantages:
-
-- users can recognize Boxes by a meaningful name without losing the stable Box
-  number or QR identity
-- partial adoption does not reduce the usefulness of alphabetical sorting
-- existing databases and backups migrate without manufactured placeholder
-  names
-- backup format and legacy sort preferences remain compatible
-
-Disadvantages:
-
-- Box names are not unique and cannot be used as permanent identifiers
-- user-provided names are included in unencrypted backups

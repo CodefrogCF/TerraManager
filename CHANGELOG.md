@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
-## [Unreleased]
+## [1.2.0] - 2026-09-13
 
 ### Added
 
@@ -45,6 +45,17 @@ The project uses semantic versioning.
 - removed the brittle hard-coded application-version assertion from release
   documentation tests; final release-validation documentation tests remain
   in place
+- completed the v1.2.0 migration, lifecycle, QR, backup and full-suite
+  regression with 554 passing tests
+- built and verified the production-signed Android APK and App Bundle and the
+  Web release from the same `1.2.0+54` source state
+
+### Release
+
+- advanced the release version to `1.2.0+54`
+- added the final v1.2.0 validation, compatibility, signature and artifact-hash
+  record
+- completed the Box Lifecycle & History milestone delivered by Issues #102–#104
 
 Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
 

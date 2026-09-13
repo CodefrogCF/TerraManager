@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.1.0 – Detail & Workflow Polish**
+**v1.2.0 – Box Lifecycle & History**
 
 Current application version and build:
 
-**v1.1.1+51 (development build)**
+**v1.2.0+54**
 
 Completed development areas:
 
@@ -933,6 +933,44 @@ roughly one sixth of its previous size.
 - [x] Add migration, repository, backup, settings and widget coverage
 - [ ] Complete automated regression
 - [ ] Complete Android and Web manual validation
+
+---
+
+## v1.2.0 – Box Lifecycle & History
+
+### Box Lifecycle Persistence — Issue #102
+
+- [x] Add persistent active and archived Box states in Schema Version 8
+- [x] Retain archive reason, timestamp and optional notes
+- [x] Preserve lifecycle data in current backups and restore legacy backups
+- [x] Validate migration, restart, backup and portable enum compatibility
+
+### Box Archive and Restore Workflows — Issue #103
+
+- [x] Archive only empty active Boxes through Edit Box
+- [x] Keep assigned Animals protected and list blockers before archive
+- [x] Exclude archived Boxes from active workflows and Animal assignment
+- [x] Restore archived Boxes with their permanent QR identifier
+- [x] Handle archived QR scans in English and German
+- [x] Restrict permanent deletion to archived Box details
+
+### Box History — Issue #104
+
+- [x] Add the Archived Boxes entry point and localized empty state
+- [x] Show archived Boxes newest first with identity, picture and metadata
+- [x] Open retained archived details through normal and contextual navigation
+- [x] Cover populated, empty, restore and deletion states with widget tests
+
+### v1.2.0 Release — Issue #105
+
+- [x] Complete automated migration, lifecycle, QR and backup regression
+- [x] Verify direct v1.1.x upgrade and current and legacy backup restore
+- [x] Build Android and Web release artifacts
+- [x] Verify production signatures and record artifact hashes
+- [x] Complete physical-device Box lifecycle and archived-QR checks
+- [x] Finalize version, changelog, documentation and release validation record
+- [x] Publish the annotated `v1.2.0` tag from the final release commit
+- [x] Publish the GitHub v1.2.0 release with the verified APK
 
 ---
 

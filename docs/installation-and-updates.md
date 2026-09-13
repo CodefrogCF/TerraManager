@@ -28,6 +28,13 @@ and Portable Backup Format Version 2. It advances the local database to Schema
 Version 7 for optional Box names. The automatic migration preserves existing
 data and leaves existing Boxes unnamed until a name is assigned.
 
+TerraManager v1.2.0 keeps the same application identity, production signing
+certificate and Portable Backup Format Version 2. It advances the local
+database to Schema Version 8 for the Box lifecycle and archive metadata. A
+direct update from a production-signed v1.1.x installation preserves Boxes,
+Animals, FeedingEvents, settings and media; existing Boxes remain active until
+they are explicitly archived.
+
 ## Android installation
 
 The release APK is the directly installable Android artifact. Android may ask

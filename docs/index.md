@@ -19,11 +19,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.1.0 – Detail & Workflow Polish**
+**v1.2.0 – Box Lifecycle & History**
 
 Current application version and build:
 
-**v1.1.1+51 (development build)**
+**v1.2.0+54**
 
 Implemented milestones in the current source state:
 
@@ -45,7 +45,8 @@ Implemented milestones in the current source state:
 - v0.14.1 – Post-release Fixes
 - v1.0.0 – MVP Release
 - v1.1.0 – Detail & Workflow Polish
-- v1.1.1 – Optional Box Names (development)
+- v1.1.1 – Optional Box Names
+- v1.2.0 – Box Lifecycle & History
 
 Android and Web are currently validated platforms.
 
@@ -142,6 +143,31 @@ free-form Box names. Named Boxes keep their generated Box number visible and
 the Box Overview can be sorted by name A–Z or Z–A. Database Schema Version 7
 adds the nullable name without changing existing Box data, while Portable
 Backup Format Version 2 remains backward compatible.
+
+Issue #102 adds the Box lifecycle persistence foundation in Database Schema
+Version 8. Boxes have an active/archived status, archive reason, timestamp and
+optional archive notes. Existing databases and older backups retain active
+Boxes with empty archive metadata. Current Format 2 backups preserve these
+fields along with the permanent QR identifier, picture and other Box data.
+Issue #103 adds archive and restore workflows on top of this data model.
+Use **Archive Box** in Edit Box, choose a reason and confirm. Assigned active
+Animals must first be moved to another active Box; the blocking dialog lists
+them and never archives Animals automatically. Confirming archive discards
+unsaved Edit Box changes while retaining the previously saved Box data.
+
+Open **Archived Boxes** from the Box Overview to inspect an archived record
+and restore it with the same QR identifier. Archived records are excluded
+from the active overview and Animal assignment controls. Both QR scanners
+explain when a scanned Box is archived and keep active workflows closed.
+Archive/restore actions are protected against duplicate submissions. A Box can
+only be deleted permanently from the bottom of its archived detail view, after
+a second confirmation. Edit Box no longer offers direct deletion.
+
+Release `1.2.0+54` consolidates optional Box names and the persistent Box
+lifecycle, archive, history, restore and permanent-deletion workflows delivered
+by Issues #102–#104. The final migration, backup, QR, Android and Web release
+validation is tracked by Issue #105 and recorded in
+`docs/release-v1.2.0.md`.
 
 ### Android transition to the permanent application ID
 
@@ -1016,6 +1042,7 @@ Additional documentation:
 - [Android release signing](docs/android-release-signing.md)
 - [v1.0.0 release validation](docs/release-v1.0.0.md)
 - [v1.1.0 release validation](docs/release-v1.1.0.md)
+- [v1.2.0 release validation](docs/release-v1.2.0.md)
 - [Privacy](PRIVACY.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

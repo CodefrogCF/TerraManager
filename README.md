@@ -19,11 +19,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.1.0 – Detail & Workflow Polish**
+**v1.2.0 – Box Lifecycle & History**
 
 Current application version and build:
 
-**v1.1.2+52 (development build)**
+**v1.2.0+54**
 
 Implemented milestones in the current source state:
 
@@ -45,7 +45,8 @@ Implemented milestones in the current source state:
 - v0.14.1 – Post-release Fixes
 - v1.0.0 – MVP Release
 - v1.1.0 – Detail & Workflow Polish
-- v1.1.1 – Optional Box Names (development)
+- v1.1.1 – Optional Box Names
+- v1.2.0 – Box Lifecycle & History
 
 Android and Web are currently validated platforms.
 
@@ -161,6 +162,12 @@ explain when a scanned Box is archived and keep active workflows closed.
 Archive/restore actions are protected against duplicate submissions. A Box can
 only be deleted permanently from the bottom of its archived detail view, after
 a second confirmation. Edit Box no longer offers direct deletion.
+
+Release `1.2.0+54` consolidates optional Box names and the persistent Box
+lifecycle, archive, history, restore and permanent-deletion workflows delivered
+by Issues #102–#104. The final migration, backup, QR, Android and Web release
+validation is tracked by Issue #105 and recorded in
+`docs/release-v1.2.0.md`.
 
 ### Android transition to the permanent application ID
 
@@ -1043,6 +1050,7 @@ Additional documentation:
 - [Android release signing](docs/android-release-signing.md)
 - [v1.0.0 release validation](docs/release-v1.0.0.md)
 - [v1.1.0 release validation](docs/release-v1.1.0.md)
+- [v1.2.0 release validation](docs/release-v1.2.0.md)
 - [Privacy](PRIVACY.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

@@ -33,6 +33,11 @@ tracked in `release-v1.0.0.md`. Its result is not considered complete until the
 automated checks, signed artifacts, backup paths and manual platform checklist
 in that document have been confirmed.
 
+The v1.2.0 Box Lifecycle & History regression, production-signed Android
+artifacts and Web release are recorded in `release-v1.2.0.md`. This validation
+covers direct updates from v1.1.x, Schema Version 8, archived QR behaviour,
+Box History, restore and archived-only permanent deletion.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 

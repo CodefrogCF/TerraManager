@@ -7,7 +7,7 @@ title: TerraManager
 
 **Effective date:** September 12, 2026
 **Application:** TerraManager
-**Developer:** CodefrogCF
+**Developer:** Codefrog
 **Privacy and support contact:** See the TerraManager project repository for the current contact and support channels.
 
 ## 1. Overview

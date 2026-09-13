@@ -22,8 +22,14 @@ import 'new_animal_page.dart';
 class AnimalsPage extends StatefulWidget {
   final AppDatabase database;
   final FeedingReminderClock? reminderNow;
+  final int dataRevision;
 
-  const AnimalsPage({super.key, required this.database, this.reminderNow});
+  const AnimalsPage({
+    super.key,
+    required this.database,
+    this.reminderNow,
+    this.dataRevision = 0,
+  });
 
   @override
   State<AnimalsPage> createState() => _AnimalsPageState();
@@ -40,6 +46,22 @@ class _AnimalsPageState extends State<AnimalsPage> {
   void initState() {
     super.initState();
     _loadAnimals();
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimalsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.database == oldWidget.database &&
+        widget.dataRevision == oldWidget.dataRevision) {
+      return;
+    }
+
+    final previousOffset = _scrollController.hasClients
+        ? _scrollController.offset
+        : 0.0;
+    _loadAnimals();
+    _restoreScrollAfterLoad(previousOffset);
   }
 
   @override
@@ -83,6 +105,10 @@ class _AnimalsPageState extends State<AnimalsPage> {
       _loadAnimals();
     });
 
+    await _restoreScrollAfterLoad(previousOffset);
+  }
+
+  Future<void> _restoreScrollAfterLoad(double previousOffset) async {
     try {
       await _overviewFuture;
     } catch (_) {
@@ -395,6 +421,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'animals-add-fab',
         key: const Key('add-animal-button'),
         onPressed: _openNewAnimalPage,
         tooltip: context.l10n.addAnimal,

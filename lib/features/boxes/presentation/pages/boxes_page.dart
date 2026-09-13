@@ -18,12 +18,14 @@ import 'new_box_page.dart';
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
   final VoidCallback? onFeedingChanged;
+  final VoidCallback? onAnimalsChanged;
   final bool showArchived;
 
   const BoxesPage({
     super.key,
     required this.database,
     this.onFeedingChanged,
+    this.onAnimalsChanged,
     this.showArchived = false,
   });
 
@@ -167,6 +169,7 @@ class _BoxesPageState extends State<BoxesPage> {
             boxIds: boxes.map((box) => box.id),
             currentBoxId: box.id,
           ),
+          onAnimalsChanged: widget.onAnimalsChanged,
         ),
       ),
     );
@@ -349,6 +352,7 @@ class _BoxesPageState extends State<BoxesPage> {
       floatingActionButton: widget.showArchived
           ? null
           : FloatingActionButton(
+              heroTag: 'boxes-add-fab',
               key: const Key('add-box-button'),
               onPressed: _openNewBoxPage,
               tooltip: context.l10n.addBox,

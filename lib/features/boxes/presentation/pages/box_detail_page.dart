@@ -24,6 +24,7 @@ class BoxDetailPage extends StatefulWidget {
   final AppDatabase database;
   final Box box;
   final DetailNavigationContext? navigationContext;
+  final VoidCallback? onAnimalsChanged;
   final QrExporter qrExporter;
   final QrStorage qrStorage;
 
@@ -32,6 +33,7 @@ class BoxDetailPage extends StatefulWidget {
     required this.database,
     required this.box,
     this.navigationContext,
+    this.onAnimalsChanged,
     this.qrExporter = const QrExportService(),
     this.qrStorage = const QrStorageService(),
   }) : assert(
@@ -343,6 +345,10 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         _loadAnimals();
       }
     });
+
+    if (created == true) {
+      widget.onAnimalsChanged?.call();
+    }
   }
 
   Widget _buildAddAnimalButton() {

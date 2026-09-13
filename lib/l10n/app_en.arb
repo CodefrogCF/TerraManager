@@ -13,8 +13,21 @@
     "description": "Bottom navigation label for the Animal overview"
   },
   "navigationSettings": "Settings",
+  "navigationSettings": "Settings",
   "@navigationSettings": {
     "description": "Bottom navigation label for Settings"
+  },
+  "primaryNavigation": "Primary navigation",
+  "@primaryNavigation": {
+    "description": "Accessibility label for the main page navigation"
+  },
+  "primaryPage": "Primary page",
+  "@primaryPage": {
+    "description": "Accessibility label for the currently selected main page"
+  },
+  "primaryPageSwipeHint": "Swipe horizontally or use the navigation bar to switch pages.",
+  "@primaryPageSwipeHint": {
+    "description": "Accessibility hint for switching between main pages"
   },
   "noPicture": "No picture",
   "imageUnavailable": "Image unavailable",

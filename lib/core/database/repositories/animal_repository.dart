@@ -5,6 +5,8 @@ import '../enums/animal_archive_reason.dart';
 import '../enums/animal_status.dart';
 import '../enums/birth_date_accuracy.dart';
 import '../enums/sex.dart';
+import '../enums/box_status.dart';
+import 'box_lifecycle_exception.dart';
 
 class AnimalRepository {
   final AppDatabase database;
@@ -83,31 +85,34 @@ class AnimalRepository {
       baseline: feedingReminderBaseline,
     );
 
-    return database
-        .into(database.animals)
-        .insert(
-          AnimalsCompanion.insert(
-            boxId: Value(boxId),
-            commonName: commonName,
-            latinName: latinName,
-            sex: Value.absentIfNull(sex),
-            birthDate: Value.absentIfNull(birthDate),
-            birthDateAccuracy: Value.absentIfNull(birthDateAccuracy),
-            tempMin: tempMin,
-            tempMax: tempMax,
-            humidityMin: humidityMin,
-            humidityMax: humidityMax,
-            pictureMediaId: Value.absentIfNull(pictureMediaId),
-            picturePath: Value.absentIfNull(picturePath),
-            notes: Value.absentIfNull(notes),
-            feedingReminderIntervalDays: Value.absentIfNull(
-              feedingReminderIntervalDays,
+    return database.transaction(() async {
+      await _requireActiveBox(boxId);
+      return database
+          .into(database.animals)
+          .insert(
+            AnimalsCompanion.insert(
+              boxId: Value(boxId),
+              commonName: commonName,
+              latinName: latinName,
+              sex: Value.absentIfNull(sex),
+              birthDate: Value.absentIfNull(birthDate),
+              birthDateAccuracy: Value.absentIfNull(birthDateAccuracy),
+              tempMin: tempMin,
+              tempMax: tempMax,
+              humidityMin: humidityMin,
+              humidityMax: humidityMax,
+              pictureMediaId: Value.absentIfNull(pictureMediaId),
+              picturePath: Value.absentIfNull(picturePath),
+              notes: Value.absentIfNull(notes),
+              feedingReminderIntervalDays: Value.absentIfNull(
+                feedingReminderIntervalDays,
+              ),
+              feedingReminderBaseline: Value.absentIfNull(
+                feedingReminderBaseline,
+              ),
             ),
-            feedingReminderBaseline: Value.absentIfNull(
-              feedingReminderBaseline,
-            ),
-          ),
-        );
+          );
+    });
   }
 
   Future<bool> updateAnimal({
@@ -133,34 +138,39 @@ class AnimalRepository {
       baseline: feedingReminderBaseline,
     );
 
-    final updatedRows =
-        await (database.update(database.animals)..where(
-              (animal) =>
-                  animal.id.equals(animalId) &
-                  animal.status.equalsValue(AnimalStatus.active),
-            ))
-            .write(
-              AnimalsCompanion(
-                boxId: Value(boxId),
-                commonName: Value(commonName),
-                latinName: Value(latinName),
-                sex: Value(sex),
-                birthDate: Value(birthDate),
-                birthDateAccuracy: Value(birthDateAccuracy),
-                tempMin: Value(tempMin),
-                tempMax: Value(tempMax),
-                humidityMin: Value(humidityMin),
-                humidityMax: Value(humidityMax),
-                pictureMediaId: Value(pictureMediaId),
-                picturePath: Value(picturePath),
-                notes: Value(notes),
-                feedingReminderIntervalDays: Value(feedingReminderIntervalDays),
-                feedingReminderBaseline: Value(feedingReminderBaseline),
-                updatedAt: Value(DateTime.now()),
-              ),
-            );
+    return database.transaction(() async {
+      await _requireActiveBox(boxId);
+      final updatedRows =
+          await (database.update(database.animals)..where(
+                (animal) =>
+                    animal.id.equals(animalId) &
+                    animal.status.equalsValue(AnimalStatus.active),
+              ))
+              .write(
+                AnimalsCompanion(
+                  boxId: Value(boxId),
+                  commonName: Value(commonName),
+                  latinName: Value(latinName),
+                  sex: Value(sex),
+                  birthDate: Value(birthDate),
+                  birthDateAccuracy: Value(birthDateAccuracy),
+                  tempMin: Value(tempMin),
+                  tempMax: Value(tempMax),
+                  humidityMin: Value(humidityMin),
+                  humidityMax: Value(humidityMax),
+                  pictureMediaId: Value(pictureMediaId),
+                  picturePath: Value(picturePath),
+                  notes: Value(notes),
+                  feedingReminderIntervalDays: Value(
+                    feedingReminderIntervalDays,
+                  ),
+                  feedingReminderBaseline: Value(feedingReminderBaseline),
+                  updatedAt: Value(DateTime.now()),
+                ),
+              );
 
-    return updatedRows > 0;
+      return updatedRows > 0;
+    });
   }
 
   Future<bool> updateFeedingReminder({
@@ -223,33 +233,28 @@ class AnimalRepository {
     required int animalId,
     required int boxId,
   }) async {
-    final boxQuery = database.select(database.boxes)
-      ..where((box) => box.id.equals(boxId));
+    return database.transaction(() async {
+      await _requireActiveBox(boxId);
 
-    final box = await boxQuery.getSingleOrNull();
+      final updatedRows =
+          await (database.update(database.animals)..where(
+                (animal) =>
+                    animal.id.equals(animalId) &
+                    animal.status.equalsValue(AnimalStatus.archived),
+              ))
+              .write(
+                AnimalsCompanion(
+                  boxId: Value(boxId),
+                  status: const Value(AnimalStatus.active),
+                  archiveReason: const Value(null),
+                  archivedAt: const Value(null),
+                  archiveNotes: const Value(null),
+                  updatedAt: Value(DateTime.now()),
+                ),
+              );
 
-    if (box == null) {
-      throw ArgumentError.value(boxId, 'boxId', 'Box does not exist');
-    }
-
-    final updatedRows =
-        await (database.update(database.animals)..where(
-              (animal) =>
-                  animal.id.equals(animalId) &
-                  animal.status.equalsValue(AnimalStatus.archived),
-            ))
-            .write(
-              AnimalsCompanion(
-                boxId: Value(boxId),
-                status: const Value(AnimalStatus.active),
-                archiveReason: const Value(null),
-                archivedAt: const Value(null),
-                archiveNotes: const Value(null),
-                updatedAt: Value(DateTime.now()),
-              ),
-            );
-
-    return updatedRows > 0;
+      return updatedRows > 0;
+    });
   }
 
   Future<bool> permanentlyDeleteArchivedAnimal(int animalId) {
@@ -314,6 +319,19 @@ class AnimalRepository {
 
       return true;
     });
+  }
+
+  Future<void> _requireActiveBox(int boxId) async {
+    final box =
+        await (database.select(database.boxes)..where(
+              (box) =>
+                  box.id.equals(boxId) &
+                  box.status.equalsValue(BoxStatus.active),
+            ))
+            .getSingleOrNull();
+    if (box == null) {
+      throw BoxAssignmentException(boxId);
+    }
   }
 
   static void _validateFeedingReminder({

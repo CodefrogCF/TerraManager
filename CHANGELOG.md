@@ -8,6 +8,50 @@ The project uses semantic versioning.
 
 ### Added
 
+- added an Archive Box action to Edit Box with a required localized reason,
+  optional archive note and explicit confirmation (Issue #103)
+- added an Archived Boxes entry point and a confirmed Restore Box action
+- display archive reason, timestamp and notes on archived Box details
+- added localized archived-QR results in both the Box and Feeding Mode scanners
+
+### Changed
+
+- filter active Box overviews and all Animal assignment choices to active Boxes
+- recheck assigned active Animals transactionally before archiving and name
+  blocking Animals in the explanation dialog; Animal lifecycle stays unchanged
+- protect creation, reassignment and restoration of Animals from stale archived
+  Box choices with transactional repository checks
+- reject backups assigning active Animals to archived Boxes
+- preserve the permanent QR identifier and stored Box data across archive and
+  restore; restore clears archive metadata and makes the Box available again
+- return to the originating overview after archive or restore, including after
+  contextual detail swiping, and prevent repeated lifecycle submissions
+- explain that unsaved Edit Box changes are discarded when archive is confirmed
+- remove direct Box deletion from Edit Box; permanent deletion is available only
+  at the bottom of archived Box details, matching the Animal archive workflow
+- use the Box archive symbol consistently for the Box Overview navigation and
+  Box thumbnails without pictures
+- move Archive Animal from active Animal details to the bottom of Edit Animal;
+  unsaved edits are explicitly disclosed before archive confirmation
+
+### Testing
+
+- added repository coverage for blocked and successful archive, restore,
+  duplicate operations, and competing assignment/archive transactions
+- added UI coverage for confirmations, blocking Animal names, active/archive
+  lists, contextual navigation, stale forms and all assignment controls
+- added English/German scanner regression and a narrow German dialog check
+- added repository and UI coverage for archived-only permanent Box deletion
+- removed the brittle hard-coded application-version assertion from release
+  documentation tests; final release-validation documentation tests remain
+  in place
+
+Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
+
+## [1.1.2] - 2026-09-13
+
+### Added
+
 - added persistent Box lifecycle fields for Issue #102: active/archived status,
   archive reason, archive timestamp and optional archive notes
 - added English and German labels for Sold, Replaced, Damaged and Other Box

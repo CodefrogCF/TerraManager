@@ -213,7 +213,7 @@ void main() {
     expect(storage.savedFileName, buildBoxQrFileName(secondBox.qrId));
   });
 
-  testWidgets('deleting the swiped box safely returns to the overview', (
+  testWidgets('swiped active Box has no permanent deletion action', (
     tester,
   ) async {
     final firstBox = await createBox('delete-box-one');
@@ -229,25 +229,14 @@ void main() {
     await swipeLeft(tester);
     expect(find.text('Box ${secondBox.id}'), findsOneWidget);
 
-    expect(find.byKey(const Key('delete-box-button')), findsNothing);
+    expect(find.byKey(const Key('permanent-delete-box-button')), findsNothing);
     await tester.tap(find.byKey(const Key('edit-box-button')));
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(
-      find.byKey(const Key('delete-box-button')),
-      300,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('delete-box-button')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('confirm-delete-box-button')));
-    await tester.pumpAndSettle();
 
-    expect(await boxRepository.getBoxById(secondBox.id), isNull);
-    expect(find.text('Boxes'), findsOneWidget);
-    expect(find.text('Box ${firstBox.id}'), findsOneWidget);
-    expect(find.text('Box ${secondBox.id}'), findsNothing);
-    expect(find.text('Box ${thirdBox.id}'), findsOneWidget);
+    expect(find.byKey(const Key('delete-box-button')), findsNothing);
+    expect(await boxRepository.getBoxById(secondBox.id), isNotNull);
+    expect(await boxRepository.getBoxById(firstBox.id), isNotNull);
+    expect(await boxRepository.getBoxById(thirdBox.id), isNotNull);
   });
 
   testWidgets('skips a missing adjacent box without invalid state', (

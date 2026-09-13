@@ -67,6 +67,15 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  Future<void> openArchiveDialogFromEdit(WidgetTester tester) async {
+    expect(find.byKey(const Key('archive-animal-button')), findsNothing);
+    await tester.tap(find.byKey(const Key('edit-animal-button')));
+    await tester.pumpAndSettle();
+    await scrollToKey(tester, const Key('archive-animal-button'));
+    await tester.tap(find.byKey(const Key('archive-animal-button')));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('active animal can be archived', (tester) async {
     final boxId = await createBox(
       'TM:BOX:11111111-1111-4111-8111-111111111111',
@@ -78,11 +87,7 @@ void main() {
 
     expect(find.byKey(const Key('edit-animal-button')), findsOneWidget);
 
-    await scrollToKey(tester, const Key('archive-animal-button'));
-
-    await tester.tap(find.byKey(const Key('archive-animal-button')));
-
-    await tester.pumpAndSettle();
+    await openArchiveDialogFromEdit(tester);
 
     expect(find.byKey(const Key('archive-animal-dialog')), findsOneWidget);
 
@@ -200,11 +205,12 @@ void main() {
 
     expect(animal.archiveNotes, isNull);
 
-    await scrollToKey(tester, const Key('archive-animal-button'));
-
-    expect(find.byKey(const Key('archive-animal-button')), findsOneWidget);
-
     expect(find.byKey(const Key('edit-animal-button')), findsOneWidget);
+    expect(find.byKey(const Key('archive-animal-button')), findsNothing);
+    await tester.tap(find.byKey(const Key('edit-animal-button')));
+    await tester.pumpAndSettle();
+    await scrollToKey(tester, const Key('archive-animal-button'));
+    expect(find.byKey(const Key('archive-animal-button')), findsOneWidget);
   });
 
   testWidgets('animal overview shows active animals only', (tester) async {
@@ -253,11 +259,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    await scrollToKey(tester, const Key('archive-animal-button'));
-
-    await tester.tap(find.byKey(const Key('archive-animal-button')));
-
-    await tester.pumpAndSettle();
+    await openArchiveDialogFromEdit(tester);
 
     await tester.tap(find.byKey(const Key('archive-reason-field')));
 

@@ -285,6 +285,32 @@ void main() {
     });
   }
 
+  test(
+    'rejects active Animals assigned to archived Boxes before restore',
+    () async {
+      await seedActiveBoxAndAnimal();
+      final original = await export(source);
+      final bytes = rewriteArchive(original.bytes, (data) {
+        ((data['boxes'] as List<dynamic>).single as Map<String, dynamic>)
+            .addAll({
+              'status': 'archived',
+              'archiveReason': 'other',
+              'archivedAt': archivedAt.toIso8601String(),
+            });
+      });
+      expect(
+        () => BackupValidationService().validate(bytes),
+        throwsA(
+          isA<BackupValidationException>().having(
+            (error) => error.code,
+            'code',
+            BackupValidationErrorCode.invalidLifecycle,
+          ),
+        ),
+      );
+    },
+  );
+
   test('Box enum codecs use stable portable values', () {
     for (final value in BoxStatus.values) {
       expect(

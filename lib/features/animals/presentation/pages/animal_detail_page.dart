@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
-import '../../../../core/database/enums/animal_archive_reason.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
@@ -167,67 +167,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     });
   }
 
-  Future<void> _archiveAnimal(Animal animal) async {
-    if (_lifecycleActionInProgress || animal.status != AnimalStatus.active) {
-      return;
-    }
-
-    final result = await showDialog<_ArchiveAnimalResult>(
-      context: context,
-      builder: (_) => const _ArchiveAnimalDialog(),
-    );
-
-    if (result == null || !mounted) {
-      return;
-    }
-
-    setState(() {
-      _lifecycleActionInProgress = true;
-      _lifecycleError = null;
-    });
-
-    try {
-      final success = await AnimalRepository(widget.database).archiveAnimal(
-        animalId: animal.id,
-        reason: result.reason,
-        archivedAt: result.archivedAt,
-        archiveNotes: result.notes,
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      if (!success) {
-        setState(() {
-          _lifecycleActionInProgress = false;
-          _lifecycleError = context.l10n.failedToArchiveAnimal;
-        });
-
-        return;
-      }
-
-      setState(() {
-        _lifecycleActionInProgress = false;
-        _navigationContext = null;
-        _loadAnimal();
-        _loadFeedingReminder();
-      });
-
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(context.l10n.animalArchived)));
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _lifecycleActionInProgress = false;
-        _lifecycleError = context.l10n.failedToArchiveAnimal;
-      });
-    }
-  }
-
   Future<void> _restoreAnimal(Animal animal) async {
     if (_lifecycleActionInProgress || animal.status != AnimalStatus.archived) {
       return;
@@ -240,7 +179,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     List<Box> boxes;
 
     try {
-      boxes = await BoxRepository(widget.database).getAllBoxes();
+      boxes = await BoxRepository(widget.database).getActiveBoxes();
     } catch (_) {
       if (!mounted) {
         return;
@@ -320,6 +259,14 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(context.l10n.animalRestored)));
+    } on BoxAssignmentException {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _lifecycleActionInProgress = false;
+        _lifecycleError = context.l10n.boxUnavailableForAssignment;
+      });
     } catch (_) {
       if (!mounted) {
         return;
@@ -882,163 +829,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             icon: const Icon(Icons.delete_forever_outlined),
             label: Text(context.l10n.deletePermanently),
           ),
-        ] else ...[
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: 16),
-
-          OutlinedButton.icon(
-            key: const Key('archive-animal-button'),
-            onPressed: _lifecycleActionInProgress
-                ? null
-                : () => _archiveAnimal(animal),
-            icon: _lifecycleActionInProgress
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.archive_outlined),
-            label: Text(context.l10n.archiveAnimal),
-          ),
         ],
 
         const SizedBox(height: 24),
-      ],
-    );
-  }
-}
-
-class _ArchiveAnimalDialog extends StatefulWidget {
-  const _ArchiveAnimalDialog();
-
-  @override
-  State<_ArchiveAnimalDialog> createState() => _ArchiveAnimalDialogState();
-}
-
-class _ArchiveAnimalDialogState extends State<_ArchiveAnimalDialog> {
-  final TextEditingController _notesController = TextEditingController();
-
-  AnimalArchiveReason? _reason;
-  late DateTime _archiveDate;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final now = DateTime.now();
-
-    _archiveDate = DateTime(now.year, now.month, now.day);
-  }
-
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectDate() async {
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: _archiveDate,
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-
-    if (selected == null || !mounted) {
-      return;
-    }
-
-    setState(() {
-      _archiveDate = selected;
-    });
-  }
-
-  void _confirm() {
-    final reason = _reason;
-
-    if (reason == null) {
-      return;
-    }
-
-    final notes = _notesController.text.trim();
-
-    Navigator.of(context).pop(
-      _ArchiveAnimalResult(
-        reason: reason,
-        archivedAt: _archiveDate,
-        notes: notes.isEmpty ? null : notes,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      key: const Key('archive-animal-dialog'),
-      scrollable: true,
-      title: Text(context.l10n.archiveAnimal),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(context.l10n.archiveAnimalQuestion),
-          const SizedBox(height: 20),
-
-          DropdownButtonFormField<AnimalArchiveReason>(
-            key: const Key('archive-reason-field'),
-            initialValue: _reason,
-            decoration: InputDecoration(labelText: context.l10n.reason),
-            items: AnimalArchiveReason.values
-                .map(
-                  (reason) => DropdownMenuItem<AnimalArchiveReason>(
-                    value: reason,
-                    child: Text(context.l10n.animalArchiveReasonLabel(reason)),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              setState(() {
-                _reason = value;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-
-          ListTile(
-            key: const Key('archive-date-field'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.l10n.archiveDate),
-            subtitle: Text(_formatDate(_archiveDate)),
-            trailing: const Icon(Icons.calendar_today),
-            onTap: _selectDate,
-          ),
-          const SizedBox(height: 16),
-
-          TextField(
-            key: const Key('archive-notes-field'),
-            controller: _notesController,
-            maxLines: 3,
-            decoration: InputDecoration(
-              labelText: context.l10n.note,
-              hintText: context.l10n.optional,
-              alignLabelWithHint: true,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          key: const Key('cancel-archive-animal-button'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text(context.l10n.cancel),
-        ),
-        FilledButton(
-          key: const Key('confirm-archive-animal-button'),
-          onPressed: _reason == null ? null : _confirm,
-          child: Text(context.l10n.archive),
-        ),
       ],
     );
   }
@@ -1104,18 +897,6 @@ class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
       ],
     );
   }
-}
-
-class _ArchiveAnimalResult {
-  final AnimalArchiveReason reason;
-  final DateTime archivedAt;
-  final String? notes;
-
-  const _ArchiveAnimalResult({
-    required this.reason,
-    required this.archivedAt,
-    this.notes,
-  });
 }
 
 class _DetailRow extends StatelessWidget {

@@ -261,6 +261,9 @@ void main() {
       ),
     );
 
+    expect(find.byKey(const Key('archive-animal-button')), findsNothing);
+    await tester.tap(find.byKey(const Key('edit-animal-button')));
+    await tester.pumpAndSettle();
     await scrollToKey(tester, const Key('archive-animal-button'));
     await tester.tap(find.byKey(const Key('archive-animal-button')));
     await tester.pumpAndSettle();

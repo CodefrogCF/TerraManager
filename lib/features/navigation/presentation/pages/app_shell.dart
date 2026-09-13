@@ -60,8 +60,8 @@ class _AppShellState extends State<AppShell> {
         },
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
+            icon: const Icon(Icons.inventory_2_outlined),
+            selectedIcon: const Icon(Icons.inventory_2),
             label: context.l10n.navigationBoxes,
           ),
           NavigationDestination(

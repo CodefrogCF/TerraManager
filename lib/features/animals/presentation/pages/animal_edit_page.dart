@@ -9,11 +9,13 @@ import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
+import '../animal_archive_dialog.dart';
 import '../widgets/animal_picture.dart';
 
 class AnimalEditPage extends StatefulWidget {
@@ -65,11 +67,14 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   bool _loading = true;
   bool _saving = false;
+  bool _archiving = false;
   bool _processingPicture = false;
   bool _hasUnsavedChanges = false;
 
   String? _error;
   Animal? _animal;
+
+  bool get _actionInProgress => _saving || _archiving;
 
   @override
   void initState() {
@@ -118,7 +123,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         return;
       }
 
-      final boxes = await boxRepository.getAllBoxes();
+      final boxes = await boxRepository.getActiveBoxes();
 
       MediaAsset? pictureMedia;
 
@@ -145,7 +150,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _sex = animal.sex ?? Sex.unknown;
       _birthDate = animal.birthDate;
       _birthDateAccuracy = animal.birthDateAccuracy;
-      _boxId = animal.boxId;
+      _boxId = boxes.any((box) => box.id == animal.boxId) ? animal.boxId : null;
 
       _pictureMediaId = animal.pictureMediaId;
 
@@ -187,7 +192,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   }
 
   Future<void> _selectPicture(ImageSource source) async {
-    if (_processingPicture || _saving) {
+    if (_processingPicture || _actionInProgress) {
       return;
     }
 
@@ -235,7 +240,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   }
 
   void _removePicture() {
-    if (_processingPicture || _saving) {
+    if (_processingPicture || _actionInProgress) {
       return;
     }
 
@@ -253,7 +258,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   }
 
   Future<void> _save() async {
-    if (_saving || _processingPicture) {
+    if (_actionInProgress || _processingPicture) {
       return;
     }
 
@@ -340,6 +345,27 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
         Navigator.of(context).pop(true);
       }
+    } on BoxAssignmentException {
+      try {
+        final boxes = await BoxRepository(widget.database).getActiveBoxes();
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _boxes = boxes;
+          _boxId = null;
+          _saving = false;
+          _error = context.l10n.boxUnavailableForAssignment;
+        });
+      } catch (_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _saving = false;
+          _error = context.l10n.failedToLoadBoxes;
+        });
+      }
     } catch (_) {
       if (!mounted) {
         return;
@@ -349,6 +375,59 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         _saving = false;
         _error = context.l10n.failedToSaveAnimal;
       });
+    }
+  }
+
+  Future<void> _archiveAnimal() async {
+    final animal = _animal;
+    if (_actionInProgress ||
+        _processingPicture ||
+        animal == null ||
+        animal.status != AnimalStatus.active) {
+      return;
+    }
+
+    final result = await showDialog<AnimalArchiveInput>(
+      context: context,
+      builder: (_) =>
+          AnimalArchiveDialog(hasUnsavedChanges: _hasUnsavedChanges),
+    );
+    if (!mounted || result == null) {
+      return;
+    }
+
+    setState(() {
+      _archiving = true;
+      _error = null;
+    });
+
+    try {
+      final archived = await AnimalRepository(widget.database).archiveAnimal(
+        animalId: animal.id,
+        reason: result.reason,
+        archivedAt: result.archivedAt,
+        archiveNotes: result.notes,
+      );
+      if (!mounted) {
+        return;
+      }
+      if (!archived) {
+        setState(() {
+          _archiving = false;
+          _error = context.l10n.failedToArchiveAnimal;
+        });
+        return;
+      }
+
+      _hasUnsavedChanges = false;
+      Navigator.of(context).pop(true);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _archiving = false;
+          _error = context.l10n.failedToArchiveAnimal;
+        });
+      }
     }
   }
 
@@ -381,7 +460,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   }
 
   Future<void> _handleBack() async {
-    if (_saving) {
+    if (_actionInProgress) {
       return;
     }
 
@@ -406,7 +485,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: !_hasUnsavedChanges && !_saving,
+      canPop: !_hasUnsavedChanges && !_actionInProgress,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           return;
@@ -424,7 +503,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           actions: [
             IconButton(
               key: const Key('save-animal-button'),
-              onPressed: _saving || _processingPicture ? null : _save,
+              onPressed: _actionInProgress || _processingPicture ? null : _save,
               icon: const Icon(Icons.save),
               tooltip: context.l10n.save,
             ),
@@ -471,7 +550,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             const SizedBox(height: 8),
 
             PictureSelectionControls(
-              enabled: !_saving,
+              enabled: !_actionInProgress,
               processing: _processingPicture,
               hasPicture: _hasPicture,
               cameraSupported: _pictureSelectionFlow.supportsImageSource(
@@ -498,7 +577,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                     ),
                   )
                   .toList(),
-              onChanged: _saving
+              onChanged: _actionInProgress
                   ? null
                   : (value) {
                       setState(() {
@@ -558,7 +637,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                     ),
                   )
                   .toList(),
-              onChanged: _saving
+              onChanged: _actionInProgress
                   ? null
                   : (value) {
                       if (value == null) {
@@ -584,7 +663,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               ),
               trailing: IconButton(
                 icon: const Icon(Icons.calendar_today),
-                onPressed: _saving ? null : _selectBirthDate,
+                onPressed: _actionInProgress ? null : _selectBirthDate,
               ),
             ),
             const SizedBox(height: 16),
@@ -607,7 +686,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                   ),
                 ),
               ],
-              onChanged: _saving
+              onChanged: _actionInProgress
                   ? null
                   : (value) {
                       setState(() {
@@ -660,9 +739,26 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
             FilledButton.icon(
               key: const Key('save-animal-form-button'),
-              onPressed: _saving || _processingPicture ? null : _save,
+              onPressed: _actionInProgress || _processingPicture ? null : _save,
               icon: const Icon(Icons.save),
               label: Text(context.l10n.save),
+            ),
+
+            const SizedBox(height: 12),
+
+            OutlinedButton.icon(
+              key: const Key('archive-animal-button'),
+              onPressed: _actionInProgress || _processingPicture
+                  ? null
+                  : _archiveAnimal,
+              icon: _archiving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.archive_outlined),
+              label: Text(context.l10n.archiveAnimal),
             ),
           ],
         ),

@@ -89,27 +89,27 @@ void main() {
     expect(find.byKey(const Key('remove-box-picture-button')), findsNothing);
   });
 
-  testWidgets('places the destructive Delete Box action at the form bottom', (
+  testWidgets('offers archive at the form bottom without direct deletion', (
     tester,
   ) async {
-    final boxId = await BoxRepository(database).createBox('delete-action-box');
+    final boxId = await BoxRepository(database).createBox('archive-action-box');
 
     await pumpPage(tester, boxId: boxId);
 
-    final deleteButton = find.byKey(const Key('delete-box-button'));
+    final archiveButton = find.byKey(const Key('archive-box-button'));
 
     await tester.scrollUntilVisible(
-      deleteButton,
+      archiveButton,
       300,
       scrollable: find.byType(Scrollable).first,
     );
     await tester.pumpAndSettle();
 
-    expect(deleteButton, findsOneWidget);
-    expect(find.text('Delete Box'), findsOneWidget);
-    expect(tester.widget<OutlinedButton>(deleteButton).onPressed, isNotNull);
+    expect(archiveButton, findsOneWidget);
+    expect(find.byKey(const Key('delete-box-button')), findsNothing);
+    expect(tester.widget<OutlinedButton>(archiveButton).onPressed, isNotNull);
     expect(
-      tester.getTopLeft(deleteButton).dy,
+      tester.getTopLeft(archiveButton).dy,
       greaterThan(
         tester.getTopLeft(find.byKey(const Key('save-box-form-button'))).dy,
       ),

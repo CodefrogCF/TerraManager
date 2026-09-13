@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/enums/box_status.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/qr/qr_validator.dart';
 import '../../../../l10n/app_localizations_context.dart';
@@ -94,6 +95,14 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
         setState(() {
           _processing = false;
           _error = context.l10n.boxNotFound;
+        });
+        return;
+      }
+
+      if (box.status == BoxStatus.archived) {
+        setState(() {
+          _processing = false;
+          _error = context.l10n.archivedBoxScanned;
         });
         return;
       }

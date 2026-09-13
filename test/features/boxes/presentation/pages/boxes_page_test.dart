@@ -97,7 +97,7 @@ void main() {
     expect(
       find.descendant(
         of: thumbnail,
-        matching: find.byIcon(Icons.home_outlined),
+        matching: find.byIcon(Icons.inventory_2_outlined),
       ),
       findsOneWidget,
     );

@@ -41,6 +41,8 @@ void main() {
 
     expect(find.text('Boxes'), findsWidgets);
     expect(find.text('No boxes available'), findsOneWidget);
+    expect(find.byIcon(Icons.inventory_2), findsOneWidget);
+    expect(find.byIcon(Icons.home), findsNothing);
   });
 
   testWidgets('can navigate to settings', (tester) async {

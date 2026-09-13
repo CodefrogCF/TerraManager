@@ -18,8 +18,14 @@ import 'new_box_page.dart';
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
   final VoidCallback? onFeedingChanged;
+  final bool showArchived;
 
-  const BoxesPage({super.key, required this.database, this.onFeedingChanged});
+  const BoxesPage({
+    super.key,
+    required this.database,
+    this.onFeedingChanged,
+    this.showArchived = false,
+  });
 
   @override
   State<BoxesPage> createState() => _BoxesPageState();
@@ -48,7 +54,10 @@ class _BoxesPageState extends State<BoxesPage> {
   void _loadBoxes() {
     _pictureFutures.clear();
 
-    _boxesFuture = BoxRepository(widget.database).getAllBoxes();
+    final repository = BoxRepository(widget.database);
+    _boxesFuture = widget.showArchived
+        ? repository.getArchivedBoxes()
+        : repository.getActiveBoxes();
   }
 
   double _currentScrollOffset() {
@@ -185,6 +194,19 @@ class _BoxesPageState extends State<BoxesPage> {
     await _reloadBoxesPreservingScroll(previousOffset);
   }
 
+  Future<void> _openArchive() async {
+    final previousOffset = _currentScrollOffset();
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            BoxesPage(database: widget.database, showArchived: true),
+      ),
+    );
+    if (mounted) {
+      await _reloadBoxesPreservingScroll(previousOffset);
+    }
+  }
+
   Future<void> _openFeedingMode() {
     return Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
@@ -203,7 +225,11 @@ class _BoxesPageState extends State<BoxesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.l10n.navigationBoxes),
+        title: Text(
+          widget.showArchived
+              ? context.l10n.archivedBoxes
+              : context.l10n.navigationBoxes,
+        ),
         actions: [
           PopupMenuButton<BoxSortOrder>(
             key: const Key('box-sort-button'),
@@ -224,18 +250,26 @@ class _BoxesPageState extends State<BoxesPage> {
               }).toList();
             },
           ),
-          IconButton(
-            key: const Key('scan-box-button'),
-            onPressed: _openScannerPage,
-            icon: const Icon(Icons.qr_code_scanner),
-            tooltip: context.l10n.scanBoxTitle,
-          ),
-          IconButton(
-            key: const Key('feeding-mode-button'),
-            onPressed: _openFeedingMode,
-            icon: const Icon(Icons.restaurant_menu),
-            tooltip: context.l10n.feedingModeTitle,
-          ),
+          if (!widget.showArchived) ...[
+            IconButton(
+              key: const Key('box-archive-button'),
+              onPressed: _openArchive,
+              icon: const Icon(Icons.inventory_2_outlined),
+              tooltip: context.l10n.archivedBoxes,
+            ),
+            IconButton(
+              key: const Key('scan-box-button'),
+              onPressed: _openScannerPage,
+              icon: const Icon(Icons.qr_code_scanner),
+              tooltip: context.l10n.scanBoxTitle,
+            ),
+            IconButton(
+              key: const Key('feeding-mode-button'),
+              onPressed: _openFeedingMode,
+              icon: const Icon(Icons.restaurant_menu),
+              tooltip: context.l10n.feedingModeTitle,
+            ),
+          ],
         ],
       ),
       body: FutureBuilder<List<Box>>(
@@ -255,7 +289,13 @@ class _BoxesPageState extends State<BoxesPage> {
           );
 
           if (boxes.isEmpty) {
-            return Center(child: Text(context.l10n.noBoxesAvailable));
+            return Center(
+              child: Text(
+                widget.showArchived
+                    ? context.l10n.noArchivedBoxes
+                    : context.l10n.noBoxesAvailable,
+              ),
+            );
           }
 
           return ListView.builder(
@@ -276,7 +316,7 @@ class _BoxesPageState extends State<BoxesPage> {
                     return MediaThumbnail(
                       key: Key('box-thumbnail-${box.id}'),
                       pictureBytes: pictureSnapshot.data?.data,
-                      fallbackIcon: Icons.home_outlined,
+                      fallbackIcon: Icons.inventory_2_outlined,
                     );
                   },
                 ),
@@ -306,12 +346,14 @@ class _BoxesPageState extends State<BoxesPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        key: const Key('add-box-button'),
-        onPressed: _openNewBoxPage,
-        tooltip: context.l10n.addBox,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: widget.showArchived
+          ? null
+          : FloatingActionButton(
+              key: const Key('add-box-button'),
+              onPressed: _openNewBoxPage,
+              tooltip: context.l10n.addBox,
+              child: const Icon(Icons.add),
+            ),
     );
   }
 }

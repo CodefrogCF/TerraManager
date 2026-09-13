@@ -2,6 +2,10 @@ import 'package:drift/drift.dart';
 
 import '../../qr/qr_id_generator.dart';
 import '../app_database.dart';
+import '../enums/box_status.dart';
+import '../enums/box_archive_reason.dart';
+import 'animal_repository.dart';
+import 'box_lifecycle_exception.dart';
 
 class BoxRepository {
   final AppDatabase database;
@@ -22,6 +26,78 @@ class BoxRepository {
 
   Future<List<Box>> getAllBoxes() {
     return database.select(database.boxes).get();
+  }
+
+  Future<List<Box>> getActiveBoxes() {
+    return (database.select(
+      database.boxes,
+    )..where((box) => box.status.equalsValue(BoxStatus.active))).get();
+  }
+
+  Future<List<Box>> getArchivedBoxes() {
+    return (database.select(database.boxes)
+          ..where((box) => box.status.equalsValue(BoxStatus.archived))
+          ..orderBy([
+            (box) => OrderingTerm.desc(box.archivedAt),
+            (box) => OrderingTerm.desc(box.id),
+          ]))
+        .get();
+  }
+
+  Future<bool> archiveBox({
+    required int boxId,
+    required BoxArchiveReason reason,
+    required DateTime archivedAt,
+    String? archiveNotes,
+  }) {
+    return database.transaction(() async {
+      final box = await getBoxById(boxId);
+      if (box == null || box.status != BoxStatus.active) {
+        return false;
+      }
+      final animals = await AnimalRepository(database).getAnimalsForBox(boxId);
+      if (animals.isNotEmpty) {
+        throw BoxArchiveBlockedException(animals);
+      }
+      final notes = archiveNotes?.trim();
+      final updated =
+          await (database.update(database.boxes)..where(
+                (box) =>
+                    box.id.equals(boxId) &
+                    box.status.equalsValue(BoxStatus.active),
+              ))
+              .write(
+                BoxesCompanion(
+                  status: const Value(BoxStatus.archived),
+                  archiveReason: Value(reason),
+                  archivedAt: Value(archivedAt),
+                  archiveNotes: Value(
+                    notes == null || notes.isEmpty ? null : notes,
+                  ),
+                  updatedAt: Value(DateTime.now()),
+                ),
+              );
+      return updated == 1;
+    });
+  }
+
+  Future<bool> restoreBox(int boxId) async {
+    final updated =
+        await (database.update(database.boxes)..where(
+              (box) =>
+                  box.id.equals(boxId) &
+                  box.status.equalsValue(BoxStatus.archived),
+            ))
+            .write(
+              BoxesCompanion(
+                status: const Value(BoxStatus.active),
+                archiveReason: const Value(null),
+                archivedAt: const Value(null),
+                archiveNotes: const Value(null),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+    return updated == 1;
   }
 
   Future<int> createBox(
@@ -134,6 +210,38 @@ class BoxRepository {
       )..where((box) => box.id.equals(boxId))).go();
 
       if (rowsDeleted == 0) {
+        return false;
+      }
+
+      if (pictureMediaId != null) {
+        await (database.delete(
+          database.mediaAssets,
+        )..where((media) => media.id.equals(pictureMediaId))).go();
+      }
+
+      return true;
+    });
+  }
+
+  Future<bool> permanentlyDeleteArchivedBox(int boxId) async {
+    return database.transaction(() async {
+      final existing = await getBoxById(boxId);
+
+      if (existing == null || existing.status != BoxStatus.archived) {
+        return false;
+      }
+
+      final pictureMediaId = existing.pictureMediaId;
+
+      final rowsDeleted =
+          await (database.delete(database.boxes)..where(
+                (box) =>
+                    box.id.equals(boxId) &
+                    box.status.equalsValue(BoxStatus.archived),
+              ))
+              .go();
+
+      if (rowsDeleted != 1) {
         return false;
       }
 

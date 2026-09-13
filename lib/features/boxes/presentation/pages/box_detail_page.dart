@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/enums/box_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
@@ -9,6 +10,8 @@ import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_file_name.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../../l10n/app_localizations_labels.dart';
+import '../box_lifecycle_dialogs.dart';
 import '../../../animals/presentation/animal_display_names.dart';
 import '../../../animals/presentation/pages/animal_detail_page.dart';
 import '../../../animals/presentation/pages/new_animal_page.dart';
@@ -61,9 +64,14 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   bool _switchingBox = false;
   bool _savingQr = false;
   bool _openingNewAnimal = false;
+  bool _restoring = false;
+  bool _restoringWrite = false;
+  bool _permanentlyDeleting = false;
 
   String? _saveError;
   String? _refreshError;
+
+  bool get _lifecycleActionInProgress => _restoring || _permanentlyDeleting;
 
   @override
   void initState() {
@@ -141,7 +149,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _openEditPage() async {
-    if (_switchingBox) {
+    if (_switchingBox ||
+        _lifecycleActionInProgress ||
+        _box.status != BoxStatus.active) {
       return;
     }
 
@@ -155,13 +165,128 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       return;
     }
 
-    if (result == BoxEditResult.deleted) {
+    if (result == BoxEditResult.archived) {
       Navigator.of(context).pop(true);
 
       return;
     }
 
     await _refreshBox();
+  }
+
+  Future<void> _restoreBox() async {
+    if (_lifecycleActionInProgress ||
+        _switchingBox ||
+        _savingQr ||
+        _box.status != BoxStatus.archived) {
+      return;
+    }
+    setState(() {
+      _restoring = true;
+      _refreshError = null;
+    });
+    try {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (_) => const RestoreBoxDialog(),
+      );
+      if (!mounted || confirmed != true) {
+        return;
+      }
+      setState(() => _restoringWrite = true);
+      final restored = await BoxRepository(widget.database).restoreBox(_box.id);
+      if (!mounted) {
+        return;
+      }
+      if (!restored) {
+        setState(() => _refreshError = context.l10n.failedToRestoreBox);
+        return;
+      }
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.boxRestored)));
+      if (_navigationContext != null && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(true);
+      } else {
+        _navigationContext = null;
+        await _refreshBox();
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _refreshError = context.l10n.failedToRestoreBox);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _restoring = false;
+          _restoringWrite = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _permanentlyDeleteBox() async {
+    if (_lifecycleActionInProgress ||
+        _switchingBox ||
+        _savingQr ||
+        _box.status != BoxStatus.archived) {
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          key: const Key('permanent-delete-box-dialog'),
+          title: Text(context.l10n.permanentlyDeleteBoxQuestion),
+          content: Text(context.l10n.permanentlyDeleteBoxWarning),
+          actions: [
+            TextButton(
+              key: const Key('cancel-permanent-delete-box-button'),
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              key: const Key('confirm-permanent-delete-box-button'),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(context.l10n.deletePermanently),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    setState(() {
+      _permanentlyDeleting = true;
+      _refreshError = null;
+    });
+
+    try {
+      final deleted = await BoxRepository(widget.database)
+          .permanentlyDeleteArchivedBox(_box.id);
+      if (!mounted) {
+        return;
+      }
+      if (!deleted) {
+        setState(() {
+          _permanentlyDeleting = false;
+          _refreshError = context.l10n.failedToPermanentlyDeleteBox;
+        });
+        return;
+      }
+
+      Navigator.of(context).pop(true);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _permanentlyDeleting = false;
+          _refreshError = context.l10n.failedToPermanentlyDeleteBox;
+        });
+      }
+    }
   }
 
   Future<void> _openAnimalDetail(Animal animal, List<Animal> animals) async {
@@ -189,7 +314,10 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _openNewAnimalPage() async {
-    if (_switchingBox || _openingNewAnimal) {
+    if (_switchingBox ||
+        _openingNewAnimal ||
+        _lifecycleActionInProgress ||
+        _box.status != BoxStatus.active) {
       return;
     }
 
@@ -232,7 +360,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   }
 
   Future<void> _saveQrCode() async {
-    if (_switchingBox || _savingQr) {
+    if (_switchingBox || _savingQr || _lifecycleActionInProgress) {
       return;
     }
 
@@ -283,7 +411,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
 
     _horizontalDragDistance = 0;
 
-    if (_switchingBox || _savingQr) {
+    if (_switchingBox || _savingQr || _lifecycleActionInProgress) {
       return;
     }
 
@@ -301,7 +429,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   Future<void> _showAdjacentBox({required bool next}) async {
     final navigationContext = _navigationContext;
 
-    if (navigationContext == null || _switchingBox) {
+    if (navigationContext == null ||
+        _switchingBox ||
+        _lifecycleActionInProgress) {
       return;
     }
 
@@ -325,7 +455,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         return;
       }
 
-      if (box == null) {
+      if (box == null || box.status != _box.status) {
         final remainingIds = navigationContext.recordIds.where(
           (recordId) => recordId != targetBoxId,
         );
@@ -333,7 +463,9 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
         setState(() {
           _navigationContext = navigationContext.withRecordIds(remainingIds);
           _switchingBox = false;
-          _refreshError = context.l10n.boxNoLongerExists;
+          _refreshError = box == null
+              ? context.l10n.boxNoLongerExists
+              : context.l10n.boxLifecycleChanged;
         });
 
         return;
@@ -365,294 +497,377 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
   Widget build(BuildContext context) {
     final box = _box;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          context.l10n.boxLabel(box.id),
-          key: const Key('box-detail-title'),
-        ),
-        actions: [
-          IconButton(
-            key: const Key('edit-box-button'),
-            onPressed: _switchingBox ? null : _openEditPage,
-            icon: const Icon(Icons.edit_outlined),
-            tooltip: context.l10n.editBoxTooltip,
+    return PopScope(
+      canPop: !_lifecycleActionInProgress,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            context.l10n.boxLabel(box.id),
+            key: const Key('box-detail-title'),
           ),
-        ],
-      ),
-      body: GestureDetector(
-        key: const Key('box-detail-swipe-area'),
-        behavior: HitTestBehavior.translucent,
-        onHorizontalDragStart: _navigationContext == null
-            ? null
-            : _handleHorizontalDragStart,
-        onHorizontalDragUpdate: _navigationContext == null
-            ? null
-            : _handleHorizontalDragUpdate,
-        onHorizontalDragEnd: _navigationContext == null
-            ? null
-            : _handleHorizontalDragEnd,
-        onHorizontalDragCancel: _navigationContext == null
-            ? null
-            : _handleHorizontalDragCancel,
-        child: ListView(
-          key: ValueKey<String>('box-detail-list-${box.id}'),
-          padding: const EdgeInsets.all(16),
-          children: [
-            if (_switchingBox) ...[
-              const LinearProgressIndicator(
-                key: Key('box-switching-indicator'),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            if (_refreshError != null) ...[
-              Text(
-                _refreshError!,
-                key: const Key('box-refresh-error'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            FutureBuilder<MediaAsset?>(
-              key: ValueKey<String>('box-picture-${box.id}'),
-              future: _pictureFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const SizedBox(
-                    height: 220,
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                return BoxPicture(
-                  key: const Key('box-detail-picture'),
-                  pictureBytes: snapshot.data?.data,
-                  emptyText: snapshot.hasError
-                      ? context.l10n.imageUnavailable
-                      : context.l10n.noPicture,
-                );
-              },
-            ),
-            const SizedBox(height: 24),
-
-            if (box.name != null && box.name!.trim().isNotEmpty) ...[
-              Text(
-                box.name!.trim(),
-                key: const Key('box-name'),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 24),
-            ],
-
-            Text(
-              context.l10n.dimensions,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-
-            _DetailRow(
-              key: const Key('box-width-row'),
-              label: context.l10n.width,
-              value: _formatDimension(context, box.widthCm),
-            ),
-
-            _DetailRow(
-              key: const Key('box-height-row'),
-              label: context.l10n.height,
-              value: _formatDimension(context, box.heightCm),
-            ),
-
-            _DetailRow(
-              key: const Key('box-depth-row'),
-              label: context.l10n.depth,
-              value: _formatDimension(context, box.depthCm),
-            ),
-
-            const SizedBox(height: 12),
-
-            _DetailRow(label: context.l10n.boxId, value: box.id.toString()),
-
-            _DetailRow(
-              label: context.l10n.created,
-              value: _formatDateTime(box.createdAt),
-            ),
-
-            _DetailRow(
-              label: context.l10n.updated,
-              value: _formatDateTime(box.updatedAt),
-            ),
-
-            if (box.notes != null && box.notes!.trim().isNotEmpty) ...[
-              const SizedBox(height: 16),
-
-              Text(
-                context.l10n.notes,
-                key: const Key('box-notes-heading'),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-
-              Text(box.notes!, key: const Key('box-notes')),
-            ],
-
-            const SizedBox(height: 16),
-
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    context.l10n.assignedAnimals,
-                    key: const Key('assigned-animals-heading'),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ),
-                const Icon(Icons.pets_outlined),
-              ],
-            ),
-            const SizedBox(height: 8),
-
-            FutureBuilder<List<Animal>>(
-              key: ValueKey<String>('box-animals-${box.id}'),
-              future: _animalsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Text(
-                      context.l10n.failedToLoadAssignedAnimals,
-                      key: const Key('assigned-animals-error'),
-                    ),
-                  );
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Padding(
-                    padding: EdgeInsets.all(24),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                final animals = snapshot.data ?? [];
-
-                if (animals.isEmpty) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Text(
-                          context.l10n.noAnimalsAssigned,
-                          key: const Key('no-assigned-animals'),
-                        ),
-                      ),
-                      _buildAddAnimalButton(),
-                    ],
-                  );
-                }
-
-                return Column(
-                  children: [
-                    for (final animal in animals)
-                      Builder(
-                        builder: (context) {
-                          final displayNames = AnimalDisplayNames.fromContext(
-                            context,
-                            commonName: animal.commonName,
-                            latinName: animal.latinName,
-                          );
-
-                          return Card(
-                            child: ListTile(
-                              key: Key('assigned-animal-${animal.id}'),
-                              leading: FutureBuilder<MediaAsset?>(
-                                future: _animalPictureFutureFor(
-                                  animal.pictureMediaId,
-                                ),
-                                builder: (context, pictureSnapshot) {
-                                  return MediaThumbnail(
-                                    key: Key(
-                                      'assigned-animal-thumbnail-${animal.id}',
-                                    ),
-                                    pictureBytes: pictureSnapshot.data?.data,
-                                    picturePath: pictureSnapshot.data == null
-                                        ? animal.picturePath
-                                        : null,
-                                    fallbackIcon: Icons.emoji_nature_outlined,
-                                  );
-                                },
-                              ),
-                              title: Text(displayNames.primary),
-                              subtitle: Text(displayNames.secondary),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: () {
-                                _openAnimalDetail(animal, animals);
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    const SizedBox(height: 8),
-                    _buildAddAnimalButton(),
-                  ],
-                );
-              },
-            ),
-
-            const SizedBox(height: 24),
-
-            const Divider(),
-            const SizedBox(height: 16),
-
-            Text(
-              context.l10n.qrIdentifier,
-              key: const Key('box-qr-section-heading'),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 16),
-
-            Center(
-              child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
-            ),
-            const SizedBox(height: 16),
-
-            SelectableText(
-              box.qrId,
-              key: const Key('box-qr-id'),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-
-            Align(
-              alignment: Alignment.center,
-              child: FilledButton.tonalIcon(
-                key: const Key('save-qr-button'),
-                onPressed: _switchingBox || _savingQr ? null : _saveQrCode,
-                icon: _savingQr
+          actions: [
+            if (box.status == BoxStatus.archived)
+              IconButton(
+                key: const Key('restore-box-button'),
+                onPressed:
+                    _lifecycleActionInProgress || _switchingBox || _savingQr
+                    ? null
+                    : _restoreBox,
+                icon: _restoringWrite
                     ? const SizedBox(
-                        width: 18,
-                        height: 18,
+                        width: 20,
+                        height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Icon(Icons.download_outlined),
-                label: Text(context.l10n.saveQrCode),
+                    : const Icon(Icons.unarchive_outlined),
+                tooltip: context.l10n.restoreBox,
+              )
+            else
+              IconButton(
+                key: const Key('edit-box-button'),
+                onPressed: _switchingBox ? null : _openEditPage,
+                icon: const Icon(Icons.edit_outlined),
+                tooltip: context.l10n.editBoxTooltip,
               ),
-            ),
-
-            if (_saveError != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                _saveError!,
-                key: const Key('qr-save-error'),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ],
-
-            const SizedBox(height: 24),
           ],
+        ),
+        body: GestureDetector(
+          key: const Key('box-detail-swipe-area'),
+          behavior: HitTestBehavior.translucent,
+          onHorizontalDragStart: _navigationContext == null
+              ? null
+              : _handleHorizontalDragStart,
+          onHorizontalDragUpdate: _navigationContext == null
+              ? null
+              : _handleHorizontalDragUpdate,
+          onHorizontalDragEnd: _navigationContext == null
+              ? null
+              : _handleHorizontalDragEnd,
+          onHorizontalDragCancel: _navigationContext == null
+              ? null
+              : _handleHorizontalDragCancel,
+          child: ListView(
+            key: ValueKey<String>('box-detail-list-${box.id}'),
+            padding: const EdgeInsets.all(16),
+            children: [
+              if (_switchingBox) ...[
+                const LinearProgressIndicator(
+                  key: Key('box-switching-indicator'),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              if (_refreshError != null) ...[
+                Text(
+                  _refreshError!,
+                  key: const Key('box-refresh-error'),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              FutureBuilder<MediaAsset?>(
+                key: ValueKey<String>('box-picture-${box.id}'),
+                future: _pictureFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(
+                      height: 220,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  return BoxPicture(
+                    key: const Key('box-detail-picture'),
+                    pictureBytes: snapshot.data?.data,
+                    emptyText: snapshot.hasError
+                        ? context.l10n.imageUnavailable
+                        : context.l10n.noPicture,
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+
+              if (box.name != null && box.name!.trim().isNotEmpty) ...[
+                Text(
+                  box.name!.trim(),
+                  key: const Key('box-name'),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const SizedBox(height: 24),
+              ],
+
+              if (box.status == BoxStatus.archived) ...[
+                Text(
+                  context.l10n.archived,
+                  key: const Key('box-archived-status'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                _DetailRow(
+                  label: context.l10n.reason,
+                  value: box.archiveReason == null
+                      ? context.l10n.notSpecified
+                      : context.l10n.boxArchiveReasonLabel(box.archiveReason!),
+                ),
+                _DetailRow(
+                  label: context.l10n.archiveDate,
+                  value: box.archivedAt == null
+                      ? context.l10n.notSpecified
+                      : _formatDateTime(box.archivedAt!),
+                ),
+                if (box.archiveNotes != null && box.archiveNotes!.isNotEmpty)
+                  _DetailRow(
+                    label: context.l10n.archiveNote,
+                    value: box.archiveNotes!,
+                  ),
+                const SizedBox(height: 16),
+              ],
+
+              Text(
+                context.l10n.dimensions,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+
+              _DetailRow(
+                key: const Key('box-width-row'),
+                label: context.l10n.width,
+                value: _formatDimension(context, box.widthCm),
+              ),
+
+              _DetailRow(
+                key: const Key('box-height-row'),
+                label: context.l10n.height,
+                value: _formatDimension(context, box.heightCm),
+              ),
+
+              _DetailRow(
+                key: const Key('box-depth-row'),
+                label: context.l10n.depth,
+                value: _formatDimension(context, box.depthCm),
+              ),
+
+              const SizedBox(height: 12),
+
+              _DetailRow(label: context.l10n.boxId, value: box.id.toString()),
+
+              _DetailRow(
+                label: context.l10n.created,
+                value: _formatDateTime(box.createdAt),
+              ),
+
+              _DetailRow(
+                label: context.l10n.updated,
+                value: _formatDateTime(box.updatedAt),
+              ),
+
+              if (box.notes != null && box.notes!.trim().isNotEmpty) ...[
+                const SizedBox(height: 16),
+
+                Text(
+                  context.l10n.notes,
+                  key: const Key('box-notes-heading'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+
+                Text(box.notes!, key: const Key('box-notes')),
+              ],
+
+              const SizedBox(height: 16),
+
+              if (box.status == BoxStatus.active) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        context.l10n.assignedAnimals,
+                        key: const Key('assigned-animals-heading'),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                    const Icon(Icons.pets_outlined),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                FutureBuilder<List<Animal>>(
+                  key: ValueKey<String>('box-animals-${box.id}'),
+                  future: _animalsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Text(
+                          context.l10n.failedToLoadAssignedAnimals,
+                          key: const Key('assigned-animals-error'),
+                        ),
+                      );
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    final animals = snapshot.data ?? [];
+
+                    if (animals.isEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            child: Text(
+                              context.l10n.noAnimalsAssigned,
+                              key: const Key('no-assigned-animals'),
+                            ),
+                          ),
+                          _buildAddAnimalButton(),
+                        ],
+                      );
+                    }
+
+                    return Column(
+                      children: [
+                        for (final animal in animals)
+                          Builder(
+                            builder: (context) {
+                              final displayNames =
+                                  AnimalDisplayNames.fromContext(
+                                    context,
+                                    commonName: animal.commonName,
+                                    latinName: animal.latinName,
+                                  );
+
+                              return Card(
+                                child: ListTile(
+                                  key: Key('assigned-animal-${animal.id}'),
+                                  leading: FutureBuilder<MediaAsset?>(
+                                    future: _animalPictureFutureFor(
+                                      animal.pictureMediaId,
+                                    ),
+                                    builder: (context, pictureSnapshot) {
+                                      return MediaThumbnail(
+                                        key: Key(
+                                          'assigned-animal-thumbnail-${animal.id}',
+                                        ),
+                                        pictureBytes:
+                                            pictureSnapshot.data?.data,
+                                        picturePath:
+                                            pictureSnapshot.data == null
+                                            ? animal.picturePath
+                                            : null,
+                                        fallbackIcon:
+                                            Icons.emoji_nature_outlined,
+                                      );
+                                    },
+                                  ),
+                                  title: Text(displayNames.primary),
+                                  subtitle: Text(displayNames.secondary),
+                                  trailing: const Icon(Icons.chevron_right),
+                                  onTap: () {
+                                    _openAnimalDetail(animal, animals);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        const SizedBox(height: 8),
+                        _buildAddAnimalButton(),
+                      ],
+                    );
+                  },
+                ),
+              ],
+
+              const SizedBox(height: 24),
+
+              const Divider(),
+              const SizedBox(height: 16),
+
+              Text(
+                context.l10n.qrIdentifier,
+                key: const Key('box-qr-section-heading'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+
+              Center(
+                child: BoxQrCode(key: const Key('box-qr-code'), qrId: box.qrId),
+              ),
+              const SizedBox(height: 16),
+
+              SelectableText(
+                box.qrId,
+                key: const Key('box-qr-id'),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+
+              Align(
+                alignment: Alignment.center,
+                child: FilledButton.tonalIcon(
+                  key: const Key('save-qr-button'),
+                  onPressed:
+                      _switchingBox || _savingQr || _lifecycleActionInProgress
+                      ? null
+                      : _saveQrCode,
+                  icon: _savingQr
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.download_outlined),
+                  label: Text(context.l10n.saveQrCode),
+                ),
+              ),
+
+              if (_saveError != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  _saveError!,
+                  key: const Key('qr-save-error'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
+
+              if (box.status == BoxStatus.archived) ...[
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  key: const Key('permanent-delete-box-button'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                  onPressed:
+                      _lifecycleActionInProgress || _switchingBox || _savingQr
+                      ? null
+                      : _permanentlyDeleteBox,
+                  icon: _permanentlyDeleting
+                      ? SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        )
+                      : const Icon(Icons.delete_forever_outlined),
+                  label: Text(context.l10n.deletePermanently),
+                ),
+              ],
+
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );

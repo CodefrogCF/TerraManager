@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/box_archive_reason.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
@@ -87,20 +88,6 @@ void main() {
   Future<void> scrollToAddAnimal(WidgetTester tester) async {
     await tester.scrollUntilVisible(
       find.byKey(const Key('add-animal-to-box-button')),
-      300,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.pumpAndSettle();
-  }
-
-  Future<void> openEditAndScrollToDelete(WidgetTester tester) async {
-    expect(find.byKey(const Key('delete-box-button')), findsNothing);
-
-    await tester.tap(find.byKey(const Key('edit-box-button')));
-    await tester.pumpAndSettle();
-
-    await tester.scrollUntilVisible(
-      find.byKey(const Key('delete-box-button')),
       300,
       scrollable: find.byType(Scrollable).first,
     );
@@ -385,107 +372,108 @@ void main() {
     expect(navigationContext.currentIndex, 1);
   });
 
-  testWidgets('offers empty Box deletion only from Edit Box', (tester) async {
+  testWidgets('active Box cannot be permanently deleted from details or edit', (
+    tester,
+  ) async {
     final box = await createTestBox();
 
     await pumpDetailPage(tester, box: box);
-    await openEditAndScrollToDelete(tester);
+    expect(find.byKey(const Key('permanent-delete-box-button')), findsNothing);
 
-    expect(find.byKey(const Key('delete-box-button')), findsOneWidget);
-
-    await tester.tap(find.byKey(const Key('delete-box-button')));
+    await tester.tap(find.byKey(const Key('edit-box-button')));
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Delete Box?'), findsOneWidget);
+    expect(find.byKey(const Key('delete-box-button')), findsNothing);
 
-    expect(find.byKey(const Key('cancel-delete-box-button')), findsOneWidget);
-
-    expect(find.byKey(const Key('confirm-delete-box-button')), findsOneWidget);
-  });
-
-  testWidgets('does not delete box when deletion is cancelled', (tester) async {
-    final box = await createTestBox();
-
-    await pumpDetailPage(tester, box: box);
-    await openEditAndScrollToDelete(tester);
-
-    await tester.tap(find.byKey(const Key('delete-box-button')));
-
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.byKey(const Key('cancel-delete-box-button')));
-
-    await tester.pumpAndSettle();
-
-    final storedBox = await BoxRepository(database).getBoxById(box.id);
-
-    expect(storedBox, isNotNull);
-  });
-
-  testWidgets('prevents deleting box with assigned animals', (tester) async {
-    final box = await createTestBox();
-
-    await createTestAnimal(boxId: box.id);
-
-    await pumpDetailPage(tester, box: box);
-    await openEditAndScrollToDelete(tester);
-
-    await tester.tap(find.byKey(const Key('delete-box-button')));
-
-    await tester.pumpAndSettle();
-
-    expect(find.text('Cannot Delete Box'), findsOneWidget);
-
-    expect(
-      find.text(
-        '1 animal is assigned to this box.\n\n'
-        'Move or delete the assigned animals before deleting the box.',
-      ),
-      findsOneWidget,
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('archive-box-button')),
+      300,
+      scrollable: find.byType(Scrollable).first,
     );
-
-    expect(find.byKey(const Key('confirm-delete-box-button')), findsNothing);
-
-    final storedBox = await BoxRepository(database).getBoxById(box.id);
-
-    expect(storedBox, isNotNull);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('archive-box-button')), findsOneWidget);
   });
 
-  testWidgets('deletes empty box and refreshes box overview', (tester) async {
-    final box = await createTestBox();
+  testWidgets(
+    'archived Box deletion requires confirmation and refreshes the archive',
+    (tester) async {
+      final box = await createTestBox();
 
-    await tester.pumpWidget(MaterialApp(home: BoxesPage(database: database)));
+      await BoxRepository(database).archiveBox(
+        boxId: box.id,
+        reason: BoxArchiveReason.other,
+        archivedAt: DateTime(2026, 9, 13),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        MaterialApp(home: BoxesPage(database: database, showArchived: true)),
+      );
 
-    expect(find.text('Box 1'), findsOneWidget);
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(Key('box-list-item-${box.id}')));
+      expect(find.text('Box 1'), findsOneWidget);
 
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key('box-list-item-${box.id}')));
 
-    expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
+      await tester.pumpAndSettle();
 
-    expect(find.text('Box 1'), findsOneWidget);
-    await openEditAndScrollToDelete(tester);
+      final deleteButton = find.byKey(const Key('permanent-delete-box-button'));
+      await tester.scrollUntilVisible(
+        deleteButton,
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('delete-box-button')));
+      expect(deleteButton, findsOneWidget);
 
-    await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(deleteButton).dy,
+        greaterThan(
+          tester.getTopLeft(find.byKey(const Key('save-qr-button'))).dy,
+        ),
+      );
 
-    expect(find.text('Delete Box?'), findsOneWidget);
+      await tester.tap(deleteButton);
 
-    await tester.tap(find.byKey(const Key('confirm-delete-box-button')));
+      await tester.pumpAndSettle();
 
-    await tester.pumpAndSettle();
+      expect(find.text('Permanently Delete Box?'), findsOneWidget);
+      expect(
+        find.byKey(const Key('cancel-permanent-delete-box-button')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('confirm-permanent-delete-box-button')),
+        findsOneWidget,
+      );
 
-    final storedBox = await BoxRepository(database).getBoxById(box.id);
+      await tester.tap(
+        find.byKey(const Key('cancel-permanent-delete-box-button')),
+      );
 
-    expect(storedBox, isNull);
+      await tester.pumpAndSettle();
 
-    expect(find.text('No boxes available'), findsOneWidget);
+      expect(await BoxRepository(database).getBoxById(box.id), isNotNull);
 
-    expect(find.text(box.qrId), findsNothing);
-  });
+      await tester.tap(deleteButton);
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(
+        find.byKey(const Key('confirm-permanent-delete-box-button')),
+      );
+
+      await tester.pumpAndSettle();
+
+      final storedBox = await BoxRepository(database).getBoxById(box.id);
+
+      expect(storedBox, isNull);
+
+      expect(find.text('No archived Boxes'), findsOneWidget);
+
+      expect(find.text(box.qrId), findsNothing);
+    },
+  );
 }

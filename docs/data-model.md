@@ -110,8 +110,29 @@ display labels. Ordinary Box edits preserve lifecycle fields.
 
 Valid portable data requires an archive reason and timestamp for archived
 Boxes; active Boxes must have no archive metadata. Backup validation enforces
-these rules before restore. This persistence change does not introduce Box
-archive/restore UI actions or change assignment and navigation workflows.
+these rules before restore. Backups with active Animals assigned to archived
+Boxes are also rejected.
+
+### Box archive and restore workflows (Issue #103)
+
+Archiving requires confirmation, an archive reason and an empty active-Animal
+assignment list. The archive operation checks the Box and assigned Animals
+inside a database transaction before setting lifecycle metadata. It never
+changes an Animal record. Animal creation, reassignment and restore validate
+that their destination Box is active inside the same transaction as the write,
+so a stale assignment form cannot refill an archived Box.
+
+Restore changes only archived Boxes back to active and clears their archive
+reason, timestamp and archive note. Both operations require the expected
+previous status, so duplicate submissions cannot overwrite lifecycle metadata.
+The active overview and assignment controls read `getActiveBoxes()`; archived
+records remain available through `getArchivedBoxes()` and `getAllBoxes()`
+continues to include both states for backups. These workflows require no
+additional schema migration.
+
+Permanent deletion is restricted to archived Boxes and removes their associated
+picture media in the same transaction. The active Edit Box workflow does not
+offer deletion, matching the archive-first lifecycle used for Animals.
 
 ## Animal
 
@@ -199,6 +220,8 @@ archiveNotes = optional
 Archiving an Animal does not remove its Animal record, picture or feeding
 history. It also retains the optional feeding reminder configuration. Reminder
 queries suppress archived Animals instead of deleting their configuration.
+The archive action is available at the bottom of Edit Animal and warns before
+discarding unsaved form changes.
 
 Restoring an archived Animal requires assigning a Box again.
 

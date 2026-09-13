@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/enums/box_status.dart';
+import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
@@ -12,8 +14,10 @@ import '../../../../l10n/app_localizations_context.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../widgets/box_picture.dart';
+import '../box_lifecycle_dialogs.dart';
+import '../../../animals/presentation/animal_display_names.dart';
 
-enum BoxEditResult { saved, deleted }
+enum BoxEditResult { saved, archived }
 
 class BoxEditPage extends StatefulWidget {
   final AppDatabase database;
@@ -55,8 +59,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
   bool _loading = true;
   bool _saving = false;
-  bool _deleteFlowActive = false;
-  bool _deleting = false;
+  bool _managementFlowActive = false;
+  bool _archiving = false;
   bool _processingPicture = false;
   bool _hasUnsavedChanges = false;
 
@@ -95,6 +99,14 @@ class _BoxEditPageState extends State<BoxEditPage> {
           _error = context.l10n.boxNotFound;
         });
 
+        return;
+      }
+
+      if (box.status == BoxStatus.archived) {
+        setState(() {
+          _loading = false;
+          _error = context.l10n.archivedBoxesCannotBeEdited;
+        });
         return;
       }
 
@@ -155,7 +167,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _selectPicture(ImageSource source) async {
-    if (_processingPicture || _saving || _deleteFlowActive) {
+    if (_processingPicture || _saving || _managementFlowActive) {
       return;
     }
 
@@ -202,7 +214,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   void _removePicture() {
-    if (_processingPicture || _saving || _deleteFlowActive) {
+    if (_processingPicture || _saving || _managementFlowActive) {
       return;
     }
 
@@ -219,7 +231,10 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _save() async {
-    if (_saving || _deleteFlowActive || _processingPicture) {
+    if (_saving ||
+        _managementFlowActive ||
+        _processingPicture ||
+        _box == null) {
       return;
     }
 
@@ -300,130 +315,111 @@ class _BoxEditPageState extends State<BoxEditPage> {
     }
   }
 
-  Future<void> _deleteBox() async {
-    if (_saving || _deleteFlowActive || _processingPicture || _box == null) {
+  Future<void> _archiveBox() async {
+    if (_saving ||
+        _managementFlowActive ||
+        _processingPicture ||
+        _box == null) {
       return;
     }
-
     setState(() {
-      _deleteFlowActive = true;
+      _managementFlowActive = true;
       _error = null;
     });
-
     try {
       final animals = await AnimalRepository(widget.database)
           .getAnimalsForBox(_box!.id);
-
       if (!mounted) {
         return;
       }
-
       if (animals.isNotEmpty) {
-        await _showCannotDeleteDialog(animals.length);
-
-        if (mounted) {
-          setState(() {
-            _deleteFlowActive = false;
-          });
-        }
-
+        await _showCannotArchiveDialog(animals);
         return;
       }
-
-      final confirmed = await showDialog<bool>(
+      final input = await showDialog<ArchiveBoxInput>(
         context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(context.l10n.deleteBoxQuestion),
-            content: Text(context.l10n.deleteBoxWarning),
-            actions: [
-              TextButton(
-                key: const Key('cancel-delete-box-button'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-                child: Text(context.l10n.cancel),
-              ),
-              FilledButton(
-                key: const Key('confirm-delete-box-button'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  foregroundColor: Theme.of(context).colorScheme.onError,
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-                child: Text(context.l10n.delete),
-              ),
-            ],
-          );
-        },
+        builder: (_) => ArchiveBoxDialog(hasUnsavedChanges: _hasUnsavedChanges),
       );
-
-      if (confirmed != true || !mounted) {
-        if (mounted) {
-          setState(() {
-            _deleteFlowActive = false;
-          });
-        }
-
+      if (!mounted || input == null) {
         return;
       }
-
-      setState(() {
-        _deleting = true;
-      });
-
-      final deleted = await BoxRepository(widget.database).deleteBox(_box!.id);
-
+      setState(() => _archiving = true);
+      final success = await BoxRepository(widget.database).archiveBox(
+        boxId: _box!.id,
+        reason: input.reason,
+        archivedAt: DateTime.now(),
+        archiveNotes: input.notes,
+      );
       if (!mounted) {
         return;
       }
-
-      if (!deleted) {
-        setState(() {
-          _deleteFlowActive = false;
-          _deleting = false;
-          _error = context.l10n.failedToDeleteBox;
-        });
-
+      if (!success) {
+        setState(() => _error = context.l10n.failedToArchiveBox);
         return;
       }
-
       _hasUnsavedChanges = false;
-
-      Navigator.of(context).pop(BoxEditResult.deleted);
-    } catch (_) {
-      if (!mounted) {
-        return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(context.l10n.boxArchived)));
+      Navigator.of(context).pop(BoxEditResult.archived);
+    } on BoxArchiveBlockedException catch (error) {
+      if (mounted) {
+        setState(() => _archiving = false);
+        await _showCannotArchiveDialog(error.animals);
       }
-
-      setState(() {
-        _deleteFlowActive = false;
-        _deleting = false;
-        _error = context.l10n.failedToDeleteBox;
-      });
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.l10n.failedToArchiveBox);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _managementFlowActive = false;
+          _archiving = false;
+        });
+      }
     }
   }
 
-  Future<void> _showCannotDeleteDialog(int animalCount) {
+  Future<void> _showCannotArchiveDialog(List<Animal> animals) {
     return showDialog<void>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(context.l10n.cannotDeleteBox),
-          content: Text(context.l10n.assignedAnimalsPreventDelete(animalCount)),
-          actions: [
-            TextButton(
-              key: const Key('close-cannot-delete-button'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(context.l10n.ok),
-            ),
-          ],
-        );
-      },
+      builder: (context) => AlertDialog(
+        key: const Key('cannot-archive-box-dialog'),
+        title: Text(context.l10n.cannotArchiveBox),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.l10n.assignedAnimalsPreventArchive),
+              const SizedBox(height: 12),
+              for (final animal in animals)
+                Builder(
+                  builder: (context) {
+                    final names = AnimalDisplayNames.fromContext(
+                      context,
+                      commonName: animal.commonName,
+                      latinName: animal.latinName,
+                    );
+                    return ListTile(
+                      key: Key('archive-blocking-animal-${animal.id}'),
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(names.primary),
+                      subtitle: Text(names.secondary),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            key: const Key('close-cannot-archive-box-button'),
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.l10n.ok),
+          ),
+        ],
+      ),
     );
   }
 
@@ -458,7 +454,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   }
 
   Future<void> _handleBack() async {
-    if (_saving || _deleteFlowActive) {
+    if (_saving || _managementFlowActive) {
       return;
     }
 
@@ -483,7 +479,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: !_hasUnsavedChanges && !_saving && !_deleteFlowActive,
+      canPop: !_hasUnsavedChanges && !_saving && !_managementFlowActive,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           return;
@@ -505,7 +501,11 @@ class _BoxEditPageState extends State<BoxEditPage> {
           actions: [
             IconButton(
               key: const Key('save-box-button'),
-              onPressed: _saving || _deleteFlowActive || _processingPicture
+              onPressed:
+                  _box == null ||
+                      _saving ||
+                      _managementFlowActive ||
+                      _processingPicture
                   ? null
                   : _save,
               icon: _saving
@@ -558,7 +558,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
             const SizedBox(height: 8),
 
             PictureSelectionControls(
-              enabled: !_saving && !_deleteFlowActive,
+              enabled: !_saving && !_managementFlowActive,
               processing: _processingPicture,
               hasPicture: _hasPicture,
               cameraSupported: _pictureSelectionFlow.supportsImageSource(
@@ -640,37 +640,31 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
             FilledButton.icon(
               key: const Key('save-box-form-button'),
-              onPressed: _saving || _deleteFlowActive || _processingPicture
+              onPressed:
+                  _box == null ||
+                      _saving ||
+                      _managementFlowActive ||
+                      _processingPicture
                   ? null
                   : _save,
               icon: const Icon(Icons.save),
               label: Text(_saving ? context.l10n.saving : context.l10n.save),
             ),
-            const SizedBox(height: 32),
-
-            const Divider(),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             OutlinedButton.icon(
-              key: const Key('delete-box-button'),
-              onPressed: _saving || _deleteFlowActive || _processingPicture
+              key: const Key('archive-box-button'),
+              onPressed: _saving || _managementFlowActive || _processingPicture
                   ? null
-                  : _deleteBox,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.error,
-                side: BorderSide(color: Theme.of(context).colorScheme.error),
-              ),
-              icon: _deleting
-                  ? SizedBox(
+                  : _archiveBox,
+              icon: _archiving
+                  ? const SizedBox(
                       width: 20,
                       height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.delete_outline),
-              label: Text(context.l10n.deleteBox),
+                  : const Icon(Icons.archive_outlined),
+              label: Text(context.l10n.archiveBox),
             ),
           ],
         ),

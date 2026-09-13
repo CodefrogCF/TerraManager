@@ -314,8 +314,9 @@ The backup format remains Version 2.
 Archived Boxes require an archive reason and timestamp. Active Boxes must
 have all three archive metadata fields set to null. The validator rejects
 unknown or localized enum strings, invalid field types, invalid timestamps
-and inconsistent lifecycle metadata before restore begins. Archive notes
-are independent of ordinary Box notes.
+and inconsistent lifecycle metadata before restore begins. Active Animals
+must reference active Boxes; backups assigning them to archived Boxes are
+rejected. Archive notes are independent of ordinary Box notes.
 
 Older Format 1 and Format 2 records without `status` default to `active`, with
 absent archive metadata defaulting to null. An explicitly null `status` is

@@ -8,6 +8,7 @@ import '../../../../core/database/enums/birth_date_accuracy.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
@@ -91,7 +92,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   Future<void> _loadBoxes() async {
     try {
-      final boxes = await BoxRepository(widget.database).getAllBoxes();
+      final boxes = await BoxRepository(widget.database).getActiveBoxes();
 
       if (!mounted) {
         return;
@@ -230,6 +231,27 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       }
 
       Navigator.of(context).pop(true);
+    } on BoxAssignmentException {
+      try {
+        final boxes = await BoxRepository(widget.database).getActiveBoxes();
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _boxes = boxes;
+          _boxId = null;
+          _saving = false;
+          _saveError = context.l10n.boxUnavailableForAssignment;
+        });
+      } catch (_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _saving = false;
+          _saveError = context.l10n.failedToLoadBoxes;
+        });
+      }
     } catch (_) {
       if (!mounted) {
         return;
@@ -272,7 +294,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       return Center(child: Text(_loadError!));
     }
 
-    if (_boxes.isEmpty) {
+    if (_boxes.isEmpty && _saveError == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),

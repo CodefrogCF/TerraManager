@@ -23,7 +23,7 @@ Latest completed release milestone:
 
 Current application version and build:
 
-**v1.1.1+51 (development build)**
+**v1.1.2+52 (development build)**
 
 Implemented milestones in the current source state:
 
@@ -148,7 +148,19 @@ Version 8. Boxes have an active/archived status, archive reason, timestamp and
 optional archive notes. Existing databases and older backups retain active
 Boxes with empty archive metadata. Current Format 2 backups preserve these
 fields along with the permanent QR identifier, picture and other Box data.
-Archive actions and archive navigation are separate workflow work.
+Issue #103 adds archive and restore workflows on top of this data model.
+Use **Archive Box** in Edit Box, choose a reason and confirm. Assigned active
+Animals must first be moved to another active Box; the blocking dialog lists
+them and never archives Animals automatically. Confirming archive discards
+unsaved Edit Box changes while retaining the previously saved Box data.
+
+Open **Archived Boxes** from the Box Overview to inspect an archived record
+and restore it with the same QR identifier. Archived records are excluded
+from the active overview and Animal assignment controls. Both QR scanners
+explain when a scanned Box is archived and keep active workflows closed.
+Archive/restore actions are protected against duplicate submissions. A Box can
+only be deleted permanently from the bottom of its archived detail view, after
+a second confirmation. Edit Box no longer offers direct deletion.
 
 ### Android transition to the permanent application ID
 
@@ -259,6 +271,7 @@ application restarts.
 - notes
 - active and archived lifecycle states
 - archive reasons, dates and optional archive notes
+- archive action at the bottom of Edit Animal, with an unsaved-change warning
 - dedicated Animal History view
 - restore archived animals
 - permanent deletion of archived animals

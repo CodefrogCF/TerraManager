@@ -236,6 +236,7 @@ class BackupValidationService {
 
   void _validateData(BackupData data) {
     final boxIds = <int>{};
+    final archivedBoxIds = <int>{};
     final qrIds = <String>{};
 
     for (final box in data.boxes) {
@@ -272,6 +273,9 @@ class BackupValidationService {
       }
 
       _validateBoxLifecycle(box);
+      if (box.status == 'archived') {
+        archivedBoxIds.add(box.id);
+      }
 
       _validateOptionalPositiveDimension(
         value: box.widthCm,
@@ -314,6 +318,13 @@ class BackupValidationService {
       _validateAnimalEnums(animal);
 
       _validateAnimalLifecycle(animal, boxIds);
+      if (animal.status == 'active' && archivedBoxIds.contains(animal.boxId)) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.invalidLifecycle,
+          message:
+              'Active Animal ${animal.id} references archived Box ${animal.boxId}.',
+        );
+      }
 
       _validateFeedingReminder(animal);
     }

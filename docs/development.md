@@ -122,7 +122,19 @@ Schema Version 8 adds Box lifecycle state and archive metadata for Issue #102.
 Regenerate Drift output and migration helpers after changing this schema.
 Migration coverage includes all prior schema paths and a populated Version 7
 database; restart and backup tests cover every Box archive reason and legacy
-Format 1/2 defaults. Archive and restore UI workflows are separate work.
+Format 1/2 defaults.
+
+Issue #103 adds archive and restore UI workflows without another schema change.
+Regression must cover occupied Boxes, assignments made while confirmation is
+open, duplicate archive/restore calls, active-only assignment choices and stale
+Animal forms. Test both QR scanners with archived and restored identifiers in
+English and German. Confirm archive/restore navigation from a contextually
+swiped Box and preservation of pictures, QR identifiers and ordinary notes.
+Verify that active Boxes have no permanent-delete action, while archived Box
+details offer the confirmed destructive action only at the bottom of the page.
+Verify that active Animal details no longer expose archive directly and that
+Edit Animal places the archive action after the save action with draft warning.
+Physical camera behavior remains part of Android and Web manual validation.
 
 ## Android Development
 

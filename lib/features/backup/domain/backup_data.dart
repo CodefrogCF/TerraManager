@@ -39,6 +39,10 @@ class BackupData {
 class BackupBox {
   final int id;
   final String qrId;
+  final String status;
+  final String? archiveReason;
+  final DateTime? archivedAt;
+  final String? archiveNotes;
 
   final String? name;
 
@@ -56,6 +60,10 @@ class BackupBox {
   const BackupBox({
     required this.id,
     required this.qrId,
+    this.status = 'active',
+    this.archiveReason,
+    this.archivedAt,
+    this.archiveNotes,
     this.name,
     this.widthCm,
     this.heightCm,
@@ -70,6 +78,10 @@ class BackupBox {
     return {
       'id': id,
       'qrId': qrId,
+      'status': status,
+      'archiveReason': archiveReason,
+      'archivedAt': archivedAt?.toIso8601String(),
+      'archiveNotes': archiveNotes,
       'name': name,
       'widthCm': widthCm,
       'heightCm': heightCm,
@@ -85,6 +97,13 @@ class BackupBox {
     return BackupBox(
       id: json['id'] as int,
       qrId: json['qrId'] as String,
+      // Only absent status is legacy data; an explicit null is invalid.
+      status: json.containsKey('status') ? json['status'] as String : 'active',
+      archiveReason: json['archiveReason'] as String?,
+      archivedAt: json['archivedAt'] == null
+          ? null
+          : DateTime.parse(json['archivedAt'] as String),
+      archiveNotes: json['archiveNotes'] as String?,
       name: json['name'] as String?,
       widthCm: (json['widthCm'] as num?)?.toDouble(),
       heightCm: (json['heightCm'] as num?)?.toDouble(),

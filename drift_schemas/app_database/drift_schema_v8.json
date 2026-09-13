@@ -130,6 +130,54 @@
             ]
           },
           {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('\\'active\\'')",
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const BoxStatusConverter()",
+              "dart_type_name": "BoxStatus"
+            }
+          },
+          {
+            "name": "archive_reason",
+            "getter_name": "archiveReason",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [],
+            "type_converter": {
+              "dart_expr": "const BoxArchiveReasonConverter()",
+              "dart_type_name": "BoxArchiveReason"
+            }
+          },
+          {
+            "name": "archived_at",
+            "getter_name": "archivedAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "archive_notes",
+            "getter_name": "archiveNotes",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
             "name": "name",
             "getter_name": "name",
             "moor_type": "string",
@@ -616,7 +664,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"boxes\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"qr_id\" TEXT NOT NULL UNIQUE, \"name\" TEXT NULL, \"width_cm\" REAL NULL, \"height_cm\" REAL NULL, \"depth_cm\" REAL NULL, \"notes\" TEXT NULL, \"picture_media_id\" INTEGER NULL REFERENCES media_assets(id), \"created_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)), \"updated_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"boxes\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"qr_id\" TEXT NOT NULL UNIQUE, \"status\" TEXT NOT NULL DEFAULT 'active', \"archive_reason\" TEXT NULL, \"archived_at\" INTEGER NULL, \"archive_notes\" TEXT NULL, \"name\" TEXT NULL, \"width_cm\" REAL NULL, \"height_cm\" REAL NULL, \"depth_cm\" REAL NULL, \"notes\" TEXT NULL, \"picture_media_id\" INTEGER NULL REFERENCES media_assets (id), \"created_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)), \"updated_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)));"
         }
       ]
     },
@@ -625,7 +673,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"animals\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"box_id\" INTEGER NULL REFERENCES boxes(id), \"status\" TEXT NOT NULL DEFAULT 'active', \"common_name\" TEXT NOT NULL, \"latin_name\" TEXT NOT NULL, \"sex\" TEXT NULL, \"birth_date\" INTEGER NULL, \"birth_date_accuracy\" TEXT NULL, \"temp_min\" REAL NOT NULL, \"temp_max\" REAL NOT NULL, \"humidity_min\" REAL NOT NULL, \"humidity_max\" REAL NOT NULL, \"picture_path\" TEXT NULL, \"picture_media_id\" INTEGER NULL REFERENCES media_assets(id), \"notes\" TEXT NULL, \"archive_reason\" TEXT NULL, \"archived_at\" INTEGER NULL, \"archive_notes\" TEXT NULL, \"feeding_reminder_interval_days\" INTEGER NULL, \"feeding_reminder_baseline\" INTEGER NULL, \"created_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)), \"updated_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"animals\" (\"id\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \"box_id\" INTEGER NULL REFERENCES boxes (id), \"status\" TEXT NOT NULL DEFAULT 'active', \"common_name\" TEXT NOT NULL, \"latin_name\" TEXT NOT NULL, \"sex\" TEXT NULL, \"birth_date\" INTEGER NULL, \"birth_date_accuracy\" TEXT NULL, \"temp_min\" REAL NOT NULL, \"temp_max\" REAL NOT NULL, \"humidity_min\" REAL NOT NULL, \"humidity_max\" REAL NOT NULL, \"picture_path\" TEXT NULL, \"picture_media_id\" INTEGER NULL REFERENCES media_assets (id), \"notes\" TEXT NULL, \"archive_reason\" TEXT NULL, \"archived_at\" INTEGER NULL, \"archive_notes\" TEXT NULL, \"feeding_reminder_interval_days\" INTEGER NULL, \"feeding_reminder_baseline\" INTEGER NULL, \"created_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)), \"updated_at\" INTEGER NOT NULL DEFAULT (CAST(strftime('%s', CURRENT_TIMESTAMP) AS INTEGER)));"
         }
       ]
     },

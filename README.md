@@ -143,6 +143,13 @@ the Box Overview can be sorted by name A–Z or Z–A. Database Schema Version 7
 adds the nullable name without changing existing Box data, while Portable
 Backup Format Version 2 remains backward compatible.
 
+Issue #102 adds the Box lifecycle persistence foundation in Database Schema
+Version 8. Boxes have an active/archived status, archive reason, timestamp and
+optional archive notes. Existing databases and older backups retain active
+Boxes with empty archive metadata. Current Format 2 backups preserve these
+fields along with the permanent QR identifier, picture and other Box data.
+Archive actions and archive navigation are separate workflow work.
+
 ### Android transition to the permanent application ID
 
 Releases through v0.14.1 used the temporary Android identifier
@@ -606,6 +613,11 @@ Archived Animal
 Box
 ├── id
 ├── qrId
+├── name
+├── status
+├── archiveReason
+├── archivedAt
+├── archiveNotes
 ├── widthCm
 ├── heightCm
 ├── depthCm
@@ -615,8 +627,10 @@ Box
 └── updatedAt
 ```
 
-`qrId` is unique and permanently identifies the box. Width, height, depth and
-notes are optional.
+`qrId` is unique and permanently identifies the box. Name, width, height, depth
+and notes are optional. `status` defaults to `active`; archived Boxes store an
+archive reason, timestamp and optional archive notes while retaining their
+other data.
 `pictureMediaId` optionally references persistent image data stored in `MediaAssets`.
 
 The QR format is:

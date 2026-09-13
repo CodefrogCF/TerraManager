@@ -3,6 +3,10 @@ import 'package:drift_flutter/drift_flutter.dart';
 
 import 'converters/birth_date_accuracy_converter.dart';
 import 'converters/sex_converter.dart';
+import 'converters/box_status_converter.dart';
+import 'converters/box_archive_reason_converter.dart';
+import 'enums/box_status.dart';
+import 'enums/box_archive_reason.dart';
 import 'converters/animal_archive_reason_converter.dart';
 import 'converters/animal_status_converter.dart';
 import 'enums/animal_archive_reason.dart';
@@ -96,6 +100,12 @@ class AppDatabase extends _$AppDatabase {
               from6To7: (m, schema) async {
                 await m.addColumn(schema.boxes, schema.boxes.name);
               },
+              from7To8: (m, schema) async {
+                await m.addColumn(schema.boxes, schema.boxes.status);
+                await m.addColumn(schema.boxes, schema.boxes.archiveReason);
+                await m.addColumn(schema.boxes, schema.boxes.archivedAt);
+                await m.addColumn(schema.boxes, schema.boxes.archiveNotes);
+              },
             ),
           );
 
@@ -120,5 +130,5 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 }

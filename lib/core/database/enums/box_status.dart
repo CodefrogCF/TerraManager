@@ -1,0 +1,1 @@
+enum BoxStatus { active, archived }

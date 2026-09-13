@@ -431,6 +431,47 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
+  @override
+  late final GeneratedColumnWithTypeConverter<BoxStatus, String> status =
+      GeneratedColumn<String>(
+        'status',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('active'),
+      ).withConverter<BoxStatus>($BoxesTable.$converterstatus);
+  @override
+  late final GeneratedColumnWithTypeConverter<BoxArchiveReason?, String>
+  archiveReason = GeneratedColumn<String>(
+    'archive_reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<BoxArchiveReason?>($BoxesTable.$converterarchiveReasonn);
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta(
+    'archivedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _archiveNotesMeta = const VerificationMeta(
+    'archiveNotes',
+  );
+  @override
+  late final GeneratedColumn<String> archiveNotes = GeneratedColumn<String>(
+    'archive_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -524,6 +565,10 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
   List<GeneratedColumn> get $columns => [
     id,
     qrId,
+    status,
+    archiveReason,
+    archivedAt,
+    archiveNotes,
     name,
     widthCm,
     heightCm,
@@ -555,6 +600,21 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
       );
     } else if (isInserting) {
       context.missing(_qrIdMeta);
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+        _archivedAtMeta,
+        archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    }
+    if (data.containsKey('archive_notes')) {
+      context.handle(
+        _archiveNotesMeta,
+        archiveNotes.isAcceptableOrUnknown(
+          data['archive_notes']!,
+          _archiveNotesMeta,
+        ),
+      );
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -624,6 +684,26 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
         DriftSqlType.string,
         data['${effectivePrefix}qr_id'],
       )!,
+      status: $BoxesTable.$converterstatus.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}status'],
+        )!,
+      ),
+      archiveReason: $BoxesTable.$converterarchiveReasonn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}archive_reason'],
+        ),
+      ),
+      archivedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}archived_at'],
+      ),
+      archiveNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}archive_notes'],
+      ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}name'],
@@ -663,11 +743,22 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
   $BoxesTable createAlias(String alias) {
     return $BoxesTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<BoxStatus, String> $converterstatus =
+      const BoxStatusConverter();
+  static TypeConverter<BoxArchiveReason, String> $converterarchiveReason =
+      const BoxArchiveReasonConverter();
+  static TypeConverter<BoxArchiveReason?, String?> $converterarchiveReasonn =
+      NullAwareTypeConverter.wrap($converterarchiveReason);
 }
 
 class Box extends DataClass implements Insertable<Box> {
   final int id;
   final String qrId;
+  final BoxStatus status;
+  final BoxArchiveReason? archiveReason;
+  final DateTime? archivedAt;
+  final String? archiveNotes;
   final String? name;
   final double? widthCm;
   final double? heightCm;
@@ -679,6 +770,10 @@ class Box extends DataClass implements Insertable<Box> {
   const Box({
     required this.id,
     required this.qrId,
+    required this.status,
+    this.archiveReason,
+    this.archivedAt,
+    this.archiveNotes,
     this.name,
     this.widthCm,
     this.heightCm,
@@ -693,6 +788,22 @@ class Box extends DataClass implements Insertable<Box> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['qr_id'] = Variable<String>(qrId);
+    {
+      map['status'] = Variable<String>(
+        $BoxesTable.$converterstatus.toSql(status),
+      );
+    }
+    if (!nullToAbsent || archiveReason != null) {
+      map['archive_reason'] = Variable<String>(
+        $BoxesTable.$converterarchiveReasonn.toSql(archiveReason),
+      );
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    if (!nullToAbsent || archiveNotes != null) {
+      map['archive_notes'] = Variable<String>(archiveNotes);
+    }
     if (!nullToAbsent || name != null) {
       map['name'] = Variable<String>(name);
     }
@@ -720,6 +831,16 @@ class Box extends DataClass implements Insertable<Box> {
     return BoxesCompanion(
       id: Value(id),
       qrId: Value(qrId),
+      status: Value(status),
+      archiveReason: archiveReason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archiveReason),
+      archivedAt: archivedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archivedAt),
+      archiveNotes: archiveNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(archiveNotes),
       name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       widthCm: widthCm == null && nullToAbsent
           ? const Value.absent()
@@ -749,6 +870,12 @@ class Box extends DataClass implements Insertable<Box> {
     return Box(
       id: serializer.fromJson<int>(json['id']),
       qrId: serializer.fromJson<String>(json['qrId']),
+      status: serializer.fromJson<BoxStatus>(json['status']),
+      archiveReason: serializer.fromJson<BoxArchiveReason?>(
+        json['archiveReason'],
+      ),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+      archiveNotes: serializer.fromJson<String?>(json['archiveNotes']),
       name: serializer.fromJson<String?>(json['name']),
       widthCm: serializer.fromJson<double?>(json['widthCm']),
       heightCm: serializer.fromJson<double?>(json['heightCm']),
@@ -765,6 +892,10 @@ class Box extends DataClass implements Insertable<Box> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'qrId': serializer.toJson<String>(qrId),
+      'status': serializer.toJson<BoxStatus>(status),
+      'archiveReason': serializer.toJson<BoxArchiveReason?>(archiveReason),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+      'archiveNotes': serializer.toJson<String?>(archiveNotes),
       'name': serializer.toJson<String?>(name),
       'widthCm': serializer.toJson<double?>(widthCm),
       'heightCm': serializer.toJson<double?>(heightCm),
@@ -779,6 +910,10 @@ class Box extends DataClass implements Insertable<Box> {
   Box copyWith({
     int? id,
     String? qrId,
+    BoxStatus? status,
+    Value<BoxArchiveReason?> archiveReason = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
+    Value<String?> archiveNotes = const Value.absent(),
     Value<String?> name = const Value.absent(),
     Value<double?> widthCm = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
@@ -790,6 +925,12 @@ class Box extends DataClass implements Insertable<Box> {
   }) => Box(
     id: id ?? this.id,
     qrId: qrId ?? this.qrId,
+    status: status ?? this.status,
+    archiveReason: archiveReason.present
+        ? archiveReason.value
+        : this.archiveReason,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    archiveNotes: archiveNotes.present ? archiveNotes.value : this.archiveNotes,
     name: name.present ? name.value : this.name,
     widthCm: widthCm.present ? widthCm.value : this.widthCm,
     heightCm: heightCm.present ? heightCm.value : this.heightCm,
@@ -805,6 +946,16 @@ class Box extends DataClass implements Insertable<Box> {
     return Box(
       id: data.id.present ? data.id.value : this.id,
       qrId: data.qrId.present ? data.qrId.value : this.qrId,
+      status: data.status.present ? data.status.value : this.status,
+      archiveReason: data.archiveReason.present
+          ? data.archiveReason.value
+          : this.archiveReason,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
+      archiveNotes: data.archiveNotes.present
+          ? data.archiveNotes.value
+          : this.archiveNotes,
       name: data.name.present ? data.name.value : this.name,
       widthCm: data.widthCm.present ? data.widthCm.value : this.widthCm,
       heightCm: data.heightCm.present ? data.heightCm.value : this.heightCm,
@@ -823,6 +974,10 @@ class Box extends DataClass implements Insertable<Box> {
     return (StringBuffer('Box(')
           ..write('id: $id, ')
           ..write('qrId: $qrId, ')
+          ..write('status: $status, ')
+          ..write('archiveReason: $archiveReason, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('archiveNotes: $archiveNotes, ')
           ..write('name: $name, ')
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
@@ -839,6 +994,10 @@ class Box extends DataClass implements Insertable<Box> {
   int get hashCode => Object.hash(
     id,
     qrId,
+    status,
+    archiveReason,
+    archivedAt,
+    archiveNotes,
     name,
     widthCm,
     heightCm,
@@ -854,6 +1013,10 @@ class Box extends DataClass implements Insertable<Box> {
       (other is Box &&
           other.id == this.id &&
           other.qrId == this.qrId &&
+          other.status == this.status &&
+          other.archiveReason == this.archiveReason &&
+          other.archivedAt == this.archivedAt &&
+          other.archiveNotes == this.archiveNotes &&
           other.name == this.name &&
           other.widthCm == this.widthCm &&
           other.heightCm == this.heightCm &&
@@ -867,6 +1030,10 @@ class Box extends DataClass implements Insertable<Box> {
 class BoxesCompanion extends UpdateCompanion<Box> {
   final Value<int> id;
   final Value<String> qrId;
+  final Value<BoxStatus> status;
+  final Value<BoxArchiveReason?> archiveReason;
+  final Value<DateTime?> archivedAt;
+  final Value<String?> archiveNotes;
   final Value<String?> name;
   final Value<double?> widthCm;
   final Value<double?> heightCm;
@@ -878,6 +1045,10 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   const BoxesCompanion({
     this.id = const Value.absent(),
     this.qrId = const Value.absent(),
+    this.status = const Value.absent(),
+    this.archiveReason = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.archiveNotes = const Value.absent(),
     this.name = const Value.absent(),
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
@@ -890,6 +1061,10 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   BoxesCompanion.insert({
     this.id = const Value.absent(),
     required String qrId,
+    this.status = const Value.absent(),
+    this.archiveReason = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.archiveNotes = const Value.absent(),
     this.name = const Value.absent(),
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
@@ -902,6 +1077,10 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   static Insertable<Box> custom({
     Expression<int>? id,
     Expression<String>? qrId,
+    Expression<String>? status,
+    Expression<String>? archiveReason,
+    Expression<DateTime>? archivedAt,
+    Expression<String>? archiveNotes,
     Expression<String>? name,
     Expression<double>? widthCm,
     Expression<double>? heightCm,
@@ -914,6 +1093,10 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (qrId != null) 'qr_id': qrId,
+      if (status != null) 'status': status,
+      if (archiveReason != null) 'archive_reason': archiveReason,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (archiveNotes != null) 'archive_notes': archiveNotes,
       if (name != null) 'name': name,
       if (widthCm != null) 'width_cm': widthCm,
       if (heightCm != null) 'height_cm': heightCm,
@@ -928,6 +1111,10 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   BoxesCompanion copyWith({
     Value<int>? id,
     Value<String>? qrId,
+    Value<BoxStatus>? status,
+    Value<BoxArchiveReason?>? archiveReason,
+    Value<DateTime?>? archivedAt,
+    Value<String?>? archiveNotes,
     Value<String?>? name,
     Value<double?>? widthCm,
     Value<double?>? heightCm,
@@ -940,6 +1127,10 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     return BoxesCompanion(
       id: id ?? this.id,
       qrId: qrId ?? this.qrId,
+      status: status ?? this.status,
+      archiveReason: archiveReason ?? this.archiveReason,
+      archivedAt: archivedAt ?? this.archivedAt,
+      archiveNotes: archiveNotes ?? this.archiveNotes,
       name: name ?? this.name,
       widthCm: widthCm ?? this.widthCm,
       heightCm: heightCm ?? this.heightCm,
@@ -959,6 +1150,22 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     }
     if (qrId.present) {
       map['qr_id'] = Variable<String>(qrId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(
+        $BoxesTable.$converterstatus.toSql(status.value),
+      );
+    }
+    if (archiveReason.present) {
+      map['archive_reason'] = Variable<String>(
+        $BoxesTable.$converterarchiveReasonn.toSql(archiveReason.value),
+      );
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (archiveNotes.present) {
+      map['archive_notes'] = Variable<String>(archiveNotes.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -992,6 +1199,10 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     return (StringBuffer('BoxesCompanion(')
           ..write('id: $id, ')
           ..write('qrId: $qrId, ')
+          ..write('status: $status, ')
+          ..write('archiveReason: $archiveReason, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('archiveNotes: $archiveNotes, ')
           ..write('name: $name, ')
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
@@ -3006,6 +3217,10 @@ typedef $$MediaAssetsTableProcessedTableManager =
 typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
   Value<int> id,
   required String qrId,
+  Value<BoxStatus> status,
+  Value<BoxArchiveReason?> archiveReason,
+  Value<DateTime?> archivedAt,
+  Value<String?> archiveNotes,
   Value<String?> name,
   Value<double?> widthCm,
   Value<double?> heightCm,
@@ -3018,6 +3233,10 @@ typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
 typedef $$BoxesTableUpdateCompanionBuilder = BoxesCompanion Function({
   Value<int> id,
   Value<String> qrId,
+  Value<BoxStatus> status,
+  Value<BoxArchiveReason?> archiveReason,
+  Value<DateTime?> archivedAt,
+  Value<String?> archiveNotes,
   Value<String?> name,
   Value<double?> widthCm,
   Value<double?> heightCm,
@@ -3084,6 +3303,28 @@ class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
 
   ColumnFilters<String> get qrId => $composableBuilder(
     column: $table.qrId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<BoxStatus, BoxStatus, String> get status =>
+      $composableBuilder(
+        column: $table.status,
+        builder: (column) => ColumnWithTypeConverterFilters(column),
+      );
+
+  ColumnWithTypeConverterFilters<BoxArchiveReason?, BoxArchiveReason, String>
+  get archiveReason => $composableBuilder(
+    column: $table.archiveReason,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get archiveNotes => $composableBuilder(
+    column: $table.archiveNotes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3190,6 +3431,26 @@ class $$BoxesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get archiveReason => $composableBuilder(
+    column: $table.archiveReason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get archiveNotes => $composableBuilder(
+    column: $table.archiveNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get name => $composableBuilder(
     column: $table.name,
     builder: (column) => ColumnOrderings(column),
@@ -3263,6 +3524,25 @@ class $$BoxesTableAnnotationComposer
 
   GeneratedColumn<String> get qrId =>
       $composableBuilder(column: $table.qrId, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<BoxStatus, String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<BoxArchiveReason?, String>
+  get archiveReason => $composableBuilder(
+    column: $table.archiveReason,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get archiveNotes => $composableBuilder(
+    column: $table.archiveNotes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -3364,6 +3644,10 @@ class $$BoxesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> qrId = const Value.absent(),
+                Value<BoxStatus> status = const Value.absent(),
+                Value<BoxArchiveReason?> archiveReason = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<String?> archiveNotes = const Value.absent(),
                 Value<String?> name = const Value.absent(),
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
@@ -3375,6 +3659,10 @@ class $$BoxesTableTableManager
               }) => BoxesCompanion(
                 id: id,
                 qrId: qrId,
+                status: status,
+                archiveReason: archiveReason,
+                archivedAt: archivedAt,
+                archiveNotes: archiveNotes,
                 name: name,
                 widthCm: widthCm,
                 heightCm: heightCm,
@@ -3388,6 +3676,10 @@ class $$BoxesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String qrId,
+                Value<BoxStatus> status = const Value.absent(),
+                Value<BoxArchiveReason?> archiveReason = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<String?> archiveNotes = const Value.absent(),
                 Value<String?> name = const Value.absent(),
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
@@ -3399,6 +3691,10 @@ class $$BoxesTableTableManager
               }) => BoxesCompanion.insert(
                 id: id,
                 qrId: qrId,
+                status: status,
+                archiveReason: archiveReason,
+                archivedAt: archivedAt,
+                archiveNotes: archiveNotes,
                 name: name,
                 widthCm: widthCm,
                 heightCm: heightCm,

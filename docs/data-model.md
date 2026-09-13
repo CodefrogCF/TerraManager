@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **5**.
+The current Drift database schema version is **8**.
 
 The current database model consists of:
 
@@ -53,6 +53,12 @@ TerraManager.
 Box
 ├── id
 ├── qrId
+├── name
+├── status
+├── archiveReason
+├── archivedAt
+├── archiveNotes
+├── notes
 ├── widthCm
 ├── heightCm
 ├── depthCm
@@ -65,6 +71,12 @@ Box
 
 - id – auto-incrementing primary key
 - qrId – unique permanent QR identifier
+- name – optional free-form Box name
+- status – `active` (default) or `archived`, stored as a stable string
+- archiveReason – nullable `sold`, `replaced`, `damaged` or `other`
+- archivedAt – nullable archive timestamp
+- archiveNotes – optional context for archiving, separate from ordinary notes
+- notes – optional ordinary Box notes
 - widthCm – optional enclosure width in centimeters
 - heightCm – optional enclosure height in centimeters
 - depthCm – optional enclosure depth in centimeters
@@ -82,6 +94,24 @@ A Box can contain multiple active Animals and can optionally reference a persist
 
 The QR identifier does not contain Animal or Box data. It only identifies the
 corresponding database record.
+
+### Box lifecycle persistence (Issue #102)
+
+Schema Version 8 adds `status` with a database default of `active` and nullable
+`archiveReason`, `archivedAt` and `archiveNotes` columns. The Version 7 to 8
+migration adds columns without replacing or deleting existing records. All
+existing Boxes remain active and have empty archive metadata; Animal
+assignments, feeding records and pictures are preserved.
+
+Archived Boxes retain their identifier, QR identifier, name, dimensions,
+picture, ordinary notes and creation timestamp. Archive reasons use stable
+values in SQLite and portable backups, with localized English and German
+display labels. Ordinary Box edits preserve lifecycle fields.
+
+Valid portable data requires an archive reason and timestamp for archived
+Boxes; active Boxes must have no archive metadata. Backup validation enforces
+these rules before restore. This persistence change does not introduce Box
+archive/restore UI actions or change assignment and navigation workflows.
 
 ## Animal
 

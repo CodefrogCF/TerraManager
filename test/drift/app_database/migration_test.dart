@@ -401,7 +401,7 @@ void main() {
             .select(openedDatabase.animals)
             .getSingle();
 
-        expect(openedDatabase.schemaVersion, 7);
+        expect(openedDatabase.schemaVersion, 8);
         expect(animal.commonName, 'Existing Animal');
         expect(animal.notes, 'Preserve me');
         expect(animal.feedingReminderIntervalDays, isNull);
@@ -509,7 +509,7 @@ void main() {
             .select(openedDatabase.feedingEvents)
             .getSingle();
 
-        expect(openedDatabase.schemaVersion, 7);
+        expect(openedDatabase.schemaVersion, 8);
         expect(box.qrId, 'TM:BOX:77777777-7777-4777-8777-777777777777');
         expect(box.widthCm, 60);
         expect(box.heightCm, 45);
@@ -581,7 +581,7 @@ void main() {
             .select(openedDatabase.boxes)
             .getSingle();
 
-        expect(openedDatabase.schemaVersion, 7);
+        expect(openedDatabase.schemaVersion, 8);
         expect(box.qrId, 'TM:BOX:99999999-9999-4999-8999-999999999999');
         expect(box.name, isNull);
         expect(box.widthCm, 50);

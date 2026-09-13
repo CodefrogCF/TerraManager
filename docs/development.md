@@ -118,6 +118,12 @@ Schema Version 5 adds the nullable Animal columns
 must verify that Version 4 data is preserved and both fields are initialized to
 `null` for existing Animals.
 
+Schema Version 8 adds Box lifecycle state and archive metadata for Issue #102.
+Regenerate Drift output and migration helpers after changing this schema.
+Migration coverage includes all prior schema paths and a populated Version 7
+database; restart and backup tests cover every Box archive reason and legacy
+Format 1/2 defaults. Archive and restore UI workflows are separate work.
+
 ## Android Development
 
 TerraManager uses the permanent Android namespace and application ID:

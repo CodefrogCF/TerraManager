@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:terramanager/core/database/enums/box_status.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/features/boxes/presentation/box_overview_sorting.dart';
@@ -7,6 +8,7 @@ import 'package:terramanager/features/settings/box_sort_order.dart';
 void main() {
   Box box(int id, DateTime createdAt, {String? name}) {
     return Box(
+      status: BoxStatus.active,
       id: id,
       qrId: 'box-$id',
       name: name,

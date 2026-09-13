@@ -271,6 +271,8 @@ class BackupValidationService {
         );
       }
 
+      _validateBoxLifecycle(box);
+
       _validateOptionalPositiveDimension(
         value: box.widthCm,
         boxId: box.id,
@@ -345,6 +347,40 @@ class BackupValidationService {
               'missing Animal ${feeding.animalId}.',
         );
       }
+    }
+  }
+
+  void _validateBoxLifecycle(BackupBox box) {
+    try {
+      BackupEnumCodec.decodeBoxStatus(box.status);
+      if (box.archiveReason != null) {
+        BackupEnumCodec.decodeBoxArchiveReason(box.archiveReason!);
+      }
+    } on FormatException catch (error) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidEnum,
+        message: 'Box ${box.id} contains an unsupported enum value.',
+        cause: error,
+      );
+    }
+
+    if (box.status == 'active' &&
+        (box.archiveReason != null ||
+            box.archivedAt != null ||
+            box.archiveNotes != null)) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidLifecycle,
+        message: 'Active Box ${box.id} contains archive metadata.',
+      );
+    }
+
+    if (box.status == 'archived' &&
+        (box.archiveReason == null || box.archivedAt == null)) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidLifecycle,
+        message:
+            'Archived Box ${box.id} requires an archive reason and timestamp.',
+      );
     }
   }
 

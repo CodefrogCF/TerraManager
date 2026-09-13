@@ -68,6 +68,12 @@ class BackupExportService {
         BackupBox(
           id: box.id,
           qrId: box.qrId,
+          status: BackupEnumCodec.encodeBoxStatus(box.status),
+          archiveReason: box.archiveReason == null
+              ? null
+              : BackupEnumCodec.encodeBoxArchiveReason(box.archiveReason!),
+          archivedAt: box.archivedAt,
+          archiveNotes: box.archiveNotes,
           name: box.name,
           widthCm: box.widthCm,
           heightCm: box.heightCm,

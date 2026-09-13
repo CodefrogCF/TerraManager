@@ -6,6 +6,38 @@ The project uses semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- added persistent Box lifecycle fields for Issue #102: active/archived status,
+  archive reason, archive timestamp and optional archive notes
+- added English and German labels for Sold, Replaced, Damaged and Other Box
+  archive reasons; database and backup values remain language independent
+
+### Compatibility
+
+- corrected stale SQL definitions in the Version 5–7 schema snapshots from
+  the existing historical models so regeneration retains reminder fields and
+  Box names
+- Database Schema Version 8 adds Box lifecycle columns while retaining all
+  existing records; existing Boxes remain active with empty archive metadata
+- Backup Format Version 2 includes all Box lifecycle fields; older Format 1
+  and Format 2 backups without these fields restore Boxes as active
+- backup validation rejects unknown lifecycle values, incomplete archived Box
+  metadata and archive metadata on active Boxes
+- archived records retain their permanent QR identifier, name, dimensions,
+  picture and ordinary notes
+
+### Testing
+
+- added file-backed restart and Version 7 to Version 8 data-preservation tests
+- extended generated schema verification through Version 8
+- added complete backup export/validation/restore round trips with archived
+  Box pictures, legacy backup restore and invalid lifecycle coverage
+- added English and German Box archive-reason label coverage
+
+This issue establishes persistence and backup support. Box archive/restore
+actions and archive navigation are separate workflow work.
+
 ## [1.1.1] - 2026-09-13
 
 ### Added

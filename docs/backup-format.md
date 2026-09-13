@@ -106,7 +106,8 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
 Backup Format Version 2 is the current format.
 
 It extends portable Box data with dimensions and Box pictures. Current Version
-2 records can additionally contain optional Box names and notes.
+2 records can additionally contain optional Box names, notes and lifecycle
+metadata introduced by Issue #102.
 
 Archive structure:
 
@@ -120,11 +121,15 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
     └── boxes/
 ```
 
-Version 2 adds the following portable Box fields. `name` and `notes` are later,
-backward-compatible optional extensions of the same format:
+Version 2 adds the following portable Box fields. `name`, `notes` and the
+lifecycle fields are later, backward-compatible extensions of the same format:
 
 ```text
 name
+status
+archiveReason
+archivedAt
+archiveNotes
 widthCm
 heightCm
 depthCm
@@ -157,7 +162,7 @@ Example:
 {
   "backupFormatVersion": 2,
   "appVersion": "1.1.1",
-  "databaseSchemaVersion": 7,
+  "databaseSchemaVersion": 8,
   "createdAt": "2026-09-08T13:30:00.000Z"
 }
 ```
@@ -175,7 +180,8 @@ Backup Format Version 2 uses:
 Current TerraManager builds accept Backup Format Versions 1 and 2 for restore.
 
 Version 1 is interpreted using the legacy Box representation. Missing Version 2
-Box fields are mapped to `null`.
+Box fields are mapped to `null`, except missing `status`, which defaults to
+`active`.
 
 Unsupported older or future format versions must be rejected before restore.
 
@@ -292,6 +298,32 @@ can be inserted unchanged.
 Such an implementation may require a separate source-to-target ID mapping
 strategy.
 
+## Box Lifecycle Metadata (Issue #102)
+
+Current exports include `status`, `archiveReason`, `archivedAt` and
+`archiveNotes` for every Box, including explicit nulls for empty metadata.
+The backup format remains Version 2.
+
+| Field | Portable value |
+|---|---|
+| `status` | `active` or `archived` |
+| `archiveReason` | `sold`, `replaced`, `damaged`, `other`, or null |
+| `archivedAt` | ISO 8601 timestamp or null |
+| `archiveNotes` | Optional string or null |
+
+Archived Boxes require an archive reason and timestamp. Active Boxes must
+have all three archive metadata fields set to null. The validator rejects
+unknown or localized enum strings, invalid field types, invalid timestamps
+and inconsistent lifecycle metadata before restore begins. Archive notes
+are independent of ordinary Box notes.
+
+Older Format 1 and Format 2 records without `status` default to `active`, with
+absent archive metadata defaulting to null. An explicitly null `status` is
+invalid. Restore recreates every lifecycle field and preserves the Box QR
+identifier, other attributes and picture media just as it does for active
+Boxes. Compatibility here means that the new application reads old backups;
+old application versions do not understand the new lifecycle fields.
+
 ## Box Representation
 
 ### Backup Format Version 1
@@ -316,14 +348,18 @@ Example:
 }
 ```
 
-When a Version 1 backup is restored by TerraManager 0.10.x, the fields introduced
-in Version 2 are initialized as:
+When a Version 1 backup is restored by the current TerraManager build, absent
+fields introduced in Version 2 are initialized as:
 
 ```text
 widthCm = null
 heightCm = null
 depthCm = null
 name = null
+status = active
+archiveReason = null
+archivedAt = null
+archiveNotes = null
 notes = null
 pictureMediaPath = null
 ```
@@ -336,6 +372,10 @@ A Version 2 Box contains:
 id
 qrId
 name
+status
+archiveReason
+archivedAt
+archiveNotes
 widthCm
 heightCm
 depthCm
@@ -352,6 +392,10 @@ Example:
   "id": 1,
   "qrId": "TM:BOX:11111111-1111-4111-8111-111111111111",
   "name": "Rainforest",
+  "status": "active",
+  "archiveReason": null,
+  "archivedAt": null,
+  "archiveNotes": null,
   "widthCm": 60.0,
   "heightCm": 40.0,
   "depthCm": 45.0,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/database/enums/animal_archive_reason.dart';
+import '../core/database/enums/box_archive_reason.dart';
 import '../core/database/enums/birth_date_accuracy.dart';
 import '../core/database/enums/sex.dart';
 import '../features/backup/application/backup_validation_exception.dart';
@@ -12,6 +13,15 @@ import '../features/settings/box_sort_order.dart';
 import 'generated/app_localizations.dart';
 
 extension AppLocalizationsLabels on AppLocalizations {
+  String boxArchiveReasonLabel(BoxArchiveReason reason) {
+    return switch (reason) {
+      BoxArchiveReason.sold => archiveReasonSold,
+      BoxArchiveReason.replaced => boxArchiveReasonReplaced,
+      BoxArchiveReason.damaged => boxArchiveReasonDamaged,
+      BoxArchiveReason.other => archiveReasonOther,
+    };
+  }
+
   String animalArchiveReasonLabel(AnimalArchiveReason reason) {
     return switch (reason) {
       AnimalArchiveReason.sold => archiveReasonSold,

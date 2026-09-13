@@ -2,9 +2,47 @@ import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/enums/animal_status.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
+import 'package:terramanager/core/database/enums/box_status.dart';
+import 'package:terramanager/core/database/enums/box_archive_reason.dart';
 
 class BackupEnumCodec {
   BackupEnumCodec._();
+
+  static String encodeBoxStatus(BoxStatus value) {
+    return switch (value) {
+      BoxStatus.active => 'active',
+      BoxStatus.archived => 'archived',
+    };
+  }
+
+  static BoxStatus decodeBoxStatus(String value) {
+    return switch (value) {
+      'active' => BoxStatus.active,
+      'archived' => BoxStatus.archived,
+      _ => throw FormatException('Unsupported BoxStatus backup value: $value'),
+    };
+  }
+
+  static String encodeBoxArchiveReason(BoxArchiveReason value) {
+    return switch (value) {
+      BoxArchiveReason.sold => 'sold',
+      BoxArchiveReason.replaced => 'replaced',
+      BoxArchiveReason.damaged => 'damaged',
+      BoxArchiveReason.other => 'other',
+    };
+  }
+
+  static BoxArchiveReason decodeBoxArchiveReason(String value) {
+    return switch (value) {
+      'sold' => BoxArchiveReason.sold,
+      'replaced' => BoxArchiveReason.replaced,
+      'damaged' => BoxArchiveReason.damaged,
+      'other' => BoxArchiveReason.other,
+      _ => throw FormatException(
+        'Unsupported BoxArchiveReason backup value: $value',
+      ),
+    };
+  }
 
   static String encodeAnimalStatus(AnimalStatus value) {
     return switch (value) {

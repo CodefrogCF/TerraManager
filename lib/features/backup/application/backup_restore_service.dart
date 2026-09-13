@@ -242,6 +242,16 @@ class BackupRestoreService {
               BoxesCompanion(
                 id: Value(box.id),
                 qrId: Value(box.qrId),
+                status: Value(BackupEnumCodec.decodeBoxStatus(box.status)),
+                archiveReason: Value(
+                  box.archiveReason == null
+                      ? null
+                      : BackupEnumCodec.decodeBoxArchiveReason(
+                          box.archiveReason!,
+                        ),
+                ),
+                archivedAt: Value(box.archivedAt),
+                archiveNotes: Value(box.archiveNotes),
                 name: Value(box.name),
                 widthCm: Value(box.widthCm),
                 heightCm: Value(box.heightCm),

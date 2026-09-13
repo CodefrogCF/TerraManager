@@ -827,6 +827,7 @@ void main() {
           {
             'id': 1,
             'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'name': 'Desert',
             'widthCm': 60.0,
             'heightCm': 40.0,
             'depthCm': 45.0,
@@ -846,6 +847,7 @@ void main() {
 
     final box = result.data.boxes.single;
 
+    expect(box.name, 'Desert');
     expect(box.widthCm, 60);
     expect(box.heightCm, 40);
     expect(box.depthCm, 45);

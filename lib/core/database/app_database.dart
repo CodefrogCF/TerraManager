@@ -93,6 +93,9 @@ class AppDatabase extends _$AppDatabase {
               from5To6: (m, schema) async {
                 await m.addColumn(schema.boxes, schema.boxes.notes);
               },
+              from6To7: (m, schema) async {
+                await m.addColumn(schema.boxes, schema.boxes.name);
+              },
             ),
           );
 
@@ -117,5 +120,5 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 }

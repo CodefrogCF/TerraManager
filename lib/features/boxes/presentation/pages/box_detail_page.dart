@@ -437,6 +437,16 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
             ),
             const SizedBox(height: 24),
 
+            if (box.name != null && box.name!.trim().isNotEmpty) ...[
+              Text(
+                box.name!.trim(),
+                key: const Key('box-name'),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 24),
+            ],
+
             Text(
               context.l10n.dimensions,
               style: Theme.of(context).textTheme.titleMedium,

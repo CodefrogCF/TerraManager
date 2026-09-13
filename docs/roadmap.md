@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.0.0 – MVP Release**
+**v1.1.0 – Detail & Workflow Polish**
 
 Current application version and build:
 
-**v1.1.0+50 (release candidate)**
+**v1.1.1+51 (development build)**
 
 Completed development areas:
 
@@ -72,6 +72,7 @@ Completed development areas:
 - direct Animal creation from empty and populated Box detail assignments
 - originating Box preselection and immediate assignment-list refresh
 - persistent localized Box Overview sorting by natural Box number
+- optional free-form Box names and alphabetical Box Overview sorting
 - backup-compatible Box ordering and matching contextual detail navigation
 - persistent Animal Overview sorting by creation time, displayed name, age or
   latest FeedingEvent
@@ -199,10 +200,13 @@ the pre-restore safety backup enabled by default and allows it to be disabled
 for the current operation. Skipping it avoids an unnecessary export for an
 empty database without weakening validation or transactional replacement.
 
-Release candidate `1.1.0+50` brings the completed Issue #94–#100 changes
-together for the final automated, migration, backup, Android and Web
-regression in Issue #101. Publication remains pending until every blocking
-item in `release-v1.1.0.md` has been confirmed.
+Release `1.1.0+50` brings the completed Issue #94–#100 changes together with
+the final automated, migration, backup, Android and Web regression from Issue
+#101.
+
+Development build `1.1.1+51` implements tester feedback for optional Box names
+and alphabetical name sorting while retaining Box numbers, legacy sort
+preferences and Portable Backup Format Version 2 compatibility.
 
 ---
 
@@ -910,7 +914,25 @@ roughly one sixth of its previous size.
 - [x] Build and verify all supported release artifacts
 - [x] Complete Android and Web manual regression
 - [x] Confirm the final GitHub Actions Quality gates run
-- [ ] Publish the v1.1.0 tag and GitHub release
+- [x] Publish the v1.1.0 tag and GitHub release
+
+---
+
+## v1.1.1 – Optional Box Names
+
+### Tester Feedback Update
+
+- [x] Set development version to `1.1.1+51`
+- [x] Add nullable `Box.name` with a Version 6 to Version 7 migration
+- [x] Allow optional names during Box creation and editing
+- [x] Keep generated Box numbers visible for named Boxes
+- [x] Display non-empty names on Box details
+- [x] Add persistent name A–Z and Z–A overview sorting
+- [x] Place unnamed Boxes after named Boxes in both name orders
+- [x] Preserve names through backward-compatible Backup Format Version 2
+- [x] Add migration, repository, backup, settings and widget coverage
+- [ ] Complete automated regression
+- [ ] Complete Android and Web manual validation
 
 ---
 

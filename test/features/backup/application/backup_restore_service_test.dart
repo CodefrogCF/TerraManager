@@ -168,6 +168,7 @@ void main() {
           BackupBox(
             id: 5,
             qrId: 'TM:BOX:55555555-5555-4555-8555-555555555555',
+            name: 'Restored Rainforest',
             widthCm: 60,
             heightCm: 40,
             depthCm: 45,
@@ -255,6 +256,7 @@ void main() {
 
     expect(boxes.single.qrId, 'TM:BOX:55555555-5555-4555-8555-555555555555');
 
+    expect(boxes.single.name, isNull);
     expect(boxes.single.widthCm, isNull);
     expect(boxes.single.heightCm, isNull);
     expect(boxes.single.depthCm, isNull);
@@ -595,6 +597,7 @@ void main() {
     final box = boxes.single;
 
     expect(box.id, 5);
+    expect(box.name, 'Restored Rainforest');
     expect(box.widthCm, 60);
     expect(box.heightCm, 40);
     expect(box.depthCm, 45);

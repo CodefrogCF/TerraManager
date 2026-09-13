@@ -129,6 +129,23 @@ void main() {
     expect(preferences.getString('box_sort_order'), 'labelDescending');
   });
 
+  test('loads and persists Box name sort orders', () async {
+    SharedPreferences.setMockInitialValues({
+      'box_sort_order': 'nameDescending',
+    });
+    final controller = AppSettingsController();
+
+    await controller.load();
+
+    expect(controller.boxSortOrder, BoxSortOrder.nameDescending);
+
+    await controller.setBoxSortOrder(BoxSortOrder.nameAscending);
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(controller.boxSortOrder, BoxSortOrder.nameAscending);
+    expect(preferences.getString('box_sort_order'), 'nameAscending');
+  });
+
   test('maps legacy newest-created Boxes to descending numbers', () async {
     SharedPreferences.setMockInitialValues({
       'box_sort_order': 'createdNewestFirst',

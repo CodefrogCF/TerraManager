@@ -28,6 +28,7 @@ class NewBoxPage extends StatefulWidget {
 class _NewBoxPageState extends State<NewBoxPage> {
   final _formKey = GlobalKey<FormState>();
 
+  final _nameController = TextEditingController();
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
   final _depthController = TextEditingController();
@@ -53,6 +54,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _widthController.dispose();
     _heightController.dispose();
     _depthController.dispose();
@@ -130,6 +132,8 @@ class _NewBoxPageState extends State<NewBoxPage> {
     });
 
     try {
+      final name = _nameController.text.trim();
+
       final widthCm = _parseOptionalNumber(_widthController.text);
 
       final heightCm = _parseOptionalNumber(_heightController.text);
@@ -150,6 +154,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
         }
 
         await BoxRepository(widget.database).createBoxWithGeneratedQrId(
+          name: name.isEmpty ? null : name,
           widthCm: widthCm,
           heightCm: heightCm,
           depthCm: depthCm,
@@ -215,7 +220,19 @@ class _NewBoxPageState extends State<NewBoxPage> {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
+
+                  TextFormField(
+                    key: const Key('new-box-name-field'),
+                    controller: _nameController,
+                    enabled: !_saving,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.boxName,
+                      helperText: context.l10n.optional,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
                   BoxPicture(
                     key: const Key('new-box-picture'),

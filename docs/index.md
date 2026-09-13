@@ -17,13 +17,13 @@ Public project information:
 
 ## Project Status
 
-Current completed release milestone:
+Latest completed release milestone:
 
-**v1.0.0 – MVP Release**
+**v1.1.0 – Detail & Workflow Polish**
 
 Current application version and build:
 
-**v1.1.0+50 (release candidate)**
+**v1.1.1+51 (development build)**
 
 Implemented milestones in the current source state:
 
@@ -44,7 +44,8 @@ Implemented milestones in the current source state:
 - v0.14.0 – Pre-1.0 UX Polish
 - v0.14.1 – Post-release Fixes
 - v1.0.0 – MVP Release
-- v1.1.0 – Detail & Workflow Polish (release candidate)
+- v1.1.0 – Detail & Workflow Polish
+- v1.1.1 – Optional Box Names (development)
 
 Android and Web are currently validated platforms.
 
@@ -132,10 +133,15 @@ confirmation now offers a safety-backup checkbox that is enabled by default
 but can be disabled for an individual restore, including when the current
 database is empty.
 
-Release candidate `1.1.0+50` consolidates Issues #94–#100 for the final
-Android, Web, migration, backup and localization regression tracked by Issue
-#101. The pending validation record is maintained in
-`docs/release-v1.1.0.md`.
+Release `1.1.0+50` consolidates Issues #94–#100 and their final Android, Web,
+migration, backup and localization regression tracked by Issue #101. Its
+validation record is maintained in `docs/release-v1.1.0.md`.
+
+Development build `1.1.1+51` implements tester feedback by adding optional
+free-form Box names. Named Boxes keep their generated Box number visible and
+the Box Overview can be sorted by name A–Z or Z–A. Database Schema Version 7
+adds the nullable name without changing existing Box data, while Portable
+Backup Format Version 2 remains backward compatible.
 
 ### Android transition to the permanent application ID
 
@@ -201,6 +207,7 @@ application restarts.
 - Add Animal action below empty and populated Box assignment sections
 - direct New Animal navigation with the originating Box preselected
 - optional width, height and depth
+- optional free-form Box names
 - optional multiline Box notes
 - persistent Box pictures
 - Add/Change Picture action with Camera and Gallery source selection for Box
@@ -211,8 +218,10 @@ application restarts.
 - full-screen Box picture viewing with zooming and panning
 - Box editing while keeping the QR identifier immutable
 - human-readable local labels (`Box N`)
+- Box names as primary overview labels while keeping `Box N` visible
 - Box thumbnails in the overview
 - localized Box Overview sorting by ascending or descending natural Box number
+- localized Box Overview sorting by name A–Z or Z–A with unnamed Boxes last
 - persistent Box Overview ordering across application restarts
 - preserved Box overview scroll position after detail navigation
 - contextual swipe navigation through the Box Overview ordering
@@ -328,7 +337,7 @@ application restarts.
 - Backup Format Version 2 for current exports
 - backward-compatible restore of Backup Format Version 1
 - backup format version independent from database schema version
-- Box export and restore, including dimensions, notes and pictures
+- Box export and restore, including names, dimensions, notes and pictures
 - Animal export and restore
 - FeedingEvent export and restore
 - Box and Animal picture export and restore
@@ -393,12 +402,13 @@ details, Box assignments and Quick Feeding Mode. It is stored locally and
 included in newly created `.tmbackup` files. Older backups default to common
 name first.
 
-The Box Overview sort menu offers ascending or descending Box number. Box
-numbers are compared numerically, so `Box 10` correctly follows `Box 2` in
-ascending order. The selected ordering is applied to both the list and
-contextual Box detail navigation, stored locally and included in new backups.
-Older missing or oldest-created-first values map to ascending Box number;
-newest-created-first values map to descending Box number.
+The Box Overview sort menu offers ascending or descending Box number and name
+A–Z or Z–A. Box numbers are compared numerically, so `Box 10` correctly follows
+`Box 2` in ascending order. Name sorting is case-insensitive and keeps unnamed
+Boxes after named Boxes in both directions. The selected ordering is applied to
+both the list and contextual Box detail navigation, stored locally and included
+in new backups. Older missing or oldest-created-first values map to ascending
+Box number; newest-created-first values map to descending Box number.
 
 The Animal Overview sort menu offers oldest/newest creation time, displayed
 name A–Z/Z–A, oldest/youngest age and newest/oldest latest feeding. Name sorting

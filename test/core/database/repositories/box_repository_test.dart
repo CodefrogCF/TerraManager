@@ -85,11 +85,45 @@ void main() {
 
     expect(box, isNotNull);
     expect(box!.qrId, 'new-box');
+    expect(box.name, isNull);
     expect(box.widthCm, isNull);
     expect(box.heightCm, isNull);
     expect(box.depthCm, isNull);
     expect(box.notes, isNull);
     expect(box.pictureMediaId, isNull);
+  });
+
+  test('can create, edit, and clear an optional box name', () async {
+    final boxId = await repository.createBox(
+      'box-with-name',
+      name: 'Arboreal 1',
+    );
+
+    var box = await repository.getBoxById(boxId);
+
+    expect(box!.name, 'Arboreal 1');
+
+    final edited = await repository.updateBox(
+      boxId: boxId,
+      name: const drift.Value('Quarantine'),
+    );
+
+    expect(edited, isTrue);
+
+    box = await repository.getBoxById(boxId);
+
+    expect(box!.name, 'Quarantine');
+
+    final cleared = await repository.updateBox(
+      boxId: boxId,
+      name: const drift.Value<String?>(null),
+    );
+
+    expect(cleared, isTrue);
+
+    box = await repository.getBoxById(boxId);
+
+    expect(box!.name, isNull);
   });
 
   test('can create, edit, and clear box notes', () async {
@@ -190,6 +224,7 @@ void main() {
       widthCm: 60.0,
       heightCm: 45.0,
       depthCm: 40.0,
+      name: 'Keep this name',
       notes: 'Keep this note',
     );
 
@@ -204,6 +239,7 @@ void main() {
 
     expect(box, isNotNull);
     expect(box!.widthCm, 80.0);
+    expect(box.name, 'Keep this name');
     expect(box.heightCm, 45.0);
     expect(box.depthCm, 40.0);
     expect(box.notes, 'Keep this note');

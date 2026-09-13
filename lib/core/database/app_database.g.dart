@@ -431,6 +431,15 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
     requiredDuringInsert: true,
     defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _widthCmMeta = const VerificationMeta(
     'widthCm',
   );
@@ -515,6 +524,7 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
   List<GeneratedColumn> get $columns => [
     id,
     qrId,
+    name,
     widthCm,
     heightCm,
     depthCm,
@@ -545,6 +555,12 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
       );
     } else if (isInserting) {
       context.missing(_qrIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
     }
     if (data.containsKey('width_cm')) {
       context.handle(
@@ -608,6 +624,10 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
         DriftSqlType.string,
         data['${effectivePrefix}qr_id'],
       )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      ),
       widthCm: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}width_cm'],
@@ -648,6 +668,7 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
 class Box extends DataClass implements Insertable<Box> {
   final int id;
   final String qrId;
+  final String? name;
   final double? widthCm;
   final double? heightCm;
   final double? depthCm;
@@ -658,6 +679,7 @@ class Box extends DataClass implements Insertable<Box> {
   const Box({
     required this.id,
     required this.qrId,
+    this.name,
     this.widthCm,
     this.heightCm,
     this.depthCm,
@@ -671,6 +693,9 @@ class Box extends DataClass implements Insertable<Box> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['qr_id'] = Variable<String>(qrId);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
     if (!nullToAbsent || widthCm != null) {
       map['width_cm'] = Variable<double>(widthCm);
     }
@@ -695,6 +720,7 @@ class Box extends DataClass implements Insertable<Box> {
     return BoxesCompanion(
       id: Value(id),
       qrId: Value(qrId),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
       widthCm: widthCm == null && nullToAbsent
           ? const Value.absent()
           : Value(widthCm),
@@ -723,6 +749,7 @@ class Box extends DataClass implements Insertable<Box> {
     return Box(
       id: serializer.fromJson<int>(json['id']),
       qrId: serializer.fromJson<String>(json['qrId']),
+      name: serializer.fromJson<String?>(json['name']),
       widthCm: serializer.fromJson<double?>(json['widthCm']),
       heightCm: serializer.fromJson<double?>(json['heightCm']),
       depthCm: serializer.fromJson<double?>(json['depthCm']),
@@ -738,6 +765,7 @@ class Box extends DataClass implements Insertable<Box> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'qrId': serializer.toJson<String>(qrId),
+      'name': serializer.toJson<String?>(name),
       'widthCm': serializer.toJson<double?>(widthCm),
       'heightCm': serializer.toJson<double?>(heightCm),
       'depthCm': serializer.toJson<double?>(depthCm),
@@ -751,6 +779,7 @@ class Box extends DataClass implements Insertable<Box> {
   Box copyWith({
     int? id,
     String? qrId,
+    Value<String?> name = const Value.absent(),
     Value<double?> widthCm = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
     Value<double?> depthCm = const Value.absent(),
@@ -761,6 +790,7 @@ class Box extends DataClass implements Insertable<Box> {
   }) => Box(
     id: id ?? this.id,
     qrId: qrId ?? this.qrId,
+    name: name.present ? name.value : this.name,
     widthCm: widthCm.present ? widthCm.value : this.widthCm,
     heightCm: heightCm.present ? heightCm.value : this.heightCm,
     depthCm: depthCm.present ? depthCm.value : this.depthCm,
@@ -775,6 +805,7 @@ class Box extends DataClass implements Insertable<Box> {
     return Box(
       id: data.id.present ? data.id.value : this.id,
       qrId: data.qrId.present ? data.qrId.value : this.qrId,
+      name: data.name.present ? data.name.value : this.name,
       widthCm: data.widthCm.present ? data.widthCm.value : this.widthCm,
       heightCm: data.heightCm.present ? data.heightCm.value : this.heightCm,
       depthCm: data.depthCm.present ? data.depthCm.value : this.depthCm,
@@ -792,6 +823,7 @@ class Box extends DataClass implements Insertable<Box> {
     return (StringBuffer('Box(')
           ..write('id: $id, ')
           ..write('qrId: $qrId, ')
+          ..write('name: $name, ')
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
           ..write('depthCm: $depthCm, ')
@@ -807,6 +839,7 @@ class Box extends DataClass implements Insertable<Box> {
   int get hashCode => Object.hash(
     id,
     qrId,
+    name,
     widthCm,
     heightCm,
     depthCm,
@@ -821,6 +854,7 @@ class Box extends DataClass implements Insertable<Box> {
       (other is Box &&
           other.id == this.id &&
           other.qrId == this.qrId &&
+          other.name == this.name &&
           other.widthCm == this.widthCm &&
           other.heightCm == this.heightCm &&
           other.depthCm == this.depthCm &&
@@ -833,6 +867,7 @@ class Box extends DataClass implements Insertable<Box> {
 class BoxesCompanion extends UpdateCompanion<Box> {
   final Value<int> id;
   final Value<String> qrId;
+  final Value<String?> name;
   final Value<double?> widthCm;
   final Value<double?> heightCm;
   final Value<double?> depthCm;
@@ -843,6 +878,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   const BoxesCompanion({
     this.id = const Value.absent(),
     this.qrId = const Value.absent(),
+    this.name = const Value.absent(),
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
     this.depthCm = const Value.absent(),
@@ -854,6 +890,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   BoxesCompanion.insert({
     this.id = const Value.absent(),
     required String qrId,
+    this.name = const Value.absent(),
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
     this.depthCm = const Value.absent(),
@@ -865,6 +902,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   static Insertable<Box> custom({
     Expression<int>? id,
     Expression<String>? qrId,
+    Expression<String>? name,
     Expression<double>? widthCm,
     Expression<double>? heightCm,
     Expression<double>? depthCm,
@@ -876,6 +914,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (qrId != null) 'qr_id': qrId,
+      if (name != null) 'name': name,
       if (widthCm != null) 'width_cm': widthCm,
       if (heightCm != null) 'height_cm': heightCm,
       if (depthCm != null) 'depth_cm': depthCm,
@@ -889,6 +928,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   BoxesCompanion copyWith({
     Value<int>? id,
     Value<String>? qrId,
+    Value<String?>? name,
     Value<double?>? widthCm,
     Value<double?>? heightCm,
     Value<double?>? depthCm,
@@ -900,6 +940,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     return BoxesCompanion(
       id: id ?? this.id,
       qrId: qrId ?? this.qrId,
+      name: name ?? this.name,
       widthCm: widthCm ?? this.widthCm,
       heightCm: heightCm ?? this.heightCm,
       depthCm: depthCm ?? this.depthCm,
@@ -918,6 +959,9 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     }
     if (qrId.present) {
       map['qr_id'] = Variable<String>(qrId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
     if (widthCm.present) {
       map['width_cm'] = Variable<double>(widthCm.value);
@@ -948,6 +992,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     return (StringBuffer('BoxesCompanion(')
           ..write('id: $id, ')
           ..write('qrId: $qrId, ')
+          ..write('name: $name, ')
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
           ..write('depthCm: $depthCm, ')
@@ -2961,6 +3006,7 @@ typedef $$MediaAssetsTableProcessedTableManager =
 typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
   Value<int> id,
   required String qrId,
+  Value<String?> name,
   Value<double?> widthCm,
   Value<double?> heightCm,
   Value<double?> depthCm,
@@ -2972,6 +3018,7 @@ typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
 typedef $$BoxesTableUpdateCompanionBuilder = BoxesCompanion Function({
   Value<int> id,
   Value<String> qrId,
+  Value<String?> name,
   Value<double?> widthCm,
   Value<double?> heightCm,
   Value<double?> depthCm,
@@ -3037,6 +3084,11 @@ class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
 
   ColumnFilters<String> get qrId => $composableBuilder(
     column: $table.qrId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3138,6 +3190,11 @@ class $$BoxesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get widthCm => $composableBuilder(
     column: $table.widthCm,
     builder: (column) => ColumnOrderings(column),
@@ -3206,6 +3263,9 @@ class $$BoxesTableAnnotationComposer
 
   GeneratedColumn<String> get qrId =>
       $composableBuilder(column: $table.qrId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
 
   GeneratedColumn<double> get widthCm =>
       $composableBuilder(column: $table.widthCm, builder: (column) => column);
@@ -3304,6 +3364,7 @@ class $$BoxesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 Value<String> qrId = const Value.absent(),
+                Value<String?> name = const Value.absent(),
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
                 Value<double?> depthCm = const Value.absent(),
@@ -3314,6 +3375,7 @@ class $$BoxesTableTableManager
               }) => BoxesCompanion(
                 id: id,
                 qrId: qrId,
+                name: name,
                 widthCm: widthCm,
                 heightCm: heightCm,
                 depthCm: depthCm,
@@ -3326,6 +3388,7 @@ class $$BoxesTableTableManager
               ({
                 Value<int> id = const Value.absent(),
                 required String qrId,
+                Value<String?> name = const Value.absent(),
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
                 Value<double?> depthCm = const Value.absent(),
@@ -3336,6 +3399,7 @@ class $$BoxesTableTableManager
               }) => BoxesCompanion.insert(
                 id: id,
                 qrId: qrId,
+                name: name,
                 widthCm: widthCm,
                 heightCm: heightCm,
                 depthCm: depthCm,

@@ -9,6 +9,7 @@ void main() {
         BackupBox(
           id: 1,
           qrId: 'TM:BOX:11111111-1111-4111-8111-111111111111',
+          name: 'Rainforest',
           widthCm: 60,
           heightCm: 40,
           depthCm: 40,
@@ -62,6 +63,7 @@ void main() {
     expect(restored.feedingEvents.length, 1);
 
     expect(restored.boxes.single.id, 1);
+    expect(restored.boxes.single.name, 'Rainforest');
 
     expect(restored.boxes.single.widthCm, 60);
     expect(restored.boxes.single.heightCm, 40);
@@ -132,6 +134,7 @@ void main() {
     });
 
     expect(restored.id, 4);
+    expect(restored.name, isNull);
     expect(restored.widthCm, isNull);
     expect(restored.notes, isNull);
     expect(restored.heightCm, isNull);

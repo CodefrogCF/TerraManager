@@ -137,6 +137,30 @@ void main() {
     expect(find.byKey(const Key('box-qr-id')), findsOneWidget);
   });
 
+  testWidgets('shows the optional Box name prominently', (tester) async {
+    final boxId = await BoxRepository(database).createBox(
+      'TM:BOX:33333333-3333-4333-8333-333333333333',
+      name: 'Quarantine',
+    );
+    final box = await BoxRepository(database).getBoxById(boxId);
+
+    await pumpPage(tester, box: box!);
+
+    expect(find.byKey(const Key('box-name')), findsOneWidget);
+    expect(find.text('Quarantine'), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
+  });
+
+  testWidgets('does not show a name element for an unnamed Box', (
+    tester,
+  ) async {
+    final box = await createTestBox();
+
+    await pumpPage(tester, box: box);
+
+    expect(find.byKey(const Key('box-name')), findsNothing);
+  });
+
   testWidgets('shows QR code', (tester) async {
     final box = await createTestBox();
 

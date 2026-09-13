@@ -31,10 +31,13 @@ include this validation.
 The completed v1.0.0 Android and Web regression is documented in
 `release-v1.0.0.md`.
 
-The final Android and Web regression for release candidate `1.1.0+50` is
-tracked in `release-v1.1.0.md`. Its result is not considered complete until the
-automated checks, signed artifacts, migration and backup paths, and manual
-platform checklist in that document have been confirmed.
+The completed Android and Web regression for release `1.1.0+50` is documented
+in `release-v1.1.0.md`.
+
+Development build `1.1.1+51` adds optional Box names through Database Schema
+Version 7 and keeps Portable Backup Format Version 2. Its Android and Web
+regression remains pending until the tester-feedback checklist in `roadmap.md`
+has been confirmed.
 
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:

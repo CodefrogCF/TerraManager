@@ -5,13 +5,16 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   String read(String path) => File(path).readAsStringSync();
 
-  test('records the v1.1.0 release candidate consistently', () {
+  test('records the current v1.1 development build consistently', () {
     final pubspec = read('pubspec.yaml');
     final readme = read('README.md');
     final changelog = read('CHANGELOG.md');
 
-    expect(pubspec, contains('version: 1.1.0+50'));
+    expect(pubspec, contains('version: 1.1.1+51'));
     expect(readme, contains('docs/release-v1.1.0.md'));
+    expect(readme, contains('Database Schema Version 7'));
+    expect(readme, contains(RegExp(r'Portable\s+Backup Format Version 2')));
+    expect(changelog, contains('## [1.1.1] - 2026-09-13'));
     expect(changelog, contains('## [1.1.0] - 2026-09-12'));
   });
 

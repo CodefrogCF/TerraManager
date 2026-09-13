@@ -242,6 +242,7 @@ class BackupRestoreService {
               BoxesCompanion(
                 id: Value(box.id),
                 qrId: Value(box.qrId),
+                name: Value(box.name),
                 widthCm: Value(box.widthCm),
                 heightCm: Value(box.heightCm),
                 depthCm: Value(box.depthCm),

@@ -110,6 +110,16 @@ class _BoxesPageState extends State<BoxesPage> {
     );
   }
 
+  String? _boxName(Box box) {
+    final name = box.name?.trim();
+
+    if (name == null || name.isEmpty) {
+      return null;
+    }
+
+    return name;
+  }
+
   String _formatDimensionValue(double? value) {
     if (value == null) {
       return '—';
@@ -254,6 +264,9 @@ class _BoxesPageState extends State<BoxesPage> {
             itemCount: boxes.length,
             itemBuilder: (context, index) {
               final box = boxes[index];
+              final boxName = _boxName(box);
+              final boxLabel = context.l10n.boxLabel(box.id);
+              final dimensions = _formatDimensions(context, box);
 
               return ListTile(
                 key: Key('box-list-item-${box.id}'),
@@ -268,10 +281,22 @@ class _BoxesPageState extends State<BoxesPage> {
                   },
                 ),
                 title: Text(
-                  context.l10n.boxLabel(box.id),
-                  key: Key('box-label-${box.id}'),
+                  boxName ?? boxLabel,
+                  key: boxName == null
+                      ? Key('box-label-${box.id}')
+                      : Key('box-name-${box.id}'),
                 ),
-                subtitle: Text(_formatDimensions(context, box)),
+                subtitle: boxName == null
+                    ? Text(dimensions)
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(boxLabel, key: Key('box-label-${box.id}')),
+                          Text(dimensions),
+                        ],
+                      ),
+                isThreeLine: boxName != null,
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   _openBoxDetail(box, boxes);

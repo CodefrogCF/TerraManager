@@ -8,6 +8,8 @@ class Boxes extends Table {
 
   TextColumn get qrId => text().unique()();
 
+  TextColumn get name => text().nullable()();
+
   RealColumn get widthCm => real().nullable()();
 
   RealColumn get heightCm => real().nullable()();

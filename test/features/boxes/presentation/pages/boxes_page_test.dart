@@ -69,6 +69,20 @@ void main() {
     expect(find.text('test-box-001'), findsNothing);
   });
 
+  testWidgets('shows an optional Box name without hiding its number', (
+    tester,
+  ) async {
+    await BoxRepository(database)
+        .createBox('test-box-named', name: 'Arboreal 1');
+
+    await pumpPage(tester);
+
+    expect(find.text('Arboreal 1'), findsOneWidget);
+    expect(find.text('Box 1'), findsOneWidget);
+    expect(find.byKey(const Key('box-name-1')), findsOneWidget);
+    expect(find.byKey(const Key('box-label-1')), findsOneWidget);
+  });
+
   testWidgets('shows fallback thumbnail when box has no picture', (
     tester,
   ) async {
@@ -214,6 +228,8 @@ void main() {
     expect(find.text('Newest created first'), findsNothing);
     expect(find.text('Box number ascending'), findsOneWidget);
     expect(find.text('Box number descending'), findsOneWidget);
+    expect(find.text('Name A–Z'), findsOneWidget);
+    expect(find.text('Name Z–A'), findsOneWidget);
 
     final descendingOption = find.byKey(
       const Key('box-sort-option-labelDescending'),
@@ -252,6 +268,57 @@ void main() {
       firstId,
     ]);
   });
+
+  testWidgets(
+    'sorts named Boxes alphabetically and leaves unnamed Boxes last',
+    (tester) async {
+      final repository = BoxRepository(database);
+      final zuluId = await repository.createBox('box-zulu', name: 'Zulu');
+      final unnamedId = await repository.createBox('box-unnamed');
+      final alphaId = await repository.createBox('box-alpha', name: 'Alpha');
+      final settingsController = AppSettingsController();
+
+      await settingsController.load();
+      await pumpPage(tester, settingsController: settingsController);
+
+      await tester.tap(find.byKey(const Key('box-sort-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('box-sort-option-nameAscending')));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getTopLeft(find.byKey(Key('box-list-item-$alphaId'))).dy,
+        lessThan(
+          tester.getTopLeft(find.byKey(Key('box-list-item-$zuluId'))).dy,
+        ),
+      );
+      expect(
+        tester.getTopLeft(find.byKey(Key('box-list-item-$zuluId'))).dy,
+        lessThan(
+          tester.getTopLeft(find.byKey(Key('box-list-item-$unnamedId'))).dy,
+        ),
+      );
+
+      expect(settingsController.boxSortOrder, BoxSortOrder.nameAscending);
+
+      final preferences = await SharedPreferences.getInstance();
+
+      expect(preferences.getString('box_sort_order'), 'nameAscending');
+
+      await tester.tap(find.byKey(Key('box-list-item-$zuluId')));
+      await tester.pumpAndSettle();
+
+      final detailPage = tester.widget<BoxDetailPage>(
+        find.byType(BoxDetailPage),
+      );
+
+      expect(detailPage.navigationContext!.recordIds, [
+        alphaId,
+        zuluId,
+        unnamedId,
+      ]);
+    },
+  );
 
   testWidgets('add button opens new box page', (tester) async {
     await pumpPage(tester);

@@ -195,6 +195,8 @@ class AppSettingsController extends ChangeNotifier {
     return switch (value) {
       'labelAscending' || 'createdOldestFirst' => BoxSortOrder.labelAscending,
       'labelDescending' || 'createdNewestFirst' => BoxSortOrder.labelDescending,
+      'nameAscending' => BoxSortOrder.nameAscending,
+      'nameDescending' => BoxSortOrder.nameDescending,
       _ => BoxSortOrder.labelAscending,
     };
   }

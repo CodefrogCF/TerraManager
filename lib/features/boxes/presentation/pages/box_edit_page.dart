@@ -34,6 +34,7 @@ class BoxEditPage extends StatefulWidget {
 class _BoxEditPageState extends State<BoxEditPage> {
   final _formKey = GlobalKey<FormState>();
 
+  final _nameController = TextEditingController();
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
   final _depthController = TextEditingController();
@@ -71,6 +72,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _widthController.dispose();
     _heightController.dispose();
     _depthController.dispose();
@@ -110,6 +112,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
       _box = box;
       _pictureMediaId = box.pictureMediaId;
       _originalPictureMediaId = box.pictureMediaId;
+
+      _nameController.text = box.name ?? '';
 
       _widthController.text = _formatEditableNumber(box.widthCm);
 
@@ -229,6 +233,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
     });
 
     try {
+      final name = _nameController.text.trim();
+
       final widthCm = _parseOptionalNumber(_widthController.text);
 
       final heightCm = _parseOptionalNumber(_heightController.text);
@@ -252,6 +258,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
         final updated = await BoxRepository(widget.database).updateBox(
           boxId: _box!.id,
+          name: drift.Value(name.isEmpty ? null : name),
           widthCm: drift.Value(widthCm),
           heightCm: drift.Value(heightCm),
           depthCm: drift.Value(depthCm),
@@ -561,6 +568,18 @@ class _BoxEditPageState extends State<BoxEditPage> {
               onRemove: _removePicture,
               actionButtonKey: const Key('select-box-picture-button'),
               removeButtonKey: const Key('remove-box-picture-button'),
+            ),
+            const SizedBox(height: 24),
+
+            TextFormField(
+              key: const Key('box-name-field'),
+              controller: _nameController,
+              onChanged: (_) => _markAsChanged(),
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: context.l10n.boxName,
+                helperText: context.l10n.optional,
+              ),
             ),
             const SizedBox(height: 24),
 

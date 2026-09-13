@@ -26,6 +26,7 @@ class BoxRepository {
 
   Future<int> createBox(
     String qrId, {
+    String? name,
     double? widthCm,
     double? heightCm,
     double? depthCm,
@@ -37,6 +38,7 @@ class BoxRepository {
         .insert(
           BoxesCompanion.insert(
             qrId: qrId,
+            name: Value(name),
             widthCm: Value(widthCm),
             heightCm: Value(heightCm),
             depthCm: Value(depthCm),
@@ -47,6 +49,7 @@ class BoxRepository {
   }
 
   Future<int> createBoxWithGeneratedQrId({
+    String? name,
     double? widthCm,
     double? heightCm,
     double? depthCm,
@@ -55,6 +58,7 @@ class BoxRepository {
   }) {
     return createBox(
       generateBoxQrId(),
+      name: name,
       widthCm: widthCm,
       heightCm: heightCm,
       depthCm: depthCm,
@@ -65,6 +69,7 @@ class BoxRepository {
 
   Future<bool> updateBox({
     required int boxId,
+    Value<String?> name = const Value.absent(),
     Value<double?> widthCm = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
     Value<double?> depthCm = const Value.absent(),
@@ -85,6 +90,7 @@ class BoxRepository {
             database.boxes,
           )..where((box) => box.id.equals(boxId))).write(
             BoxesCompanion(
+              name: name,
               widthCm: widthCm,
               heightCm: heightCm,
               depthCm: depthCm,

@@ -122,6 +122,10 @@ Schema Version 6 adds the nullable Box column `notes`. Migration tests must
 verify that Version 5 Box, Animal, FeedingEvent and MediaAsset data is preserved
 and that existing Boxes receive `null` notes.
 
+Schema Version 7 adds the nullable Box column `name`. Migration tests must
+verify that Version 6 data, Box notes and media references are preserved and
+that existing Boxes receive `null` names.
+
 ## Android Development
 
 TerraManager uses the permanent Android namespace and application ID:
@@ -145,7 +149,8 @@ using the permanent identifier. Export a `.tmbackup` from the old installation,
 install the permanent-ID build and restore that backup before removing the old
 application. The application-ID transition itself did not change Database
 Schema Version 5 or Portable Backup Format Version 2. Current development uses
-Database Schema Version 6 for optional Box notes.
+Database Schema Version 7 for optional Box names. Schema Version 6 introduced
+optional Box notes.
 
 Android Debug builds remain available without release credentials. Android
 Release builds require a dedicated local production key and refuse to fall back
@@ -316,7 +321,9 @@ Examples:
 - System, English and German language selection
 - language persistence and unsupported-locale fallback
 - language-setting backup and restore
-- natural ascending/descending Box Overview sorting
+- natural ascending/descending Box-number sorting and alphabetical Box-name
+  sorting in both directions
+- deterministic placement of unnamed Boxes after named Boxes
 - Box sort-order persistence after an application restart
 - contextual Box detail swiping in the currently visible order
 - Box sort-order backup, restore and legacy creation-order migration behavior

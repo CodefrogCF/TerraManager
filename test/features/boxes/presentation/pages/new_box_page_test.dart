@@ -100,6 +100,8 @@ void main() {
 
     expect(find.text('Add Picture'), findsOneWidget);
 
+    expect(find.byKey(const Key('new-box-name-field')), findsOneWidget);
+
     expect(find.byKey(const Key('new-box-width-field')), findsOneWidget);
 
     expect(find.byKey(const Key('new-box-height-field')), findsOneWidget);
@@ -116,7 +118,9 @@ void main() {
   testWidgets('does not require manual QR ID', (tester) async {
     await pumpPage(tester);
 
-    expect(find.byType(TextFormField), findsNWidgets(4));
+    expect(find.byType(TextFormField), findsNWidgets(5));
+
+    expect(find.byKey(const Key('new-box-name-field')), findsOneWidget);
 
     expect(find.byKey(const Key('new-box-width-field')), findsOneWidget);
 
@@ -129,6 +133,25 @@ void main() {
     expect(find.text('Format: TM:BOX:<UUID>'), findsOneWidget);
 
     expect(find.byKey(const Key('qr-id-field')), findsNothing);
+  });
+
+  testWidgets('creates a box with a trimmed optional name', (tester) async {
+    await pumpPageWithNavigation(tester);
+
+    await tester.enterText(
+      find.byKey(const Key('new-box-name-field')),
+      '  Arboreal 1  ',
+    );
+
+    final createButton = find.byKey(const Key('create-box-button'));
+
+    await tester.ensureVisible(createButton);
+    await tester.tap(createButton);
+    await tester.pumpAndSettle();
+
+    final box = (await BoxRepository(database).getAllBoxes()).single;
+
+    expect(box.name, 'Arboreal 1');
   });
 
   testWidgets('creates a box with trimmed optional notes', (tester) async {
@@ -166,6 +189,7 @@ void main() {
 
     final box = (await BoxRepository(database).getAllBoxes()).single;
 
+    expect(box.name, isNull);
     expect(box.notes, isNull);
   });
 
@@ -229,7 +253,13 @@ void main() {
 
     await pumpPageWithNavigation(tester, pictureSelectionFlow: flow);
 
-    await tester.tap(find.byKey(const Key('select-new-box-picture-button')));
+    final selectPictureButton = find.byKey(
+      const Key('select-new-box-picture-button'),
+    );
+
+    await tester.ensureVisible(selectPictureButton);
+    await tester.pumpAndSettle();
+    await tester.tap(selectPictureButton);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(PictureSelectionControls.galleryOptionKey));
     await tester.pump(const Duration(milliseconds: 500));

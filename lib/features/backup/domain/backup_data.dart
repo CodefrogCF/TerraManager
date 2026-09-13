@@ -40,6 +40,8 @@ class BackupBox {
   final int id;
   final String qrId;
 
+  final String? name;
+
   final double? widthCm;
   final double? heightCm;
   final double? depthCm;
@@ -54,6 +56,7 @@ class BackupBox {
   const BackupBox({
     required this.id,
     required this.qrId,
+    this.name,
     this.widthCm,
     this.heightCm,
     this.depthCm,
@@ -67,6 +70,7 @@ class BackupBox {
     return {
       'id': id,
       'qrId': qrId,
+      'name': name,
       'widthCm': widthCm,
       'heightCm': heightCm,
       'depthCm': depthCm,
@@ -81,6 +85,7 @@ class BackupBox {
     return BackupBox(
       id: json['id'] as int,
       qrId: json['qrId'] as String,
+      name: json['name'] as String?,
       widthCm: (json['widthCm'] as num?)?.toDouble(),
       heightCm: (json['heightCm'] as num?)?.toDouble(),
       depthCm: (json['depthCm'] as num?)?.toDouble(),

@@ -113,6 +113,14 @@ void main() {
       BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.labelDescending),
       'labelDescending',
     );
+    expect(
+      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.nameAscending),
+      'nameAscending',
+    );
+    expect(
+      BackupSettingsCodec.encodeBoxSortOrder(BoxSortOrder.nameDescending),
+      'nameDescending',
+    );
 
     for (final value in BoxSortOrder.values) {
       final encoded = BackupSettingsCodec.encodeBoxSortOrder(value);

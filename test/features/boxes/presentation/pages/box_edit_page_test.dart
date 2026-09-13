@@ -157,6 +157,42 @@ void main() {
     expect(box!.notes, isNull);
   });
 
+  testWidgets('loads, edits, and clears the optional Box name', (tester) async {
+    final repository = BoxRepository(database);
+    final boxId = await repository.createBox('box-name', name: 'Original Box');
+
+    await pumpPageWithNavigation(tester, boxId: boxId);
+
+    final nameField = find.byKey(const Key('box-name-field'));
+
+    expect(
+      tester.widget<TextFormField>(nameField).controller!.text,
+      'Original Box',
+    );
+
+    await tester.enterText(nameField, '  Updated Box  ');
+    await tester.tap(find.byKey(const Key('save-box-button')));
+    await tester.pumpAndSettle();
+
+    var box = await repository.getBoxById(boxId);
+
+    expect(box!.name, 'Updated Box');
+
+    await tester.tap(find.byKey(const Key('open-box-edit-button')));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<TextFormField>(nameField).controller!.text,
+      'Updated Box',
+    );
+    await tester.enterText(nameField, '   ');
+    await tester.tap(find.byKey(const Key('save-box-button')));
+    await tester.pumpAndSettle();
+
+    box = await repository.getBoxById(boxId);
+
+    expect(box!.name, isNull);
+  });
+
   testWidgets('shows Change Picture and delete for an existing picture', (
     tester,
   ) async {

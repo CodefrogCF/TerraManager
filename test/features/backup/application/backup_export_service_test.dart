@@ -521,6 +521,7 @@ void main() {
         .insert(
           BoxesCompanion.insert(
             qrId: 'TM:BOX:88888888-8888-4888-8888-888888888888',
+            name: const drift.Value('Rainforest'),
             widthCm: const drift.Value(60),
             heightCm: const drift.Value(40),
             depthCm: const drift.Value(45),
@@ -542,6 +543,7 @@ void main() {
     final box = result.data.boxes.single;
 
     expect(box.id, boxId);
+    expect(box.name, 'Rainforest');
     expect(box.widthCm, 60);
     expect(box.heightCm, 40);
     expect(box.depthCm, 45);
@@ -569,6 +571,7 @@ void main() {
 
     final boxJson = boxes.single as Map<String, dynamic>;
 
+    expect(boxJson['name'], 'Rainforest');
     expect(boxJson['widthCm'], 60.0);
     expect(boxJson['heightCm'], 40.0);
     expect(boxJson['depthCm'], 45.0);

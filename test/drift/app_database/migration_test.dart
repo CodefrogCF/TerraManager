@@ -17,6 +17,7 @@ import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
 import 'generated/schema_v5.dart' as v5;
+import 'generated/schema_v6.dart' as v6;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -400,7 +401,7 @@ void main() {
             .select(openedDatabase.animals)
             .getSingle();
 
-        expect(openedDatabase.schemaVersion, 6);
+        expect(openedDatabase.schemaVersion, 7);
         expect(animal.commonName, 'Existing Animal');
         expect(animal.notes, 'Preserve me');
         expect(animal.feedingReminderIntervalDays, isNull);
@@ -427,7 +428,7 @@ void main() {
   );
 
   test(
-    'migration from v5 to v6 preserves Boxes and adds empty notes',
+    'migration from v5 to current preserves Boxes and adds empty fields',
     () async {
       final directory = await Directory.systemTemp.createTemp(
         'terramanager-v5-v6-',
@@ -508,12 +509,13 @@ void main() {
             .select(openedDatabase.feedingEvents)
             .getSingle();
 
-        expect(openedDatabase.schemaVersion, 6);
+        expect(openedDatabase.schemaVersion, 7);
         expect(box.qrId, 'TM:BOX:77777777-7777-4777-8777-777777777777');
         expect(box.widthCm, 60);
         expect(box.heightCm, 45);
         expect(box.depthCm, 40);
         expect(box.notes, isNull);
+        expect(box.name, isNull);
         expect(box.pictureMediaId, media.id);
         expect(media.fileName, 'existing-box.webp');
         expect(media.data, Uint8List.fromList([1, 2, 3, 4]));
@@ -531,6 +533,7 @@ void main() {
             .toSet();
 
         expect(columnNames, contains('notes'));
+        expect(columnNames, contains('name'));
       } finally {
         await oldDatabase?.close();
         await migratedDatabase?.close();
@@ -542,7 +545,70 @@ void main() {
     },
   );
 
-  test('schema v6 persists Box notes after reopening', () async {
+  test(
+    'migration from v6 to v7 preserves Boxes and adds empty names',
+    () async {
+      final directory = await Directory.systemTemp.createTemp(
+        'terramanager-v6-v7-',
+      );
+      final databaseFile = File('${directory.path}/terramanager.sqlite');
+
+      v6.DatabaseAtV6? oldDatabase;
+      AppDatabase? migratedDatabase;
+
+      try {
+        oldDatabase = v6.DatabaseAtV6(NativeDatabase(databaseFile));
+
+        await oldDatabase
+            .into(oldDatabase.boxes)
+            .insert(
+              v6.BoxesCompanion.insert(
+                qrId: 'TM:BOX:99999999-9999-4999-8999-999999999999',
+                widthCm: const Value(50),
+                heightCm: const Value(40),
+                depthCm: const Value(30),
+                notes: const Value('Existing Box notes'),
+              ),
+            );
+
+        await oldDatabase.close();
+        oldDatabase = null;
+
+        final openedDatabase = AppDatabase.test(NativeDatabase(databaseFile));
+        migratedDatabase = openedDatabase;
+
+        final box = await openedDatabase
+            .select(openedDatabase.boxes)
+            .getSingle();
+
+        expect(openedDatabase.schemaVersion, 7);
+        expect(box.qrId, 'TM:BOX:99999999-9999-4999-8999-999999999999');
+        expect(box.name, isNull);
+        expect(box.widthCm, 50);
+        expect(box.heightCm, 40);
+        expect(box.depthCm, 30);
+        expect(box.notes, 'Existing Box notes');
+
+        final columns = await openedDatabase
+            .customSelect('PRAGMA table_info(boxes)')
+            .get();
+        final columnNames = columns
+            .map((row) => row.read<String>('name'))
+            .toSet();
+
+        expect(columnNames, contains('name'));
+      } finally {
+        await oldDatabase?.close();
+        await migratedDatabase?.close();
+
+        if (await directory.exists()) {
+          await directory.delete(recursive: true);
+        }
+      }
+    },
+  );
+
+  test('current schema persists Box names and notes after reopening', () async {
     final directory = await Directory.systemTemp.createTemp(
       'terramanager-v6-reopen-',
     );
@@ -559,6 +625,7 @@ void main() {
           .insert(
             BoxesCompanion.insert(
               qrId: 'TM:BOX:88888888-8888-4888-8888-888888888888',
+              name: const Value('Arboreal 1'),
               notes: const Value('Persistent Box notes'),
             ),
           );
@@ -573,6 +640,7 @@ void main() {
           .select(reopenedDatabase.boxes)
           .getSingle();
 
+      expect(box.name, 'Arboreal 1');
       expect(box.notes, 'Persistent Box notes');
     } finally {
       await openDatabase?.close();

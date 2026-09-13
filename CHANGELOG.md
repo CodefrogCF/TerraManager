@@ -4,6 +4,45 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [Unreleased]
+
+## [1.1.1] - 2026-09-13
+
+### Added
+
+- added an optional free-form name to New Box and Edit Box
+- added ascending and descending alphabetical Box-name sorting to the Box
+  Overview
+- added the optional Box name to current portable backups without changing
+  Backup Format Version 2
+
+### Changed
+
+- display a named Box with its name as the primary overview label while keeping
+  its generated Box number visible underneath
+- display non-empty Box names prominently on Box details
+- place unnamed Boxes after named Boxes in both alphabetical directions and
+  use the Box ID as the deterministic tie-breaker
+- advanced the development version to `1.1.1+51`
+
+### Compatibility
+
+- added nullable `Box.name` in Database Schema Version 7 with a
+  data-preserving Version 6 to Version 7 migration
+- kept existing Boxes unnamed until the user explicitly assigns a name
+- kept Backup Format Version 2 backward compatible; backups without `name`
+  restore with an empty Box name
+- preserved the existing ascending and descending Box-number sort options and
+  their legacy settings mappings
+
+### Testing
+
+- added repository and widget coverage for creating, editing, clearing and
+  displaying optional Box names
+- added deterministic alphabetical sorting and persisted setting coverage
+- added schema migration, persistence, backup export, validation and restore
+  coverage for Box names
+
 ## [1.1.0] - 2026-09-12
 
 ### Added

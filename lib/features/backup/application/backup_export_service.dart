@@ -68,6 +68,7 @@ class BackupExportService {
         BackupBox(
           id: box.id,
           qrId: box.qrId,
+          name: box.name,
           widthCm: box.widthCm,
           heightCm: box.heightCm,
           depthCm: box.depthCm,

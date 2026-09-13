@@ -260,5 +260,5 @@ Use a physical Android device and the final production-signed APK.
 - [x] automated and manual functional-regression results are recorded
 - [x] final build, signature and artifact-hash results are recorded
 - [x] Issue #101 is closed after all blocking validation succeeds
-- [ ] annotated tag `v1.1.0` is created and pushed
-- [ ] GitHub release `v1.1.0` is published with the verified APK
+- [x] annotated tag `v1.1.0` is created and pushed
+- [x] GitHub release `v1.1.0` is published with the verified APK

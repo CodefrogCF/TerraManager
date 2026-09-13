@@ -29,6 +29,7 @@ void main() {
     final l10n = lookupAppLocalizations(const Locale('en'));
 
     expect(l10n.boxLabel(7), 'Box 7');
+    expect(l10n.boxName, 'Box Name');
     expect(l10n.addAnimal, 'Add Animal');
     expect(
       l10n.activeAnimalsAssignedToBox(1, 'Box 7'),
@@ -57,6 +58,8 @@ void main() {
     expect(l10n.sortBoxes, 'Sort boxes');
     expect(l10n.boxSortLabelAscending, 'Box number ascending');
     expect(l10n.boxSortLabelDescending, 'Box number descending');
+    expect(l10n.boxSortNameAscending, 'Name A–Z');
+    expect(l10n.boxSortNameDescending, 'Name Z–A');
     expect(l10n.sortAnimals, 'Sort animals');
     expect(l10n.animalSortCreatedOldestFirst, 'Oldest added first');
     expect(l10n.animalSortCreatedNewestFirst, 'Newest added first');
@@ -98,6 +101,7 @@ void main() {
     final l10n = lookupAppLocalizations(const Locale('de'));
 
     expect(l10n.boxLabel(7), 'Box 7');
+    expect(l10n.boxName, 'Boxname');
     expect(l10n.addAnimal, 'Tier hinzufügen');
     expect(
       l10n.activeAnimalsAssignedToBox(1, 'Box 7'),
@@ -132,6 +136,8 @@ void main() {
     expect(l10n.sortBoxes, 'Boxen sortieren');
     expect(l10n.boxSortLabelAscending, 'Boxnummer aufsteigend');
     expect(l10n.boxSortLabelDescending, 'Boxnummer absteigend');
+    expect(l10n.boxSortNameAscending, 'Name A–Z');
+    expect(l10n.boxSortNameDescending, 'Name Z–A');
     expect(l10n.sortAnimals, 'Tiere sortieren');
     expect(l10n.animalSortCreatedOldestFirst, 'Zuerst hinzugefügt');
     expect(l10n.animalSortCreatedNewestFirst, 'Zuletzt hinzugefügt');

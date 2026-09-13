@@ -76,6 +76,8 @@ extension AppLocalizationsLabels on AppLocalizations {
     return switch (order) {
       BoxSortOrder.labelAscending => boxSortLabelAscending,
       BoxSortOrder.labelDescending => boxSortLabelDescending,
+      BoxSortOrder.nameAscending => boxSortNameAscending,
+      BoxSortOrder.nameDescending => boxSortNameDescending,
     };
   }
 

@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **6**.
+The current Drift database schema version is **7**.
 
 The current database model consists of:
 
@@ -53,6 +53,7 @@ TerraManager.
 Box
 ├── id
 ├── qrId
+├── name
 ├── widthCm
 ├── heightCm
 ├── depthCm
@@ -66,6 +67,7 @@ Box
 
 - id – auto-incrementing primary key
 - qrId – unique permanent QR identifier
+- name – optional free-form Box name
 - widthCm – optional enclosure width in centimeters
 - heightCm – optional enclosure height in centimeters
 - depthCm – optional enclosure depth in centimeters
@@ -80,8 +82,9 @@ The QR identifier uses the following format:
 TM:BOX:<UUID-v4>
 ```
 
-A Box can contain multiple active Animals, store optional multiline notes and
-optionally reference a persistent picture through `pictureMediaId`.
+A Box can contain multiple active Animals, store an optional name and multiline
+notes, and optionally reference a persistent picture through
+`pictureMediaId`.
 
 The QR identifier does not contain Animal or Box data. It only identifies the
 corresponding database record.
@@ -489,7 +492,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 6.
+The current Drift database schema version is 7.
 
 ### Schema Version 1
 
@@ -579,3 +582,17 @@ Box.notes added
 The column is nullable. The v5 → v6 migration preserves all existing Boxes,
 Animals, FeedingEvents and MediaAssets. Existing Boxes receive `null` notes
 until the user adds content explicitly.
+
+### Schema Version 7
+
+Schema version 7 introduced optional free-form Box names.
+
+Changes:
+
+```text
+Box.name added
+```
+
+The column is nullable. The v6 → v7 migration preserves all existing Boxes,
+Animals, FeedingEvents, MediaAssets, Box notes and pictures. Existing Boxes
+receive `null` names until the user assigns one explicitly.

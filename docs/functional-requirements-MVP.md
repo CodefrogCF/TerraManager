@@ -13,9 +13,12 @@ backup and release-artifact validation is recorded in
 The application must allow the user to:
 
 - create a new Box
+- optionally assign, edit and clear a free-form Box name
 - automatically assign a permanent unique QR identifier
 - view the Box overview
 - sort the Box overview by ascending or descending natural Box number
+- sort the Box overview alphabetically by Box name in both directions
+- keep unnamed Boxes after named Boxes in either alphabetical direction
 - persist the selected Box Overview order between application restarts
 - view Box details
 - edit optional Box width, height and depth
@@ -333,7 +336,7 @@ Android and Web are validated platforms.
 The application must allow the user to:
 
 - create a portable backup of local TerraManager data
-- export Boxes, including optional dimensions and notes
+- export Boxes, including optional names, dimensions and notes
 - export Animals
 - export FeedingEvents
 - export Box pictures
@@ -352,6 +355,8 @@ The application must allow the user to:
 - allow the safety backup to be disabled for the current restore operation
 - explicitly confirm replacement of existing local data
 - restore Box dimensions
+- restore optional Box names
+- restore older backups without Box names using an empty default
 - restore optional Box notes
 - restore older backups without Box notes using an empty default
 - restore persistent Box pictures

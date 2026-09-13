@@ -73,6 +73,7 @@
       }
     }
   },
+  "boxName": "Box Name",
   "dimensionsNotSpecified": "Dimensions not specified",
   "boxDimensions": "{width} × {height} × {depth} cm",
   "@boxDimensions": {
@@ -419,6 +420,8 @@
   "sortBoxes": "Sort boxes",
   "boxSortLabelAscending": "Box number ascending",
   "boxSortLabelDescending": "Box number descending",
+  "boxSortNameAscending": "Name A–Z",
+  "boxSortNameDescending": "Name Z–A",
   "sortAnimals": "Sort animals",
   "animalSortCreatedOldestFirst": "Oldest added first",
   "animalSortCreatedNewestFirst": "Newest added first",

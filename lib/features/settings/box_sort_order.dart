@@ -1,1 +1,6 @@
-enum BoxSortOrder { labelAscending, labelDescending }
+enum BoxSortOrder {
+  labelAscending,
+  labelDescending,
+  nameAscending,
+  nameDescending,
+}

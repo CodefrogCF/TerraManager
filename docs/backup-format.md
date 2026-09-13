@@ -106,7 +106,7 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
 Backup Format Version 2 is the current format.
 
 It extends portable Box data with dimensions and Box pictures. Current Version
-2 records can additionally contain optional Box notes.
+2 records can additionally contain optional Box names and notes.
 
 Archive structure:
 
@@ -120,10 +120,11 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
     └── boxes/
 ```
 
-Version 2 adds the following portable Box fields. `notes` is a later,
-backward-compatible optional extension of the same format:
+Version 2 adds the following portable Box fields. `name` and `notes` are later,
+backward-compatible optional extensions of the same format:
 
 ```text
+name
 widthCm
 heightCm
 depthCm
@@ -155,8 +156,8 @@ Example:
 ```json
 {
   "backupFormatVersion": 2,
-  "appVersion": "1.0.4",
-  "databaseSchemaVersion": 6,
+  "appVersion": "1.1.1",
+  "databaseSchemaVersion": 7,
   "createdAt": "2026-09-08T13:30:00.000Z"
 }
 ```
@@ -322,6 +323,7 @@ in Version 2 are initialized as:
 widthCm = null
 heightCm = null
 depthCm = null
+name = null
 notes = null
 pictureMediaPath = null
 ```
@@ -333,6 +335,7 @@ A Version 2 Box contains:
 ```text
 id
 qrId
+name
 widthCm
 heightCm
 depthCm
@@ -348,6 +351,7 @@ Example:
 {
   "id": 1,
   "qrId": "TM:BOX:11111111-1111-4111-8111-111111111111",
+  "name": "Rainforest",
   "widthCm": 60.0,
   "heightCm": 40.0,
   "depthCm": 45.0,
@@ -358,7 +362,10 @@ Example:
 }
 ```
 
-Box dimensions and notes are optional.
+Box names, dimensions and notes are optional.
+
+When present, `name` contains free-form text. Missing or explicit `null` values
+restore as an unnamed Box.
 
 When present, dimensions must be greater than zero.
 
@@ -915,13 +922,15 @@ The optional Box sort-order field defines:
 ```text
 labelAscending
 labelDescending
+nameAscending
+nameDescending
 ```
 
 If the field is absent, restore uses `BoxSortOrder.labelAscending`. Legacy
 `createdOldestFirst` values map to `labelAscending`, while
 `createdNewestFirst` maps to `labelDescending`. If the field is present with any
-other unknown value, backup validation must fail. New backups write only the
-two current label values.
+other unknown value, backup validation must fail. New backups write one of the
+four current label or name values.
 
 ## Archive Validation
 

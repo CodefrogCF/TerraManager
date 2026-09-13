@@ -108,6 +108,8 @@ class BackupSettingsCodec {
     return switch (value) {
       BoxSortOrder.labelAscending => 'labelAscending',
       BoxSortOrder.labelDescending => 'labelDescending',
+      BoxSortOrder.nameAscending => 'nameAscending',
+      BoxSortOrder.nameDescending => 'nameDescending',
     };
   }
 
@@ -115,6 +117,8 @@ class BackupSettingsCodec {
     return switch (value) {
       'labelAscending' || 'createdOldestFirst' => BoxSortOrder.labelAscending,
       'labelDescending' || 'createdNewestFirst' => BoxSortOrder.labelDescending,
+      'nameAscending' => BoxSortOrder.nameAscending,
+      'nameDescending' => BoxSortOrder.nameDescending,
       _ => throw FormatException(
         'Unsupported BoxSortOrder backup value: $value',
       ),

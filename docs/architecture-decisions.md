@@ -285,6 +285,7 @@ Animal presentation also has a user-selectable primary name:
 The Box Overview has a user-selectable order:
 
 - ascending or descending natural Box number
+- Box name A–Z or Z–A, with unnamed Boxes placed last
 
 The Animal Overview has a user-selectable order:
 
@@ -445,6 +446,11 @@ TerraManager 0.13.3 adds the optional Box sort-order preference. TerraManager
 legacy oldest-created values map to ascending; legacy newest-created values map
 to descending. The extension remains backward compatible without a new
 backup-format version.
+
+TerraManager 1.1.1 adds `nameAscending` and `nameDescending` while preserving
+the existing Box-number values and fallbacks. It also adds an optional `name`
+property to each portable Box. Older Version 2 backups remain compatible and
+restore Boxes without that property as unnamed.
 
 TerraManager 0.13.4 adds the optional Animal sort-order preference with the same
 compatibility strategy. Older backups restore oldest-created Animal first.
@@ -1306,3 +1312,50 @@ Disadvantages:
 - free-form notes can increase database and backup size
 - notes are included in unencrypted backups and must be handled as sensitive
   user data
+
+---
+
+## ADR-019: Store optional Box names and sort unnamed Boxes last
+
+**Status:** Accepted
+
+**Date:** 2026-09-13
+
+### Context
+
+Testers need recognizable enclosure names in addition to generated local Box
+numbers. Names are optional, may not be unique and must survive application
+restarts and backup transfers. Alphabetical overview sorting must remain useful
+when only some Boxes have names.
+
+### Decision
+
+Database Schema Version 7 adds nullable `Box.name`. New Box and Edit Box trim
+surrounding whitespace and persist empty input as `null`. Duplicate names are
+allowed because the permanent identity remains the unique `qrId`; the local Box
+number also remains visible in the overview.
+
+The Box Overview adds name A–Z and Z–A orders. Comparison is case-insensitive,
+then uses the exact text and Box ID for deterministic ties. Unnamed Boxes are
+placed after named Boxes in both directions so reversing the alphabet does not
+make incomplete records dominate the list.
+
+Backup Format Version 2 carries `name` as an optional property. Existing
+backups without it restore as unnamed Boxes. Existing Box-number sort values
+and their legacy mappings remain valid.
+
+### Consequences
+
+Advantages:
+
+- users can recognize Boxes by a meaningful name without losing the stable Box
+  number or QR identity
+- partial adoption does not reduce the usefulness of alphabetical sorting
+- existing databases and backups migrate without manufactured placeholder
+  names
+- backup format and legacy sort preferences remain compatible
+
+Disadvantages:
+
+- Box names are not unique and cannot be used as permanent identifiers
+- user-provided names are included in unencrypted backups

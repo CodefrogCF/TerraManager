@@ -111,10 +111,13 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       body: CallbackShortcuts(
         bindings: <ShortcutActivator, VoidCallback>{
-          const SingleActivator(LogicalKeyboardKey.pageUp, control: true):
-              () => _selectPage(_currentIndex - 1),
-          const SingleActivator(LogicalKeyboardKey.pageDown, control: true):
-              () => _selectPage(_currentIndex + 1),
+          const SingleActivator(LogicalKeyboardKey.pageUp, control: true): () =>
+              _selectPage(_currentIndex - 1),
+          const SingleActivator(
+            LogicalKeyboardKey.pageDown,
+            control: true,
+          ): () =>
+              _selectPage(_currentIndex + 1),
         },
         child: Focus(
           autofocus: true,
@@ -166,5 +169,4 @@ class _AppShellState extends State<AppShell> {
       ),
     );
   }
-  
 }

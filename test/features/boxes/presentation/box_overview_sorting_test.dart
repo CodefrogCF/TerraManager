@@ -33,34 +33,49 @@ void main() {
     expect(boxes.map((box) => box.id), [10, 2, 1]);
   });
 
-  test('sorts named Boxes alphabetically without case sensitivity', () {
+  test('sorts named Boxes naturally without case sensitivity', () {
     final createdAt = DateTime(2026, 9, 1);
     final boxes = [
-      box(1, createdAt, name: 'Quarantine'),
-      box(2, createdAt, name: 'arboreal'),
-      box(3, createdAt, name: 'Breeding'),
+      box(1, createdAt, name: 'Habitat 10'),
+      box(2, createdAt, name: 'habitat 2'),
+      box(3, createdAt, name: 'Habitat 1'),
     ];
 
     final ascending = sortBoxesForOverview(boxes, BoxSortOrder.nameAscending);
     final descending = sortBoxesForOverview(boxes, BoxSortOrder.nameDescending);
 
-    expect(ascending.map((box) => box.id), [2, 3, 1]);
-    expect(descending.map((box) => box.id), [1, 3, 2]);
+    expect(ascending.map((box) => box.id), [3, 2, 1]);
+    expect(descending.map((box) => box.id), [1, 2, 3]);
   });
 
-  test('places unnamed Boxes after named Boxes in both name directions', () {
+  test('sorts unnamed Boxes by their displayed fallback labels', () {
     final createdAt = DateTime(2026, 9, 1);
     final boxes = [
-      box(3, createdAt),
-      box(2, createdAt, name: 'Zulu'),
-      box(1, createdAt, name: '  '),
-      box(4, createdAt, name: 'Alpha'),
+      box(12, createdAt),
+      box(3, createdAt, name: 'Alpha'),
+      box(2, createdAt, name: '  '),
+      box(1, createdAt, name: 'Zulu'),
     ];
 
     final ascending = sortBoxesForOverview(boxes, BoxSortOrder.nameAscending);
     final descending = sortBoxesForOverview(boxes, BoxSortOrder.nameDescending);
 
-    expect(ascending.map((box) => box.id), [4, 2, 1, 3]);
-    expect(descending.map((box) => box.id), [2, 4, 1, 3]);
+    expect(ascending.map((box) => box.id), [3, 2, 12, 1]);
+    expect(descending.map((box) => box.id), [1, 12, 2, 3]);
+  });
+
+  test('uses the Box id as a stable fallback for equal names', () {
+    final createdAt = DateTime(2026, 9, 1);
+    final boxes = [
+      box(3, createdAt, name: 'Habitat'),
+      box(1, createdAt, name: 'Habitat'),
+      box(2, createdAt, name: 'Habitat'),
+    ];
+
+    final ascending = sortBoxesForOverview(boxes, BoxSortOrder.nameAscending);
+    final descending = sortBoxesForOverview(boxes, BoxSortOrder.nameDescending);
+
+    expect(ascending.map((box) => box.id), [1, 2, 3]);
+    expect(descending.map((box) => box.id), [1, 2, 3]);
   });
 }

@@ -269,56 +269,51 @@ void main() {
     ]);
   });
 
-  testWidgets(
-    'sorts named Boxes alphabetically and leaves unnamed Boxes last',
-    (tester) async {
-      final repository = BoxRepository(database);
-      final zuluId = await repository.createBox('box-zulu', name: 'Zulu');
-      final unnamedId = await repository.createBox('box-unnamed');
-      final alphaId = await repository.createBox('box-alpha', name: 'Alpha');
-      final settingsController = AppSettingsController();
+  testWidgets('sorts named and fallback Box labels alphabetically', (
+    tester,
+  ) async {
+    final repository = BoxRepository(database);
+    final zuluId = await repository.createBox('box-zulu', name: 'Zulu');
+    final unnamedId = await repository.createBox('box-unnamed');
+    final alphaId = await repository.createBox('box-alpha', name: 'Alpha');
+    final settingsController = AppSettingsController();
 
-      await settingsController.load();
-      await pumpPage(tester, settingsController: settingsController);
+    await settingsController.load();
+    await pumpPage(tester, settingsController: settingsController);
 
-      await tester.tap(find.byKey(const Key('box-sort-button')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('box-sort-option-nameAscending')));
-      await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('box-sort-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('box-sort-option-nameAscending')));
+    await tester.pumpAndSettle();
 
-      expect(
-        tester.getTopLeft(find.byKey(Key('box-list-item-$alphaId'))).dy,
-        lessThan(
-          tester.getTopLeft(find.byKey(Key('box-list-item-$zuluId'))).dy,
-        ),
-      );
-      expect(
-        tester.getTopLeft(find.byKey(Key('box-list-item-$zuluId'))).dy,
-        lessThan(
-          tester.getTopLeft(find.byKey(Key('box-list-item-$unnamedId'))).dy,
-        ),
-      );
+    expect(
+      tester.getTopLeft(find.byKey(Key('box-list-item-$alphaId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('box-list-item-$unnamedId'))).dy,
+      ),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(Key('box-list-item-$unnamedId'))).dy,
+      lessThan(tester.getTopLeft(find.byKey(Key('box-list-item-$zuluId'))).dy),
+    );
 
-      expect(settingsController.boxSortOrder, BoxSortOrder.nameAscending);
+    expect(settingsController.boxSortOrder, BoxSortOrder.nameAscending);
 
-      final preferences = await SharedPreferences.getInstance();
+    final preferences = await SharedPreferences.getInstance();
 
-      expect(preferences.getString('box_sort_order'), 'nameAscending');
+    expect(preferences.getString('box_sort_order'), 'nameAscending');
 
-      await tester.tap(find.byKey(Key('box-list-item-$zuluId')));
-      await tester.pumpAndSettle();
+    await tester.tap(find.byKey(Key('box-list-item-$zuluId')));
+    await tester.pumpAndSettle();
 
-      final detailPage = tester.widget<BoxDetailPage>(
-        find.byType(BoxDetailPage),
-      );
+    final detailPage = tester.widget<BoxDetailPage>(find.byType(BoxDetailPage));
 
-      expect(detailPage.navigationContext!.recordIds, [
-        alphaId,
-        zuluId,
-        unnamedId,
-      ]);
-    },
-  );
+    expect(detailPage.navigationContext!.recordIds, [
+      alphaId,
+      unnamedId,
+      zuluId,
+    ]);
+  });
 
   testWidgets('add button opens new box page', (tester) async {
     await pumpPage(tester);

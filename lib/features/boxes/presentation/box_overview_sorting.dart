@@ -1,4 +1,5 @@
 import '../../../core/database/app_database.dart';
+import '../../../core/sorting/natural_string_comparator.dart';
 import '../../settings/box_sort_order.dart';
 
 List<Box> sortBoxesForOverview(Iterable<Box> boxes, BoxSortOrder sortOrder) {
@@ -25,43 +26,24 @@ List<Box> sortBoxesForOverview(Iterable<Box> boxes, BoxSortOrder sortOrder) {
 }
 
 int _compareNames(Box first, Box second, {required bool descending}) {
-  final firstName = _normalizedName(first.name);
-  final secondName = _normalizedName(second.name);
-
-  if (firstName == null || secondName == null) {
-    if (firstName == null && secondName == null) {
-      return first.id.compareTo(second.id);
-    }
-
-    return firstName == null ? 1 : -1;
-  }
-
-  final normalizedFirst = firstName.toLowerCase();
-  final normalizedSecond = secondName.toLowerCase();
+  final firstName = _displayedName(first);
+  final secondName = _displayedName(second);
   final comparison = descending
-      ? normalizedSecond.compareTo(normalizedFirst)
-      : normalizedFirst.compareTo(normalizedSecond);
+      ? compareNaturalStrings(secondName, firstName)
+      : compareNaturalStrings(firstName, secondName);
 
   if (comparison != 0) {
     return comparison;
   }
 
-  final exactComparison = descending
-      ? secondName.compareTo(firstName)
-      : firstName.compareTo(secondName);
-
-  if (exactComparison != 0) {
-    return exactComparison;
-  }
-
   return first.id.compareTo(second.id);
 }
 
-String? _normalizedName(String? name) {
-  final trimmed = name?.trim();
+String _displayedName(Box box) {
+  final trimmed = box.name?.trim();
 
   if (trimmed == null || trimmed.isEmpty) {
-    return null;
+    return 'Box ${box.id}';
   }
 
   return trimmed;

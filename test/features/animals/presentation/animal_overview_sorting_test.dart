@@ -122,6 +122,81 @@ void main() {
     );
   });
 
+  test('sorts displayed Animal names naturally in both directions', () {
+    final animals = [
+      animal(
+        id: 10,
+        commonName: 'Animal 10',
+        latinName: 'Species 10',
+        createdAt: firstCreated,
+      ),
+      animal(
+        id: 2,
+        commonName: 'animal 2',
+        latinName: 'Species 2',
+        createdAt: secondCreated,
+      ),
+      animal(
+        id: 1,
+        commonName: 'Animal 1',
+        latinName: 'Species 1',
+        createdAt: thirdCreated,
+      ),
+    ];
+
+    expect(
+      sortAnimalsForOverview(
+        animals,
+        sortOrder: AnimalSortOrder.displayNameAscending,
+        nameOrder: AnimalNameOrder.commonNameFirst,
+        latestFeedingTimes: const {},
+      ).map((animal) => animal.id),
+      [1, 2, 10],
+    );
+    expect(
+      sortAnimalsForOverview(
+        animals,
+        sortOrder: AnimalSortOrder.displayNameDescending,
+        nameOrder: AnimalNameOrder.commonNameFirst,
+        latestFeedingTimes: const {},
+      ).map((animal) => animal.id),
+      [10, 2, 1],
+    );
+  });
+
+  test('uses secondary names naturally and ids as a stable fallback', () {
+    final animals = [
+      animal(
+        id: 3,
+        commonName: 'Snake',
+        latinName: 'Species 10',
+        createdAt: firstCreated,
+      ),
+      animal(
+        id: 2,
+        commonName: 'Snake',
+        latinName: 'Species 2',
+        createdAt: secondCreated,
+      ),
+      animal(
+        id: 4,
+        commonName: 'Snake',
+        latinName: 'Species 2',
+        createdAt: thirdCreated,
+      ),
+    ];
+
+    expect(
+      sortAnimalsForOverview(
+        animals,
+        sortOrder: AnimalSortOrder.displayNameAscending,
+        nameOrder: AnimalNameOrder.commonNameFirst,
+        latestFeedingTimes: const {},
+      ).map((animal) => animal.id),
+      [2, 4, 3],
+    );
+  });
+
   test('places missing birth dates after known ages in both directions', () {
     final animals = [
       animal(

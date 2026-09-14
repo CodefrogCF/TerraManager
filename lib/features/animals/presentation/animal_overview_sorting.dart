@@ -1,4 +1,5 @@
 import '../../../core/database/app_database.dart';
+import '../../../core/sorting/natural_string_comparator.dart';
 import '../../settings/animal_name_order.dart';
 import '../../settings/animal_sort_order.dart';
 import 'animal_display_names.dart';
@@ -117,17 +118,9 @@ int _compareDisplayNames(
 }
 
 int _compareText(String first, String second, {required bool descending}) {
-  final normalizedFirst = first.toLowerCase();
-  final normalizedSecond = second.toLowerCase();
-  final comparison = descending
-      ? normalizedSecond.compareTo(normalizedFirst)
-      : normalizedFirst.compareTo(normalizedSecond);
-
-  if (comparison != 0) {
-    return comparison;
-  }
-
-  return descending ? second.compareTo(first) : first.compareTo(second);
+  return descending
+      ? compareNaturalStrings(second, first)
+      : compareNaturalStrings(first, second);
 }
 
 int _compareNullableDates(

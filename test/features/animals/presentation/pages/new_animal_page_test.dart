@@ -28,8 +28,8 @@ void main() {
     await database.close();
   });
 
-  Future<int> createTestBox({String qrId = 'test-box-001'}) {
-    return BoxRepository(database).createBox(qrId);
+  Future<int> createTestBox({String qrId = 'test-box-001', String? name}) {
+    return BoxRepository(database).createBox(qrId, name: name);
   }
 
   Future<void> pumpPage(
@@ -175,7 +175,10 @@ void main() {
     tester,
   ) async {
     final firstBoxId = await createTestBox(qrId: 'test-box-001');
-    final secondBoxId = await createTestBox(qrId: 'test-box-002');
+    final secondBoxId = await createTestBox(
+      qrId: 'test-box-002',
+      name: 'Rainforest',
+    );
 
     await pumpPage(tester, initialBoxId: secondBoxId);
 
@@ -187,6 +190,13 @@ void main() {
     );
 
     expect(boxDropdown.value, secondBoxId);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('box-field')),
+        matching: find.text('Rainforest · Box 2'),
+      ),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byKey(const Key('box-field')));
     await tester.pumpAndSettle();
@@ -201,6 +211,29 @@ void main() {
     );
 
     expect(changedDropdown.value, firstBoxId);
+  });
+
+  testWidgets('shows names and fallback labels for selectable Boxes', (
+    tester,
+  ) async {
+    await createTestBox(qrId: 'test-box-001', name: ' Rainforest ');
+    await createTestBox(qrId: 'test-box-002', name: 'Rainforest');
+    await createTestBox(qrId: 'test-box-003', name: '   ');
+
+    await pumpPage(tester);
+
+    final boxDropdown = tester.widget<DropdownButton<int>>(
+      find.descendant(
+        of: find.byKey(const Key('box-field')),
+        matching: find.byType(DropdownButton<int>),
+      ),
+    );
+
+    expect(boxDropdown.items!.map((item) => (item.child as Text).data), [
+      'Rainforest · Box 1',
+      'Rainforest · Box 2',
+      'Box 3',
+    ]);
   });
 
   testWidgets('shows localized sex and birth accuracy options', (tester) async {

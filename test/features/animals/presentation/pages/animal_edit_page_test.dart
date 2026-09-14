@@ -10,6 +10,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
+import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_edit_page.dart';
 import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
@@ -33,10 +34,10 @@ void main() {
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
     Sex? sex = Sex.female,
+    String? boxName,
   }) async {
-    final boxId = await database
-        .into(database.boxes)
-        .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
+    final boxId = await BoxRepository(database)
+        .createBox('test-box-001', name: boxName);
 
     return AnimalRepository(database).createAnimal(
       boxId: boxId,
@@ -232,6 +233,37 @@ void main() {
     expect(
       birthAccuracyDropdown.items!.map((item) => (item.child as Text).data),
       ['Unknown', 'Exact', 'Month known', 'Year known'],
+    );
+  });
+
+  testWidgets('shows names and fallback labels for selectable Boxes', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal(boxName: ' Rainforest ');
+    await BoxRepository(database).createBox('test-box-002', name: 'Rainforest');
+    await BoxRepository(database).createBox('test-box-003', name: '   ');
+
+    await pumpPage(tester, animalId: animalId);
+
+    final boxDropdown = tester.widget<DropdownButton<int>>(
+      find.descendant(
+        of: find.byKey(const Key('box-field')),
+        matching: find.byType(DropdownButton<int>),
+      ),
+    );
+
+    expect(boxDropdown.value, 1);
+    expect(boxDropdown.items!.map((item) => (item.child as Text).data), [
+      'Rainforest · Box 1',
+      'Rainforest · Box 2',
+      'Box 3',
+    ]);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('box-field')),
+        matching: find.text('Rainforest · Box 1'),
+      ),
+      findsOneWidget,
     );
   });
 

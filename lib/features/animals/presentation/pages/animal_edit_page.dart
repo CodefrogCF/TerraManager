@@ -13,6 +13,7 @@ import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
+import '../../../boxes/presentation/box_selection_label.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../animal_archive_dialog.dart';
@@ -573,7 +574,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                   .map(
                     (box) => DropdownMenuItem<int>(
                       value: box.id,
-                      child: Text(context.l10n.boxLabel(box.id)),
+                      child: Text(boxSelectionLabel(context.l10n, box)),
                     ),
                   )
                   .toList(),

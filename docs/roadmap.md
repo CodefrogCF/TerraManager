@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.2.0 – Box Lifecycle & History**
+**v1.3.0 – Primary Page Navigation**
 
 Current application version and build:
 
-**v1.2.0+54**
+**v1.3.0+55**
 
 Completed development areas:
 
@@ -98,6 +98,9 @@ Completed development areas:
 - installed version, build number and developer information under Legal &
   Privacy
 - optional per-restore safety backup with a safe enabled default
+- adjacent swipe and keyboard navigation across all three primary pages
+- state-preserving primary-page navigation with synchronized visible selection
+- immediate Animal Overview refresh after creation from Box details
 
 v0.7.1 implementation and release validation are complete.
 
@@ -971,6 +974,38 @@ roughly one sixth of its previous size.
 - [x] Finalize version, changelog, documentation and release validation record
 - [x] Publish the annotated `v1.2.0` tag from the final release commit
 - [x] Publish the GitHub v1.2.0 release with the verified APK
+
+---
+
+## v1.3.0 – Primary Page Navigation
+
+### Swipe between Primary Pages — Issue #106
+
+- [x] Keep Box Overview, Animal Overview and Settings in one shared shell
+- [x] Swipe horizontally between adjacent primary pages in both directions
+- [x] Synchronize the bottom-navigation selection after every page change
+- [x] Preserve overview scroll positions, sort choices and Settings state
+- [x] Keep navigation-bar taps and normal platform Back behaviour
+- [x] Keep contextual detail swipes separate from root-page swipes
+- [x] Avoid page changes during short gestures, vertical Settings scrolling and
+  open dropdown interaction
+- [x] Add localized semantics and keyboard-compatible page navigation
+- [x] Give retained overview action buttons independent Hero identities
+- [x] Refresh Animal Overview after direct creation from Box details
+- [x] Add focused and integrated widget regression coverage
+
+### v1.3.0 Release — Issue #107
+
+- [x] Set release version to `1.3.0+55`
+- [x] Complete localization generation, formatting, static analysis and tests
+- [x] Validate root and contextual navigation regression
+- [x] Review database, backup, privacy and platform compatibility
+- [x] Release owner built and submitted Version `1.3.0` with Build `55`
+- [x] Verify the release-owner APK signature and record its SHA-256
+- [x] Update changelog, roadmap, navigation, installation and release records
+- [ ] Complete physical Android and hosted Web manual checks
+- [x] Publish Version `1.3.0+55` through GitHub and Google Play
+- [ ] Close Issues #106 and #107 after the documentation commit succeeds
 
 ---
 

@@ -38,6 +38,11 @@ artifacts and Web release are recorded in `release-v1.2.0.md`. This validation
 covers direct updates from v1.1.x, Schema Version 8, archived QR behaviour,
 Box History, restore and archived-only permanent deletion.
 
+The v1.3.0 Primary Page Navigation regression and supported release artifacts
+are recorded in `release-v1.3.0.md`. It covers swipe, tap and keyboard
+navigation, retained primary-page state, independent contextual detail swipes
+and immediate Animal Overview refresh after creation from Box details.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 
@@ -99,6 +104,10 @@ Validated functionality includes:
 - permanent `com.codefrog.terramanager` application identity
 - TerraManager application name and launcher icon
 - core navigation
+- adjacent horizontal swipe navigation across Box Overview, Animal Overview and
+  Settings with synchronized navigation selection
+- retained primary-page scroll positions, sorting and Settings state
+- keyboard-compatible primary-page navigation and localized semantics
 - Drift/SQLite persistence
 - box creation and persistence
 - natural ascending/descending Box Overview sorting, including migrated legacy
@@ -109,6 +118,7 @@ Validated functionality includes:
   contextual detail navigation
 - direct Animal creation from empty and populated Box details with the Box
   preselected
+- immediate Animal Overview refresh after direct creation from Box details
 - Box editing and optional dimensions
 - persistent Box pictures
 - Box picture persistence across normal application restarts
@@ -219,9 +229,14 @@ Validated functionality includes:
 - application startup
 - TerraManager page title, install metadata, theme color, icons and favicon
 - navigation
+- adjacent horizontal swipe navigation across Box Overview, Animal Overview and
+  Settings with synchronized selection
+- retained primary-page scroll positions, sorting and Settings state
+- keyboard-compatible primary-page navigation and localized semantics
 - Drift database operation
 - persistence across normal browser reloads
 - box and animal workflows
+- immediate Animal Overview refresh after direct creation from Box details
 - natural ascending/descending Box Overview sorting, including legacy backup
   order mapping
 - creation-time, displayed-name, age and latest-feeding Animal Overview sorting

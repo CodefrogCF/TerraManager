@@ -1233,3 +1233,66 @@ Disadvantages:
 - signed APK and AAB verification remains a manual release-owner task
 - pinned toolchains and action commits require intentional maintenance
 - plugin compatibility warnings remain until upstream releases are available
+
+---
+
+## ADR-018: Preserve primary pages while navigating by swipe
+
+**Status:** Accepted
+
+**Date:** 2026-09-14
+
+### Context
+
+TerraManager exposes Box Overview, Animal Overview and Settings as three
+primary destinations. Navigation-bar taps previously changed an `IndexedStack`
+index, but horizontal gestures were available only inside contextual detail
+routes. Replacing the root pages with independently pushed routes or disposable
+page instances would lose list scroll positions, recreate queries and risk
+confusing root navigation with the established detail swipe context.
+
+Keeping all pages mounted also means their floating action buttons coexist in
+one route. Default Hero tags then collide when a detail route opens. Data
+created through one retained page can additionally leave a sibling page's
+already completed query stale unless the mutation is announced explicitly.
+
+### Decision
+
+The application shell remains the only owner of the current primary-page
+index. It wraps the existing `IndexedStack` with a horizontal drag recognizer
+and moves only to an adjacent index after a minimum distance or velocity. The
+bottom navigation bar writes through the same selection method, and the
+selected indicator is derived from that single index.
+
+The horizontal recognizer participates in Flutter's gesture arena beside each
+page's vertical scrollable. Short movements and vertical drags do not change
+the page. Dialogs, menus, crop flows, full-screen media and detail pages are
+pushed above the shell and therefore do not expose the root gesture. Existing
+contextual detail navigation continues to use its own route-level gesture and
+platform Back continues to pop only pushed routes.
+
+The shell exposes localized semantics for the current page and navigation
+region. `Ctrl+Page Up` and `Ctrl+Page Down` provide adjacent keyboard
+navigation without taking ordinary arrow keys away from lists and controls.
+The Box and Animal overview floating actions use distinct Hero tags.
+
+Successful Animal creation from Box details increments an Animal data revision
+owned by the shell. The retained Animal Overview observes that revision,
+reloads its query and restores its current scroll offset. This keeps sibling
+data current without replacing the page state.
+
+### Consequences
+
+Advantages:
+
+- swipe, tap and keyboard input share one deterministic page order
+- overview scroll, sorting and Settings state survive primary-page changes
+- each primary page and its subscriptions are created only once per data reset
+- root and contextual detail swipe gestures remain independent
+- cross-page Animal creation is visible without an application restart
+
+Disadvantages:
+
+- sibling data mutations need an explicit revision or equivalent notification
+- retained pages continue to consume their normal in-memory state while hidden
+- new root-page floating actions require unique Hero tags

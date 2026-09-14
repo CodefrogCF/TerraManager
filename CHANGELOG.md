@@ -4,6 +4,42 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [1.3.0] - 2026-09-14
+
+### Added
+
+- added horizontal swipe navigation between the adjacent Box Overview, Animal
+  Overview and Settings primary pages (Issue #106)
+- added localized semantics for the current primary page and navigation region
+- added `Ctrl+Page Up` and `Ctrl+Page Down` as keyboard-compatible primary-page
+  navigation
+
+### Changed
+
+- keep all primary pages in one state-preserving shell so overview scroll
+  positions, selected sorting and Settings state survive swipe and tap changes
+- keep the visible navigation indicator synchronized with swipe, keyboard and
+  navigation-bar selection
+- give the Box and Animal overview action buttons independent Hero identities
+  while both pages remain alive in the shared shell
+- refresh the Animal Overview immediately after an Animal is created directly
+  from Box details, while preserving the overview state
+- advanced the release version to `1.3.0+55`
+
+### Testing
+
+- added root-navigation widget coverage for both swipe directions, boundaries,
+  navigation-bar taps, keyboard access and localized semantics
+- covered scroll and sorting retention, vertical Settings scrolling, open
+  dropdown interaction, platform Back and independent contextual detail swipes
+- added an integrated regression for creating an Animal from Box details after
+  the Animal Overview has already loaded
+- completed the v1.3.0 automated regression and documented the release-owner
+  build, signature and Google Play publication in `docs/release-v1.3.0.md`
+  (Issue #107)
+
+Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
+
 ## [1.2.0] - 2026-09-13
 
 ### Added

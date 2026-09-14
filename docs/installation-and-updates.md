@@ -35,6 +35,12 @@ direct update from a production-signed v1.1.x installation preserves Boxes,
 Animals, FeedingEvents, settings and media; existing Boxes remain active until
 they are explicitly archived.
 
+TerraManager v1.3.0 keeps the same application identity, production signing
+certificate, Database Schema Version 8 and Portable Backup Format Version 2.
+The update adds primary-page swipe navigation and requires no data conversion.
+A direct update from production-signed v1.2.0 preserves all records, settings
+and media.
+
 ## Android installation
 
 The release APK is the directly installable Android artifact. Android may ask

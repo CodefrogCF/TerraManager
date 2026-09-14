@@ -19,11 +19,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.2.0 – Box Lifecycle & History**
+**v1.3.0 – Primary Page Navigation**
 
 Current application version and build:
 
-**v1.2.0+54**
+**v1.3.0+55**
 
 Implemented milestones in the current source state:
 
@@ -47,6 +47,7 @@ Implemented milestones in the current source state:
 - v1.1.0 – Detail & Workflow Polish
 - v1.1.1 – Optional Box Names
 - v1.2.0 – Box Lifecycle & History
+- v1.3.0 – Primary Page Navigation
 
 Android and Web are currently validated platforms.
 
@@ -168,6 +169,17 @@ lifecycle, archive, history, restore and permanent-deletion workflows delivered
 by Issues #102–#104. The final migration, backup, QR, Android and Web release
 validation is tracked by Issue #105 and recorded in
 `docs/release-v1.2.0.md`.
+
+Release `1.3.0+55` implements Issue #106 by adding adjacent horizontal swipe
+navigation between Box Overview, Animal Overview and Settings. The shared shell
+keeps each primary page alive, synchronizes the navigation indicator and
+preserves overview scroll position, sorting and Settings state. Navigation-bar
+taps remain available, and keyboard users can move with `Ctrl+Page Up` and
+`Ctrl+Page Down`. Contextual Animal and Box detail swipes remain confined to
+their detail route. The release also refreshes Animal Overview immediately when
+an Animal is created directly from Box details. The complete regression,
+compatibility, build and publication checklist for Issue #107 is recorded in
+`docs/release-v1.3.0.md`.
 
 ### Android transition to the permanent application ID
 
@@ -443,6 +455,26 @@ last in both age directions. Never-fed Animals appear first when sorting by the
 oldest feeding and last when sorting by the newest feeding. The selected order
 also controls contextual Animal detail navigation, persists locally and is
 included in new backups. Older backups default to oldest-created Animal first.
+
+### Primary Page Navigation
+
+The three root pages form one ordered sequence:
+
+```text
+Box Overview ↔ Animal Overview ↔ Settings
+```
+
+A horizontal swipe moves to the adjacent page when one exists. Vertical
+scrolling and short horizontal movements do not switch pages. The bottom
+navigation bar always marks the current page and remains available for direct
+selection. `Ctrl+Page Up` moves left and `Ctrl+Page Down` moves right when
+keyboard input is available.
+
+The root pages use one state-preserving container. Moving between them does not
+recreate list subscriptions or discard current scroll positions, overview sort
+choices or Settings state. Dialogs, dropdown menus, picture cropping,
+full-screen media and pushed detail routes remain outside the root swipe area.
+Normal platform Back behaviour is therefore unchanged.
 
 ### Contextual Detail Navigation
 
@@ -1043,6 +1075,7 @@ Additional documentation:
 - [v1.0.0 release validation](docs/release-v1.0.0.md)
 - [v1.1.0 release validation](docs/release-v1.1.0.md)
 - [v1.2.0 release validation](docs/release-v1.2.0.md)
+- [v1.3.0 release validation](docs/release-v1.3.0.md)
 - [Privacy](PRIVACY.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

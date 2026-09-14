@@ -136,6 +136,22 @@ Verify that active Animal details no longer expose archive directly and that
 Edit Animal places the archive action after the save action with draft warning.
 Physical camera behavior remains part of Android and Web manual validation.
 
+Issue #106 keeps Box Overview, Animal Overview and Settings in one
+`IndexedStack` and adds horizontal root-page gestures around that container.
+Do not replace the stack with independently rebuilt routes: overview scroll
+controllers, sort choices and transient Settings state must survive both swipe
+and navigation-bar changes. Keep horizontal drag thresholds separate from
+vertical scrolling, and keep dialogs, dropdowns, crop routes and contextual
+detail gestures above the root shell. The Box and Animal overview floating
+actions require distinct Hero tags while both pages remain mounted.
+
+Changes made from one retained page must explicitly refresh affected sibling
+data. Direct Animal creation from Box details increments the Animal data
+revision; `AnimalsPage.didUpdateWidget` reloads its query and restores the
+existing scroll offset. Regression tests must first load Animal Overview, create
+an Animal from Box details, and then prove that the same overview instance shows
+the new record without restarting the application.
+
 ## Android Development
 
 TerraManager uses the permanent Android namespace and application ID:

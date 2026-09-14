@@ -53,6 +53,10 @@ void main() {
     expect(l10n.sexFemale, 'Female');
     expect(l10n.sexOther, 'Hermaphrodite / other');
     expect(l10n.sexUnknown, 'Unknown');
+    expect(l10n.additionalCharacteristics, 'Additional characteristics');
+    expect(l10n.originHabitat, 'Origin / habitat');
+    expect(l10n.restOrDormancyPeriods, 'Rest or dormancy periods');
+    expect(l10n.licenseTitle, 'License');
     expect(l10n.birthDateAccuracyExact, 'Exact');
     expect(l10n.birthDateAccuracyMonthKnown, 'Month known');
     expect(l10n.birthDateAccuracyYearKnown, 'Year known');
@@ -132,6 +136,10 @@ void main() {
     expect(l10n.sexFemale, 'Weiblich');
     expect(l10n.sexOther, 'Zwitter / andere');
     expect(l10n.sexUnknown, 'Unbekannt');
+    expect(l10n.additionalCharacteristics, 'Zusätzliche Merkmale');
+    expect(l10n.originHabitat, 'Herkunft / Lebensraum');
+    expect(l10n.restOrDormancyPeriods, 'Ruhe- oder Dormanzzeiten');
+    expect(l10n.licenseTitle, 'Lizenz');
     expect(l10n.birthDateAccuracyExact, 'Genau');
     expect(l10n.birthDateAccuracyMonthKnown, 'Monat bekannt');
     expect(l10n.birthDateAccuracyYearKnown, 'Jahr bekannt');

@@ -269,6 +269,11 @@
   "legalAndPrivacy": "Rechtliches & Datenschutz",
   "privacyPolicyTitle": "Datenschutzerklärung",
   "privacyPolicySubtitle": "Wie TerraManager Daten speichert und verarbeitet",
+  "privacyPolicyLoadError": "Die Datenschutzerklärung konnte nicht geladen werden.",
+  "licenseTitle": "Lizenz",
+  "licenseSubtitle": "Open-Source-Lizenz und Nutzungsrechte",
+  "licenseNotice": "TerraManager · 2026 CodefrogCF · GPL-3.0-or-later",
+  "licenseLoadError": "Die Anwendungslizenz konnte nicht geladen werden.",
   "aboutTerraManager": "Über TerraManager",
   "aboutTerraManagerSubtitle": "Versions- und Entwicklerinformationen",
   "version": "Version",
@@ -342,5 +347,11 @@
   "boxLifecycleChanged": "Diese Box ist nicht mehr in der aktuellen Übersicht.",
   "permanentlyDeleteBoxQuestion": "Box endgültig löschen?",
   "permanentlyDeleteBoxWarning": "Diese Box, ihr Bild und alle gespeicherten Daten endgültig löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
-  "failedToPermanentlyDeleteBox": "Die Box konnte nicht endgültig gelöscht werden"
+  "failedToPermanentlyDeleteBox": "Die Box konnte nicht endgültig gelöscht werden",
+  "additionalCharacteristics": "Zusätzliche Merkmale",
+  "originHabitat": "Herkunft / Lebensraum",
+  "weight": "Gewicht",
+  "sheddingNotes": "Häutungsnotizen",
+  "restOrDormancyPeriods": "Ruhe- oder Dormanzzeiten",
+  "temperatureZones": "Temperaturzonen"
 }

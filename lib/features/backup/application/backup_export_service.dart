@@ -115,6 +115,11 @@ class BackupExportService {
           tempMax: animal.tempMax,
           humidityMin: animal.humidityMin,
           humidityMax: animal.humidityMax,
+          originHabitat: animal.originHabitat,
+          weight: animal.weight,
+          sheddingNotes: animal.sheddingNotes,
+          restOrDormancyPeriods: animal.restOrDormancyPeriods,
+          temperatureZones: animal.temperatureZones,
           pictureMediaPath: pictureMediaPath,
           notes: animal.notes,
           archiveReason: animal.archiveReason == null

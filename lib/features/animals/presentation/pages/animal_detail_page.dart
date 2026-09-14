@@ -574,6 +574,13 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       commonName: animal.commonName,
       latinName: animal.latinName,
     );
+    final hasAdditionalCharacteristics = [
+      animal.originHabitat,
+      animal.weight,
+      animal.sheddingNotes,
+      animal.restOrDormancyPeriods,
+      animal.temperatureZones,
+    ].any((value) => value != null && value.trim().isNotEmpty);
 
     return ListView(
       key: ValueKey<String>('animal-detail-list-$_animalId'),
@@ -663,6 +670,46 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             animal.humidityMax.toString(),
           ),
         ),
+
+        if (hasAdditionalCharacteristics) ...[
+          const SizedBox(height: 16),
+          Text(
+            context.l10n.additionalCharacteristics,
+            key: const Key('additional-characteristics-heading'),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          if (animal.originHabitat?.trim().isNotEmpty == true)
+            _DetailRow(
+              key: const Key('origin-habitat-detail'),
+              label: context.l10n.originHabitat,
+              value: animal.originHabitat!,
+            ),
+          if (animal.weight?.trim().isNotEmpty == true)
+            _DetailRow(
+              key: const Key('weight-detail'),
+              label: context.l10n.weight,
+              value: animal.weight!,
+            ),
+          if (animal.sheddingNotes?.trim().isNotEmpty == true)
+            _DetailRow(
+              key: const Key('shedding-notes-detail'),
+              label: context.l10n.sheddingNotes,
+              value: animal.sheddingNotes!,
+            ),
+          if (animal.restOrDormancyPeriods?.trim().isNotEmpty == true)
+            _DetailRow(
+              key: const Key('rest-or-dormancy-periods-detail'),
+              label: context.l10n.restOrDormancyPeriods,
+              value: animal.restOrDormancyPeriods!,
+            ),
+          if (animal.temperatureZones?.trim().isNotEmpty == true)
+            _DetailRow(
+              key: const Key('temperature-zones-detail'),
+              label: context.l10n.temperatureZones,
+              value: animal.temperatureZones!,
+            ),
+        ],
 
         const SizedBox(height: 16),
 
@@ -903,7 +950,7 @@ class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _DetailRow({required this.label, required this.value});
+  const _DetailRow({super.key, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {

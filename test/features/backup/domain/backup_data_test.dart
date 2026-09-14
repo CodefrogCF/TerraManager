@@ -33,6 +33,11 @@ void main() {
           tempMax: 28,
           humidityMin: 40,
           humidityMax: 60,
+          originHabitat: 'North America',
+          weight: '140 g',
+          sheddingNotes: 'Complete sheds',
+          restOrDormancyPeriods: 'Less active in winter',
+          temperatureZones: 'Warm side 28 °C',
           pictureMediaPath: 'media/animals/10.jpg',
           notes: 'Test animal',
           archiveReason: null,
@@ -80,6 +85,15 @@ void main() {
     expect(restored.animals.single.sex, 'female');
 
     expect(restored.animals.single.birthDateAccuracy, 'yearKnown');
+
+    expect(restored.animals.single.originHabitat, 'North America');
+    expect(restored.animals.single.weight, '140 g');
+    expect(restored.animals.single.sheddingNotes, 'Complete sheds');
+    expect(
+      restored.animals.single.restOrDormancyPeriods,
+      'Less active in winter',
+    );
+    expect(restored.animals.single.temperatureZones, 'Warm side 28 °C');
 
     expect(restored.animals.single.feedingReminderIntervalDays, 7);
 
@@ -167,5 +181,10 @@ void main() {
 
     expect(restored.feedingReminderIntervalDays, isNull);
     expect(restored.feedingReminderBaseline, isNull);
+    expect(restored.originHabitat, isNull);
+    expect(restored.weight, isNull);
+    expect(restored.sheddingNotes, isNull);
+    expect(restored.restOrDormancyPeriods, isNull);
+    expect(restored.temperatureZones, isNull);
   });
 }

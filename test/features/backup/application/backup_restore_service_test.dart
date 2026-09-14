@@ -116,6 +116,11 @@ void main() {
             tempMax: 28,
             humidityMin: 50,
             humidityMax: 70,
+            originHabitat: 'South America',
+            weight: '95 g',
+            sheddingNotes: 'Last shed complete',
+            restOrDormancyPeriods: 'No dormancy',
+            temperatureZones: '24–28 °C',
             pictureMediaPath: includePicture ? portablePicture : null,
             notes: 'Restored notes',
             archiveReason: null,
@@ -276,6 +281,11 @@ void main() {
 
     expect(animal.commonName, 'Restored Animal');
     expect(animal.sex, Sex.other);
+    expect(animal.originHabitat, 'South America');
+    expect(animal.weight, '95 g');
+    expect(animal.sheddingNotes, 'Last shed complete');
+    expect(animal.restOrDormancyPeriods, 'No dormancy');
+    expect(animal.temperatureZones, '24–28 °C');
 
     // Backups created before reminder configuration was introduced omit both
     // fields. Restore must keep reminders disabled for those Animals.

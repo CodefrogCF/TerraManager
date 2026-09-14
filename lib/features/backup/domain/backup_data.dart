@@ -136,6 +136,12 @@ class BackupAnimal {
   final double humidityMin;
   final double humidityMax;
 
+  final String? originHabitat;
+  final String? weight;
+  final String? sheddingNotes;
+  final String? restOrDormancyPeriods;
+  final String? temperatureZones;
+
   final String? pictureMediaPath;
   final String? notes;
 
@@ -162,6 +168,11 @@ class BackupAnimal {
     required this.tempMax,
     required this.humidityMin,
     required this.humidityMax,
+    this.originHabitat,
+    this.weight,
+    this.sheddingNotes,
+    this.restOrDormancyPeriods,
+    this.temperatureZones,
     required this.pictureMediaPath,
     required this.notes,
     required this.archiveReason,
@@ -187,6 +198,11 @@ class BackupAnimal {
       'tempMax': tempMax,
       'humidityMin': humidityMin,
       'humidityMax': humidityMax,
+      'originHabitat': originHabitat,
+      'weight': weight,
+      'sheddingNotes': sheddingNotes,
+      'restOrDormancyPeriods': restOrDormancyPeriods,
+      'temperatureZones': temperatureZones,
       'pictureMediaPath': pictureMediaPath,
       'notes': notes,
       'archiveReason': archiveReason,
@@ -215,6 +231,11 @@ class BackupAnimal {
       tempMax: (json['tempMax'] as num).toDouble(),
       humidityMin: (json['humidityMin'] as num).toDouble(),
       humidityMax: (json['humidityMax'] as num).toDouble(),
+      originHabitat: json['originHabitat'] as String?,
+      weight: json['weight'] as String?,
+      sheddingNotes: json['sheddingNotes'] as String?,
+      restOrDormancyPeriods: json['restOrDormancyPeriods'] as String?,
+      temperatureZones: json['temperatureZones'] as String?,
       pictureMediaPath: json['pictureMediaPath'] as String?,
       notes: json['notes'] as String?,
       archiveReason: json['archiveReason'] as String?,

@@ -181,6 +181,28 @@ void main() {
     expect(find.byKey(const Key('privacy-policy-content')), findsOneWidget);
   });
 
+  testWidgets('opens License directly below Privacy Policy', (tester) async {
+    await pumpSettings(tester);
+
+    await scrollToSetting(tester, const Key('license-tile'));
+
+    final privacyTile = find.byKey(const Key('privacy-policy-tile'));
+    final licenseTile = find.byKey(const Key('license-tile'));
+    expect(privacyTile, findsOneWidget);
+    expect(licenseTile, findsOneWidget);
+    expect(
+      tester.getTopLeft(licenseTile).dy,
+      greaterThan(tester.getTopLeft(privacyTile).dy),
+    );
+
+    await tester.tap(licenseTile);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('license-page')), findsOneWidget);
+    expect(find.text('License'), findsWidgets);
+    expect(find.byKey(const Key('license-content')), findsOneWidget);
+  });
+
   testWidgets('shows current app and developer information', (tester) async {
     await pumpSettings(
       tester,

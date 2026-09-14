@@ -451,6 +451,11 @@ tempMin
 tempMax
 humidityMin
 humidityMax
+originHabitat
+weight
+sheddingNotes
+restOrDormancyPeriods
+temperatureZones
 pictureMediaPath
 notes
 archiveReason
@@ -478,6 +483,11 @@ Example active Animal:
   "tempMax": 28.0,
   "humidityMin": 40.0,
   "humidityMax": 60.0,
+  "originHabitat": "North America",
+  "weight": "140 g",
+  "sheddingNotes": "Complete sheds",
+  "restOrDormancyPeriods": "Less active in winter",
+  "temperatureZones": "Warm side 28 °C",
   "pictureMediaPath": "media/animals/10.jpg",
   "notes": "Test animal",
   "archiveReason": null,
@@ -506,6 +516,11 @@ Example archived Animal:
   "tempMax": 28.0,
   "humidityMin": 40.0,
   "humidityMax": 60.0,
+  "originHabitat": null,
+  "weight": null,
+  "sheddingNotes": null,
+  "restOrDormancyPeriods": null,
+  "temperatureZones": null,
   "pictureMediaPath": null,
   "notes": null,
   "archiveReason": "rehomed",
@@ -517,6 +532,25 @@ Example archived Animal:
   "updatedAt": "2026-09-01T00:00:00.000"
 }
 ```
+
+### Optional Animal Profile Fields
+
+TerraManager 1.4.0 adds five optional strings without changing Backup Format
+Version 2:
+
+```text
+originHabitat
+weight
+sheddingNotes
+restOrDormancyPeriods
+temperatureZones
+```
+
+Export writes all five keys. `null` represents an empty value. Restore accepts
+older Format 1 and Format 2 records where any or all keys are absent and maps
+those fields to `null`. A present non-string value is invalid application data.
+The representation remains free-form and does not imply a unit, history or
+relationship to measurements.
 
 ### Feeding Reminder Fields
 
@@ -1315,6 +1349,7 @@ TerraManager 0.13.3 -> Backup Format 2 with an optional Box sort-order setting
 TerraManager 0.13.4 -> Backup Format 2 with an optional Animal sort-order setting
 TerraManager 0.14.0 -> Backup Format 2 (unchanged)
 TerraManager 0.14.1 -> Backup Format 2 with legacy Box-sort value mapping
+TerraManager 1.4.0 -> Backup Format 2 with optional Animal profile fields
 ```
 
 A later application release may continue to use Backup Format 2 if its portable

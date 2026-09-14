@@ -55,6 +55,7 @@ void main() {
     String? pictureMediaPath,
     int? feedingReminderIntervalDays,
     String? feedingReminderBaseline,
+    Object? originHabitat,
   }) {
     return {
       'id': id,
@@ -69,6 +70,7 @@ void main() {
       'tempMax': 25.0,
       'humidityMin': 40.0,
       'humidityMax': 60.0,
+      'originHabitat': ?originHabitat,
       'pictureMediaPath': pictureMediaPath,
       'notes': null,
       'archiveReason': archiveReason,
@@ -187,6 +189,33 @@ void main() {
     expect(result.settings.animalSortOrder, 'createdOldestFirst');
 
     expect(result.settings.boxSortOrder, 'labelAscending');
+  });
+
+  test('accepts optional Animal characteristics', () {
+    final bytes = createArchive(
+      data: dataJson(animals: [activeAnimal(originHabitat: 'South America')]),
+    );
+
+    final result = validator.validate(bytes);
+
+    expect(result.data.animals.single.originHabitat, 'South America');
+  });
+
+  test('rejects a non-text Animal characteristic', () {
+    final bytes = createArchive(
+      data: dataJson(animals: [activeAnimal(originHabitat: 42)]),
+    );
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidData,
+        ),
+      ),
+    );
   });
 
   test('accepts the stable other sex value', () {

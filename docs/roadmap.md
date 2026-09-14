@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.3.0 – Primary Page Navigation**
+**v1.4.0 – Animal Profiles and Input Quality**
 
 Current application version and build:
 
-**v1.3.0+55**
+**v1.4.0+59**
 
 Completed development areas:
 
@@ -1006,6 +1006,70 @@ roughly one sixth of its previous size.
 - [ ] Complete physical Android and hosted Web manual checks
 - [x] Publish Version `1.3.0+55` through GitHub and Google Play
 - [ ] Close Issues #106 and #107 after the documentation commit succeeds
+
+---
+
+## v1.4.0 – Animal Profiles and Input Quality
+
+### Display Box names in Animal forms — Issue #108
+
+- [x] Show a trimmed Box name together with its stable Box number
+- [x] Keep the Box-number fallback for unnamed or whitespace-only names
+- [x] Use the same labels in New Animal and Edit Animal
+- [x] Cover duplicate names, fallbacks and existing selections
+
+### Natural name sorting — Issue #109
+
+- [x] Compare embedded digit sequences numerically and case-insensitively
+- [x] Apply natural ordering to Box and Animal name sorts in both directions
+- [x] Preserve deterministic tie breaking and missing-value placement
+- [x] Keep contextual detail navigation aligned with the visible order
+
+### Environmental input limits — Issue #110
+
+- [x] Restrict humidity inputs to 0–100 percent
+- [x] Restrict temperature inputs to the documented realistic range
+- [x] Reject non-finite and reversed ranges in forms and repositories
+- [x] Localize range validation for New Animal and Edit Animal
+
+### Hermaphrodite / other sex — Issue #111
+
+- [x] Add one localized Hermaphrodite / other choice to both Animal forms
+- [x] Display the localized value on Animal details
+- [x] Persist and back up the stable portable value `other`
+- [x] Preserve every existing sex and legacy-null fallback
+
+### Optional extended Animal characteristics — Issue #112
+
+- [x] Add one expandable Additional characteristics section to both forms
+- [x] Store origin or habitat, weight, shedding notes, rest or dormancy periods
+  and temperature zones as independent optional text fields
+- [x] Allow every value to be added, edited and cleared
+- [x] Show only populated values with localized labels on Animal details
+- [x] Advance to Schema Version 9 with a populated v8 migration regression
+- [x] Extend Backup Format 2 additively and retain older backup restore
+- [x] Complete English and German UI and persistence coverage
+
+### Offline application license — Issue #113
+
+- [x] Place License directly below Privacy Policy in Settings
+- [x] Reuse the legal-document typography, scrolling and navigation structure
+- [x] Bundle the authoritative complete repository `LICENSE` file
+- [x] Display TerraManager, CodefrogCF and `GPL-3.0-or-later` consistently
+- [x] Keep references local without invoking an external application
+- [x] Cover offline content, navigation, asset identity and large text
+
+### v1.4.0 Release
+
+- [x] Set the source version to `1.4.0+59`
+- [x] Generate localizations, Drift Schema Version 9 and migration helpers
+- [x] Complete formatting, static analysis and automated source regression
+- [x] Update changelog, roadmap, schema, backup and release documentation
+- [ ] Pass the final GitHub Actions Quality gates on the release commit
+- [ ] Build and sign Android release artifacts in the release-owner environment
+- [ ] Complete Android and hosted Web manual validation
+- [ ] Publish the annotated `v1.4.0` tag and GitHub/Google Play releases
+- [ ] Close Issues #112 and #113 after the release commit succeeds
 
 ---
 

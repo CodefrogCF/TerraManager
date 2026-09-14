@@ -136,6 +136,24 @@ Verify that active Animal details no longer expose archive directly and that
 Edit Animal places the archive action after the save action with draft warning.
 Physical camera behavior remains part of Android and Web manual validation.
 
+Schema Version 9 adds the nullable Animal fields `originHabitat`, `weight`,
+`sheddingNotes`, `restOrDormancyPeriods` and `temperatureZones` for Issue #112.
+Regenerate Drift output, create the v9 schema snapshot and verify a populated
+v8 database before changing the migration baseline. Existing values must remain
+untouched and all five new fields must begin as `null`.
+
+Portable Backup Format Version 2 carries these fields as optional strings.
+Keep absent keys compatible with older Format 1 and Format 2 backups, reject
+present non-string values and cover export, validation and restore together.
+New Animal and Edit Animal share one additional-characteristics widget so their
+labels, expansion behavior and field keys stay aligned. Detail pages must omit
+the complete section when every value is empty.
+
+Issue #113 uses the shared legal-document page for Privacy Policy and License.
+The app bundles the root `LICENSE` directly instead of maintaining a second
+copy. References are displayed as part of the local document without opening
+an external application, matching the Privacy Policy behavior.
+
 Issue #106 keeps Box Overview, Animal Overview and Settings in one
 `IndexedStack` and adds horizontal root-page gestures around that container.
 Do not replace the stack with independently rebuilt routes: overview scroll

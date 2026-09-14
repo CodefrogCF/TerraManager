@@ -14,6 +14,7 @@ import '../../app_accent.dart';
 import '../../app_language.dart';
 import '../../app_settings_controller.dart';
 import '../../animal_name_order.dart';
+import 'license_page.dart';
 import 'privacy_policy_page.dart';
 
 typedef AppVersionLoader = Future<String> Function();
@@ -741,6 +742,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 MaterialPageRoute<void>(
                   builder: (_) =>
                       PrivacyPolicyPage(title: context.l10n.privacyPolicyTitle),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
+
+          ListTile(
+            key: const Key('license-tile'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.balance_outlined),
+            title: Text(context.l10n.licenseTitle),
+            subtitle: Text(context.l10n.licenseSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      AppLicensePage(title: context.l10n.licenseTitle),
                 ),
               );
             },

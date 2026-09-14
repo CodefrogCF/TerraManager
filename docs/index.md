@@ -19,11 +19,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.3.0 – Primary Page Navigation**
+**v1.4.0 – Animal Profiles and Input Quality**
 
 Current application version and build:
 
-**v1.3.0+55**
+**v1.4.0+59**
 
 Implemented milestones in the current source state:
 
@@ -48,6 +48,7 @@ Implemented milestones in the current source state:
 - v1.1.1 – Optional Box Names
 - v1.2.0 – Box Lifecycle & History
 - v1.3.0 – Primary Page Navigation
+- v1.4.0 – Animal Profiles and Input Quality
 
 Android and Web are currently validated platforms.
 
@@ -180,6 +181,17 @@ their detail route. The release also refreshes Animal Overview immediately when
 an Animal is created directly from Box details. The complete regression,
 compatibility, build and publication checklist for Issue #107 is recorded in
 `docs/release-v1.3.0.md`.
+
+Release `1.4.0+59` completes Issues #108–#113. Animal forms identify named
+Boxes, overview name sorting follows embedded numbers naturally, environmental
+inputs enforce supported humidity and temperature bounds, and the localized
+sex choices include Hermaphrodite / other. An expandable section stores five
+optional profile notes without occupying detail space when they are empty.
+Database Schema Version 9 preserves existing Animals and Portable Backup
+Format Version 2 carries the additional values while remaining compatible
+with older backups. Settings now presents the complete GPL-3.0-or-later license
+offline directly below Privacy Policy. Source validation and the separate
+release-owner checklist are recorded in `docs/release-v1.4.0.md`.
 
 ### Android transition to the permanent application ID
 
@@ -699,6 +711,11 @@ Animal
 ├── tempMax
 ├── humidityMin
 ├── humidityMax
+├── originHabitat
+├── weight
+├── sheddingNotes
+├── restOrDormancyPeriods
+├── temperatureZones
 ├── picturePath
 ├── pictureMediaId
 ├── notes
@@ -1076,6 +1093,7 @@ Additional documentation:
 - [v1.1.0 release validation](docs/release-v1.1.0.md)
 - [v1.2.0 release validation](docs/release-v1.2.0.md)
 - [v1.3.0 release validation](docs/release-v1.3.0.md)
+- [v1.4.0 release validation](docs/release-v1.4.0.md)
 - [Privacy](PRIVACY.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

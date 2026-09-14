@@ -4,6 +4,50 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [1.4.0] - 2026-09-14
+
+### Added
+
+- show optional Box names together with the stable Box number in New Animal and
+  Edit Animal assignment choices (Issue #108)
+- add the localized `Hermaphrodite / other` Animal sex value with the stable
+  portable value `other` (Issue #111)
+- add an expandable Additional characteristics section to both Animal forms
+  for origin or habitat, weight, shedding notes, rest or dormancy periods and
+  temperature zones (Issue #112)
+- display only populated additional characteristics on Animal details
+- add an offline License entry directly below Privacy Policy in Settings,
+  backed by the authoritative repository `LICENSE` file (Issue #113)
+
+### Changed
+
+- sort names containing numbers naturally in Box and Animal overviews, so
+  names 1 through 10 follow numeric order (Issue #109)
+- restrict humidity to 0–100 percent and temperature to the documented
+  realistic range while retaining minimum/maximum ordering validation
+  (Issue #110)
+- advance the release version to `1.4.0+59`
+- advance the local database to Schema Version 9 with five nullable Animal
+  profile columns; existing records migrate with all five values empty
+- extend Portable Backup Format Version 2 with the same optional fields while
+  retaining restore compatibility with older Format 1 and Format 2 backups
+
+### Testing
+
+- cover natural sorting, named Box choices, environmental limits and the new
+  sex codec in repository, widget, localization and backup regressions
+- cover creation, editing, clearing and conditional detail rendering of all
+  five optional Animal characteristics
+- verify populated and legacy backup round trips plus invalid non-text profile
+  values
+- verify the populated v8 to v9 migration preserves existing records and
+  initializes every additional characteristic to `null`
+- cover Settings navigation, complete offline license rendering, large
+  accessibility text and direct bundling of `LICENSE`
+
+Database Schema Version 9 and Portable Backup Format Version 2 are the v1.4.0
+compatibility baseline.
+
 ## [1.3.0] - 2026-09-14
 
 ### Added

@@ -36,6 +36,16 @@ class Animals extends Table {
 
   RealColumn get humidityMax => real()();
 
+  TextColumn get originHabitat => text().nullable()();
+
+  TextColumn get weight => text().nullable()();
+
+  TextColumn get sheddingNotes => text().nullable()();
+
+  TextColumn get restOrDormancyPeriods => text().nullable()();
+
+  TextColumn get temperatureZones => text().nullable()();
+
   TextColumn get picturePath => text().nullable()();
 
   IntColumn get pictureMediaId =>

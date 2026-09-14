@@ -80,6 +80,10 @@ The application must allow the user to:
 - zoom and pan an Animal picture in the full-screen viewer
 - persist Animal pictures across normal application restarts or browser reloads
 - add and edit notes
+- expand or collapse optional additional characteristics in both Animal forms
+- add, edit and clear origin or habitat, weight, shedding notes, rest or
+  dormancy periods and temperature zones as independent text fields
+- omit empty additional characteristics from Animal details
 - store preferred temperature values
 - store preferred humidity values
 - store optional birth information
@@ -102,6 +106,15 @@ The application must allow the user to:
 - preserve reminder configuration while editing other Animal fields
 - calculate a reminder due timestamp from its configuration and feeding history
 - permanently delete an archived Animal through an explicit confirmation workflow
+
+## Legal Documents
+
+The application must provide Privacy Policy and License entries under Settings.
+Both documents must render from bundled offline Markdown with the same
+typography, scrolling and Back navigation. License must appear directly below
+Privacy Policy, include the complete authoritative `LICENSE` text, identify
+TerraManager, CodefrogCF and `GPL-3.0-or-later`, and expose HTTP or HTTPS
+references as interactive links.
 
 Active Animals must have a Box assignment.
 

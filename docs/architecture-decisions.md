@@ -1296,3 +1296,87 @@ Disadvantages:
 - sibling data mutations need an explicit revision or equivalent notification
 - retained pages continue to consume their normal in-memory state while hidden
 - new root-page floating actions require unique Hero tags
+
+---
+
+## ADR-019: Store extended Animal characteristics as optional text
+
+**Status:** Accepted
+
+**Date:** 2026-09-14
+
+### Context
+
+Animal records need lightweight space for origin or habitat, weight, shedding,
+rest or dormancy periods and temperature zones. Histories, measurements,
+calculations and reminders would require separate domain models and workflows
+that are outside the v1.4.0 scope. Existing databases and portable backups must
+continue to work without synthetic profile content.
+
+### Decision
+
+Schema Version 9 adds five nullable text columns to Animal. New Animal and Edit
+Animal use one shared expandable form section, trim entered values and persist
+empty fields as `null`. Edit Animal opens the section automatically when any
+saved value exists. Animal details render the section and each labeled row only
+when corresponding non-empty content is present.
+
+Portable Backup Format Version 2 adds matching optional string keys. Missing
+keys from older Format 1 or Format 2 backups map to `null`; a present non-string
+value fails validation. A populated v8 migration verifies that existing domain
+rows remain unchanged.
+
+### Consequences
+
+Advantages:
+
+- users can record the requested facts without complex setup
+- empty profiles add no detail-page space or migration placeholders
+- one widget keeps New and Edit behavior aligned
+- the additive backup representation remains backward compatible
+
+Disadvantages:
+
+- weight has no normalized unit or history
+- shedding and dormancy notes cannot trigger calculations or reminders
+- future structured models will need an explicit migration from free-form text
+
+---
+
+## ADR-020: Render repository legal documents offline in Settings
+
+**Status:** Accepted
+
+**Date:** 2026-09-14
+
+### Context
+
+The Privacy Policy already renders bundled Markdown in Settings. Users must be
+able to inspect the complete application license without network access, and a
+second maintained license copy could drift from the authoritative repository
+file. Legal pages should behave consistently under localization and large
+accessibility text.
+
+### Decision
+
+Privacy Policy and License delegate to one legal-document page that supplies a
+normal app bar, selectable Markdown, scrolling, load progress and localized
+errors. The License entry sits directly below Privacy Policy and bundles the
+root `LICENSE` file itself. A short localized preamble identifies TerraManager,
+CodefrogCF and `GPL-3.0-or-later`; the complete GPLv3 text follows unchanged.
+References remain part of the displayed document without invoking an external
+application, matching the existing Privacy Policy behavior.
+
+### Consequences
+
+Advantages:
+
+- the complete license remains available offline
+- repository and bundled license content cannot diverge
+- legal pages share navigation, typography and accessibility behavior
+- legal content never depends on external navigation
+
+Disadvantages:
+
+- the app package includes the full plain-text GPL document
+- legal-document presentation changes now affect both pages

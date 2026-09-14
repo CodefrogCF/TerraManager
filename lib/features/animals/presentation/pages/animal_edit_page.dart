@@ -19,6 +19,7 @@ import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../animal_archive_dialog.dart';
 import '../animal_environmental_validator.dart';
+import '../widgets/animal_additional_characteristics_fields.dart';
 import '../widgets/animal_picture.dart';
 
 class AnimalEditPage extends StatefulWidget {
@@ -46,6 +47,11 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _tempMaxController = TextEditingController();
   final _humidityMinController = TextEditingController();
   final _humidityMaxController = TextEditingController();
+  final _originHabitatController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _sheddingNotesController = TextEditingController();
+  final _restOrDormancyPeriodsController = TextEditingController();
+  final _temperatureZonesController = TextEditingController();
   final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
@@ -73,6 +79,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   bool _archiving = false;
   bool _processingPicture = false;
   bool _hasUnsavedChanges = false;
+  bool _additionalCharacteristicsExpanded = false;
 
   String? _error;
   Animal? _animal;
@@ -95,6 +102,11 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     _tempMaxController.dispose();
     _humidityMinController.dispose();
     _humidityMaxController.dispose();
+    _originHabitatController.dispose();
+    _weightController.dispose();
+    _sheddingNotesController.dispose();
+    _restOrDormancyPeriodsController.dispose();
+    _temperatureZonesController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -148,7 +160,21 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _tempMaxController.text = animal.tempMax.toString();
       _humidityMinController.text = animal.humidityMin.toString();
       _humidityMaxController.text = animal.humidityMax.toString();
+      _originHabitatController.text = animal.originHabitat ?? '';
+      _weightController.text = animal.weight ?? '';
+      _sheddingNotesController.text = animal.sheddingNotes ?? '';
+      _restOrDormancyPeriodsController.text =
+          animal.restOrDormancyPeriods ?? '';
+      _temperatureZonesController.text = animal.temperatureZones ?? '';
       _notesController.text = animal.notes ?? '';
+
+      _additionalCharacteristicsExpanded = [
+        animal.originHabitat,
+        animal.weight,
+        animal.sheddingNotes,
+        animal.restOrDormancyPeriods,
+        animal.temperatureZones,
+      ].any((value) => value != null && value.trim().isNotEmpty);
 
       _sex = animal.sex ?? Sex.unknown;
       _birthDate = animal.birthDate;
@@ -315,6 +341,13 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           tempMax: double.parse(_tempMaxController.text),
           humidityMin: double.parse(_humidityMinController.text),
           humidityMax: double.parse(_humidityMaxController.text),
+          originHabitat: _optionalText(_originHabitatController),
+          weight: _optionalText(_weightController),
+          sheddingNotes: _optionalText(_sheddingNotesController),
+          restOrDormancyPeriods: _optionalText(
+            _restOrDormancyPeriodsController,
+          ),
+          temperatureZones: _optionalText(_temperatureZonesController),
           pictureMediaId: pictureMediaId,
           picturePath: legacyPicturePath,
           notes: _notesController.text.trim().isEmpty
@@ -748,6 +781,24 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             ),
             const SizedBox(height: 16),
 
+            AnimalAdditionalCharacteristicsFields(
+              expanded: _additionalCharacteristicsExpanded,
+              enabled: !_actionInProgress && !_processingPicture,
+              onToggle: () {
+                setState(() {
+                  _additionalCharacteristicsExpanded =
+                      !_additionalCharacteristicsExpanded;
+                });
+              },
+              onChanged: (_) => _markAsChanged(),
+              originHabitatController: _originHabitatController,
+              weightController: _weightController,
+              sheddingNotesController: _sheddingNotesController,
+              restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
+              temperatureZonesController: _temperatureZonesController,
+            ),
+            const SizedBox(height: 16),
+
             TextFormField(
               key: const Key('notes-field'),
               controller: _notesController,
@@ -787,6 +838,11 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         ),
       ),
     );
+  }
+
+  String? _optionalText(TextEditingController controller) {
+    final value = controller.text.trim();
+    return value.isEmpty ? null : value;
   }
 
   Widget _numberField({

@@ -68,6 +68,11 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      originHabitat: 'North America',
+      weight: '140 g',
+      sheddingNotes: 'Complete sheds',
+      restOrDormancyPeriods: 'Less active in winter',
+      temperatureZones: 'Warm side 28 °C',
       pictureMediaId: pictureMediaId,
       notes: 'Test animal',
       feedingReminderIntervalDays: 7,
@@ -130,6 +135,15 @@ void main() {
     expect(result.data.feedingEvents.length, 1);
 
     expect(result.data.animals.single.feedingReminderIntervalDays, 7);
+
+    expect(result.data.animals.single.originHabitat, 'North America');
+    expect(result.data.animals.single.weight, '140 g');
+    expect(result.data.animals.single.sheddingNotes, 'Complete sheds');
+    expect(
+      result.data.animals.single.restOrDormancyPeriods,
+      'Less active in winter',
+    );
+    expect(result.data.animals.single.temperatureZones, 'Warm side 28 °C');
 
     expect(
       result.data.animals.single.feedingReminderBaseline,

@@ -106,6 +106,19 @@ class AppDatabase extends _$AppDatabase {
                 await m.addColumn(schema.boxes, schema.boxes.archivedAt);
                 await m.addColumn(schema.boxes, schema.boxes.archiveNotes);
               },
+              from8To9: (m, schema) async {
+                await m.addColumn(schema.animals, schema.animals.originHabitat);
+                await m.addColumn(schema.animals, schema.animals.weight);
+                await m.addColumn(schema.animals, schema.animals.sheddingNotes);
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.restOrDormancyPeriods,
+                );
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.temperatureZones,
+                );
+              },
             ),
           );
 
@@ -130,5 +143,5 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 }

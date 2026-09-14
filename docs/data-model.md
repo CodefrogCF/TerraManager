@@ -152,6 +152,11 @@ Animal
 ├── tempMax
 ├── humidityMin
 ├── humidityMax
+├── originHabitat
+├── weight
+├── sheddingNotes
+├── restOrDormancyPeriods
+├── temperatureZones
 ├── picturePath
 ├── pictureMediaId
 ├── notes
@@ -178,6 +183,11 @@ Animal
 - tempMax – preferred maximum temperature
 - humidityMin – preferred minimum humidity
 - humidityMax – preferred maximum humidity
+- originHabitat – optional free-form origin or habitat note
+- weight – optional free-form current weight description
+- sheddingNotes – optional free-form shedding note
+- restOrDormancyPeriods – optional free-form rest or dormancy description
+- temperatureZones – optional free-form temperature-zone note
 - picturePath – nullable legacy picture reference retained for migration compatibility
 - pictureMediaId – nullable foreign key referencing MediaAsset
 - notes – optional notes
@@ -539,7 +549,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 5.
+The current Drift database schema version is 9.
 
 ### Schema Version 1
 
@@ -615,3 +625,38 @@ Animal.feedingReminderBaseline added
 Both columns are nullable. The v4 → v5 migration preserves all existing data
 and initializes both fields to `null`, so reminders remain disabled for every
 existing Animal until explicitly enabled.
+
+### Schema Version 6
+
+Schema Version 6 adds nullable `Box.notes`. The v5 → v6 migration preserves all
+existing rows and leaves the new field `null` for existing Boxes.
+
+### Schema Version 7
+
+Schema Version 7 adds nullable `Box.name`. The v6 → v7 migration preserves all
+existing data and keeps existing Boxes unnamed until the user assigns a name.
+
+### Schema Version 8
+
+Schema Version 8 adds the Box lifecycle fields `status`, `archiveReason`,
+`archivedAt` and `archiveNotes`. Existing Boxes migrate as active with empty
+archive metadata. QR identifiers, assignments, pictures and other records are
+preserved.
+
+### Schema Version 9
+
+Schema Version 9 adds five nullable Animal profile columns:
+
+```text
+Animal.originHabitat
+Animal.weight
+Animal.sheddingNotes
+Animal.restOrDormancyPeriods
+Animal.temperatureZones
+```
+
+The v8 → v9 migration only adds nullable columns. It preserves every existing
+Box, Animal, FeedingEvent and MediaAsset and initializes the new values to
+`null`. The fields are deliberately free-form text in v1.4.0; weight history,
+shedding history, calculations, reminders and measurement links remain outside
+this schema.

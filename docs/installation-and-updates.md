@@ -41,6 +41,14 @@ The update adds primary-page swipe navigation and requires no data conversion.
 A direct update from production-signed v1.2.0 preserves all records, settings
 and media.
 
+TerraManager v1.4.0 keeps the same application identity, production signing
+certificate and Portable Backup Format Version 2. It advances the local
+database to Schema Version 9 for five optional Animal profile notes. A direct
+update from production-signed v1.3.x preserves all records, settings and media;
+existing Animals receive empty additional characteristics. Current exports
+include these values, while older Format 1 and Format 2 backups remain
+restorable.
+
 ## Android installation
 
 The release APK is the directly installable Android artifact. Android may ask

@@ -43,6 +43,13 @@ are recorded in `release-v1.3.0.md`. It covers swipe, tap and keyboard
 navigation, retained primary-page state, independent contextual detail swipes
 and immediate Animal Overview refresh after creation from Box details.
 
+The v1.4.0 Animal Profiles and Input Quality source regression is recorded in
+`release-v1.4.0.md`. It covers named Box assignment labels, natural sorting,
+environmental limits, the additional sex value, Schema Version 9 Animal
+profiles, backup compatibility and the bundled offline license. Signed Android
+artifacts and physical Android or hosted Web checks remain release-owner steps
+until recorded there.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 

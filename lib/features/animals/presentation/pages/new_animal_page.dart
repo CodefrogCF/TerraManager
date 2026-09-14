@@ -18,6 +18,7 @@ import '../../../feedings/presentation/widgets/feeding_reminder_form_fields.dart
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../animal_environmental_validator.dart';
+import '../widgets/animal_additional_characteristics_fields.dart';
 import '../widgets/animal_picture.dart';
 
 class NewAnimalPage extends StatefulWidget {
@@ -47,6 +48,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _tempMaxController = TextEditingController();
   final _humidityMinController = TextEditingController();
   final _humidityMaxController = TextEditingController();
+  final _originHabitatController = TextEditingController();
+  final _weightController = TextEditingController();
+  final _sheddingNotesController = TextEditingController();
+  final _restOrDormancyPeriodsController = TextEditingController();
+  final _temperatureZonesController = TextEditingController();
   final _notesController = TextEditingController();
   final _feedingReminderIntervalDaysController = TextEditingController();
 
@@ -59,6 +65,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   DateTime? _birthDate;
   BirthDateAccuracy? _birthDateAccuracy;
   bool _feedingReminderEnabled = false;
+  bool _additionalCharacteristicsExpanded = false;
   DateTime? _feedingReminderBaseline;
 
   Uint8List? _pictureBytes;
@@ -88,6 +95,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     _tempMaxController.dispose();
     _humidityMinController.dispose();
     _humidityMaxController.dispose();
+    _originHabitatController.dispose();
+    _weightController.dispose();
+    _sheddingNotesController.dispose();
+    _restOrDormancyPeriodsController.dispose();
+    _temperatureZonesController.dispose();
     _notesController.dispose();
     _feedingReminderIntervalDaysController.dispose();
     super.dispose();
@@ -215,6 +227,13 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
           tempMax: double.parse(_tempMaxController.text),
           humidityMin: double.parse(_humidityMinController.text),
           humidityMax: double.parse(_humidityMaxController.text),
+          originHabitat: _optionalText(_originHabitatController),
+          weight: _optionalText(_weightController),
+          sheddingNotes: _optionalText(_sheddingNotesController),
+          restOrDormancyPeriods: _optionalText(
+            _restOrDormancyPeriodsController,
+          ),
+          temperatureZones: _optionalText(_temperatureZonesController),
           pictureMediaId: pictureMediaId,
           picturePath: null,
           notes: _notesController.text.trim().isEmpty
@@ -521,6 +540,23 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             ),
             const SizedBox(height: 16),
 
+            AnimalAdditionalCharacteristicsFields(
+              expanded: _additionalCharacteristicsExpanded,
+              enabled: !_saving && !_processingPicture,
+              onToggle: () {
+                setState(() {
+                  _additionalCharacteristicsExpanded =
+                      !_additionalCharacteristicsExpanded;
+                });
+              },
+              originHabitatController: _originHabitatController,
+              weightController: _weightController,
+              sheddingNotesController: _sheddingNotesController,
+              restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
+              temperatureZonesController: _temperatureZonesController,
+            ),
+            const SizedBox(height: 16),
+
             FeedingReminderFormFields(
               reminderEnabled: _feedingReminderEnabled,
               controlsEnabled: !_saving && !_processingPicture,
@@ -559,6 +595,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         ),
       ),
     );
+  }
+
+  String? _optionalText(TextEditingController controller) {
+    final value = controller.text.trim();
+    return value.isEmpty ? null : value;
   }
 
   Widget _numberField({

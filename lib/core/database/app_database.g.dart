@@ -1354,6 +1354,59 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _originHabitatMeta = const VerificationMeta(
+    'originHabitat',
+  );
+  @override
+  late final GeneratedColumn<String> originHabitat = GeneratedColumn<String>(
+    'origin_habitat',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<String> weight = GeneratedColumn<String>(
+    'weight',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sheddingNotesMeta = const VerificationMeta(
+    'sheddingNotes',
+  );
+  @override
+  late final GeneratedColumn<String> sheddingNotes = GeneratedColumn<String>(
+    'shedding_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _restOrDormancyPeriodsMeta =
+      const VerificationMeta('restOrDormancyPeriods');
+  @override
+  late final GeneratedColumn<String> restOrDormancyPeriods =
+      GeneratedColumn<String>(
+        'rest_or_dormancy_periods',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _temperatureZonesMeta = const VerificationMeta(
+    'temperatureZones',
+  );
+  @override
+  late final GeneratedColumn<String> temperatureZones = GeneratedColumn<String>(
+    'temperature_zones',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _picturePathMeta = const VerificationMeta(
     'picturePath',
   );
@@ -1479,6 +1532,11 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     tempMax,
     humidityMin,
     humidityMax,
+    originHabitat,
+    weight,
+    sheddingNotes,
+    restOrDormancyPeriods,
+    temperatureZones,
     picturePath,
     pictureMediaId,
     notes,
@@ -1570,6 +1628,48 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
       );
     } else if (isInserting) {
       context.missing(_humidityMaxMeta);
+    }
+    if (data.containsKey('origin_habitat')) {
+      context.handle(
+        _originHabitatMeta,
+        originHabitat.isAcceptableOrUnknown(
+          data['origin_habitat']!,
+          _originHabitatMeta,
+        ),
+      );
+    }
+    if (data.containsKey('weight')) {
+      context.handle(
+        _weightMeta,
+        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
+      );
+    }
+    if (data.containsKey('shedding_notes')) {
+      context.handle(
+        _sheddingNotesMeta,
+        sheddingNotes.isAcceptableOrUnknown(
+          data['shedding_notes']!,
+          _sheddingNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('rest_or_dormancy_periods')) {
+      context.handle(
+        _restOrDormancyPeriodsMeta,
+        restOrDormancyPeriods.isAcceptableOrUnknown(
+          data['rest_or_dormancy_periods']!,
+          _restOrDormancyPeriodsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('temperature_zones')) {
+      context.handle(
+        _temperatureZonesMeta,
+        temperatureZones.isAcceptableOrUnknown(
+          data['temperature_zones']!,
+          _temperatureZonesMeta,
+        ),
+      );
     }
     if (data.containsKey('picture_path')) {
       context.handle(
@@ -1703,6 +1803,26 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.double,
         data['${effectivePrefix}humidity_max'],
       )!,
+      originHabitat: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin_habitat'],
+      ),
+      weight: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}weight'],
+      ),
+      sheddingNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}shedding_notes'],
+      ),
+      restOrDormancyPeriods: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rest_or_dormancy_periods'],
+      ),
+      temperatureZones: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}temperature_zones'],
+      ),
       picturePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}picture_path'],
@@ -1783,6 +1903,11 @@ class Animal extends DataClass implements Insertable<Animal> {
   final double tempMax;
   final double humidityMin;
   final double humidityMax;
+  final String? originHabitat;
+  final String? weight;
+  final String? sheddingNotes;
+  final String? restOrDormancyPeriods;
+  final String? temperatureZones;
   final String? picturePath;
   final int? pictureMediaId;
   final String? notes;
@@ -1806,6 +1931,11 @@ class Animal extends DataClass implements Insertable<Animal> {
     required this.tempMax,
     required this.humidityMin,
     required this.humidityMax,
+    this.originHabitat,
+    this.weight,
+    this.sheddingNotes,
+    this.restOrDormancyPeriods,
+    this.temperatureZones,
     this.picturePath,
     this.pictureMediaId,
     this.notes,
@@ -1846,6 +1976,21 @@ class Animal extends DataClass implements Insertable<Animal> {
     map['temp_max'] = Variable<double>(tempMax);
     map['humidity_min'] = Variable<double>(humidityMin);
     map['humidity_max'] = Variable<double>(humidityMax);
+    if (!nullToAbsent || originHabitat != null) {
+      map['origin_habitat'] = Variable<String>(originHabitat);
+    }
+    if (!nullToAbsent || weight != null) {
+      map['weight'] = Variable<String>(weight);
+    }
+    if (!nullToAbsent || sheddingNotes != null) {
+      map['shedding_notes'] = Variable<String>(sheddingNotes);
+    }
+    if (!nullToAbsent || restOrDormancyPeriods != null) {
+      map['rest_or_dormancy_periods'] = Variable<String>(restOrDormancyPeriods);
+    }
+    if (!nullToAbsent || temperatureZones != null) {
+      map['temperature_zones'] = Variable<String>(temperatureZones);
+    }
     if (!nullToAbsent || picturePath != null) {
       map['picture_path'] = Variable<String>(picturePath);
     }
@@ -1901,6 +2046,21 @@ class Animal extends DataClass implements Insertable<Animal> {
       tempMax: Value(tempMax),
       humidityMin: Value(humidityMin),
       humidityMax: Value(humidityMax),
+      originHabitat: originHabitat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originHabitat),
+      weight: weight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(weight),
+      sheddingNotes: sheddingNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sheddingNotes),
+      restOrDormancyPeriods: restOrDormancyPeriods == null && nullToAbsent
+          ? const Value.absent()
+          : Value(restOrDormancyPeriods),
+      temperatureZones: temperatureZones == null && nullToAbsent
+          ? const Value.absent()
+          : Value(temperatureZones),
       picturePath: picturePath == null && nullToAbsent
           ? const Value.absent()
           : Value(picturePath),
@@ -1951,6 +2111,13 @@ class Animal extends DataClass implements Insertable<Animal> {
       tempMax: serializer.fromJson<double>(json['tempMax']),
       humidityMin: serializer.fromJson<double>(json['humidityMin']),
       humidityMax: serializer.fromJson<double>(json['humidityMax']),
+      originHabitat: serializer.fromJson<String?>(json['originHabitat']),
+      weight: serializer.fromJson<String?>(json['weight']),
+      sheddingNotes: serializer.fromJson<String?>(json['sheddingNotes']),
+      restOrDormancyPeriods: serializer.fromJson<String?>(
+        json['restOrDormancyPeriods'],
+      ),
+      temperatureZones: serializer.fromJson<String?>(json['temperatureZones']),
       picturePath: serializer.fromJson<String?>(json['picturePath']),
       pictureMediaId: serializer.fromJson<int?>(json['pictureMediaId']),
       notes: serializer.fromJson<String?>(json['notes']),
@@ -1987,6 +2154,13 @@ class Animal extends DataClass implements Insertable<Animal> {
       'tempMax': serializer.toJson<double>(tempMax),
       'humidityMin': serializer.toJson<double>(humidityMin),
       'humidityMax': serializer.toJson<double>(humidityMax),
+      'originHabitat': serializer.toJson<String?>(originHabitat),
+      'weight': serializer.toJson<String?>(weight),
+      'sheddingNotes': serializer.toJson<String?>(sheddingNotes),
+      'restOrDormancyPeriods': serializer.toJson<String?>(
+        restOrDormancyPeriods,
+      ),
+      'temperatureZones': serializer.toJson<String?>(temperatureZones),
       'picturePath': serializer.toJson<String?>(picturePath),
       'pictureMediaId': serializer.toJson<int?>(pictureMediaId),
       'notes': serializer.toJson<String?>(notes),
@@ -2017,6 +2191,11 @@ class Animal extends DataClass implements Insertable<Animal> {
     double? tempMax,
     double? humidityMin,
     double? humidityMax,
+    Value<String?> originHabitat = const Value.absent(),
+    Value<String?> weight = const Value.absent(),
+    Value<String?> sheddingNotes = const Value.absent(),
+    Value<String?> restOrDormancyPeriods = const Value.absent(),
+    Value<String?> temperatureZones = const Value.absent(),
     Value<String?> picturePath = const Value.absent(),
     Value<int?> pictureMediaId = const Value.absent(),
     Value<String?> notes = const Value.absent(),
@@ -2042,6 +2221,19 @@ class Animal extends DataClass implements Insertable<Animal> {
     tempMax: tempMax ?? this.tempMax,
     humidityMin: humidityMin ?? this.humidityMin,
     humidityMax: humidityMax ?? this.humidityMax,
+    originHabitat: originHabitat.present
+        ? originHabitat.value
+        : this.originHabitat,
+    weight: weight.present ? weight.value : this.weight,
+    sheddingNotes: sheddingNotes.present
+        ? sheddingNotes.value
+        : this.sheddingNotes,
+    restOrDormancyPeriods: restOrDormancyPeriods.present
+        ? restOrDormancyPeriods.value
+        : this.restOrDormancyPeriods,
+    temperatureZones: temperatureZones.present
+        ? temperatureZones.value
+        : this.temperatureZones,
     picturePath: picturePath.present ? picturePath.value : this.picturePath,
     pictureMediaId: pictureMediaId.present
         ? pictureMediaId.value
@@ -2083,6 +2275,19 @@ class Animal extends DataClass implements Insertable<Animal> {
       humidityMax: data.humidityMax.present
           ? data.humidityMax.value
           : this.humidityMax,
+      originHabitat: data.originHabitat.present
+          ? data.originHabitat.value
+          : this.originHabitat,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      sheddingNotes: data.sheddingNotes.present
+          ? data.sheddingNotes.value
+          : this.sheddingNotes,
+      restOrDormancyPeriods: data.restOrDormancyPeriods.present
+          ? data.restOrDormancyPeriods.value
+          : this.restOrDormancyPeriods,
+      temperatureZones: data.temperatureZones.present
+          ? data.temperatureZones.value
+          : this.temperatureZones,
       picturePath: data.picturePath.present
           ? data.picturePath.value
           : this.picturePath,
@@ -2125,6 +2330,11 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('tempMax: $tempMax, ')
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
+          ..write('originHabitat: $originHabitat, ')
+          ..write('weight: $weight, ')
+          ..write('sheddingNotes: $sheddingNotes, ')
+          ..write('restOrDormancyPeriods: $restOrDormancyPeriods, ')
+          ..write('temperatureZones: $temperatureZones, ')
           ..write('picturePath: $picturePath, ')
           ..write('pictureMediaId: $pictureMediaId, ')
           ..write('notes: $notes, ')
@@ -2153,6 +2363,11 @@ class Animal extends DataClass implements Insertable<Animal> {
     tempMax,
     humidityMin,
     humidityMax,
+    originHabitat,
+    weight,
+    sheddingNotes,
+    restOrDormancyPeriods,
+    temperatureZones,
     picturePath,
     pictureMediaId,
     notes,
@@ -2180,6 +2395,11 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.tempMax == this.tempMax &&
           other.humidityMin == this.humidityMin &&
           other.humidityMax == this.humidityMax &&
+          other.originHabitat == this.originHabitat &&
+          other.weight == this.weight &&
+          other.sheddingNotes == this.sheddingNotes &&
+          other.restOrDormancyPeriods == this.restOrDormancyPeriods &&
+          other.temperatureZones == this.temperatureZones &&
           other.picturePath == this.picturePath &&
           other.pictureMediaId == this.pictureMediaId &&
           other.notes == this.notes &&
@@ -2206,6 +2426,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<double> tempMax;
   final Value<double> humidityMin;
   final Value<double> humidityMax;
+  final Value<String?> originHabitat;
+  final Value<String?> weight;
+  final Value<String?> sheddingNotes;
+  final Value<String?> restOrDormancyPeriods;
+  final Value<String?> temperatureZones;
   final Value<String?> picturePath;
   final Value<int?> pictureMediaId;
   final Value<String?> notes;
@@ -2229,6 +2454,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.tempMax = const Value.absent(),
     this.humidityMin = const Value.absent(),
     this.humidityMax = const Value.absent(),
+    this.originHabitat = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.sheddingNotes = const Value.absent(),
+    this.restOrDormancyPeriods = const Value.absent(),
+    this.temperatureZones = const Value.absent(),
     this.picturePath = const Value.absent(),
     this.pictureMediaId = const Value.absent(),
     this.notes = const Value.absent(),
@@ -2253,6 +2483,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     required double tempMax,
     required double humidityMin,
     required double humidityMax,
+    this.originHabitat = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.sheddingNotes = const Value.absent(),
+    this.restOrDormancyPeriods = const Value.absent(),
+    this.temperatureZones = const Value.absent(),
     this.picturePath = const Value.absent(),
     this.pictureMediaId = const Value.absent(),
     this.notes = const Value.absent(),
@@ -2282,6 +2517,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<double>? tempMax,
     Expression<double>? humidityMin,
     Expression<double>? humidityMax,
+    Expression<String>? originHabitat,
+    Expression<String>? weight,
+    Expression<String>? sheddingNotes,
+    Expression<String>? restOrDormancyPeriods,
+    Expression<String>? temperatureZones,
     Expression<String>? picturePath,
     Expression<int>? pictureMediaId,
     Expression<String>? notes,
@@ -2306,6 +2546,12 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       if (tempMax != null) 'temp_max': tempMax,
       if (humidityMin != null) 'humidity_min': humidityMin,
       if (humidityMax != null) 'humidity_max': humidityMax,
+      if (originHabitat != null) 'origin_habitat': originHabitat,
+      if (weight != null) 'weight': weight,
+      if (sheddingNotes != null) 'shedding_notes': sheddingNotes,
+      if (restOrDormancyPeriods != null)
+        'rest_or_dormancy_periods': restOrDormancyPeriods,
+      if (temperatureZones != null) 'temperature_zones': temperatureZones,
       if (picturePath != null) 'picture_path': picturePath,
       if (pictureMediaId != null) 'picture_media_id': pictureMediaId,
       if (notes != null) 'notes': notes,
@@ -2334,6 +2580,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<double>? tempMax,
     Value<double>? humidityMin,
     Value<double>? humidityMax,
+    Value<String?>? originHabitat,
+    Value<String?>? weight,
+    Value<String?>? sheddingNotes,
+    Value<String?>? restOrDormancyPeriods,
+    Value<String?>? temperatureZones,
     Value<String?>? picturePath,
     Value<int?>? pictureMediaId,
     Value<String?>? notes,
@@ -2358,6 +2609,12 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       tempMax: tempMax ?? this.tempMax,
       humidityMin: humidityMin ?? this.humidityMin,
       humidityMax: humidityMax ?? this.humidityMax,
+      originHabitat: originHabitat ?? this.originHabitat,
+      weight: weight ?? this.weight,
+      sheddingNotes: sheddingNotes ?? this.sheddingNotes,
+      restOrDormancyPeriods:
+          restOrDormancyPeriods ?? this.restOrDormancyPeriods,
+      temperatureZones: temperatureZones ?? this.temperatureZones,
       picturePath: picturePath ?? this.picturePath,
       pictureMediaId: pictureMediaId ?? this.pictureMediaId,
       notes: notes ?? this.notes,
@@ -2420,6 +2677,23 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     if (humidityMax.present) {
       map['humidity_max'] = Variable<double>(humidityMax.value);
     }
+    if (originHabitat.present) {
+      map['origin_habitat'] = Variable<String>(originHabitat.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<String>(weight.value);
+    }
+    if (sheddingNotes.present) {
+      map['shedding_notes'] = Variable<String>(sheddingNotes.value);
+    }
+    if (restOrDormancyPeriods.present) {
+      map['rest_or_dormancy_periods'] = Variable<String>(
+        restOrDormancyPeriods.value,
+      );
+    }
+    if (temperatureZones.present) {
+      map['temperature_zones'] = Variable<String>(temperatureZones.value);
+    }
     if (picturePath.present) {
       map['picture_path'] = Variable<String>(picturePath.value);
     }
@@ -2474,6 +2748,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('tempMax: $tempMax, ')
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
+          ..write('originHabitat: $originHabitat, ')
+          ..write('weight: $weight, ')
+          ..write('sheddingNotes: $sheddingNotes, ')
+          ..write('restOrDormancyPeriods: $restOrDormancyPeriods, ')
+          ..write('temperatureZones: $temperatureZones, ')
           ..write('picturePath: $picturePath, ')
           ..write('pictureMediaId: $pictureMediaId, ')
           ..write('notes: $notes, ')
@@ -3795,6 +4074,11 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   required double tempMax,
   required double humidityMin,
   required double humidityMax,
+  Value<String?> originHabitat,
+  Value<String?> weight,
+  Value<String?> sheddingNotes,
+  Value<String?> restOrDormancyPeriods,
+  Value<String?> temperatureZones,
   Value<String?> picturePath,
   Value<int?> pictureMediaId,
   Value<String?> notes,
@@ -3819,6 +4103,11 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<double> tempMax,
   Value<double> humidityMin,
   Value<double> humidityMax,
+  Value<String?> originHabitat,
+  Value<String?> weight,
+  Value<String?> sheddingNotes,
+  Value<String?> restOrDormancyPeriods,
+  Value<String?> temperatureZones,
   Value<String?> picturePath,
   Value<int?> pictureMediaId,
   Value<String?> notes,
@@ -3952,6 +4241,31 @@ class $$AnimalsTableFilterComposer
 
   ColumnFilters<double> get humidityMax => $composableBuilder(
     column: $table.humidityMax,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originHabitat => $composableBuilder(
+    column: $table.originHabitat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sheddingNotes => $composableBuilder(
+    column: $table.sheddingNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get restOrDormancyPeriods => $composableBuilder(
+    column: $table.restOrDormancyPeriods,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get temperatureZones => $composableBuilder(
+    column: $table.temperatureZones,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4141,6 +4455,31 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get originHabitat => $composableBuilder(
+    column: $table.originHabitat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sheddingNotes => $composableBuilder(
+    column: $table.sheddingNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get restOrDormancyPeriods => $composableBuilder(
+    column: $table.restOrDormancyPeriods,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get temperatureZones => $composableBuilder(
+    column: $table.temperatureZones,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get picturePath => $composableBuilder(
     column: $table.picturePath,
     builder: (column) => ColumnOrderings(column),
@@ -4281,6 +4620,29 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<double> get humidityMax => $composableBuilder(
     column: $table.humidityMax,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originHabitat => $composableBuilder(
+    column: $table.originHabitat,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<String> get sheddingNotes => $composableBuilder(
+    column: $table.sheddingNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get restOrDormancyPeriods => $composableBuilder(
+    column: $table.restOrDormancyPeriods,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get temperatureZones => $composableBuilder(
+    column: $table.temperatureZones,
     builder: (column) => column,
   );
 
@@ -4441,6 +4803,11 @@ class $$AnimalsTableTableManager
                 Value<double> tempMax = const Value.absent(),
                 Value<double> humidityMin = const Value.absent(),
                 Value<double> humidityMax = const Value.absent(),
+                Value<String?> originHabitat = const Value.absent(),
+                Value<String?> weight = const Value.absent(),
+                Value<String?> sheddingNotes = const Value.absent(),
+                Value<String?> restOrDormancyPeriods = const Value.absent(),
+                Value<String?> temperatureZones = const Value.absent(),
                 Value<String?> picturePath = const Value.absent(),
                 Value<int?> pictureMediaId = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -4465,6 +4832,11 @@ class $$AnimalsTableTableManager
                 tempMax: tempMax,
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
+                originHabitat: originHabitat,
+                weight: weight,
+                sheddingNotes: sheddingNotes,
+                restOrDormancyPeriods: restOrDormancyPeriods,
+                temperatureZones: temperatureZones,
                 picturePath: picturePath,
                 pictureMediaId: pictureMediaId,
                 notes: notes,
@@ -4491,6 +4863,11 @@ class $$AnimalsTableTableManager
                 required double tempMax,
                 required double humidityMin,
                 required double humidityMax,
+                Value<String?> originHabitat = const Value.absent(),
+                Value<String?> weight = const Value.absent(),
+                Value<String?> sheddingNotes = const Value.absent(),
+                Value<String?> restOrDormancyPeriods = const Value.absent(),
+                Value<String?> temperatureZones = const Value.absent(),
                 Value<String?> picturePath = const Value.absent(),
                 Value<int?> pictureMediaId = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -4515,6 +4892,11 @@ class $$AnimalsTableTableManager
                 tempMax: tempMax,
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
+                originHabitat: originHabitat,
+                weight: weight,
+                sheddingNotes: sheddingNotes,
+                restOrDormancyPeriods: restOrDormancyPeriods,
+                temperatureZones: temperatureZones,
                 picturePath: picturePath,
                 pictureMediaId: pictureMediaId,
                 notes: notes,

@@ -325,6 +325,73 @@ void main() {
     expect(find.text('Please enter a valid number'), findsOneWidget);
   });
 
+  testWidgets('rejects environmental values outside supported ranges', (
+    tester,
+  ) async {
+    await createTestBox();
+    await pumpPage(tester);
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
+
+    await tester.enterText(find.byKey(const Key('temp-min-field')), '-0.1');
+    await tester.enterText(find.byKey(const Key('temp-max-field')), '60.1');
+    await tester.enterText(find.byKey(const Key('humidity-min-field')), '-0.1');
+    await tester.enterText(
+      find.byKey(const Key('humidity-max-field')),
+      '100.1',
+    );
+    await tester.tap(find.byTooltip('Save Animal'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Value must be between 0 and 60'), findsNWidgets(2));
+    expect(find.text('Value must be between 0 and 100'), findsNWidgets(2));
+    expect(await AnimalRepository(database).getAllAnimals(), isEmpty);
+  });
+
+  testWidgets('rejects reversed environmental ranges', (tester) async {
+    await createTestBox();
+    await pumpPage(tester);
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
+
+    await tester.enterText(find.byKey(const Key('temp-min-field')), '30');
+    await tester.enterText(find.byKey(const Key('temp-max-field')), '20');
+    await tester.enterText(find.byKey(const Key('humidity-min-field')), '70');
+    await tester.enterText(find.byKey(const Key('humidity-max-field')), '60');
+    await tester.tap(find.byTooltip('Save Animal'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Minimum must not be greater than maximum'),
+      findsNWidgets(2),
+    );
+    expect(
+      find.text('Maximum must not be less than minimum'),
+      findsNWidgets(2),
+    );
+    expect(await AnimalRepository(database).getAllAnimals(), isEmpty);
+  });
+
+  testWidgets('accepts environmental boundaries and decimal values', (
+    tester,
+  ) async {
+    await createTestBox();
+    await pumpPageWithNavigation(tester);
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
+
+    await tester.enterText(find.byKey(const Key('temp-min-field')), '0');
+    await tester.enterText(find.byKey(const Key('temp-max-field')), '60');
+    await tester.enterText(find.byKey(const Key('humidity-min-field')), '0.5');
+    await tester.enterText(find.byKey(const Key('humidity-max-field')), '99.5');
+    await tester.tap(find.byTooltip('Save Animal'));
+    await tester.pumpAndSettle();
+
+    final animal = (await AnimalRepository(database).getAllAnimals()).single;
+
+    expect(animal.tempMin, 0);
+    expect(animal.tempMax, 60);
+    expect(animal.humidityMin, 0.5);
+    expect(animal.humidityMax, 99.5);
+  });
+
   testWidgets('creates animal in database', (tester) async {
     final boxId = await createTestBox();
 

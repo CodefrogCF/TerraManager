@@ -67,6 +67,41 @@ void main() {
   });
 
   test(
+    'rejects invalid environmental values before creating an Animal',
+    () async {
+      final boxId = await database
+          .into(database.boxes)
+          .insert(BoxesCompanion.insert(qrId: 'environment-limits-box'));
+
+      expect(
+        () => repository.createAnimal(
+          boxId: boxId,
+          commonName: 'Invalid temperature',
+          latinName: 'Species invalid',
+          tempMin: -1,
+          tempMax: 28,
+          humidityMin: 40,
+          humidityMax: 60,
+        ),
+        throwsArgumentError,
+      );
+      expect(
+        () => repository.createAnimal(
+          boxId: boxId,
+          commonName: 'Invalid humidity range',
+          latinName: 'Species invalid',
+          tempMin: 24,
+          tempMax: 28,
+          humidityMin: 70,
+          humidityMax: 60,
+        ),
+        throwsArgumentError,
+      );
+      expect(await repository.getAllAnimals(), isEmpty);
+    },
+  );
+
+  test(
     'getAnimalsForBox returns only animals assigned to the given box',
     () async {
       final box1Id = await database

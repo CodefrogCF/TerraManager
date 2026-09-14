@@ -221,6 +221,19 @@
   "maximumTemperatureCelsius": "Maximum Temperature (°C)",
   "minimumHumidityPercent": "Minimum Humidity (%)",
   "maximumHumidityPercent": "Maximum Humidity (%)",
+  "environmentalValueOutOfRange": "Value must be between {minimum} and {maximum}",
+  "@environmentalValueOutOfRange": {
+    "placeholders": {
+      "minimum": {
+        "type": "String"
+      },
+      "maximum": {
+        "type": "String"
+      }
+    }
+  },
+  "minimumMustNotExceedMaximum": "Minimum must not be greater than maximum",
+  "maximumMustNotBeBelowMinimum": "Maximum must not be less than minimum",
   "feedingReminder": "Feeding reminder",
   "feedingReminderDescription": "Show when this Animal is due for feeding.",
   "feedingReminderIntervalDays": "Reminder interval (days)",

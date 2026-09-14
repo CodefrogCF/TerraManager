@@ -6,6 +6,7 @@ import '../enums/animal_status.dart';
 import '../enums/birth_date_accuracy.dart';
 import '../enums/sex.dart';
 import '../enums/box_status.dart';
+import '../validation/animal_environmental_limits.dart';
 import 'box_lifecycle_exception.dart';
 
 class AnimalRepository {
@@ -80,6 +81,12 @@ class AnimalRepository {
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
   }) {
+    AnimalEnvironmentalLimits.validate(
+      temperatureMinimum: tempMin,
+      temperatureMaximum: tempMax,
+      humidityMinimum: humidityMin,
+      humidityMaximum: humidityMax,
+    );
     _validateFeedingReminder(
       intervalDays: feedingReminderIntervalDays,
       baseline: feedingReminderBaseline,
@@ -133,6 +140,12 @@ class AnimalRepository {
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
   }) async {
+    AnimalEnvironmentalLimits.validate(
+      temperatureMinimum: tempMin,
+      temperatureMaximum: tempMax,
+      humidityMinimum: humidityMin,
+      humidityMaximum: humidityMax,
+    );
     _validateFeedingReminder(
       intervalDays: feedingReminderIntervalDays,
       baseline: feedingReminderBaseline,

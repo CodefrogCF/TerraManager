@@ -11,12 +11,14 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/database/validation/animal_environmental_limits.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../animal_archive_dialog.dart';
+import '../animal_environmental_validator.dart';
 import '../widgets/animal_picture.dart';
 
 class AnimalEditPage extends StatefulWidget {
@@ -702,6 +704,12 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               key: const Key('temp-min-field'),
               controller: _tempMinController,
               label: context.l10n.minimumTemperatureCelsius,
+              pairedController: _tempMaxController,
+              minimumAllowed:
+                  AnimalEnvironmentalLimits.minimumTemperatureCelsius,
+              maximumAllowed:
+                  AnimalEnvironmentalLimits.maximumTemperatureCelsius,
+              isMinimum: true,
             ),
             const SizedBox(height: 16),
 
@@ -709,6 +717,12 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               key: const Key('temp-max-field'),
               controller: _tempMaxController,
               label: context.l10n.maximumTemperatureCelsius,
+              pairedController: _tempMinController,
+              minimumAllowed:
+                  AnimalEnvironmentalLimits.minimumTemperatureCelsius,
+              maximumAllowed:
+                  AnimalEnvironmentalLimits.maximumTemperatureCelsius,
+              isMinimum: false,
             ),
             const SizedBox(height: 16),
 
@@ -716,6 +730,10 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               key: const Key('humidity-min-field'),
               controller: _humidityMinController,
               label: context.l10n.minimumHumidityPercent,
+              pairedController: _humidityMaxController,
+              minimumAllowed: AnimalEnvironmentalLimits.minimumHumidityPercent,
+              maximumAllowed: AnimalEnvironmentalLimits.maximumHumidityPercent,
+              isMinimum: true,
             ),
             const SizedBox(height: 16),
 
@@ -723,6 +741,10 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               key: const Key('humidity-max-field'),
               controller: _humidityMaxController,
               label: context.l10n.maximumHumidityPercent,
+              pairedController: _humidityMinController,
+              minimumAllowed: AnimalEnvironmentalLimits.minimumHumidityPercent,
+              maximumAllowed: AnimalEnvironmentalLimits.maximumHumidityPercent,
+              isMinimum: false,
             ),
             const SizedBox(height: 16),
 
@@ -771,6 +793,10 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     required Key key,
     required TextEditingController controller,
     required String label,
+    required TextEditingController pairedController,
+    required double minimumAllowed,
+    required double maximumAllowed,
+    required bool isMinimum,
   }) {
     return TextFormField(
       key: key,
@@ -778,17 +804,14 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       onChanged: (_) => _markAsChanged(),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(labelText: label),
-      validator: (value) {
-        if (value == null || value.trim().isEmpty) {
-          return context.l10n.pleaseEnterValue;
-        }
-
-        if (double.tryParse(value) == null) {
-          return context.l10n.pleaseEnterValidNumber;
-        }
-
-        return null;
-      },
+      validator: (value) => validateAnimalEnvironmentalInput(
+        localizations: context.l10n,
+        value: value,
+        pairedValue: pairedController.text,
+        minimumAllowed: minimumAllowed,
+        maximumAllowed: maximumAllowed,
+        isMinimum: isMinimum,
+      ),
     );
   }
 

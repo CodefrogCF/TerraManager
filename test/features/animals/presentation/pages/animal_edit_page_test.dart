@@ -402,6 +402,57 @@ void main() {
     expect(find.text('Please enter a valid number'), findsOneWidget);
   });
 
+  testWidgets('rejects invalid environmental values without saving', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal();
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.enterText(find.byKey(const Key('temp-min-field')), '-1');
+    await tester.enterText(find.byKey(const Key('temp-max-field')), '61');
+    await tester.enterText(find.byKey(const Key('humidity-min-field')), '70');
+    await tester.enterText(find.byKey(const Key('humidity-max-field')), '60');
+    await tester.tap(find.byTooltip('Save'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Value must be between 0 and 60'), findsNWidgets(2));
+    expect(
+      find.text('Minimum must not be greater than maximum'),
+      findsOneWidget,
+    );
+    expect(find.text('Maximum must not be less than minimum'), findsOneWidget);
+
+    final unchangedAnimal = await AnimalRepository(database)
+        .getAnimalById(animalId);
+
+    expect(unchangedAnimal!.tempMin, 24);
+    expect(unchangedAnimal.tempMax, 28);
+    expect(unchangedAnimal.humidityMin, 40);
+    expect(unchangedAnimal.humidityMax, 60);
+  });
+
+  testWidgets('saves valid environmental boundaries and decimals', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal();
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.enterText(find.byKey(const Key('temp-min-field')), '0.5');
+    await tester.enterText(find.byKey(const Key('temp-max-field')), '59.5');
+    await tester.enterText(find.byKey(const Key('humidity-min-field')), '0');
+    await tester.enterText(find.byKey(const Key('humidity-max-field')), '100');
+    await tester.tap(find.byTooltip('Save'));
+    await tester.pumpAndSettle();
+
+    final updatedAnimal = await AnimalRepository(database)
+        .getAnimalById(animalId);
+
+    expect(updatedAnimal!.tempMin, 0.5);
+    expect(updatedAnimal.tempMax, 59.5);
+    expect(updatedAnimal.humidityMin, 0);
+    expect(updatedAnimal.humidityMax, 100);
+  });
+
   testWidgets('shows unsaved changes dialog when leaving', (tester) async {
     final animalId = await createTestAnimal();
 

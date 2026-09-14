@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/features/backup/application/backup_restore_exception.dart';
@@ -108,7 +109,7 @@ void main() {
             status: 'active',
             commonName: 'Restored Animal',
             latinName: 'Restored species',
-            sex: 'female',
+            sex: 'other',
             birthDate: null,
             birthDateAccuracy: null,
             tempMin: 24,
@@ -185,7 +186,7 @@ void main() {
             status: 'active',
             commonName: 'Restored Animal',
             latinName: 'Restored species',
-            sex: 'female',
+            sex: 'other',
             birthDate: null,
             birthDateAccuracy: null,
             tempMin: 24,
@@ -274,6 +275,7 @@ void main() {
     expect(animal.boxId, 5);
 
     expect(animal.commonName, 'Restored Animal');
+    expect(animal.sex, Sex.other);
 
     // Backups created before reminder configuration was introduced omit both
     // fields. Restore must keep reminders disabled for those Animals.

@@ -28,7 +28,7 @@ void main() {
       boxId: 1,
       commonName: 'Test Snake',
       latinName: 'Pantherophis guttatus',
-      sex: Sex.female,
+      sex: Sex.other,
       birthDate: DateTime(2024, 5, 10),
       birthDateAccuracy: BirthDateAccuracy.yearKnown,
       tempMin: 24,
@@ -63,7 +63,7 @@ void main() {
     expect(find.text('Test Snake'), findsOneWidget);
     expect(find.text('Pantherophis guttatus'), findsOneWidget);
     expect(find.text('Sex'), findsOneWidget);
-    expect(find.text('Female'), findsOneWidget);
+    expect(find.text('Hermaphrodite / other'), findsOneWidget);
     expect(find.text('10.05.2024'), findsOneWidget);
     expect(find.text('Year known'), findsOneWidget);
     expect(find.text('24.0 °C – 28.0 °C'), findsOneWidget);

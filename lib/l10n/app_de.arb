@@ -128,6 +128,7 @@
   "sexMale": "Männlich",
   "sexFemale": "Weiblich",
   "sexUnknown": "Unbekannt",
+  "sexOther": "Zwitter / andere",
   "birthDate": "Geburtsdatum",
   "birthDateAccuracy": "Genauigkeit des Geburtsdatums",
   "birthDateAccuracyExact": "Genau",

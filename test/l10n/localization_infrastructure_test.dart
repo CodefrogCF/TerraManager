@@ -51,6 +51,7 @@ void main() {
     expect(l10n.createSafetyBackup, 'Back up current data before restoring');
     expect(l10n.sexMale, 'Male');
     expect(l10n.sexFemale, 'Female');
+    expect(l10n.sexOther, 'Hermaphrodite / other');
     expect(l10n.sexUnknown, 'Unknown');
     expect(l10n.birthDateAccuracyExact, 'Exact');
     expect(l10n.birthDateAccuracyMonthKnown, 'Month known');
@@ -129,6 +130,7 @@ void main() {
     );
     expect(l10n.sexMale, 'Männlich');
     expect(l10n.sexFemale, 'Weiblich');
+    expect(l10n.sexOther, 'Zwitter / andere');
     expect(l10n.sexUnknown, 'Unbekannt');
     expect(l10n.birthDateAccuracyExact, 'Genau');
     expect(l10n.birthDateAccuracyMonthKnown, 'Monat bekannt');

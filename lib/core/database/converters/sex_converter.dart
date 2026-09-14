@@ -7,11 +7,22 @@ class SexConverter extends TypeConverter<Sex, String> {
 
   @override
   Sex fromSql(String fromDb) {
-    return Sex.values.byName(fromDb);
+    return switch (fromDb) {
+      'male' => Sex.male,
+      'female' => Sex.female,
+      'unknown' => Sex.unknown,
+      'other' => Sex.other,
+      _ => throw StateError('Unsupported Sex database value: $fromDb'),
+    };
   }
 
   @override
   String toSql(Sex value) {
-    return value.name;
+    return switch (value) {
+      Sex.male => 'male',
+      Sex.female => 'female',
+      Sex.unknown => 'unknown',
+      Sex.other => 'other',
+    };
   }
 }

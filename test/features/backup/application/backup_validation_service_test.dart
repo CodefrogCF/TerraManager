@@ -48,6 +48,7 @@ void main() {
     int id = 10,
     int? boxId = 1,
     String status = 'active',
+    String? sex = 'female',
     String? archiveReason,
     String? archivedAt,
     String? archiveNotes,
@@ -61,7 +62,7 @@ void main() {
       'status': status,
       'commonName': 'Test Animal',
       'latinName': 'Test species',
-      'sex': 'female',
+      'sex': sex,
       'birthDate': null,
       'birthDateAccuracy': null,
       'tempMin': 20.0,
@@ -186,6 +187,15 @@ void main() {
     expect(result.settings.animalSortOrder, 'createdOldestFirst');
 
     expect(result.settings.boxSortOrder, 'labelAscending');
+  });
+
+  test('accepts the stable other sex value', () {
+    final animal = activeAnimal(sex: 'other');
+    final result = validator.validate(
+      createArchive(data: dataJson(animals: [animal])),
+    );
+
+    expect(result.data.animals.single.sex, 'other');
   });
 
   test('accepts legacy settings without additive preferences', () {

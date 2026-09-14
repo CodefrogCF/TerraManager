@@ -37,6 +37,7 @@ extension AppLocalizationsLabels on AppLocalizations {
       Sex.male => sexMale,
       Sex.female => sexFemale,
       Sex.unknown => sexUnknown,
+      Sex.other => sexOther,
     };
   }
 

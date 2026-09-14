@@ -108,6 +108,7 @@ class BackupEnumCodec {
       Sex.male => 'male',
       Sex.female => 'female',
       Sex.unknown => 'unknown',
+      Sex.other => 'other',
     };
   }
 
@@ -116,6 +117,7 @@ class BackupEnumCodec {
       'male' => Sex.male,
       'female' => Sex.female,
       'unknown' => Sex.unknown,
+      'other' => Sex.other,
       _ => throw FormatException('Unsupported Sex backup value: $value'),
     };
   }

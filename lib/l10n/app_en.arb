@@ -212,6 +212,7 @@
   "sexMale": "Male",
   "sexFemale": "Female",
   "sexUnknown": "Unknown",
+  "sexOther": "Hermaphrodite / other",
   "birthDate": "Birth Date",
   "birthDateAccuracy": "Birth Date Accuracy",
   "birthDateAccuracyExact": "Exact",

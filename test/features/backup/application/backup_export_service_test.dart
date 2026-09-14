@@ -61,7 +61,7 @@ void main() {
       boxId: boxId,
       commonName: 'Test Snake',
       latinName: 'Pantherophis guttatus',
-      sex: Sex.female,
+      sex: Sex.other,
       birthDate: DateTime(2024, 1, 1),
       birthDateAccuracy: BirthDateAccuracy.yearKnown,
       tempMin: 24,
@@ -183,7 +183,7 @@ void main() {
 
     expect(animal['status'], 'active');
 
-    expect(animal['sex'], 'female');
+    expect(animal['sex'], 'other');
 
     expect(animal['birthDateAccuracy'], 'yearKnown');
 

@@ -219,6 +219,7 @@ void main() {
     expect(sexDropdown.items!.map((item) => (item.child as Text).data), [
       'Male',
       'Female',
+      'Hermaphrodite / other',
       'Unknown',
     ]);
 
@@ -297,7 +298,7 @@ void main() {
     expect(find.text('Animal not found'), findsOneWidget);
   });
 
-  testWidgets('saves changed animal data', (tester) async {
+  testWidgets('saves changed animal data including other sex', (tester) async {
     final animalId = await createTestAnimal();
 
     await pumpPage(tester, animalId: animalId);
@@ -309,6 +310,13 @@ void main() {
 
     await tester.pump();
 
+    final sexField = find.byKey(const Key('sex-field'));
+    await tester.ensureVisible(sexField);
+    await tester.tap(sexField);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hermaphrodite / other').last);
+    await tester.pumpAndSettle();
+
     await tester.tap(find.byTooltip('Save'));
 
     await tester.pumpAndSettle();
@@ -319,6 +327,7 @@ void main() {
     expect(updatedAnimal, isNotNull);
 
     expect(updatedAnimal!.commonName, 'Updated Snake');
+    expect(updatedAnimal.sex, Sex.other);
   });
 
   testWidgets('can change associated box', (tester) async {

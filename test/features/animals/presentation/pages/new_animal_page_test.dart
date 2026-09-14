@@ -254,6 +254,7 @@ void main() {
     expect(sexItems.map((item) => (item.child as Text).data), [
       'Male',
       'Female',
+      'Hermaphrodite / other',
       'Unknown',
     ]);
 
@@ -419,7 +420,7 @@ void main() {
     expect(animal.sex, Sex.unknown);
   });
 
-  testWidgets('can create animal with optional sex', (tester) async {
+  testWidgets('can create animal with other sex', (tester) async {
     await createTestBox();
 
     await pumpPageWithNavigation(tester);
@@ -434,9 +435,9 @@ void main() {
     await tester.tap(sexField);
     await tester.pumpAndSettle();
 
-    expect(find.text('Female'), findsWidgets);
+    expect(find.text('Hermaphrodite / other'), findsWidgets);
 
-    await tester.tap(find.text('Female').last);
+    await tester.tap(find.text('Hermaphrodite / other').last);
 
     await tester.pumpAndSettle();
 
@@ -448,7 +449,7 @@ void main() {
 
     expect(animals.length, 1);
 
-    expect(animals.single.sex, Sex.female);
+    expect(animals.single.sex, Sex.other);
   });
 
   testWidgets('can select associated box', (tester) async {

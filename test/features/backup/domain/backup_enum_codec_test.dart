@@ -52,7 +52,20 @@ void main() {
   });
 
   group('Sex', () {
-    test('round trips all values', () {
+    test('round trips all stable values', () {
+      expect(
+        {
+          for (final value in Sex.values)
+            value: BackupEnumCodec.encodeSex(value),
+        },
+        {
+          Sex.male: 'male',
+          Sex.female: 'female',
+          Sex.other: 'other',
+          Sex.unknown: 'unknown',
+        },
+      );
+
       for (final value in Sex.values) {
         final encoded = BackupEnumCodec.encodeSex(value);
 

@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/presentation/widgets/overview_context_menu.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../animal_display_names.dart';
+import '../animal_quick_action_dialogs.dart';
 import 'animal_detail_page.dart';
+
+enum _ArchivedAnimalAction { duplicate }
 
 class AnimalHistoryPage extends StatefulWidget {
   final AppDatabase database;
@@ -53,6 +58,70 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
     });
   }
 
+  Future<void> _duplicateAnimal(Animal animal) async {
+    List<Box> boxes;
+    try {
+      boxes = await BoxRepository(widget.database).getActiveBoxes();
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToLoadBoxes);
+      }
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    if (boxes.isEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          key: const Key('duplicate-animal-no-boxes-dialog'),
+          title: Text(context.l10n.noBoxesAvailableTitle),
+          content: Text(context.l10n.noBoxesForAnimal),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(context.l10n.ok),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    final input = await showDialog<DuplicateAnimalInput>(
+      context: context,
+      builder: (_) => DuplicateAnimalDialog(
+        initialName: context.l10n.copyName(animal.commonName),
+        boxes: boxes,
+      ),
+    );
+    if (!mounted || input == null) {
+      return;
+    }
+
+    try {
+      await AnimalRepository(widget.database).duplicateAnimal(
+        sourceAnimalId: animal.id,
+        boxId: input.boxId,
+        commonName: input.commonName,
+      );
+      if (!mounted) {
+        return;
+      }
+      Navigator.of(context).pop(true);
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToDuplicateAnimal);
+      }
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,22 +156,45 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
                 latinName: animal.latinName,
               );
 
-              return ListTile(
-                key: Key('archived-animal-list-item-${animal.id}'),
-                leading: const Icon(Icons.history),
-                title: Text(displayNames.primary),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(displayNames.secondary),
-                    const SizedBox(height: 4),
-                    Text(_archiveSummary(context, animal)),
-                  ],
+              return OverviewContextMenu<_ArchivedAnimalAction>(
+                key: Key('archived-animal-context-menu-region-${animal.id}'),
+                menuButtonKey: Key(
+                  'archived-animal-context-menu-button-${animal.id}',
                 ),
-                isThreeLine: true,
-                onTap: () {
-                  _openAnimalDetail(animal, animals);
+                tooltip: context.l10n.animalActions(displayNames.primary),
+                onSelected: (_) {
+                  _duplicateAnimal(animal);
                 },
+                itemBuilder: (context) => [
+                  PopupMenuItem<_ArchivedAnimalAction>(
+                    value: _ArchivedAnimalAction.duplicate,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.copy_outlined, size: 20),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(context.l10n.duplicateAnimal)),
+                      ],
+                    ),
+                  ),
+                ],
+                builder: (context, menuButton) => ListTile(
+                  key: Key('archived-animal-list-item-${animal.id}'),
+                  leading: const Icon(Icons.history),
+                  title: Text(displayNames.primary),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(displayNames.secondary),
+                      const SizedBox(height: 4),
+                      Text(_archiveSummary(context, animal)),
+                    ],
+                  ),
+                  isThreeLine: true,
+                  trailing: menuButton,
+                  onTap: () {
+                    _openAnimalDetail(animal, animals);
+                  },
+                ),
               );
             },
           );

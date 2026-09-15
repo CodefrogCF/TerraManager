@@ -8,6 +8,7 @@ import '../enums/sex.dart';
 import '../enums/box_status.dart';
 import '../validation/animal_environmental_limits.dart';
 import 'box_lifecycle_exception.dart';
+import 'media_repository.dart';
 
 class AnimalRepository {
   final AppDatabase database;
@@ -126,6 +127,109 @@ class AnimalRepository {
               ),
               feedingReminderBaseline: Value.absentIfNull(
                 feedingReminderBaseline,
+              ),
+            ),
+          );
+    });
+  }
+
+  Future<bool> renameAnimal({
+    required int animalId,
+    required String commonName,
+  }) async {
+    final normalizedName = commonName.trim();
+    if (normalizedName.isEmpty) {
+      throw ArgumentError.value(
+        commonName,
+        'commonName',
+        'Common name must not be empty.',
+      );
+    }
+
+    final updatedRows =
+        await (database.update(database.animals)..where(
+              (animal) =>
+                  animal.id.equals(animalId) &
+                  animal.status.equalsValue(AnimalStatus.active),
+            ))
+            .write(
+              AnimalsCompanion(
+                commonName: Value(normalizedName),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+
+    return updatedRows == 1;
+  }
+
+  Future<int> duplicateAnimal({
+    required int sourceAnimalId,
+    required int boxId,
+    required String commonName,
+  }) async {
+    final normalizedName = commonName.trim();
+    if (normalizedName.isEmpty) {
+      throw ArgumentError.value(
+        commonName,
+        'commonName',
+        'Common name must not be empty.',
+      );
+    }
+
+    return database.transaction(() async {
+      final source = await getAnimalById(sourceAnimalId);
+      if (source == null) {
+        throw StateError('Animal $sourceAnimalId does not exist');
+      }
+
+      await _requireActiveBox(boxId);
+      AnimalEnvironmentalLimits.validate(
+        temperatureMinimum: source.tempMin,
+        temperatureMaximum: source.tempMax,
+        humidityMinimum: source.humidityMin,
+        humidityMaximum: source.humidityMax,
+      );
+      _validateFeedingReminder(
+        intervalDays: source.feedingReminderIntervalDays,
+        baseline: source.feedingReminderBaseline,
+      );
+
+      final copiedPictureMediaId = source.pictureMediaId == null
+          ? null
+          : await MediaRepository(database)
+                .duplicateMedia(source.pictureMediaId!);
+
+      return database
+          .into(database.animals)
+          .insert(
+            AnimalsCompanion.insert(
+              boxId: Value(boxId),
+              commonName: normalizedName,
+              latinName: source.latinName,
+              sex: Value.absentIfNull(source.sex),
+              birthDate: Value.absentIfNull(source.birthDate),
+              birthDateAccuracy: Value.absentIfNull(source.birthDateAccuracy),
+              tempMin: source.tempMin,
+              tempMax: source.tempMax,
+              humidityMin: source.humidityMin,
+              humidityMax: source.humidityMax,
+              originHabitat: Value.absentIfNull(source.originHabitat),
+              weight: Value.absentIfNull(source.weight),
+              sheddingNotes: Value.absentIfNull(source.sheddingNotes),
+              restOrDormancyPeriods: Value.absentIfNull(
+                source.restOrDormancyPeriods,
+              ),
+              temperatureZones: Value.absentIfNull(source.temperatureZones),
+              pictureMediaId: Value.absentIfNull(copiedPictureMediaId),
+              picturePath: copiedPictureMediaId == null
+                  ? Value.absentIfNull(source.picturePath)
+                  : const Value.absent(),
+              notes: Value.absentIfNull(source.notes),
+              feedingReminderIntervalDays: Value.absentIfNull(
+                source.feedingReminderIntervalDays,
+              ),
+              feedingReminderBaseline: Value.absentIfNull(
+                source.feedingReminderBaseline,
               ),
             ),
           );

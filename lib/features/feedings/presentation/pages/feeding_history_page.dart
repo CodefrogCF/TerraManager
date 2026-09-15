@@ -4,6 +4,22 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 
+Future<bool?> showFeedingEntryDialog({
+  required BuildContext context,
+  required AppDatabase database,
+  required int animalId,
+  FeedingEvent? feeding,
+}) {
+  return showDialog<bool>(
+    context: context,
+    builder: (context) => _FeedingDialog(
+      database: database,
+      animalId: animalId,
+      feeding: feeding,
+    ),
+  );
+}
+
 class FeedingHistoryPage extends StatefulWidget {
   final AppDatabase database;
   final int animalId;
@@ -36,14 +52,10 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
   }
 
   Future<void> _addFeeding() async {
-    final created = await showDialog<bool>(
+    final created = await showFeedingEntryDialog(
       context: context,
-      builder: (context) {
-        return _FeedingDialog(
-          database: widget.database,
-          animalId: widget.animalId,
-        );
-      },
+      database: widget.database,
+      animalId: widget.animalId,
     );
 
     if (!mounted || created != true) {
@@ -56,15 +68,11 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
   }
 
   Future<void> _editFeeding(FeedingEvent feeding) async {
-    final changed = await showDialog<bool>(
+    final changed = await showFeedingEntryDialog(
       context: context,
-      builder: (context) {
-        return _FeedingDialog(
-          database: widget.database,
-          animalId: widget.animalId,
-          feeding: feeding,
-        );
-      },
+      database: widget.database,
+      animalId: widget.animalId,
+      feeding: feeding,
     );
 
     if (!mounted || changed != true) {

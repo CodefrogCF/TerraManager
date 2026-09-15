@@ -74,6 +74,14 @@ void main() {
     expect(l10n.animalSortAgeYoungestFirst, 'Youngest animals first');
     expect(l10n.animalSortLatestFeedingNewestFirst, 'Newest feeding first');
     expect(l10n.animalSortLatestFeedingOldestFirst, 'Oldest feeding first');
+    expect(l10n.animalActions('Mango'), 'Actions for Mango');
+    expect(l10n.boxActions('Main Box'), 'Actions for Main Box');
+    expect(l10n.createFeeding, 'Create Feeding');
+    expect(l10n.renameAnimal, 'Rename Animal');
+    expect(l10n.renameBox, 'Rename Box');
+    expect(l10n.duplicateAnimal, 'Duplicate Animal');
+    expect(l10n.duplicateBox, 'Duplicate Box');
+    expect(l10n.copyName('Mango'), 'Mango (copy)');
     expect(l10n.animalsDueForFeeding(1), '1 Animal is due for feeding');
     expect(l10n.animalsDueForFeeding(3), '3 Animals are due for feeding');
     expect(
@@ -157,6 +165,14 @@ void main() {
     expect(l10n.animalSortAgeYoungestFirst, 'Jüngste Tiere zuerst');
     expect(l10n.animalSortLatestFeedingNewestFirst, 'Neueste Fütterung zuerst');
     expect(l10n.animalSortLatestFeedingOldestFirst, 'Älteste Fütterung zuerst');
+    expect(l10n.animalActions('Mango'), 'Aktionen für Mango');
+    expect(l10n.boxActions('Hauptbox'), 'Aktionen für Hauptbox');
+    expect(l10n.createFeeding, 'Fütterung erstellen');
+    expect(l10n.renameAnimal, 'Tier umbenennen');
+    expect(l10n.renameBox, 'Box umbenennen');
+    expect(l10n.duplicateAnimal, 'Tier duplizieren');
+    expect(l10n.duplicateBox, 'Box duplizieren');
+    expect(l10n.copyName('Mango'), 'Mango (Kopie)');
     expect(l10n.animalsDueForFeeding(1), '1 Tier ist zur Fütterung fällig');
     expect(l10n.animalsDueForFeeding(3), '3 Tiere sind zur Fütterung fällig');
     expect(

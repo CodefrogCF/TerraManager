@@ -49,6 +49,20 @@ class MediaRepository {
         );
   }
 
+  Future<int> duplicateMedia(int mediaId) async {
+    final source = await getMediaById(mediaId);
+
+    if (source == null) {
+      throw StateError('Media asset $mediaId does not exist');
+    }
+
+    return createMedia(
+      fileName: source.fileName,
+      mimeType: source.mimeType,
+      data: Uint8List.fromList(source.data),
+    );
+  }
+
   Future<bool> updateMedia({
     required int mediaId,
     required String fileName,

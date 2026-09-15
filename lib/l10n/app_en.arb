@@ -491,5 +491,44 @@
   "weight": "Weight",
   "sheddingNotes": "Shedding notes",
   "restOrDormancyPeriods": "Rest or dormancy periods",
-  "temperatureZones": "Temperature zones"
+  "temperatureZones": "Temperature zones",
+  "animalActions": "Actions for {name}",
+  "@animalActions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "boxActions": "Actions for {name}",
+  "@boxActions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "createFeeding": "Create Feeding",
+  "renameAnimal": "Rename Animal",
+  "renameBox": "Rename Box",
+  "duplicate": "Duplicate",
+  "duplicateAnimal": "Duplicate Animal",
+  "duplicateBox": "Duplicate Box",
+  "copyName": "{name} (copy)",
+  "@copyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "animalRenamed": "Animal renamed",
+  "boxRenamed": "Box renamed",
+  "animalDuplicated": "Animal duplicated",
+  "boxDuplicated": "Box duplicated",
+  "feedingCreated": "Feeding created",
+  "failedToRenameAnimal": "Failed to rename Animal",
+  "failedToRenameBox": "Failed to rename Box",
+  "failedToDuplicateAnimal": "Failed to duplicate Animal",
+  "failedToDuplicateBox": "Failed to duplicate Box"
 }

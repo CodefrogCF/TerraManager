@@ -353,5 +353,44 @@
   "weight": "Gewicht",
   "sheddingNotes": "Häutungsnotizen",
   "restOrDormancyPeriods": "Ruhe- oder Dormanzzeiten",
-  "temperatureZones": "Temperaturzonen"
+  "temperatureZones": "Temperaturzonen",
+  "animalActions": "Aktionen für {name}",
+  "@animalActions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "boxActions": "Aktionen für {name}",
+  "@boxActions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "createFeeding": "Fütterung erstellen",
+  "renameAnimal": "Tier umbenennen",
+  "renameBox": "Box umbenennen",
+  "duplicate": "Duplizieren",
+  "duplicateAnimal": "Tier duplizieren",
+  "duplicateBox": "Box duplizieren",
+  "copyName": "{name} (Kopie)",
+  "@copyName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "animalRenamed": "Tier umbenannt",
+  "boxRenamed": "Box umbenannt",
+  "animalDuplicated": "Tier dupliziert",
+  "boxDuplicated": "Box dupliziert",
+  "feedingCreated": "Fütterung erstellt",
+  "failedToRenameAnimal": "Tier konnte nicht umbenannt werden",
+  "failedToRenameBox": "Box konnte nicht umbenannt werden",
+  "failedToDuplicateAnimal": "Tier konnte nicht dupliziert werden",
+  "failedToDuplicateBox": "Box konnte nicht dupliziert werden"
 }

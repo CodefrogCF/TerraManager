@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
+import '../../../../core/presentation/widgets/overview_context_menu.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/presentation/pages/feeding_scanner_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../settings/app_settings_controller.dart';
 import '../../../settings/box_sort_order.dart';
+import '../box_lifecycle_dialogs.dart';
 import '../box_overview_sorting.dart';
+import '../box_quick_action_dialogs.dart';
 import 'box_detail_page.dart';
+import 'box_edit_page.dart';
 import 'box_scanner_page.dart';
 import 'new_box_page.dart';
+
+enum _BoxOverviewAction { rename, edit, duplicate, archive }
 
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
@@ -181,6 +189,163 @@ class _BoxesPageState extends State<BoxesPage> {
     await _reloadBoxesPreservingScroll(previousOffset);
   }
 
+  Future<void> _handleBoxAction(_BoxOverviewAction action, Box box) async {
+    switch (action) {
+      case _BoxOverviewAction.rename:
+        await _renameBox(box);
+        return;
+      case _BoxOverviewAction.edit:
+        await _editBox(box);
+        return;
+      case _BoxOverviewAction.duplicate:
+        await _duplicateBox(box);
+        return;
+      case _BoxOverviewAction.archive:
+        await _archiveBox(box);
+        return;
+    }
+  }
+
+  Future<void> _renameBox(Box box) async {
+    final input = await showDialog<BoxNameInput>(
+      context: context,
+      builder: (_) => RenameBoxDialog(initialName: box.name),
+    );
+    if (!mounted || input == null) {
+      return;
+    }
+
+    try {
+      final renamed = await BoxRepository(widget.database)
+          .renameBox(boxId: box.id, name: input.name);
+      if (!mounted) {
+        return;
+      }
+      if (!renamed) {
+        _showMessage(context.l10n.failedToRenameBox);
+        return;
+      }
+
+      await _reloadBoxesPreservingScroll(_currentScrollOffset());
+      if (mounted) {
+        _showMessage(context.l10n.boxRenamed);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToRenameBox);
+      }
+    }
+  }
+
+  Future<void> _editBox(Box box) async {
+    final previousOffset = _currentScrollOffset();
+    await Navigator.of(context).push<BoxEditResult>(
+      MaterialPageRoute(
+        builder: (_) => BoxEditPage(database: widget.database, boxId: box.id),
+      ),
+    );
+    if (mounted) {
+      await _reloadBoxesPreservingScroll(previousOffset);
+    }
+  }
+
+  Future<void> _duplicateBox(Box box) async {
+    final sourceName = _boxName(box);
+    final input = await showDialog<BoxNameInput>(
+      context: context,
+      builder: (_) => DuplicateBoxDialog(
+        initialName: sourceName == null
+            ? null
+            : context.l10n.copyName(sourceName),
+      ),
+    );
+    if (!mounted || input == null) {
+      return;
+    }
+
+    try {
+      await BoxRepository(widget.database)
+          .duplicateBox(sourceBoxId: box.id, name: input.name);
+      if (!mounted) {
+        return;
+      }
+
+      if (widget.showArchived && Navigator.of(context).canPop()) {
+        Navigator.of(context).pop(true);
+        return;
+      }
+
+      await _reloadBoxesPreservingScroll(_currentScrollOffset());
+      if (mounted) {
+        _showMessage(context.l10n.boxDuplicated);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToDuplicateBox);
+      }
+    }
+  }
+
+  Future<void> _archiveBox(Box box) async {
+    try {
+      final animals = await AnimalRepository(widget.database)
+          .getAnimalsForBox(box.id);
+      if (!mounted) {
+        return;
+      }
+      if (animals.isNotEmpty) {
+        await showDialog<void>(
+          context: context,
+          builder: (_) => CannotArchiveBoxDialog(animals: animals),
+        );
+        return;
+      }
+
+      final input = await showDialog<ArchiveBoxInput>(
+        context: context,
+        builder: (_) => const ArchiveBoxDialog(hasUnsavedChanges: false),
+      );
+      if (!mounted || input == null) {
+        return;
+      }
+
+      final archived = await BoxRepository(widget.database).archiveBox(
+        boxId: box.id,
+        reason: input.reason,
+        archivedAt: DateTime.now(),
+        archiveNotes: input.notes,
+      );
+      if (!mounted) {
+        return;
+      }
+      if (!archived) {
+        _showMessage(context.l10n.failedToArchiveBox);
+        return;
+      }
+
+      await _reloadBoxesPreservingScroll(_currentScrollOffset());
+      if (mounted) {
+        _showMessage(context.l10n.boxArchived);
+      }
+    } on BoxArchiveBlockedException catch (error) {
+      if (mounted) {
+        await showDialog<void>(
+          context: context,
+          builder: (_) => CannotArchiveBoxDialog(animals: error.animals),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToArchiveBox);
+      }
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _openScannerPage() async {
     final previousOffset = _currentScrollOffset();
 
@@ -199,10 +364,14 @@ class _BoxesPageState extends State<BoxesPage> {
 
   Future<void> _openArchive() async {
     final previousOffset = _currentScrollOffset();
-    await Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(
-        builder: (_) =>
-            BoxesPage(database: widget.database, showArchived: true),
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => BoxesPage(
+          database: widget.database,
+          onFeedingChanged: widget.onFeedingChanged,
+          onAnimalsChanged: widget.onAnimalsChanged,
+          showArchived: true,
+        ),
       ),
     );
     if (mounted) {
@@ -311,39 +480,72 @@ class _BoxesPageState extends State<BoxesPage> {
               final boxLabel = context.l10n.boxLabel(box.id);
               final dimensions = _formatDimensions(context, box);
 
-              return ListTile(
-                key: Key('box-list-item-${box.id}'),
-                leading: FutureBuilder<MediaAsset?>(
-                  future: _pictureFutureFor(box.pictureMediaId),
-                  builder: (context, pictureSnapshot) {
-                    return MediaThumbnail(
-                      key: Key('box-thumbnail-${box.id}'),
-                      pictureBytes: pictureSnapshot.data?.data,
-                      fallbackIcon: Icons.inventory_2_outlined,
-                    );
+              return OverviewContextMenu<_BoxOverviewAction>(
+                key: Key('box-context-menu-region-${box.id}'),
+                menuButtonKey: Key('box-context-menu-button-${box.id}'),
+                tooltip: context.l10n.boxActions(boxName ?? boxLabel),
+                onSelected: (action) {
+                  _handleBoxAction(action, box);
+                },
+                itemBuilder: (context) => [
+                  if (!widget.showArchived) ...[
+                    _boxMenuItem(
+                      action: _BoxOverviewAction.rename,
+                      icon: Icons.drive_file_rename_outline,
+                      label: context.l10n.renameBox,
+                    ),
+                    _boxMenuItem(
+                      action: _BoxOverviewAction.edit,
+                      icon: Icons.edit_outlined,
+                      label: context.l10n.editBox,
+                    ),
+                  ],
+                  _boxMenuItem(
+                    action: _BoxOverviewAction.duplicate,
+                    icon: Icons.copy_outlined,
+                    label: context.l10n.duplicateBox,
+                  ),
+                  if (!widget.showArchived)
+                    _boxMenuItem(
+                      action: _BoxOverviewAction.archive,
+                      icon: Icons.archive_outlined,
+                      label: context.l10n.archiveBox,
+                    ),
+                ],
+                builder: (context, menuButton) => ListTile(
+                  key: Key('box-list-item-${box.id}'),
+                  leading: FutureBuilder<MediaAsset?>(
+                    future: _pictureFutureFor(box.pictureMediaId),
+                    builder: (context, pictureSnapshot) {
+                      return MediaThumbnail(
+                        key: Key('box-thumbnail-${box.id}'),
+                        pictureBytes: pictureSnapshot.data?.data,
+                        fallbackIcon: Icons.inventory_2_outlined,
+                      );
+                    },
+                  ),
+                  title: Text(
+                    boxName ?? boxLabel,
+                    key: boxName == null
+                        ? Key('box-label-${box.id}')
+                        : Key('box-name-${box.id}'),
+                  ),
+                  subtitle: boxName == null
+                      ? Text(dimensions)
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(boxLabel, key: Key('box-label-${box.id}')),
+                            Text(dimensions),
+                          ],
+                        ),
+                  isThreeLine: boxName != null,
+                  trailing: menuButton,
+                  onTap: () {
+                    _openBoxDetail(box, boxes);
                   },
                 ),
-                title: Text(
-                  boxName ?? boxLabel,
-                  key: boxName == null
-                      ? Key('box-label-${box.id}')
-                      : Key('box-name-${box.id}'),
-                ),
-                subtitle: boxName == null
-                    ? Text(dimensions)
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(boxLabel, key: Key('box-label-${box.id}')),
-                          Text(dimensions),
-                        ],
-                      ),
-                isThreeLine: boxName != null,
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  _openBoxDetail(box, boxes);
-                },
               );
             },
           );
@@ -360,4 +562,21 @@ class _BoxesPageState extends State<BoxesPage> {
             ),
     );
   }
+}
+
+PopupMenuItem<_BoxOverviewAction> _boxMenuItem({
+  required _BoxOverviewAction action,
+  required IconData icon,
+  required String label,
+}) {
+  return PopupMenuItem<_BoxOverviewAction>(
+    value: action,
+    child: Row(
+      children: [
+        Icon(icon, size: 20),
+        const SizedBox(width: 8),
+        Flexible(child: Text(label)),
+      ],
+    ),
+  );
 }

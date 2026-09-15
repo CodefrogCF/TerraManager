@@ -6,6 +6,7 @@ import '../enums/box_status.dart';
 import '../enums/box_archive_reason.dart';
 import 'animal_repository.dart';
 import 'box_lifecycle_exception.dart';
+import 'media_repository.dart';
 
 class BoxRepository {
   final AppDatabase database;
@@ -141,6 +142,54 @@ class BoxRepository {
       notes: notes,
       pictureMediaId: pictureMediaId,
     );
+  }
+
+  Future<bool> renameBox({required int boxId, required String? name}) async {
+    final normalizedName = name?.trim();
+    final updatedRows =
+        await (database.update(database.boxes)..where(
+              (box) =>
+                  box.id.equals(boxId) &
+                  box.status.equalsValue(BoxStatus.active),
+            ))
+            .write(
+              BoxesCompanion(
+                name: Value(
+                  normalizedName == null || normalizedName.isEmpty
+                      ? null
+                      : normalizedName,
+                ),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+
+    return updatedRows == 1;
+  }
+
+  Future<int> duplicateBox({required int sourceBoxId, required String? name}) {
+    return database.transaction(() async {
+      final source = await getBoxById(sourceBoxId);
+      if (source == null) {
+        throw StateError('Box $sourceBoxId does not exist');
+      }
+
+      final copiedPictureMediaId = source.pictureMediaId == null
+          ? null
+          : await MediaRepository(database)
+                .duplicateMedia(source.pictureMediaId!);
+      final normalizedName = name?.trim();
+
+      return createBoxWithGeneratedQrId(
+        name: normalizedName == null || normalizedName.isEmpty
+            ? null
+            : normalizedName,
+        widthCm: source.widthCm,
+        heightCm: source.heightCm,
+        depthCm: source.depthCm,
+        notes: source.notes,
+        pictureMediaId: copiedPictureMediaId,
+      );
+    });
   }
 
   Future<bool> updateBox({

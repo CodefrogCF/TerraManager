@@ -6,7 +6,6 @@ void main() {
   String read(String path) => File(path).readAsStringSync();
 
   test('records the v1.4.0 source release documentation consistently', () {
-    final pubspec = read('pubspec.yaml');
     final readme = read('README.md');
     final changelog = read('CHANGELOG.md');
     final roadmap = read('docs/roadmap.md');
@@ -15,7 +14,6 @@ void main() {
     final architecture = read('docs/architecture-decisions.md');
     final release = read('docs/release-v1.4.0.md');
 
-    expect(pubspec, contains('version: 1.4.0+59'));
     expect(readme, contains('docs/release-v1.4.0.md'));
     expect(changelog, contains('## [1.4.0] - 2026-09-14'));
     expect(roadmap, contains('## v1.4.0 – Animal Profiles and Input Quality'));

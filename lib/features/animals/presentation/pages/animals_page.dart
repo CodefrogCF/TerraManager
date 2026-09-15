@@ -2,22 +2,30 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
+import '../../../../core/presentation/widgets/overview_context_menu.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
+import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../settings/animal_name_order.dart';
 import '../../../settings/animal_sort_order.dart';
 import '../../../settings/app_settings_controller.dart';
+import '../animal_archive_dialog.dart';
 import '../animal_display_names.dart';
 import '../animal_overview_sorting.dart';
+import '../animal_quick_action_dialogs.dart';
 import 'animal_detail_page.dart';
+import 'animal_edit_page.dart';
 import 'animal_history_page.dart';
 import 'new_animal_page.dart';
+
+enum _AnimalOverviewAction { createFeeding, rename, edit, archive, duplicate }
 
 class AnimalsPage extends StatefulWidget {
   final AppDatabase database;
@@ -183,6 +191,200 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
 
     await _reloadAnimalsPreservingScroll(previousOffset);
+  }
+
+  Future<void> _handleAnimalAction(
+    _AnimalOverviewAction action,
+    Animal animal,
+  ) async {
+    switch (action) {
+      case _AnimalOverviewAction.createFeeding:
+        await _createFeeding(animal);
+        return;
+      case _AnimalOverviewAction.rename:
+        await _renameAnimal(animal);
+        return;
+      case _AnimalOverviewAction.edit:
+        await _editAnimal(animal);
+        return;
+      case _AnimalOverviewAction.archive:
+        await _archiveAnimal(animal);
+        return;
+      case _AnimalOverviewAction.duplicate:
+        await _duplicateAnimal(animal);
+        return;
+    }
+  }
+
+  Future<void> _createFeeding(Animal animal) async {
+    final created = await showFeedingEntryDialog(
+      context: context,
+      database: widget.database,
+      animalId: animal.id,
+    );
+    if (!mounted || created != true) {
+      return;
+    }
+
+    await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+    if (mounted) {
+      _showMessage(context.l10n.feedingCreated);
+    }
+  }
+
+  Future<void> _renameAnimal(Animal animal) async {
+    final name = await showDialog<String>(
+      context: context,
+      builder: (_) => RenameAnimalDialog(initialName: animal.commonName),
+    );
+    if (!mounted || name == null) {
+      return;
+    }
+
+    try {
+      final renamed = await AnimalRepository(widget.database)
+          .renameAnimal(animalId: animal.id, commonName: name);
+      if (!mounted) {
+        return;
+      }
+      if (!renamed) {
+        _showMessage(context.l10n.failedToRenameAnimal);
+        return;
+      }
+
+      await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+      if (mounted) {
+        _showMessage(context.l10n.animalRenamed);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToRenameAnimal);
+      }
+    }
+  }
+
+  Future<void> _editAnimal(Animal animal) async {
+    final previousOffset = _currentScrollOffset();
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) =>
+            AnimalEditPage(database: widget.database, animalId: animal.id),
+      ),
+    );
+    if (mounted) {
+      await _reloadAnimalsPreservingScroll(previousOffset);
+    }
+  }
+
+  Future<void> _archiveAnimal(Animal animal) async {
+    final input = await showDialog<AnimalArchiveInput>(
+      context: context,
+      builder: (_) => const AnimalArchiveDialog(hasUnsavedChanges: false),
+    );
+    if (!mounted || input == null) {
+      return;
+    }
+
+    try {
+      final archived = await AnimalRepository(widget.database).archiveAnimal(
+        animalId: animal.id,
+        reason: input.reason,
+        archivedAt: input.archivedAt,
+        archiveNotes: input.notes,
+      );
+      if (!mounted) {
+        return;
+      }
+      if (!archived) {
+        _showMessage(context.l10n.failedToArchiveAnimal);
+        return;
+      }
+
+      await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+      if (mounted) {
+        _showMessage(context.l10n.animalArchived);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToArchiveAnimal);
+      }
+    }
+  }
+
+  Future<void> _duplicateAnimal(Animal animal) async {
+    List<Box> boxes;
+    try {
+      boxes = await BoxRepository(widget.database).getActiveBoxes();
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToLoadBoxes);
+      }
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
+    if (boxes.isEmpty) {
+      await _showNoBoxesDialog();
+      return;
+    }
+
+    final input = await showDialog<DuplicateAnimalInput>(
+      context: context,
+      builder: (_) => DuplicateAnimalDialog(
+        initialName: context.l10n.copyName(animal.commonName),
+        boxes: boxes,
+        initialBoxId: animal.boxId,
+      ),
+    );
+    if (!mounted || input == null) {
+      return;
+    }
+
+    try {
+      await AnimalRepository(widget.database).duplicateAnimal(
+        sourceAnimalId: animal.id,
+        boxId: input.boxId,
+        commonName: input.commonName,
+      );
+      if (!mounted) {
+        return;
+      }
+      await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+      if (mounted) {
+        _showMessage(context.l10n.animalDuplicated);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToDuplicateAnimal);
+      }
+    }
+  }
+
+  Future<void> _showNoBoxesDialog() {
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: const Key('duplicate-animal-no-boxes-dialog'),
+        title: Text(context.l10n.noBoxesAvailableTitle),
+        content: Text(context.l10n.noBoxesForAnimal),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.l10n.ok),
+          ),
+        ],
+      ),
+    );
+  }
+
+  double _currentScrollOffset() {
+    return _scrollController.hasClients ? _scrollController.offset : 0;
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   Widget _buildReminderSummary(
@@ -364,57 +566,90 @@ class _AnimalsPageState extends State<AnimalsPage> {
                 latinName: animal.latinName,
               );
 
-              return ListTile(
-                key: Key('animal-list-item-${animal.id}'),
-                leading: FutureBuilder<MediaAsset?>(
-                  future: _pictureFutureFor(animal.pictureMediaId),
-                  builder: (context, pictureSnapshot) {
-                    return MediaThumbnail(
-                      key: Key('animal-thumbnail-${animal.id}'),
-                      pictureBytes: pictureSnapshot.data?.data,
-                      picturePath: pictureSnapshot.data == null
-                          ? animal.picturePath
-                          : null,
-                      fallbackIcon: Icons.emoji_nature_outlined,
-                    );
-                  },
-                ),
-                title: Text(displayNames.primary),
-                subtitle: Text(displayNames.secondary),
-                trailing: dueReminder == null
-                    ? const Icon(Icons.chevron_right)
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            key: Key('animal-due-marker-${animal.id}'),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
+              return OverviewContextMenu<_AnimalOverviewAction>(
+                key: Key('animal-context-menu-region-${animal.id}'),
+                menuButtonKey: Key('animal-context-menu-button-${animal.id}'),
+                tooltip: context.l10n.animalActions(displayNames.primary),
+                onSelected: (action) {
+                  _handleAnimalAction(action, animal);
+                },
+                itemBuilder: (context) => [
+                  _animalMenuItem(
+                    action: _AnimalOverviewAction.createFeeding,
+                    icon: Icons.restaurant_outlined,
+                    label: context.l10n.createFeeding,
+                  ),
+                  _animalMenuItem(
+                    action: _AnimalOverviewAction.rename,
+                    icon: Icons.drive_file_rename_outline,
+                    label: context.l10n.renameAnimal,
+                  ),
+                  _animalMenuItem(
+                    action: _AnimalOverviewAction.edit,
+                    icon: Icons.edit_outlined,
+                    label: context.l10n.editAnimal,
+                  ),
+                  _animalMenuItem(
+                    action: _AnimalOverviewAction.archive,
+                    icon: Icons.archive_outlined,
+                    label: context.l10n.archiveAnimal,
+                  ),
+                  _animalMenuItem(
+                    action: _AnimalOverviewAction.duplicate,
+                    icon: Icons.copy_outlined,
+                    label: context.l10n.duplicateAnimal,
+                  ),
+                ],
+                builder: (context, menuButton) => ListTile(
+                  key: Key('animal-list-item-${animal.id}'),
+                  leading: FutureBuilder<MediaAsset?>(
+                    future: _pictureFutureFor(animal.pictureMediaId),
+                    builder: (context, pictureSnapshot) {
+                      return MediaThumbnail(
+                        key: Key('animal-thumbnail-${animal.id}'),
+                        pictureBytes: pictureSnapshot.data?.data,
+                        picturePath: pictureSnapshot.data == null
+                            ? animal.picturePath
+                            : null,
+                        fallbackIcon: Icons.emoji_nature_outlined,
+                      );
+                    },
+                  ),
+                  title: Text(displayNames.primary),
+                  subtitle: Text(displayNames.secondary),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (dueReminder != null) ...[
+                        Container(
+                          key: Key('animal-due-marker-${animal.id}'),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.errorContainer,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            context.l10n.due,
+                            style: TextStyle(
                               color: Theme.of(context)
                                   .colorScheme
-                                  .errorContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              context.l10n.due,
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onErrorContainer,
-                                fontWeight: FontWeight.w600,
-                              ),
+                                  .onErrorContainer,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                onTap: () {
-                  _openAnimalDetail(animal, animals);
-                },
+                        ),
+                        const SizedBox(width: 4),
+                      ],
+                      menuButton,
+                    ],
+                  ),
+                  onTap: () {
+                    _openAnimalDetail(animal, animals);
+                  },
+                ),
               );
             },
           );
@@ -429,6 +664,23 @@ class _AnimalsPageState extends State<AnimalsPage> {
       ),
     );
   }
+}
+
+PopupMenuItem<_AnimalOverviewAction> _animalMenuItem({
+  required _AnimalOverviewAction action,
+  required IconData icon,
+  required String label,
+}) {
+  return PopupMenuItem<_AnimalOverviewAction>(
+    value: action,
+    child: Row(
+      children: [
+        Icon(icon, size: 20),
+        const SizedBox(width: 8),
+        Flexible(child: Text(label)),
+      ],
+    ),
+  );
 }
 
 class _AnimalsOverviewData {

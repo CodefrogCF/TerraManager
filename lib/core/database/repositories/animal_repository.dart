@@ -83,7 +83,6 @@ class AnimalRepository {
     String? weight,
     String? sheddingNotes,
     String? restOrDormancyPeriods,
-    String? temperatureZones,
     int? pictureMediaId,
     String? picturePath,
     String? notes,
@@ -124,7 +123,6 @@ class AnimalRepository {
               weight: Value.absentIfNull(weight),
               sheddingNotes: Value.absentIfNull(sheddingNotes),
               restOrDormancyPeriods: Value.absentIfNull(restOrDormancyPeriods),
-              temperatureZones: Value.absentIfNull(temperatureZones),
               pictureMediaId: Value.absentIfNull(pictureMediaId),
               picturePath: Value.absentIfNull(picturePath),
               notes: Value.absentIfNull(notes),
@@ -227,7 +225,6 @@ class AnimalRepository {
               restOrDormancyPeriods: Value.absentIfNull(
                 source.restOrDormancyPeriods,
               ),
-              temperatureZones: Value.absentIfNull(source.temperatureZones),
               pictureMediaId: Value.absentIfNull(copiedPictureMediaId),
               picturePath: copiedPictureMediaId == null
                   ? Value.absentIfNull(source.picturePath)
@@ -262,7 +259,6 @@ class AnimalRepository {
     String? weight,
     String? sheddingNotes,
     String? restOrDormancyPeriods,
-    String? temperatureZones,
     int? pictureMediaId,
     String? picturePath,
     String? notes,
@@ -319,7 +315,6 @@ class AnimalRepository {
                   weight: Value(weight),
                   sheddingNotes: Value(sheddingNotes),
                   restOrDormancyPeriods: Value(restOrDormancyPeriods),
-                  temperatureZones: Value(temperatureZones),
                   pictureMediaId: Value(pictureMediaId),
                   picturePath: Value(picturePath),
                   notes: Value(notes),

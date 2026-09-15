@@ -144,6 +144,27 @@ void main() {
       storage: storage,
     );
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('save-box-qr-codes-button')),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(SettingsPage),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Choose the Boxes whose QR codes you want to save.'),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('box-qr-individual-zip-divider')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('box-qr-zip-pdf-divider')), findsOneWidget);
+
     for (final key in const [
       Key('save-box-qr-codes-button'),
       Key('save-box-qr-codes-zip-button'),

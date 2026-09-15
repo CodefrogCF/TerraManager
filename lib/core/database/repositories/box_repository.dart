@@ -107,6 +107,7 @@ class BoxRepository {
     double? widthCm,
     double? heightCm,
     double? depthCm,
+    String? temperatureZones,
     String? notes,
     int? pictureMediaId,
   }) {
@@ -119,6 +120,7 @@ class BoxRepository {
             widthCm: Value(widthCm),
             heightCm: Value(heightCm),
             depthCm: Value(depthCm),
+            temperatureZones: Value(temperatureZones),
             notes: Value(notes),
             pictureMediaId: Value(pictureMediaId),
           ),
@@ -130,6 +132,7 @@ class BoxRepository {
     double? widthCm,
     double? heightCm,
     double? depthCm,
+    String? temperatureZones,
     String? notes,
     int? pictureMediaId,
   }) {
@@ -139,6 +142,7 @@ class BoxRepository {
       widthCm: widthCm,
       heightCm: heightCm,
       depthCm: depthCm,
+      temperatureZones: temperatureZones,
       notes: notes,
       pictureMediaId: pictureMediaId,
     );
@@ -186,6 +190,7 @@ class BoxRepository {
         widthCm: source.widthCm,
         heightCm: source.heightCm,
         depthCm: source.depthCm,
+        temperatureZones: source.temperatureZones,
         notes: source.notes,
         pictureMediaId: copiedPictureMediaId,
       );
@@ -198,6 +203,7 @@ class BoxRepository {
     Value<double?> widthCm = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
     Value<double?> depthCm = const Value.absent(),
+    Value<String?> temperatureZones = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<int?> pictureMediaId = const Value.absent(),
   }) async {
@@ -219,6 +225,7 @@ class BoxRepository {
               widthCm: widthCm,
               heightCm: heightCm,
               depthCm: depthCm,
+              temperatureZones: temperatureZones,
               notes: notes,
               pictureMediaId: pictureMediaId,
               updatedAt: Value(DateTime.now()),

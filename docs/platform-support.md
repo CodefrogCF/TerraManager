@@ -73,8 +73,10 @@ recorded there.
 The v1.7.0 Animal Taxonomy & Category Views source regression is recorded in
 `release-v1.7.0.md`. It covers the complete localized Issue #127 taxonomy,
 Schema Version 10 migration, compatible Backup Format Version 2 values and the
-grouped Animal Overview on Android and Web. The update adds no storage, media,
-network or other device permission. Signed Android artifacts and physical
+grouped Animal Overview on Android and Web. It also covers Box-owned
+temperature-zone notes, legacy Animal-value transfer and the refined QR export
+action layout. The update adds no storage, media, network or other device
+permission. Signed Android artifacts and physical
 Android or hosted Web checks remain release-owner steps until recorded there.
 
 Portable Backup Format Version 2 has been validated between the currently

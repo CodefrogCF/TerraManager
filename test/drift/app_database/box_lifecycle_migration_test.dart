@@ -123,7 +123,6 @@ void main() {
           reason: '${entry.key} data must be unchanged',
         );
       }
-      expect(migrated.schemaVersion, 10);
       final boxes = await migrated.select(migrated.boxes).get();
       expect(boxes, hasLength(2));
       for (final box in boxes) {

@@ -32,6 +32,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
   final _depthController = TextEditingController();
+  final _temperatureZonesController = TextEditingController();
   final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
@@ -58,6 +59,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
     _widthController.dispose();
     _heightController.dispose();
     _depthController.dispose();
+    _temperatureZonesController.dispose();
     _notesController.dispose();
 
     super.dispose();
@@ -140,6 +142,8 @@ class _NewBoxPageState extends State<NewBoxPage> {
 
       final depthCm = _parseOptionalNumber(_depthController.text);
 
+      final temperatureZones = _temperatureZonesController.text.trim();
+
       final notes = _notesController.text.trim();
 
       await widget.database.transaction(() async {
@@ -158,6 +162,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
           widthCm: widthCm,
           heightCm: heightCm,
           depthCm: depthCm,
+          temperatureZones: temperatureZones.isEmpty ? null : temperatureZones,
           notes: notes.isEmpty ? null : notes,
           pictureMediaId: pictureMediaId,
         );
@@ -278,6 +283,19 @@ class _NewBoxPageState extends State<NewBoxPage> {
                     key: const Key('new-box-depth-field'),
                     controller: _depthController,
                     label: context.l10n.depthCentimeters,
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextFormField(
+                    key: const Key('new-box-temperature-zones-field'),
+                    controller: _temperatureZonesController,
+                    enabled: !_saving,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.temperatureZones,
+                      helperText: context.l10n.optional,
+                      alignLabelWithHint: true,
+                    ),
                   ),
                   const SizedBox(height: 16),
 

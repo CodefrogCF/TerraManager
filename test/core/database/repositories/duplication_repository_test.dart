@@ -45,6 +45,7 @@ void main() {
         widthCm: 60,
         heightCm: 45,
         depthCm: 40,
+        temperatureZones: 'Warm side 28 °C',
         notes: 'Source notes',
         pictureMediaId: pictureId,
       );
@@ -69,6 +70,7 @@ void main() {
       expect(duplicate.widthCm, source.widthCm);
       expect(duplicate.heightCm, source.heightCm);
       expect(duplicate.depthCm, source.depthCm);
+      expect(duplicate.temperatureZones, source.temperatureZones);
       expect(duplicate.notes, source.notes);
       expect(duplicate.status, BoxStatus.active);
       expect(duplicate.archiveReason, isNull);
@@ -128,7 +130,6 @@ void main() {
         weight: '420 g',
         sheddingNotes: 'Complete sheds',
         restOrDormancyPeriods: 'Winter rest',
-        temperatureZones: '22–31 °C',
         pictureMediaId: pictureId,
         notes: 'Profile notes',
         feedingReminderIntervalDays: 7,
@@ -172,7 +173,6 @@ void main() {
       expect(duplicate.weight, source.weight);
       expect(duplicate.sheddingNotes, source.sheddingNotes);
       expect(duplicate.restOrDormancyPeriods, source.restOrDormancyPeriods);
-      expect(duplicate.temperatureZones, source.temperatureZones);
       expect(duplicate.notes, source.notes);
       expect(
         duplicate.feedingReminderIntervalDays,
@@ -211,7 +211,6 @@ void main() {
         weight: duplicate.weight,
         sheddingNotes: duplicate.sheddingNotes,
         restOrDormancyPeriods: duplicate.restOrDormancyPeriods,
-        temperatureZones: duplicate.temperatureZones,
         pictureMediaId: duplicate.pictureMediaId,
         notes: duplicate.notes,
         feedingReminderIntervalDays: duplicate.feedingReminderIntervalDays,

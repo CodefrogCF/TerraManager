@@ -83,6 +83,19 @@ void main() {
     return (await BoxRepository(database).getBoxById(boxId))!;
   }
 
+  Future<Box> createBoxWithEnvironmentNotes({
+    String? temperatureZones,
+    String? notes,
+  }) async {
+    final boxId = await BoxRepository(database).createBox(
+      'TM:BOX:77777777-7777-4777-8777-777777777777',
+      temperatureZones: temperatureZones,
+      notes: notes,
+    );
+
+    return (await BoxRepository(database).getBoxById(boxId))!;
+  }
+
   Future<void> pumpPage(WidgetTester tester, {required Box box}) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -197,6 +210,34 @@ void main() {
     expect(find.text('Mist every evening\nClean monthly'), findsOneWidget);
   });
 
+  testWidgets('shows temperature zones before Box notes', (tester) async {
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final box = await createBoxWithEnvironmentNotes(
+      temperatureZones: 'Warm side 28 °C\nCool side 22 °C',
+      notes: 'Check temperatures daily',
+    );
+
+    await pumpPage(tester, box: box);
+
+    final temperatureZones = find.byKey(const Key('box-temperature-zones'));
+    final notes = find.byKey(const Key('box-notes'));
+    expect(
+      find.byKey(const Key('box-temperature-zones-heading')),
+      findsOneWidget,
+    );
+    expect(temperatureZones, findsOneWidget);
+    expect(find.text('Warm side 28 °C\nCool side 22 °C'), findsOneWidget);
+    expect(notes, findsOneWidget);
+    expect(
+      tester.getTopLeft(temperatureZones).dy,
+      lessThan(tester.getTopLeft(notes).dy),
+    );
+  });
+
   testWidgets('does not show an empty Box notes section', (tester) async {
     final box = await createBoxWithNotes(null);
 
@@ -204,6 +245,11 @@ void main() {
 
     expect(find.byKey(const Key('box-notes-heading')), findsNothing);
     expect(find.byKey(const Key('box-notes')), findsNothing);
+    expect(
+      find.byKey(const Key('box-temperature-zones-heading')),
+      findsNothing,
+    );
+    expect(find.byKey(const Key('box-temperature-zones')), findsNothing);
   });
 
   testWidgets('QR code receives box QR ID', (tester) async {

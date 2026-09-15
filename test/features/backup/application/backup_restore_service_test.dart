@@ -179,6 +179,7 @@ void main() {
             widthCm: 60,
             heightCm: 40,
             depthCm: 45,
+            temperatureZones: 'Warm side 28 °C',
             notes: 'Restored Box notes',
             pictureMediaPath: boxPicturePath,
             createdAt: DateTime(2026, 9, 1),
@@ -269,6 +270,7 @@ void main() {
     expect(boxes.single.widthCm, isNull);
     expect(boxes.single.heightCm, isNull);
     expect(boxes.single.depthCm, isNull);
+    expect(boxes.single.temperatureZones, '24–28 °C');
     expect(boxes.single.notes, isNull);
     expect(boxes.single.pictureMediaId, isNull);
 
@@ -616,6 +618,7 @@ void main() {
     expect(box.widthCm, 60);
     expect(box.heightCm, 40);
     expect(box.depthCm, 45);
+    expect(box.temperatureZones, 'Warm side 28 °C');
     expect(box.notes, 'Restored Box notes');
     expect(box.pictureMediaId, isNotNull);
 

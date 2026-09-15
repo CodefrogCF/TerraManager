@@ -1572,6 +1572,149 @@ i1.GeneratedColumn<String> _column_38(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
+
+final class Schema11 extends i0.VersionedSchema {
+  Schema11({required super.database}) : super(version: 11);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    mediaAssets,
+    boxes,
+    animals,
+    feedingEvents,
+  ];
+  late final Shape3 mediaAssets = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'media_assets',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_22,
+        _column_23,
+        _column_24,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 boxes = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'boxes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_5,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_31,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_36,
+        _column_16,
+        _column_25,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 animals = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'animals',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_37,
+        _column_38,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_32,
+        _column_33,
+        _column_34,
+        _column_35,
+        _column_36,
+        _column_15,
+        _column_25,
+        _column_16,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_29,
+        _column_30,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 feedingEvents = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'feeding_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_20, _column_21, _column_16],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape12 extends i0.VersionedTable {
+  Shape12({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get qrId =>
+      columnsByName['qr_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get status =>
+      columnsByName['status']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get archiveReason =>
+      columnsByName['archive_reason']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get archivedAt =>
+      columnsByName['archived_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get archiveNotes =>
+      columnsByName['archive_notes']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get name =>
+      columnsByName['name']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<double> get widthCm =>
+      columnsByName['width_cm']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<double> get heightCm =>
+      columnsByName['height_cm']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<double> get depthCm =>
+      columnsByName['depth_cm']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<String> get temperatureZones =>
+      columnsByName['temperature_zones']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get notes =>
+      columnsByName['notes']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get pictureMediaId =>
+      columnsByName['picture_media_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+}
+
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -1582,6 +1725,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
   required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
   required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
+  required Future<void> Function(i1.Migrator m, Schema11 schema) from10To11,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -1630,6 +1774,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from9To10(migrator, schema);
         return 10;
+      case 10:
+        final schema = Schema11(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from10To11(migrator, schema);
+        return 11;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -1646,6 +1795,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema8 schema) from7To8,
   required Future<void> Function(i1.Migrator m, Schema9 schema) from8To9,
   required Future<void> Function(i1.Migrator m, Schema10 schema) from9To10,
+  required Future<void> Function(i1.Migrator m, Schema11 schema) from10To11,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -1657,5 +1807,6 @@ i1.OnUpgrade stepByStep({
     from7To8: from7To8,
     from8To9: from8To9,
     from9To10: from9To10,
+    from10To11: from10To11,
   ),
 );

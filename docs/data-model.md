@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **9**.
+The current Drift database schema version is **10**.
 
 The current database model consists of:
 
@@ -58,6 +58,7 @@ Box
 ├── archiveReason
 ├── archivedAt
 ├── archiveNotes
+├── temperatureZones
 ├── notes
 ├── widthCm
 ├── heightCm
@@ -76,6 +77,7 @@ Box
 - archiveReason – nullable `sold`, `replaced`, `damaged` or `other`
 - archivedAt – nullable archive timestamp
 - archiveNotes – optional context for archiving, separate from ordinary notes
+- temperatureZones – optional free-form temperature-zone note
 - notes – optional ordinary Box notes
 - widthCm – optional enclosure width in centimeters
 - heightCm – optional enclosure height in centimeters
@@ -156,7 +158,6 @@ Animal
 ├── weight
 ├── sheddingNotes
 ├── restOrDormancyPeriods
-├── temperatureZones
 ├── picturePath
 ├── pictureMediaId
 ├── notes
@@ -187,7 +188,6 @@ Animal
 - weight – optional free-form current weight description
 - sheddingNotes – optional free-form shedding note
 - restOrDormancyPeriods – optional free-form rest or dormancy description
-- temperatureZones – optional free-form temperature-zone note
 - picturePath – nullable legacy picture reference retained for migration compatibility
 - pictureMediaId – nullable foreign key referencing MediaAsset
 - notes – optional notes
@@ -687,17 +687,24 @@ this schema.
 
 ### Schema Version 10
 
-Schema Version 10 adds the Animal taxonomy columns:
+Schema Version 10 adds the Animal taxonomy columns and Box temperature-zone
+field:
 
 ```text
 Animal.category
 Animal.subcategory
+Box.temperatureZones
 ```
 
 `category` is non-null and defaults to the stable value `other`.
 `subcategory` is nullable and must be compatible with its primary category.
 The v9 → v10 migration preserves every existing Box, Animal, FeedingEvent and
-MediaAsset; existing Animals begin as `other` without a subcategory.
+MediaAsset; existing Animals begin as `other` without a subcategory. It also
+adds the nullable Box temperature-zone field. When an assigned Animal has a
+legacy, non-empty temperature-zone value and its Box has none, the first value
+by Animal ID is trimmed and copied to the Box. The former Animal column remains
+only for legacy database and backup compatibility; current forms, details and
+repository writes treat the Box value as authoritative.
 
 Stable categories follow this canonical order:
 

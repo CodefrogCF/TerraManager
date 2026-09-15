@@ -453,7 +453,7 @@
   "boxQrCodes": "Box-QR-Codes",
   "boxQrCodesSectionDescription": "Speichere ausgewählte Box-QR-Codes als einzelne Bilder, ZIP-Archiv oder druckbares A4-PDF.",
   "saveBoxQrCodes": "Box-QR-Codes speichern",
-  "saveBoxQrCodesDescription": "Wähle die Boxen aus, deren QR-Codes gespeichert werden sollen. Zunächst sind alle Boxen ausgewählt.",
+  "saveBoxQrCodesDescription": "Wähle die Boxen aus, deren QR-Codes gespeichert werden sollen.",
   "activeBoxes": "Aktive Boxen",
   "clearSelection": "Auswahl leeren",
   "selectAtLeastOneBox": "Wähle mindestens eine Box aus.",

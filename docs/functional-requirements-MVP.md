@@ -22,6 +22,9 @@ The application must allow the user to:
 - persist the selected Box Overview order between application restarts
 - view Box details
 - edit optional Box width, height and depth
+- add, edit and clear an optional multiline Box temperature-zone note directly
+  above ordinary notes
+- display Box temperature zones on details only when content is present
 - add, edit and clear optional multiline Box notes
 - display Box notes on details only when content is present
 - add, replace or remove a persistent Box picture
@@ -91,7 +94,7 @@ The application must allow the user to:
 - add and edit notes
 - expand or collapse optional additional characteristics in both Animal forms
 - add, edit and clear origin or habitat, weight, shedding notes, rest or
-  dormancy periods and temperature zones as independent text fields
+  dormancy periods as independent text fields
 - omit empty additional characteristics from Animal details
 - store preferred temperature values
 - store preferred humidity values
@@ -381,7 +384,8 @@ Android and Web are validated platforms.
 The application must allow the user to:
 
 - create a portable backup of local TerraManager data
-- export Boxes, including optional names, dimensions and notes
+- export Boxes, including optional names, dimensions, temperature zones and
+  notes
 - export Animals
 - export stable Animal category and optional compatible subcategory values
 - export FeedingEvents
@@ -405,6 +409,8 @@ The application must allow the user to:
 - restore older backups without Box names using an empty default
 - restore optional Box notes
 - restore older backups without Box notes using an empty default
+- restore optional Box temperature zones and migrate legacy assigned-Animal
+  values without replacing a populated Box value
 - restore persistent Box pictures
 - restore persistent Animal pictures
 - restore appearance, language and overview-order settings

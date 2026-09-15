@@ -23,7 +23,18 @@ void main() {
     expect(release, contains('Database Schema Version: **10**'));
     expect(release, contains('Portable Backup Format Version: **2**'));
     expect(dataModel, contains('### Schema Version 10'));
+    expect(dataModel, contains('Box.temperatureZones'));
     expect(backupFormat, contains('### Animal Taxonomy Fields'));
+    expect(
+      backupFormat,
+      contains(
+        'Current input and display belong to `BackupBox.temperatureZones`',
+      ),
+    );
+    expect(
+      release,
+      contains('transfer a legacy assigned-Animal temperature-zone value'),
+    );
 
     for (final value in const [
       'amphibian',

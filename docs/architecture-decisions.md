@@ -1523,3 +1523,51 @@ Disadvantages:
 - users must classify newly created Animals
 - changing the taxonomy later requires an explicit compatibility decision
 - locale collation can change subcategory heading order between languages
+
+---
+
+## ADR-024: Store temperature-zone notes on Boxes
+
+**Status:** Accepted
+
+**Date:** 2026-09-15
+
+### Context
+
+Temperature zones describe the physical enclosure shared by its assigned
+Animals. Keeping the note on one Animal duplicates Box configuration and makes
+the value disappear from the place where users manage the enclosure. Existing
+Schema Version 9 databases and portable backups may already contain the value
+on Animal records.
+
+### Decision
+
+Schema Version 10 adds nullable `Box.temperatureZones`. New Box and Edit Box
+place the multiline field directly above Notes, and Box details omit the
+section when it is empty. Current Animal forms, details, repository creation
+and duplication no longer use the former Animal field.
+
+During database migration and backup restore, the first non-empty legacy value
+by Animal ID seeds its assigned Box only when the Box has no temperature-zone
+value. The old Animal column and backup key remain readable so existing data is
+preserved, while current Box backup records carry the authoritative value.
+
+The three Box QR export actions remain independent Settings actions. Their
+shared checklist behavior is unchanged; the individual PNG description is
+shortened and standard dividers separate PNG, ZIP and PDF.
+
+### Consequences
+
+Advantages:
+
+- one enclosure value applies consistently to every assigned Animal
+- the field appears in the Box workflow where the physical setup is managed
+- old databases and backups upgrade without discarding recorded text
+- the QR export presentation matches other grouped Settings actions
+
+Disadvantages:
+
+- a Box with several different legacy Animal values can retain only one
+  authoritative migrated value
+- the legacy Animal column remains until a later compatibility-breaking schema
+  and backup revision can remove it safely

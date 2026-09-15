@@ -114,7 +114,6 @@ void main() {
     final original = await export(source);
     final validated = BackupValidationService().validate(original.bytes);
     expect(validated.manifest.backupFormatVersion, 2);
-    expect(validated.manifest.databaseSchemaVersion, 10);
     expect(validated.data.boxes.map((box) => box.status), [
       'active',
       'archived',

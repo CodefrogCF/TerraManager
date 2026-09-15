@@ -44,6 +44,7 @@ void main() {
         .insert(
           BoxesCompanion.insert(
             qrId: 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            temperatureZones: const drift.Value('Warm side 28 °C'),
             createdAt: drift.Value(DateTime(2026, 8, 1, 10)),
             updatedAt: drift.Value(DateTime(2026, 8, 2, 12)),
           ),
@@ -75,7 +76,6 @@ void main() {
       weight: '140 g',
       sheddingNotes: 'Complete sheds',
       restOrDormancyPeriods: 'Less active in winter',
-      temperatureZones: 'Warm side 28 °C',
       pictureMediaId: pictureMediaId,
       notes: 'Test animal',
       feedingReminderIntervalDays: 7,
@@ -132,6 +132,7 @@ void main() {
     expect(result.settings.boxSortOrder, 'labelDescending');
 
     expect(result.data.boxes.length, 1);
+    expect(result.data.boxes.single.temperatureZones, 'Warm side 28 °C');
 
     expect(result.data.animals.length, 1);
 
@@ -148,7 +149,7 @@ void main() {
       result.data.animals.single.restOrDormancyPeriods,
       'Less active in winter',
     );
-    expect(result.data.animals.single.temperatureZones, 'Warm side 28 °C');
+    expect(result.data.animals.single.temperatureZones, isNull);
 
     expect(
       result.data.animals.single.feedingReminderBaseline,

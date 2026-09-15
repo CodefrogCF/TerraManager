@@ -53,7 +53,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _weightController = TextEditingController();
   final _sheddingNotesController = TextEditingController();
   final _restOrDormancyPeriodsController = TextEditingController();
-  final _temperatureZonesController = TextEditingController();
   final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
@@ -110,7 +109,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     _weightController.dispose();
     _sheddingNotesController.dispose();
     _restOrDormancyPeriodsController.dispose();
-    _temperatureZonesController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -169,7 +167,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _sheddingNotesController.text = animal.sheddingNotes ?? '';
       _restOrDormancyPeriodsController.text =
           animal.restOrDormancyPeriods ?? '';
-      _temperatureZonesController.text = animal.temperatureZones ?? '';
       _notesController.text = animal.notes ?? '';
 
       _additionalCharacteristicsExpanded = [
@@ -177,7 +174,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         animal.weight,
         animal.sheddingNotes,
         animal.restOrDormancyPeriods,
-        animal.temperatureZones,
       ].any((value) => value != null && value.trim().isNotEmpty);
 
       _sex = animal.sex ?? Sex.unknown;
@@ -355,7 +351,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           restOrDormancyPeriods: _optionalText(
             _restOrDormancyPeriodsController,
           ),
-          temperatureZones: _optionalText(_temperatureZonesController),
           pictureMediaId: pictureMediaId,
           picturePath: legacyPicturePath,
           notes: _notesController.text.trim().isEmpty
@@ -817,7 +812,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               weightController: _weightController,
               sheddingNotesController: _sheddingNotesController,
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
-              temperatureZonesController: _temperatureZonesController,
             ),
             const SizedBox(height: 16),
 

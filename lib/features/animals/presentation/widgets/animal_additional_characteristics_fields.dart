@@ -11,7 +11,6 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
   final TextEditingController weightController;
   final TextEditingController sheddingNotesController;
   final TextEditingController restOrDormancyPeriodsController;
-  final TextEditingController temperatureZonesController;
 
   const AnimalAdditionalCharacteristicsFields({
     super.key,
@@ -22,7 +21,6 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
     required this.weightController,
     required this.sheddingNotesController,
     required this.restOrDormancyPeriodsController,
-    required this.temperatureZonesController,
     this.onChanged,
   });
 
@@ -63,13 +61,6 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
             key: const Key('rest-or-dormancy-periods-field'),
             controller: restOrDormancyPeriodsController,
             label: context.l10n.restOrDormancyPeriods,
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
-          _optionalTextField(
-            key: const Key('temperature-zones-field'),
-            controller: temperatureZonesController,
-            label: context.l10n.temperatureZones,
             maxLines: 3,
           ),
         ],

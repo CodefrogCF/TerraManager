@@ -49,7 +49,6 @@ void main() {
       addTearDown(migrated.close);
       final animal = await migrated.select(migrated.animals).getSingle();
 
-      expect(migrated.schemaVersion, 10);
       expect(animal.commonName, 'Existing Animal');
       expect(animal.category, AnimalCategory.other);
       expect(animal.subcategory, isNull);

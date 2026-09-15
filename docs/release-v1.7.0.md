@@ -13,12 +13,18 @@ release owner's protected environment.
 - display the stored category and optional subcategory on Animal details
 - preserve taxonomy through editing and Animal duplication
 - migrate existing Animals to Other without a subcategory
+- store the optional temperature-zone note on Box forms and details directly
+  above ordinary Notes
+- transfer a legacy assigned-Animal temperature-zone value to an empty Box
+  during migration and restore
 - carry stable taxonomy values in backward-compatible Format 2 backups
 - add a Category criterion to Animal Overview
 - group every visible Animal under localized, accessible category headings
 - show subcategory headings only when they distinguish Animals in a category
 - retain natural A–Z Animal order, thumbnails, reminders and quick actions
 - use the flattened visible grouping for contextual detail navigation
+- shorten the individual QR export description and separate PNG, ZIP and PDF
+  actions with standard Settings dividers
 - add no storage, media, network or other device permission
 
 ## Compatibility Baseline
@@ -33,15 +39,20 @@ release owner's protected environment.
 - iOS, macOS, Linux and Windows remain unvalidated release platforms.
 
 A production-signed v1.6.x installation can be updated directly. The v9 to v10
-migration adds one non-null category column with default `other` and one
-nullable subcategory column. Existing Boxes, Animals, FeedingEvents, settings
-and media remain available; existing Animals begin as Other without a
-subcategory.
+migration adds one non-null category column with default `other`, one nullable
+subcategory column and nullable `Box.temperatureZones`. Existing Boxes,
+Animals, FeedingEvents, settings and media remain available; existing Animals
+begin as Other without a subcategory. When an assigned Animal contains a
+legacy temperature-zone note and its Box has no value, the first non-empty
+value by Animal ID is trimmed and copied to that Box.
 
 Portable Backup Format Version 2 adds `category` and `subcategory` to Animal
-records. Missing taxonomy keys in Format 1 and older Format 2 records restore
-as Other without a subcategory. Present unknown, localized or incompatible
-values fail validation before current application data is modified.
+records and writes current temperature-zone notes on Box records. Missing
+taxonomy or Box temperature-zone keys in Format 1 and older Format 2 records
+restore with safe defaults. A legacy Animal temperature-zone key remains
+readable and can seed an empty assigned Box. Present unknown, localized or
+incompatible taxonomy values fail validation before current application data
+is modified.
 
 ## Stable Animal Taxonomy
 
@@ -114,7 +125,7 @@ Recorded source result:
 - [x] Drift Schema Version 10 and migration helpers were generated
 - [x] Dart formatting completed without changes
 - [x] `flutter analyze --no-pub` reported no issues
-- [x] complete automated test suite passed with 679 tests
+- [x] complete automated test suite passed
 - [x] Android and iOS permission declarations remained unchanged
 - [ ] final GitHub Actions **Quality gates** run passed on the release commit
 
@@ -132,6 +143,10 @@ flutter test test/features/backup/domain/backup_enum_codec_test.dart
 flutter test test/features/backup/application/backup_validation_service_test.dart
 flutter test test/features/backup/application/backup_export_service_test.dart
 flutter test test/features/backup/application/backup_restore_service_test.dart
+flutter test test/features/boxes/presentation/pages/new_box_page_test.dart
+flutter test test/features/boxes/presentation/pages/box_edit_page_test.dart
+flutter test test/features/boxes/presentation/pages/box_detail_page_test.dart
+flutter test test/features/settings/presentation/pages/settings_qr_document_export_test.dart
 flutter test test/platform/v1_7_release_documentation_test.dart
 ```
 

@@ -514,6 +514,17 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _temperatureZonesMeta = const VerificationMeta(
+    'temperatureZones',
+  );
+  @override
+  late final GeneratedColumn<String> temperatureZones = GeneratedColumn<String>(
+    'temperature_zones',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _notesMeta = const VerificationMeta('notes');
   @override
   late final GeneratedColumn<String> notes = GeneratedColumn<String>(
@@ -573,6 +584,7 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
     widthCm,
     heightCm,
     depthCm,
+    temperatureZones,
     notes,
     pictureMediaId,
     createdAt,
@@ -638,6 +650,15 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
       context.handle(
         _depthCmMeta,
         depthCm.isAcceptableOrUnknown(data['depth_cm']!, _depthCmMeta),
+      );
+    }
+    if (data.containsKey('temperature_zones')) {
+      context.handle(
+        _temperatureZonesMeta,
+        temperatureZones.isAcceptableOrUnknown(
+          data['temperature_zones']!,
+          _temperatureZonesMeta,
+        ),
       );
     }
     if (data.containsKey('notes')) {
@@ -720,6 +741,10 @@ class $BoxesTable extends Boxes with TableInfo<$BoxesTable, Box> {
         DriftSqlType.double,
         data['${effectivePrefix}depth_cm'],
       ),
+      temperatureZones: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}temperature_zones'],
+      ),
       notes: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
@@ -763,6 +788,7 @@ class Box extends DataClass implements Insertable<Box> {
   final double? widthCm;
   final double? heightCm;
   final double? depthCm;
+  final String? temperatureZones;
   final String? notes;
   final int? pictureMediaId;
   final DateTime createdAt;
@@ -778,6 +804,7 @@ class Box extends DataClass implements Insertable<Box> {
     this.widthCm,
     this.heightCm,
     this.depthCm,
+    this.temperatureZones,
     this.notes,
     this.pictureMediaId,
     required this.createdAt,
@@ -816,6 +843,9 @@ class Box extends DataClass implements Insertable<Box> {
     if (!nullToAbsent || depthCm != null) {
       map['depth_cm'] = Variable<double>(depthCm);
     }
+    if (!nullToAbsent || temperatureZones != null) {
+      map['temperature_zones'] = Variable<String>(temperatureZones);
+    }
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
@@ -851,6 +881,9 @@ class Box extends DataClass implements Insertable<Box> {
       depthCm: depthCm == null && nullToAbsent
           ? const Value.absent()
           : Value(depthCm),
+      temperatureZones: temperatureZones == null && nullToAbsent
+          ? const Value.absent()
+          : Value(temperatureZones),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
@@ -880,6 +913,7 @@ class Box extends DataClass implements Insertable<Box> {
       widthCm: serializer.fromJson<double?>(json['widthCm']),
       heightCm: serializer.fromJson<double?>(json['heightCm']),
       depthCm: serializer.fromJson<double?>(json['depthCm']),
+      temperatureZones: serializer.fromJson<String?>(json['temperatureZones']),
       notes: serializer.fromJson<String?>(json['notes']),
       pictureMediaId: serializer.fromJson<int?>(json['pictureMediaId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -900,6 +934,7 @@ class Box extends DataClass implements Insertable<Box> {
       'widthCm': serializer.toJson<double?>(widthCm),
       'heightCm': serializer.toJson<double?>(heightCm),
       'depthCm': serializer.toJson<double?>(depthCm),
+      'temperatureZones': serializer.toJson<String?>(temperatureZones),
       'notes': serializer.toJson<String?>(notes),
       'pictureMediaId': serializer.toJson<int?>(pictureMediaId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -918,6 +953,7 @@ class Box extends DataClass implements Insertable<Box> {
     Value<double?> widthCm = const Value.absent(),
     Value<double?> heightCm = const Value.absent(),
     Value<double?> depthCm = const Value.absent(),
+    Value<String?> temperatureZones = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<int?> pictureMediaId = const Value.absent(),
     DateTime? createdAt,
@@ -935,6 +971,9 @@ class Box extends DataClass implements Insertable<Box> {
     widthCm: widthCm.present ? widthCm.value : this.widthCm,
     heightCm: heightCm.present ? heightCm.value : this.heightCm,
     depthCm: depthCm.present ? depthCm.value : this.depthCm,
+    temperatureZones: temperatureZones.present
+        ? temperatureZones.value
+        : this.temperatureZones,
     notes: notes.present ? notes.value : this.notes,
     pictureMediaId: pictureMediaId.present
         ? pictureMediaId.value
@@ -960,6 +999,9 @@ class Box extends DataClass implements Insertable<Box> {
       widthCm: data.widthCm.present ? data.widthCm.value : this.widthCm,
       heightCm: data.heightCm.present ? data.heightCm.value : this.heightCm,
       depthCm: data.depthCm.present ? data.depthCm.value : this.depthCm,
+      temperatureZones: data.temperatureZones.present
+          ? data.temperatureZones.value
+          : this.temperatureZones,
       notes: data.notes.present ? data.notes.value : this.notes,
       pictureMediaId: data.pictureMediaId.present
           ? data.pictureMediaId.value
@@ -982,6 +1024,7 @@ class Box extends DataClass implements Insertable<Box> {
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
           ..write('depthCm: $depthCm, ')
+          ..write('temperatureZones: $temperatureZones, ')
           ..write('notes: $notes, ')
           ..write('pictureMediaId: $pictureMediaId, ')
           ..write('createdAt: $createdAt, ')
@@ -1002,6 +1045,7 @@ class Box extends DataClass implements Insertable<Box> {
     widthCm,
     heightCm,
     depthCm,
+    temperatureZones,
     notes,
     pictureMediaId,
     createdAt,
@@ -1021,6 +1065,7 @@ class Box extends DataClass implements Insertable<Box> {
           other.widthCm == this.widthCm &&
           other.heightCm == this.heightCm &&
           other.depthCm == this.depthCm &&
+          other.temperatureZones == this.temperatureZones &&
           other.notes == this.notes &&
           other.pictureMediaId == this.pictureMediaId &&
           other.createdAt == this.createdAt &&
@@ -1038,6 +1083,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
   final Value<double?> widthCm;
   final Value<double?> heightCm;
   final Value<double?> depthCm;
+  final Value<String?> temperatureZones;
   final Value<String?> notes;
   final Value<int?> pictureMediaId;
   final Value<DateTime> createdAt;
@@ -1053,6 +1099,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
     this.depthCm = const Value.absent(),
+    this.temperatureZones = const Value.absent(),
     this.notes = const Value.absent(),
     this.pictureMediaId = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1069,6 +1116,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     this.widthCm = const Value.absent(),
     this.heightCm = const Value.absent(),
     this.depthCm = const Value.absent(),
+    this.temperatureZones = const Value.absent(),
     this.notes = const Value.absent(),
     this.pictureMediaId = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -1085,6 +1133,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     Expression<double>? widthCm,
     Expression<double>? heightCm,
     Expression<double>? depthCm,
+    Expression<String>? temperatureZones,
     Expression<String>? notes,
     Expression<int>? pictureMediaId,
     Expression<DateTime>? createdAt,
@@ -1101,6 +1150,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
       if (widthCm != null) 'width_cm': widthCm,
       if (heightCm != null) 'height_cm': heightCm,
       if (depthCm != null) 'depth_cm': depthCm,
+      if (temperatureZones != null) 'temperature_zones': temperatureZones,
       if (notes != null) 'notes': notes,
       if (pictureMediaId != null) 'picture_media_id': pictureMediaId,
       if (createdAt != null) 'created_at': createdAt,
@@ -1119,6 +1169,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     Value<double?>? widthCm,
     Value<double?>? heightCm,
     Value<double?>? depthCm,
+    Value<String?>? temperatureZones,
     Value<String?>? notes,
     Value<int?>? pictureMediaId,
     Value<DateTime>? createdAt,
@@ -1135,6 +1186,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
       widthCm: widthCm ?? this.widthCm,
       heightCm: heightCm ?? this.heightCm,
       depthCm: depthCm ?? this.depthCm,
+      temperatureZones: temperatureZones ?? this.temperatureZones,
       notes: notes ?? this.notes,
       pictureMediaId: pictureMediaId ?? this.pictureMediaId,
       createdAt: createdAt ?? this.createdAt,
@@ -1179,6 +1231,9 @@ class BoxesCompanion extends UpdateCompanion<Box> {
     if (depthCm.present) {
       map['depth_cm'] = Variable<double>(depthCm.value);
     }
+    if (temperatureZones.present) {
+      map['temperature_zones'] = Variable<String>(temperatureZones.value);
+    }
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
@@ -1207,6 +1262,7 @@ class BoxesCompanion extends UpdateCompanion<Box> {
           ..write('widthCm: $widthCm, ')
           ..write('heightCm: $heightCm, ')
           ..write('depthCm: $depthCm, ')
+          ..write('temperatureZones: $temperatureZones, ')
           ..write('notes: $notes, ')
           ..write('pictureMediaId: $pictureMediaId, ')
           ..write('createdAt: $createdAt, ')
@@ -3605,6 +3661,7 @@ typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
   Value<double?> widthCm,
   Value<double?> heightCm,
   Value<double?> depthCm,
+  Value<String?> temperatureZones,
   Value<String?> notes,
   Value<int?> pictureMediaId,
   Value<DateTime> createdAt,
@@ -3621,6 +3678,7 @@ typedef $$BoxesTableUpdateCompanionBuilder = BoxesCompanion Function({
   Value<double?> widthCm,
   Value<double?> heightCm,
   Value<double?> depthCm,
+  Value<String?> temperatureZones,
   Value<String?> notes,
   Value<int?> pictureMediaId,
   Value<DateTime> createdAt,
@@ -3725,6 +3783,11 @@ class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
 
   ColumnFilters<double> get depthCm => $composableBuilder(
     column: $table.depthCm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get temperatureZones => $composableBuilder(
+    column: $table.temperatureZones,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3851,6 +3914,11 @@ class $$BoxesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get temperatureZones => $composableBuilder(
+    column: $table.temperatureZones,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get notes => $composableBuilder(
     column: $table.notes,
     builder: (column) => ColumnOrderings(column),
@@ -3935,6 +4003,11 @@ class $$BoxesTableAnnotationComposer
 
   GeneratedColumn<double> get depthCm =>
       $composableBuilder(column: $table.depthCm, builder: (column) => column);
+
+  GeneratedColumn<String> get temperatureZones => $composableBuilder(
+    column: $table.temperatureZones,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
@@ -4032,6 +4105,7 @@ class $$BoxesTableTableManager
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
                 Value<double?> depthCm = const Value.absent(),
+                Value<String?> temperatureZones = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int?> pictureMediaId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -4047,6 +4121,7 @@ class $$BoxesTableTableManager
                 widthCm: widthCm,
                 heightCm: heightCm,
                 depthCm: depthCm,
+                temperatureZones: temperatureZones,
                 notes: notes,
                 pictureMediaId: pictureMediaId,
                 createdAt: createdAt,
@@ -4064,6 +4139,7 @@ class $$BoxesTableTableManager
                 Value<double?> widthCm = const Value.absent(),
                 Value<double?> heightCm = const Value.absent(),
                 Value<double?> depthCm = const Value.absent(),
+                Value<String?> temperatureZones = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<int?> pictureMediaId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -4079,6 +4155,7 @@ class $$BoxesTableTableManager
                 widthCm: widthCm,
                 heightCm: heightCm,
                 depthCm: depthCm,
+                temperatureZones: temperatureZones,
                 notes: notes,
                 pictureMediaId: pictureMediaId,
                 createdAt: createdAt,

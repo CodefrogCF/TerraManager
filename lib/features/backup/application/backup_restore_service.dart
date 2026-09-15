@@ -256,6 +256,7 @@ class BackupRestoreService {
                 widthCm: Value(box.widthCm),
                 heightCm: Value(box.heightCm),
                 depthCm: Value(box.depthCm),
+                temperatureZones: Value(box.temperatureZones),
                 notes: Value(box.notes),
                 pictureMediaId: Value(pictureMediaId),
                 createdAt: Value(box.createdAt),
@@ -365,6 +366,8 @@ class BackupRestoreService {
               ),
             );
       }
+
+      await database.copyLegacyAnimalTemperatureZonesToBoxes();
 
       for (final feeding in backup.data.feedingEvents) {
         await database

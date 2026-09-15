@@ -41,6 +41,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
   final _widthController = TextEditingController();
   final _heightController = TextEditingController();
   final _depthController = TextEditingController();
+  final _temperatureZonesController = TextEditingController();
   final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
@@ -79,6 +80,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
     _widthController.dispose();
     _heightController.dispose();
     _depthController.dispose();
+    _temperatureZonesController.dispose();
     _notesController.dispose();
 
     super.dispose();
@@ -131,6 +133,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
       _heightController.text = _formatEditableNumber(box.heightCm);
 
       _depthController.text = _formatEditableNumber(box.depthCm);
+
+      _temperatureZonesController.text = box.temperatureZones ?? '';
 
       _notesController.text = box.notes ?? '';
 
@@ -255,6 +259,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
       final depthCm = _parseOptionalNumber(_depthController.text);
 
+      final temperatureZones = _temperatureZonesController.text.trim();
+
       final notes = _notesController.text.trim();
 
       await widget.database.transaction(() async {
@@ -276,6 +282,9 @@ class _BoxEditPageState extends State<BoxEditPage> {
           widthCm: drift.Value(widthCm),
           heightCm: drift.Value(heightCm),
           depthCm: drift.Value(depthCm),
+          temperatureZones: drift.Value(
+            temperatureZones.isEmpty ? null : temperatureZones,
+          ),
           notes: drift.Value(notes.isEmpty ? null : notes),
           pictureMediaId: _pictureChanged
               ? drift.Value(pictureMediaId)
@@ -585,6 +594,19 @@ class _BoxEditPageState extends State<BoxEditPage> {
               key: const Key('box-depth-field'),
               controller: _depthController,
               label: context.l10n.depthCentimeters,
+            ),
+            const SizedBox(height: 16),
+
+            TextFormField(
+              key: const Key('box-temperature-zones-field'),
+              controller: _temperatureZonesController,
+              onChanged: (_) => _markAsChanged(),
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: context.l10n.temperatureZones,
+                helperText: context.l10n.optional,
+                alignLabelWithHint: true,
+              ),
             ),
             const SizedBox(height: 16),
 

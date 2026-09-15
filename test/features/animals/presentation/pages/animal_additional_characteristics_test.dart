@@ -58,6 +58,7 @@ void main() {
     );
 
     expect(find.byKey(const Key('origin-habitat-field')), findsNothing);
+    expect(find.byKey(const Key('temperature-zones-field')), findsNothing);
     await revealCharacteristics(tester);
 
     await tester.enterText(
@@ -84,10 +85,6 @@ void main() {
       'Reduced activity in winter',
     );
     await tester.enterText(
-      find.byKey(const Key('temperature-zones-field')),
-      'Warm hide 28 °C',
-    );
-    await tester.enterText(
       find.byKey(const Key('common-name-field')),
       'Test Snake',
     );
@@ -108,7 +105,7 @@ void main() {
     expect(animal.weight, '125 g\nafter feeding');
     expect(animal.sheddingNotes, 'Complete sheds');
     expect(animal.restOrDormancyPeriods, 'Reduced activity in winter');
-    expect(animal.temperatureZones, 'Warm hide 28 °C');
+    expect(animal.temperatureZones, isNull);
   });
 
   testWidgets('Edit Animal shows saved values and can clear them', (
@@ -128,7 +125,6 @@ void main() {
       weight: '80 g\nbefore feeding',
       sheddingNotes: 'Regular',
       restOrDormancyPeriods: 'December',
-      temperatureZones: '20–25 °C',
     );
     await openPage(
       tester,
@@ -150,7 +146,6 @@ void main() {
       'weight-field',
       'shedding-notes-field',
       'rest-or-dormancy-periods-field',
-      'temperature-zones-field',
     ]) {
       await tester.enterText(find.byKey(Key(key)), '');
     }
@@ -163,7 +158,7 @@ void main() {
     expect(animal.weight, isNull);
     expect(animal.sheddingNotes, isNull);
     expect(animal.restOrDormancyPeriods, isNull);
-    expect(animal.temperatureZones, isNull);
+    expect(find.byKey(const Key('temperature-zones-field')), findsNothing);
   });
 
   testWidgets('Animal details only render non-empty characteristics', (
@@ -181,7 +176,6 @@ void main() {
       humidityMax: 60,
       originHabitat: 'Savanna',
       weight: '  ',
-      temperatureZones: 'Cool side 20 °C',
     );
     await tester.pumpWidget(
       MaterialApp(
@@ -196,7 +190,7 @@ void main() {
 
     expect(heading, findsOneWidget);
     expect(find.byKey(const Key('origin-habitat-detail')), findsOneWidget);
-    expect(find.byKey(const Key('temperature-zones-detail')), findsOneWidget);
+    expect(find.byKey(const Key('temperature-zones-detail')), findsNothing);
     expect(find.byKey(const Key('weight-detail')), findsNothing);
     expect(find.byKey(const Key('shedding-notes-detail')), findsNothing);
   });

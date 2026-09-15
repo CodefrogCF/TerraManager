@@ -920,6 +920,8 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: _operationBusy ? null : _saveBoxQrCodes,
           ),
 
+          const Divider(key: Key('box-qr-individual-zip-divider')),
+
           ListTile(
             key: const Key('save-box-qr-codes-zip-button'),
             enabled: !_operationBusy,
@@ -930,6 +932,8 @@ class _SettingsPageState extends State<SettingsPage> {
             trailing: const Icon(Icons.chevron_right),
             onTap: _operationBusy ? null : _saveBoxQrCodesAsZip,
           ),
+
+          const Divider(key: Key('box-qr-zip-pdf-divider')),
 
           ListTile(
             key: const Key('save-box-qr-codes-pdf-button'),

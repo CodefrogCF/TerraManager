@@ -54,7 +54,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _weightController = TextEditingController();
   final _sheddingNotesController = TextEditingController();
   final _restOrDormancyPeriodsController = TextEditingController();
-  final _temperatureZonesController = TextEditingController();
   final _notesController = TextEditingController();
   final _feedingReminderIntervalDaysController = TextEditingController();
 
@@ -103,7 +102,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     _weightController.dispose();
     _sheddingNotesController.dispose();
     _restOrDormancyPeriodsController.dispose();
-    _temperatureZonesController.dispose();
     _notesController.dispose();
     _feedingReminderIntervalDaysController.dispose();
     super.dispose();
@@ -239,7 +237,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
           restOrDormancyPeriods: _optionalText(
             _restOrDormancyPeriodsController,
           ),
-          temperatureZones: _optionalText(_temperatureZonesController),
           pictureMediaId: pictureMediaId,
           picturePath: null,
           notes: _notesController.text.trim().isEmpty
@@ -572,7 +569,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               weightController: _weightController,
               sheddingNotesController: _sheddingNotesController,
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
-              temperatureZonesController: _temperatureZonesController,
             ),
             const SizedBox(height: 16),
 

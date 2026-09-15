@@ -84,6 +84,10 @@ void main() {
     expect(l10n.copyName('Mango'), 'Mango (copy)');
     expect(l10n.boxQrCodes, 'Box QR Codes');
     expect(l10n.saveBoxQrCodes, 'Save Box QR Codes');
+    expect(
+      l10n.saveBoxQrCodesDescription,
+      'Choose the Boxes whose QR codes you want to save.',
+    );
     expect(l10n.activeBoxes, 'Active Boxes');
     expect(l10n.clearSelection, 'Clear selection');
     expect(l10n.selectAtLeastOneBox, 'Select at least one Box.');
@@ -188,6 +192,10 @@ void main() {
     expect(l10n.copyName('Mango'), 'Mango (Kopie)');
     expect(l10n.boxQrCodes, 'Box-QR-Codes');
     expect(l10n.saveBoxQrCodes, 'Box-QR-Codes speichern');
+    expect(
+      l10n.saveBoxQrCodesDescription,
+      'Wähle die Boxen aus, deren QR-Codes gespeichert werden sollen.',
+    );
     expect(l10n.activeBoxes, 'Aktive Boxen');
     expect(l10n.clearSelection, 'Auswahl leeren');
     expect(l10n.selectAtLeastOneBox, 'Wähle mindestens eine Box aus.');

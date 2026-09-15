@@ -579,7 +579,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       animal.weight,
       animal.sheddingNotes,
       animal.restOrDormancyPeriods,
-      animal.temperatureZones,
     ].any((value) => value != null && value.trim().isNotEmpty);
 
     return ListView(
@@ -715,12 +714,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               key: const Key('rest-or-dormancy-periods-detail'),
               label: context.l10n.restOrDormancyPeriods,
               value: animal.restOrDormancyPeriods!,
-            ),
-          if (animal.temperatureZones?.trim().isNotEmpty == true)
-            _DetailRow(
-              key: const Key('temperature-zones-detail'),
-              label: context.l10n.temperatureZones,
-              value: animal.temperatureZones!,
             ),
         ],
 

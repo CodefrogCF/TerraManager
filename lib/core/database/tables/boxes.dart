@@ -29,6 +29,8 @@ class Boxes extends Table {
 
   RealColumn get depthCm => real().nullable()();
 
+  TextColumn get temperatureZones => text().nullable()();
+
   TextColumn get notes => text().nullable()();
 
   IntColumn get pictureMediaId =>

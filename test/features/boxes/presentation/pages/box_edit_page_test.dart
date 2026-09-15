@@ -116,45 +116,69 @@ void main() {
     );
   });
 
-  testWidgets('loads, edits, and clears optional Box notes', (tester) async {
+  testWidgets('loads, edits, and clears temperature zones and notes', (
+    tester,
+  ) async {
     final repository = BoxRepository(database);
     final boxId = await repository.createBox(
       'box-notes',
+      temperatureZones: 'Original temperature zones',
       notes: 'Original notes',
     );
 
     await pumpPageWithNavigation(tester, boxId: boxId);
 
+    final temperatureZonesField = find.byKey(
+      const Key('box-temperature-zones-field'),
+    );
     final notesField = find.byKey(const Key('box-notes-field'));
 
+    await tester.ensureVisible(temperatureZonesField);
+    expect(
+      tester.widget<TextFormField>(temperatureZonesField).controller!.text,
+      'Original temperature zones',
+    );
     await tester.ensureVisible(notesField);
     expect(
       tester.widget<TextFormField>(notesField).controller!.text,
       'Original notes',
     );
 
+    expect(
+      tester.getTopLeft(temperatureZonesField).dy,
+      lessThan(tester.getTopLeft(notesField).dy),
+    );
+    await tester.enterText(temperatureZonesField, '  Warm side 28 °C  ');
     await tester.enterText(notesField, '  Updated\nmultiline notes  ');
     await tester.tap(find.byKey(const Key('save-box-button')));
     await tester.pumpAndSettle();
 
     var box = await repository.getBoxById(boxId);
 
-    expect(box!.notes, 'Updated\nmultiline notes');
+    expect(box!.temperatureZones, 'Warm side 28 °C');
+    expect(box.notes, 'Updated\nmultiline notes');
 
     await tester.tap(find.byKey(const Key('open-box-edit-button')));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(temperatureZonesField);
+    expect(
+      tester.widget<TextFormField>(temperatureZonesField).controller!.text,
+      'Warm side 28 °C',
+    );
     await tester.ensureVisible(notesField);
     expect(
       tester.widget<TextFormField>(notesField).controller!.text,
       'Updated\nmultiline notes',
     );
+    await tester.enterText(temperatureZonesField, '   ');
     await tester.enterText(notesField, '   ');
     await tester.tap(find.byKey(const Key('save-box-button')));
     await tester.pumpAndSettle();
 
     box = await repository.getBoxById(boxId);
 
-    expect(box!.notes, isNull);
+    expect(box!.temperatureZones, isNull);
+    expect(box.notes, isNull);
   });
 
   testWidgets('loads, edits, and clears the optional Box name', (tester) async {

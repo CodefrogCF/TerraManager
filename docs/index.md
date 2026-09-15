@@ -229,9 +229,12 @@ recorded in `docs/release-v1.6.1.md`.
 Release `1.7.0+64` completes Issues #127 and #128. New Animal and Edit Animal
 store a required primary category plus an optional compatible subcategory, and
 Animal details show both localized values. Existing records migrate to Other
-without a subcategory in Database Schema Version 10. Portable Backup Format
-Version 2 carries stable taxonomy values while older Format 1 and Format 2
-backups retain their fallback behavior. Animal Overview adds a Category mode
+without a subcategory in Database Schema Version 10. The same migration moves
+legacy Animal temperature-zone notes to their assigned Box when the Box has no
+value, and current Box forms place that optional field directly above Notes.
+Portable Backup Format Version 2 carries stable taxonomy and Box temperature-
+zone values while older Format 1 and Format 2 backups retain their fallback
+behavior. Animal Overview adds a Category mode
 that groups every visible Animal according to the complete #127 taxonomy,
 orders names naturally inside each final group and passes the flattened visible
 order to contextual detail navigation. Source and release-owner validation are
@@ -301,6 +304,7 @@ application restarts.
 - Add Animal action below empty and populated Box assignment sections
 - direct New Animal navigation with the originating Box preselected
 - optional width, height and depth
+- optional multiline temperature-zone notes above ordinary Box notes
 - optional free-form Box names
 - optional multiline Box notes
 - persistent Box pictures
@@ -349,8 +353,8 @@ application restarts.
   Animal pictures
 - full-screen Animal picture viewing with zooming and panning
 - notes
-- optional origin or habitat, weight, shedding notes, rest or dormancy periods
-  and temperature zones
+- optional origin or habitat, weight, shedding notes and rest or dormancy
+  periods
 - required localized Animal category and optional compatible subcategory
 - taxonomy persistence through editing, duplication, migration and backup
 - active and archived lifecycle states
@@ -780,14 +784,15 @@ Box
 ├── widthCm
 ├── heightCm
 ├── depthCm
+├── temperatureZones
 ├── notes
 ├── pictureMediaId
 ├── createdAt
 └── updatedAt
 ```
 
-`qrId` is unique and permanently identifies the box. Width, height, depth and
-notes are optional.
+`qrId` is unique and permanently identifies the box. Width, height, depth,
+temperature zones and notes are optional.
 `pictureMediaId` optionally references persistent image data stored in `MediaAssets`.
 
 The QR format is:
@@ -816,7 +821,6 @@ Animal
 ├── weight
 ├── sheddingNotes
 ├── restOrDormancyPeriods
-├── temperatureZones
 ├── picturePath
 ├── pictureMediaId
 ├── notes

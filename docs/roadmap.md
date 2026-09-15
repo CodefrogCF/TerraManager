@@ -1278,6 +1278,17 @@ roughly one sixth of its previous size.
 - [x] Persist and back up both Category sort directions
 - [x] Provide accessible localized category and subcategory headings
 
+### Enclosure notes and QR Settings polish
+
+- [x] Move the optional temperature-zone note from Animal UI to Box UI
+- [x] Place temperature zones directly above Notes in New Box and Edit Box
+- [x] Show populated temperature zones on Box details
+- [x] Preserve Box temperature zones through duplication and portable backup
+- [x] Seed empty Boxes from legacy assigned-Animal values during migration and
+  restore
+- [x] Shorten the individual Box QR export description
+- [x] Separate PNG, ZIP and PDF export actions with standard Settings dividers
+
 ### v1.7.0 Release
 
 - [x] Set the source version to `1.7.0+64`

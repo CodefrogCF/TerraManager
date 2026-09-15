@@ -669,6 +669,22 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                 value: _formatDateTime(box.updatedAt),
               ),
 
+              if (box.temperatureZones?.trim().isNotEmpty == true) ...[
+                const SizedBox(height: 16),
+
+                Text(
+                  context.l10n.temperatureZones,
+                  key: const Key('box-temperature-zones-heading'),
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+
+                Text(
+                  box.temperatureZones!,
+                  key: const Key('box-temperature-zones'),
+                ),
+              ],
+
               if (box.notes != null && box.notes!.trim().isNotEmpty) ...[
                 const SizedBox(height: 16),
 

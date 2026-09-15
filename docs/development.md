@@ -170,13 +170,16 @@ existing scroll offset. Regression tests must first load Animal Overview, create
 an Animal from Box details, and then prove that the same overview instance shows
 the new record without restarting the application.
 
-Schema Version 10 adds the required Animal category and nullable subcategory
-for Issue #127. Regenerate Drift output, create the v10 schema snapshot and
-verify a populated v9 database. Existing Animals must migrate to `other` with a
-null subcategory. New Animal and Edit Animal share one taxonomy widget and must
-offer only category-compatible values. Repository, backup and restore paths
-must reject unsupported or incompatible combinations while accepting missing
-taxonomy keys from older Format 1 and Format 2 backups.
+Schema Version 10 adds the required Animal category, nullable subcategory and
+nullable Box temperature-zone note. Regenerate Drift output, create the v10
+schema snapshot and verify a populated v9 database. Existing Animals must
+migrate to `other` with a null subcategory. A legacy non-empty Animal
+temperature-zone value seeds its assigned Box only when the Box has no value;
+current Animal forms and details no longer expose that legacy column. New
+Animal and Edit Animal share one taxonomy widget and must offer only
+category-compatible values. Repository, backup and restore paths must reject
+unsupported or incompatible combinations while accepting missing taxonomy and
+Box temperature-zone keys from older Format 1 and Format 2 backups.
 
 Issue #128 derives category groups from the current filtered Animal list. Cover
 the complete Issue #127 category order, reversed primary order, localized
@@ -184,6 +187,10 @@ headings, conditional subcategory headings, named subcategories followed by
 Other and Not specified, and natural A–Z Animal ordering with ID tie breaking.
 The row widgets retain thumbnails, reminders and quick actions, and contextual
 detail navigation receives the flattened visible group order.
+
+The three Settings QR export actions retain the shared selection workflow.
+Keep the individual PNG description concise and use the same dividers as other
+Settings action lists between PNG, ZIP and PDF.
 
 ## Android Development
 

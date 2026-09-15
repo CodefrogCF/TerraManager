@@ -108,6 +108,11 @@ void main() {
 
     expect(find.byKey(const Key('new-box-depth-field')), findsOneWidget);
 
+    expect(
+      find.byKey(const Key('new-box-temperature-zones-field')),
+      findsOneWidget,
+    );
+
     expect(find.byKey(const Key('new-box-notes-field')), findsOneWidget);
 
     expect(find.text('Format: TM:BOX:<UUID>'), findsOneWidget);
@@ -118,7 +123,7 @@ void main() {
   testWidgets('does not require manual QR ID', (tester) async {
     await pumpPage(tester);
 
-    expect(find.byType(TextFormField), findsNWidgets(5));
+    expect(find.byType(TextFormField), findsNWidgets(6));
 
     expect(find.byKey(const Key('new-box-name-field')), findsOneWidget);
 
@@ -127,6 +132,11 @@ void main() {
     expect(find.byKey(const Key('new-box-height-field')), findsOneWidget);
 
     expect(find.byKey(const Key('new-box-depth-field')), findsOneWidget);
+
+    expect(
+      find.byKey(const Key('new-box-temperature-zones-field')),
+      findsOneWidget,
+    );
 
     expect(find.byKey(const Key('new-box-notes-field')), findsOneWidget);
 
@@ -154,15 +164,26 @@ void main() {
     expect(box.name, 'Arboreal 1');
   });
 
-  testWidgets('creates a box with trimmed optional notes', (tester) async {
+  testWidgets('creates a box with temperature zones above notes', (
+    tester,
+  ) async {
     await pumpPageWithNavigation(tester);
 
+    final temperatureZonesField = find.byKey(
+      const Key('new-box-temperature-zones-field'),
+    );
     final notesField = find.byKey(const Key('new-box-notes-field'));
 
+    await tester.ensureVisible(temperatureZonesField);
+    await tester.enterText(temperatureZonesField, '  Warm side 28 °C  ');
     await tester.ensureVisible(notesField);
     await tester.enterText(
       notesField,
       '  Quarantine setup\nCheck ventilation  ',
+    );
+    expect(
+      tester.getTopLeft(temperatureZonesField).dy,
+      lessThan(tester.getTopLeft(notesField).dy),
     );
 
     final createButton = find.byKey(const Key('create-box-button'));
@@ -173,6 +194,7 @@ void main() {
 
     final box = (await BoxRepository(database).getAllBoxes()).single;
 
+    expect(box.temperatureZones, 'Warm side 28 °C');
     expect(box.notes, 'Quarantine setup\nCheck ventilation');
   });
 
@@ -190,6 +212,7 @@ void main() {
     final box = (await BoxRepository(database).getAllBoxes()).single;
 
     expect(box.name, isNull);
+    expect(box.temperatureZones, isNull);
     expect(box.notes, isNull);
   });
 

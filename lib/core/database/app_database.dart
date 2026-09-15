@@ -125,6 +125,10 @@ class AppDatabase extends _$AppDatabase {
                 await m.addColumn(schema.animals, schema.animals.category);
                 await m.addColumn(schema.animals, schema.animals.subcategory);
               },
+              from10To11: (m, schema) async {
+                await m.addColumn(schema.boxes, schema.boxes.temperatureZones);
+                await copyLegacyAnimalTemperatureZonesToBoxes();
+              },
             ),
           );
 
@@ -149,5 +153,28 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
+
+  Future<void> copyLegacyAnimalTemperatureZonesToBoxes() async {
+    await customStatement('''
+      UPDATE boxes
+      SET temperature_zones = (
+        SELECT TRIM(animals.temperature_zones)
+        FROM animals
+        WHERE animals.box_id = boxes.id
+          AND animals.temperature_zones IS NOT NULL
+          AND TRIM(animals.temperature_zones) <> ''
+        ORDER BY animals.id
+        LIMIT 1
+      )
+      WHERE (temperature_zones IS NULL OR TRIM(temperature_zones) = '')
+        AND EXISTS (
+          SELECT 1
+          FROM animals
+          WHERE animals.box_id = boxes.id
+            AND animals.temperature_zones IS NOT NULL
+            AND TRIM(animals.temperature_zones) <> ''
+        )
+    ''');
+  }
 }

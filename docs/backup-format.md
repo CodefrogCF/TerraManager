@@ -361,6 +361,7 @@ status = active
 archiveReason = null
 archivedAt = null
 archiveNotes = null
+temperatureZones = null
 notes = null
 pictureMediaPath = null
 ```
@@ -380,6 +381,7 @@ archiveNotes
 widthCm
 heightCm
 depthCm
+temperatureZones
 notes
 pictureMediaPath
 createdAt
@@ -400,6 +402,7 @@ Example:
   "widthCm": 60.0,
   "heightCm": 40.0,
   "depthCm": 45.0,
+  "temperatureZones": "Warm side 28 °C",
   "notes": "Quarantine enclosure near the window",
   "pictureMediaPath": "media/boxes/1.jpg",
   "createdAt": "2026-08-01T10:00:00.000",
@@ -407,12 +410,15 @@ Example:
 }
 ```
 
-Box names, dimensions and notes are optional.
+Box names, dimensions, temperature zones and notes are optional.
 
 When present, `name` contains free-form text. Missing or explicit `null` values
 restore as an unnamed Box.
 
 When present, dimensions must be greater than zero.
+
+When present, `temperatureZones` contains free-form text. Missing or explicit
+`null` values restore as an empty Box temperature-zone note.
 
 When present, `notes` contains free-form text. Missing or explicit `null`
 values restore as empty Box notes.
@@ -491,7 +497,7 @@ Example active Animal:
   "weight": "140 g",
   "sheddingNotes": "Complete sheds",
   "restOrDormancyPeriods": "Less active in winter",
-  "temperatureZones": "Warm side 28 °C",
+  "temperatureZones": null,
   "pictureMediaPath": "media/animals/10.jpg",
   "notes": "Test animal",
   "archiveReason": null,
@@ -541,21 +547,26 @@ Example archived Animal:
 
 ### Optional Animal Profile Fields
 
-TerraManager 1.4.0 adds five optional strings without changing Backup Format
-Version 2:
+TerraManager 1.4.0 added five optional strings without changing Backup Format
+Version 2. In current forms, four remain Animal fields:
 
 ```text
 originHabitat
 weight
 sheddingNotes
 restOrDormancyPeriods
-temperatureZones
 ```
 
-Export writes all five keys. `null` represents an empty value. Restore accepts
-older Format 1 and Format 2 records where any or all keys are absent and maps
-those fields to `null`. A present non-string value is invalid application data.
-The representation remains free-form and does not imply a unit, history or
+`temperatureZones` remains accepted on Animal records only as a legacy key.
+Current input and display belong to `BackupBox.temperatureZones`. During
+restore, a legacy non-empty Animal value seeds its assigned Box only when that
+Box has no value; the lowest Animal ID wins deterministically. Export preserves
+any legacy Animal value already present so old data is not silently discarded.
+
+`null` represents an empty value. Restore accepts older Format 1 and Format 2
+records where any or all optional keys are absent and maps those fields to
+`null`. A present non-string value is invalid application data. The
+representation remains free-form and does not imply a unit, history or
 relationship to measurements.
 
 ### Animal Taxonomy Fields

@@ -13,6 +13,7 @@ void main() {
           widthCm: 60,
           heightCm: 40,
           depthCm: 40,
+          temperatureZones: 'Warm side 28 °C',
           notes: 'Heat cable below the left side',
           pictureMediaPath: 'media/boxes/1.png',
           createdAt: DateTime(2026, 8, 1),
@@ -37,7 +38,6 @@ void main() {
           weight: '140 g',
           sheddingNotes: 'Complete sheds',
           restOrDormancyPeriods: 'Less active in winter',
-          temperatureZones: 'Warm side 28 °C',
           pictureMediaPath: 'media/animals/10.jpg',
           notes: 'Test animal',
           archiveReason: null,
@@ -73,6 +73,7 @@ void main() {
     expect(restored.boxes.single.widthCm, 60);
     expect(restored.boxes.single.heightCm, 40);
     expect(restored.boxes.single.depthCm, 40);
+    expect(restored.boxes.single.temperatureZones, 'Warm side 28 °C');
     expect(restored.boxes.single.notes, 'Heat cable below the left side');
     expect(restored.boxes.single.pictureMediaPath, 'media/boxes/1.png');
 
@@ -93,7 +94,7 @@ void main() {
       restored.animals.single.restOrDormancyPeriods,
       'Less active in winter',
     );
-    expect(restored.animals.single.temperatureZones, 'Warm side 28 °C');
+    expect(restored.animals.single.temperatureZones, isNull);
 
     expect(restored.animals.single.feedingReminderIntervalDays, 7);
 

@@ -392,5 +392,43 @@
   "failedToRenameAnimal": "Tier konnte nicht umbenannt werden",
   "failedToRenameBox": "Box konnte nicht umbenannt werden",
   "failedToDuplicateAnimal": "Tier konnte nicht dupliziert werden",
-  "failedToDuplicateBox": "Box konnte nicht dupliziert werden"
+  "failedToDuplicateBox": "Box konnte nicht dupliziert werden",
+  "boxQrCodes": "Box-QR-Codes",
+  "boxQrCodesSectionDescription": "Speichere die vorhandenen QR-Codes mehrerer Boxen in einem Arbeitsschritt.",
+  "saveBoxQrCodes": "Box-QR-Codes speichern",
+  "saveBoxQrCodesDescription": "Wähle die Boxen aus, deren QR-Codes gespeichert werden sollen. Zunächst sind alle Boxen ausgewählt.",
+  "activeBoxes": "Aktive Boxen",
+  "clearSelection": "Auswahl leeren",
+  "selectAtLeastOneBox": "Wähle mindestens eine Box aus.",
+  "saveSelectedQrCodes": "Auswahl speichern",
+  "boxQrExportSucceeded": "{count, plural, =1{1 Box-QR-Code gespeichert} other{{count} Box-QR-Codes gespeichert}}",
+  "@boxQrExportSucceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "boxQrExportPartial": "{successCount} gespeichert; {failureCount} fehlgeschlagen.",
+  "@boxQrExportPartial": {
+    "placeholders": {
+      "successCount": {
+        "type": "int"
+      },
+      "failureCount": {
+        "type": "int"
+      }
+    }
+  },
+  "boxQrExportFailed": "{count, plural, =1{Der Box-QR-Code konnte nicht gespeichert werden.} other{Keiner der {count} Box-QR-Codes konnte gespeichert werden.}}",
+  "@boxQrExportFailed": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "boxQrExportResult": "Ergebnis des QR-Exports",
+  "boxQrExportFailedBoxes": "Nicht gespeichert:",
+  "failedToSaveBoxQrCodes": "Box-QR-Codes konnten nicht gespeichert werden"
 }

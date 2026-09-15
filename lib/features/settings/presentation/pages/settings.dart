@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/qr/qr_export_service.dart';
+import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../backup/application/backup_export_service.dart';
@@ -10,10 +13,13 @@ import '../../../backup/application/backup_validation_exception.dart';
 import '../../../backup/application/backup_validation_service.dart';
 import '../../../backup/application/validated_backup.dart';
 import '../../../backup/infrastructure/backup_file_service.dart';
+import '../../../boxes/presentation/box_selection_label.dart';
+import '../../application/box_qr_batch_export_service.dart';
 import '../../app_accent.dart';
 import '../../app_language.dart';
 import '../../app_settings_controller.dart';
 import '../../animal_name_order.dart';
+import '../box_qr_selection_dialog.dart';
 import 'license_page.dart';
 import 'privacy_policy_page.dart';
 
@@ -33,6 +39,8 @@ class SettingsPage extends StatefulWidget {
   final BackupFileGateway? backupFileGateway;
   final BackupExportService? backupExportService;
   final BackupValidationService? backupValidationService;
+  final QrExporter qrExporter;
+  final QrStorage qrStorage;
 
   final AppVersionLoader? appVersionLoader;
   final AppInformationLoader? appInformationLoader;
@@ -45,6 +53,8 @@ class SettingsPage extends StatefulWidget {
     this.backupFileGateway,
     this.backupExportService,
     this.backupValidationService,
+    this.qrExporter = const QrExportService(),
+    this.qrStorage = const QrStorageService(),
     this.appVersionLoader,
     this.appInformationLoader,
     this.onRestoreCompleted,
@@ -58,9 +68,14 @@ class _SettingsPageState extends State<SettingsPage> {
   late final BackupFileGateway _backupFileGateway;
   late final BackupExportService _backupExportService;
   late final BackupValidationService _backupValidationService;
+  late final BoxQrBatchExportService _boxQrBatchExportService;
 
   bool _backupBusy = false;
   bool _backupProgressVisible = false;
+  bool _qrExportBusy = false;
+  bool _qrExportProgressVisible = false;
+
+  bool get _operationBusy => _backupBusy || _qrExportBusy;
 
   @override
   void initState() {
@@ -73,6 +88,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
     _backupValidationService =
         widget.backupValidationService ?? BackupValidationService();
+
+    _boxQrBatchExportService = BoxQrBatchExportService(
+      qrExporter: widget.qrExporter,
+      qrStorage: widget.qrStorage,
+    );
   }
 
   Future<String> _loadAppVersion() async {
@@ -118,7 +138,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _createBackup() async {
-    if (_backupBusy) {
+    if (_operationBusy) {
       return;
     }
 
@@ -179,7 +199,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _restoreBackup() async {
-    if (_backupBusy) {
+    if (_operationBusy) {
       return;
     }
 
@@ -465,6 +485,144 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Future<void> _saveBoxQrCodes() async {
+    if (_operationBusy) {
+      return;
+    }
+
+    setState(() {
+      _qrExportBusy = true;
+      _qrExportProgressVisible = true;
+    });
+
+    try {
+      final repository = BoxRepository(widget.database);
+      final groups = await Future.wait<List<Box>>([
+        repository.getActiveBoxes(),
+        repository.getArchivedBoxes(),
+      ]);
+      final activeBoxes = groups[0];
+      final archivedBoxes = groups[1];
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _qrExportProgressVisible = false;
+      });
+
+      if (activeBoxes.isEmpty && archivedBoxes.isEmpty) {
+        _showMessage(context.l10n.noBoxesAvailable);
+        return;
+      }
+
+      final selectedBoxIds = await showDialog<Set<int>>(
+        context: context,
+        builder: (_) => BoxQrSelectionDialog(
+          activeBoxes: activeBoxes,
+          archivedBoxes: archivedBoxes,
+        ),
+      );
+      if (!mounted || selectedBoxIds == null) {
+        return;
+      }
+
+      final boxesById = <int, Box>{
+        for (final box in activeBoxes) box.id: box,
+        for (final box in archivedBoxes) box.id: box,
+      };
+      final selectedBoxes = selectedBoxIds
+          .map((boxId) => boxesById[boxId])
+          .whereType<Box>()
+          .toList(growable: false);
+
+      if (selectedBoxes.isEmpty) {
+        return;
+      }
+
+      setState(() {
+        _qrExportProgressVisible = true;
+      });
+
+      final result = await _boxQrBatchExportService.exportBoxes(selectedBoxes);
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _qrExportProgressVisible = false;
+      });
+
+      if (result.isCompleteSuccess) {
+        _showMessage(
+          context.l10n.boxQrExportSucceeded(result.succeeded.length),
+        );
+        return;
+      }
+
+      await _showBoxQrExportResult(result);
+    } catch (error, stackTrace) {
+      debugPrint('Box QR batch export failed: $error');
+      debugPrintStack(
+        label: 'Box QR batch export stack trace',
+        stackTrace: stackTrace,
+      );
+
+      if (mounted) {
+        _showMessage(context.l10n.failedToSaveBoxQrCodes, error: true);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _qrExportBusy = false;
+          _qrExportProgressVisible = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _showBoxQrExportResult(BoxQrBatchExportResult result) {
+    final summary = result.isCompleteFailure
+        ? context.l10n.boxQrExportFailed(result.failures.length)
+        : context.l10n.boxQrExportPartial(
+            result.succeeded.length,
+            result.failures.length,
+          );
+
+    return showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: const Key('box-qr-export-result-dialog'),
+        title: Text(context.l10n.boxQrExportResult),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(summary),
+              const SizedBox(height: 16),
+              Text(
+                context.l10n.boxQrExportFailedBoxes,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              for (final failure in result.failures)
+                Text('• ${boxSelectionLabel(context.l10n, failure.box)}'),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            key: const Key('close-box-qr-export-result-button'),
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(context.l10n.ok),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showMessage(String message, {bool error = false}) {
     final messenger = ScaffoldMessenger.of(context);
 
@@ -535,7 +693,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
               selected: {settings.themeMode},
-              onSelectionChanged: _backupBusy
+              onSelectionChanged: _operationBusy
                   ? null
                   : (selection) {
                       settings.setThemeMode(selection.first);
@@ -558,7 +716,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 horizontal: 16,
                 vertical: 4,
               ),
-              enabled: !_backupBusy,
+              enabled: !_operationBusy,
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<AppAccent>(
@@ -588,7 +746,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   );
                 }).toList(),
-                onChanged: _backupBusy
+                onChanged: _operationBusy
                     ? null
                     : (accent) {
                         if (accent != null) {
@@ -625,7 +783,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               }).toList(),
               selected: {settings.animalNameOrder},
-              onSelectionChanged: _backupBusy
+              onSelectionChanged: _operationBusy
                   ? null
                   : (selection) {
                       settings.setAnimalNameOrder(selection.first);
@@ -652,7 +810,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 );
               }).toList(),
               selected: {settings.language},
-              onSelectionChanged: _backupBusy
+              onSelectionChanged: _operationBusy
                   ? null
                   : (selection) {
                       settings.setLanguage(selection.first);
@@ -673,6 +831,45 @@ class _SettingsPageState extends State<SettingsPage> {
           const SizedBox(height: 24),
 
           Text(
+            context.l10n.boxQrCodes,
+            key: const Key('box-qr-codes-section-heading'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            context.l10n.boxQrCodesSectionDescription,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+
+          const SizedBox(height: 16),
+
+          ListTile(
+            key: const Key('save-box-qr-codes-button'),
+            enabled: !_operationBusy,
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.qr_code_2_outlined),
+            title: Text(context.l10n.saveBoxQrCodes),
+            subtitle: Text(context.l10n.saveBoxQrCodesDescription),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _operationBusy ? null : _saveBoxQrCodes,
+          ),
+
+          if (_qrExportProgressVisible) ...[
+            const SizedBox(height: 16),
+            const Center(
+              child: CircularProgressIndicator(
+                key: Key('box-qr-export-progress'),
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 40),
+          const Divider(),
+          const SizedBox(height: 24),
+
+          Text(
             context.l10n.backupAndRestore,
             key: const Key('backup-section-heading'),
             style: Theme.of(context).textTheme.titleLarge,
@@ -689,26 +886,26 @@ class _SettingsPageState extends State<SettingsPage> {
 
           ListTile(
             key: const Key('create-backup-button'),
-            enabled: !_backupBusy,
+            enabled: !_operationBusy,
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.download_outlined),
             title: Text(context.l10n.createBackup),
             subtitle: Text(context.l10n.createBackupDescription),
             trailing: const Icon(Icons.chevron_right),
-            onTap: _backupBusy ? null : _createBackup,
+            onTap: _operationBusy ? null : _createBackup,
           ),
 
           const Divider(),
 
           ListTile(
             key: const Key('restore-backup-button'),
-            enabled: !_backupBusy,
+            enabled: !_operationBusy,
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.restore_outlined),
             title: Text(context.l10n.restoreBackup),
             subtitle: Text(context.l10n.restoreBackupDescription),
             trailing: const Icon(Icons.chevron_right),
-            onTap: _backupBusy ? null : _restoreBackup,
+            onTap: _operationBusy ? null : _restoreBackup,
           ),
 
           if (_backupProgressVisible) ...[

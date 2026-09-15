@@ -82,6 +82,14 @@ void main() {
     expect(l10n.duplicateAnimal, 'Duplicate Animal');
     expect(l10n.duplicateBox, 'Duplicate Box');
     expect(l10n.copyName('Mango'), 'Mango (copy)');
+    expect(l10n.boxQrCodes, 'Box QR Codes');
+    expect(l10n.saveBoxQrCodes, 'Save Box QR Codes');
+    expect(l10n.activeBoxes, 'Active Boxes');
+    expect(l10n.clearSelection, 'Clear selection');
+    expect(l10n.selectAtLeastOneBox, 'Select at least one Box.');
+    expect(l10n.boxQrExportSucceeded(1), '1 Box QR code saved');
+    expect(l10n.boxQrExportSucceeded(3), '3 Box QR codes saved');
+    expect(l10n.boxQrExportPartial(2, 1), '2 saved; 1 failed.');
     expect(l10n.animalsDueForFeeding(1), '1 Animal is due for feeding');
     expect(l10n.animalsDueForFeeding(3), '3 Animals are due for feeding');
     expect(
@@ -173,6 +181,14 @@ void main() {
     expect(l10n.duplicateAnimal, 'Tier duplizieren');
     expect(l10n.duplicateBox, 'Box duplizieren');
     expect(l10n.copyName('Mango'), 'Mango (Kopie)');
+    expect(l10n.boxQrCodes, 'Box-QR-Codes');
+    expect(l10n.saveBoxQrCodes, 'Box-QR-Codes speichern');
+    expect(l10n.activeBoxes, 'Aktive Boxen');
+    expect(l10n.clearSelection, 'Auswahl leeren');
+    expect(l10n.selectAtLeastOneBox, 'Wähle mindestens eine Box aus.');
+    expect(l10n.boxQrExportSucceeded(1), '1 Box-QR-Code gespeichert');
+    expect(l10n.boxQrExportSucceeded(3), '3 Box-QR-Codes gespeichert');
+    expect(l10n.boxQrExportPartial(2, 1), '2 gespeichert; 1 fehlgeschlagen.');
     expect(l10n.animalsDueForFeeding(1), '1 Tier ist zur Fütterung fällig');
     expect(l10n.animalsDueForFeeding(3), '3 Tiere sind zur Fütterung fällig');
     expect(

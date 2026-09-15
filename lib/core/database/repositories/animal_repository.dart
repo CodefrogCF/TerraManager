@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../app_database.dart';
 import '../enums/animal_archive_reason.dart';
+import '../enums/animal_category.dart';
 import '../enums/animal_status.dart';
 import '../enums/birth_date_accuracy.dart';
 import '../enums/sex.dart';
@@ -69,6 +70,8 @@ class AnimalRepository {
     required int boxId,
     required String commonName,
     required String latinName,
+    AnimalCategory category = AnimalCategory.other,
+    AnimalSubcategory? subcategory,
     Sex? sex,
     DateTime? birthDate,
     BirthDateAccuracy? birthDateAccuracy,
@@ -97,6 +100,7 @@ class AnimalRepository {
       intervalDays: feedingReminderIntervalDays,
       baseline: feedingReminderBaseline,
     );
+    _validateTaxonomy(category, subcategory);
 
     return database.transaction(() async {
       await _requireActiveBox(boxId);
@@ -107,6 +111,8 @@ class AnimalRepository {
               boxId: Value(boxId),
               commonName: commonName,
               latinName: latinName,
+              category: Value(category),
+              subcategory: Value.absentIfNull(subcategory),
               sex: Value.absentIfNull(sex),
               birthDate: Value.absentIfNull(birthDate),
               birthDateAccuracy: Value.absentIfNull(birthDateAccuracy),
@@ -206,6 +212,8 @@ class AnimalRepository {
               boxId: Value(boxId),
               commonName: normalizedName,
               latinName: source.latinName,
+              category: Value(source.category),
+              subcategory: Value.absentIfNull(source.subcategory),
               sex: Value.absentIfNull(source.sex),
               birthDate: Value.absentIfNull(source.birthDate),
               birthDateAccuracy: Value.absentIfNull(source.birthDateAccuracy),
@@ -241,6 +249,8 @@ class AnimalRepository {
     required int boxId,
     required String commonName,
     required String latinName,
+    AnimalCategory? category,
+    AnimalSubcategory? subcategory,
     Sex? sex,
     DateTime? birthDate,
     BirthDateAccuracy? birthDateAccuracy,
@@ -269,6 +279,15 @@ class AnimalRepository {
       intervalDays: feedingReminderIntervalDays,
       baseline: feedingReminderBaseline,
     );
+    if (category != null) {
+      _validateTaxonomy(category, subcategory);
+    } else if (subcategory != null) {
+      throw ArgumentError.value(
+        subcategory,
+        'subcategory',
+        'A subcategory update requires a category.',
+      );
+    }
 
     return database.transaction(() async {
       await _requireActiveBox(boxId);
@@ -283,6 +302,12 @@ class AnimalRepository {
                   boxId: Value(boxId),
                   commonName: Value(commonName),
                   latinName: Value(latinName),
+                  category: category == null
+                      ? const Value.absent()
+                      : Value(category),
+                  subcategory: category == null
+                      ? const Value.absent()
+                      : Value(subcategory),
                   sex: Value(sex),
                   birthDate: Value(birthDate),
                   birthDateAccuracy: Value(birthDateAccuracy),
@@ -468,6 +493,19 @@ class AnimalRepository {
             .getSingleOrNull();
     if (box == null) {
       throw BoxAssignmentException(boxId);
+    }
+  }
+
+  static void _validateTaxonomy(
+    AnimalCategory category,
+    AnimalSubcategory? subcategory,
+  ) {
+    if (!category.supports(subcategory)) {
+      throw ArgumentError.value(
+        subcategory,
+        'subcategory',
+        'Subcategory does not belong to ${category.name}.',
+      );
     }
   }
 

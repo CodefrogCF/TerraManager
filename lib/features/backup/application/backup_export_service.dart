@@ -102,6 +102,10 @@ class BackupExportService {
           status: BackupEnumCodec.encodeAnimalStatus(animal.status),
           commonName: animal.commonName,
           latinName: animal.latinName,
+          category: BackupEnumCodec.encodeAnimalCategory(animal.category),
+          subcategory: animal.subcategory == null
+              ? null
+              : BackupEnumCodec.encodeAnimalSubcategory(animal.subcategory!),
           sex: animal.sex == null
               ? null
               : BackupEnumCodec.encodeSex(animal.sex!),

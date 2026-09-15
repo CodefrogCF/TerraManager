@@ -116,9 +116,9 @@ AAB SHA-256: PENDING RELEASE-OWNER ARTIFACT
 Web archive SHA-256: PENDING RELEASE-OWNER ARTIFACT
 ```
 
-- [x] APK signature verification succeeded
-- [x] certificate digest matches the permanent production certificate
-- [x] final artifact hashes were recorded
+- [ ] APK signature verification succeeded
+- [ ] certificate digest matches the permanent production certificate
+- [ ] final artifact hashes were recorded
 - [x] no signing credential or private key entered the source package
 
 ## Manual Android and Web Validation

@@ -684,3 +684,49 @@ Box, Animal, FeedingEvent and MediaAsset and initializes the new values to
 `null`. The fields are deliberately free-form text in v1.4.0; weight history,
 shedding history, calculations, reminders and measurement links remain outside
 this schema.
+
+### Schema Version 10
+
+Schema Version 10 adds the Animal taxonomy columns:
+
+```text
+Animal.category
+Animal.subcategory
+```
+
+`category` is non-null and defaults to the stable value `other`.
+`subcategory` is nullable and must be compatible with its primary category.
+The v9 → v10 migration preserves every existing Box, Animal, FeedingEvent and
+MediaAsset; existing Animals begin as `other` without a subcategory.
+
+Stable categories follow this canonical order:
+
+```text
+amphibian
+reptile
+arachnid
+insect
+myriapod
+crustacean
+mollusc
+otherInvertebrate
+other
+```
+
+Compatible subcategories are:
+
+```text
+amphibian: frogOrToad, newtOrSalamander, other
+reptile: snake, lizard, turtle, other
+arachnid: tarantula, otherSpider, scorpion,
+          whipSpiderOrWhipScorpion, other
+insect: beetle, cockroach, mantis, grasshopperOrCricket, other
+myriapod: millipede, centipede, other
+crustacean: isopod, crab, other
+mollusc: snail, other
+otherInvertebrate: no subcategory
+other: no subcategory
+```
+
+Localized display labels are derived from these portable values and are never
+stored in the database.

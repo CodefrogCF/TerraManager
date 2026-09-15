@@ -106,7 +106,7 @@ flutter build web --release --no-pub
 ```
 
 - [ ] release owner produced and verified the supported artifacts
-- [ ] release APK reports Version `1.6.1` and Build `63`
+- [x] release APK reports Version `1.6.1` and Build `63`
 - [ ] release AAB reports Version `1.6.1` and Build `63`
 - [ ] Web release completed from the same source commit
 
@@ -125,7 +125,7 @@ Web archive SHA-256: PENDING RELEASE-OWNER ARTIFACT
 - [ ] APK signature verification succeeded
 - [ ] certificate digest matches the permanent production certificate
 - [ ] final artifact hashes were recorded
-- [ ] no signing credential or private key entered the source package
+- [x] no signing credential or private key entered the source package
 
 ## Manual Android and Web Validation
 

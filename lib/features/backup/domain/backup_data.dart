@@ -125,6 +125,9 @@ class BackupAnimal {
   final String commonName;
   final String latinName;
 
+  final String category;
+  final String? subcategory;
+
   final String? sex;
 
   final DateTime? birthDate;
@@ -161,6 +164,8 @@ class BackupAnimal {
     required this.status,
     required this.commonName,
     required this.latinName,
+    this.category = 'other',
+    this.subcategory,
     required this.sex,
     required this.birthDate,
     required this.birthDateAccuracy,
@@ -191,6 +196,8 @@ class BackupAnimal {
       'status': status,
       'commonName': commonName,
       'latinName': latinName,
+      'category': category,
+      'subcategory': subcategory,
       'sex': sex,
       'birthDate': birthDate?.toIso8601String(),
       'birthDateAccuracy': birthDateAccuracy,
@@ -222,6 +229,10 @@ class BackupAnimal {
       status: json['status'] as String,
       commonName: json['commonName'] as String,
       latinName: json['latinName'] as String,
+      category: json.containsKey('category')
+          ? json['category'] as String
+          : 'other',
+      subcategory: json['subcategory'] as String?,
       sex: json['sex'] as String?,
       birthDate: json['birthDate'] == null
           ? null

@@ -49,6 +49,14 @@ existing Animals receive empty additional characteristics. Current exports
 include these values, while older Format 1 and Format 2 backups remain
 restorable.
 
+TerraManager v1.7.0 keeps the same application identity, production signing
+certificate and Portable Backup Format Version 2. It advances the local
+database to Schema Version 10 for Animal category and subcategory values. A
+direct update from a production-signed v1.6.x installation preserves every
+record, setting and media item; existing Animals receive category Other with no
+subcategory. Current exports include the stable taxonomy values, while Format 1
+and older Format 2 backups remain restorable with the same fallback.
+
 ## Android installation
 
 The release APK is the directly installable Android artifact. Android may ask

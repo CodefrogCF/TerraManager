@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 
+import '../../../core/database/enums/animal_category.dart';
+import '../../../core/qr/qr_validator.dart';
 import '../domain/backup_data.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_format.dart';
@@ -11,7 +13,6 @@ import '../domain/backup_settings.dart';
 import 'backup_settings_codec.dart';
 import 'backup_validation_exception.dart';
 import 'validated_backup.dart';
-import '../../../core/qr/qr_validator.dart';
 
 typedef BackupQrIdValidator = bool Function(String qrId);
 
@@ -417,6 +418,17 @@ class BackupValidationService {
   void _validateAnimalEnums(BackupAnimal animal) {
     try {
       BackupEnumCodec.decodeAnimalStatus(animal.status);
+
+      final category = BackupEnumCodec.decodeAnimalCategory(animal.category);
+      final subcategory = animal.subcategory == null
+          ? null
+          : BackupEnumCodec.decodeAnimalSubcategory(animal.subcategory!);
+      if (!category.supports(subcategory)) {
+        throw FormatException(
+          'Subcategory ${animal.subcategory} does not belong to '
+          '${animal.category}.',
+        );
+      }
 
       if (animal.sex != null) {
         BackupEnumCodec.decodeSex(animal.sex!);

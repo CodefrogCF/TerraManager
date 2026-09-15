@@ -1279,6 +1279,25 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     requiredDuringInsert: true,
   );
   @override
+  late final GeneratedColumnWithTypeConverter<AnimalCategory, String> category =
+      GeneratedColumn<String>(
+        'category',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('other'),
+      ).withConverter<AnimalCategory>($AnimalsTable.$convertercategory);
+  @override
+  late final GeneratedColumnWithTypeConverter<AnimalSubcategory?, String>
+  subcategory = GeneratedColumn<String>(
+    'subcategory',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  ).withConverter<AnimalSubcategory?>($AnimalsTable.$convertersubcategoryn);
+  @override
   late final GeneratedColumnWithTypeConverter<Sex?, String> sex =
       GeneratedColumn<String>(
         'sex',
@@ -1525,6 +1544,8 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     status,
     commonName,
     latinName,
+    category,
+    subcategory,
     sex,
     birthDate,
     birthDateAccuracy,
@@ -1771,6 +1792,18 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.string,
         data['${effectivePrefix}latin_name'],
       )!,
+      category: $AnimalsTable.$convertercategory.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}category'],
+        )!,
+      ),
+      subcategory: $AnimalsTable.$convertersubcategoryn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}subcategory'],
+        ),
+      ),
       sex: $AnimalsTable.$convertersexn.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.string,
@@ -1875,6 +1908,12 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
 
   static TypeConverter<AnimalStatus, String> $converterstatus =
       const AnimalStatusConverter();
+  static TypeConverter<AnimalCategory, String> $convertercategory =
+      const AnimalCategoryConverter();
+  static TypeConverter<AnimalSubcategory, String> $convertersubcategory =
+      const AnimalSubcategoryConverter();
+  static TypeConverter<AnimalSubcategory?, String?> $convertersubcategoryn =
+      NullAwareTypeConverter.wrap($convertersubcategory);
   static TypeConverter<Sex, String> $convertersex = const SexConverter();
   static TypeConverter<Sex?, String?> $convertersexn =
       NullAwareTypeConverter.wrap($convertersex);
@@ -1896,6 +1935,8 @@ class Animal extends DataClass implements Insertable<Animal> {
   final AnimalStatus status;
   final String commonName;
   final String latinName;
+  final AnimalCategory category;
+  final AnimalSubcategory? subcategory;
   final Sex? sex;
   final DateTime? birthDate;
   final BirthDateAccuracy? birthDateAccuracy;
@@ -1924,6 +1965,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     required this.status,
     required this.commonName,
     required this.latinName,
+    required this.category,
+    this.subcategory,
     this.sex,
     this.birthDate,
     this.birthDateAccuracy,
@@ -1961,6 +2004,16 @@ class Animal extends DataClass implements Insertable<Animal> {
     }
     map['common_name'] = Variable<String>(commonName);
     map['latin_name'] = Variable<String>(latinName);
+    {
+      map['category'] = Variable<String>(
+        $AnimalsTable.$convertercategory.toSql(category),
+      );
+    }
+    if (!nullToAbsent || subcategory != null) {
+      map['subcategory'] = Variable<String>(
+        $AnimalsTable.$convertersubcategoryn.toSql(subcategory),
+      );
+    }
     if (!nullToAbsent || sex != null) {
       map['sex'] = Variable<String>($AnimalsTable.$convertersexn.toSql(sex));
     }
@@ -2035,6 +2088,10 @@ class Animal extends DataClass implements Insertable<Animal> {
       status: Value(status),
       commonName: Value(commonName),
       latinName: Value(latinName),
+      category: Value(category),
+      subcategory: subcategory == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subcategory),
       sex: sex == null && nullToAbsent ? const Value.absent() : Value(sex),
       birthDate: birthDate == null && nullToAbsent
           ? const Value.absent()
@@ -2102,6 +2159,8 @@ class Animal extends DataClass implements Insertable<Animal> {
       status: serializer.fromJson<AnimalStatus>(json['status']),
       commonName: serializer.fromJson<String>(json['commonName']),
       latinName: serializer.fromJson<String>(json['latinName']),
+      category: serializer.fromJson<AnimalCategory>(json['category']),
+      subcategory: serializer.fromJson<AnimalSubcategory?>(json['subcategory']),
       sex: serializer.fromJson<Sex?>(json['sex']),
       birthDate: serializer.fromJson<DateTime?>(json['birthDate']),
       birthDateAccuracy: serializer.fromJson<BirthDateAccuracy?>(
@@ -2145,6 +2204,8 @@ class Animal extends DataClass implements Insertable<Animal> {
       'status': serializer.toJson<AnimalStatus>(status),
       'commonName': serializer.toJson<String>(commonName),
       'latinName': serializer.toJson<String>(latinName),
+      'category': serializer.toJson<AnimalCategory>(category),
+      'subcategory': serializer.toJson<AnimalSubcategory?>(subcategory),
       'sex': serializer.toJson<Sex?>(sex),
       'birthDate': serializer.toJson<DateTime?>(birthDate),
       'birthDateAccuracy': serializer.toJson<BirthDateAccuracy?>(
@@ -2184,6 +2245,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     AnimalStatus? status,
     String? commonName,
     String? latinName,
+    AnimalCategory? category,
+    Value<AnimalSubcategory?> subcategory = const Value.absent(),
     Value<Sex?> sex = const Value.absent(),
     Value<DateTime?> birthDate = const Value.absent(),
     Value<BirthDateAccuracy?> birthDateAccuracy = const Value.absent(),
@@ -2212,6 +2275,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     status: status ?? this.status,
     commonName: commonName ?? this.commonName,
     latinName: latinName ?? this.latinName,
+    category: category ?? this.category,
+    subcategory: subcategory.present ? subcategory.value : this.subcategory,
     sex: sex.present ? sex.value : this.sex,
     birthDate: birthDate.present ? birthDate.value : this.birthDate,
     birthDateAccuracy: birthDateAccuracy.present
@@ -2262,6 +2327,10 @@ class Animal extends DataClass implements Insertable<Animal> {
           ? data.commonName.value
           : this.commonName,
       latinName: data.latinName.present ? data.latinName.value : this.latinName,
+      category: data.category.present ? data.category.value : this.category,
+      subcategory: data.subcategory.present
+          ? data.subcategory.value
+          : this.subcategory,
       sex: data.sex.present ? data.sex.value : this.sex,
       birthDate: data.birthDate.present ? data.birthDate.value : this.birthDate,
       birthDateAccuracy: data.birthDateAccuracy.present
@@ -2323,6 +2392,8 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('status: $status, ')
           ..write('commonName: $commonName, ')
           ..write('latinName: $latinName, ')
+          ..write('category: $category, ')
+          ..write('subcategory: $subcategory, ')
           ..write('sex: $sex, ')
           ..write('birthDate: $birthDate, ')
           ..write('birthDateAccuracy: $birthDateAccuracy, ')
@@ -2356,6 +2427,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     status,
     commonName,
     latinName,
+    category,
+    subcategory,
     sex,
     birthDate,
     birthDateAccuracy,
@@ -2388,6 +2461,8 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.status == this.status &&
           other.commonName == this.commonName &&
           other.latinName == this.latinName &&
+          other.category == this.category &&
+          other.subcategory == this.subcategory &&
           other.sex == this.sex &&
           other.birthDate == this.birthDate &&
           other.birthDateAccuracy == this.birthDateAccuracy &&
@@ -2419,6 +2494,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<AnimalStatus> status;
   final Value<String> commonName;
   final Value<String> latinName;
+  final Value<AnimalCategory> category;
+  final Value<AnimalSubcategory?> subcategory;
   final Value<Sex?> sex;
   final Value<DateTime?> birthDate;
   final Value<BirthDateAccuracy?> birthDateAccuracy;
@@ -2447,6 +2524,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.status = const Value.absent(),
     this.commonName = const Value.absent(),
     this.latinName = const Value.absent(),
+    this.category = const Value.absent(),
+    this.subcategory = const Value.absent(),
     this.sex = const Value.absent(),
     this.birthDate = const Value.absent(),
     this.birthDateAccuracy = const Value.absent(),
@@ -2476,6 +2555,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.status = const Value.absent(),
     required String commonName,
     required String latinName,
+    this.category = const Value.absent(),
+    this.subcategory = const Value.absent(),
     this.sex = const Value.absent(),
     this.birthDate = const Value.absent(),
     this.birthDateAccuracy = const Value.absent(),
@@ -2510,6 +2591,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<String>? status,
     Expression<String>? commonName,
     Expression<String>? latinName,
+    Expression<String>? category,
+    Expression<String>? subcategory,
     Expression<String>? sex,
     Expression<DateTime>? birthDate,
     Expression<String>? birthDateAccuracy,
@@ -2539,6 +2622,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       if (status != null) 'status': status,
       if (commonName != null) 'common_name': commonName,
       if (latinName != null) 'latin_name': latinName,
+      if (category != null) 'category': category,
+      if (subcategory != null) 'subcategory': subcategory,
       if (sex != null) 'sex': sex,
       if (birthDate != null) 'birth_date': birthDate,
       if (birthDateAccuracy != null) 'birth_date_accuracy': birthDateAccuracy,
@@ -2573,6 +2658,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<AnimalStatus>? status,
     Value<String>? commonName,
     Value<String>? latinName,
+    Value<AnimalCategory>? category,
+    Value<AnimalSubcategory?>? subcategory,
     Value<Sex?>? sex,
     Value<DateTime?>? birthDate,
     Value<BirthDateAccuracy?>? birthDateAccuracy,
@@ -2602,6 +2689,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       status: status ?? this.status,
       commonName: commonName ?? this.commonName,
       latinName: latinName ?? this.latinName,
+      category: category ?? this.category,
+      subcategory: subcategory ?? this.subcategory,
       sex: sex ?? this.sex,
       birthDate: birthDate ?? this.birthDate,
       birthDateAccuracy: birthDateAccuracy ?? this.birthDateAccuracy,
@@ -2649,6 +2738,16 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     }
     if (latinName.present) {
       map['latin_name'] = Variable<String>(latinName.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(
+        $AnimalsTable.$convertercategory.toSql(category.value),
+      );
+    }
+    if (subcategory.present) {
+      map['subcategory'] = Variable<String>(
+        $AnimalsTable.$convertersubcategoryn.toSql(subcategory.value),
+      );
     }
     if (sex.present) {
       map['sex'] = Variable<String>(
@@ -2741,6 +2840,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('status: $status, ')
           ..write('commonName: $commonName, ')
           ..write('latinName: $latinName, ')
+          ..write('category: $category, ')
+          ..write('subcategory: $subcategory, ')
           ..write('sex: $sex, ')
           ..write('birthDate: $birthDate, ')
           ..write('birthDateAccuracy: $birthDateAccuracy, ')
@@ -4067,6 +4168,8 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<AnimalStatus> status,
   required String commonName,
   required String latinName,
+  Value<AnimalCategory> category,
+  Value<AnimalSubcategory?> subcategory,
   Value<Sex?> sex,
   Value<DateTime?> birthDate,
   Value<BirthDateAccuracy?> birthDateAccuracy,
@@ -4096,6 +4199,8 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<AnimalStatus> status,
   Value<String> commonName,
   Value<String> latinName,
+  Value<AnimalCategory> category,
+  Value<AnimalSubcategory?> subcategory,
   Value<Sex?> sex,
   Value<DateTime?> birthDate,
   Value<BirthDateAccuracy?> birthDateAccuracy,
@@ -4205,6 +4310,18 @@ class $$AnimalsTableFilterComposer
   ColumnFilters<String> get latinName => $composableBuilder(
     column: $table.latinName,
     builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AnimalCategory, AnimalCategory, String>
+  get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<AnimalSubcategory?, AnimalSubcategory, String>
+  get subcategory => $composableBuilder(
+    column: $table.subcategory,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
   );
 
   ColumnWithTypeConverterFilters<Sex?, Sex, String> get sex =>
@@ -4420,6 +4537,16 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subcategory => $composableBuilder(
+    column: $table.subcategory,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get sex => $composableBuilder(
     column: $table.sex,
     builder: (column) => ColumnOrderings(column),
@@ -4594,6 +4721,15 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<String> get latinName =>
       $composableBuilder(column: $table.latinName, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AnimalCategory, String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<AnimalSubcategory?, String>
+  get subcategory => $composableBuilder(
+    column: $table.subcategory,
+    builder: (column) => column,
+  );
 
   GeneratedColumnWithTypeConverter<Sex?, String> get sex =>
       $composableBuilder(column: $table.sex, builder: (column) => column);
@@ -4795,6 +4931,8 @@ class $$AnimalsTableTableManager
                 Value<AnimalStatus> status = const Value.absent(),
                 Value<String> commonName = const Value.absent(),
                 Value<String> latinName = const Value.absent(),
+                Value<AnimalCategory> category = const Value.absent(),
+                Value<AnimalSubcategory?> subcategory = const Value.absent(),
                 Value<Sex?> sex = const Value.absent(),
                 Value<DateTime?> birthDate = const Value.absent(),
                 Value<BirthDateAccuracy?> birthDateAccuracy =
@@ -4825,6 +4963,8 @@ class $$AnimalsTableTableManager
                 status: status,
                 commonName: commonName,
                 latinName: latinName,
+                category: category,
+                subcategory: subcategory,
                 sex: sex,
                 birthDate: birthDate,
                 birthDateAccuracy: birthDateAccuracy,
@@ -4855,6 +4995,8 @@ class $$AnimalsTableTableManager
                 Value<AnimalStatus> status = const Value.absent(),
                 required String commonName,
                 required String latinName,
+                Value<AnimalCategory> category = const Value.absent(),
+                Value<AnimalSubcategory?> subcategory = const Value.absent(),
                 Value<Sex?> sex = const Value.absent(),
                 Value<DateTime?> birthDate = const Value.absent(),
                 Value<BirthDateAccuracy?> birthDateAccuracy =
@@ -4885,6 +5027,8 @@ class $$AnimalsTableTableManager
                 status: status,
                 commonName: commonName,
                 latinName: latinName,
+                category: category,
+                subcategory: subcategory,
                 sex: sex,
                 birthDate: birthDate,
                 birthDateAccuracy: birthDateAccuracy,

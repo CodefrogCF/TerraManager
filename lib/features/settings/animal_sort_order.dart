@@ -7,9 +7,11 @@ enum AnimalSortOrder {
   ageYoungestFirst,
   latestFeedingNewestFirst,
   latestFeedingOldestFirst,
+  categoryAscending,
+  categoryDescending,
 }
 
-enum AnimalSortCriterion { created, displayName, age, latestFeeding }
+enum AnimalSortCriterion { created, displayName, age, latestFeeding, category }
 
 extension AnimalSortOrderSelection on AnimalSortOrder {
   AnimalSortCriterion get criterion => switch (this) {
@@ -22,6 +24,8 @@ extension AnimalSortOrderSelection on AnimalSortOrder {
     AnimalSortOrder.latestFeedingNewestFirst ||
     AnimalSortOrder.latestFeedingOldestFirst =>
       AnimalSortCriterion.latestFeeding,
+    AnimalSortOrder.categoryAscending ||
+    AnimalSortOrder.categoryDescending => AnimalSortCriterion.category,
   };
 
   AnimalSortOrder get reversed => switch (this) {
@@ -37,6 +41,8 @@ extension AnimalSortOrderSelection on AnimalSortOrder {
       AnimalSortOrder.latestFeedingOldestFirst,
     AnimalSortOrder.latestFeedingOldestFirst =>
       AnimalSortOrder.latestFeedingNewestFirst,
+    AnimalSortOrder.categoryAscending => AnimalSortOrder.categoryDescending,
+    AnimalSortOrder.categoryDescending => AnimalSortOrder.categoryAscending,
   };
 }
 
@@ -47,5 +53,6 @@ extension AnimalSortCriterionDefaults on AnimalSortCriterion {
     AnimalSortCriterion.age => AnimalSortOrder.ageOldestFirst,
     AnimalSortCriterion.latestFeeding =>
       AnimalSortOrder.latestFeedingNewestFirst,
+    AnimalSortCriterion.category => AnimalSortOrder.categoryAscending,
   };
 }

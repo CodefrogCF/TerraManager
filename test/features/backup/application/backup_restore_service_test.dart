@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
@@ -205,6 +206,8 @@ void main() {
             archiveNotes: null,
             feedingReminderIntervalDays: 9,
             feedingReminderBaseline: reminderBaseline,
+            category: 'reptile',
+            subcategory: 'snake',
             createdAt: DateTime(2026, 9, 1),
             updatedAt: DateTime(2026, 9, 2),
           ),
@@ -626,6 +629,8 @@ void main() {
 
     expect(animal.feedingReminderIntervalDays, 9);
     expect(animal.feedingReminderBaseline, DateTime(2026, 9, 3, 8, 45));
+    expect(animal.category, AnimalCategory.reptile);
+    expect(animal.subcategory, AnimalSubcategory.snake);
 
     expect(animal.pictureMediaId, isNot(box.pictureMediaId));
 

@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/birth_date_accuracy.dart';
+import '../../../../core/database/enums/animal_category.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
@@ -21,6 +22,7 @@ import '../animal_archive_dialog.dart';
 import '../animal_environmental_validator.dart';
 import '../widgets/animal_additional_characteristics_fields.dart';
 import '../widgets/animal_picture.dart';
+import '../widgets/animal_taxonomy_fields.dart';
 
 class AnimalEditPage extends StatefulWidget {
   final AppDatabase database;
@@ -57,6 +59,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   late final PictureSelectionFlow _pictureSelectionFlow;
 
   Sex _sex = Sex.unknown;
+  AnimalCategory _category = AnimalCategory.other;
+  AnimalSubcategory? _subcategory;
   BirthDateAccuracy? _birthDateAccuracy;
   DateTime? _birthDate;
   int? _boxId;
@@ -177,6 +181,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       ].any((value) => value != null && value.trim().isNotEmpty);
 
       _sex = animal.sex ?? Sex.unknown;
+      _category = animal.category;
+      _subcategory = animal.subcategory;
       _birthDate = animal.birthDate;
       _birthDateAccuracy = animal.birthDateAccuracy;
       _boxId = boxes.any((box) => box.id == animal.boxId) ? animal.boxId : null;
@@ -334,6 +340,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           boxId: _boxId!,
           commonName: _commonNameController.text.trim(),
           latinName: _latinNameController.text.trim(),
+          category: _category,
+          subcategory: _subcategory,
           sex: _sex,
           birthDate: _birthDate,
           birthDateAccuracy: _birthDateAccuracy,
@@ -657,6 +665,20 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                 }
 
                 return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            AnimalTaxonomyFields(
+              category: _category,
+              subcategory: _subcategory,
+              enabled: !_actionInProgress,
+              onChanged: (category, subcategory) {
+                setState(() {
+                  _category = category;
+                  _subcategory = subcategory;
+                  _hasUnsavedChanges = true;
+                });
               },
             ),
             const SizedBox(height: 16),

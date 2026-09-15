@@ -61,11 +61,16 @@ The application must allow the user to:
 
 - create an Animal
 - assign an Animal to a Box
+- select a required Animal category and an optional compatible subcategory
+- edit, display and preserve the selected taxonomy during duplication
 - view the Animal overview
 - sort the Animal overview by oldest or newest creation time
 - sort the Animal overview by the displayed primary name in both directions
 - sort the Animal overview by oldest or youngest age
 - sort the Animal overview by newest or oldest latest FeedingEvent
+- group the Animal overview by the complete stable category taxonomy
+- show localized, accessible category and conditional subcategory headings
+- sort Animals naturally A–Z inside every final category group
 - place missing birth and FeedingEvent data deterministically
 - persist the selected Animal Overview order between application restarts
 - display Animal thumbnails where pictures are available
@@ -378,6 +383,7 @@ The application must allow the user to:
 - create a portable backup of local TerraManager data
 - export Boxes, including optional names, dimensions and notes
 - export Animals
+- export stable Animal category and optional compatible subcategory values
 - export FeedingEvents
 - export Box pictures
 - export Animal pictures
@@ -411,6 +417,8 @@ The application must allow the user to:
   oldest-created Animal first
 - export and restore optional per-Animal feeding reminder configuration
 - restore older backups without reminder fields with reminders disabled
+- restore older backups without Animal taxonomy as Other with no subcategory
+- reject unsupported or incompatible Animal taxonomy values before replacement
 
 Backup Format Version 2 must support archives containing legacy PNG/JPEG media,
 normalized WebP media or both at the same time. Export and restore must preserve

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/database/enums/animal_archive_reason.dart';
+import '../core/database/enums/animal_category.dart';
 import '../core/database/enums/box_archive_reason.dart';
 import '../core/database/enums/birth_date_accuracy.dart';
 import '../core/database/enums/sex.dart';
@@ -13,6 +14,45 @@ import '../features/settings/box_sort_order.dart';
 import 'generated/app_localizations.dart';
 
 extension AppLocalizationsLabels on AppLocalizations {
+  String animalCategoryLabel(AnimalCategory category) {
+    return switch (category) {
+      AnimalCategory.amphibian => categoryAmphibian,
+      AnimalCategory.reptile => categoryReptile,
+      AnimalCategory.arachnid => categoryArachnid,
+      AnimalCategory.insect => categoryInsect,
+      AnimalCategory.myriapod => categoryMyriapod,
+      AnimalCategory.crustacean => categoryCrustacean,
+      AnimalCategory.mollusc => categoryMollusc,
+      AnimalCategory.otherInvertebrate => categoryOtherInvertebrate,
+      AnimalCategory.other => categoryOther,
+    };
+  }
+
+  String animalSubcategoryLabel(AnimalSubcategory subcategory) {
+    return switch (subcategory) {
+      AnimalSubcategory.snake => subcategorySnake,
+      AnimalSubcategory.lizard => subcategoryLizard,
+      AnimalSubcategory.turtle => subcategoryTurtle,
+      AnimalSubcategory.frogOrToad => subcategoryFrogOrToad,
+      AnimalSubcategory.newtOrSalamander => subcategoryNewtOrSalamander,
+      AnimalSubcategory.tarantula => subcategoryTarantula,
+      AnimalSubcategory.otherSpider => subcategoryOtherSpider,
+      AnimalSubcategory.scorpion => subcategoryScorpion,
+      AnimalSubcategory.whipSpiderOrWhipScorpion =>
+        subcategoryWhipSpiderOrWhipScorpion,
+      AnimalSubcategory.beetle => subcategoryBeetle,
+      AnimalSubcategory.cockroach => subcategoryCockroach,
+      AnimalSubcategory.mantis => subcategoryMantis,
+      AnimalSubcategory.grasshopperOrCricket => subcategoryGrasshopperOrCricket,
+      AnimalSubcategory.millipede => subcategoryMillipede,
+      AnimalSubcategory.centipede => subcategoryCentipede,
+      AnimalSubcategory.isopod => subcategoryIsopod,
+      AnimalSubcategory.crab => subcategoryCrab,
+      AnimalSubcategory.snail => subcategorySnail,
+      AnimalSubcategory.other => subcategoryOther,
+    };
+  }
+
   String boxArchiveReasonLabel(BoxArchiveReason reason) {
     return switch (reason) {
       BoxArchiveReason.sold => archiveReasonSold,
@@ -127,6 +167,8 @@ extension AppLocalizationsLabels on AppLocalizations {
         animalSortLatestFeedingNewestFirst,
       AnimalSortOrder.latestFeedingOldestFirst =>
         animalSortLatestFeedingOldestFirst,
+      AnimalSortOrder.categoryAscending => animalSortCategoryAscending,
+      AnimalSortOrder.categoryDescending => animalSortCategoryDescending,
     };
   }
 
@@ -139,6 +181,7 @@ extension AppLocalizationsLabels on AppLocalizations {
       AnimalSortCriterion.displayName => animalSortDisplayNameCriterion,
       AnimalSortCriterion.age => animalSortAgeCriterion,
       AnimalSortCriterion.latestFeeding => animalSortLatestFeedingCriterion,
+      AnimalSortCriterion.category => animalSortCategoryCriterion,
     };
 
     if (activeOrder == null) {
@@ -154,6 +197,8 @@ extension AppLocalizationsLabels on AppLocalizations {
       AnimalSortOrder.displayNameAscending => sortDirectionAscending,
       AnimalSortOrder.displayNameDescending => sortDirectionDescending,
       AnimalSortOrder.ageYoungestFirst => sortDirectionYoungestFirst,
+      AnimalSortOrder.categoryAscending => sortDirectionAscending,
+      AnimalSortOrder.categoryDescending => sortDirectionDescending,
     };
 
     return sortCriterionWithDirection(criterionLabel, directionLabel);

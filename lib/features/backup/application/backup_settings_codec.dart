@@ -135,6 +135,8 @@ class BackupSettingsCodec {
       AnimalSortOrder.ageYoungestFirst => 'ageYoungestFirst',
       AnimalSortOrder.latestFeedingNewestFirst => 'latestFeedingNewestFirst',
       AnimalSortOrder.latestFeedingOldestFirst => 'latestFeedingOldestFirst',
+      AnimalSortOrder.categoryAscending => 'categoryAscending',
+      AnimalSortOrder.categoryDescending => 'categoryDescending',
     };
   }
 
@@ -148,6 +150,8 @@ class BackupSettingsCodec {
       'ageYoungestFirst' => AnimalSortOrder.ageYoungestFirst,
       'latestFeedingNewestFirst' => AnimalSortOrder.latestFeedingNewestFirst,
       'latestFeedingOldestFirst' => AnimalSortOrder.latestFeedingOldestFirst,
+      'categoryAscending' => AnimalSortOrder.categoryAscending,
+      'categoryDescending' => AnimalSortOrder.categoryDescending,
       _ => throw FormatException(
         'Unsupported AnimalSortOrder backup value: $value',
       ),

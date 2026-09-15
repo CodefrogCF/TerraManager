@@ -1,4 +1,5 @@
 import '../../../core/database/app_database.dart';
+import '../../../core/database/enums/animal_category.dart';
 import '../../../core/sorting/natural_string_comparator.dart';
 import '../../settings/animal_name_order.dart';
 import '../../settings/animal_sort_order.dart';
@@ -72,10 +73,164 @@ List<Animal> sortAnimalsForOverview(
         descending: false,
         missingFirst: true,
       ),
+      AnimalSortOrder.categoryAscending => _compareCategories(
+        first,
+        second,
+        nameOrder,
+        descending: false,
+      ),
+      AnimalSortOrder.categoryDescending => _compareCategories(
+        first,
+        second,
+        nameOrder,
+        descending: true,
+      ),
     };
   });
 
   return sortedAnimals;
+}
+
+class AnimalCategoryOverviewGroup {
+  final AnimalCategory category;
+  final List<AnimalSubcategoryOverviewGroup> subgroups;
+
+  const AnimalCategoryOverviewGroup({
+    required this.category,
+    required this.subgroups,
+  });
+
+  Iterable<Animal> get animals =>
+      subgroups.expand((subgroup) => subgroup.animals);
+}
+
+class AnimalSubcategoryOverviewGroup {
+  final AnimalSubcategory? subcategory;
+  final bool showHeading;
+  final List<Animal> animals;
+
+  const AnimalSubcategoryOverviewGroup({
+    required this.subcategory,
+    required this.showHeading,
+    required this.animals,
+  });
+}
+
+List<AnimalCategoryOverviewGroup> groupAnimalsForCategoryOverview(
+  Iterable<Animal> animals, {
+  required AnimalSortOrder sortOrder,
+  required AnimalNameOrder nameOrder,
+  required String Function(AnimalSubcategory subcategory) subcategoryLabel,
+}) {
+  assert(
+    sortOrder == AnimalSortOrder.categoryAscending ||
+        sortOrder == AnimalSortOrder.categoryDescending,
+  );
+
+  final animalsByCategory = <AnimalCategory, List<Animal>>{};
+  for (final animal in animals) {
+    animalsByCategory.putIfAbsent(animal.category, () => []).add(animal);
+  }
+
+  final categories = AnimalCategory.values
+      .where(animalsByCategory.containsKey)
+      .toList(growable: false);
+  final orderedCategories = sortOrder == AnimalSortOrder.categoryDescending
+      ? categories.reversed
+      : categories;
+
+  return orderedCategories
+      .map((category) {
+        final categoryAnimals = animalsByCategory[category]!;
+        final hasSpecifiedSubcategory = categoryAnimals.any(
+          (animal) => animal.subcategory != null,
+        );
+
+        if (!hasSpecifiedSubcategory) {
+          final sorted = categoryAnimals.toList()
+            ..sort(
+              (first, second) => _compareDisplayNames(
+                first,
+                second,
+                nameOrder,
+                descending: false,
+              ),
+            );
+          return AnimalCategoryOverviewGroup(
+            category: category,
+            subgroups: [
+              AnimalSubcategoryOverviewGroup(
+                subcategory: null,
+                showHeading: false,
+                animals: sorted,
+              ),
+            ],
+          );
+        }
+
+        final animalsBySubcategory = <AnimalSubcategory?, List<Animal>>{};
+        for (final animal in categoryAnimals) {
+          animalsBySubcategory
+              .putIfAbsent(animal.subcategory, () => [])
+              .add(animal);
+        }
+
+        final namedSubcategories =
+            animalsBySubcategory.keys
+                .whereType<AnimalSubcategory>()
+                .where((subcategory) => subcategory != AnimalSubcategory.other)
+                .toList()
+              ..sort(
+                (first, second) => compareNaturalStrings(
+                  subcategoryLabel(first),
+                  subcategoryLabel(second),
+                ),
+              );
+        final orderedSubcategories = <AnimalSubcategory?>[
+          ...namedSubcategories,
+          if (animalsBySubcategory.containsKey(AnimalSubcategory.other))
+            AnimalSubcategory.other,
+          if (animalsBySubcategory.containsKey(null)) null,
+        ];
+
+        return AnimalCategoryOverviewGroup(
+          category: category,
+          subgroups: orderedSubcategories
+              .map((subcategory) {
+                final sorted = animalsBySubcategory[subcategory]!.toList()
+                  ..sort(
+                    (first, second) => _compareDisplayNames(
+                      first,
+                      second,
+                      nameOrder,
+                      descending: false,
+                    ),
+                  );
+                return AnimalSubcategoryOverviewGroup(
+                  subcategory: subcategory,
+                  showHeading: true,
+                  animals: sorted,
+                );
+              })
+              .toList(growable: false),
+        );
+      })
+      .toList(growable: false);
+}
+
+int _compareCategories(
+  Animal first,
+  Animal second,
+  AnimalNameOrder nameOrder, {
+  required bool descending,
+}) {
+  final categoryComparison = descending
+      ? second.category.index.compareTo(first.category.index)
+      : first.category.index.compareTo(second.category.index);
+  if (categoryComparison != 0) {
+    return categoryComparison;
+  }
+  return _compareDisplayNames(first, second, nameOrder, descending: false);
 }
 
 int _compareDisplayNames(

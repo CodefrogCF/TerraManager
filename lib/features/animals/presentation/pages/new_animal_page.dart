@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/birth_date_accuracy.dart';
+import '../../../../core/database/enums/animal_category.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
@@ -20,6 +21,7 @@ import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../animal_environmental_validator.dart';
 import '../widgets/animal_additional_characteristics_fields.dart';
 import '../widgets/animal_picture.dart';
+import '../widgets/animal_taxonomy_fields.dart';
 
 class NewAnimalPage extends StatefulWidget {
   final AppDatabase database;
@@ -61,6 +63,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   List<Box> _boxes = [];
 
   int? _boxId;
+  AnimalCategory _category = AnimalCategory.other;
+  AnimalSubcategory? _subcategory;
   Sex _sex = Sex.unknown;
   DateTime? _birthDate;
   BirthDateAccuracy? _birthDateAccuracy;
@@ -220,6 +224,8 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
           boxId: _boxId!,
           commonName: _commonNameController.text.trim(),
           latinName: _latinNameController.text.trim(),
+          category: _category,
+          subcategory: _subcategory,
           sex: _sex,
           birthDate: _birthDate,
           birthDateAccuracy: _birthDateAccuracy,
@@ -417,6 +423,19 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
                 }
 
                 return null;
+              },
+            ),
+            const SizedBox(height: 16),
+
+            AnimalTaxonomyFields(
+              category: _category,
+              subcategory: _subcategory,
+              enabled: !_saving,
+              onChanged: (category, subcategory) {
+                setState(() {
+                  _category = category;
+                  _subcategory = subcategory;
+                });
               },
             ),
             const SizedBox(height: 16),

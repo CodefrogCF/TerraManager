@@ -70,6 +70,13 @@ device-permission boundaries remain unchanged. Signed Android artifacts and
 physical Android or hosted Web checks remain release-owner steps until
 recorded there.
 
+The v1.7.0 Animal Taxonomy & Category Views source regression is recorded in
+`release-v1.7.0.md`. It covers the complete localized Issue #127 taxonomy,
+Schema Version 10 migration, compatible Backup Format Version 2 values and the
+grouped Animal Overview on Android and Web. The update adds no storage, media,
+network or other device permission. Signed Android artifacts and physical
+Android or hosted Web checks remain release-owner steps until recorded there.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 
@@ -140,9 +147,10 @@ Validated functionality includes:
 - natural ascending/descending Box Overview sorting, including migrated legacy
   ordering preferences
 - persistent Box ordering and matching contextual detail navigation
-- creation-time, displayed-name, age and latest-feeding Animal Overview sorting
-- deterministic missing-data ordering, persistent Animal sorting and matching
-  contextual detail navigation
+- creation-time, displayed-name, age, latest-feeding and category Animal
+  Overview sorting
+- localized category and conditional subcategory headings with natural A–Z
+  rows, deterministic ordering and matching contextual detail navigation
 - direct Animal creation from empty and populated Box details with the Box
   preselected
 - immediate Animal Overview refresh after direct creation from Box details
@@ -280,8 +288,10 @@ Validated functionality includes:
 - new permanent QR identifiers for Box duplicates
 - natural ascending/descending Box Overview sorting, including legacy backup
   order mapping
-- creation-time, displayed-name, age and latest-feeding Animal Overview sorting
-- persistent overview ordering and matching contextual detail navigation
+- creation-time, displayed-name, age, latest-feeding and category Animal
+  Overview sorting
+- localized category and conditional subcategory headings with natural A–Z
+  rows, persistent ordering and matching contextual detail navigation
 - Box editing and optional dimensions
 - persistent Box pictures
 - Box picture persistence across normal browser reloads

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
@@ -145,6 +146,13 @@ void main() {
     expect(find.byKey(const Key('common-name-field')), findsOneWidget);
 
     expect(find.byKey(const Key('latin-name-field')), findsOneWidget);
+
+    expect(find.byKey(const Key('animal-category-field')), findsOneWidget);
+
+    expect(
+      find.byKey(const Key('animal-subcategory-field-other')),
+      findsNothing,
+    );
 
     expect(find.byKey(const Key('sex-field')), findsOneWidget);
 
@@ -413,6 +421,8 @@ void main() {
     expect(animal.boxId, boxId);
     expect(animal.commonName, 'Test Snake');
     expect(animal.latinName, 'Pantherophis guttatus');
+    expect(animal.category, AnimalCategory.other);
+    expect(animal.subcategory, isNull);
     expect(animal.tempMin, 24);
     expect(animal.tempMax, 28);
     expect(animal.humidityMin, 40);
@@ -450,6 +460,34 @@ void main() {
     expect(animals.length, 1);
 
     expect(animals.single.sex, Sex.other);
+  });
+
+  testWidgets('creates an Animal with selected taxonomy', (tester) async {
+    await createTestBox();
+    await pumpPageWithNavigation(tester);
+    await fillRequiredFields(tester, boxLabel: 'Box 1');
+
+    final categoryField = find.byKey(const Key('animal-category-field'));
+    await tester.ensureVisible(categoryField);
+    await tester.tap(categoryField);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reptile').last);
+    await tester.pumpAndSettle();
+
+    final subcategoryField = find.byKey(
+      const Key('animal-subcategory-field-reptile'),
+    );
+    await tester.tap(subcategoryField);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Snake').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Save Animal'));
+    await tester.pumpAndSettle();
+
+    final animal = (await AnimalRepository(database).getAllAnimals()).single;
+    expect(animal.category, AnimalCategory.reptile);
+    expect(animal.subcategory, AnimalSubcategory.snake);
   });
 
   testWidgets('can select associated box', (tester) async {

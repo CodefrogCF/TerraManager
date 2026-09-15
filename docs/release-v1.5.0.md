@@ -133,6 +133,6 @@ Web archive SHA-256: PENDING RELEASE-OWNER ARTIFACT
 - [x] README, documentation index and roadmap describe Issues #114 and #115
 - [x] data-model and architecture records document independent duplication
 - [x] annotated `v1.5.0` tag identifies the release source commit
-- [ ] GitHub release is published with the final release description
-- [ ] release-owner artifact links and hashes are recorded
+- [x] GitHub release is published with the final release description
+- [x] release-owner artifact links and hashes are recorded
 

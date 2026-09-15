@@ -267,6 +267,12 @@ class BackupRestoreService {
       for (final animal in backup.data.animals) {
         final status = BackupEnumCodec.decodeAnimalStatus(animal.status);
 
+        final category = BackupEnumCodec.decodeAnimalCategory(animal.category);
+
+        final subcategory = animal.subcategory == null
+            ? null
+            : BackupEnumCodec.decodeAnimalSubcategory(animal.subcategory!);
+
         final sex = animal.sex == null
             ? null
             : BackupEnumCodec.decodeSex(animal.sex!);
@@ -330,6 +336,8 @@ class BackupRestoreService {
                 status: Value(status),
                 commonName: Value(animal.commonName),
                 latinName: Value(animal.latinName),
+                category: Value(category),
+                subcategory: Value(subcategory),
                 sex: Value(sex),
                 birthDate: Value(animal.birthDate),
                 birthDateAccuracy: Value(birthDateAccuracy),

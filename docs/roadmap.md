@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.6.1 – UX Consistency & Localization**
+**v1.7.0 – Animal Taxonomy & Category Views**
 
 Current application version and build:
 
-**v1.6.1+63**
+**v1.7.0+64**
 
 Completed development areas:
 
@@ -23,6 +23,8 @@ Completed development areas:
 - Web validation
 - safe box management
 - animal lifecycle and archive
+- persistent Animal categories and compatible subcategories
+- grouped Animal Overview category navigation
 - Animal History
 - latest feeding on animal details
 - persistent appearance settings
@@ -246,6 +248,13 @@ views follow English or German while remaining offline. Overview sort menus
 now contain one reversible entry per criterion while keeping every persisted
 and portable enum value compatible. Schema Version 9, Backup Format Version 2
 and the existing permission boundary remain unchanged.
+
+Release `1.7.0+64` completes Issues #127 and #128. Animals store a required
+category and optional compatible subcategory from the stable Issue #127
+taxonomy. Animal Overview can group the complete taxonomy under localized,
+accessible headings while retaining natural A–Z row order and contextual
+navigation. Schema Version 10 migrates existing Animals to Other without a
+subcategory; Backup Format Version 2 remains backward compatible.
 
 ---
 
@@ -1233,6 +1242,51 @@ roughly one sixth of its previous size.
 - [x] Synchronize bundled and public privacy documentation
 - [ ] Publish the annotated `v1.6.1` tag
 - [ ] Confirm the final GitHub Actions Quality gates run
+- [ ] Record release-owner Android/Web artifacts and manual checks
+- [ ] Publish the GitHub and Google Play releases
+
+---
+
+## v1.7.0 – Animal Taxonomy & Category Views
+
+### Persistent Animal taxonomy — Issue #127
+
+- [x] Require a primary category in New Animal and Edit Animal
+- [x] Offer only compatible optional subcategories for the selected category
+- [x] Place the shared taxonomy controls between Latin name and Sex
+- [x] Clear an incompatible subcategory when the primary category changes
+- [x] Store stable portable enum values in Database Schema Version 10
+- [x] Migrate existing Animals to `other` without a subcategory
+- [x] Display localized category and optional subcategory on Animal details
+- [x] Preserve taxonomy during editing and Animal duplication
+- [x] Extend Backup Format Version 2 without breaking Format 1 or older Format 2
+- [x] Reject unknown categories, unknown subcategories and invalid combinations
+
+### Category-grouped Animal Overview — Issue #128
+
+- [x] Add Category as one directional Animal Overview sort criterion
+- [x] Group all visible Animals in the complete Issue #127 category order
+- [x] Include Amphibian, Reptile, Arachnid, Insect, Myriapod, Crustacean,
+  Mollusc, Other invertebrate and Other
+- [x] Reverse only the primary category order when Category is selected again
+- [x] Show localized subcategory headings only when they distinguish a group
+- [x] Keep Other and Not specified after named subcategory groups
+- [x] Sort Animals naturally A–Z by the selected common/Latin primary name
+- [x] Use database ID as the deterministic final tie breaker
+- [x] Preserve thumbnails, reminders and quick actions in grouped rows
+- [x] Pass the flattened visible order to contextual detail navigation
+- [x] Persist and back up both Category sort directions
+- [x] Provide accessible localized category and subcategory headings
+
+### v1.7.0 Release
+
+- [x] Set the source version to `1.7.0+64`
+- [x] Advance to Database Schema Version 10
+- [x] Preserve Portable Backup Format Version 2 compatibility
+- [x] Generate English and German localizations and Drift migration artifacts
+- [x] Complete formatting, analysis and automated source regression
+- [ ] Publish the annotated `v1.7.0` tag
+- [ ] Confirm the final GitHub Actions **Quality gates** run
 - [ ] Record release-owner Android/Web artifacts and manual checks
 - [ ] Publish the GitHub and Google Play releases
 

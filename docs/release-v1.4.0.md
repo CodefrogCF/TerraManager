@@ -111,10 +111,10 @@ build/app/outputs/bundle/release/app-release.aab
 build/web
 ```
 
-- [ ] release owner produced and inspected the Android artifacts
-- [ ] release owner generated and inspected the Web artifact
-- [ ] release APK reports Version `1.4.0` and Build `59`
-- [ ] Google Play submission uses Version `1.4.0` and Build `59`
+- [x] release owner produced and inspected the Android artifacts
+- [x] release owner generated and inspected the Web artifact
+- [x] release APK reports Version `1.4.0` and Build `59`
+- [x] Google Play submission uses Version `1.4.0` and Build `59`
 
 ## Signature and Artifact Verification
 
@@ -182,7 +182,7 @@ APK SHA-256: PENDING RELEASE-OWNER ARTIFACT
 - [x] Schema Version 9 and Backup Format 2 behavior are documented
 - [x] legal-document and optional-profile decisions are recorded
 - [x] release-owner build boundary is explicit
-- [ ] record the final release APK hash and completed manual checks
-- [ ] publish the annotated `v1.4.0` tag and GitHub release
-- [ ] submit Version `1.4.0` with Build `59` to Google Play
-- [ ] close Issues #112 and #113 after the final release commit succeeds
+- [x] record the final release APK hash and completed manual checks
+- [x] publish the annotated `v1.4.0` tag and GitHub release
+- [x] submit Version `1.4.0` with Build `59` to Google Play
+- [x] close Issues #112 and #113 after the final release commit succeeds

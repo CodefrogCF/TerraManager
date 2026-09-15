@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
@@ -61,6 +62,8 @@ void main() {
       boxId: boxId,
       commonName: 'Test Snake',
       latinName: 'Pantherophis guttatus',
+      category: AnimalCategory.reptile,
+      subcategory: AnimalSubcategory.snake,
       sex: Sex.other,
       birthDate: DateTime(2024, 1, 1),
       birthDateAccuracy: BirthDateAccuracy.yearKnown,
@@ -135,6 +138,8 @@ void main() {
     expect(result.data.feedingEvents.length, 1);
 
     expect(result.data.animals.single.feedingReminderIntervalDays, 7);
+    expect(result.data.animals.single.category, 'reptile');
+    expect(result.data.animals.single.subcategory, 'snake');
 
     expect(result.data.animals.single.originHabitat, 'North America');
     expect(result.data.animals.single.weight, '140 g');
@@ -196,6 +201,10 @@ void main() {
     expect(animal['boxId'], boxId);
 
     expect(animal['status'], 'active');
+
+    expect(animal['category'], 'reptile');
+
+    expect(animal['subcategory'], 'snake');
 
     expect(animal['sex'], 'other');
 

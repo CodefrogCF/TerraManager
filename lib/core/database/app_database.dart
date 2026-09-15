@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import 'converters/birth_date_accuracy_converter.dart';
+import 'converters/animal_category_converter.dart';
 import 'converters/sex_converter.dart';
 import 'converters/box_status_converter.dart';
 import 'converters/box_archive_reason_converter.dart';
@@ -10,6 +11,7 @@ import 'enums/box_archive_reason.dart';
 import 'converters/animal_archive_reason_converter.dart';
 import 'converters/animal_status_converter.dart';
 import 'enums/animal_archive_reason.dart';
+import 'enums/animal_category.dart';
 import 'enums/animal_status.dart';
 import 'enums/birth_date_accuracy.dart';
 import 'enums/sex.dart';
@@ -119,6 +121,10 @@ class AppDatabase extends _$AppDatabase {
                   schema.animals.temperatureZones,
                 );
               },
+              from9To10: (m, schema) async {
+                await m.addColumn(schema.animals, schema.animals.category);
+                await m.addColumn(schema.animals, schema.animals.subcategory);
+              },
             ),
           );
 
@@ -143,5 +149,5 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 }

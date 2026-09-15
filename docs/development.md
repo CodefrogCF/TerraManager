@@ -170,6 +170,21 @@ existing scroll offset. Regression tests must first load Animal Overview, create
 an Animal from Box details, and then prove that the same overview instance shows
 the new record without restarting the application.
 
+Schema Version 10 adds the required Animal category and nullable subcategory
+for Issue #127. Regenerate Drift output, create the v10 schema snapshot and
+verify a populated v9 database. Existing Animals must migrate to `other` with a
+null subcategory. New Animal and Edit Animal share one taxonomy widget and must
+offer only category-compatible values. Repository, backup and restore paths
+must reject unsupported or incompatible combinations while accepting missing
+taxonomy keys from older Format 1 and Format 2 backups.
+
+Issue #128 derives category groups from the current filtered Animal list. Cover
+the complete Issue #127 category order, reversed primary order, localized
+headings, conditional subcategory headings, named subcategories followed by
+Other and Not specified, and natural A–Z Animal ordering with ID tie breaking.
+The row widgets retain thumbnails, reminders and quick actions, and contextual
+detail navigation receives the flattened visible group order.
+
 ## Android Development
 
 TerraManager uses the permanent Android namespace and application ID:
@@ -374,6 +389,11 @@ Examples:
 - oldest/youngest Animal sorting with missing birth dates placed deterministically
 - newest/oldest FeedingEvent sorting with never-fed Animals placed deterministically
 - Animal sorting based on the currently selected common/Latin primary name
+- complete Animal taxonomy creation, editing, details and duplication
+- populated v9 to v10 taxonomy migration with legacy `other` defaults
+- taxonomy backup export, validation, restore and incompatible-value rejection
+- category grouping in both primary directions with conditional localized
+  subcategory headings and natural A–Z row ordering
 - Animal sort-order persistence after an application restart
 - contextual Animal detail swiping in the currently visible order
 - Animal sort-order backup, restore and legacy-backup default behavior

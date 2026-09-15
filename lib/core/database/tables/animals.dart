@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../converters/animal_archive_reason_converter.dart';
+import '../converters/animal_category_converter.dart';
 import '../converters/animal_status_converter.dart';
 import '../converters/birth_date_accuracy_converter.dart';
 import '../converters/sex_converter.dart';
@@ -20,6 +21,13 @@ class Animals extends Table {
   TextColumn get commonName => text()();
 
   TextColumn get latinName => text()();
+
+  TextColumn get category => text()
+      .withDefault(const Constant('other'))
+      .map(const AnimalCategoryConverter())();
+
+  TextColumn get subcategory =>
+      text().map(const AnimalSubcategoryConverter()).nullable()();
 
   TextColumn get sex => text().map(const SexConverter()).nullable()();
 

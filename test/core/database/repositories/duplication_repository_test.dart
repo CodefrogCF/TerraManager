@@ -5,6 +5,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/enums/animal_status.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/box_archive_reason.dart';
@@ -114,6 +115,8 @@ void main() {
         boxId: sourceBoxId,
         commonName: 'Source Animal',
         latinName: 'Testudo test',
+        category: AnimalCategory.reptile,
+        subcategory: AnimalSubcategory.turtle,
         sex: Sex.other,
         birthDate: DateTime(2020, 3, 4),
         birthDateAccuracy: BirthDateAccuracy.exact,
@@ -156,6 +159,8 @@ void main() {
       expect(duplicate.archiveNotes, isNull);
       expect(duplicate.commonName, 'Copied Animal');
       expect(duplicate.latinName, source.latinName);
+      expect(duplicate.category, AnimalCategory.reptile);
+      expect(duplicate.subcategory, AnimalSubcategory.turtle);
       expect(duplicate.sex, source.sex);
       expect(duplicate.birthDate, source.birthDate);
       expect(duplicate.birthDateAccuracy, source.birthDateAccuracy);
@@ -216,6 +221,9 @@ void main() {
         (await animals.getAnimalById(sourceId))!.commonName,
         'Source Animal',
       );
+      final independentlyEdited = (await animals.getAnimalById(duplicateId))!;
+      expect(independentlyEdited.category, AnimalCategory.reptile);
+      expect(independentlyEdited.subcategory, AnimalSubcategory.turtle);
 
       await animals.permanentlyDeleteArchivedAnimal(sourceId);
       expect(await media.getMediaById(pictureId), isNull);

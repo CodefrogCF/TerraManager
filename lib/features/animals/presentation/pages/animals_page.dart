@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/enums/animal_category.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
@@ -538,13 +539,27 @@ class _AnimalsPageState extends State<AnimalsPage> {
           }
 
           final data = snapshot.data;
-          final animals = sortAnimalsForOverview(
-            data?.animals ?? const <Animal>[],
-            sortOrder: animalSortOrder,
-            nameOrder: animalNameOrder,
-            latestFeedingTimes:
-                data?.latestFeedingTimes ?? const <int, DateTime>{},
-          );
+          final rawAnimals = data?.animals ?? const <Animal>[];
+          final categoryGroups =
+              animalSortOrder.criterion == AnimalSortCriterion.category
+              ? groupAnimalsForCategoryOverview(
+                  rawAnimals,
+                  sortOrder: animalSortOrder,
+                  nameOrder: animalNameOrder,
+                  subcategoryLabel: context.l10n.animalSubcategoryLabel,
+                )
+              : null;
+          final animals = categoryGroups == null
+              ? sortAnimalsForOverview(
+                  rawAnimals,
+                  sortOrder: animalSortOrder,
+                  nameOrder: animalNameOrder,
+                  latestFeedingTimes:
+                      data?.latestFeedingTimes ?? const <int, DateTime>{},
+                )
+              : categoryGroups
+                    .expand((group) => group.animals)
+                    .toList(growable: false);
           final dueReminders =
               data?.dueReminders ?? const <FeedingReminderState>[];
 
@@ -556,18 +571,56 @@ class _AnimalsPageState extends State<AnimalsPage> {
             for (final reminder in dueReminders) reminder.animalId: reminder,
           };
           final hasReminderSummary = dueReminders.isNotEmpty;
+          final overviewEntries = categoryGroups == null
+              ? animals
+                    .map(_AnimalOverviewListEntry.animal)
+                    .toList(growable: false)
+              : _categoryOverviewEntries(categoryGroups);
 
           return ListView.builder(
             key: const PageStorageKey<String>('animals-overview-list'),
             controller: _scrollController,
-            itemCount: animals.length + (hasReminderSummary ? 1 : 0),
+            itemCount: overviewEntries.length + (hasReminderSummary ? 1 : 0),
             itemBuilder: (context, index) {
               if (hasReminderSummary && index == 0) {
                 return _buildReminderSummary(context, dueReminders, animals);
               }
 
-              final animalIndex = hasReminderSummary ? index - 1 : index;
-              final animal = animals[animalIndex];
+              final entryIndex = hasReminderSummary ? index - 1 : index;
+              final entry = overviewEntries[entryIndex];
+              if (entry.category != null) {
+                final category = entry.category!;
+                return Semantics(
+                  header: true,
+                  child: Padding(
+                    key: Key('animal-category-heading-${category.name}'),
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                    child: Text(
+                      context.l10n.animalCategoryLabel(category),
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                );
+              }
+              if (entry.isSubcategoryHeading) {
+                final subcategory = entry.subcategory;
+                final headingKey = subcategory?.name ?? 'not-specified';
+                return Semantics(
+                  header: true,
+                  child: Padding(
+                    key: Key('animal-subcategory-heading-$headingKey'),
+                    padding: const EdgeInsets.fromLTRB(32, 12, 16, 4),
+                    child: Text(
+                      subcategory == null
+                          ? context.l10n.notSpecified
+                          : context.l10n.animalSubcategoryLabel(subcategory),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                );
+              }
+
+              final animal = entry.animal!;
               final dueReminder = dueRemindersByAnimalId[animal.id];
               final displayNames = AnimalDisplayNames.fromContext(
                 context,
@@ -705,6 +758,44 @@ class _AnimalsOverviewData {
     required this.latestFeedingTimes,
     required this.dueReminders,
   });
+}
+
+class _AnimalOverviewListEntry {
+  final AnimalCategory? category;
+  final AnimalSubcategory? subcategory;
+  final Animal? animal;
+  final bool isSubcategoryHeading;
+
+  const _AnimalOverviewListEntry._({
+    this.category,
+    this.subcategory,
+    this.animal,
+    this.isSubcategoryHeading = false,
+  });
+
+  const _AnimalOverviewListEntry.category(AnimalCategory category)
+    : this._(category: category);
+
+  const _AnimalOverviewListEntry.subcategory(AnimalSubcategory? subcategory)
+    : this._(subcategory: subcategory, isSubcategoryHeading: true);
+
+  const _AnimalOverviewListEntry.animal(Animal animal) : this._(animal: animal);
+}
+
+List<_AnimalOverviewListEntry> _categoryOverviewEntries(
+  List<AnimalCategoryOverviewGroup> groups,
+) {
+  return [
+    for (final group in groups) ...[
+      _AnimalOverviewListEntry.category(group.category),
+      for (final subgroup in group.subgroups) ...[
+        if (subgroup.showHeading)
+          _AnimalOverviewListEntry.subcategory(subgroup.subcategory),
+        for (final animal in subgroup.animals)
+          _AnimalOverviewListEntry.animal(animal),
+      ],
+    ],
+  ];
 }
 
 String _formatDateTime(DateTime dateTime) {

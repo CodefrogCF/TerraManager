@@ -1,4 +1,5 @@
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/enums/animal_status.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
@@ -48,6 +49,54 @@ class BackupEnumCodec {
     return switch (value) {
       AnimalStatus.active => 'active',
       AnimalStatus.archived => 'archived',
+    };
+  }
+
+  static String encodeAnimalCategory(AnimalCategory value) => value.name;
+
+  static AnimalCategory decodeAnimalCategory(String value) {
+    return switch (value) {
+      'amphibian' => AnimalCategory.amphibian,
+      'reptile' => AnimalCategory.reptile,
+      'arachnid' => AnimalCategory.arachnid,
+      'insect' => AnimalCategory.insect,
+      'myriapod' => AnimalCategory.myriapod,
+      'crustacean' => AnimalCategory.crustacean,
+      'mollusc' => AnimalCategory.mollusc,
+      'otherInvertebrate' => AnimalCategory.otherInvertebrate,
+      'other' => AnimalCategory.other,
+      _ => throw FormatException(
+        'Unsupported AnimalCategory backup value: $value',
+      ),
+    };
+  }
+
+  static String encodeAnimalSubcategory(AnimalSubcategory value) => value.name;
+
+  static AnimalSubcategory decodeAnimalSubcategory(String value) {
+    return switch (value) {
+      'snake' => AnimalSubcategory.snake,
+      'lizard' => AnimalSubcategory.lizard,
+      'turtle' => AnimalSubcategory.turtle,
+      'frogOrToad' => AnimalSubcategory.frogOrToad,
+      'newtOrSalamander' => AnimalSubcategory.newtOrSalamander,
+      'tarantula' => AnimalSubcategory.tarantula,
+      'otherSpider' => AnimalSubcategory.otherSpider,
+      'scorpion' => AnimalSubcategory.scorpion,
+      'whipSpiderOrWhipScorpion' => AnimalSubcategory.whipSpiderOrWhipScorpion,
+      'beetle' => AnimalSubcategory.beetle,
+      'cockroach' => AnimalSubcategory.cockroach,
+      'mantis' => AnimalSubcategory.mantis,
+      'grasshopperOrCricket' => AnimalSubcategory.grasshopperOrCricket,
+      'millipede' => AnimalSubcategory.millipede,
+      'centipede' => AnimalSubcategory.centipede,
+      'isopod' => AnimalSubcategory.isopod,
+      'crab' => AnimalSubcategory.crab,
+      'snail' => AnimalSubcategory.snail,
+      'other' => AnimalSubcategory.other,
+      _ => throw FormatException(
+        'Unsupported AnimalSubcategory backup value: $value',
+      ),
     };
   }
 

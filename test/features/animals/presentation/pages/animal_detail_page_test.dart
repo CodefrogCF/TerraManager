@@ -66,6 +66,10 @@ void main() {
     expect(find.text('Hermaphrodite / other'), findsOneWidget);
     expect(find.text('10.05.2024'), findsOneWidget);
     expect(find.text('Year known'), findsOneWidget);
+
+    await tester.scrollUntilVisible(find.text('24.0 °C – 28.0 °C'), 200);
+    await tester.pumpAndSettle();
+
     expect(find.text('24.0 °C – 28.0 °C'), findsOneWidget);
 
     await tester.scrollUntilVisible(find.text('40.0% – 60.0%'), 200);

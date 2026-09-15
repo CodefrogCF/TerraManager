@@ -639,6 +639,19 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           ),
 
         _DetailRow(
+          key: const Key('animal-category-detail'),
+          label: context.l10n.animalCategory,
+          value: context.l10n.animalCategoryLabel(animal.category),
+        ),
+
+        if (animal.subcategory != null)
+          _DetailRow(
+            key: const Key('animal-subcategory-detail'),
+            label: context.l10n.animalSubcategory,
+            value: context.l10n.animalSubcategoryLabel(animal.subcategory!),
+          ),
+
+        _DetailRow(
           label: context.l10n.sex,
           value: context.l10n.animalSexLabel(animal.sex ?? Sex.unknown),
         ),

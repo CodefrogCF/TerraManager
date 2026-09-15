@@ -444,6 +444,8 @@ boxId
 status
 commonName
 latinName
+category
+subcategory
 sex
 birthDate
 birthDateAccuracy
@@ -476,6 +478,8 @@ Example active Animal:
   "status": "active",
   "commonName": "Test Snake",
   "latinName": "Pantherophis guttatus",
+  "category": "reptile",
+  "subcategory": "snake",
   "sex": "female",
   "birthDate": "2024-01-01T00:00:00.000",
   "birthDateAccuracy": "yearKnown",
@@ -509,6 +513,8 @@ Example archived Animal:
   "status": "archived",
   "commonName": "Archived Snake",
   "latinName": "Pantherophis guttatus",
+  "category": "reptile",
+  "subcategory": "snake",
   "sex": null,
   "birthDate": null,
   "birthDateAccuracy": null,
@@ -551,6 +557,32 @@ older Format 1 and Format 2 records where any or all keys are absent and maps
 those fields to `null`. A present non-string value is invalid application data.
 The representation remains free-form and does not imply a unit, history or
 relationship to measurements.
+
+### Animal Taxonomy Fields
+
+TerraManager 1.7.0 adds a required `category` string and nullable
+`subcategory` string without changing Backup Format Version 2. Export writes
+stable portable values rather than localized labels. Format 1 and older Format
+2 records where `category` is absent restore as `other` with no subcategory.
+
+Supported categories and compatible subcategories are:
+
+```text
+amphibian: frogOrToad, newtOrSalamander, other
+reptile: snake, lizard, turtle, other
+arachnid: tarantula, otherSpider, scorpion,
+          whipSpiderOrWhipScorpion, other
+insect: beetle, cockroach, mantis, grasshopperOrCricket, other
+myriapod: millipede, centipede, other
+crustacean: isopod, crab, other
+mollusc: snail, other
+otherInvertebrate: no subcategory
+other: no subcategory
+```
+
+An unknown value, localized label or subcategory that does not belong to the
+selected category is invalid application data. An explicit null or non-string
+category is also invalid; only a missing legacy category receives the fallback.
 
 ### Feeding Reminder Fields
 
@@ -989,6 +1021,8 @@ ageOldestFirst
 ageYoungestFirst
 latestFeedingNewestFirst
 latestFeedingOldestFirst
+categoryAscending
+categoryDescending
 ```
 
 If the field is absent, restore uses `AnimalSortOrder.createdOldestFirst`. If
@@ -1033,6 +1067,7 @@ Validation includes at least:
 - valid Box references
 - valid Animal references
 - valid lifecycle combinations
+- valid Animal category and subcategory combinations
 - referenced media files exist
 
 Validation must complete successfully before existing TerraManager data is

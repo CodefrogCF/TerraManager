@@ -4,25 +4,26 @@ import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 
-import 'generated/schema_v8.dart' as v8;
+import 'generated/schema_v9.dart' as v9;
 
 void main() {
   test(
-    'v8 to v9 preserves Animals and initializes optional characteristics',
+    'v9 to v10 preserves Animals and initializes fallback taxonomy',
     () async {
       final directory = await Directory.systemTemp.createTemp(
-        'animal-characteristics-v8-v9-',
+        'animal-taxonomy-v9-v10-',
       );
       addTearDown(() => directory.delete(recursive: true));
       final file = File('${directory.path}/database.sqlite');
-      final old = v8.DatabaseAtV8(NativeDatabase(file));
+      final old = v9.DatabaseAtV9(NativeDatabase(file));
 
       try {
         final boxId = await old
             .into(old.boxes)
             .insert(
-              v8.BoxesCompanion.insert(
+              v9.BoxesCompanion.insert(
                 qrId: 'TM:BOX:11111111-1111-4111-8111-111111111111',
                 name: const Value('Existing Box'),
               ),
@@ -30,7 +31,7 @@ void main() {
         await old
             .into(old.animals)
             .insert(
-              v8.AnimalsCompanion.insert(
+              v9.AnimalsCompanion.insert(
                 boxId: Value(boxId),
                 commonName: 'Existing Animal',
                 latinName: 'Test species',
@@ -38,7 +39,6 @@ void main() {
                 tempMax: 30,
                 humidityMin: 40,
                 humidityMax: 60,
-                notes: const Value('Preserved notes'),
               ),
             );
       } finally {
@@ -51,12 +51,8 @@ void main() {
 
       expect(migrated.schemaVersion, 10);
       expect(animal.commonName, 'Existing Animal');
-      expect(animal.notes, 'Preserved notes');
-      expect(animal.originHabitat, isNull);
-      expect(animal.weight, isNull);
-      expect(animal.sheddingNotes, isNull);
-      expect(animal.restOrDormancyPeriods, isNull);
-      expect(animal.temperatureZones, isNull);
+      expect(animal.category, AnimalCategory.other);
+      expect(animal.subcategory, isNull);
       expect(
         await migrated.customSelect('PRAGMA foreign_key_check').get(),
         isEmpty,

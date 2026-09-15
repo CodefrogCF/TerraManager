@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
@@ -39,12 +40,16 @@ void main() {
     required int boxId,
     String commonName = 'Test Snake',
     String latinName = 'Pantherophis guttatus',
+    AnimalCategory category = AnimalCategory.other,
+    AnimalSubcategory? subcategory,
     int? pictureMediaId,
   }) {
     return AnimalRepository(database).createAnimal(
       boxId: boxId,
       commonName: commonName,
       latinName: latinName,
+      category: category,
+      subcategory: subcategory,
       tempMin: 24,
       tempMax: 28,
       humidityMin: 40,
@@ -255,9 +260,10 @@ void main() {
     expect(find.text('Displayed name'), findsOneWidget);
     expect(find.text('Age'), findsOneWidget);
     expect(find.text('Latest feeding'), findsOneWidget);
+    expect(find.text('Category'), findsOneWidget);
     expect(
       find.byType(CheckedPopupMenuItem<AnimalSortCriterion>),
-      findsNWidgets(4),
+      findsNWidgets(5),
     );
     expect(
       find.byKey(const Key('animal-sort-option-latestFeedingOldestFirst')),
@@ -329,6 +335,92 @@ void main() {
     );
 
     expect(detailPage.navigationContext!.recordIds, [neverId, oldId, recentId]);
+  });
+
+  testWidgets('groups category views and passes their flattened order', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+    final frogId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Frog',
+      category: AnimalCategory.amphibian,
+    );
+    final snake10Id = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Snake 10',
+      category: AnimalCategory.reptile,
+      subcategory: AnimalSubcategory.snake,
+    );
+    final snake2Id = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Snake 2',
+      category: AnimalCategory.reptile,
+      subcategory: AnimalSubcategory.snake,
+    );
+    final settingsController = AppSettingsController();
+    await settingsController.load();
+    await settingsController.setAnimalSortOrder(
+      AnimalSortOrder.categoryAscending,
+    );
+
+    await pumpPage(tester, settingsController: settingsController);
+
+    expect(
+      find.byKey(const Key('animal-category-heading-amphibian')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('animal-category-heading-reptile')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const Key('animal-subcategory-heading-snake')),
+      findsOneWidget,
+    );
+    expect(find.text('Jumping spider'), findsNothing);
+
+    await tester.tap(find.byKey(Key('animal-list-item-$snake10Id')));
+    await tester.pumpAndSettle();
+
+    final detailPage = tester.widget<AnimalDetailPage>(
+      find.byType(AnimalDetailPage),
+    );
+    expect(detailPage.navigationContext!.recordIds, [
+      frogId,
+      snake2Id,
+      snake10Id,
+    ]);
+
+    settingsController.dispose();
+  });
+
+  testWidgets('toggles and persists the Category view direction', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+    await createTestAnimal(boxId: boxId, category: AnimalCategory.reptile);
+    final settingsController = AppSettingsController();
+    await settingsController.load();
+    await settingsController.setAnimalSortOrder(
+      AnimalSortOrder.categoryAscending,
+    );
+    await pumpPage(tester, settingsController: settingsController);
+
+    await tester.tap(find.byKey(const Key('animal-sort-button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Category: ascending'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('animal-sort-option-category')));
+    await tester.pumpAndSettle();
+
+    expect(
+      settingsController.animalSortOrder,
+      AnimalSortOrder.categoryDescending,
+    );
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('animal_sort_order'), 'categoryDescending');
+
+    settingsController.dispose();
   });
 
   testWidgets('add button opens new animal page', (tester) async {

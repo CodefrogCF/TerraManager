@@ -6,14 +6,12 @@ void main() {
   String read(String path) => File(path).readAsStringSync();
 
   test('records the v1.6.1 source release documentation consistently', () {
-    final pubspec = read('pubspec.yaml');
     final readme = read('README.md');
     final changelog = read('CHANGELOG.md');
     final roadmap = read('docs/roadmap.md');
     final platformSupport = read('docs/platform-support.md');
     final release = read('docs/release-v1.6.1.md');
 
-    expect(pubspec, contains('version: 1.6.1+63'));
     expect(readme, contains('docs/release-v1.6.1.md'));
     expect(changelog, contains('## [1.6.1] - 2026-09-15'));
     expect(roadmap, contains('## v1.6.1 – UX Consistency & Localization'));

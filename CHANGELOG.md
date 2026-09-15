@@ -4,6 +4,41 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [1.7.0] - 2026-09-15
+
+### Added
+
+- add required Animal categories and optional category-specific subcategories
+  to New Animal and Edit Animal, with localized labels and stable stored values
+  (Issue #127)
+- display saved taxonomy on Animal details and preserve it during duplication
+- add a Category criterion to Animal Overview that groups visible Animals under
+  accessible category and conditional subcategory headings (Issue #128)
+
+### Changed
+
+- advance the local database to Schema Version 10; existing Animals migrate to
+  category `other` without a subcategory
+- extend Portable Backup Format Version 2 with category and optional
+  subcategory while retaining Format 1 and older Format 2 restore compatibility
+- sort category groups in the complete #127 taxonomy order and reverse only the
+  primary group order when the active criterion is selected again
+- keep subcategories and Animals A–Z inside groups using localized headings,
+  natural number ordering and deterministic ID tie breaking
+- advance the release version to `1.7.0+64`
+
+### Testing
+
+- cover compatible taxonomy controls, incompatible-value clearing, New/Edit
+  persistence, details and duplication
+- verify populated v9 to v10 migration and fallback taxonomy values
+- cover taxonomy backup export, validation, restore and legacy defaults
+- cover complete category grouping, optional headings, reverse primary order,
+  natural name sorting, persistence and flattened contextual navigation
+
+Database Schema Version 10 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
 ## [1.6.1] - 2026-09-15
 
 ### Added

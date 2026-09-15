@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
@@ -229,5 +230,89 @@ void main() {
 
     expect(detail, findsOneWidget);
     expect(find.text('125 g\nafter feeding'), findsOneWidget);
+  });
+
+  testWidgets('Edit Animal preserves taxonomy while changing another field', (
+    tester,
+  ) async {
+    final boxId = await BoxRepository(database)
+        .createBox('TM:BOX:55555555-5555-4555-8555-555555555555');
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Corn Snake',
+      latinName: 'Pantherophis guttatus',
+      category: AnimalCategory.reptile,
+      subcategory: AnimalSubcategory.snake,
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+    await openPage(
+      tester,
+      AnimalEditPage(database: database, animalId: animalId),
+    );
+
+    final categoryField = find.byKey(const Key('animal-category-field'));
+    await tester.ensureVisible(categoryField);
+    final categoryDropdown = tester.widget<DropdownButton<AnimalCategory>>(
+      find.descendant(
+        of: categoryField,
+        matching: find.byType(DropdownButton<AnimalCategory>),
+      ),
+    );
+    expect(categoryDropdown.value, AnimalCategory.reptile);
+
+    final subcategoryField = find.byKey(
+      const Key('animal-subcategory-field-reptile'),
+    );
+    final subcategoryDropdown = tester
+        .widget<DropdownButton<AnimalSubcategory?>>(
+          find.descendant(
+            of: subcategoryField,
+            matching: find.byType(DropdownButton<AnimalSubcategory?>),
+          ),
+        );
+    expect(subcategoryDropdown.value, AnimalSubcategory.snake);
+
+    await tester.enterText(
+      find.byKey(const Key('common-name-field')),
+      'Renamed Snake',
+    );
+    await tester.tap(find.byKey(const Key('save-animal-button')));
+    await tester.pumpAndSettle();
+
+    final animal = (await AnimalRepository(database).getAnimalById(animalId))!;
+    expect(animal.commonName, 'Renamed Snake');
+    expect(animal.category, AnimalCategory.reptile);
+    expect(animal.subcategory, AnimalSubcategory.snake);
+  });
+
+  testWidgets('Animal details show localized taxonomy labels', (tester) async {
+    final boxId = await BoxRepository(database)
+        .createBox('TM:BOX:66666666-6666-4666-8666-666666666666');
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Spider',
+      latinName: 'Test species',
+      category: AnimalCategory.arachnid,
+      subcategory: AnimalSubcategory.otherSpider,
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('animal-category-detail')), findsOneWidget);
+    expect(find.byKey(const Key('animal-subcategory-detail')), findsOneWidget);
+    expect(find.text('Arachnid'), findsOneWidget);
+    expect(find.text('Other spider'), findsOneWidget);
   });
 }

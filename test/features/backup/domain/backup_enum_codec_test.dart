@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/enums/animal_status.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
@@ -36,6 +37,31 @@ void main() {
 
         expect(decoded, value);
       }
+    });
+  });
+
+  group('Animal taxonomy', () {
+    test('round trips all stable category and subcategory values', () {
+      for (final value in AnimalCategory.values) {
+        final encoded = BackupEnumCodec.encodeAnimalCategory(value);
+        expect(BackupEnumCodec.decodeAnimalCategory(encoded), value);
+      }
+
+      for (final value in AnimalSubcategory.values) {
+        final encoded = BackupEnumCodec.encodeAnimalSubcategory(value);
+        expect(BackupEnumCodec.decodeAnimalSubcategory(encoded), value);
+      }
+    });
+
+    test('rejects unknown taxonomy values', () {
+      expect(
+        () => BackupEnumCodec.decodeAnimalCategory('localized-category'),
+        throwsFormatException,
+      );
+      expect(
+        () => BackupEnumCodec.decodeAnimalSubcategory('jumpingSpider'),
+        throwsFormatException,
+      );
     });
   });
 

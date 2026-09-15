@@ -227,6 +227,65 @@ void main() {
     expect(result.data.animals.single.sex, 'other');
   });
 
+  test('restores missing taxonomy from older format 2 backups', () {
+    final result = validator.validate(createArchive());
+
+    expect(result.data.animals.single.category, 'other');
+    expect(result.data.animals.single.subcategory, isNull);
+  });
+
+  test('accepts stable compatible taxonomy values', () {
+    final animal = activeAnimal()
+      ..['category'] = 'arachnid'
+      ..['subcategory'] = 'otherSpider';
+
+    final result = validator.validate(
+      createArchive(data: dataJson(animals: [animal])),
+    );
+
+    expect(result.data.animals.single.category, 'arachnid');
+    expect(result.data.animals.single.subcategory, 'otherSpider');
+  });
+
+  test('rejects unknown and incompatible taxonomy values', () {
+    final invalidCategory = activeAnimal()..['category'] = 'Spinnentier';
+    final invalidSubcategory = activeAnimal()
+      ..['category'] = 'arachnid'
+      ..['subcategory'] = 'jumpingSpider';
+    final invalidCombination = activeAnimal()
+      ..['category'] = 'insect'
+      ..['subcategory'] = 'snake';
+
+    for (final animal in [
+      invalidCategory,
+      invalidSubcategory,
+      invalidCombination,
+    ]) {
+      expect(
+        () => validator.validate(
+          createArchive(data: dataJson(animals: [animal])),
+        ),
+        throwsA(
+          isA<BackupValidationException>().having(
+            (error) => error.code,
+            'code',
+            BackupValidationErrorCode.invalidEnum,
+          ),
+        ),
+      );
+    }
+  });
+
+  test('accepts the persisted Category overview order', () {
+    final result = validator.validate(
+      createArchive(
+        settings: settingsJson(animalSortOrder: 'categoryDescending'),
+      ),
+    );
+
+    expect(result.settings.animalSortOrder, 'categoryDescending');
+  });
+
   test('accepts legacy settings without additive preferences', () {
     final bytes = createArchive(
       settings: settingsJson(

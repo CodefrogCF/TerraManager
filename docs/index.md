@@ -20,11 +20,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.6.1 – UX Consistency & Localization**
+**v1.7.0 – Animal Taxonomy & Category Views**
 
 Current application version and build:
 
-**v1.6.1+63**
+**v1.7.0+64**
 
 Implemented milestones in the current source state:
 
@@ -53,6 +53,7 @@ Implemented milestones in the current source state:
 - v1.5.0 – Overview Quick Actions
 - v1.6.0 – Batch QR Export
 - v1.6.1 – UX Consistency & Localization
+- v1.7.0 – Animal Taxonomy & Category Views
 
 Android and Web are currently validated platforms.
 
@@ -225,6 +226,17 @@ criterion and reverse the active direction when selected again without
 changing persisted or backup values. Source and release-owner validation are
 recorded in `docs/release-v1.6.1.md`.
 
+Release `1.7.0+64` completes Issues #127 and #128. New Animal and Edit Animal
+store a required primary category plus an optional compatible subcategory, and
+Animal details show both localized values. Existing records migrate to Other
+without a subcategory in Database Schema Version 10. Portable Backup Format
+Version 2 carries stable taxonomy values while older Format 1 and Format 2
+backups retain their fallback behavior. Animal Overview adds a Category mode
+that groups every visible Animal according to the complete #127 taxonomy,
+orders names naturally inside each final group and passes the flattened visible
+order to contextual detail navigation. Source and release-owner validation are
+recorded in `release-v1.7.0.md`.
+
 ### Android transition to the permanent application ID
 
 Releases through v0.14.1 used the temporary Android identifier
@@ -339,6 +351,8 @@ application restarts.
 - notes
 - optional origin or habitat, weight, shedding notes, rest or dormancy periods
   and temperature zones
+- required localized Animal category and optional compatible subcategory
+- taxonomy persistence through editing, duplication, migration and backup
 - active and archived lifecycle states
 - archive reasons, dates and optional archive notes
 - dedicated Animal History view
@@ -347,7 +361,9 @@ application restarts.
 - preserved feeding history while archived
 - Animal thumbnails in the overview
 - localized Animal Overview sorting by creation time, displayed primary name,
-  age or latest FeedingEvent
+  age, latest FeedingEvent or category
+- accessible category groups with conditional subcategory headings and natural
+  A–Z Animal ordering inside every final group
 - deterministic placement of Animals without birth or feeding data
 - persistent Animal Overview ordering across application restarts
 - preserved Animal overview scroll position after detail navigation
@@ -510,12 +526,16 @@ in new backups. Older missing or oldest-created-first values map to ascending
 Box number; newest-created-first values map to descending Box number.
 
 The Animal Overview sort menu offers oldest/newest creation time, displayed
-name A–Z/Z–A, oldest/youngest age and newest/oldest latest feeding. Name sorting
-uses the currently preferred primary Animal name. Missing birth dates remain
-last in both age directions. Never-fed Animals appear first when sorting by the
-oldest feeding and last when sorting by the newest feeding. The selected order
-also controls contextual Animal detail navigation, persists locally and is
-included in new backups. Older backups default to oldest-created Animal first.
+name A–Z/Z–A, oldest/youngest age, newest/oldest latest feeding and category.
+Name sorting uses the currently preferred primary Animal name. Missing birth
+dates remain last in both age directions. Never-fed Animals appear first when
+sorting by the oldest feeding and last when sorting by the newest feeding.
+Category mode follows the stable taxonomy order, conditionally shows localized
+subcategory headings and keeps Animals naturally sorted A–Z inside each final
+group. Reversing category mode changes only the primary category order. The
+flattened visible order also controls contextual Animal detail navigation,
+persists locally and is included in new backups. Older backups default to
+oldest-created Animal first.
 
 ### Primary Page Navigation
 
@@ -1178,6 +1198,7 @@ Additional documentation:
 - [v1.5.0 release validation](docs/release-v1.5.0.md)
 - [v1.6.0 release validation](docs/release-v1.6.0.md)
 - [v1.6.1 release validation](docs/release-v1.6.1.md)
+- [v1.7.0 release validation](docs/release-v1.7.0.md)
 - [Privacy](PRIVACY.md)
 - [Datenschutz (Deutsch)](PRIVACY.de.md)
 - [Support](SUPPORT.md)

@@ -4,6 +4,76 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [1.6.0] - 2026-09-15
+
+### Added
+
+- add one shared Settings selection workflow for active and archived Box QR
+  codes, with all Boxes selected initially and individual opt-out (Issue #116)
+- save the selected QR codes as individual PNG images or one ZIP archive
+- generate paginated A4 PDF sheets containing the selected QR codes, Box names
+  and stable Box numbers (Issue #117)
+- choose the printed QR size from 6 mm to 20 mm with 6, 10, 15 and 20 mm
+  presets
+
+### Changed
+
+- generate ZIP archives and vector PDF documents completely on-device before
+  opening the operating-system save dialog
+- prevent incomplete ZIP or PDF output when generation fails and treat a
+  cancelled destination dialog as cancellation
+- document the local QR export paths and unchanged permission boundary in the
+  bundled and public privacy notices
+- advance the release version to `1.6.0+62`
+
+### Testing
+
+- cover shared active/archived Box selection, select-all, clear, cancellation
+  and empty-database behavior
+- cover individual PNG, ZIP and PDF Settings integration plus generation and
+  save failures
+- verify exact A4 layout bounds, page breaks, labels, long and duplicate names
+  and stable QR payloads
+- decode the smallest 6 mm vector layout from a 600 DPI raster simulation
+- verify that the document exports add no storage, media or network permission
+
+Database Schema Version 9 and Portable Backup Format Version 2 remain
+unchanged.
+
+## [1.5.0] - 2026-09-15
+
+### Added
+
+- add localized context menus to active Animal and Box overview entries,
+  opened by long press or secondary click (Issue #114)
+- expose Create Feeding, Rename, Edit, Archive and Duplicate quick actions for
+  active Animals
+- expose Rename, Edit, Duplicate and Archive quick actions for active Boxes
+- allow archived Animals to be duplicated from Animal History
+- duplicate Boxes and Animals as independent active records while retaining
+  their reusable profile data and copying picture media (Issue #115)
+
+### Changed
+
+- assign every duplicated Box a new database ID and permanent QR identifier
+- assign every duplicated Animal a new database ID and selected active Box,
+  without copying lifecycle metadata or feeding history
+- keep quick-action dialogs synchronized with the existing archive, validation
+  and overview refresh behavior
+- advance the release version to `1.5.0+60`
+
+### Testing
+
+- cover touch and pointer context-menu access plus every active quick action
+- cover independent identifiers, copied media and active lifecycle state for
+  duplicated records
+- verify that duplicated Animals omit feeding history and remain independent
+  of their source record
+- preserve duplicated records and pictures through current backup export
+
+Database Schema Version 9 and Portable Backup Format Version 2 remain
+unchanged.
+
 ## [1.4.0] - 2026-09-14
 
 ### Added

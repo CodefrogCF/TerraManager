@@ -19,11 +19,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.4.0 – Animal Profiles and Input Quality**
+**v1.6.0 – Batch QR Export**
 
 Current application version and build:
 
-**v1.4.0+59**
+**v1.6.0+62**
 
 Implemented milestones in the current source state:
 
@@ -49,6 +49,8 @@ Implemented milestones in the current source state:
 - v1.2.0 – Box Lifecycle & History
 - v1.3.0 – Primary Page Navigation
 - v1.4.0 – Animal Profiles and Input Quality
+- v1.5.0 – Overview Quick Actions
+- v1.6.0 – Batch QR Export
 
 Android and Web are currently validated platforms.
 
@@ -193,6 +195,24 @@ with older backups. Settings now presents the complete GPL-3.0-or-later license
 offline directly below Privacy Policy. Source validation and the separate
 release-owner checklist are recorded in `docs/release-v1.4.0.md`.
 
+Release `1.5.0+60` completes Issues #114 and #115. Long press and secondary
+click open localized quick-action menus in the Animal and Box overviews.
+Animals can create a feeding, be renamed, edited, archived or duplicated;
+Boxes can be renamed, edited, duplicated or archived. Duplicates are
+independent active records with new database identities, and Box duplicates
+receive new permanent QR identifiers. Reusable profile data and pictures are
+copied, while Animal feeding history and lifecycle metadata remain with the
+source. Source and release-owner validation are recorded in
+`docs/release-v1.5.0.md`.
+
+Release `1.6.0+62` completes Issues #116 and #117. Settings provides one shared
+selection workflow for saving active and archived Box QR codes individually,
+as a ZIP archive or on paginated A4 PDF sheets. PDF codes use selectable sizes
+from 6 mm to 20 mm and include safe Box labels. ZIP and PDF output is generated
+entirely on-device and saved through the operating-system destination dialog
+without additional broad storage, media or network permissions. Source and
+release-owner validation are recorded in `docs/release-v1.6.0.md`.
+
 ### Android transition to the permanent application ID
 
 Releases through v0.14.1 used the temporary Android identifier
@@ -275,8 +295,12 @@ application restarts.
 - persistent Box Overview ordering across application restarts
 - preserved Box overview scroll position after detail navigation
 - contextual swipe navigation through the Box Overview ordering
-- safe deletion of empty boxes from the bottom of Edit Box
-- deletion protection for boxes containing active animals
+- long-press and secondary-click overview actions for Rename, Edit, Duplicate
+  and Archive
+- independent active Box duplication with a new database ID, permanent QR
+  identifier and copied picture media
+- archive and restore workflows that keep assigned active Animals protected
+- permanent deletion available only for archived Boxes after confirmation
 
 ### Animals
 
@@ -286,7 +310,8 @@ application restarts.
 - animal editing
 - box assignment
 - common and Latin names
-- localized Male, Female and Unknown sex values without duplicate options
+- localized Male, Female, Hermaphrodite / other and Unknown sex values without
+  duplicate options
 - birth date
 - birth date accuracy
 - localized Exact, Month known and Year known birth-date-accuracy values
@@ -300,6 +325,8 @@ application restarts.
   Animal pictures
 - full-screen Animal picture viewing with zooming and panning
 - notes
+- optional origin or habitat, weight, shedding notes, rest or dormancy periods
+  and temperature zones
 - active and archived lifecycle states
 - archive reasons, dates and optional archive notes
 - dedicated Animal History view
@@ -314,6 +341,10 @@ application restarts.
 - preserved Animal overview scroll position after detail navigation
 - contextual swipe navigation through Active Animals, Animal History and
   Box-specific Animal collections
+- long-press and secondary-click overview actions for Create Feeding, Rename,
+  Edit, Archive and Duplicate
+- active and archived Animal duplication into a selected active Box with a new
+  database ID, copied picture media and no copied feeding history
 - optional per-Animal feeding reminder configuration
 - dedicated Feeding Reminder settings from active Animal details
 - positive whole-day reminder intervals
@@ -372,6 +403,12 @@ application restarts.
 - persistent language selection
 - installed version, build number and developer information under Legal &
   Privacy
+- bundled Privacy Policy and complete GPL-3.0-or-later License available
+  without an external application
+- shared active and archived Box selection for all batch QR exports
+- save selected Box QR codes as individual PNG images or one ZIP archive
+- create paginated A4 PDF sheets with selectable 6–20 mm vector QR codes and
+  Box labels
 - portable `.tmbackup` backup creation
 - backup file selection and validation
 - pre-restore backup information
@@ -514,6 +551,38 @@ Back returns to the overview from which the route was opened.
 
 Detail pages can still be opened without a navigation context. In that case,
 they behave as normal non-swipe detail pages.
+
+### Overview Quick Actions and Duplication
+
+Long press or secondary click an active Animal or Box overview entry to open
+its localized quick-action menu. Animal actions create a feeding, rename the
+common name, open Edit Animal, archive or duplicate. Box actions rename, open
+Edit Box, duplicate or archive. The actions reuse the established validation,
+confirmation and refresh workflows.
+
+A duplicate is inserted as a new active record. Box duplicates receive a new
+database ID and permanent `TM:BOX:<UUID-v4>` identifier. Animal duplicates
+receive a new database ID and are assigned to the active Box selected in the
+dialog. Reusable profile values and picture bytes are copied into independent
+records. Lifecycle metadata is cleared, and Animal feeding history is not
+copied. Animal History exposes Duplicate for archived Animals while leaving the
+archived source unchanged.
+
+### Batch Box QR Export
+
+Settings offers three Box QR actions: save individual PNG images, save one ZIP
+archive and save one A4 PDF. Each action opens the same checklist containing
+active and archived Boxes, selects all entries initially and allows Select all,
+Clear and individual opt-out before export.
+
+The PDF workflow accepts integer sizes from 6 mm to 20 mm and provides 6, 10,
+15 and 20 mm presets. It places vector QR codes on exact A4 pages, adds a Box
+name and stable Box number below each code, truncates long labels safely and
+starts additional pages automatically. ZIP and PDF bytes are completed in
+memory before one operating-system save dialog opens, so generation failures
+cannot leave an unnoticed partial document. Cancelling the dialog reports no
+false success. The workflow is offline and adds no broad storage, media or
+network permission.
 
 ### Picture Selection and Cropping
 
@@ -1094,6 +1163,8 @@ Additional documentation:
 - [v1.2.0 release validation](docs/release-v1.2.0.md)
 - [v1.3.0 release validation](docs/release-v1.3.0.md)
 - [v1.4.0 release validation](docs/release-v1.4.0.md)
+- [v1.5.0 release validation](docs/release-v1.5.0.md)
+- [v1.6.0 release validation](docs/release-v1.6.0.md)
 - [Privacy](PRIVACY.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)

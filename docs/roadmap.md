@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.4.0 – Animal Profiles and Input Quality**
+**v1.6.0 – Batch QR Export**
 
 Current application version and build:
 
-**v1.4.0+59**
+**v1.6.0+62**
 
 Completed development areas:
 
@@ -101,6 +101,13 @@ Completed development areas:
 - adjacent swipe and keyboard navigation across all three primary pages
 - state-preserving primary-page navigation with synchronized visible selection
 - immediate Animal Overview refresh after creation from Box details
+- long-press and secondary-click quick actions in Animal and Box overviews
+- independent Box and Animal duplication with copied picture media
+- new permanent QR identifiers for duplicated Boxes
+- shared active and archived Box selection for batch QR export
+- selected Box QR export as individual PNG images or one ZIP archive
+- paginated A4 PDF export with labeled 6–20 mm vector QR codes
+- on-device document generation through the operating-system save dialog
 
 v0.7.1 implementation and release validation are complete.
 
@@ -210,6 +217,21 @@ the final automated, migration, backup, Android and Web regression from Issue
 Development build `1.1.1+51` implements tester feedback for optional Box names
 and alphabetical name sorting while retaining Box numbers, legacy sort
 preferences and Portable Backup Format Version 2 compatibility.
+
+Release `1.4.0+59` completes the Animal Profiles and Input Quality milestone
+through Issues #108–#113. Database Schema Version 9 and Portable Backup Format
+Version 2 form the compatibility baseline for all later releases.
+
+Release `1.5.0+60` completes Issues #114 and #115. Animal and Box overviews
+provide localized long-press and secondary-click quick actions. Duplicate
+records receive independent identities and media; Box duplicates receive new
+permanent QR identifiers, and Animal duplicates omit source feeding history.
+
+Release `1.6.0+62` completes Issues #116 and #117. All three Settings export
+actions reuse one active/archived Box checklist. Selected QR codes can be saved
+as individual PNG files, one ZIP archive or labeled, paginated A4 PDF sheets
+with a selectable 6–20 mm code size. ZIP and PDF generation remains local and
+adds no broad storage, media or network permission.
 
 ---
 
@@ -1003,9 +1025,9 @@ roughly one sixth of its previous size.
 - [x] Release owner built and submitted Version `1.3.0` with Build `55`
 - [x] Verify the release-owner APK signature and record its SHA-256
 - [x] Update changelog, roadmap, navigation, installation and release records
-- [ ] Complete physical Android and hosted Web manual checks
+- [x] Complete physical Android and hosted Web manual checks
 - [x] Publish Version `1.3.0+55` through GitHub and Google Play
-- [ ] Close Issues #106 and #107 after the documentation commit succeeds
+- [x] Close Issues #106 and #107 after the documentation commit succeeds
 
 ---
 
@@ -1065,11 +1087,82 @@ roughly one sixth of its previous size.
 - [x] Generate localizations, Drift Schema Version 9 and migration helpers
 - [x] Complete formatting, static analysis and automated source regression
 - [x] Update changelog, roadmap, schema, backup and release documentation
-- [ ] Pass the final GitHub Actions Quality gates on the release commit
-- [ ] Build and sign Android release artifacts in the release-owner environment
-- [ ] Complete Android and hosted Web manual validation
-- [ ] Publish the annotated `v1.4.0` tag and GitHub/Google Play releases
-- [ ] Close Issues #112 and #113 after the release commit succeeds
+- [x] Pass the final GitHub Actions Quality gates on the release commit
+- [x] Build and sign Android release artifacts in the release-owner environment
+- [x] Complete Android and hosted Web manual validation
+- [x] Publish the annotated `v1.4.0` tag and GitHub/Google Play releases
+- [x] Close Issues #112 and #113 after the release commit succeeds
+
+---
+
+## v1.5.0 – Overview Quick Actions
+
+### Animal and Box context menus — Issue #114
+
+- [x] Open overview actions by long press on touch devices
+- [x] Open the same actions by secondary click on pointer platforms
+- [x] Offer Create Feeding, Rename, Edit, Archive and Duplicate for active
+  Animals
+- [x] Offer Rename, Edit, Duplicate and Archive for active Boxes
+- [x] Reuse existing validation, archive confirmation and overview refresh
+- [x] Add complete English and German labels and focused widget coverage
+
+### Independent record duplication — Issue #115
+
+- [x] Create every duplicate as a new active database record
+- [x] Generate a new permanent QR identifier for every Box duplicate
+- [x] Select an active destination Box for every Animal duplicate
+- [x] Copy reusable profile data into the duplicate
+- [x] Copy picture bytes into an independent MediaAsset
+- [x] Clear lifecycle metadata and omit Animal feeding history
+- [x] Allow archived Animals to be duplicated without changing the source
+- [x] Preserve duplicates and independent media in current backups
+
+### v1.5.0 Release
+
+- [x] Set the source version to `1.5.0+60`
+- [x] Complete formatting, analysis and automated source regression
+- [x] Preserve Schema Version 9 and Backup Format Version 2
+- [x] Publish the annotated `v1.5.0` tag
+- [x] Confirm the final GitHub Actions Quality gates run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub release
+
+---
+
+## v1.6.0 – Batch QR Export
+
+### Save selected Box QR codes — Issue #116
+
+- [x] Load active and archived Boxes into one shared checklist
+- [x] Select all Boxes initially and support Select all, Clear and opt-out
+- [x] Reuse the same selection workflow for every Settings QR export
+- [x] Save selected QR codes as individual PNG images
+- [x] Save selected PNG images together in one ZIP archive
+- [x] Handle empty data, cancellation and generation failures explicitly
+
+### Export selected QR codes as an A4 PDF sheet — Issue #117
+
+- [x] Reuse the complete Box selection workflow from Issue #116
+- [x] Choose QR sizes from 6 mm to 20 mm with integer slider values
+- [x] Provide 6, 10, 15 and 20 mm presets
+- [x] Lay out vector QR codes on exact A4 pages with safe margins and spacing
+- [x] Add Box names and stable Box numbers with safe long-name handling
+- [x] Add pages automatically when the selected codes exceed one sheet
+- [x] Generate the complete PDF locally before opening the save dialog
+- [x] Decode the smallest 6 mm output in an automated scan regression
+- [x] Add no broad storage, media or network permission
+
+### v1.6.0 Release
+
+- [x] Set the source version to `1.6.0+62`
+- [x] Complete formatting, analysis and the 643-test source regression
+- [x] Synchronize bundled and public privacy documentation
+- [x] Preserve Schema Version 9 and Backup Format Version 2
+- [x] Publish the annotated `v1.6.0` tag
+- [x] Confirm the final GitHub Actions Quality gates run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
 
 ---
 

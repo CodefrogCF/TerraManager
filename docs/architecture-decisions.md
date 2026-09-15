@@ -1380,3 +1380,91 @@ Disadvantages:
 
 - the app package includes the full plain-text GPL document
 - legal-document presentation changes now affect both pages
+
+---
+
+## ADR-021: Create independent records through overview quick actions
+
+**Status:** Accepted
+
+**Date:** 2026-09-15
+
+### Context
+
+Common Animal and Box operations should be available from overview entries on
+touch and pointer platforms. Duplication must accelerate similar record setup
+without sharing identity, media ownership, lifecycle state or historical events
+that belong to the source.
+
+### Decision
+
+One shared context-menu region maps long press and secondary click to localized
+record-specific actions. Each action delegates to the same repository and
+confirmation workflow used by its full page and refreshes the originating
+overview when it completes.
+
+Duplication is transactional. A Box receives a new database ID and generated QR
+identifier; an Animal receives a new database ID and selected active Box. Both
+copy reusable profile fields and picture bytes into independent records, reset
+lifecycle state to active and clear archive metadata. Animal FeedingEvents are
+not copied. Assigned Animals are not copied with a Box. No persistent
+source-to-duplicate relation is stored.
+
+### Consequences
+
+Advantages:
+
+- touch and pointer users reach frequent actions without opening details first
+- duplicates can be edited or deleted independently from their sources
+- permanent Box QR identity remains unique
+- existing backup and lifecycle invariants continue to apply
+
+Disadvantages:
+
+- context menus expose more actions in a compact surface
+- users must choose a destination Box before duplicating an Animal
+- intentionally excluded history must be recreated manually when needed
+
+---
+
+## ADR-022: Generate selected Box QR documents locally before saving
+
+**Status:** Accepted
+
+**Date:** 2026-09-15
+
+### Context
+
+Users need individual Box QR images, one transportable ZIP archive and printable
+A4 sheets. All formats must select from the same active and archived Boxes,
+retain stable QR payloads and avoid extra device permissions or partial saved
+documents.
+
+### Decision
+
+The three Settings actions reuse one checklist with all Boxes selected initially
+and explicit Select all, Clear and per-Box opt-out controls. Individual export
+uses the established PNG generator. ZIP export collects complete PNG results in
+memory. PDF export draws vector QR codes on exact A4 pages with fixed margins,
+automatic pagination, safe labels and integer sizes from 6 mm to 20 mm.
+
+ZIP and PDF generation must finish successfully before `FileSaver.saveAs` opens
+the operating-system destination dialog. Generation failures produce no file,
+and save-dialog cancellation produces no success message. The workflow remains
+offline and adds no broad storage, media or network permission.
+
+### Consequences
+
+Advantages:
+
+- one selection model keeps the three export results consistent
+- complete in-memory generation prevents unnoticed partial ZIP or PDF output
+- vector PDF codes preserve print geometry across supported sizes
+- the operating system controls the destination without unrestricted storage
+  access
+
+Disadvantages:
+
+- large selections temporarily occupy memory while an archive or PDF is built
+- PDF label space requires deterministic truncation for long names
+- physical scan quality still depends on printer, paper and camera conditions

@@ -31,6 +31,11 @@ void main() {
       'docs/toolchain-baseline.md',
       'docs/release-v1.0.0.md',
       'docs/release-v1.1.0.md',
+      'docs/release-v1.2.0.md',
+      'docs/release-v1.3.0.md',
+      'docs/release-v1.4.0.md',
+      'docs/release-v1.5.0.md',
+      'docs/release-v1.6.0.md',
     ];
 
     for (final path in requiredFiles) {

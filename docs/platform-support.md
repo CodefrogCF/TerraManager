@@ -50,6 +50,18 @@ profiles, backup compatibility and the bundled offline license. Signed Android
 artifacts and physical Android or hosted Web checks remain release-owner steps
 until recorded there.
 
+The v1.5.0 Overview Quick Actions source regression is recorded in
+`release-v1.5.0.md`. It covers long-press and secondary-click menus, localized
+quick actions, independent Box and Animal identities, copied media and backup
+export of duplicated records.
+
+The v1.6.0 Batch QR Export source regression is recorded in
+`release-v1.6.0.md`. It covers the shared active/archived Box checklist,
+individual PNG and ZIP output, paginated A4 PDF layout, the 6–20 mm size range,
+smallest-code decoding and the unchanged device-permission boundary. Signed
+Android artifacts and physical Android or hosted Web checks remain
+release-owner steps until recorded there.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 
@@ -126,6 +138,9 @@ Validated functionality includes:
 - direct Animal creation from empty and populated Box details with the Box
   preselected
 - immediate Animal Overview refresh after direct creation from Box details
+- long-press quick actions for active Animal and Box overview entries
+- independent Animal and Box duplication with copied picture media
+- new permanent QR identifiers for Box duplicates
 - Box editing and optional dimensions
 - persistent Box pictures
 - Box picture persistence across normal application restarts
@@ -153,7 +168,10 @@ Validated functionality includes:
 - QR display
 - QR PNG generation
 - QR image storage in the Android media gallery
-- QR printing
+- shared active and archived Box selection for batch QR export
+- selected Box QR export as individual PNG images and one ZIP archive
+- paginated A4 PDF export with labeled 6–20 mm vector QR codes
+- ZIP and PDF destination selection through the operating-system save dialog
 - camera permission handling
 - QR scanning
 - invalid QR handling
@@ -208,6 +226,10 @@ Validated functionality includes:
 QR images saved on Android are stored through the platform media/gallery system
 so they remain accessible to the user outside the application.
 
+QR ZIP archives and A4 PDF sheets are generated completely on-device and use
+the operating-system save dialog. This does not require unrestricted storage,
+media-library or network access.
+
 TerraManager backup files use the Android system file selection interface.
 The user can therefore choose an accessible destination such as Downloads,
 Documents or another available storage provider.
@@ -244,6 +266,10 @@ Validated functionality includes:
 - persistence across normal browser reloads
 - box and animal workflows
 - immediate Animal Overview refresh after direct creation from Box details
+- long-press and secondary-click quick actions for active Animal and Box
+  overview entries
+- independent Animal and Box duplication with copied picture media
+- new permanent QR identifiers for Box duplicates
 - natural ascending/descending Box Overview sorting, including legacy backup
   order mapping
 - creation-time, displayed-name, age and latest-feeding Animal Overview sorting
@@ -272,9 +298,12 @@ Validated functionality includes:
 - full-screen Animal picture viewing with zooming and panning
 - QR display
 - QR PNG download
+- shared active and archived Box selection for batch QR export
+- selected Box QR export as individual PNG images and one ZIP archive
+- paginated A4 PDF export with labeled 6–20 mm vector QR codes
+- ZIP and PDF destination selection through the browser/system save dialog
 - QR scanning
 - camera permission handling
-- QR printing
 - animal lifecycle and archiving
 - Animal History
 - restoring archived animals
@@ -440,18 +469,11 @@ the Camera option in the source menu while keeping Gallery selection available.
 
 ### Downloads
 
-QR images and TerraManager backup files are downloaded through browser
-facilities.
+QR images, QR ZIP archives, A4 QR PDF sheets and TerraManager backup files are
+saved through browser and operating-system facilities.
 
 The final download location therefore depends on browser and operating-system
 settings.
-
-### Printing
-
-QR printing uses browser/system printing facilities.
-
-Available printers and print options depend on the browser and operating
-system.
 
 ### Application preferences
 
@@ -480,7 +502,7 @@ The following therefore remain unverified:
 - camera permissions
 - QR scanning
 - QR image storage
-- QR printing
+- QR ZIP and A4 PDF export
 - backup creation
 - backup file selection
 - backup restore

@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **8**.
+The current Drift database schema version is **9**.
 
 The current database model consists of:
 
@@ -298,6 +298,30 @@ the current due subset for its non-modal summary and list markers. Animal
 details request the state for one Animal and display its due or scheduled
 timestamp. Feeding history changes trigger a new calculation; no presentation
 state is written back to the database.
+
+## Record Duplication (Issues #114 and #115)
+
+Duplication creates a normal independent record through repository
+transactions; the database does not store a link between source and duplicate.
+No schema or portable backup-format change is required.
+
+A Box duplicate receives a new auto-incremented `id`, a newly generated unique
+`qrId`, active lifecycle state and cleared archive metadata. Its name is chosen
+in the duplication dialog. Dimensions, notes and other reusable values are
+copied. If the source has a picture, its bytes are inserted as a new MediaAsset
+so later edits or deletion of either record cannot remove the other's picture.
+Assigned Animals remain assigned to the source and are not duplicated with the
+Box.
+
+An Animal duplicate receives a new auto-incremented `id`, active lifecycle
+state, a selected active `boxId` and a common name chosen in the dialog. Profile,
+environmental, reminder and optional characteristic values are copied. Archive
+metadata and FeedingEvents are not copied. Picture bytes use another independent
+MediaAsset. These rules also allow an archived Animal to serve as the source
+without modifying or restoring that source.
+
+Current Backup Format Version 2 exports duplicated records and their independent
+media exactly like any other Box or Animal.
 
 ## MediaAsset
 

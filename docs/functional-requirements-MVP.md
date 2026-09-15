@@ -38,10 +38,14 @@ The application must allow the user to:
 - open an assigned Animal from the Box detail screen
 - create a new Animal directly from Box details with that Box preselected
 - refresh assigned Animals immediately after direct creation
-- delete an empty Box through a destructive action at the bottom of Edit Box
-- keep Box deletion unavailable from the Box-detail app bar
-- require confirmation before deleting a Box
-- prevent accidental deletion of a Box containing Animals
+- open Rename, Edit, Duplicate and Archive actions from a long press or
+  secondary click on an active overview entry
+- duplicate a Box with a new database ID and permanent QR identifier
+- copy reusable Box data and picture bytes without copying assigned Animals
+- archive an active Box only after its active Animals have been reassigned
+- restore an archived Box with its existing QR identifier
+- keep permanent deletion available only on archived Box details
+- require confirmation before permanently deleting a Box
 - prevent conflicting save, picture and navigation actions while deletion is
   in progress
 - identify a Box by QR code
@@ -106,6 +110,11 @@ The application must allow the user to:
 - preserve reminder configuration while editing other Animal fields
 - calculate a reminder due timestamp from its configuration and feeding history
 - permanently delete an archived Animal through an explicit confirmation workflow
+- open Create Feeding, Rename, Edit, Archive and Duplicate actions from a long
+  press or secondary click on an active overview entry
+- duplicate active or archived Animals into a selected active Box
+- assign every duplicate a new database ID and independent picture media
+- omit lifecycle metadata and FeedingEvents from Animal duplicates
 
 ## Legal Documents
 
@@ -113,8 +122,8 @@ The application must provide Privacy Policy and License entries under Settings.
 Both documents must render from bundled offline Markdown with the same
 typography, scrolling and Back navigation. License must appear directly below
 Privacy Policy, include the complete authoritative `LICENSE` text, identify
-TerraManager, CodefrogCF and `GPL-3.0-or-later`, and expose HTTP or HTTPS
-references as interactive links.
+TerraManager, CodefrogCF and `GPL-3.0-or-later`, and display included references
+without opening an external application.
 
 Active Animals must have a Box assignment.
 
@@ -266,6 +275,12 @@ The application must allow the user to:
 - display the QR code
 - export the QR code as PNG
 - save/download the QR image
+- select active and archived Boxes through one shared checklist
+- save all selected QR codes as individual PNG images
+- save the selected PNG images together in one ZIP archive
+- save the selected QR codes as a paginated A4 PDF
+- choose the PDF QR size from 6 mm to 20 mm
+- label printed codes with a safe Box name and stable Box number
 - scan a QR code
 - allow the camera light to be switched on and off while scanning when the
   active camera supports it
@@ -284,6 +299,16 @@ action must appear together after the Box information and assigned Animals.
 Generated QR images are derived data and do not need to be persisted in the
 domain database or portable backups.
 
+All three Settings export actions must reuse the same Box selection workflow.
+All Boxes are selected initially; the user can select all, clear or opt out
+individual Boxes before export. Empty selections and cancellation must create
+no output.
+
+ZIP and PDF bytes must be completed locally before the operating-system save
+dialog opens. A generation failure must not leave an unnoticed partial archive
+or document. These workflows must not require additional broad storage, media
+or network permissions.
+
 ## Settings
 
 The application must allow the user to:
@@ -301,6 +326,8 @@ The application must allow the user to:
 - open About TerraManager under Legal & Privacy
 - inspect the installed application version, build number and developer
   information
+- read the bundled Privacy Policy and complete application License offline
+- start individual, ZIP and A4 PDF Box QR export workflows
 
 Appearance, language and overview-order settings must be included in portable
 TerraManager backups.

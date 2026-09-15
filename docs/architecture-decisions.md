@@ -1537,15 +1537,20 @@ Disadvantages:
 Temperature zones describe the physical enclosure shared by its assigned
 Animals. Keeping the note on one Animal duplicates Box configuration and makes
 the value disappear from the place where users manage the enclosure. Existing
-Schema Version 9 databases and portable backups may already contain the value
+Schema Version 10 databases and portable backups may already contain the value
 on Animal records.
 
 ### Decision
 
-Schema Version 10 adds nullable `Box.temperatureZones`. New Box and Edit Box
+Schema Version 11 adds nullable `Box.temperatureZones`. New Box and Edit Box
 place the multiline field directly above Notes, and Box details omit the
 section when it is empty. Current Animal forms, details, repository creation
 and duplication no longer use the former Animal field.
+
+The released Schema Version 10 snapshot remains unchanged and contains only the
+Animal taxonomy addition from v1.7.0. This gives every v1.7.0 installation an
+explicit v10 to v11 migration path instead of retroactively changing an
+already released schema.
 
 During database migration and backup restore, the first non-empty legacy value
 by Animal ID seeds its assigned Box only when the Box has no temperature-zone

@@ -687,24 +687,19 @@ this schema.
 
 ### Schema Version 10
 
-Schema Version 10 adds the Animal taxonomy columns and Box temperature-zone
-field:
+Schema Version 10 adds the Animal taxonomy columns:
 
 ```text
 Animal.category
 Animal.subcategory
-Box.temperatureZones
 ```
 
 `category` is non-null and defaults to the stable value `other`.
 `subcategory` is nullable and must be compatible with its primary category.
 The v9 → v10 migration preserves every existing Box, Animal, FeedingEvent and
-MediaAsset; existing Animals begin as `other` without a subcategory. It also
-adds the nullable Box temperature-zone field. When an assigned Animal has a
-legacy, non-empty temperature-zone value and its Box has none, the first value
-by Animal ID is trimmed and copied to the Box. The former Animal column remains
-only for legacy database and backup compatibility; current forms, details and
-repository writes treat the Box value as authoritative.
+MediaAsset; existing Animals begin as `other` without a subcategory. The
+released Schema Version 10 snapshot retains `Animal.temperatureZones` and does
+not contain a Box temperature-zone column.
 
 Stable categories follow this canonical order:
 
@@ -737,3 +732,21 @@ other: no subcategory
 
 Localized display labels are derived from these portable values and are never
 stored in the database.
+
+### Schema Version 11
+
+Schema Version 11 adds one nullable enclosure field:
+
+```text
+Box.temperatureZones
+```
+
+The v10 → v11 migration preserves every existing Box, Animal, FeedingEvent and
+MediaAsset. When an assigned Animal has a legacy, non-empty temperature-zone
+value and its Box has none, the first value by Animal ID is trimmed and copied
+to the Box. Boxes without such a value remain `null`.
+
+The former Animal column remains readable for database and backup compatibility;
+current forms, details, repository writes and duplication treat the Box value
+as authoritative. Keeping the released v10 snapshot unchanged ensures that an
+installation upgraded from v1.7.0 executes this explicit migration step.

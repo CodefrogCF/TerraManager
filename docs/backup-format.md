@@ -106,8 +106,9 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
 Backup Format Version 2 is the current format.
 
 It extends portable Box data with dimensions and Box pictures. Current Version
-2 records can additionally contain optional Box names, notes and lifecycle
-metadata introduced by Issue #102.
+2 records can additionally contain optional Box names, lifecycle metadata,
+temperature zones and notes. Animal records can contain optional profile fields
+plus stable category and subcategory values.
 
 Archive structure:
 
@@ -121,8 +122,9 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
     └── boxes/
 ```
 
-Version 2 adds the following portable Box fields. `name`, `notes` and the
-lifecycle fields are later, backward-compatible extensions of the same format:
+Version 2 adds the following portable Box fields. `name`, lifecycle metadata,
+`temperatureZones` and `notes` are later, backward-compatible extensions of the
+same format:
 
 ```text
 name
@@ -133,6 +135,7 @@ archiveNotes
 widthCm
 heightCm
 depthCm
+temperatureZones
 notes
 pictureMediaPath
 ```
@@ -557,11 +560,13 @@ sheddingNotes
 restOrDormancyPeriods
 ```
 
-`temperatureZones` remains accepted on Animal records only as a legacy key.
-Current input and display belong to `BackupBox.temperatureZones`. During
-restore, a legacy non-empty Animal value seeds its assigned Box only when that
-Box has no value; the lowest Animal ID wins deterministically. Export preserves
-any legacy Animal value already present so old data is not silently discarded.
+TerraManager 1.7.1 moves current temperature-zone ownership to the Box without
+changing Backup Format Version 2. `temperatureZones` remains accepted on Animal
+records only as a legacy key. Current input and display belong to
+`BackupBox.temperatureZones`. During restore, a legacy non-empty Animal value
+seeds its assigned Box only when that Box has no value; the lowest Animal ID
+wins deterministically. Export preserves any legacy Animal value already
+present so old data is not silently discarded.
 
 `null` represents an empty value. Restore accepts older Format 1 and Format 2
 records where any or all optional keys are absent and maps those fields to
@@ -1396,6 +1401,8 @@ TerraManager 0.13.4 -> Backup Format 2 with an optional Animal sort-order settin
 TerraManager 0.14.0 -> Backup Format 2 (unchanged)
 TerraManager 0.14.1 -> Backup Format 2 with legacy Box-sort value mapping
 TerraManager 1.4.0 -> Backup Format 2 with optional Animal profile fields
+TerraManager 1.7.0 -> Backup Format 2 with stable Animal taxonomy fields
+TerraManager 1.7.1 -> Backup Format 2 with Box temperature-zone ownership
 ```
 
 A later application release may continue to use Backup Format 2 if its portable
@@ -1507,10 +1514,11 @@ Version 2 preserves:
 
 - Box IDs
 - permanent Box QR identifiers
-- optional Box width, height and depth
-- optional Box notes
+- optional Box name, width, height, depth, temperature zones and notes
 - Box pictures through portable media references
 - Animal IDs
+- stable Animal category and optional compatible subcategory
+- optional Animal profile fields and legacy temperature-zone compatibility
 - active and archived lifecycle state
 - Box assignments for active Animals
 - archive metadata
@@ -1536,8 +1544,9 @@ Version 2 excludes:
 
 TerraManager 0.10.x and later continue to restore Backup Format Version 1.
 
-Version 1 Box records do not contain dimensions, notes or Box pictures. During
-restore, the missing Version 2 fields are mapped to null.
+Version 1 Box records do not contain names, lifecycle metadata, dimensions,
+temperature zones, notes or Box pictures. During restore, the missing Version 2
+fields are mapped to their documented null or active defaults.
 
 Animal media, IDs, relationships, lifecycle state, FeedingEvents and settings
 from Version 1 retain their existing restore semantics.

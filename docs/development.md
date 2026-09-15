@@ -170,16 +170,22 @@ existing scroll offset. Regression tests must first load Animal Overview, create
 an Animal from Box details, and then prove that the same overview instance shows
 the new record without restarting the application.
 
-Schema Version 10 adds the required Animal category, nullable subcategory and
-nullable Box temperature-zone note. Regenerate Drift output, create the v10
-schema snapshot and verify a populated v9 database. Existing Animals must
-migrate to `other` with a null subcategory. A legacy non-empty Animal
-temperature-zone value seeds its assigned Box only when the Box has no value;
-current Animal forms and details no longer expose that legacy column. New
-Animal and Edit Animal share one taxonomy widget and must offer only
-category-compatible values. Repository, backup and restore paths must reject
-unsupported or incompatible combinations while accepting missing taxonomy and
-Box temperature-zone keys from older Format 1 and Format 2 backups.
+Schema Version 10 adds the required Animal category and nullable subcategory.
+Regenerate Drift output, preserve the released v10 schema snapshot and verify a
+populated v9 database. Existing Animals must migrate to `other` with a null
+subcategory. New Animal and Edit Animal share one taxonomy widget and must offer
+only category-compatible values. Repository, backup and restore paths must
+reject unsupported or incompatible combinations while accepting missing
+taxonomy values from older Format 1 and Format 2 backups.
+
+Schema Version 11 adds the nullable Box temperature-zone note. Verify a direct
+populated v10 migration: the first non-empty legacy Animal value by Animal ID
+seeds its assigned Box only when the Box has no value, while Boxes without a
+source stay empty and foreign keys remain valid. Current Animal forms and
+details no longer expose the legacy column. Backup restore follows the same
+non-destructive rule and accepts missing Box temperature-zone keys from older
+Format 1 and Format 2 backups. Migration regressions assert data behavior and
+snapshot transitions without hard-coding the current schema number.
 
 Issue #128 derives category groups from the current filtered Animal list. Cover
 the complete Issue #127 category order, reversed primary order, localized

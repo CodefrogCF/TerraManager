@@ -20,11 +20,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.7.0 – Animal Taxonomy & Category Views**
+**v1.7.1 – Enclosure Notes & Migration**
 
 Current application version and build:
 
-**v1.7.0+64**
+**v1.7.1+65**
 
 Implemented milestones in the current source state:
 
@@ -54,6 +54,7 @@ Implemented milestones in the current source state:
 - v1.6.0 – Batch QR Export
 - v1.6.1 – UX Consistency & Localization
 - v1.7.0 – Animal Taxonomy & Category Views
+- v1.7.1 – Enclosure Notes & Migration
 
 Android and Web are currently validated platforms.
 
@@ -229,16 +230,23 @@ recorded in `docs/release-v1.6.1.md`.
 Release `1.7.0+64` completes Issues #127 and #128. New Animal and Edit Animal
 store a required primary category plus an optional compatible subcategory, and
 Animal details show both localized values. Existing records migrate to Other
-without a subcategory in Database Schema Version 10. The same migration moves
-legacy Animal temperature-zone notes to their assigned Box when the Box has no
-value, and current Box forms place that optional field directly above Notes.
-Portable Backup Format Version 2 carries stable taxonomy and Box temperature-
-zone values while older Format 1 and Format 2 backups retain their fallback
-behavior. Animal Overview adds a Category mode
+without a subcategory in Database Schema Version 10. Portable Backup Format
+Version 2 carries stable taxonomy values while older Format 1 and Format 2
+backups retain their fallback behavior. Animal Overview adds a Category mode
 that groups every visible Animal according to the complete #127 taxonomy,
 orders names naturally inside each final group and passes the flattened visible
 order to contextual detail navigation. Source and release-owner validation are
 recorded in `release-v1.7.0.md`.
+
+Release `1.7.1+65` advances the database to Schema Version 11. The optional
+temperature-zone note now belongs to the Box and appears directly above its
+ordinary Notes. During migration and legacy backup restore, the first non-empty
+Animal value by ID seeds its assigned Box only when that Box has no value. The
+released Schema Version 10 snapshot remains unchanged so v1.7.0 installations
+follow the explicit v10 to v11 step. The three Box QR export actions keep their
+shared selection workflow while using a shorter PNG description and standard
+Settings dividers. The update adds no device permission. Source and
+release-owner validation are recorded in `release-v1.7.1.md`.
 
 ### Android transition to the permanent application ID
 
@@ -1203,6 +1211,7 @@ Additional documentation:
 - [v1.6.0 release validation](docs/release-v1.6.0.md)
 - [v1.6.1 release validation](docs/release-v1.6.1.md)
 - [v1.7.0 release validation](docs/release-v1.7.0.md)
+- [v1.7.1 release validation](docs/release-v1.7.1.md)
 - [Privacy](PRIVACY.md)
 - [Datenschutz (Deutsch)](PRIVACY.de.md)
 - [Support](SUPPORT.md)

@@ -57,6 +57,15 @@ record, setting and media item; existing Animals receive category Other with no
 subcategory. Current exports include the stable taxonomy values, while Format 1
 and older Format 2 backups remain restorable with the same fallback.
 
+TerraManager v1.7.1 advances the local database to Schema Version 11 while
+keeping the same application identity, production signing certificate and
+Portable Backup Format Version 2. The explicit v10 to v11 step adds the optional
+Box temperature-zone field and copies the first non-empty legacy Animal value
+by ID to its assigned Box. A direct update from v1.6.x executes both ordered
+migration steps; a direct update from v1.7.0 executes only v10 to v11. Records,
+settings and media remain available, and no additional device permission is
+required.
+
 ## Android installation
 
 The release APK is the directly installable Android artifact. Android may ask

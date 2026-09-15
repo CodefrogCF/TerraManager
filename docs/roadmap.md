@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.7.0 – Animal Taxonomy & Category Views**
+**v1.7.1 – Enclosure Notes & Migration**
 
 Current application version and build:
 
-**v1.7.0+64**
+**v1.7.1+65**
 
 Completed development areas:
 
@@ -255,6 +255,13 @@ taxonomy. Animal Overview can group the complete taxonomy under localized,
 accessible headings while retaining natural A–Z row order and contextual
 navigation. Schema Version 10 migrates existing Animals to Other without a
 subcategory; Backup Format Version 2 remains backward compatible.
+
+Release `1.7.1+65` moves the optional temperature-zone note to its owning Box
+and advances the database from the released Schema Version 10 snapshot to
+Schema Version 11. Existing values transfer deterministically without replacing
+a populated Box value. The patch also shortens the individual Box QR export
+description and separates the PNG, ZIP and PDF actions with standard Settings
+dividers. Backup Format Version 2 and device permissions remain unchanged.
 
 ---
 
@@ -1278,17 +1285,6 @@ roughly one sixth of its previous size.
 - [x] Persist and back up both Category sort directions
 - [x] Provide accessible localized category and subcategory headings
 
-### Enclosure notes and QR Settings polish
-
-- [x] Move the optional temperature-zone note from Animal UI to Box UI
-- [x] Place temperature zones directly above Notes in New Box and Edit Box
-- [x] Show populated temperature zones on Box details
-- [x] Preserve Box temperature zones through duplication and portable backup
-- [x] Seed empty Boxes from legacy assigned-Animal values during migration and
-  restore
-- [x] Shorten the individual Box QR export description
-- [x] Separate PNG, ZIP and PDF export actions with standard Settings dividers
-
 ### v1.7.0 Release
 
 - [x] Set the source version to `1.7.0+64`
@@ -1296,10 +1292,45 @@ roughly one sixth of its previous size.
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate English and German localizations and Drift migration artifacts
 - [x] Complete formatting, analysis and automated source regression
-- [ ] Publish the annotated `v1.7.0` tag
+- [x] Publish the annotated `v1.7.0` tag
+- [x] Confirm the final GitHub Actions **Quality gates** run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
+
+---
+
+## v1.7.1 – Enclosure Notes & Migration
+
+### Box-owned temperature-zone notes
+
+- [x] Move the optional temperature-zone note from Animal UI to Box UI
+- [x] Place temperature zones directly above Notes in New Box and Edit Box
+- [x] Show populated temperature zones on Box details
+- [x] Preserve Box temperature zones through duplication and portable backup
+- [x] Preserve the released Schema Version 10 snapshot
+- [x] Add `Box.temperatureZones` in the v10 to v11 migration
+- [x] Seed empty Boxes from the first non-empty assigned-Animal value by ID
+  during migration and restore
+- [x] Cover direct populated v10 to v11 migration and foreign-key integrity
+
+### QR Settings polish
+
+- [x] Keep the shared Box selection workflow for PNG, ZIP and PDF export
+- [x] Shorten the individual Box QR export description
+- [x] Separate PNG, ZIP and PDF export actions with standard Settings dividers
+- [x] Add no storage, media, network or other device permission
+
+### v1.7.1 Release
+
+- [x] Set the source version to `1.7.1+65`
+- [x] Advance to Database Schema Version 11
+- [x] Preserve Portable Backup Format Version 2 compatibility
+- [x] Generate the Schema Version 11 snapshot and Drift migration artifacts
+- [x] Complete formatting, analysis and the 691-test source regression
+- [x] Publish the annotated `v1.7.1` tag
 - [ ] Confirm the final GitHub Actions **Quality gates** run
-- [ ] Record release-owner Android/Web artifacts and manual checks
-- [ ] Publish the GitHub and Google Play releases
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
 
 ---
 

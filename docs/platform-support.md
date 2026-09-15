@@ -73,11 +73,17 @@ recorded there.
 The v1.7.0 Animal Taxonomy & Category Views source regression is recorded in
 `release-v1.7.0.md`. It covers the complete localized Issue #127 taxonomy,
 Schema Version 10 migration, compatible Backup Format Version 2 values and the
-grouped Animal Overview on Android and Web. It also covers Box-owned
-temperature-zone notes, legacy Animal-value transfer and the refined QR export
-action layout. The update adds no storage, media, network or other device
-permission. Signed Android artifacts and physical
-Android or hosted Web checks remain release-owner steps until recorded there.
+grouped Animal Overview on Android and Web. Signed Android artifacts and
+physical Android or hosted Web checks remain release-owner steps until recorded
+there.
+
+The v1.7.1 Enclosure Notes & Migration source regression is recorded in
+`release-v1.7.1.md`. It covers the preserved released Schema Version 10
+snapshot, direct populated v10 to v11 migration, Box-owned temperature-zone
+notes, legacy Animal-value transfer and the refined QR export action layout.
+The update adds no storage, media, network or other device permission. Signed
+Android artifacts and physical Android or hosted Web checks remain release-owner
+steps until recorded there.
 
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
@@ -160,6 +166,8 @@ Validated functionality includes:
 - independent Animal and Box duplication with copied picture media
 - new permanent QR identifiers for Box duplicates
 - Box editing and optional dimensions
+- Box-owned multiline temperature-zone notes in create, edit and details
+- deterministic legacy Animal-value transfer during Schema Version 11 migration
 - persistent Box pictures
 - Box picture persistence across normal application restarts
 - full-screen Box picture viewing with zooming and panning
@@ -295,6 +303,8 @@ Validated functionality includes:
 - localized category and conditional subcategory headings with natural A–Z
   rows, persistent ordering and matching contextual detail navigation
 - Box editing and optional dimensions
+- Box-owned multiline temperature-zone notes in create, edit and details
+- deterministic legacy Animal-value transfer during Schema Version 11 migration
 - persistent Box pictures
 - Box picture persistence across normal browser reloads
 - full-screen Box picture viewing with zooming and panning

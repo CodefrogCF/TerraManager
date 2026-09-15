@@ -4,6 +4,34 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [1.7.1] - 2026-09-15
+
+### Changed
+
+- move the optional temperature-zone note from Animal forms and details to the
+  owning Box, directly above ordinary Box notes
+- advance the local database to Schema Version 11 and transfer the first
+  non-empty legacy Animal temperature-zone value by Animal ID to its assigned
+  Box when that Box has no value
+- extend Portable Backup Format Version 2 with Box temperature zones while
+  retaining Format 1 and older Format 2 restore compatibility
+- shorten the individual Box QR export description and separate the three QR
+  export actions with the standard Settings dividers
+- advance the release version to `1.7.1+65`
+
+### Testing
+
+- preserve the released Schema Version 10 snapshot and cover direct populated
+  v10 to v11 migration, deterministic value selection and foreign keys
+- cover Box temperature-zone create, edit, detail, duplication and backup
+  behavior, including legacy Animal-value transfer during restore
+- keep migration and backup tests independent from a hard-coded current schema
+  number
+- verify that Android and iOS permission declarations remain unchanged
+
+Database Schema Version 11 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
 ## [1.7.0] - 2026-09-15
 
 ### Added
@@ -19,18 +47,12 @@ The project uses semantic versioning.
 
 - advance the local database to Schema Version 10; existing Animals migrate to
   category `other` without a subcategory
-- move the optional temperature-zone note from Animal forms and details to the
-  owning Box, directly above ordinary Box notes; legacy Animal values seed an
-  empty assigned Box during schema migration and backup restore
 - extend Portable Backup Format Version 2 with category and optional
-  subcategory plus Box temperature zones while retaining Format 1 and older
-  Format 2 restore compatibility
+  subcategory while retaining Format 1 and older Format 2 restore compatibility
 - sort category groups in the complete #127 taxonomy order and reverse only the
   primary group order when the active criterion is selected again
 - keep subcategories and Animals A–Z inside groups using localized headings,
   natural number ordering and deterministic ID tie breaking
-- shorten the individual Box QR export description and separate the three QR
-  export actions with the standard Settings dividers
 - advance the release version to `1.7.0+64`
 
 ### Testing
@@ -39,8 +61,6 @@ The project uses semantic versioning.
   persistence, details and duplication
 - verify populated v9 to v10 migration and fallback taxonomy values
 - cover taxonomy backup export, validation, restore and legacy defaults
-- cover Box temperature-zone create, edit, detail, duplication, migration and
-  backup behavior, including legacy Animal-value transfer
 - cover complete category grouping, optional headings, reverse primary order,
   natural name sorting, persistence and flattened contextual navigation
 

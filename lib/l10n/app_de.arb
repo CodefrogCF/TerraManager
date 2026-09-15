@@ -100,6 +100,12 @@
   "notSpecified": "Nicht angegeben",
   "centimeterValue": "{value} cm",
   "animalHistory": "Tierhistorie",
+  "animalThumbnailLabel": "Tier-Vorschaubild für {animalName}",
+  "@animalThumbnailLabel": {
+    "placeholders": {
+      "animalName": {"type": "String"}
+    }
+  },
   "failedToLoadAnimals": "Tiere konnten nicht geladen werden",
   "noAnimalsAvailable": "Keine Tiere verfügbar",
   "addAnimal": "Tier hinzufügen",
@@ -272,7 +278,7 @@
   "privacyPolicyLoadError": "Die Datenschutzerklärung konnte nicht geladen werden.",
   "licenseTitle": "Lizenz",
   "licenseSubtitle": "Open-Source-Lizenz und Nutzungsrechte",
-  "licenseNotice": "TerraManager · 2026 CodefrogCF · GPL-3.0-or-later",
+  "licenseNotice": "**Copyright © 2026 Codefrog.** TerraManager steht unter der Lizenz GPL-3.0-or-later. Der vollständige nachfolgende englische Lizenztext ist rechtlich maßgeblich. Alle Lizenzverweise bleiben in diesem lokalen Dokument sichtbar, ohne eine andere Anwendung zu öffnen.",
   "licenseLoadError": "Die Anwendungslizenz konnte nicht geladen werden.",
   "aboutTerraManager": "Über TerraManager",
   "aboutTerraManagerSubtitle": "Versions- und Entwicklerinformationen",
@@ -319,6 +325,8 @@
   "boxSortLabelDescending": "Boxnummer absteigend",
   "boxSortNameAscending": "Name A–Z",
   "boxSortNameDescending": "Name Z–A",
+  "boxSortNumberCriterion": "Boxnummer",
+  "boxSortNameCriterion": "Boxname",
   "sortAnimals": "Tiere sortieren",
   "animalSortCreatedOldestFirst": "Zuerst hinzugefügt",
   "animalSortCreatedNewestFirst": "Zuletzt hinzugefügt",
@@ -328,6 +336,22 @@
   "animalSortAgeYoungestFirst": "Jüngste Tiere zuerst",
   "animalSortLatestFeedingNewestFirst": "Neueste Fütterung zuerst",
   "animalSortLatestFeedingOldestFirst": "Älteste Fütterung zuerst",
+  "animalSortCreatedCriterion": "Erstellungszeit",
+  "animalSortDisplayNameCriterion": "Angezeigter Name",
+  "animalSortAgeCriterion": "Alter",
+  "animalSortLatestFeedingCriterion": "Letzte Fütterung",
+  "sortDirectionAscending": "aufsteigend",
+  "sortDirectionDescending": "absteigend",
+  "sortDirectionOldestFirst": "älteste zuerst",
+  "sortDirectionNewestFirst": "neueste zuerst",
+  "sortDirectionYoungestFirst": "jüngste zuerst",
+  "sortCriterionWithDirection": "{criterion}: {direction}",
+  "@sortCriterionWithDirection": {
+    "placeholders": {
+      "criterion": {"type": "String"},
+      "direction": {"type": "String"}
+    }
+  },
   "archiveBox": "Box archivieren",
   "archiveBoxQuestion": "Diese Box archivieren? Ihre QR-Kennung, ihr Bild und die übrigen gespeicherten Daten bleiben erhalten.",
   "archiveBoxUnsavedChanges": "Ungespeicherte Änderungen in „Box bearbeiten“ werden beim Archivieren verworfen.",

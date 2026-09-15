@@ -6,6 +6,15 @@ import 'package:terramanager/features/boxes/presentation/box_overview_sorting.da
 import 'package:terramanager/features/settings/box_sort_order.dart';
 
 void main() {
+  test('Box sort criteria keep stable orders and toggle direction', () {
+    expect(BoxSortCriterion.label.defaultOrder, BoxSortOrder.labelAscending);
+    expect(BoxSortOrder.labelAscending.reversed, BoxSortOrder.labelDescending);
+    expect(BoxSortOrder.labelDescending.reversed, BoxSortOrder.labelAscending);
+    expect(BoxSortCriterion.name.defaultOrder, BoxSortOrder.nameAscending);
+    expect(BoxSortOrder.nameAscending.reversed, BoxSortOrder.nameDescending);
+    expect(BoxSortOrder.nameDescending.reversed, BoxSortOrder.nameAscending);
+  });
+
   Box box(int id, DateTime createdAt, {String? name}) {
     return Box(
       status: BoxStatus.active,

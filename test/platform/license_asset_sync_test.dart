@@ -10,6 +10,7 @@ void main() {
 
     expect(AppLicensePage.licenseAssetPath, 'LICENSE');
     expect(pubspec, contains('      - LICENSE'));
+    expect(pubspec, contains('      - PRIVACY.de.md'));
     expect(license, contains('GNU GENERAL PUBLIC LICENSE'));
     expect(license, contains('Version 3, 29 June 2007'));
     expect(license, contains('END OF TERMS AND CONDITIONS'));

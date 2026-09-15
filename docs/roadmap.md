@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.6.0 – Batch QR Export**
+**v1.6.1 – UX Consistency & Localization**
 
 Current application version and build:
 
-**v1.6.0+62**
+**v1.6.1+63**
 
 Completed development areas:
 
@@ -108,6 +108,12 @@ Completed development areas:
 - selected Box QR export as individual PNG images or one ZIP archive
 - paginated A4 PDF export with labeled 6–20 mm vector QR codes
 - on-device document generation through the operating-system save dialog
+- stored-picture thumbnails for archived Animals with localized semantics
+- slider-only 6–20 mm PDF QR sizing
+- multiline Animal Weight input and detail presentation
+- synchronized offline English and German privacy content
+- localized licence guidance with the authoritative English GPL text
+- one reversible menu toggle per Box and Animal overview sort criterion
 
 v0.7.1 implementation and release validation are complete.
 
@@ -232,6 +238,14 @@ actions reuse one active/archived Box checklist. Selected QR codes can be saved
 as individual PNG files, one ZIP archive or labeled, paginated A4 PDF sheets
 with a selectable 6–20 mm code size. ZIP and PDF generation remains local and
 adds no broad storage, media or network permission.
+
+Release `1.6.1+63` completes Issues #122–#126. Animal History displays stored
+pictures with the established fallback, PDF QR sizing uses only the accessible
+integer slider, and Weight supports multiline content. Privacy and licence
+views follow English or German while remaining offline. Overview sort menus
+now contain one reversible entry per criterion while keeping every persisted
+and portable enum value compatible. Schema Version 9, Backup Format Version 2
+and the existing permission boundary remain unchanged.
 
 ---
 
@@ -1163,6 +1177,64 @@ roughly one sixth of its previous size.
 - [x] Confirm the final GitHub Actions Quality gates run
 - [x] Record release-owner Android/Web artifacts and manual checks
 - [x] Publish the GitHub and Google Play releases
+
+---
+
+## v1.6.1 – UX Consistency & Localization
+
+### Archived Animal thumbnails — Issue #122
+
+- [x] Display stored Animal pictures in Animal History
+- [x] Match the existing 56 px clipped thumbnail presentation
+- [x] Retain the Animal fallback icon for missing or invalid media
+- [x] Keep list and thumbnail taps on the correct archived detail context
+- [x] Add localized thumbnail semantics without new permissions
+
+### PDF QR-size controls — Issue #123
+
+- [x] Remove the 6, 10, 15 and 20 mm preset actions
+- [x] Retain the integer 6–20 mm slider and 15 mm default
+- [x] Announce the selected millimetre value through Slider semantics
+- [x] Preserve Box selection, exact A4 layout, labels and QR payloads
+- [x] Leave individual PNG and ZIP export unchanged
+
+### Multiline Animal Weight — Issue #124
+
+- [x] Use the same multiline Weight field in New Animal and Edit Animal
+- [x] Preserve internal line breaks and trim empty input to `null`
+- [x] Display multiline Weight values correctly on Animal details
+- [x] Keep Database Schema Version 9 and Backup Format Version 2 unchanged
+
+### Localized legal content — Issue #125
+
+- [x] Select bundled English or German privacy content from the app locale
+- [x] Fall back to English for unsupported locales
+- [x] Synchronize both bundled policies with their public documentation pages
+- [x] Identify TerraManager, Codefrog and the effective date consistently
+- [x] Explain in German that the unchanged English GPL text is authoritative
+- [x] Keep the complete GPL text accessible offline without external launch
+- [x] Retain scrollability with large accessibility text
+
+### Directional sort toggles — Issue #126
+
+- [x] Show two Box and four Animal sort criteria exactly once
+- [x] Apply each criterion's documented direction when first selected
+- [x] Reverse the active criterion when it is selected again
+- [x] Display and announce the current localized direction
+- [x] Refresh visible order and contextual detail navigation immediately
+- [x] Preserve every existing preference and backup enum value
+
+### v1.6.1 Release
+
+- [x] Set the source version to `1.6.1+63`
+- [x] Preserve Schema Version 9 and Backup Format Version 2
+- [x] Generate English and German localizations
+- [x] Complete formatting, analysis and automated source regression
+- [x] Synchronize bundled and public privacy documentation
+- [ ] Publish the annotated `v1.6.1` tag
+- [ ] Confirm the final GitHub Actions Quality gates run
+- [ ] Record release-owner Android/Web artifacts and manual checks
+- [ ] Publish the GitHub and Google Play releases
 
 ---
 

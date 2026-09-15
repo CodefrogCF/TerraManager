@@ -7,6 +7,25 @@ import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 
 void main() {
+  test(
+    'Animal sort criteria keep documented defaults and toggle direction',
+    () {
+      const defaults = {
+        AnimalSortCriterion.created: AnimalSortOrder.createdOldestFirst,
+        AnimalSortCriterion.displayName: AnimalSortOrder.displayNameAscending,
+        AnimalSortCriterion.age: AnimalSortOrder.ageOldestFirst,
+        AnimalSortCriterion.latestFeeding:
+            AnimalSortOrder.latestFeedingNewestFirst,
+      };
+
+      for (final entry in defaults.entries) {
+        expect(entry.key.defaultOrder, entry.value);
+        expect(entry.value.reversed.reversed, entry.value);
+        expect(entry.value.criterion, entry.key);
+      }
+    },
+  );
+
   Animal animal({
     required int id,
     required String commonName,

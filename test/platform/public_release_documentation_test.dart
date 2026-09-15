@@ -24,6 +24,7 @@ void main() {
 
     const requiredFiles = [
       'PRIVACY.md',
+      'PRIVACY.de.md',
       'SUPPORT.md',
       'SECURITY.md',
       'CONTRIBUTING.md',
@@ -36,6 +37,7 @@ void main() {
       'docs/release-v1.4.0.md',
       'docs/release-v1.5.0.md',
       'docs/release-v1.6.0.md',
+      'docs/release-v1.6.1.md',
     ];
 
     for (final path in requiredFiles) {

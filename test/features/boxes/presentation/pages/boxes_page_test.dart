@@ -226,14 +226,22 @@ void main() {
 
     expect(find.text('Oldest created first'), findsNothing);
     expect(find.text('Newest created first'), findsNothing);
-    expect(find.text('Box number ascending'), findsOneWidget);
-    expect(find.text('Box number descending'), findsOneWidget);
-    expect(find.text('Name A–Z'), findsOneWidget);
-    expect(find.text('Name Z–A'), findsOneWidget);
-
-    final descendingOption = find.byKey(
-      const Key('box-sort-option-labelDescending'),
+    expect(find.text('Box number: ascending'), findsOneWidget);
+    expect(find.text('Box name'), findsOneWidget);
+    expect(
+      find.byType(CheckedPopupMenuItem<BoxSortCriterion>),
+      findsNWidgets(2),
     );
+    expect(
+      find.byKey(const Key('box-sort-option-labelDescending')),
+      findsNothing,
+    );
+    expect(
+      find.byKey(const Key('box-sort-option-nameDescending')),
+      findsNothing,
+    );
+
+    final descendingOption = find.byKey(const Key('box-sort-option-label'));
 
     await tester.ensureVisible(descendingOption);
     await tester.pumpAndSettle();
@@ -283,7 +291,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('box-sort-button')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('box-sort-option-nameAscending')));
+    await tester.tap(find.byKey(const Key('box-sort-option-name')));
     await tester.pumpAndSettle();
 
     expect(

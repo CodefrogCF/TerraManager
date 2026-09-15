@@ -7,6 +7,7 @@ class MediaThumbnail extends StatelessWidget {
   final Uint8List? pictureBytes;
   final String? picturePath;
   final IconData fallbackIcon;
+  final String? semanticsLabel;
   final double size;
 
   const MediaThumbnail({
@@ -14,11 +15,27 @@ class MediaThumbnail extends StatelessWidget {
     this.pictureBytes,
     this.picturePath,
     required this.fallbackIcon,
+    this.semanticsLabel,
     this.size = 56,
   });
 
   @override
   Widget build(BuildContext context) {
+    final thumbnail = _buildThumbnail(context);
+    final label = semanticsLabel?.trim();
+
+    if (label == null || label.isEmpty) {
+      return thumbnail;
+    }
+
+    return Semantics(
+      image: true,
+      label: label,
+      child: ExcludeSemantics(child: thumbnail),
+    );
+  }
+
+  Widget _buildThumbnail(BuildContext context) {
     if (pictureBytes != null) {
       return _buildImage(context, pictureBytes!);
     }

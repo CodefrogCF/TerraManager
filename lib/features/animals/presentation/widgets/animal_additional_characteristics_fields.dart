@@ -49,6 +49,7 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
             key: const Key('weight-field'),
             controller: weightController,
             label: context.l10n.weight,
+            maxLines: 3,
           ),
           const SizedBox(height: 16),
           _optionalTextField(

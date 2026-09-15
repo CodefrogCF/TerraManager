@@ -490,21 +490,30 @@ class _AnimalsPageState extends State<AnimalsPage> {
       appBar: AppBar(
         title: Text(context.l10n.navigationAnimals),
         actions: [
-          PopupMenuButton<AnimalSortOrder>(
+          PopupMenuButton<AnimalSortCriterion>(
             key: const Key('animal-sort-button'),
-            initialValue: animalSortOrder,
-            onSelected: (sortOrder) {
+            initialValue: animalSortOrder.criterion,
+            onSelected: (criterion) {
+              final sortOrder = criterion == animalSortOrder.criterion
+                  ? animalSortOrder.reversed
+                  : criterion.defaultOrder;
               settings?.setAnimalSortOrder(sortOrder);
             },
             icon: const Icon(Icons.sort),
             tooltip: context.l10n.sortAnimals,
             itemBuilder: (context) {
-              return AnimalSortOrder.values.map((sortOrder) {
-                return CheckedPopupMenuItem<AnimalSortOrder>(
-                  key: Key('animal-sort-option-${sortOrder.name}'),
-                  value: sortOrder,
-                  checked: sortOrder == animalSortOrder,
-                  child: Text(context.l10n.animalSortOrderLabel(sortOrder)),
+              return AnimalSortCriterion.values.map((criterion) {
+                final isActive = criterion == animalSortOrder.criterion;
+                return CheckedPopupMenuItem<AnimalSortCriterion>(
+                  key: Key('animal-sort-option-${criterion.name}'),
+                  value: criterion,
+                  checked: isActive,
+                  child: Text(
+                    context.l10n.animalSortCriterionMenuLabel(
+                      criterion,
+                      activeOrder: isActive ? animalSortOrder : null,
+                    ),
+                  ),
                 );
               }).toList();
             },
@@ -612,6 +621,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
                             ? animal.picturePath
                             : null,
                         fallbackIcon: Icons.emoji_nature_outlined,
+                        semanticsLabel: context.l10n.animalThumbnailLabel(
+                          displayNames.primary,
+                        ),
                       );
                     },
                   ),

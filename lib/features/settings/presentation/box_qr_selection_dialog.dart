@@ -115,21 +115,9 @@ class _BoxQrSelectionDialogState extends State<BoxQrSelectionDialog> {
                 divisions: 14,
                 value: _qrSizeMm,
                 label: context.l10n.boxQrCodeSizeValue(_qrSizeMm.round()),
+                semanticFormatterCallback: (value) =>
+                    context.l10n.boxQrCodeSizeValue(value.round()),
                 onChanged: (value) => setState(() => _qrSizeMm = value),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  for (final size in const [6, 10, 15, 20])
-                    ChoiceChip(
-                      key: Key('box-qr-size-preset-$size'),
-                      label: Text('$size mm'),
-                      selected: _qrSizeMm == size,
-                      onSelected: (_) =>
-                          setState(() => _qrSizeMm = size.toDouble()),
-                    ),
-                ],
               ),
             ],
             const SizedBox(height: 12),

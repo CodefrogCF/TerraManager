@@ -195,7 +195,7 @@ void main() {
     expect(result, isNull);
   });
 
-  testWidgets('PDF selection adds the 6 to 20 mm size controls', (
+  testWidgets('PDF selection uses only the accessible 6 to 20 mm slider', (
     tester,
   ) async {
     final box = await createBox('TM:BOX:77777777-7777-4777-8777-777777777777');
@@ -211,10 +211,22 @@ void main() {
 
     expect(find.byKey(const Key('box-qr-size-slider')), findsOneWidget);
     expect(find.text('QR code size: 15 × 15 mm'), findsOneWidget);
+    expect(find.byType(ChoiceChip), findsNothing);
+    for (final size in const [6, 10, 15, 20]) {
+      expect(find.byKey(Key('box-qr-size-preset-$size')), findsNothing);
+    }
 
-    await tester.tap(find.byKey(const Key('box-qr-size-preset-6')));
+    await tester.drag(
+      find.byKey(const Key('box-qr-size-slider')),
+      const Offset(-1000, 0),
+    );
     await tester.pumpAndSettle();
     expect(find.text('QR code size: 6 × 6 mm'), findsOneWidget);
+
+    final slider = tester.widget<Slider>(
+      find.byKey(const Key('box-qr-size-slider')),
+    );
+    expect(slider.semanticFormatterCallback?.call(6), 'QR code size: 6 × 6 mm');
 
     await tester.tap(find.byKey(const Key('confirm-box-qr-export-button')));
     await tester.pumpAndSettle();

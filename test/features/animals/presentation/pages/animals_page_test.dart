@@ -251,22 +251,49 @@ void main() {
     await tester.tap(find.byKey(const Key('animal-sort-button')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Oldest added first'), findsOneWidget);
-    expect(find.text('Newest added first'), findsOneWidget);
-    expect(find.text('Name A–Z'), findsOneWidget);
-    expect(find.text('Name Z–A'), findsOneWidget);
-    expect(find.text('Oldest animals first'), findsOneWidget);
-    expect(find.text('Youngest animals first'), findsOneWidget);
-    expect(find.text('Newest feeding first'), findsOneWidget);
-    expect(find.text('Oldest feeding first'), findsOneWidget);
-
-    final oldestFeedingOption = find.byKey(
-      const Key('animal-sort-option-latestFeedingOldestFirst'),
+    expect(find.text('Creation time: oldest first'), findsOneWidget);
+    expect(find.text('Displayed name'), findsOneWidget);
+    expect(find.text('Age'), findsOneWidget);
+    expect(find.text('Latest feeding'), findsOneWidget);
+    expect(
+      find.byType(CheckedPopupMenuItem<AnimalSortCriterion>),
+      findsNWidgets(4),
+    );
+    expect(
+      find.byKey(const Key('animal-sort-option-latestFeedingOldestFirst')),
+      findsNothing,
     );
 
-    await tester.ensureVisible(oldestFeedingOption);
+    final latestFeedingOption = find.byKey(
+      const Key('animal-sort-option-latestFeeding'),
+    );
+
+    await tester.ensureVisible(latestFeedingOption);
     await tester.pumpAndSettle();
-    await tester.tap(oldestFeedingOption);
+    await tester.tap(latestFeedingOption);
+    await tester.pumpAndSettle();
+
+    expect(
+      settingsController.animalSortOrder,
+      AnimalSortOrder.latestFeedingNewestFirst,
+    );
+    expect(
+      tester.getTopLeft(find.byKey(Key('animal-list-item-$recentId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
+      ),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('animal-list-item-$neverId'))).dy,
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('animal-sort-button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Latest feeding: newest first'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('animal-sort-option-latestFeeding')));
     await tester.pumpAndSettle();
 
     expect(

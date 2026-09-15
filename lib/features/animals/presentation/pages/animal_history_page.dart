@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/presentation/widgets/overview_context_menu.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
@@ -24,6 +26,7 @@ class AnimalHistoryPage extends StatefulWidget {
 
 class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
   late Future<List<Animal>> _animalsFuture;
+  final Map<int, Future<MediaAsset?>> _pictureFutures = {};
 
   @override
   void initState() {
@@ -32,7 +35,19 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
   }
 
   void _loadAnimals() {
+    _pictureFutures.clear();
     _animalsFuture = AnimalRepository(widget.database).getArchivedAnimals();
+  }
+
+  Future<MediaAsset?> _pictureFutureFor(int? mediaId) {
+    if (mediaId == null) {
+      return Future<MediaAsset?>.value(null);
+    }
+
+    return _pictureFutures.putIfAbsent(
+      mediaId,
+      () => MediaRepository(widget.database).getMediaById(mediaId),
+    );
   }
 
   Future<void> _openAnimalDetail(Animal animal, List<Animal> animals) async {
@@ -179,7 +194,22 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
                 ],
                 builder: (context, menuButton) => ListTile(
                   key: Key('archived-animal-list-item-${animal.id}'),
-                  leading: const Icon(Icons.history),
+                  leading: FutureBuilder<MediaAsset?>(
+                    future: _pictureFutureFor(animal.pictureMediaId),
+                    builder: (context, pictureSnapshot) {
+                      return MediaThumbnail(
+                        key: Key('archived-animal-thumbnail-${animal.id}'),
+                        pictureBytes: pictureSnapshot.data?.data,
+                        picturePath: pictureSnapshot.data == null
+                            ? animal.picturePath
+                            : null,
+                        fallbackIcon: Icons.emoji_nature_outlined,
+                        semanticsLabel: context.l10n.animalThumbnailLabel(
+                          displayNames.primary,
+                        ),
+                      );
+                    },
+                  ),
                   title: Text(displayNames.primary),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

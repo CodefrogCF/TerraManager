@@ -207,7 +207,11 @@ void main() {
     );
 
     await openAction(tester, const Key('save-box-qr-codes-pdf-button'));
-    await tester.tap(find.byKey(const Key('box-qr-size-preset-6')));
+    await tester.drag(
+      find.byKey(const Key('box-qr-size-slider')),
+      const Offset(-1000, 0),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('confirm-box-qr-export-button')));
     await tester.pumpAndSettle();
 

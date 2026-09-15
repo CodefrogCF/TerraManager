@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/features/settings/presentation/pages/privacy_policy_page.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
   testWidgets('displays the bundled privacy policy content', (tester) async {
@@ -31,5 +32,39 @@ TerraManager does not contain advertising.
       findsOneWidget,
     );
     expect(find.text('No advertising'), findsOneWidget);
+  });
+
+  test('selects German explicitly and falls back to English', () {
+    expect(
+      PrivacyPolicyPage.assetPathForLocale(const Locale('de', 'DE')),
+      PrivacyPolicyPage.germanAssetPath,
+    );
+    expect(
+      PrivacyPolicyPage.assetPathForLocale(const Locale('en', 'US')),
+      PrivacyPolicyPage.englishAssetPath,
+    );
+    expect(
+      PrivacyPolicyPage.assetPathForLocale(const Locale('fr', 'FR')),
+      PrivacyPolicyPage.englishAssetPath,
+    );
+  });
+
+  testWidgets('loads the complete German privacy policy offline', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        locale: Locale('de'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: PrivacyPolicyPage(title: 'Datenschutzerklärung'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('TerraManager Datenschutzerklärung'), findsOneWidget);
+    expect(find.textContaining('15. September 2026'), findsOneWidget);
+    expect(find.textContaining('Entwickler: Codefrog'), findsOneWidget);
+    expect(find.byKey(const Key('privacy-policy-content')), findsOneWidget);
   });
 }

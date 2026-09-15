@@ -92,6 +92,29 @@ extension AppLocalizationsLabels on AppLocalizations {
     };
   }
 
+  String boxSortCriterionMenuLabel(
+    BoxSortCriterion criterion, {
+    required BoxSortOrder? activeOrder,
+  }) {
+    final criterionLabel = switch (criterion) {
+      BoxSortCriterion.label => boxSortNumberCriterion,
+      BoxSortCriterion.name => boxSortNameCriterion,
+    };
+
+    if (activeOrder == null) {
+      return criterionLabel;
+    }
+
+    final directionLabel = switch (activeOrder) {
+      BoxSortOrder.labelAscending ||
+      BoxSortOrder.nameAscending => sortDirectionAscending,
+      BoxSortOrder.labelDescending ||
+      BoxSortOrder.nameDescending => sortDirectionDescending,
+    };
+
+    return sortCriterionWithDirection(criterionLabel, directionLabel);
+  }
+
   String animalSortOrderLabel(AnimalSortOrder order) {
     return switch (order) {
       AnimalSortOrder.createdOldestFirst => animalSortCreatedOldestFirst,
@@ -105,6 +128,35 @@ extension AppLocalizationsLabels on AppLocalizations {
       AnimalSortOrder.latestFeedingOldestFirst =>
         animalSortLatestFeedingOldestFirst,
     };
+  }
+
+  String animalSortCriterionMenuLabel(
+    AnimalSortCriterion criterion, {
+    required AnimalSortOrder? activeOrder,
+  }) {
+    final criterionLabel = switch (criterion) {
+      AnimalSortCriterion.created => animalSortCreatedCriterion,
+      AnimalSortCriterion.displayName => animalSortDisplayNameCriterion,
+      AnimalSortCriterion.age => animalSortAgeCriterion,
+      AnimalSortCriterion.latestFeeding => animalSortLatestFeedingCriterion,
+    };
+
+    if (activeOrder == null) {
+      return criterionLabel;
+    }
+
+    final directionLabel = switch (activeOrder) {
+      AnimalSortOrder.createdOldestFirst ||
+      AnimalSortOrder.ageOldestFirst ||
+      AnimalSortOrder.latestFeedingOldestFirst => sortDirectionOldestFirst,
+      AnimalSortOrder.createdNewestFirst ||
+      AnimalSortOrder.latestFeedingNewestFirst => sortDirectionNewestFirst,
+      AnimalSortOrder.displayNameAscending => sortDirectionAscending,
+      AnimalSortOrder.displayNameDescending => sortDirectionDescending,
+      AnimalSortOrder.ageYoungestFirst => sortDirectionYoungestFirst,
+    };
+
+    return sortCriterionWithDirection(criterionLabel, directionLabel);
   }
 
   String backupValidationErrorLabel(BackupValidationErrorCode code) {

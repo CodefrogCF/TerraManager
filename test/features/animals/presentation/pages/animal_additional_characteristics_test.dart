@@ -63,7 +63,17 @@ void main() {
       find.byKey(const Key('origin-habitat-field')),
       'South America',
     );
-    await tester.enterText(find.byKey(const Key('weight-field')), '125 g');
+    final newWeightField = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byKey(const Key('weight-field')),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(newWeightField.maxLines, 3);
+    await tester.enterText(
+      find.byKey(const Key('weight-field')),
+      '125 g\nafter feeding',
+    );
     await tester.enterText(
       find.byKey(const Key('shedding-notes-field')),
       'Complete sheds',
@@ -94,7 +104,7 @@ void main() {
 
     final animal = await database.select(database.animals).getSingle();
     expect(animal.originHabitat, 'South America');
-    expect(animal.weight, '125 g');
+    expect(animal.weight, '125 g\nafter feeding');
     expect(animal.sheddingNotes, 'Complete sheds');
     expect(animal.restOrDormancyPeriods, 'Reduced activity in winter');
     expect(animal.temperatureZones, 'Warm hide 28 °C');
@@ -114,7 +124,7 @@ void main() {
       humidityMin: 40,
       humidityMax: 60,
       originHabitat: 'Forest',
-      weight: '80 g',
+      weight: '80 g\nbefore feeding',
       sheddingNotes: 'Regular',
       restOrDormancyPeriods: 'December',
       temperatureZones: '20–25 °C',
@@ -126,6 +136,14 @@ void main() {
 
     expect(find.byKey(const Key('origin-habitat-field')), findsOneWidget);
     expect(find.text('Forest'), findsOneWidget);
+    final editWeightField = tester.widget<EditableText>(
+      find.descendant(
+        of: find.byKey(const Key('weight-field')),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(editWeightField.maxLines, 3);
+    expect(editWeightField.controller.text, '80 g\nbefore feeding');
     for (final key in [
       'origin-habitat-field',
       'weight-field',
@@ -180,5 +198,36 @@ void main() {
     expect(find.byKey(const Key('temperature-zones-detail')), findsOneWidget);
     expect(find.byKey(const Key('weight-detail')), findsNothing);
     expect(find.byKey(const Key('shedding-notes-detail')), findsNothing);
+  });
+
+  testWidgets('Animal details preserve multiline Weight content', (
+    tester,
+  ) async {
+    final boxId = await BoxRepository(database)
+        .createBox('TM:BOX:44444444-4444-4444-8444-444444444444');
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Test Animal',
+      latinName: 'Test species',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      weight: '125 g\nafter feeding',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final detail = find.byKey(const Key('weight-detail'));
+    await tester.scrollUntilVisible(detail, 300);
+    await tester.pumpAndSettle();
+
+    expect(detail, findsOneWidget);
+    expect(find.text('125 g\nafter feeding'), findsOneWidget);
   });
 }

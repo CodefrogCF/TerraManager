@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 
-class LegalDocumentPage extends StatelessWidget {
+class LegalDocumentPage extends StatefulWidget {
   final String title;
   final String assetPath;
   final String loadErrorText;
@@ -27,22 +27,51 @@ class LegalDocumentPage extends StatelessWidget {
   });
 
   @override
+  State<LegalDocumentPage> createState() => _LegalDocumentPageState();
+}
+
+class _LegalDocumentPageState extends State<LegalDocumentPage> {
+  Future<String>? _documentFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDocument();
+  }
+
+  @override
+  void didUpdateWidget(covariant LegalDocumentPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.assetPath != widget.assetPath ||
+        (oldWidget.documentText == null) != (widget.documentText == null)) {
+      _loadDocument();
+    }
+  }
+
+  void _loadDocument() {
+    _documentFuture = widget.documentText == null
+        ? rootBundle.loadString(widget.assetPath)
+        : null;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: pageKey,
-      appBar: AppBar(title: Text(title)),
-      body: documentText != null
-          ? _buildMarkdown(documentText!)
+      key: widget.pageKey,
+      appBar: AppBar(title: Text(widget.title)),
+      body: widget.documentText != null
+          ? _buildMarkdown(widget.documentText!)
           : FutureBuilder<String>(
-              future: rootBundle.loadString(assetPath),
+              future: _documentFuture!,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
                       child: Text(
-                        loadErrorText,
-                        key: loadErrorKey,
+                        widget.loadErrorText,
+                        key: widget.loadErrorKey,
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -51,7 +80,7 @@ class LegalDocumentPage extends StatelessWidget {
 
                 if (!snapshot.hasData) {
                   return Center(
-                    child: CircularProgressIndicator(key: loadingKey),
+                    child: CircularProgressIndicator(key: widget.loadingKey),
                   );
                 }
 
@@ -62,11 +91,11 @@ class LegalDocumentPage extends StatelessWidget {
   }
 
   Widget _buildMarkdown(String document) {
-    final preamble = documentPreamble?.trim();
+    final preamble = widget.documentPreamble?.trim();
     final data = preamble == null || preamble.isEmpty
         ? document
         : '$preamble\n\n---\n\n$document';
 
-    return Markdown(key: contentKey, data: data, selectable: true);
+    return Markdown(key: widget.contentKey, data: data, selectable: true);
   }
 }

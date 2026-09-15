@@ -7,18 +7,39 @@ void main() {
     return value.replaceAll('\r\n', '\n').replaceAll('\r', '\n').trim();
   }
 
-  test('public web privacy policy matches bundled privacy policy', () {
-    final bundled = normalizeLineEndings(File('PRIVACY.md').readAsStringSync());
+  test('public privacy pages match both bundled languages', () {
+    const synchronizedDocuments = {
+      'PRIVACY.md': 'docs/privacy/index.md',
+      'PRIVACY.de.md': 'docs/privacy/de/index.md',
+    };
 
-    final web = normalizeLineEndings(
-      File('docs/privacy/index.md').readAsStringSync(),
-    );
+    for (final entry in synchronizedDocuments.entries) {
+      final bundled = normalizeLineEndings(File(entry.key).readAsStringSync());
+      final web = normalizeLineEndings(File(entry.value).readAsStringSync());
+      final withoutFrontMatter = web.replaceFirst(
+        RegExp(r'^---\s*\n.*?\n---\s*\n', dotAll: true),
+        '',
+      );
 
-    final withoutFrontMatter = web.replaceFirst(
-      RegExp(r'^---\s*\n.*?\n---\s*\n', dotAll: true),
-      '',
-    );
+      expect(
+        normalizeLineEndings(withoutFrontMatter),
+        bundled,
+        reason: entry.key,
+      );
+    }
+  });
 
-    expect(normalizeLineEndings(withoutFrontMatter), bundled);
+  test('localized policies keep identity and effective date aligned', () {
+    final english = File('PRIVACY.md').readAsStringSync();
+    final german = File('PRIVACY.de.md').readAsStringSync();
+
+    for (final document in [english, german]) {
+      expect(document, contains('TerraManager'));
+      expect(document, contains('Codefrog'));
+      expect(document, contains('2026'));
+      expect(document, contains('INTERNET'));
+    }
+    expect(english, contains('September 15, 2026'));
+    expect(german, contains('15. September 2026'));
   });
 }

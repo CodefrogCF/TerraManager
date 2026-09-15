@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +8,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_history_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
@@ -32,7 +35,12 @@ void main() {
     return boxRepository.createBox(qrId);
   }
 
-  Future<int> createAnimal({required int boxId, required String commonName}) {
+  Future<int> createAnimal({
+    required int boxId,
+    required String commonName,
+    int? pictureMediaId,
+    String? picturePath,
+  }) {
     return animalRepository.createAnimal(
       boxId: boxId,
       commonName: commonName,
@@ -41,6 +49,19 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      pictureMediaId: pictureMediaId,
+      picturePath: picturePath,
+    );
+  }
+
+  Future<int> createPicture() {
+    return MediaRepository(database).createMedia(
+      fileName: 'archived-animal.png',
+      mimeType: 'image/png',
+      data: base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4'
+        '2mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      ),
     );
   }
 
@@ -115,6 +136,83 @@ void main() {
       find.byKey(const Key('archive-information-heading')),
       findsOneWidget,
     );
+  });
+
+  testWidgets('history displays stored thumbnails and opens them', (
+    tester,
+  ) async {
+    final boxId = await createBox(
+      'TM:BOX:10101010-aaaa-4101-8101-101010101010',
+    );
+    final pictureMediaId = await createPicture();
+    final animalId = await createAnimal(
+      boxId: boxId,
+      commonName: 'Pictured Animal',
+      pictureMediaId: pictureMediaId,
+    );
+    await animalRepository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnimalHistoryPage(database: database)),
+    );
+    await tester.pumpAndSettle();
+
+    final thumbnail = find.byKey(Key('archived-animal-thumbnail-$animalId'));
+    expect(thumbnail, findsOneWidget);
+    expect(
+      find.descendant(of: thumbnail, matching: find.byType(Image)),
+      findsOneWidget,
+    );
+    final thumbnailSemantics = tester.widget<Semantics>(
+      find.descendant(of: thumbnail, matching: find.byType(Semantics)).first,
+    );
+    expect(
+      thumbnailSemantics.properties.label,
+      'Animal thumbnail for Pictured Animal',
+    );
+
+    await tester.tap(thumbnail);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AnimalDetailPage), findsOneWidget);
+    expect(find.text('Pictured Animal'), findsOneWidget);
+  });
+
+  testWidgets('history uses the fallback for missing or invalid media', (
+    tester,
+  ) async {
+    final boxId = await createBox(
+      'TM:BOX:20202020-aaaa-4202-8202-202020202020',
+    );
+    final animalId = await createAnimal(
+      boxId: boxId,
+      commonName: 'Missing Picture',
+      picturePath: 'missing/archived-animal.png',
+    );
+    await animalRepository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnimalHistoryPage(database: database)),
+    );
+    await tester.pumpAndSettle();
+
+    final thumbnail = find.byKey(Key('archived-animal-thumbnail-$animalId'));
+    expect(
+      find.descendant(
+        of: thumbnail,
+        matching: find.byIcon(Icons.emoji_nature_outlined),
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('passes archived history order to animal details', (

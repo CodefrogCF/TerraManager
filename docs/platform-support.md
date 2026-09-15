@@ -62,6 +62,14 @@ smallest-code decoding and the unchanged device-permission boundary. Signed
 Android artifacts and physical Android or hosted Web checks remain
 release-owner steps until recorded there.
 
+The v1.6.1 UX Consistency & Localization source regression is recorded in
+`release-v1.6.1.md`. It covers archived Animal thumbnails, slider-only PDF QR
+sizing, multiline Weight, local English and German legal content and
+directional overview sort toggles. Database, backup, application identity and
+device-permission boundaries remain unchanged. Signed Android artifacts and
+physical Android or hosted Web checks remain release-owner steps until
+recorded there.
+
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
 

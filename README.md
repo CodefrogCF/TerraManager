@@ -10,6 +10,7 @@ Public project information:
 
 - [Installation and updates](docs/installation-and-updates.md)
 - [Privacy](PRIVACY.md)
+- [Datenschutz (Deutsch)](PRIVACY.de.md)
 - [Support](SUPPORT.md)
 - [Security](SECURITY.md)
 - [Contributing](CONTRIBUTING.md)
@@ -19,11 +20,11 @@ Public project information:
 
 Latest completed release milestone:
 
-**v1.6.0 – Batch QR Export**
+**v1.6.1 – UX Consistency & Localization**
 
 Current application version and build:
 
-**v1.6.0+62**
+**v1.6.1+63**
 
 Implemented milestones in the current source state:
 
@@ -51,6 +52,7 @@ Implemented milestones in the current source state:
 - v1.4.0 – Animal Profiles and Input Quality
 - v1.5.0 – Overview Quick Actions
 - v1.6.0 – Batch QR Export
+- v1.6.1 – UX Consistency & Localization
 
 Android and Web are currently validated platforms.
 
@@ -212,6 +214,16 @@ from 6 mm to 20 mm and include safe Box labels. ZIP and PDF output is generated
 entirely on-device and saved through the operating-system destination dialog
 without additional broad storage, media or network permissions. Source and
 release-owner validation are recorded in `docs/release-v1.6.0.md`.
+
+Release `1.6.1+63` completes Issues #122–#126. Animal History now uses the
+same stored-picture thumbnail treatment as other Animal lists, PDF QR sizing
+uses one accessible 6–20 mm slider, and Weight accepts multiline notes.
+Privacy and licence information follows the selected English or German app
+language while remaining completely available offline; the unchanged English
+GPL text remains authoritative. Overview sort menus expose one entry per
+criterion and reverse the active direction when selected again without
+changing persisted or backup values. Source and release-owner validation are
+recorded in `docs/release-v1.6.1.md`.
 
 ### Android transition to the permanent application ID
 
@@ -1173,7 +1185,9 @@ Additional documentation:
 - [v1.4.0 release validation](docs/release-v1.4.0.md)
 - [v1.5.0 release validation](docs/release-v1.5.0.md)
 - [v1.6.0 release validation](docs/release-v1.6.0.md)
+- [v1.6.1 release validation](docs/release-v1.6.1.md)
 - [Privacy](PRIVACY.md)
+- [Datenschutz (Deutsch)](PRIVACY.de.md)
 - [Support](SUPPORT.md)
 - [Security policy](SECURITY.md)
 - [Contribution policy](CONTRIBUTING.md)

@@ -403,21 +403,30 @@ class _BoxesPageState extends State<BoxesPage> {
               : context.l10n.navigationBoxes,
         ),
         actions: [
-          PopupMenuButton<BoxSortOrder>(
+          PopupMenuButton<BoxSortCriterion>(
             key: const Key('box-sort-button'),
-            initialValue: boxSortOrder,
-            onSelected: (sortOrder) {
+            initialValue: boxSortOrder.criterion,
+            onSelected: (criterion) {
+              final sortOrder = criterion == boxSortOrder.criterion
+                  ? boxSortOrder.reversed
+                  : criterion.defaultOrder;
               settings?.setBoxSortOrder(sortOrder);
             },
             icon: const Icon(Icons.sort),
             tooltip: context.l10n.sortBoxes,
             itemBuilder: (context) {
-              return BoxSortOrder.values.map((sortOrder) {
-                return CheckedPopupMenuItem<BoxSortOrder>(
-                  key: Key('box-sort-option-${sortOrder.name}'),
-                  value: sortOrder,
-                  checked: sortOrder == boxSortOrder,
-                  child: Text(context.l10n.boxSortOrderLabel(sortOrder)),
+              return BoxSortCriterion.values.map((criterion) {
+                final isActive = criterion == boxSortOrder.criterion;
+                return CheckedPopupMenuItem<BoxSortCriterion>(
+                  key: Key('box-sort-option-${criterion.name}'),
+                  value: criterion,
+                  checked: isActive,
+                  child: Text(
+                    context.l10n.boxSortCriterionMenuLabel(
+                      criterion,
+                      activeOrder: isActive ? boxSortOrder : null,
+                    ),
+                  ),
                 );
               }).toList();
             },

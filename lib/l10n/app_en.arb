@@ -184,6 +184,12 @@
     }
   },
   "animalHistory": "Animal History",
+  "animalThumbnailLabel": "Animal thumbnail for {animalName}",
+  "@animalThumbnailLabel": {
+    "placeholders": {
+      "animalName": {"type": "String"}
+    }
+  },
   "failedToLoadAnimals": "Failed to load animals",
   "noAnimalsAvailable": "No animals available",
   "addAnimal": "Add Animal",
@@ -410,7 +416,7 @@
   "privacyPolicyLoadError": "The privacy policy could not be loaded.",
   "licenseTitle": "License",
   "licenseSubtitle": "Open-source license and usage rights",
-  "licenseNotice": "TerraManager · 2026 CodefrogCF · GPL-3.0-or-later",
+  "licenseNotice": "**Copyright © 2026 Codefrog.** TerraManager is licensed under GPL-3.0-or-later. The complete English license text below is authoritative. All license references remain visible in this local document without opening another application.",
   "licenseLoadError": "The application license could not be loaded.",
   "aboutTerraManager": "About TerraManager",
   "aboutTerraManagerSubtitle": "Version and developer information",
@@ -457,6 +463,8 @@
   "boxSortLabelDescending": "Box number descending",
   "boxSortNameAscending": "Name A–Z",
   "boxSortNameDescending": "Name Z–A",
+  "boxSortNumberCriterion": "Box number",
+  "boxSortNameCriterion": "Box name",
   "sortAnimals": "Sort animals",
   "animalSortCreatedOldestFirst": "Oldest added first",
   "animalSortCreatedNewestFirst": "Newest added first",
@@ -466,6 +474,22 @@
   "animalSortAgeYoungestFirst": "Youngest animals first",
   "animalSortLatestFeedingNewestFirst": "Newest feeding first",
   "animalSortLatestFeedingOldestFirst": "Oldest feeding first",
+  "animalSortCreatedCriterion": "Creation time",
+  "animalSortDisplayNameCriterion": "Displayed name",
+  "animalSortAgeCriterion": "Age",
+  "animalSortLatestFeedingCriterion": "Latest feeding",
+  "sortDirectionAscending": "ascending",
+  "sortDirectionDescending": "descending",
+  "sortDirectionOldestFirst": "oldest first",
+  "sortDirectionNewestFirst": "newest first",
+  "sortDirectionYoungestFirst": "youngest first",
+  "sortCriterionWithDirection": "{criterion}: {direction}",
+  "@sortCriterionWithDirection": {
+    "placeholders": {
+      "criterion": {"type": "String"},
+      "direction": {"type": "String"}
+    }
+  },
   "archiveBox": "Archive Box",
   "archiveBoxQuestion": "Archive this Box? Its QR identifier, picture and other saved data will be retained.",
   "archiveBoxUnsavedChanges": "Unsaved changes in Edit Box will be discarded when you archive.",

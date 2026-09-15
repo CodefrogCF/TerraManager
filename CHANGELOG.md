@@ -4,6 +4,44 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [1.6.1] - 2026-09-15
+
+### Added
+
+- show stored pictures as thumbnails in Animal History, with the existing
+  fallback for missing or invalid media and localized accessibility labels
+  (Issue #122)
+- bundle a complete German privacy policy alongside the synchronized English
+  policy and public privacy pages (Issue #125)
+
+### Changed
+
+- simplify PDF QR sizing to the accessible integer slider from 6 mm to 20 mm
+  while preserving the 15 mm default and generated document layout (Issue
+  #123)
+- make Weight a multiline free-form field in New Animal and Edit Animal while
+  preserving its existing database and backup representation (Issue #124)
+- present localized English or German legal information entirely offline and
+  retain the unchanged authoritative English GPL-3.0-or-later text
+- replace paired overview sort entries with one entry per criterion; selecting
+  the active criterion reverses its direction while stored enum and backup
+  values remain compatible (Issue #126)
+- advance the release version to `1.6.1+63`
+
+### Testing
+
+- cover archived Animal thumbnails, fallback behavior, accessibility and
+  contextual detail ordering
+- cover slider-only PDF sizing and unchanged individual PNG and ZIP paths
+- cover multiline Weight persistence in both forms and Animal details
+- verify English, German, system-selected and unsupported-language legal
+  content paths without network access
+- cover sort defaults, repeated-selection reversal, persistence and contextual
+  detail navigation
+
+Database Schema Version 9 and Portable Backup Format Version 2 remain
+unchanged.
+
 ## [1.6.0] - 2026-09-15
 
 ### Added

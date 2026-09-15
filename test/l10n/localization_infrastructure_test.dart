@@ -90,6 +90,11 @@ void main() {
     expect(l10n.boxQrExportSucceeded(1), '1 Box QR code saved');
     expect(l10n.boxQrExportSucceeded(3), '3 Box QR codes saved');
     expect(l10n.boxQrExportPartial(2, 1), '2 saved; 1 failed.');
+    expect(l10n.saveBoxQrCodesAsZip, 'Save Box QR Codes as ZIP');
+    expect(l10n.saveBoxQrCodesAsPdf, 'Save Box QR Codes as PDF');
+    expect(l10n.boxQrCodeSizeValue(6), 'QR code size: 6 × 6 mm');
+    expect(l10n.boxQrZipExportSucceeded(2), 'ZIP with 2 Box QR codes saved');
+    expect(l10n.boxQrPdfExportSucceeded(2), 'PDF with 2 Box QR codes saved');
     expect(l10n.animalsDueForFeeding(1), '1 Animal is due for feeding');
     expect(l10n.animalsDueForFeeding(3), '3 Animals are due for feeding');
     expect(
@@ -188,6 +193,17 @@ void main() {
     expect(l10n.selectAtLeastOneBox, 'Wähle mindestens eine Box aus.');
     expect(l10n.boxQrExportSucceeded(1), '1 Box-QR-Code gespeichert');
     expect(l10n.boxQrExportSucceeded(3), '3 Box-QR-Codes gespeichert');
+    expect(l10n.saveBoxQrCodesAsZip, 'Box-QR-Codes als ZIP speichern');
+    expect(l10n.saveBoxQrCodesAsPdf, 'Box-QR-Codes als PDF speichern');
+    expect(l10n.boxQrCodeSizeValue(6), 'QR-Code-Größe: 6 × 6 mm');
+    expect(
+      l10n.boxQrZipExportSucceeded(2),
+      'ZIP mit 2 Box-QR-Codes gespeichert',
+    );
+    expect(
+      l10n.boxQrPdfExportSucceeded(2),
+      'PDF mit 2 Box-QR-Codes gespeichert',
+    );
     expect(l10n.boxQrExportPartial(2, 1), '2 gespeichert; 1 fehlgeschlagen.');
     expect(l10n.animalsDueForFeeding(1), '1 Tier ist zur Fütterung fällig');
     expect(l10n.animalsDueForFeeding(3), '3 Tiere sind zur Fütterung fällig');

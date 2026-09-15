@@ -14,11 +14,14 @@ import '../../../backup/application/backup_validation_service.dart';
 import '../../../backup/application/validated_backup.dart';
 import '../../../backup/infrastructure/backup_file_service.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
+import '../../application/box_qr_archive_export_service.dart';
 import '../../application/box_qr_batch_export_service.dart';
+import '../../application/box_qr_pdf_export_service.dart';
 import '../../app_accent.dart';
 import '../../app_language.dart';
 import '../../app_settings_controller.dart';
 import '../../animal_name_order.dart';
+import '../../infrastructure/box_qr_document_storage_service.dart';
 import '../box_qr_selection_dialog.dart';
 import 'license_page.dart';
 import 'privacy_policy_page.dart';
@@ -41,6 +44,9 @@ class SettingsPage extends StatefulWidget {
   final BackupValidationService? backupValidationService;
   final QrExporter qrExporter;
   final QrStorage qrStorage;
+  final BoxQrArchiveExporter? boxQrArchiveExporter;
+  final BoxQrPdfExporter? boxQrPdfExporter;
+  final BoxQrDocumentStorage boxQrDocumentStorage;
 
   final AppVersionLoader? appVersionLoader;
   final AppInformationLoader? appInformationLoader;
@@ -55,6 +61,9 @@ class SettingsPage extends StatefulWidget {
     this.backupValidationService,
     this.qrExporter = const QrExportService(),
     this.qrStorage = const QrStorageService(),
+    this.boxQrArchiveExporter,
+    this.boxQrPdfExporter,
+    this.boxQrDocumentStorage = const BoxQrDocumentStorageService(),
     this.appVersionLoader,
     this.appInformationLoader,
     this.onRestoreCompleted,
@@ -69,6 +78,8 @@ class _SettingsPageState extends State<SettingsPage> {
   late final BackupExportService _backupExportService;
   late final BackupValidationService _backupValidationService;
   late final BoxQrBatchExportService _boxQrBatchExportService;
+  late final BoxQrArchiveExporter _boxQrArchiveExporter;
+  late final BoxQrPdfExporter _boxQrPdfExporter;
 
   bool _backupBusy = false;
   bool _backupProgressVisible = false;
@@ -93,6 +104,11 @@ class _SettingsPageState extends State<SettingsPage> {
       qrExporter: widget.qrExporter,
       qrStorage: widget.qrStorage,
     );
+    _boxQrArchiveExporter =
+        widget.boxQrArchiveExporter ??
+        BoxQrArchiveExportService(qrExporter: widget.qrExporter);
+    _boxQrPdfExporter =
+        widget.boxQrPdfExporter ?? const BoxQrPdfExportService();
   }
 
   Future<String> _loadAppVersion() async {
@@ -485,7 +501,13 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<void> _saveBoxQrCodes() async {
+  Future<void> _saveBoxQrCodes() => _runBoxQrExport(BoxQrExportKind.images);
+
+  Future<void> _saveBoxQrCodesAsZip() => _runBoxQrExport(BoxQrExportKind.zip);
+
+  Future<void> _saveBoxQrCodesAsPdf() => _runBoxQrExport(BoxQrExportKind.pdf);
+
+  Future<void> _runBoxQrExport(BoxQrExportKind exportKind) async {
     if (_operationBusy) {
       return;
     }
@@ -517,14 +539,15 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
 
-      final selectedBoxIds = await showDialog<Set<int>>(
+      final selection = await showDialog<BoxQrSelectionResult>(
         context: context,
         builder: (_) => BoxQrSelectionDialog(
           activeBoxes: activeBoxes,
           archivedBoxes: archivedBoxes,
+          exportKind: exportKind,
         ),
       );
-      if (!mounted || selectedBoxIds == null) {
+      if (!mounted || selection == null) {
         return;
       }
 
@@ -532,7 +555,7 @@ class _SettingsPageState extends State<SettingsPage> {
         for (final box in activeBoxes) box.id: box,
         for (final box in archivedBoxes) box.id: box,
       };
-      final selectedBoxes = selectedBoxIds
+      final selectedBoxes = selection.boxIds
           .map((boxId) => boxesById[boxId])
           .whereType<Box>()
           .toList(growable: false);
@@ -545,32 +568,73 @@ class _SettingsPageState extends State<SettingsPage> {
         _qrExportProgressVisible = true;
       });
 
-      final result = await _boxQrBatchExportService.exportBoxes(selectedBoxes);
-      if (!mounted) {
-        return;
+      switch (exportKind) {
+        case BoxQrExportKind.images:
+          final result = await _boxQrBatchExportService.exportBoxes(
+            selectedBoxes,
+          );
+          if (!mounted) {
+            return;
+          }
+
+          setState(() {
+            _qrExportProgressVisible = false;
+          });
+
+          if (result.isCompleteSuccess) {
+            _showMessage(
+              context.l10n.boxQrExportSucceeded(result.succeeded.length),
+            );
+            return;
+          }
+
+          await _showBoxQrExportResult(result);
+          return;
+        case BoxQrExportKind.zip:
+          final bytes = await _boxQrArchiveExporter.exportZip(selectedBoxes);
+          final savedPath = await widget.boxQrDocumentStorage.saveDocument(
+            bytes: bytes,
+            fileName: boxQrZipFileName,
+            type: BoxQrDocumentType.zip,
+          );
+          if (!mounted || savedPath == null) {
+            return;
+          }
+          _showMessage(
+            context.l10n.boxQrZipExportSucceeded(selectedBoxes.length),
+          );
+          return;
+        case BoxQrExportKind.pdf:
+          final bytes = await _boxQrPdfExporter.exportPdf(
+            selectedBoxes,
+            qrSizeMm: selection.qrSizeMm,
+          );
+          final savedPath = await widget.boxQrDocumentStorage.saveDocument(
+            bytes: bytes,
+            fileName: boxQrPdfFileName,
+            type: BoxQrDocumentType.pdf,
+          );
+          if (!mounted || savedPath == null) {
+            return;
+          }
+          _showMessage(
+            context.l10n.boxQrPdfExportSucceeded(selectedBoxes.length),
+          );
+          return;
       }
-
-      setState(() {
-        _qrExportProgressVisible = false;
-      });
-
-      if (result.isCompleteSuccess) {
-        _showMessage(
-          context.l10n.boxQrExportSucceeded(result.succeeded.length),
-        );
-        return;
-      }
-
-      await _showBoxQrExportResult(result);
     } catch (error, stackTrace) {
-      debugPrint('Box QR batch export failed: $error');
+      debugPrint('Box QR ${exportKind.name} export failed: $error');
       debugPrintStack(
         label: 'Box QR batch export stack trace',
         stackTrace: stackTrace,
       );
 
       if (mounted) {
-        _showMessage(context.l10n.failedToSaveBoxQrCodes, error: true);
+        _showMessage(switch (exportKind) {
+          BoxQrExportKind.images => context.l10n.failedToSaveBoxQrCodes,
+          BoxQrExportKind.zip => context.l10n.failedToSaveBoxQrCodesAsZip,
+          BoxQrExportKind.pdf => context.l10n.failedToSaveBoxQrCodesAsPdf,
+        }, error: true);
       }
     } finally {
       if (mounted) {
@@ -854,6 +918,28 @@ class _SettingsPageState extends State<SettingsPage> {
             subtitle: Text(context.l10n.saveBoxQrCodesDescription),
             trailing: const Icon(Icons.chevron_right),
             onTap: _operationBusy ? null : _saveBoxQrCodes,
+          ),
+
+          ListTile(
+            key: const Key('save-box-qr-codes-zip-button'),
+            enabled: !_operationBusy,
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.folder_zip_outlined),
+            title: Text(context.l10n.saveBoxQrCodesAsZip),
+            subtitle: Text(context.l10n.saveBoxQrCodesAsZipDescription),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _operationBusy ? null : _saveBoxQrCodesAsZip,
+          ),
+
+          ListTile(
+            key: const Key('save-box-qr-codes-pdf-button'),
+            enabled: !_operationBusy,
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.picture_as_pdf_outlined),
+            title: Text(context.l10n.saveBoxQrCodesAsPdf),
+            subtitle: Text(context.l10n.saveBoxQrCodesAsPdfDescription),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: _operationBusy ? null : _saveBoxQrCodesAsPdf,
           ),
 
           if (_qrExportProgressVisible) ...[

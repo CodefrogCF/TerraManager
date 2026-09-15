@@ -2,10 +2,9 @@
 layout: default
 title: TerraManager
 ---
-
 # TerraManager Privacy Policy
 
-**Effective date:** September 12, 2026
+**Effective date:** September 15, 2026
 **Application:** TerraManager
 **Developer:** Codefrog
 **Privacy and support contact:** See the TerraManager project repository for the current contact and support channels.
@@ -100,6 +99,8 @@ Examples include:
 * exporting a TerraManager backup;
 * saving an exported file;
 * saving a QR-code image;
+* saving selected QR-code images as a ZIP archive;
+* saving selected QR codes and their Box labels as an A4 PDF;
 * selecting a file through an operating-system file picker;
 * choosing another application or operating-system service as an export or sharing destination.
 
@@ -145,6 +146,15 @@ TerraManager uses QR codes to associate physical enclosures with Box records in 
 On Android, TerraManager requests camera access for QR-code scanning and for user-initiated camera functionality where applicable.
 
 QR-code recognition is performed on the device.
+
+Individual QR images, ZIP archives and A4 PDF sheets are generated entirely
+on the device. TerraManager does not upload QR identifiers or Box labels while
+creating these files.
+
+ZIP and PDF exports are saved only after the user chooses a destination through
+the operating-system save dialog. This user-selected file access does not
+require TerraManager to request an additional broad storage, media or network
+permission.
 
 TerraManager does not transmit camera images or decoded TerraManager QR contents to a TerraManager-operated server.
 
@@ -287,6 +297,7 @@ TerraManager uses third-party libraries and platform components to provide funct
 * local database storage;
 * camera and image selection;
 * QR generation and scanning;
+* local ZIP and PDF generation;
 * image processing;
 * file selection and saving;
 * backup creation and extraction.
@@ -305,6 +316,7 @@ Examples may include:
 
 * the Android photo picker;
 * the Android file picker;
+* an operating-system save dialog;
 * a file manager;
 * a gallery application;
 * a cloud-storage application explicitly selected by the user;

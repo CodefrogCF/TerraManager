@@ -532,7 +532,7 @@
   "failedToDuplicateAnimal": "Failed to duplicate Animal",
   "failedToDuplicateBox": "Failed to duplicate Box",
   "boxQrCodes": "Box QR Codes",
-  "boxQrCodesSectionDescription": "Save the existing QR codes of several Boxes in one operation.",
+  "boxQrCodesSectionDescription": "Save selected Box QR codes as individual images, a ZIP archive, or a printable A4 PDF.",
   "saveBoxQrCodes": "Save Box QR Codes",
   "saveBoxQrCodesDescription": "Choose the Boxes whose QR codes you want to save. All Boxes are selected initially.",
   "activeBoxes": "Active Boxes",
@@ -568,5 +568,37 @@
   },
   "boxQrExportResult": "QR Export Result",
   "boxQrExportFailedBoxes": "Could not save:",
-  "failedToSaveBoxQrCodes": "Box QR codes could not be saved"
+  "failedToSaveBoxQrCodes": "Box QR codes could not be saved",
+  "saveBoxQrCodesAsZip": "Save Box QR Codes as ZIP",
+  "saveBoxQrCodesAsZipDescription": "Choose Boxes and save all selected QR images in one ZIP file.",
+  "saveSelectedQrCodesAsZip": "Save ZIP",
+  "boxQrZipExportSucceeded": "{count, plural, =1{ZIP with 1 Box QR code saved} other{ZIP with {count} Box QR codes saved}}",
+  "@boxQrZipExportSucceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "failedToSaveBoxQrCodesAsZip": "Box QR codes could not be saved as a ZIP file",
+  "saveBoxQrCodesAsPdf": "Save Box QR Codes as PDF",
+  "saveBoxQrCodesAsPdfDescription": "Choose Boxes and arrange their QR codes on printable A4 pages.",
+  "saveSelectedQrCodesAsPdf": "Save PDF",
+  "boxQrCodeSizeValue": "QR code size: {size} × {size} mm",
+  "@boxQrCodeSizeValue": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "boxQrPdfExportSucceeded": "{count, plural, =1{PDF with 1 Box QR code saved} other{PDF with {count} Box QR codes saved}}",
+  "@boxQrPdfExportSucceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "failedToSaveBoxQrCodesAsPdf": "Box QR codes could not be saved as a PDF file"
 }

@@ -26,7 +26,8 @@ void main() {
     WidgetTester tester, {
     required List<Box> activeBoxes,
     required List<Box> archivedBoxes,
-    required ValueChanged<Set<int>?> onClosed,
+    required ValueChanged<BoxQrSelectionResult?> onClosed,
+    BoxQrExportKind exportKind = BoxQrExportKind.images,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -35,11 +36,12 @@ void main() {
             body: FilledButton(
               key: const Key('open-selection-dialog'),
               onPressed: () async {
-                final result = await showDialog<Set<int>>(
+                final result = await showDialog<BoxQrSelectionResult>(
                   context: context,
                   builder: (_) => BoxQrSelectionDialog(
                     activeBoxes: activeBoxes,
                     archivedBoxes: archivedBoxes,
+                    exportKind: exportKind,
                   ),
                 );
                 onClosed(result);
@@ -115,7 +117,7 @@ void main() {
       final second = await createBox(
         'TM:BOX:55555555-5555-4555-8555-555555555555',
       );
-      Set<int>? result;
+      BoxQrSelectionResult? result;
 
       await pumpHost(
         tester,
@@ -164,14 +166,18 @@ void main() {
       await tester.tap(find.byKey(const Key('confirm-box-qr-export-button')));
       await tester.pumpAndSettle();
 
-      expect(result, {first.id});
+      expect(result?.boxIds, {first.id});
+      expect(result?.qrSizeMm, 15);
     },
   );
 
   testWidgets('cancel returns no selection', (tester) async {
     final box = await createBox('TM:BOX:66666666-6666-4666-8666-666666666666');
     var closed = false;
-    Set<int>? result = {box.id};
+    BoxQrSelectionResult? result = BoxQrSelectionResult(
+      boxIds: {box.id},
+      qrSizeMm: 15,
+    );
 
     await pumpHost(
       tester,
@@ -187,5 +193,33 @@ void main() {
 
     expect(closed, isTrue);
     expect(result, isNull);
+  });
+
+  testWidgets('PDF selection adds the 6 to 20 mm size controls', (
+    tester,
+  ) async {
+    final box = await createBox('TM:BOX:77777777-7777-4777-8777-777777777777');
+    BoxQrSelectionResult? result;
+
+    await pumpHost(
+      tester,
+      activeBoxes: [box],
+      archivedBoxes: const [],
+      exportKind: BoxQrExportKind.pdf,
+      onClosed: (value) => result = value,
+    );
+
+    expect(find.byKey(const Key('box-qr-size-slider')), findsOneWidget);
+    expect(find.text('QR code size: 15 × 15 mm'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('box-qr-size-preset-6')));
+    await tester.pumpAndSettle();
+    expect(find.text('QR code size: 6 × 6 mm'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('confirm-box-qr-export-button')));
+    await tester.pumpAndSettle();
+
+    expect(result?.boxIds, {box.id});
+    expect(result?.qrSizeMm, 6);
   });
 }

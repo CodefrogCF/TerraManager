@@ -394,7 +394,7 @@
   "failedToDuplicateAnimal": "Tier konnte nicht dupliziert werden",
   "failedToDuplicateBox": "Box konnte nicht dupliziert werden",
   "boxQrCodes": "Box-QR-Codes",
-  "boxQrCodesSectionDescription": "Speichere die vorhandenen QR-Codes mehrerer Boxen in einem Arbeitsschritt.",
+  "boxQrCodesSectionDescription": "Speichere ausgewählte Box-QR-Codes als einzelne Bilder, ZIP-Archiv oder druckbares A4-PDF.",
   "saveBoxQrCodes": "Box-QR-Codes speichern",
   "saveBoxQrCodesDescription": "Wähle die Boxen aus, deren QR-Codes gespeichert werden sollen. Zunächst sind alle Boxen ausgewählt.",
   "activeBoxes": "Aktive Boxen",
@@ -430,5 +430,37 @@
   },
   "boxQrExportResult": "Ergebnis des QR-Exports",
   "boxQrExportFailedBoxes": "Nicht gespeichert:",
-  "failedToSaveBoxQrCodes": "Box-QR-Codes konnten nicht gespeichert werden"
+  "failedToSaveBoxQrCodes": "Box-QR-Codes konnten nicht gespeichert werden",
+  "saveBoxQrCodesAsZip": "Box-QR-Codes als ZIP speichern",
+  "saveBoxQrCodesAsZipDescription": "Wähle Boxen aus und speichere alle ausgewählten QR-Bilder in einer ZIP-Datei.",
+  "saveSelectedQrCodesAsZip": "ZIP speichern",
+  "boxQrZipExportSucceeded": "{count, plural, =1{ZIP mit 1 Box-QR-Code gespeichert} other{ZIP mit {count} Box-QR-Codes gespeichert}}",
+  "@boxQrZipExportSucceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "failedToSaveBoxQrCodesAsZip": "Box-QR-Codes konnten nicht als ZIP-Datei gespeichert werden",
+  "saveBoxQrCodesAsPdf": "Box-QR-Codes als PDF speichern",
+  "saveBoxQrCodesAsPdfDescription": "Wähle Boxen aus und ordne ihre QR-Codes auf druckbaren A4-Seiten an.",
+  "saveSelectedQrCodesAsPdf": "PDF speichern",
+  "boxQrCodeSizeValue": "QR-Code-Größe: {size} × {size} mm",
+  "@boxQrCodeSizeValue": {
+    "placeholders": {
+      "size": {
+        "type": "int"
+      }
+    }
+  },
+  "boxQrPdfExportSucceeded": "{count, plural, =1{PDF mit 1 Box-QR-Code gespeichert} other{PDF mit {count} Box-QR-Codes gespeichert}}",
+  "@boxQrPdfExportSucceeded": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "failedToSaveBoxQrCodesAsPdf": "Box-QR-Codes konnten nicht als PDF-Datei gespeichert werden"
 }

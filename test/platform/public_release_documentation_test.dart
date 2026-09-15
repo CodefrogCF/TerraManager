@@ -49,7 +49,10 @@ void main() {
     expect(privacy, contains('file picker'));
     expect(privacy, contains('saving a QR-code image'));
     expect(privacy, isNot(contains('print service')));
-    expect(privacy, isNot(contains('PDF generation and printing')));
+    expect(privacy, contains('ZIP archives and A4 PDF sheets'));
+    expect(privacy, contains('generated entirely'));
+    expect(privacy, contains('operating-system save dialog'));
+    expect(privacy, contains('additional broad storage, media or network'));
     expect(privacy, contains('not encrypted'));
     expect(privacy, contains('analytics'));
     expect(

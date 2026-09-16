@@ -1,3 +1,9 @@
 title: TerraManager
-description: Local-first terrarium animal and enclosure management
+description: Lokale und datenschutzfreundliche Terrarienverwaltung
+url: "https://codefrogcf.github.io"
+baseurl: "/TerraManager"
+lang: de
 theme: jekyll-theme-minimal
+
+exclude:
+  - README.md

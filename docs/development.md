@@ -66,6 +66,28 @@ User-facing installation and update guidance is maintained in
 permissions, platform services, distribution, signing, network behaviour or
 support must review these documents before the issue is closed.
 
+### GitHub Pages homepage
+
+GitHub Pages publishes the `docs/` directory at the project path
+`https://codefrogcf.github.io/TerraManager/`. Repository Pages settings must
+use the `main` branch and `/docs` source directory. Publication remains a
+repository-owner action after the source change has been reviewed and merged.
+
+The localized homepage has one shared structure:
+
+- `docs/index.md` selects German at `/`
+- `docs/en/index.md` selects English at `/en/`
+- `docs/_layouts/home.html` contains the semantic page structure and metadata
+- `docs/_data/home.yml` contains both localized content sets
+- `docs/assets/` contains only bundled styles and media
+
+Keep internal links and assets behind Jekyll's `relative_url` or `absolute_url`
+filters so direct navigation continues to work below `/TerraManager/`. Do not
+add analytics, trackers, cookie-dependent functionality, external scripts or
+remote web fonts. The public Privacy Policy and GPL license must remain locally
+reachable, and changes to either authoritative legal document must keep its
+published copy synchronized.
+
 TerraManager is licensed under GPL-3.0-or-later. Do not copy code, artwork,
 translations or documentation from an incompatible or unknown source. The
 current contribution policy requires prior agreement for substantial external

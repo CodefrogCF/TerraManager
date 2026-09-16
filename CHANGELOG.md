@@ -8,6 +8,11 @@ The project uses semantic versioning.
 
 ### Added
 
+- add a responsive German and English GitHub Pages homepage with shared
+  localized content, download links, guides, support, local Privacy Policy and
+  license access (Issue #119)
+- add a CSS-based device mockup and complete link-preview, favicon and page
+  metadata without trackers, cookies, external scripts or web fonts
 - show localized plural category and subcategory headings in grouped Animal
   Overview views (Issue #129)
 - add an optional bounded nighttime temperature to Animal profiles, details,

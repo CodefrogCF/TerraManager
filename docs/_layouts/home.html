@@ -1,0 +1,247 @@
+{% assign t = site.data.home[page.lang] %}
+{% if page.lang == 'de' %}
+  {% assign alternate_path = '/en/' %}
+  {% assign privacy_path = '/privacy/de/' %}
+{% else %}
+  {% assign alternate_path = '/' %}
+  {% assign privacy_path = '/privacy/' %}
+{% endif %}
+<!doctype html>
+<html lang="{{ page.lang }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#073b2b">
+    <title>{{ t.title }}</title>
+    <meta name="description" content="{{ t.description }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    <link rel="alternate" hreflang="de" href="{{ '/' | absolute_url }}">
+    <link rel="alternate" hreflang="en" href="{{ '/en/' | absolute_url }}">
+    <link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
+    <link rel="icon" type="image/png" href="{{ '/assets/images/app-icon.png' | relative_url }}">
+    <link rel="apple-touch-icon" href="{{ '/assets/images/app-icon.png' | relative_url }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TerraManager">
+    <meta property="og:locale" content="{{ t.locale }}">
+    <meta property="og:title" content="{{ t.title }}">
+    <meta property="og:description" content="{{ t.description }}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:image" content="{{ '/assets/images/app-icon.png' | absolute_url }}">
+    <meta property="og:image:alt" content="TerraManager">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ t.title }}">
+    <meta name="twitter:description" content="{{ t.description }}">
+    <meta name="twitter:image" content="{{ '/assets/images/app-icon.png' | absolute_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/home.css' | relative_url }}">
+  </head>
+  <body>
+    <a class="skip-link" href="#content">{{ t.skip }}</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="{{ '/' | relative_url }}" aria-label="TerraManager">
+          <img src="{{ '/assets/images/app-icon.png' | relative_url }}" alt="" width="44" height="44">
+          <span>TerraManager</span>
+        </a>
+        <nav aria-label="{{ t.nav_label }}">
+          <ul class="nav-list">
+            <li><a href="#features">{{ t.nav.features }}</a></li>
+            <li><a href="#privacy">{{ t.nav.privacy }}</a></li>
+            <li><a href="#guides">{{ t.nav.guides }}</a></li>
+            <li><a href="#support">{{ t.nav.support }}</a></li>
+          </ul>
+        </nav>
+        <a class="language-link" href="{{ alternate_path | relative_url }}" lang="{% if page.lang == 'de' %}en{% else %}de{% endif %}" aria-label="{{ t.language_label }}: {{ t.language_name }}">
+          <span aria-hidden="true">🌐</span> {{ t.language_name }}
+        </a>
+      </div>
+    </header>
+
+    <main id="content">
+      <section class="hero">
+        <div class="hero-glow" aria-hidden="true"></div>
+        <div class="shell hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">{{ t.hero.eyebrow }}</p>
+            <h1>{{ t.hero.heading }}</h1>
+            <p class="hero-body">{{ t.hero.body }}</p>
+            <div class="button-row">
+              <a class="button button-primary" href="#download">{{ t.hero.primary }}</a>
+              <a class="button button-secondary" href="#features">{{ t.hero.secondary }}</a>
+            </div>
+            <p class="trust-line">
+              <span aria-hidden="true">✓</span>
+              {{ t.hero.trust }}
+            </p>
+          </div>
+
+          <div class="device-stage">
+            <div class="phone" role="img" aria-label="{{ t.mockup.alt }}">
+              <div class="phone-speaker"></div>
+              <div class="app-bar">
+                <img src="{{ '/assets/images/app-icon.png' | relative_url }}" alt="" width="34" height="34">
+                <strong>{{ t.mockup.overview }}</strong>
+                <span class="app-dot">•••</span>
+              </div>
+              <div class="app-tabs">
+                <span>{{ t.mockup.boxes }}</span>
+                <span class="active">{{ t.mockup.animals }}</span>
+              </div>
+              <div class="reminder-card">
+                <span class="status-dot"></span>
+                <div><strong>{{ t.mockup.due }}</strong><small>{{ t.mockup.animal_name }}</small></div>
+                <span aria-hidden="true">›</span>
+              </div>
+              <div class="animal-card">
+                <img src="{{ '/assets/images/frog.webp' | relative_url }}" alt="">
+                <div>
+                  <strong>{{ t.mockup.animal_name }}</strong>
+                  <span>{{ t.mockup.box_name }}</span>
+                </div>
+              </div>
+              <div class="feeding-card">
+                <span class="feeding-icon" aria-hidden="true">◷</span>
+                <div><small>{{ t.mockup.latest }}</small><strong>{{ t.mockup.today }}</strong></div>
+              </div>
+              <div class="app-navigation" aria-hidden="true">
+                <span class="selected">⌂</span><span>▣</span><span>＋</span><span>◇</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section intro-section" aria-labelledby="intro-heading">
+        <div class="shell narrow centered">
+          <p class="eyebrow">{{ t.intro.eyebrow }}</p>
+          <h2 id="intro-heading">{{ t.intro.heading }}</h2>
+          <p class="section-lead">{{ t.intro.body }}</p>
+        </div>
+      </section>
+
+      <section class="section feature-section" id="features" aria-labelledby="features-heading">
+        <div class="shell">
+          <h2 id="features-heading" class="visually-hidden">{{ t.nav.features }}</h2>
+          <div class="feature-grid">
+            {% for feature in t.features %}
+              <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">
+                  {% case feature.icon %}
+                    {% when 'enclosure' %}▣
+                    {% when 'animal' %}◉
+                    {% when 'feeding' %}◷
+                    {% when 'backup' %}⇩
+                    {% when 'qr' %}⌗
+                    {% when 'gallery' %}▧
+                  {% endcase %}
+                </div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.body }}</p>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section class="section privacy-section" id="privacy" aria-labelledby="privacy-heading">
+        <div class="shell privacy-grid">
+          <div>
+            <p class="eyebrow light">{{ t.privacy.eyebrow }}</p>
+            <h2 id="privacy-heading">{{ t.privacy.heading }}</h2>
+            <p class="section-lead">{{ t.privacy.body }}</p>
+            <div class="button-row">
+              <a class="button button-light" href="{{ privacy_path | relative_url }}">{{ t.privacy.policy }}</a>
+              <a class="text-link light-link" href="{{ '/license/' | relative_url }}">{{ t.privacy.license }} <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+          <ul class="privacy-points">
+            {% for point in t.privacy.points %}
+              <li><span aria-hidden="true">✓</span><span>{{ point }}</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </section>
+
+      <section class="section download-section" id="download" aria-labelledby="download-heading">
+        <div class="shell">
+          <div class="narrow centered">
+            <p class="eyebrow">{{ t.download.eyebrow }}</p>
+            <h2 id="download-heading">{{ t.download.heading }}</h2>
+            <p class="section-lead">{{ t.download.body }}</p>
+          </div>
+          <div class="download-grid">
+            <article class="download-card">
+              <div class="store-mark" aria-hidden="true">▶</div>
+              <div>
+                <h3>{{ t.download.play_title }}</h3>
+                <p>{{ t.download.play_body }}</p>
+                <a class="text-link" href="https://play.google.com/store/apps/details?id=com.codefrog.terramanager">{{ t.download.play_action }} <span aria-hidden="true">→</span></a>
+              </div>
+            </article>
+            <article class="download-card">
+              <div class="store-mark github-mark" aria-hidden="true">⌘</div>
+              <div>
+                <h3>{{ t.download.github_title }}</h3>
+                <p>{{ t.download.github_body }}</p>
+                <a class="text-link" href="https://github.com/CodefrogCF/TerraManager/releases">{{ t.download.github_action }} <span aria-hidden="true">→</span></a>
+              </div>
+            </article>
+          </div>
+          <p class="centered guide-link"><a href="{{ '/installation-and-updates.html' | relative_url }}">{{ t.download.guide }}</a></p>
+        </div>
+      </section>
+
+      <section class="section guides-section" id="guides" aria-labelledby="guides-heading">
+        <div class="shell">
+          <div class="narrow centered">
+            <p class="eyebrow">{{ t.guides.eyebrow }}</p>
+            <h2 id="guides-heading">{{ t.guides.heading }}</h2>
+            <p class="section-lead">{{ t.guides.body }}</p>
+          </div>
+          <div class="guide-grid">
+            {% for guide in t.guides.cards %}
+              <a class="guide-card" href="{{ guide.url | relative_url }}">
+                <h3>{{ guide.title }}</h3>
+                <p>{{ guide.body }}</p>
+                <span aria-hidden="true">→</span>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <section class="section support-section" id="support" aria-labelledby="support-heading">
+        <div class="shell support-card">
+          <div>
+            <h2 id="support-heading">{{ t.support.heading }}</h2>
+            <p>{{ t.support.body }}</p>
+          </div>
+          <div class="button-row support-actions">
+            <a class="button button-primary" href="https://github.com/CodefrogCF/TerraManager/issues">{{ t.support.issues }}</a>
+            <a class="button button-secondary" href="https://github.com/CodefrogCF/TerraManager">{{ t.support.repository }}</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-grid">
+        <div class="footer-brand">
+          <img src="{{ '/assets/images/app-icon.png' | relative_url }}" alt="" width="38" height="38">
+          <div><strong>TerraManager</strong><span>{{ t.footer.tagline }}</span></div>
+        </div>
+        <nav aria-label="{{ t.footer.nav_label }}">
+          <ul>
+            <li><a href="{{ privacy_path | relative_url }}">{{ t.footer.privacy }}</a></li>
+            <li><a href="{{ '/license/' | relative_url }}">{{ t.footer.license }}</a></li>
+            <li><a href="https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md">{{ t.footer.support }}</a></li>
+            <li><a href="https://github.com/CodefrogCF/TerraManager">{{ t.footer.github }}</a></li>
+          </ul>
+        </nav>
+        <p>© 2026 Codefrog · GPL-3.0-or-later</p>
+      </div>
+    </footer>
+  </body>
+</html>

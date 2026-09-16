@@ -138,7 +138,7 @@ Before deploying or using an updated Web build:
 4. Restore the backup only if local browser data is missing or damaged.
 
 The server hosting a Web build may have separate logging and privacy behaviour;
-see [PRIVACY.md](../PRIVACY.md).
+see the published [Privacy Policy](privacy/).
 
 ## Backups during updates
 

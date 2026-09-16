@@ -1620,3 +1620,53 @@ stable preference and backup strings.
 - no redundant volume value can become stale
 - older databases, settings and backups keep their existing defaults
 - every new capability remains local and requires no additional permission
+
+---
+
+## ADR-026: Render the project homepage from shared localized static content
+
+**Status:** Accepted
+
+**Date:** 2026-09-16
+
+### Context
+
+The GitHub Pages root previously exposed the long-form project documentation.
+Issue #119 requires a focused application homepage at the repository project
+path with complete German content, a maintainable English variant, downloads,
+guides, legal pages and support links. The site must remain privacy-friendly,
+work after direct navigation and avoid duplicating its complete structure for
+every language.
+
+### Decision
+
+GitHub Pages continues to publish the repository `docs/` directory with Jekyll.
+The configured `url` and `/TerraManager` `baseurl` are the source of every
+internal asset and page URL. German `/` and English `/en/` entry pages contain
+only language front matter; one `home` layout renders both from one localized
+`_data/home.yml` content model. Long-form technical documentation moves to the
+stable `/project-documentation.html` path without splitting it into per-issue
+or per-release pages.
+
+The homepage is static HTML and CSS. It uses bundled application media, system
+fonts and a CSS device mockup. It loads no analytics, tracker, cookie banner,
+remote font or external script. Download and support actions are ordinary
+links to Google Play and GitHub. Privacy pages remain language-specific under
+`/privacy/` and `/privacy/de/`; `/license/` publishes the authoritative
+repository GPL text.
+
+The shared layout owns semantic regions, one page heading, a keyboard skip
+link, visible focus styles, descriptive image alternatives, language alternate
+links, canonical URLs, favicon references and link-preview metadata. Static
+paths allow each page to load directly without client-side routing.
+
+### Consequences
+
+- German and English changes share markup, responsive behavior and metadata
+- GitHub Pages needs no runtime service, account system or additional device
+  permission
+- the project base path is explicit and testable before publication
+- application documentation and the public landing page have separate stable
+  destinations
+- published content changes only after the repository owner deploys the
+  updated `docs/` source through GitHub Pages

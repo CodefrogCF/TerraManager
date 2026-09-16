@@ -30,6 +30,7 @@ void main() {
       'CONTRIBUTING.md',
       'CHANGELOG.md',
       'docs/roadmap.md',
+      'docs/project-documentation.md',
       'docs/development.md',
       'docs/toolchain-baseline.md',
       'docs/installation-and-updates.md',

@@ -1335,10 +1335,10 @@ roughly one sixth of its previous size.
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate the Schema Version 11 snapshot and Drift migration artifacts
 - [x] Complete formatting, analysis and the 691-test source regression
-- [ ] Publish the annotated `v1.7.1` tag
-- [ ] Confirm the final GitHub Actions **Quality gates** run
-- [ ] Record release-owner Android/Web artifacts and manual checks
-- [ ] Publish the GitHub and Google Play releases
+- [x] Publish the annotated `v1.7.1` tag
+- [x] Confirm the final GitHub Actions **Quality gates** run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
 
 ---
 
@@ -1413,14 +1413,43 @@ roughly one sixth of its previous size.
 
 ### v1.8.0 Release
 
-- [ ] Set the release version and build number
+- [x] Set the release version and build number
 - [x] Advance to Database Schema Version 13
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate English and German localizations and Drift migration artifacts
 - [x] Add no device permissions
-- [ ] Confirm the final GitHub Actions **Quality gates** run
-- [ ] Record release-owner Android/Web artifacts and manual checks
-- [ ] Publish the GitHub and Google Play releases
+- [x] Confirm the final GitHub Actions **Quality gates** run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
+
+---
+
+## Website 1.0 – Homepage, Downloads & Guides
+
+### TerraManager project homepage — Issue #119
+
+- [x] Implement one responsive homepage structure for phones, tablets and
+  desktops under the GitHub Pages `/TerraManager/` project path
+- [x] Make the complete German homepage the default and render English content
+  through the same shared layout and localized data model
+- [x] Introduce TerraManager, its main features and its local-first privacy
+  model without requiring an account, tracker, cookie or external script
+- [x] Present an accessible device mockup without adding a remote media
+  dependency
+- [x] Link Google Play, GitHub Releases, installation guidance, testing
+  guidance, project documentation, support and the source repository
+- [x] Keep English and German Privacy Policy pages and a local copy of the
+  authoritative GPL-3.0-or-later license reachable
+- [x] Use semantic headings, visible keyboard focus, a skip link, descriptive
+  image alternatives and contrast-safe colors
+- [x] Add canonical, language-alternate, page-title, description, favicon and
+  Open Graph/Twitter metadata
+- [x] Keep every internal URL compatible with direct navigation and reloads
+  below the configured GitHub Pages base path
+- [x] Add automated source checks for localization structure, privacy,
+  accessibility markers, metadata and internal page targets
+- [ ] Enable GitHub Pages from the repository `docs/` directory and verify the
+  published site at `https://codefrogcf.github.io/TerraManager/`
 
 ---
 

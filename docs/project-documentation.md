@@ -1,3 +1,9 @@
+---
+layout: default
+title: TerraManager Project Documentation
+permalink: /project-documentation.html
+---
+
 # TerraManager
 
 TerraManager is a cross-platform, local-first application for managing terrarium boxes, animals and feeding records.
@@ -8,15 +14,14 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Public project information:
 
-- [Project homepage](https://codefrogcf.github.io/TerraManager/)
-- [Project documentation](docs/project-documentation.md)
-- [Installation and updates](docs/installation-and-updates.md)
-- [Privacy](PRIVACY.md)
-- [Datenschutz (Deutsch)](PRIVACY.de.md)
-- [Support](SUPPORT.md)
-- [Security](SECURITY.md)
-- [Contributing](CONTRIBUTING.md)
-- [GPL-3.0-or-later license](LICENSE)
+- [Project homepage]({{ '/' | relative_url }})
+- [Installation and updates](installation-and-updates.md)
+- [Privacy](privacy/)
+- [Datenschutz (Deutsch)](privacy/de/)
+- [Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md)
+- [Security](https://github.com/CodefrogCF/TerraManager/blob/main/SECURITY.md)
+- [Contributing](https://github.com/CodefrogCF/TerraManager/blob/main/CONTRIBUTING.md)
+- [GPL-3.0-or-later license](https://github.com/CodefrogCF/TerraManager/blob/main/LICENSE)
 
 ## Project Status
 
@@ -38,9 +43,9 @@ environmental-data milestone:
 - no new device permission is required.
 
 Android and Web are the validated platforms. iOS remains planned and has not
-been validated. The complete version history is maintained in
-[CHANGELOG.md](CHANGELOG.md), while completed and planned work is maintained in
-the [roadmap](docs/roadmap.md).
+been validated. The complete version history is maintained in the project
+changelog, while completed and planned work is maintained in the
+[roadmap](roadmap.md).
 
 ### Android transition to the permanent application ID
 
@@ -141,7 +146,6 @@ selection in Settings.
 - taxonomy persistence through editing, duplication, migration and backup
 - active and archived lifecycle states
 - archive reasons, dates and optional archive notes
-- archive action at the bottom of Edit Animal, with an unsaved-change warning
 - dedicated Animal History view
 - restore archived animals
 - permanent deletion of archived animals
@@ -566,11 +570,6 @@ Archived Animal
 Box
 ├── id
 ├── qrId
-├── name
-├── status
-├── archiveReason
-├── archivedAt
-├── archiveNotes
 ├── widthCm
 ├── heightCm
 ├── depthCm
@@ -581,11 +580,8 @@ Box
 └── updatedAt
 ```
 
-`qrId` is unique and permanently identifies the box. Name, width, height,
-depth, temperature zones and notes are optional. `status` defaults to `active`;
-archived Boxes store an
-archive reason, timestamp and optional archive notes while retaining their
-other data.
+`qrId` is unique and permanently identifies the box. Width, height, depth,
+temperature zones and notes are optional.
 `pictureMediaId` optionally references persistent image data stored in `MediaAssets`.
 
 The QR format is:
@@ -856,7 +852,7 @@ browser data is tied to its origin and profile.
 Create a current `.tmbackup` before every application update or Web deployment.
 The complete installation, artifact-verification, production-certificate and
 pre-v1.0 transition guidance is in
-[docs/installation-and-updates.md](docs/installation-and-updates.md).
+[docs/installation-and-updates.md](installation-and-updates.md).
 
 ## Privacy and Permissions
 
@@ -868,22 +864,22 @@ application and do not request system notification permission.
 
 Portable `.tmbackup` archives include records, settings and pictures and are
 not encrypted. Store them as sensitive files. The complete data and permission
-description is available in [PRIVACY.md](PRIVACY.md).
+description is available in [PRIVACY.md](privacy/).
 
 ## Support and Security
 
 Report reproducible problems and feature requests through
 [GitHub Issues](https://github.com/CodefrogCF/TerraManager/issues), following
-[SUPPORT.md](SUPPORT.md). Do not publish real backups, private notes, pictures,
+[SUPPORT.md](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md). Do not publish real backups, private notes, pictures,
 passwords or signing material. Potential vulnerabilities should follow the
-private-first process in [SECURITY.md](SECURITY.md).
+private-first process in [SECURITY.md](https://github.com/CodefrogCF/TerraManager/blob/main/SECURITY.md).
 
 ## License and Commercial Use
 
 Copyright (C) 2026 CodefrogCF.
 
 TerraManager is free software licensed under the
-[GNU General Public License v3.0 or later](LICENSE), identified as
+[GNU General Public License v3.0 or later](https://github.com/CodefrogCF/TerraManager/blob/main/LICENSE), identified as
 `GPL-3.0-or-later`. The licence permits private and commercial use,
 modification and redistribution subject to its terms. In particular, a
 distributed modified version must preserve the recipients' GPL freedoms and
@@ -894,7 +890,7 @@ custom development or alternative commercial licence terms. Those offerings
 do not reduce the rights granted for the GPL-licensed project.
 
 Before submitting source code, translations, artwork or substantial
-documentation, read [CONTRIBUTING.md](CONTRIBUTING.md). The current
+documentation, read [CONTRIBUTING.md](https://github.com/CodefrogCF/TerraManager/blob/main/CONTRIBUTING.md). The current
 contribution policy deliberately preserves the option of consistent future
 dual licensing.
 
@@ -977,23 +973,23 @@ Do not manually edit generated Drift files.
 
 Additional documentation:
 
-- [Roadmap](docs/roadmap.md)
-- [Development guide](docs/development.md)
-- [Toolchain and quality-gate baseline](docs/toolchain-baseline.md)
-- [Installation and updates](docs/installation-and-updates.md)
-- [Platform support](docs/platform-support.md)
-- [Data model](docs/data-model.md)
-- [Backup format](docs/backup-format.md)
-- [Architecture decisions](docs/architecture-decisions.md)
-- [MVP functional requirements](docs/functional-requirements-MVP.md)
-- [Non-MVP functional requirements](docs/functional-requirements-non-MVP.md)
-- [Android release signing](docs/android-release-signing.md)
-- [Privacy](PRIVACY.md)
-- [Datenschutz (Deutsch)](PRIVACY.de.md)
-- [Support](SUPPORT.md)
-- [Security policy](SECURITY.md)
-- [Contribution policy](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
+- [Roadmap](roadmap.md)
+- [Development guide](development.md)
+- [Toolchain and quality-gate baseline](toolchain-baseline.md)
+- [Installation and updates](installation-and-updates.md)
+- [Platform support](platform-support.md)
+- [Data model](data-model.md)
+- [Backup format](backup-format.md)
+- [Architecture decisions](architecture-decisions.md)
+- [MVP functional requirements](functional-requirements-MVP.md)
+- [Non-MVP functional requirements](functional-requirements-non-MVP.md)
+- [Android release signing](android-release-signing.md)
+- [Privacy](privacy/)
+- [Datenschutz (Deutsch)](privacy/de/)
+- [Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md)
+- [Security policy](https://github.com/CodefrogCF/TerraManager/blob/main/SECURITY.md)
+- [Contribution policy](https://github.com/CodefrogCF/TerraManager/blob/main/CONTRIBUTING.md)
+- [Changelog](https://github.com/CodefrogCF/TerraManager/blob/main/CHANGELOG.md)
 
 ## Known Limitations
 

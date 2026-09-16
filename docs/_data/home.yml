@@ -1,0 +1,201 @@
+de:
+  locale: de_DE
+  title: TerraManager – Deine Terrarien. Deine Daten.
+  description: Verwalte Terrarien, Tiere, Fütterungen, Bilder und QR-Codes lokal und übersichtlich – ohne Konto, Tracking oder Cloud-Zwang.
+  skip: Zum Inhalt springen
+  nav_label: Hauptnavigation
+  nav:
+    features: Funktionen
+    privacy: Datenschutz
+    guides: Anleitungen
+    support: Support
+  language_label: Sprache wechseln
+  language_name: English
+  hero:
+    eyebrow: Open Source · Local First · Für Android und Web
+    heading: Deine Terrarien. Deine Daten.
+    body: TerraManager bringt Boxen, Tiere, Fütterungen, Bilder und QR-Codes an einen Ort. Alle Sammlungsdaten bleiben standardmäßig auf deinem Gerät.
+    primary: TerraManager herunterladen
+    secondary: Funktionen ansehen
+    trust: Kostenlos und quelloffen unter GPL-3.0-or-later
+  mockup:
+    alt: Beispielansicht von TerraManager mit einer Box, einem Tier und einer fälligen Fütterung
+    overview: Übersicht
+    boxes: Boxen
+    animals: Tiere
+    due: Fütterung fällig
+    animal_name: Laubfrosch
+    box_name: Regenwald · Box 4
+    latest: Letzte Fütterung
+    today: Heute, 08:30
+  intro:
+    eyebrow: Für eine Sammlung, die mitwächst
+    heading: Weniger Listen. Mehr Überblick.
+    body: Von der ersten Box bis zur umfangreichen Sammlung bleiben Tierdaten, Fütterungen und Medien schnell erreichbar. Klare Abläufe helfen im Alltag, ohne die Datenhoheit abzugeben.
+  features:
+    - icon: enclosure
+      title: Boxen im Blick
+      body: Verwalte Maße, Notizen, Temperaturzonen, Bilder und den Lebenszyklus jeder Box. QR-Codes führen direkt zum passenden Eintrag.
+    - icon: animal
+      title: Tierprofile mit Geschichte
+      body: Halte Taxonomie, Geschlecht, Herkunft, Temperaturen, Gewicht, Ruhezeiten und eine geordnete Bildergalerie fest.
+    - icon: feeding
+      title: Fütterungen zur richtigen Zeit
+      body: Dokumentiere Fütterungen, aktiviere Erinnerungen und erfasse mehrere Tiere direkt über den QR-Fütterungsmodus.
+    - icon: backup
+      title: Portable Backups
+      body: Sichere Boxen, Tiere, Fütterungen, Einstellungen und Bilder in einer portablen Datei und stelle sie kontrolliert wieder her.
+    - icon: qr
+      title: QR-Codes für deine Boxen
+      body: Speichere ausgewählte Codes als einzelne PNG-Dateien, ZIP-Archiv oder druckfertige A4-PDF-Seiten.
+    - icon: gallery
+      title: Lokale Bildergalerien
+      body: Bewahre mehrere Bilder pro Tier und Box auf, lege das Hauptbild fest und öffne Details in der Vollbildansicht.
+  privacy:
+    eyebrow: Datenschutz ist die Grundlage
+    heading: Lokal gespeichert. Unter deiner Kontrolle.
+    body: TerraManager benötigt kein Benutzerkonto und überträgt deine Sammlungsdaten nicht an einen TerraManager-Server. Die Website verwendet keine Tracker, Cookies, externen Skripte oder Webfonts.
+    points:
+      - Datenbank und Einstellungen bleiben lokal auf dem verwendeten Gerät oder im aktiven Browserprofil.
+      - Kamera, Bild- und Dateiauswahl werden nur nach einer von dir gestarteten Aktion verwendet.
+      - Backups und exportierte Dateien bestimmst, speicherst und überträgst du selbst.
+    policy: Datenschutzerklärung lesen
+    license: GPL-3.0-or-later-Lizenz lesen
+  download:
+    eyebrow: Loslegen
+    heading: TerraManager herunterladen
+    body: Installiere die Android-Version über Google Play oder lade veröffentlichte Builds und Quelltexte direkt von GitHub. Prüfe bei manuellen Installationen immer Herkunft und Signatur.
+    play_title: Google Play
+    play_body: Bequeme Installation und Updates auf unterstützten Android-Geräten.
+    play_action: Bei Google Play öffnen
+    github_title: GitHub Releases
+    github_body: Veröffentlichte Artefakte, Versionshinweise und Quellcode des Projekts.
+    github_action: Releases öffnen
+    guide: Installations- und Updatehinweise
+  guides:
+    eyebrow: Hilfe und Dokumentation
+    heading: Antworten ohne Umwege
+    body: Die Anleitungen erklären Installation, Updates, Datenschutz und den geschlossenen Android-Test. Die technische Projektdokumentation bleibt separat erreichbar.
+    cards:
+      - title: Installation und Updates
+        body: Vertrauenswürdige Builds, Android-Signatur und sichere Aktualisierung.
+        url: /installation-and-updates.html
+      - title: Android-Test
+        body: Anmeldung und Installation über den geschlossenen Google-Play-Test.
+        url: /testing/
+      - title: Projektdokumentation
+        body: Funktionen, Architektur, Datenmodell, Backup-Format und Entwicklung.
+        url: /project-documentation.html
+  support:
+    heading: Eine Frage, Idee oder ein Problem?
+    body: TerraManager wird offen auf GitHub entwickelt. Prüfe vorhandene Issues oder erstelle einen Bericht ohne private Tierdaten, Bilder oder echte Backup-Dateien.
+    issues: GitHub Issues öffnen
+    repository: Quellcode ansehen
+  footer:
+    tagline: Lokale Terrarienverwaltung von Codefrog.
+    nav_label: Fußnavigation
+    privacy: Datenschutz
+    license: Lizenz
+    support: Support
+    github: GitHub
+
+en:
+  locale: en_US
+  title: TerraManager – Your terrariums. Your data.
+  description: Manage enclosures, animals, feedings, pictures and QR codes locally and clearly – without an account, tracking or forced cloud storage.
+  skip: Skip to content
+  nav_label: Main navigation
+  nav:
+    features: Features
+    privacy: Privacy
+    guides: Guides
+    support: Support
+  language_label: Change language
+  language_name: Deutsch
+  hero:
+    eyebrow: Open source · Local first · For Android and Web
+    heading: Your terrariums. Your data.
+    body: TerraManager brings enclosures, animals, feedings, pictures and QR codes together. All collection data stays on your device by default.
+    primary: Download TerraManager
+    secondary: Explore features
+    trust: Free and open source under GPL-3.0-or-later
+  mockup:
+    alt: Example TerraManager view with one enclosure, one animal and a due feeding
+    overview: Overview
+    boxes: Enclosures
+    animals: Animals
+    due: Feeding due
+    animal_name: Tree frog
+    box_name: Rainforest · Box 4
+    latest: Latest feeding
+    today: Today, 08:30
+  intro:
+    eyebrow: Built for growing collections
+    heading: Fewer lists. A clearer view.
+    body: From the first enclosure to a large collection, animal records, feedings and media stay close at hand. Clear workflows support daily care while you retain control of the data.
+  features:
+    - icon: enclosure
+      title: Enclosures at a glance
+      body: Manage dimensions, notes, temperature zones, pictures and the lifecycle of every enclosure. QR codes open the matching record.
+    - icon: animal
+      title: Animal profiles with history
+      body: Record taxonomy, sex, origin, temperatures, weight, dormancy periods and an ordered picture gallery.
+    - icon: feeding
+      title: Feedings at the right time
+      body: Record feedings, enable reminders and update multiple animals directly through QR Feeding Mode.
+    - icon: backup
+      title: Portable backups
+      body: Save enclosures, animals, feedings, settings and pictures in one portable file and restore them through a controlled workflow.
+    - icon: qr
+      title: QR codes for enclosures
+      body: Save selected codes as individual PNG files, a ZIP archive or print-ready A4 PDF sheets.
+    - icon: gallery
+      title: Local picture galleries
+      body: Keep multiple pictures for every animal and enclosure, choose the primary image and open details in the full-screen viewer.
+  privacy:
+    eyebrow: Privacy by foundation
+    heading: Stored locally. Controlled by you.
+    body: TerraManager requires no user account and sends no collection data to a TerraManager server. This website uses no trackers, cookies, external scripts or web fonts.
+    points:
+      - The database and settings stay on the device or in the active browser profile.
+      - Camera, image and file pickers are used only after an action you start.
+      - You decide where backups and exported files are stored and transferred.
+    policy: Read the Privacy Policy
+    license: Read the GPL-3.0-or-later license
+  download:
+    eyebrow: Get started
+    heading: Download TerraManager
+    body: Install the Android app through Google Play or obtain published builds and source code directly from GitHub. Always verify the source and signature of manual installations.
+    play_title: Google Play
+    play_body: Convenient installation and updates on supported Android devices.
+    play_action: Open Google Play
+    github_title: GitHub Releases
+    github_body: Published artifacts, release notes and the project's source code.
+    github_action: Open releases
+    guide: Installation and update guidance
+  guides:
+    eyebrow: Help and documentation
+    heading: Answers without detours
+    body: The guides cover installation, updates, privacy and the closed Android test. Technical project documentation remains available separately.
+    cards:
+      - title: Installation and updates
+        body: Trusted builds, Android signing and safe updates.
+        url: /installation-and-updates.html
+      - title: Android testing
+        body: Registration and installation through the closed Google Play test.
+        url: /testing/
+      - title: Project documentation
+        body: Features, architecture, data model, backup format and development.
+        url: /project-documentation.html
+  support:
+    heading: Have a question, idea or problem?
+    body: TerraManager is developed openly on GitHub. Check existing issues or create a report without private animal data, pictures or real backup files.
+    issues: Open GitHub Issues
+    repository: View source code
+  footer:
+    tagline: Local terrarium management by Codefrog.
+    nav_label: Footer navigation
+    privacy: Privacy
+    license: License
+    support: Support
+    github: GitHub

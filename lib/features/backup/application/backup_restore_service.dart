@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../../core/database/app_database.dart';
 import '../../settings/app_settings_controller.dart';
 import '../domain/backup_enum_codec.dart';
+import '../domain/backup_data.dart';
 import '../domain/backup_media_format.dart';
 import 'backup_export_result.dart';
 import 'backup_export_service.dart';
@@ -179,6 +180,10 @@ class BackupRestoreService {
     return database.transaction(() async {
       await database.delete(database.feedingEvents).go();
 
+      await database.delete(database.animalPictureAssociations).go();
+
+      await database.delete(database.boxPictureAssociations).go();
+
       await database.delete(database.animals).go();
 
       await database.delete(database.boxes).go();
@@ -191,50 +196,23 @@ class BackupRestoreService {
         "'boxes', "
         "'animals', "
         "'feeding_events', "
-        "'media_assets'"
+        "'media_assets', "
+        "'animal_picture_associations', "
+        "'box_picture_associations'"
         ")",
       );
 
       var restoredMediaCount = 0;
 
       for (final box in backup.data.boxes) {
-        int? pictureMediaId;
-
-        final portablePath = box.pictureMediaPath;
-
-        if (portablePath != null) {
-          final bytes = backup.mediaFiles[portablePath];
-
-          if (bytes == null) {
-            throw StateError(
-              'Validated backup is missing media: '
-              '$portablePath',
-            );
-          }
-
-          if (bytes.isEmpty) {
-            throw StateError(
-              'Validated backup contains empty media: '
-              '$portablePath',
-            );
-          }
-
-          final fileName = _fileNameFromPortablePath(portablePath);
-
-          pictureMediaId = await database
-              .into(database.mediaAssets)
-              .insert(
-                MediaAssetsCompanion.insert(
-                  fileName: fileName,
-                  mimeType: BackupMediaFormat.mimeTypeFromFileName(fileName),
-                  data: bytes,
-                  createdAt: Value(box.createdAt),
-                  updatedAt: Value(box.updatedAt),
-                ),
-              );
-
-          restoredMediaCount++;
-        }
+        final restoredPictures = await _restorePictures(
+          backup: backup,
+          pictures: box.pictures,
+          primaryPath: box.pictureMediaPath,
+          fallbackCapturedAt: box.createdAt,
+          updatedAt: box.updatedAt,
+        );
+        restoredMediaCount += restoredPictures.items.length;
 
         await database
             .into(database.boxes)
@@ -258,11 +236,24 @@ class BackupRestoreService {
                 depthCm: Value(box.depthCm),
                 temperatureZones: Value(box.temperatureZones),
                 notes: Value(box.notes),
-                pictureMediaId: Value(pictureMediaId),
+                pictureMediaId: Value(restoredPictures.primaryMediaId),
                 createdAt: Value(box.createdAt),
                 updatedAt: Value(box.updatedAt),
               ),
             );
+
+        for (final (index, item) in restoredPictures.items.indexed) {
+          await database
+              .into(database.boxPictureAssociations)
+              .insert(
+                BoxPictureAssociationsCompanion.insert(
+                  boxId: box.id,
+                  mediaAssetId: item.mediaId,
+                  capturedAt: item.picture.capturedAt,
+                  sortOrder: index,
+                ),
+              );
+        }
       }
 
       for (final animal in backup.data.animals) {
@@ -288,45 +279,14 @@ class BackupRestoreService {
             ? null
             : BackupEnumCodec.decodeArchiveReason(animal.archiveReason!);
 
-        int? pictureMediaId;
-
-        final portablePath = animal.pictureMediaPath;
-
-        if (portablePath != null) {
-          final bytes = backup.mediaFiles[portablePath];
-
-          if (bytes == null) {
-            throw StateError(
-              'Validated backup is '
-              'missing media: '
-              '$portablePath',
-            );
-          }
-
-          if (bytes.isEmpty) {
-            throw StateError(
-              'Validated backup contains '
-              'empty media: '
-              '$portablePath',
-            );
-          }
-
-          final fileName = _fileNameFromPortablePath(portablePath);
-
-          pictureMediaId = await database
-              .into(database.mediaAssets)
-              .insert(
-                MediaAssetsCompanion.insert(
-                  fileName: fileName,
-                  mimeType: BackupMediaFormat.mimeTypeFromFileName(fileName),
-                  data: bytes,
-                  createdAt: Value(animal.createdAt),
-                  updatedAt: Value(animal.updatedAt),
-                ),
-              );
-
-          restoredMediaCount++;
-        }
+        final restoredPictures = await _restorePictures(
+          backup: backup,
+          pictures: animal.pictures,
+          primaryPath: animal.pictureMediaPath,
+          fallbackCapturedAt: animal.createdAt,
+          updatedAt: animal.updatedAt,
+        );
+        restoredMediaCount += restoredPictures.items.length;
 
         await database
             .into(database.animals)
@@ -352,7 +312,7 @@ class BackupRestoreService {
                 restOrDormancyPeriods: Value(animal.restOrDormancyPeriods),
                 temperatureZones: Value(animal.temperatureZones),
                 picturePath: const Value(null),
-                pictureMediaId: Value(pictureMediaId),
+                pictureMediaId: Value(restoredPictures.primaryMediaId),
                 notes: Value(animal.notes),
                 archiveReason: Value(archiveReason),
                 archivedAt: Value(animal.archivedAt),
@@ -365,6 +325,19 @@ class BackupRestoreService {
                 updatedAt: Value(animal.updatedAt),
               ),
             );
+
+        for (final (index, item) in restoredPictures.items.indexed) {
+          await database
+              .into(database.animalPictureAssociations)
+              .insert(
+                AnimalPictureAssociationsCompanion.insert(
+                  animalId: animal.id,
+                  mediaAssetId: item.mediaId,
+                  capturedAt: item.picture.capturedAt,
+                  sortOrder: index,
+                ),
+              );
+        }
       }
 
       await database.copyLegacyAnimalTemperatureZonesToBoxes();
@@ -398,6 +371,57 @@ class BackupRestoreService {
     });
   }
 
+  Future<_RestoredPictures> _restorePictures({
+    required ValidatedBackup backup,
+    required List<BackupPicture> pictures,
+    required String? primaryPath,
+    required DateTime fallbackCapturedAt,
+    required DateTime updatedAt,
+  }) async {
+    final effectivePictures = pictures.isNotEmpty
+        ? pictures
+        : primaryPath == null
+        ? const <BackupPicture>[]
+        : [
+            BackupPicture(
+              mediaPath: primaryPath,
+              capturedAt: fallbackCapturedAt,
+            ),
+          ];
+    final restored = <_RestoredPicture>[];
+    int? primaryMediaId;
+    for (final picture in effectivePictures) {
+      final bytes = backup.mediaFiles[picture.mediaPath];
+      if (bytes == null) {
+        throw StateError(
+          'Validated backup is missing media: ${picture.mediaPath}',
+        );
+      }
+      if (bytes.isEmpty) {
+        throw StateError(
+          'Validated backup contains empty media: ${picture.mediaPath}',
+        );
+      }
+      final fileName = _fileNameFromPortablePath(picture.mediaPath);
+      final mediaId = await database
+          .into(database.mediaAssets)
+          .insert(
+            MediaAssetsCompanion.insert(
+              fileName: fileName,
+              mimeType: BackupMediaFormat.mimeTypeFromFileName(fileName),
+              data: bytes,
+              createdAt: Value(picture.capturedAt),
+              updatedAt: Value(updatedAt),
+            ),
+          );
+      restored.add(_RestoredPicture(mediaId: mediaId, picture: picture));
+      if (picture.mediaPath == primaryPath) {
+        primaryMediaId = mediaId;
+      }
+    }
+    return _RestoredPictures(primaryMediaId: primaryMediaId, items: restored);
+  }
+
   static String _fileNameFromPortablePath(String portablePath) {
     final normalized = portablePath.replaceAll('\\', '/');
 
@@ -412,4 +436,18 @@ class BackupRestoreService {
 
     return fileName;
   }
+}
+
+class _RestoredPictures {
+  const _RestoredPictures({required this.primaryMediaId, required this.items});
+
+  final int? primaryMediaId;
+  final List<_RestoredPicture> items;
+}
+
+class _RestoredPicture {
+  const _RestoredPicture({required this.mediaId, required this.picture});
+
+  final int mediaId;
+  final BackupPicture picture;
 }

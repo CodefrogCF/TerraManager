@@ -10,80 +10,10 @@ This document describes the current platform validation status of TerraManager.
 | Web | Validated |
 | iOS | Planned / not validated |
 
-The completed v0.11.0 release validation is documented in
-`release-v0.11.0.md`. The platform lists below include this regression.
-
-The completed v0.12.0 media and Android/Web regression is documented in
-`release-v0.12.0.md`. The platform lists below include this validation.
-
-The completed v0.13.0 Feeding Reminder regression and release-build validation
-is documented in `release-v0.13.0.md`. The platform lists below include this
-validation.
-
-The completed v0.14.0 Pre-1.0 UX Polish regression and release-build validation
-is documented in `release-v0.14.0.md`. The platform lists below include this
-validation.
-
-The completed v0.14.1 Post-release Fixes regression and release-build
-validation is documented in `release-v0.14.1.md`. The platform lists below
-include this validation.
-
-The final Android and Web regression for release candidate `1.0.0+39` is
-tracked in `release-v1.0.0.md`. Its result is not considered complete until the
-automated checks, signed artifacts, backup paths and manual platform checklist
-in that document have been confirmed.
-
-The v1.2.0 Box Lifecycle & History regression, production-signed Android
-artifacts and Web release are recorded in `release-v1.2.0.md`. This validation
-covers direct updates from v1.1.x, Schema Version 8, archived QR behaviour,
-Box History, restore and archived-only permanent deletion.
-
-The v1.3.0 Primary Page Navigation regression and supported release artifacts
-are recorded in `release-v1.3.0.md`. It covers swipe, tap and keyboard
-navigation, retained primary-page state, independent contextual detail swipes
-and immediate Animal Overview refresh after creation from Box details.
-
-The v1.4.0 Animal Profiles and Input Quality source regression is recorded in
-`release-v1.4.0.md`. It covers named Box assignment labels, natural sorting,
-environmental limits, the additional sex value, Schema Version 9 Animal
-profiles, backup compatibility and the bundled offline license. Signed Android
-artifacts and physical Android or hosted Web checks remain release-owner steps
-until recorded there.
-
-The v1.5.0 Overview Quick Actions source regression is recorded in
-`release-v1.5.0.md`. It covers long-press and secondary-click menus, localized
-quick actions, independent Box and Animal identities, copied media and backup
-export of duplicated records.
-
-The v1.6.0 Batch QR Export source regression is recorded in
-`release-v1.6.0.md`. It covers the shared active/archived Box checklist,
-individual PNG and ZIP output, paginated A4 PDF layout, the 6–20 mm size range,
-smallest-code decoding and the unchanged device-permission boundary. Signed
-Android artifacts and physical Android or hosted Web checks remain
-release-owner steps until recorded there.
-
-The v1.6.1 UX Consistency & Localization source regression is recorded in
-`release-v1.6.1.md`. It covers archived Animal thumbnails, slider-only PDF QR
-sizing, multiline Weight, local English and German legal content and
-directional overview sort toggles. Database, backup, application identity and
-device-permission boundaries remain unchanged. Signed Android artifacts and
-physical Android or hosted Web checks remain release-owner steps until
-recorded there.
-
-The v1.7.0 Animal Taxonomy & Category Views source regression is recorded in
-`release-v1.7.0.md`. It covers the complete localized Issue #127 taxonomy,
-Schema Version 10 migration, compatible Backup Format Version 2 values and the
-grouped Animal Overview on Android and Web. Signed Android artifacts and
-physical Android or hosted Web checks remain release-owner steps until recorded
-there.
-
-The v1.7.1 Enclosure Notes & Migration source regression is recorded in
-`release-v1.7.1.md`. It covers the preserved released Schema Version 10
-snapshot, direct populated v10 to v11 migration, Box-owned temperature-zone
-notes, legacy Animal-value transfer and the refined QR export action layout.
-The update adds no storage, media, network or other device permission. Signed
-Android artifacts and physical Android or hosted Web checks remain release-owner
-steps until recorded there.
+The current source is based on v1.7.1 and includes the post-release Issue #78
+picture-gallery implementation. Platform validation covers Database Schema
+Version 12, ordered Animal and Box galleries, the compatible Portable Backup
+Format Version 2 representation, and the unchanged device-permission boundary.
 
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
@@ -406,6 +336,12 @@ package resolved by the project.
 
 Persistent Box and Animal pictures are stored as `MediaAssets` through the same
 Drift database abstraction used by the rest of the application.
+
+Schema Version 12 stores ordered Animal and Box picture histories through
+owner-specific association tables. Gallery viewing, primary selection and
+individual deletion are local database operations. Adding an image reuses the
+existing explicit Camera or Gallery selection flow and introduces no additional
+storage, media, network or background permission.
 
 New picture bytes are normalized before persistence. Backup restore deliberately
 does not recompress restored media, preserving compatibility and avoiding

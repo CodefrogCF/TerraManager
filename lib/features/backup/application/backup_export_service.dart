@@ -10,6 +10,7 @@ import '../../../core/database/repositories/animal_repository.dart';
 import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
 import '../../../core/database/repositories/media_repository.dart';
+import '../../../core/database/repositories/picture_gallery_repository.dart';
 import '../../settings/app_accent.dart';
 import '../../settings/app_language.dart';
 import '../../settings/animal_name_order.dart';
@@ -52,15 +53,17 @@ class BackupExportService {
     final feedingEvents = await FeedingRepository(database).getAllFeedings();
 
     final mediaRepository = MediaRepository(database);
+    final galleryRepository = PictureGalleryRepository(database);
 
     final mediaFiles = <String, Uint8List>{};
 
     final backupBoxes = <BackupBox>[];
 
     for (final box in boxes) {
-      final pictureMediaPath = await _exportBoxPicture(
+      final exportedPictures = await _exportBoxPictures(
         box: box,
         mediaRepository: mediaRepository,
+        galleryRepository: galleryRepository,
         mediaFiles: mediaFiles,
       );
 
@@ -80,7 +83,8 @@ class BackupExportService {
           depthCm: box.depthCm,
           temperatureZones: box.temperatureZones,
           notes: box.notes,
-          pictureMediaPath: pictureMediaPath,
+          pictureMediaPath: exportedPictures.primaryPath,
+          pictures: exportedPictures.pictures,
           createdAt: box.createdAt,
           updatedAt: box.updatedAt,
         ),
@@ -90,9 +94,10 @@ class BackupExportService {
     final backupAnimals = <BackupAnimal>[];
 
     for (final animal in animals) {
-      final pictureMediaPath = await _exportAnimalPicture(
+      final exportedPictures = await _exportAnimalPictures(
         animal: animal,
         mediaRepository: mediaRepository,
+        galleryRepository: galleryRepository,
         mediaFiles: mediaFiles,
       );
 
@@ -125,7 +130,8 @@ class BackupExportService {
           sheddingNotes: animal.sheddingNotes,
           restOrDormancyPeriods: animal.restOrDormancyPeriods,
           temperatureZones: animal.temperatureZones,
-          pictureMediaPath: pictureMediaPath,
+          pictureMediaPath: exportedPictures.primaryPath,
+          pictures: exportedPictures.pictures,
           notes: animal.notes,
           archiveReason: animal.archiveReason == null
               ? null
@@ -212,83 +218,61 @@ class BackupExportService {
     );
   }
 
-  Future<String?> _exportBoxPicture({
+  Future<_ExportedPictures> _exportBoxPictures({
     required Box box,
     required MediaRepository mediaRepository,
+    required PictureGalleryRepository galleryRepository,
     required Map<String, Uint8List> mediaFiles,
   }) async {
-    final mediaId = box.pictureMediaId;
-
-    if (mediaId == null) {
-      return null;
-    }
-
-    final media = await mediaRepository.getMediaById(mediaId);
-
-    if (media == null) {
-      throw BackupExportException(
-        'Persistent picture for box '
-        '${box.id} does not exist.',
+    final gallery = await galleryRepository.getBoxPictures(box.id);
+    if (gallery.isNotEmpty) {
+      return _exportPersistentPictures(
+        ownerLabel: 'box',
+        ownerId: box.id,
+        mediaDirectory: BackupFormat.boxMediaDirectory,
+        primaryMediaId: box.pictureMediaId,
+        pictures: gallery,
+        mediaFiles: mediaFiles,
       );
     }
 
-    if (media.data.isEmpty) {
-      throw BackupExportException(
-        'Persistent picture for box '
-        '${box.id} is empty.',
-      );
-    }
-
-    final extension = BackupMediaFormat.extensionForExport(
-      source: media.fileName,
-      mimeType: media.mimeType,
+    return _exportSinglePersistentPicture(
+      ownerLabel: 'box',
+      ownerId: box.id,
+      mediaDirectory: BackupFormat.boxMediaDirectory,
+      mediaId: box.pictureMediaId,
+      mediaRepository: mediaRepository,
+      mediaFiles: mediaFiles,
     );
-
-    final mediaPath =
-        '${BackupFormat.boxMediaDirectory}/'
-        '${box.id}.$extension';
-
-    mediaFiles[mediaPath] = media.data;
-
-    return mediaPath;
   }
 
-  Future<String?> _exportAnimalPicture({
+  Future<_ExportedPictures> _exportAnimalPictures({
     required Animal animal,
     required MediaRepository mediaRepository,
+    required PictureGalleryRepository galleryRepository,
     required Map<String, Uint8List> mediaFiles,
   }) async {
-    final mediaId = animal.pictureMediaId;
-
-    if (mediaId != null) {
-      final media = await mediaRepository.getMediaById(mediaId);
-
-      if (media == null) {
-        throw BackupExportException(
-          'Persistent picture for animal '
-          '${animal.id} does not exist.',
-        );
-      }
-
-      if (media.data.isEmpty) {
-        throw BackupExportException(
-          'Persistent picture for animal '
-          '${animal.id} is empty.',
-        );
-      }
-
-      final extension = BackupMediaFormat.extensionForExport(
-        source: media.fileName,
-        mimeType: media.mimeType,
+    final gallery = await galleryRepository.getAnimalPictures(animal.id);
+    if (gallery.isNotEmpty) {
+      return _exportPersistentPictures(
+        ownerLabel: 'animal',
+        ownerId: animal.id,
+        mediaDirectory: BackupFormat.animalMediaDirectory,
+        primaryMediaId: animal.pictureMediaId,
+        pictures: gallery,
+        mediaFiles: mediaFiles,
       );
+    }
 
-      final mediaPath =
-          '${BackupFormat.animalMediaDirectory}/'
-          '${animal.id}.$extension';
-
-      mediaFiles[mediaPath] = media.data;
-
-      return mediaPath;
+    if (animal.pictureMediaId != null) {
+      return _exportSinglePersistentPicture(
+        ownerLabel: 'animal',
+        ownerId: animal.id,
+        mediaDirectory: BackupFormat.animalMediaDirectory,
+        mediaId: animal.pictureMediaId,
+        mediaRepository: mediaRepository,
+        mediaFiles: mediaFiles,
+      );
     }
 
     // Legacy fallback for installations where
@@ -296,7 +280,7 @@ class BackupExportService {
     final sourcePath = animal.picturePath?.trim();
 
     if (sourcePath == null || sourcePath.isEmpty) {
-      return null;
+      return const _ExportedPictures(primaryPath: null, pictures: []);
     }
 
     Uint8List bytes;
@@ -326,7 +310,88 @@ class BackupExportService {
 
     mediaFiles[mediaPath] = bytes;
 
-    return mediaPath;
+    return _ExportedPictures(
+      primaryPath: mediaPath,
+      pictures: [
+        BackupPicture(mediaPath: mediaPath, capturedAt: animal.createdAt),
+      ],
+    );
+  }
+
+  Future<_ExportedPictures> _exportSinglePersistentPicture({
+    required String ownerLabel,
+    required int ownerId,
+    required String mediaDirectory,
+    required int? mediaId,
+    required MediaRepository mediaRepository,
+    required Map<String, Uint8List> mediaFiles,
+  }) async {
+    if (mediaId == null) {
+      return const _ExportedPictures(primaryPath: null, pictures: []);
+    }
+    final media = await mediaRepository.getMediaById(mediaId);
+    if (media == null) {
+      throw BackupExportException(
+        'Persistent picture for $ownerLabel $ownerId does not exist.',
+      );
+    }
+    if (media.data.isEmpty) {
+      throw BackupExportException(
+        'Persistent picture for $ownerLabel $ownerId is empty.',
+      );
+    }
+    final extension = BackupMediaFormat.extensionForExport(
+      source: media.fileName,
+      mimeType: media.mimeType,
+    );
+    final mediaPath = '$mediaDirectory/$ownerId.$extension';
+    mediaFiles[mediaPath] = media.data;
+    return _ExportedPictures(
+      primaryPath: mediaPath,
+      pictures: [
+        BackupPicture(mediaPath: mediaPath, capturedAt: media.createdAt),
+      ],
+    );
+  }
+
+  _ExportedPictures _exportPersistentPictures({
+    required String ownerLabel,
+    required int ownerId,
+    required String mediaDirectory,
+    required int? primaryMediaId,
+    required List<PictureGalleryEntry> pictures,
+    required Map<String, Uint8List> mediaFiles,
+  }) {
+    final backupPictures = <BackupPicture>[];
+    String? primaryPath;
+    for (final picture in pictures) {
+      if (picture.media.data.isEmpty) {
+        throw BackupExportException(
+          'Persistent picture ${picture.media.id} for '
+          '$ownerLabel $ownerId is empty.',
+        );
+      }
+      final extension = BackupMediaFormat.extensionForExport(
+        source: picture.media.fileName,
+        mimeType: picture.media.mimeType,
+      );
+      final isPrimary = picture.media.id == primaryMediaId;
+      final fileStem = isPrimary
+          ? '$ownerId'
+          : '${ownerId}_gallery_${picture.sortOrder}_${picture.media.id}';
+      final mediaPath = '$mediaDirectory/$fileStem.$extension';
+      mediaFiles[mediaPath] = picture.media.data;
+      backupPictures.add(
+        BackupPicture(mediaPath: mediaPath, capturedAt: picture.capturedAt),
+      );
+      if (isPrimary) {
+        primaryPath = mediaPath;
+      }
+    }
+    return _ExportedPictures(
+      primaryPath: primaryPath,
+      pictures: backupPictures,
+    );
   }
 
   static Future<Uint8List> _readLegacyMediaFromPath(String path) {
@@ -346,4 +411,11 @@ class BackupExportService {
         '${twoDigits(dateTime.minute)}.'
         '${BackupFormat.fileExtension}';
   }
+}
+
+class _ExportedPictures {
+  const _ExportedPictures({required this.primaryPath, required this.pictures});
+
+  final String? primaryPath;
+  final List<BackupPicture> pictures;
 }

@@ -19,7 +19,7 @@ void main() {
     expect(architectureDecisions, contains('GPL-3.0-or-later'));
   });
 
-  test('links the public release documents from the project overview', () {
+  test('links the maintained public documents from the project overview', () {
     final readme = read('README.md');
 
     const requiredFiles = [
@@ -28,18 +28,18 @@ void main() {
       'SUPPORT.md',
       'SECURITY.md',
       'CONTRIBUTING.md',
-      'docs/installation-and-updates.md',
+      'CHANGELOG.md',
+      'docs/roadmap.md',
+      'docs/development.md',
       'docs/toolchain-baseline.md',
-      'docs/release-v1.0.0.md',
-      'docs/release-v1.1.0.md',
-      'docs/release-v1.2.0.md',
-      'docs/release-v1.3.0.md',
-      'docs/release-v1.4.0.md',
-      'docs/release-v1.5.0.md',
-      'docs/release-v1.6.0.md',
-      'docs/release-v1.6.1.md',
-      'docs/release-v1.7.0.md',
-      'docs/release-v1.7.1.md',
+      'docs/installation-and-updates.md',
+      'docs/platform-support.md',
+      'docs/data-model.md',
+      'docs/backup-format.md',
+      'docs/architecture-decisions.md',
+      'docs/functional-requirements-MVP.md',
+      'docs/functional-requirements-non-MVP.md',
+      'docs/android-release-signing.md',
     ];
 
     for (final path in requiredFiles) {
@@ -86,13 +86,11 @@ void main() {
       isTrue,
       reason: 'The production manifest must remove INTERNET from dependencies.',
     );
-
     expect(
       removesPermission('android.permission.ACCESS_NETWORK_STATE'),
       isTrue,
       reason: 'The production manifest must remove ACCESS_NETWORK_STATE from dependencies.',
     );
-
     expect(
       removesPermission('android.permission.READ_EXTERNAL_STORAGE'),
       isTrue,

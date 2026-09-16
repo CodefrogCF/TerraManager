@@ -4,9 +4,8 @@ This document defines the functionality intended for the TerraManager MVP.
 
 Implementation progress is tracked separately in `roadmap.md`.
 
-The documented MVP scope is implemented in release `1.0.0+39`. Final platform,
-backup and release-artifact validation is recorded in
-`release-v1.0.0.md`.
+The documented MVP scope was completed with v1.0.0. Later changes and
+validation results are maintained in the project changelog and roadmap.
 
 ## Boxes
 

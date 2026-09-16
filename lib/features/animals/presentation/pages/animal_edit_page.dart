@@ -65,7 +65,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   int? _boxId;
 
   int? _pictureMediaId;
-  int? _originalPictureMediaId;
 
   String? _legacyPicturePath;
 
@@ -184,8 +183,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _boxId = boxes.any((box) => box.id == animal.boxId) ? animal.boxId : null;
 
       _pictureMediaId = animal.pictureMediaId;
-
-      _originalPictureMediaId = animal.pictureMediaId;
 
       _legacyPicturePath = animal.picturePath;
 
@@ -362,14 +359,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
         if (!updated) {
           throw StateError('Animal update failed');
-        }
-
-        final oldMediaId = _originalPictureMediaId;
-
-        if (_pictureChanged &&
-            oldMediaId != null &&
-            oldMediaId != pictureMediaId) {
-          await mediaRepository.deleteMedia(oldMediaId);
         }
 
         return true;

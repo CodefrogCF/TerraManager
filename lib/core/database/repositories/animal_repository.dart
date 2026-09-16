@@ -9,7 +9,7 @@ import '../enums/sex.dart';
 import '../enums/box_status.dart';
 import '../validation/animal_environmental_limits.dart';
 import 'box_lifecycle_exception.dart';
-import 'media_repository.dart';
+import 'picture_gallery_repository.dart';
 
 class AnimalRepository {
   final AppDatabase database;
@@ -103,7 +103,7 @@ class AnimalRepository {
 
     return database.transaction(() async {
       await _requireActiveBox(boxId);
-      return database
+      final animalId = await database
           .into(database.animals)
           .insert(
             AnimalsCompanion.insert(
@@ -134,6 +134,13 @@ class AnimalRepository {
               ),
             ),
           );
+      if (pictureMediaId != null) {
+        await PictureGalleryRepository(database).ensureAnimalPictureAssociation(
+          animalId: animalId,
+          mediaId: pictureMediaId,
+        );
+      }
+      return animalId;
     });
   }
 
@@ -198,12 +205,16 @@ class AnimalRepository {
         baseline: source.feedingReminderBaseline,
       );
 
-      final copiedPictureMediaId = source.pictureMediaId == null
-          ? null
-          : await MediaRepository(database)
-                .duplicateMedia(source.pictureMediaId!);
+      final galleryRepository = PictureGalleryRepository(database);
+      if (source.pictureMediaId != null) {
+        await galleryRepository.ensureAnimalPictureAssociation(
+          animalId: source.id,
+          mediaId: source.pictureMediaId!,
+          makePrimary: false,
+        );
+      }
 
-      return database
+      final targetAnimalId = await database
           .into(database.animals)
           .insert(
             AnimalsCompanion.insert(
@@ -225,8 +236,7 @@ class AnimalRepository {
               restOrDormancyPeriods: Value.absentIfNull(
                 source.restOrDormancyPeriods,
               ),
-              pictureMediaId: Value.absentIfNull(copiedPictureMediaId),
-              picturePath: copiedPictureMediaId == null
+              picturePath: source.pictureMediaId == null
                   ? Value.absentIfNull(source.picturePath)
                   : const Value.absent(),
               notes: Value.absentIfNull(source.notes),
@@ -238,6 +248,11 @@ class AnimalRepository {
               ),
             ),
           );
+      await galleryRepository.duplicateAnimalGallery(
+        sourceAnimalId: source.id,
+        targetAnimalId: targetAnimalId,
+      );
+      return targetAnimalId;
     });
   }
 
@@ -326,6 +341,12 @@ class AnimalRepository {
                 ),
               );
 
+      if (updatedRows > 0 && pictureMediaId != null) {
+        await PictureGalleryRepository(database).ensureAnimalPictureAssociation(
+          animalId: animalId,
+          mediaId: pictureMediaId,
+        );
+      }
       return updatedRows > 0;
     });
   }
@@ -422,7 +443,13 @@ class AnimalRepository {
         return false;
       }
 
-      final pictureMediaId = animal.pictureMediaId;
+      final galleryRepository = PictureGalleryRepository(database);
+      final mediaIds = await galleryRepository.getAnimalGalleryMediaIds(
+        animalId,
+      );
+      if (animal.pictureMediaId != null) {
+        mediaIds.add(animal.pictureMediaId!);
+      }
 
       await (database.delete(
         database.feedingEvents,
@@ -440,11 +467,7 @@ class AnimalRepository {
         return false;
       }
 
-      if (pictureMediaId != null) {
-        await (database.delete(
-          database.mediaAssets,
-        )..where((media) => media.id.equals(pictureMediaId))).go();
-      }
+      await galleryRepository.deleteUnreferencedMedia(mediaIds);
 
       return true;
     });
@@ -458,7 +481,11 @@ class AnimalRepository {
         return false;
       }
 
-      final pictureMediaId = animal.pictureMediaId;
+      final galleryRepository = PictureGalleryRepository(database);
+      final mediaIds = await galleryRepository.getAnimalGalleryMediaIds(id);
+      if (animal.pictureMediaId != null) {
+        mediaIds.add(animal.pictureMediaId!);
+      }
 
       final deletedRows = await (database.delete(
         database.animals,
@@ -468,11 +495,7 @@ class AnimalRepository {
         return false;
       }
 
-      if (pictureMediaId != null) {
-        await (database.delete(
-          database.mediaAssets,
-        )..where((media) => media.id.equals(pictureMediaId))).go();
-      }
+      await galleryRepository.deleteUnreferencedMedia(mediaIds);
 
       return true;
     });

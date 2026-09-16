@@ -15,6 +15,7 @@ import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../feedings/presentation/pages/feeding_reminder_settings_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../../../media/presentation/pages/picture_gallery_page.dart';
 import '../animal_display_names.dart';
 import '../widgets/animal_picture.dart';
 import 'animal_edit_page.dart';
@@ -144,6 +145,22 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       _loadLatestFeeding();
       _loadFeedingReminder();
     });
+  }
+
+  Future<void> _openPictureGallery() async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => PictureGalleryPage(
+          database: widget.database,
+          owner: PictureGalleryOwner.animal,
+          ownerId: _animalId,
+        ),
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(_loadAnimal);
   }
 
   Future<void> _openFeedingReminderSettings() async {
@@ -611,6 +628,13 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               picturePath: animal.picturePath,
             );
           },
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          key: const Key('open-animal-picture-gallery-button'),
+          onPressed: _openPictureGallery,
+          icon: const Icon(Icons.photo_library_outlined),
+          label: Text(context.l10n.pictureGallery),
         ),
         const SizedBox(height: 24),
 

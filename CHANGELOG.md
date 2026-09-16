@@ -4,6 +4,39 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [Unreleased]
+
+### Added
+
+- add ordered picture histories to Animal and Box details, including local
+  capture/import timestamps, full-screen viewing, selectable primary images
+  and confirmed individual deletion (Issue #78)
+- preserve complete galleries, ordering and primary selection in Portable
+  Backup Format Version 2
+
+### Changed
+
+- retain earlier pictures when a new Animal or Box picture is selected
+- duplicate complete picture galleries with independent MediaAssets
+- advance the local database to Schema Version 12 and migrate each existing
+  persistent single picture into a one-entry gallery
+- consolidate current documentation in the central guides, changelog and
+  roadmap instead of maintaining per-release and per-issue files
+
+### Privacy
+
+- keep gallery storage, viewing and management local and reuse the existing
+  user-initiated Camera and Gallery selection without adding device permissions
+
+### Testing
+
+- cover direct v11 migration, stable gallery ordering, primary selection,
+  isolated deletion, full-screen presentation and backup round trips
+- remove version-specific documentation tests together with the retired
+  per-release files and retain one central public-documentation regression
+
+Portable Backup Format Version 2 remains current and backward compatible.
+
 ## [1.7.1] - 2026-09-15
 
 ### Changed
@@ -250,7 +283,7 @@ compatibility baseline.
 - added an integrated regression for creating an Animal from Box details after
   the Animal Overview has already loaded
 - completed the v1.3.0 automated regression and documented the release-owner
-  build, signature and Google Play publication in `docs/release-v1.3.0.md`
+  build, signature and Google Play publication workflow
   (Issue #107)
 
 Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
@@ -523,7 +556,7 @@ actions and archive navigation are separate workflow work.
   of release secrets
 - corrected the recorded final publication actions for the completed v0.11.0
   and v0.12.0 releases
-- linked public release documentation from the project overview
+- linked public project documentation from the project overview
 - replaced the ambiguous Scan another Box Quick Feeding action with an
   explicit Scan a different Box cancellation action
 - clarified that this action discards the unsaved Box-specific feeding form,

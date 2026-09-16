@@ -6,7 +6,7 @@ import '../enums/box_status.dart';
 import '../enums/box_archive_reason.dart';
 import 'animal_repository.dart';
 import 'box_lifecycle_exception.dart';
-import 'media_repository.dart';
+import 'picture_gallery_repository.dart';
 
 class BoxRepository {
   final AppDatabase database;
@@ -111,20 +111,27 @@ class BoxRepository {
     String? notes,
     int? pictureMediaId,
   }) {
-    return database
-        .into(database.boxes)
-        .insert(
-          BoxesCompanion.insert(
-            qrId: qrId,
-            name: Value(name),
-            widthCm: Value(widthCm),
-            heightCm: Value(heightCm),
-            depthCm: Value(depthCm),
-            temperatureZones: Value(temperatureZones),
-            notes: Value(notes),
-            pictureMediaId: Value(pictureMediaId),
-          ),
-        );
+    return database.transaction(() async {
+      final boxId = await database
+          .into(database.boxes)
+          .insert(
+            BoxesCompanion.insert(
+              qrId: qrId,
+              name: Value(name),
+              widthCm: Value(widthCm),
+              heightCm: Value(heightCm),
+              depthCm: Value(depthCm),
+              temperatureZones: Value(temperatureZones),
+              notes: Value(notes),
+              pictureMediaId: Value(pictureMediaId),
+            ),
+          );
+      if (pictureMediaId != null) {
+        await PictureGalleryRepository(database)
+            .ensureBoxPictureAssociation(boxId: boxId, mediaId: pictureMediaId);
+      }
+      return boxId;
+    });
   }
 
   Future<int> createBoxWithGeneratedQrId({
@@ -177,13 +184,17 @@ class BoxRepository {
         throw StateError('Box $sourceBoxId does not exist');
       }
 
-      final copiedPictureMediaId = source.pictureMediaId == null
-          ? null
-          : await MediaRepository(database)
-                .duplicateMedia(source.pictureMediaId!);
+      final galleryRepository = PictureGalleryRepository(database);
+      if (source.pictureMediaId != null) {
+        await galleryRepository.ensureBoxPictureAssociation(
+          boxId: source.id,
+          mediaId: source.pictureMediaId!,
+          makePrimary: false,
+        );
+      }
       final normalizedName = name?.trim();
 
-      return createBoxWithGeneratedQrId(
+      final targetBoxId = await createBoxWithGeneratedQrId(
         name: normalizedName == null || normalizedName.isEmpty
             ? null
             : normalizedName,
@@ -192,8 +203,12 @@ class BoxRepository {
         depthCm: source.depthCm,
         temperatureZones: source.temperatureZones,
         notes: source.notes,
-        pictureMediaId: copiedPictureMediaId,
       );
+      await galleryRepository.duplicateBoxGallery(
+        sourceBoxId: source.id,
+        targetBoxId: targetBoxId,
+      );
+      return targetBoxId;
     });
   }
 
@@ -213,8 +228,6 @@ class BoxRepository {
       if (existing == null) {
         return false;
       }
-
-      final oldPictureMediaId = existing.pictureMediaId;
 
       final updatedRows =
           await (database.update(
@@ -236,15 +249,11 @@ class BoxRepository {
         return false;
       }
 
-      if (pictureMediaId.present) {
-        final newPictureMediaId = pictureMediaId.value;
-
-        if (oldPictureMediaId != null &&
-            oldPictureMediaId != newPictureMediaId) {
-          await (database.delete(
-            database.mediaAssets,
-          )..where((media) => media.id.equals(oldPictureMediaId))).go();
-        }
+      if (pictureMediaId.present && pictureMediaId.value != null) {
+        await PictureGalleryRepository(database).ensureBoxPictureAssociation(
+          boxId: boxId,
+          mediaId: pictureMediaId.value!,
+        );
       }
 
       return true;
@@ -259,7 +268,11 @@ class BoxRepository {
         return false;
       }
 
-      final pictureMediaId = existing.pictureMediaId;
+      final galleryRepository = PictureGalleryRepository(database);
+      final mediaIds = await galleryRepository.getBoxGalleryMediaIds(boxId);
+      if (existing.pictureMediaId != null) {
+        mediaIds.add(existing.pictureMediaId!);
+      }
 
       final rowsDeleted = await (database.delete(
         database.boxes,
@@ -269,11 +282,7 @@ class BoxRepository {
         return false;
       }
 
-      if (pictureMediaId != null) {
-        await (database.delete(
-          database.mediaAssets,
-        )..where((media) => media.id.equals(pictureMediaId))).go();
-      }
+      await galleryRepository.deleteUnreferencedMedia(mediaIds);
 
       return true;
     });
@@ -287,7 +296,11 @@ class BoxRepository {
         return false;
       }
 
-      final pictureMediaId = existing.pictureMediaId;
+      final galleryRepository = PictureGalleryRepository(database);
+      final mediaIds = await galleryRepository.getBoxGalleryMediaIds(boxId);
+      if (existing.pictureMediaId != null) {
+        mediaIds.add(existing.pictureMediaId!);
+      }
 
       final rowsDeleted =
           await (database.delete(database.boxes)..where(
@@ -301,11 +314,7 @@ class BoxRepository {
         return false;
       }
 
-      if (pictureMediaId != null) {
-        await (database.delete(
-          database.mediaAssets,
-        )..where((media) => media.id.equals(pictureMediaId))).go();
-      }
+      await galleryRepository.deleteUnreferencedMedia(mediaIds);
 
       return true;
     });

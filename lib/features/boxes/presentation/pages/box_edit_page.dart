@@ -49,7 +49,6 @@ class _BoxEditPageState extends State<BoxEditPage> {
   Box? _box;
 
   int? _pictureMediaId;
-  int? _originalPictureMediaId;
 
   Uint8List? _pictureBytes;
   String? _pictureFileName;
@@ -124,7 +123,6 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
       _box = box;
       _pictureMediaId = box.pictureMediaId;
-      _originalPictureMediaId = box.pictureMediaId;
 
       _nameController.text = box.name ?? '';
 
@@ -293,14 +291,6 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
         if (!updated) {
           throw StateError('Box update failed');
-        }
-
-        final oldMediaId = _originalPictureMediaId;
-
-        if (_pictureChanged &&
-            oldMediaId != null &&
-            oldMediaId != pictureMediaId) {
-          await mediaRepository.deleteMedia(oldMediaId);
         }
       });
 

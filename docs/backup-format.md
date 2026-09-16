@@ -108,7 +108,8 @@ Backup Format Version 2 is the current format.
 It extends portable Box data with dimensions and Box pictures. Current Version
 2 records can additionally contain optional Box names, lifecycle metadata,
 temperature zones and notes. Animal records can contain optional profile fields
-plus stable category and subcategory values.
+plus stable category and subcategory values. Animal and Box records can also
+contain additive ordered `pictures` lists for local picture histories.
 
 Archive structure:
 
@@ -138,6 +139,7 @@ depthCm
 temperatureZones
 notes
 pictureMediaPath
+pictures
 ```
 
 Version 2 does not preserve internal `MediaAsset.id` values.
@@ -387,6 +389,7 @@ depthCm
 temperatureZones
 notes
 pictureMediaPath
+pictures
 createdAt
 updatedAt
 ```
@@ -408,6 +411,16 @@ Example:
   "temperatureZones": "Warm side 28 °C",
   "notes": "Quarantine enclosure near the window",
   "pictureMediaPath": "media/boxes/1.jpg",
+  "pictures": [
+    {
+      "mediaPath": "media/boxes/1_gallery_0_17.webp",
+      "capturedAt": "2026-07-01T09:00:00.000Z"
+    },
+    {
+      "mediaPath": "media/boxes/1.jpg",
+      "capturedAt": "2026-08-01T10:00:00.000Z"
+    }
+  ],
   "createdAt": "2026-08-01T10:00:00.000",
   "updatedAt": "2026-08-02T12:00:00.000"
 }
@@ -427,6 +440,12 @@ When present, `notes` contains free-form text. Missing or explicit `null`
 values restore as empty Box notes.
 
 `pictureMediaPath` is optional.
+
+`pictures` is an optional ordered list. Each entry contains a portable
+`mediaPath` and ISO 8601 `capturedAt` timestamp. When `pictureMediaPath` is
+non-null, it identifies one path in `pictures` as the primary detail image.
+Missing `pictures` in an older backup is interpreted as a one-entry gallery
+when `pictureMediaPath` exists.
 
 ### Box QR Identifier
 
@@ -468,6 +487,7 @@ sheddingNotes
 restOrDormancyPeriods
 temperatureZones
 pictureMediaPath
+pictures
 notes
 archiveReason
 archivedAt
@@ -502,6 +522,16 @@ Example active Animal:
   "restOrDormancyPeriods": "Less active in winter",
   "temperatureZones": null,
   "pictureMediaPath": "media/animals/10.jpg",
+  "pictures": [
+    {
+      "mediaPath": "media/animals/10.jpg",
+      "capturedAt": "2026-08-01T10:00:00.000Z"
+    },
+    {
+      "mediaPath": "media/animals/10_gallery_1_42.webp",
+      "capturedAt": "2026-08-15T14:30:00.000Z"
+    }
+  ],
   "notes": "Test animal",
   "archiveReason": null,
   "archivedAt": null,
@@ -781,9 +811,11 @@ Backup Format Version 2 supports portable media for both Animals and Boxes:
 ```text
 media/
 ├── animals/
-│   └── <animalId>.<extension>
+│   ├── <animalId>.<extension>
+│   └── <animalId>_gallery_<order>_<mediaId>.<extension>
 └── boxes/
-    └── <boxId>.<extension>
+    ├── <boxId>.<extension>
+    └── <boxId>_gallery_<order>_<mediaId>.<extension>
 ```
 
 Animal representation:
@@ -801,6 +833,32 @@ Box representation:
   "pictureMediaPath": "media/boxes/1.jpg"
 }
 ```
+
+Current records can additionally contain an ordered gallery:
+
+```json
+{
+  "pictureMediaPath": "media/animals/10.webp",
+  "pictures": [
+    {
+      "mediaPath": "media/animals/10.webp",
+      "capturedAt": "2026-08-01T10:00:00.000Z"
+    },
+    {
+      "mediaPath": "media/animals/10_gallery_1_42.webp",
+      "capturedAt": "2026-09-01T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+List order is the gallery order. `pictureMediaPath` remains the backward-
+compatible primary-image pointer and can be `null` while `pictures` retains
+historical entries. Validation rejects duplicate gallery paths and a primary
+path that is not part of the same gallery. Restore recreates one MediaAsset and
+one owner association for every list entry, preserving order, timestamps and
+primary selection. Backups without `pictures` retain the earlier single-image
+restore behavior.
 
 For persistent `MediaAssets`, the archive extension is derived from the stored
 filename or MIME type.
@@ -1515,7 +1573,8 @@ Version 2 preserves:
 - Box IDs
 - permanent Box QR identifiers
 - optional Box name, width, height, depth, temperature zones and notes
-- Box pictures through portable media references
+- Box picture galleries, order, timestamps and primary selection through
+  portable media references
 - Animal IDs
 - stable Animal category and optional compatible subcategory
 - optional Animal profile fields and legacy temperature-zone compatibility
@@ -1525,7 +1584,8 @@ Version 2 preserves:
 - optional per-Animal feeding reminder interval and baseline
 - FeedingEvent IDs and relationships
 - timestamps and notes
-- Animal pictures through portable media references
+- Animal picture galleries, order, timestamps and primary selection through
+  portable media references
 - appearance settings and optional language, Animal name-order, Animal
   sort-order and Box sort-order settings
 

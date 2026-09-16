@@ -37,7 +37,7 @@ Depending on how the application is used, this may include:
 * animal names and species information;
 * sex and birth or hatch information;
 * animal notes;
-* animal pictures;
+* animal and Box pictures, including picture histories;
 * enclosure or Box records;
 * enclosure dimensions;
 * enclosure or Box notes;
@@ -127,11 +127,13 @@ A backup may contain collection information stored in TerraManager and should th
 
 ## 6. Pictures
 
-TerraManager allows pictures to be associated with animal records.
+TerraManager allows pictures and local picture histories to be associated with
+Animal and Box records.
 
 Pictures selected or created for use with TerraManager are processed for use within the application and stored as part of the user's locally managed TerraManager data.
 
-TerraManager does not automatically upload animal pictures to a TerraManager server.
+TerraManager does not automatically upload Animal or Box pictures to a
+TerraManager server.
 
 If the user exports, shares or backs up data containing pictures, those files may be processed by the destination selected by the user.
 

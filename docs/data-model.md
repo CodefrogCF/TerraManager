@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **10**.
+The current Drift database schema version is **12**.
 
 The current database model consists of:
 
@@ -10,6 +10,8 @@ The current database model consists of:
 - Animals
 - FeedingEvents
 - MediaAssets
+- AnimalPictureAssociations
+- BoxPictureAssociations
 
 Sensors are planned but are not implemented.
 
@@ -18,23 +20,27 @@ Sensors are planned but are not implemented.
 ```text
 Box
  │
- ├──── 0:1 ──── MediaAsset
+ ├──── 1:n ──── BoxPictureAssociation ──── 1:1 ──── MediaAsset
  │
  └──── 1:n ──── Active Animal
                    │
                    ├──── 1:n ──── FeedingEvent
                    │
-                   └──── 0:1 ──── MediaAsset
+                   └──── 1:n ──── AnimalPictureAssociation ──── 1:1 ──── MediaAsset
 
 Archived Animal
  │
  ├── boxId = null
  ├──── 1:n ──── FeedingEvent
- └──── 0:1 ──── MediaAsset
+ └──── 1:n ──── AnimalPictureAssociation ──── 1:1 ──── MediaAsset
 ```
 
-An Animal remains the owner of its feeding history and optional picture while
+An Animal remains the owner of its feeding history and picture gallery while
 archived.
+
+`Box.pictureMediaId` and `Animal.pictureMediaId` identify the primary detail
+image within the corresponding gallery. They can be `null` while historical
+gallery entries remain stored.
 
 Planned:
 
@@ -92,7 +98,8 @@ The QR identifier uses the following format:
 TM:BOX:<UUID-v4>
 ```
 
-A Box can contain multiple active Animals and can optionally reference a persistent picture through `pictureMediaId`.
+A Box can contain multiple active Animals and can reference one gallery image
+as its primary picture through `pictureMediaId`.
 
 The QR identifier does not contain Animal or Box data. It only identifies the
 corresponding database record.
@@ -133,7 +140,7 @@ continues to include both states for backups. These workflows require no
 additional schema migration.
 
 Permanent deletion is restricted to archived Boxes and removes their associated
-picture media in the same transaction. The active Edit Box workflow does not
+picture gallery in the same transaction. The active Edit Box workflow does not
 offer deletion, matching the archive-first lifecycle used for Animals.
 
 ## Animal
@@ -199,7 +206,8 @@ Animal
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
-New Animal pictures are stored through `MediaAssets`.
+New Animal pictures are stored through `MediaAssets` and ordered gallery
+associations.
 
 `picturePath` is not the primary picture storage mechanism anymore. It remains
 available so pictures created by earlier TerraManager versions can be migrated
@@ -236,7 +244,7 @@ discarding unsaved form changes.
 Restoring an archived Animal requires assigning a Box again.
 
 Permanent deletion is intentionally a separate operation. It removes associated
-feeding data and application-owned picture media before the Animal record is
+feeding data and application-owned gallery media before the Animal record is
 considered permanently removed.
 
 Lifecycle consistency is enforced by the repository/application layer.
@@ -308,16 +316,17 @@ No schema or portable backup-format change is required.
 A Box duplicate receives a new auto-incremented `id`, a newly generated unique
 `qrId`, active lifecycle state and cleared archive metadata. Its name is chosen
 in the duplication dialog. Dimensions, notes and other reusable values are
-copied. If the source has a picture, its bytes are inserted as a new MediaAsset
-so later edits or deletion of either record cannot remove the other's picture.
+copied. Every source gallery image is inserted as a new MediaAsset with the
+same order, timestamp and primary selection, so later edits or deletion of
+either record cannot remove the other record's pictures.
 Assigned Animals remain assigned to the source and are not duplicated with the
 Box.
 
 An Animal duplicate receives a new auto-incremented `id`, active lifecycle
 state, a selected active `boxId` and a common name chosen in the dialog. Profile,
 environmental, reminder and optional characteristic values are copied. Archive
-metadata and FeedingEvents are not copied. Picture bytes use another independent
-MediaAsset. These rules also allow an archived Animal to serve as the source
+metadata and FeedingEvents are not copied. Every gallery image uses another
+independent MediaAsset. These rules also allow an archived Animal to serve as the source
 without modifying or restoring that source.
 
 Current Backup Format Version 2 exports duplicated records and their independent
@@ -347,14 +356,17 @@ MediaAsset
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
-Box and Animal pictures reference MediaAssets through:
+Box and Animal galleries reference MediaAssets through association rows. The
+existing nullable owner field selects the primary image:
 
 ```text
-Box.pictureMediaId ───────┐
-                          ▼
-                    MediaAsset.id
-                          ▲
-Animal.pictureMediaId ────┘
+Box ──── 1:n ──── BoxPictureAssociation ──── 1:1 ──── MediaAsset
+ │
+ └── pictureMediaId ────────────────────────────────────┘
+
+Animal ── 1:n ──── AnimalPictureAssociation ── 1:1 ──── MediaAsset
+ │
+ └── pictureMediaId ─────────────────────────────────────────┘
 ```
 
 Newly selected or captured Box and Animal pictures are cropped and normalized
@@ -373,6 +385,25 @@ This persistence model is shared by Android and Web.
 Internal `MediaAsset.id` values are not part of the portable backup format.
 Backup restore creates new MediaAsset records and assigns their generated IDs to
 the restored Boxes and Animals.
+
+## Picture Galleries (Issue #78)
+
+`AnimalPictureAssociations` and `BoxPictureAssociations` contain an
+auto-incremented ID, the owning record ID, one unique `mediaAssetId`, a
+`capturedAt` timestamp and a per-owner `sortOrder`. A unique owner/order pair
+keeps chronological presentation deterministic, and cascading owner deletion
+removes association rows before unreferenced MediaAssets are deleted.
+
+Adding or replacing the visible detail image creates a new MediaAsset and
+appends an association. Earlier entries remain in the gallery. Selecting a
+historical entry only changes the owner's `pictureMediaId`. Clearing the
+primary image does not delete history. Deleting an individual entry requires
+confirmation; deleting the primary entry promotes the newest remaining image,
+and unrelated media is never removed.
+
+Capture and Gallery imports continue through the existing explicit image
+selection, crop and normalization flow. Gallery storage and viewing are local
+database operations and add no platform permission.
 
 ## Legacy Picture Migration
 
@@ -573,7 +604,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 9.
+The current Drift database schema version is 12.
 
 ### Schema Version 1
 
@@ -750,3 +781,12 @@ The former Animal column remains readable for database and backup compatibility;
 current forms, details, repository writes and duplication treat the Box value
 as authoritative. Keeping the released v10 snapshot unchanged ensures that an
 installation upgraded from v1.7.0 executes this explicit migration step.
+
+### Schema Version 12
+
+Schema Version 12 adds `AnimalPictureAssociations` and
+`BoxPictureAssociations`. The v11 → v12 migration creates one association at
+sort order `0` for every existing non-null `pictureMediaId` and copies the
+MediaAsset creation timestamp into `capturedAt`. Existing owner records,
+primary references, picture bytes, lifecycle data, FeedingEvents and settings
+remain unchanged.

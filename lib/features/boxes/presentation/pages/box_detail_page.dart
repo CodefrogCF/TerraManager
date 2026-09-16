@@ -16,6 +16,7 @@ import '../../../animals/presentation/animal_display_names.dart';
 import '../../../animals/presentation/pages/animal_detail_page.dart';
 import '../../../animals/presentation/pages/new_animal_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../../../media/presentation/pages/picture_gallery_page.dart';
 import 'box_edit_page.dart';
 import '../widgets/box_picture.dart';
 import '../widgets/box_qr_code.dart';
@@ -173,6 +174,22 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
       return;
     }
 
+    await _refreshBox();
+  }
+
+  Future<void> _openPictureGallery() async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => PictureGalleryPage(
+          database: widget.database,
+          owner: PictureGalleryOwner.box,
+          ownerId: _box.id,
+        ),
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
     await _refreshBox();
   }
 
@@ -591,6 +608,13 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                         : context.l10n.noPicture,
                   );
                 },
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                key: const Key('open-box-picture-gallery-button'),
+                onPressed: _openPictureGallery,
+                icon: const Icon(Icons.photo_library_outlined),
+                label: Text(context.l10n.pictureGallery),
               ),
               const SizedBox(height: 24),
 

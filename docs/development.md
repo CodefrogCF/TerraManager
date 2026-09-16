@@ -335,7 +335,7 @@ If platform-related code changed, additionally validate the affected platform ma
 For public-documentation changes, also run:
 
 ```text
-flutter test test/platform/public_release_documentation_test.dart
+flutter test test/platform/public_documentation_test.dart
 ```
 
 For CI or toolchain changes, also run:
@@ -386,6 +386,11 @@ Examples:
 - absence of automatically opened dialogs or system-notification permission
   requests
 - atomic replacement that retains the old picture after processing/save errors
+- migration of existing Animal and Box pictures into one-entry galleries
+- stable gallery ordering and capture/import timestamps
+- adding a picture without deleting earlier gallery entries
+- changing the primary picture and confirmed individual deletion
+- gallery order and primary-selection backup round trips
 - WebP and legacy image display in overview, detail and full-screen contexts
 - unchanged display and backup behavior for existing JPEG and PNG pictures
 - mixed PNG/JPEG and WebP backup export, validation and restore
@@ -431,16 +436,8 @@ smaller, and roughly 6.2 times smaller overall.
 
 ## Recommended Release Validation
 
-The active v1.0.0 release checklist is maintained in:
-
-```text
-docs/release-v1.0.0.md
-```
-
-Do not create the release tag until every blocking automated, build, artifact,
-backup and manual validation item in that document is complete.
-
-Before a milestone release:
+Before a milestone release, the release owner should run the supported quality
+gates and platform checks for the affected source state:
 
 ```text
 flutter clean
@@ -453,37 +450,10 @@ flutter build apk --release
 flutter build web
 ```
 
-Then perform manual regression testing on validated target platforms.
-
-The completed v0.14.1 validation record and release notes are available in:
-
-```text
-docs/release-v0.14.1.md
-```
-
-The completed v0.14.0 validation record and release notes are available in:
-
-```text
-docs/release-v0.14.0.md
-```
-
-The completed v0.13.0 validation record and release notes are available in:
-
-```text
-docs/release-v0.13.0.md
-```
-
-The completed v0.12.0 validation and release record is available in:
-
-```text
-docs/release-v0.12.0.md
-```
-
-The completed v0.11.0 validation remains available in:
-
-```text
-docs/release-v0.11.0.md
-```
+Then perform manual regression testing on every validated target platform,
+verify signed artifacts and backups, and record the user-visible result in the
+GitHub Release and `CHANGELOG.md`. Release-specific validation files are not
+kept under `docs/`.
 
 ## Git Workflow
 

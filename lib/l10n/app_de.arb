@@ -519,5 +519,24 @@
       }
     }
   },
-  "failedToSaveBoxQrCodesAsPdf": "Box-QR-Codes konnten nicht als PDF-Datei gespeichert werden"
+  "failedToSaveBoxQrCodesAsPdf": "Box-QR-Codes konnten nicht als PDF-Datei gespeichert werden",
+  "pictureGallery": "Bildergalerie",
+  "pictureGalleryDescription": "Bilder bleiben chronologisch geordnet. Jedes Bild kann als primäres Detailbild ausgewählt werden.",
+  "noPictures": "Noch keine Bilder gespeichert",
+  "primaryPicture": "Primäres Bild",
+  "setAsPrimaryPicture": "Als primäres Bild festlegen",
+  "deletePicture": "Bild löschen",
+  "deletePictureQuestion": "Bild löschen?",
+  "deletePictureWarning": "Dieses Bild endgültig aus der Galerie löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+  "failedToAddPicture": "Bild konnte nicht hinzugefügt werden",
+  "failedToSetPrimaryPicture": "Primäres Bild konnte nicht geändert werden",
+  "failedToDeletePicture": "Bild konnte nicht gelöscht werden",
+  "failedToLoadPictures": "Bilder konnten nicht geladen werden",
+  "pictureAddedAt": "Hinzugefügt am {date} um {time}",
+  "@pictureAddedAt": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  }
 }

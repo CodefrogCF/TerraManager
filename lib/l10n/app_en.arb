@@ -657,5 +657,24 @@
       }
     }
   },
-  "failedToSaveBoxQrCodesAsPdf": "Box QR codes could not be saved as a PDF file"
+  "failedToSaveBoxQrCodesAsPdf": "Box QR codes could not be saved as a PDF file",
+  "pictureGallery": "Picture gallery",
+  "pictureGalleryDescription": "Pictures are kept in chronological order. Choose any picture as the primary detail image.",
+  "noPictures": "No pictures saved yet",
+  "primaryPicture": "Primary picture",
+  "setAsPrimaryPicture": "Set as primary picture",
+  "deletePicture": "Delete picture",
+  "deletePictureQuestion": "Delete picture?",
+  "deletePictureWarning": "Permanently delete this picture from the gallery? This action cannot be undone.",
+  "failedToAddPicture": "Picture could not be added",
+  "failedToSetPrimaryPicture": "Primary picture could not be changed",
+  "failedToDeletePicture": "Picture could not be deleted",
+  "failedToLoadPictures": "Pictures could not be loaded",
+  "pictureAddedAt": "Added {date} at {time}",
+  "@pictureAddedAt": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  }
 }

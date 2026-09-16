@@ -296,7 +296,7 @@ void main() {
     expect(box!.pictureMediaId, mediaId);
   });
 
-  test('replacing box picture deletes old media asset', () async {
+  test('replacing box picture keeps old media in the gallery', () async {
     final oldMediaId = await database
         .into(database.mediaAssets)
         .insert(
@@ -342,11 +342,18 @@ void main() {
       database.mediaAssets,
     )..where((media) => media.id.equals(newMediaId))).getSingleOrNull();
 
-    expect(oldMedia, isNull);
+    expect(oldMedia, isNotNull);
     expect(newMedia, isNotNull);
+    final gallery = await database
+        .select(database.boxPictureAssociations)
+        .get();
+    expect(gallery.map((entry) => entry.mediaAssetId), [
+      oldMediaId,
+      newMediaId,
+    ]);
   });
 
-  test('removing box picture deletes old media asset', () async {
+  test('removing box primary picture keeps its gallery entry', () async {
     final mediaId = await database
         .into(database.mediaAssets)
         .insert(
@@ -378,7 +385,11 @@ void main() {
       database.mediaAssets,
     )..where((entry) => entry.id.equals(mediaId))).getSingleOrNull();
 
-    expect(media, isNull);
+    expect(media, isNotNull);
+    final gallery = await database
+        .select(database.boxPictureAssociations)
+        .get();
+    expect(gallery.single.mediaAssetId, mediaId);
   });
 
   test('can delete a box', () async {

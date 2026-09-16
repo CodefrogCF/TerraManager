@@ -554,88 +554,87 @@ class BackupValidationService {
     final result = <String, Uint8List>{};
 
     for (final box in data.boxes) {
-      final mediaPath = box.pictureMediaPath;
-
-      if (mediaPath == null) {
-        continue;
-      }
-
-      if (!_isValidBoxMediaPath(mediaPath)) {
-        throw BackupValidationException(
-          code: BackupValidationErrorCode.invalidMediaReference,
-          message:
-              'Box ${box.id} contains '
-              'invalid media reference: $mediaPath',
-        );
-      }
-
-      final file = archiveFiles[mediaPath];
-
-      if (file == null) {
-        throw BackupValidationException(
-          code: BackupValidationErrorCode.missingMedia,
-          message:
-              'Referenced media file is missing: '
-              '$mediaPath',
-        );
-      }
-
-      final bytes = file.readBytes();
-
-      if (bytes == null || bytes.isEmpty) {
-        throw BackupValidationException(
-          code: BackupValidationErrorCode.emptyMedia,
-          message:
-              'Referenced media file is empty: '
-              '$mediaPath',
-        );
-      }
-
-      result[mediaPath] = Uint8List.fromList(bytes);
+      _validateEntityMedia(
+        entityLabel: 'Box',
+        entityId: box.id,
+        primaryPath: box.pictureMediaPath,
+        pictures: box.pictures,
+        isValidPath: _isValidBoxMediaPath,
+        archiveFiles: archiveFiles,
+        result: result,
+      );
     }
 
     for (final animal in data.animals) {
-      final mediaPath = animal.pictureMediaPath;
-
-      if (mediaPath == null) {
-        continue;
-      }
-
-      if (!_isValidAnimalMediaPath(mediaPath)) {
-        throw BackupValidationException(
-          code: BackupValidationErrorCode.invalidMediaReference,
-          message:
-              'Animal ${animal.id} contains '
-              'invalid media reference: $mediaPath',
-        );
-      }
-
-      final file = archiveFiles[mediaPath];
-
-      if (file == null) {
-        throw BackupValidationException(
-          code: BackupValidationErrorCode.missingMedia,
-          message:
-              'Referenced media file is missing: '
-              '$mediaPath',
-        );
-      }
-
-      final bytes = file.readBytes();
-
-      if (bytes == null || bytes.isEmpty) {
-        throw BackupValidationException(
-          code: BackupValidationErrorCode.emptyMedia,
-          message:
-              'Referenced media file is empty: '
-              '$mediaPath',
-        );
-      }
-
-      result[mediaPath] = Uint8List.fromList(bytes);
+      _validateEntityMedia(
+        entityLabel: 'Animal',
+        entityId: animal.id,
+        primaryPath: animal.pictureMediaPath,
+        pictures: animal.pictures,
+        isValidPath: _isValidAnimalMediaPath,
+        archiveFiles: archiveFiles,
+        result: result,
+      );
     }
 
     return result;
+  }
+
+  void _validateEntityMedia({
+    required String entityLabel,
+    required int entityId,
+    required String? primaryPath,
+    required List<BackupPicture> pictures,
+    required bool Function(String path) isValidPath,
+    required Map<String, ArchiveFile> archiveFiles,
+    required Map<String, Uint8List> result,
+  }) {
+    final paths = pictures.map((picture) => picture.mediaPath).toList();
+    if (paths.isEmpty && primaryPath != null) {
+      paths.add(primaryPath);
+    }
+    if (primaryPath != null && !paths.contains(primaryPath)) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidMediaReference,
+        message:
+            '$entityLabel $entityId primary picture is not part of its gallery.',
+      );
+    }
+
+    final uniquePaths = <String>{};
+    for (final mediaPath in paths) {
+      if (!uniquePaths.add(mediaPath)) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.invalidMediaReference,
+          message:
+              '$entityLabel $entityId contains a duplicate gallery '
+              'media reference: $mediaPath',
+        );
+      }
+      if (!isValidPath(mediaPath)) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.invalidMediaReference,
+          message:
+              '$entityLabel $entityId contains invalid media '
+              'reference: $mediaPath',
+        );
+      }
+      final file = archiveFiles[mediaPath];
+      if (file == null) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.missingMedia,
+          message: 'Referenced media file is missing: $mediaPath',
+        );
+      }
+      final bytes = file.readBytes();
+      if (bytes == null || bytes.isEmpty) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.emptyMedia,
+          message: 'Referenced media file is empty: $mediaPath',
+        );
+      }
+      result[mediaPath] = Uint8List.fromList(bytes);
+    }
   }
 
   bool _isValidAnimalMediaPath(String path) {

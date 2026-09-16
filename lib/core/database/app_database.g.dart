@@ -3225,6 +3225,757 @@ class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
   }
 }
 
+class $AnimalPictureAssociationsTable extends AnimalPictureAssociations
+    with TableInfo<$AnimalPictureAssociationsTable, AnimalPictureAssociation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AnimalPictureAssociationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _animalIdMeta = const VerificationMeta(
+    'animalId',
+  );
+  @override
+  late final GeneratedColumn<int> animalId = GeneratedColumn<int>(
+    'animal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES animals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _mediaAssetIdMeta = const VerificationMeta(
+    'mediaAssetId',
+  );
+  @override
+  late final GeneratedColumn<int> mediaAssetId = GeneratedColumn<int>(
+    'media_asset_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES media_assets (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
+    'capturedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
+    'captured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    animalId,
+    mediaAssetId,
+    capturedAt,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'animal_picture_associations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AnimalPictureAssociation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('animal_id')) {
+      context.handle(
+        _animalIdMeta,
+        animalId.isAcceptableOrUnknown(data['animal_id']!, _animalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_animalIdMeta);
+    }
+    if (data.containsKey('media_asset_id')) {
+      context.handle(
+        _mediaAssetIdMeta,
+        mediaAssetId.isAcceptableOrUnknown(
+          data['media_asset_id']!,
+          _mediaAssetIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_mediaAssetIdMeta);
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_capturedAtMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {mediaAssetId},
+    {animalId, sortOrder},
+  ];
+  @override
+  AnimalPictureAssociation map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AnimalPictureAssociation(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      animalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}animal_id'],
+      )!,
+      mediaAssetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}media_asset_id'],
+      )!,
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}captured_at'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $AnimalPictureAssociationsTable createAlias(String alias) {
+    return $AnimalPictureAssociationsTable(attachedDatabase, alias);
+  }
+}
+
+class AnimalPictureAssociation extends DataClass
+    implements Insertable<AnimalPictureAssociation> {
+  final int id;
+  final int animalId;
+  final int mediaAssetId;
+  final DateTime capturedAt;
+  final int sortOrder;
+  const AnimalPictureAssociation({
+    required this.id,
+    required this.animalId,
+    required this.mediaAssetId,
+    required this.capturedAt,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['animal_id'] = Variable<int>(animalId);
+    map['media_asset_id'] = Variable<int>(mediaAssetId);
+    map['captured_at'] = Variable<DateTime>(capturedAt);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  AnimalPictureAssociationsCompanion toCompanion(bool nullToAbsent) {
+    return AnimalPictureAssociationsCompanion(
+      id: Value(id),
+      animalId: Value(animalId),
+      mediaAssetId: Value(mediaAssetId),
+      capturedAt: Value(capturedAt),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory AnimalPictureAssociation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AnimalPictureAssociation(
+      id: serializer.fromJson<int>(json['id']),
+      animalId: serializer.fromJson<int>(json['animalId']),
+      mediaAssetId: serializer.fromJson<int>(json['mediaAssetId']),
+      capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'animalId': serializer.toJson<int>(animalId),
+      'mediaAssetId': serializer.toJson<int>(mediaAssetId),
+      'capturedAt': serializer.toJson<DateTime>(capturedAt),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  AnimalPictureAssociation copyWith({
+    int? id,
+    int? animalId,
+    int? mediaAssetId,
+    DateTime? capturedAt,
+    int? sortOrder,
+  }) => AnimalPictureAssociation(
+    id: id ?? this.id,
+    animalId: animalId ?? this.animalId,
+    mediaAssetId: mediaAssetId ?? this.mediaAssetId,
+    capturedAt: capturedAt ?? this.capturedAt,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  AnimalPictureAssociation copyWithCompanion(
+    AnimalPictureAssociationsCompanion data,
+  ) {
+    return AnimalPictureAssociation(
+      id: data.id.present ? data.id.value : this.id,
+      animalId: data.animalId.present ? data.animalId.value : this.animalId,
+      mediaAssetId: data.mediaAssetId.present
+          ? data.mediaAssetId.value
+          : this.mediaAssetId,
+      capturedAt: data.capturedAt.present
+          ? data.capturedAt.value
+          : this.capturedAt,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimalPictureAssociation(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('mediaAssetId: $mediaAssetId, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, animalId, mediaAssetId, capturedAt, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AnimalPictureAssociation &&
+          other.id == this.id &&
+          other.animalId == this.animalId &&
+          other.mediaAssetId == this.mediaAssetId &&
+          other.capturedAt == this.capturedAt &&
+          other.sortOrder == this.sortOrder);
+}
+
+class AnimalPictureAssociationsCompanion
+    extends UpdateCompanion<AnimalPictureAssociation> {
+  final Value<int> id;
+  final Value<int> animalId;
+  final Value<int> mediaAssetId;
+  final Value<DateTime> capturedAt;
+  final Value<int> sortOrder;
+  const AnimalPictureAssociationsCompanion({
+    this.id = const Value.absent(),
+    this.animalId = const Value.absent(),
+    this.mediaAssetId = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  AnimalPictureAssociationsCompanion.insert({
+    this.id = const Value.absent(),
+    required int animalId,
+    required int mediaAssetId,
+    required DateTime capturedAt,
+    required int sortOrder,
+  }) : animalId = Value(animalId),
+       mediaAssetId = Value(mediaAssetId),
+       capturedAt = Value(capturedAt),
+       sortOrder = Value(sortOrder);
+  static Insertable<AnimalPictureAssociation> custom({
+    Expression<int>? id,
+    Expression<int>? animalId,
+    Expression<int>? mediaAssetId,
+    Expression<DateTime>? capturedAt,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (animalId != null) 'animal_id': animalId,
+      if (mediaAssetId != null) 'media_asset_id': mediaAssetId,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  AnimalPictureAssociationsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? animalId,
+    Value<int>? mediaAssetId,
+    Value<DateTime>? capturedAt,
+    Value<int>? sortOrder,
+  }) {
+    return AnimalPictureAssociationsCompanion(
+      id: id ?? this.id,
+      animalId: animalId ?? this.animalId,
+      mediaAssetId: mediaAssetId ?? this.mediaAssetId,
+      capturedAt: capturedAt ?? this.capturedAt,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (animalId.present) {
+      map['animal_id'] = Variable<int>(animalId.value);
+    }
+    if (mediaAssetId.present) {
+      map['media_asset_id'] = Variable<int>(mediaAssetId.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<DateTime>(capturedAt.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimalPictureAssociationsCompanion(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('mediaAssetId: $mediaAssetId, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BoxPictureAssociationsTable extends BoxPictureAssociations
+    with TableInfo<$BoxPictureAssociationsTable, BoxPictureAssociation> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoxPictureAssociationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _boxIdMeta = const VerificationMeta('boxId');
+  @override
+  late final GeneratedColumn<int> boxId = GeneratedColumn<int>(
+    'box_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES boxes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _mediaAssetIdMeta = const VerificationMeta(
+    'mediaAssetId',
+  );
+  @override
+  late final GeneratedColumn<int> mediaAssetId = GeneratedColumn<int>(
+    'media_asset_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES media_assets (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
+    'capturedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
+    'captured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    boxId,
+    mediaAssetId,
+    capturedAt,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'box_picture_associations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BoxPictureAssociation> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('box_id')) {
+      context.handle(
+        _boxIdMeta,
+        boxId.isAcceptableOrUnknown(data['box_id']!, _boxIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_boxIdMeta);
+    }
+    if (data.containsKey('media_asset_id')) {
+      context.handle(
+        _mediaAssetIdMeta,
+        mediaAssetId.isAcceptableOrUnknown(
+          data['media_asset_id']!,
+          _mediaAssetIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_mediaAssetIdMeta);
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_capturedAtMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {mediaAssetId},
+    {boxId, sortOrder},
+  ];
+  @override
+  BoxPictureAssociation map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoxPictureAssociation(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      boxId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}box_id'],
+      )!,
+      mediaAssetId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}media_asset_id'],
+      )!,
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}captured_at'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $BoxPictureAssociationsTable createAlias(String alias) {
+    return $BoxPictureAssociationsTable(attachedDatabase, alias);
+  }
+}
+
+class BoxPictureAssociation extends DataClass
+    implements Insertable<BoxPictureAssociation> {
+  final int id;
+  final int boxId;
+  final int mediaAssetId;
+  final DateTime capturedAt;
+  final int sortOrder;
+  const BoxPictureAssociation({
+    required this.id,
+    required this.boxId,
+    required this.mediaAssetId,
+    required this.capturedAt,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['box_id'] = Variable<int>(boxId);
+    map['media_asset_id'] = Variable<int>(mediaAssetId);
+    map['captured_at'] = Variable<DateTime>(capturedAt);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  BoxPictureAssociationsCompanion toCompanion(bool nullToAbsent) {
+    return BoxPictureAssociationsCompanion(
+      id: Value(id),
+      boxId: Value(boxId),
+      mediaAssetId: Value(mediaAssetId),
+      capturedAt: Value(capturedAt),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory BoxPictureAssociation.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoxPictureAssociation(
+      id: serializer.fromJson<int>(json['id']),
+      boxId: serializer.fromJson<int>(json['boxId']),
+      mediaAssetId: serializer.fromJson<int>(json['mediaAssetId']),
+      capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'boxId': serializer.toJson<int>(boxId),
+      'mediaAssetId': serializer.toJson<int>(mediaAssetId),
+      'capturedAt': serializer.toJson<DateTime>(capturedAt),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  BoxPictureAssociation copyWith({
+    int? id,
+    int? boxId,
+    int? mediaAssetId,
+    DateTime? capturedAt,
+    int? sortOrder,
+  }) => BoxPictureAssociation(
+    id: id ?? this.id,
+    boxId: boxId ?? this.boxId,
+    mediaAssetId: mediaAssetId ?? this.mediaAssetId,
+    capturedAt: capturedAt ?? this.capturedAt,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  BoxPictureAssociation copyWithCompanion(
+    BoxPictureAssociationsCompanion data,
+  ) {
+    return BoxPictureAssociation(
+      id: data.id.present ? data.id.value : this.id,
+      boxId: data.boxId.present ? data.boxId.value : this.boxId,
+      mediaAssetId: data.mediaAssetId.present
+          ? data.mediaAssetId.value
+          : this.mediaAssetId,
+      capturedAt: data.capturedAt.present
+          ? data.capturedAt.value
+          : this.capturedAt,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoxPictureAssociation(')
+          ..write('id: $id, ')
+          ..write('boxId: $boxId, ')
+          ..write('mediaAssetId: $mediaAssetId, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, boxId, mediaAssetId, capturedAt, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoxPictureAssociation &&
+          other.id == this.id &&
+          other.boxId == this.boxId &&
+          other.mediaAssetId == this.mediaAssetId &&
+          other.capturedAt == this.capturedAt &&
+          other.sortOrder == this.sortOrder);
+}
+
+class BoxPictureAssociationsCompanion
+    extends UpdateCompanion<BoxPictureAssociation> {
+  final Value<int> id;
+  final Value<int> boxId;
+  final Value<int> mediaAssetId;
+  final Value<DateTime> capturedAt;
+  final Value<int> sortOrder;
+  const BoxPictureAssociationsCompanion({
+    this.id = const Value.absent(),
+    this.boxId = const Value.absent(),
+    this.mediaAssetId = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  BoxPictureAssociationsCompanion.insert({
+    this.id = const Value.absent(),
+    required int boxId,
+    required int mediaAssetId,
+    required DateTime capturedAt,
+    required int sortOrder,
+  }) : boxId = Value(boxId),
+       mediaAssetId = Value(mediaAssetId),
+       capturedAt = Value(capturedAt),
+       sortOrder = Value(sortOrder);
+  static Insertable<BoxPictureAssociation> custom({
+    Expression<int>? id,
+    Expression<int>? boxId,
+    Expression<int>? mediaAssetId,
+    Expression<DateTime>? capturedAt,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (boxId != null) 'box_id': boxId,
+      if (mediaAssetId != null) 'media_asset_id': mediaAssetId,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  BoxPictureAssociationsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? boxId,
+    Value<int>? mediaAssetId,
+    Value<DateTime>? capturedAt,
+    Value<int>? sortOrder,
+  }) {
+    return BoxPictureAssociationsCompanion(
+      id: id ?? this.id,
+      boxId: boxId ?? this.boxId,
+      mediaAssetId: mediaAssetId ?? this.mediaAssetId,
+      capturedAt: capturedAt ?? this.capturedAt,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (boxId.present) {
+      map['box_id'] = Variable<int>(boxId.value);
+    }
+    if (mediaAssetId.present) {
+      map['media_asset_id'] = Variable<int>(mediaAssetId.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<DateTime>(capturedAt.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoxPictureAssociationsCompanion(')
+          ..write('id: $id, ')
+          ..write('boxId: $boxId, ')
+          ..write('mediaAssetId: $mediaAssetId, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3232,6 +3983,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BoxesTable boxes = $BoxesTable(this);
   late final $AnimalsTable animals = $AnimalsTable(this);
   late final $FeedingEventsTable feedingEvents = $FeedingEventsTable(this);
+  late final $AnimalPictureAssociationsTable animalPictureAssociations =
+      $AnimalPictureAssociationsTable(this);
+  late final $BoxPictureAssociationsTable boxPictureAssociations =
+      $BoxPictureAssociationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3241,7 +3996,48 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     boxes,
     animals,
     feedingEvents,
+    animalPictureAssociations,
+    boxPictureAssociations,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'animals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('animal_picture_associations', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'media_assets',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('animal_picture_associations', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'boxes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('box_picture_associations', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'media_assets',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('box_picture_associations', kind: UpdateKind.delete),
+      ],
+    ),
+  ]);
 }
 
 typedef $$MediaAssetsTableCreateCompanionBuilder =
@@ -3300,6 +4096,57 @@ final class $$MediaAssetsTableReferences
     ).filter((f) => f.pictureMediaId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_animalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $AnimalPictureAssociationsTable,
+    List<AnimalPictureAssociation>
+  >
+  _animalPictureAssociationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.animalPictureAssociations,
+        aliasName:
+            'media_assets__id__animal_picture_associations__media_asset_id',
+      );
+
+  $$AnimalPictureAssociationsTableProcessedTableManager
+  get animalPictureAssociationsRefs {
+    final manager = $$AnimalPictureAssociationsTableTableManager(
+      $_db,
+      $_db.animalPictureAssociations,
+    ).filter((f) => f.mediaAssetId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _animalPictureAssociationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $BoxPictureAssociationsTable,
+    List<BoxPictureAssociation>
+  >
+  _boxPictureAssociationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.boxPictureAssociations,
+        aliasName: 'media_assets__id__box_picture_associations__media_asset_id',
+      );
+
+  $$BoxPictureAssociationsTableProcessedTableManager
+  get boxPictureAssociationsRefs {
+    final manager = $$BoxPictureAssociationsTableTableManager(
+      $_db,
+      $_db.boxPictureAssociations,
+    ).filter((f) => f.mediaAssetId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _boxPictureAssociationsRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3392,6 +4239,59 @@ class $$MediaAssetsTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> animalPictureAssociationsRefs(
+    Expression<bool> Function($$AnimalPictureAssociationsTableFilterComposer f)
+    f,
+  ) {
+    final $$AnimalPictureAssociationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.animalPictureAssociations,
+          getReferencedColumn: (t) => t.mediaAssetId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$AnimalPictureAssociationsTableFilterComposer(
+                $db: $db,
+                $table: $db.animalPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> boxPictureAssociationsRefs(
+    Expression<bool> Function($$BoxPictureAssociationsTableFilterComposer f) f,
+  ) {
+    final $$BoxPictureAssociationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.boxPictureAssociations,
+          getReferencedColumn: (t) => t.mediaAssetId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BoxPictureAssociationsTableFilterComposer(
+                $db: $db,
+                $table: $db.boxPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -3512,6 +4412,59 @@ class $$MediaAssetsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> animalPictureAssociationsRefs<T extends Object>(
+    Expression<T> Function($$AnimalPictureAssociationsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$AnimalPictureAssociationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.animalPictureAssociations,
+          getReferencedColumn: (t) => t.mediaAssetId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$AnimalPictureAssociationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.animalPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> boxPictureAssociationsRefs<T extends Object>(
+    Expression<T> Function($$BoxPictureAssociationsTableAnnotationComposer a) f,
+  ) {
+    final $$BoxPictureAssociationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.boxPictureAssociations,
+          getReferencedColumn: (t) => t.mediaAssetId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BoxPictureAssociationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.boxPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$MediaAssetsTableTableManager
@@ -3527,7 +4480,12 @@ class $$MediaAssetsTableTableManager
           $$MediaAssetsTableUpdateCompanionBuilder,
           (MediaAsset, $$MediaAssetsTableReferences),
           MediaAsset,
-          PrefetchHooks Function({bool boxesRefs, bool animalsRefs})
+          PrefetchHooks Function({
+            bool boxesRefs,
+            bool animalsRefs,
+            bool animalPictureAssociationsRefs,
+            bool boxPictureAssociationsRefs,
+          })
         > {
   $$MediaAssetsTableTableManager(_$AppDatabase db, $MediaAssetsTable table)
     : super(
@@ -3580,58 +4538,113 @@ class $$MediaAssetsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({boxesRefs = false, animalsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (boxesRefs) db.boxes,
-                if (animalsRefs) db.animals,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (boxesRefs)
-                    await $_getPrefetchedData<
-                      MediaAsset,
-                      $MediaAssetsTable,
-                      Box
-                    >(
-                      currentTable: table,
-                      referencedTable: $$MediaAssetsTableReferences
-                          ._boxesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$MediaAssetsTableReferences(db, table, p0).boxesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.pictureMediaId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                  if (animalsRefs)
-                    await $_getPrefetchedData<
-                      MediaAsset,
-                      $MediaAssetsTable,
-                      Animal
-                    >(
-                      currentTable: table,
-                      referencedTable: $$MediaAssetsTableReferences
-                          ._animalsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$MediaAssetsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).animalsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.pictureMediaId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                boxesRefs = false,
+                animalsRefs = false,
+                animalPictureAssociationsRefs = false,
+                boxPictureAssociationsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (boxesRefs) db.boxes,
+                    if (animalsRefs) db.animals,
+                    if (animalPictureAssociationsRefs)
+                      db.animalPictureAssociations,
+                    if (boxPictureAssociationsRefs) db.boxPictureAssociations,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (boxesRefs)
+                        await $_getPrefetchedData<
+                          MediaAsset,
+                          $MediaAssetsTable,
+                          Box
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MediaAssetsTableReferences
+                              ._boxesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MediaAssetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).boxesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.pictureMediaId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (animalsRefs)
+                        await $_getPrefetchedData<
+                          MediaAsset,
+                          $MediaAssetsTable,
+                          Animal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MediaAssetsTableReferences
+                              ._animalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MediaAssetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).animalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.pictureMediaId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (animalPictureAssociationsRefs)
+                        await $_getPrefetchedData<
+                          MediaAsset,
+                          $MediaAssetsTable,
+                          AnimalPictureAssociation
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MediaAssetsTableReferences
+                              ._animalPictureAssociationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MediaAssetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).animalPictureAssociationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.mediaAssetId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (boxPictureAssociationsRefs)
+                        await $_getPrefetchedData<
+                          MediaAsset,
+                          $MediaAssetsTable,
+                          BoxPictureAssociation
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MediaAssetsTableReferences
+                              ._boxPictureAssociationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MediaAssetsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).boxPictureAssociationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.mediaAssetId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -3648,7 +4661,12 @@ typedef $$MediaAssetsTableProcessedTableManager =
       $$MediaAssetsTableUpdateCompanionBuilder,
       (MediaAsset, $$MediaAssetsTableReferences),
       MediaAsset,
-      PrefetchHooks Function({bool boxesRefs, bool animalsRefs})
+      PrefetchHooks Function({
+        bool boxesRefs,
+        bool animalsRefs,
+        bool animalPictureAssociationsRefs,
+        bool boxPictureAssociationsRefs,
+      })
     >;
 typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
   Value<int> id,
@@ -3720,6 +4738,31 @@ final class $$BoxesTableReferences
     ).filter((f) => f.boxId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_animalsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $BoxPictureAssociationsTable,
+    List<BoxPictureAssociation>
+  >
+  _boxPictureAssociationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.boxPictureAssociations,
+        aliasName: 'boxes__id__box_picture_associations__box_id',
+      );
+
+  $$BoxPictureAssociationsTableProcessedTableManager
+  get boxPictureAssociationsRefs {
+    final manager = $$BoxPictureAssociationsTableTableManager(
+      $_db,
+      $_db.boxPictureAssociations,
+    ).filter((f) => f.boxId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _boxPictureAssociationsRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -3851,6 +4894,32 @@ class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> boxPictureAssociationsRefs(
+    Expression<bool> Function($$BoxPictureAssociationsTableFilterComposer f) f,
+  ) {
+    final $$BoxPictureAssociationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.boxPictureAssociations,
+          getReferencedColumn: (t) => t.boxId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BoxPictureAssociationsTableFilterComposer(
+                $db: $db,
+                $table: $db.boxPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -4065,6 +5134,32 @@ class $$BoxesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> boxPictureAssociationsRefs<T extends Object>(
+    Expression<T> Function($$BoxPictureAssociationsTableAnnotationComposer a) f,
+  ) {
+    final $$BoxPictureAssociationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.boxPictureAssociations,
+          getReferencedColumn: (t) => t.boxId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$BoxPictureAssociationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.boxPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$BoxesTableTableManager
@@ -4080,7 +5175,11 @@ class $$BoxesTableTableManager
           $$BoxesTableUpdateCompanionBuilder,
           (Box, $$BoxesTableReferences),
           Box,
-          PrefetchHooks Function({bool pictureMediaId, bool animalsRefs})
+          PrefetchHooks Function({
+            bool pictureMediaId,
+            bool animalsRefs,
+            bool boxPictureAssociationsRefs,
+          })
         > {
   $$BoxesTableTableManager(_$AppDatabase db, $BoxesTable table)
     : super(
@@ -4168,10 +5267,17 @@ class $$BoxesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({pictureMediaId = false, animalsRefs = false}) {
+              ({
+                pictureMediaId = false,
+                animalsRefs = false,
+                boxPictureAssociationsRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
-                  explicitlyWatchedTables: [if (animalsRefs) db.animals],
+                  explicitlyWatchedTables: [
+                    if (animalsRefs) db.animals,
+                    if (boxPictureAssociationsRefs) db.boxPictureAssociations,
+                  ],
                   addJoins:
                       <
                         T extends TableManagerState<
@@ -4217,6 +5323,27 @@ class $$BoxesTableTableManager
                           ) => referencedItems.where((e) => e.boxId == item.id),
                           typedResults: items,
                         ),
+                      if (boxPictureAssociationsRefs)
+                        await $_getPrefetchedData<
+                          Box,
+                          $BoxesTable,
+                          BoxPictureAssociation
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BoxesTableReferences
+                              ._boxPictureAssociationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BoxesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).boxPictureAssociationsRefs,
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.boxId == item.id),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -4237,7 +5364,11 @@ typedef $$BoxesTableProcessedTableManager =
       $$BoxesTableUpdateCompanionBuilder,
       (Box, $$BoxesTableReferences),
       Box,
-      PrefetchHooks Function({bool pictureMediaId, bool animalsRefs})
+      PrefetchHooks Function({
+        bool pictureMediaId,
+        bool animalsRefs,
+        bool boxPictureAssociationsRefs,
+      })
     >;
 typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<int> id,
@@ -4353,6 +5484,31 @@ final class $$AnimalsTableReferences
     ).filter((f) => f.animalId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_feedingEventsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $AnimalPictureAssociationsTable,
+    List<AnimalPictureAssociation>
+  >
+  _animalPictureAssociationsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.animalPictureAssociations,
+        aliasName: 'animals__id__animal_picture_associations__animal_id',
+      );
+
+  $$AnimalPictureAssociationsTableProcessedTableManager
+  get animalPictureAssociationsRefs {
+    final manager = $$AnimalPictureAssociationsTableTableManager(
+      $_db,
+      $_db.animalPictureAssociations,
+    ).filter((f) => f.animalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _animalPictureAssociationsRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -4581,6 +5737,33 @@ class $$AnimalsTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> animalPictureAssociationsRefs(
+    Expression<bool> Function($$AnimalPictureAssociationsTableFilterComposer f)
+    f,
+  ) {
+    final $$AnimalPictureAssociationsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.animalPictureAssociations,
+          getReferencedColumn: (t) => t.animalId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$AnimalPictureAssociationsTableFilterComposer(
+                $db: $db,
+                $table: $db.animalPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -4969,6 +6152,33 @@ class $$AnimalsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> animalPictureAssociationsRefs<T extends Object>(
+    Expression<T> Function($$AnimalPictureAssociationsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$AnimalPictureAssociationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.animalPictureAssociations,
+          getReferencedColumn: (t) => t.animalId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$AnimalPictureAssociationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.animalPictureAssociations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$AnimalsTableTableManager
@@ -4988,6 +6198,7 @@ class $$AnimalsTableTableManager
             bool boxId,
             bool pictureMediaId,
             bool feedingEventsRefs,
+            bool animalPictureAssociationsRefs,
           })
         > {
   $$AnimalsTableTableManager(_$AppDatabase db, $AnimalsTable table)
@@ -5142,11 +6353,14 @@ class $$AnimalsTableTableManager
                 boxId = false,
                 pictureMediaId = false,
                 feedingEventsRefs = false,
+                animalPictureAssociationsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (feedingEventsRefs) db.feedingEvents,
+                    if (animalPictureAssociationsRefs)
+                      db.animalPictureAssociations,
                   ],
                   addJoins:
                       <
@@ -5212,6 +6426,27 @@ class $$AnimalsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (animalPictureAssociationsRefs)
+                        await $_getPrefetchedData<
+                          Animal,
+                          $AnimalsTable,
+                          AnimalPictureAssociation
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AnimalsTableReferences
+                              ._animalPictureAssociationsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AnimalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).animalPictureAssociationsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.animalId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -5236,6 +6471,7 @@ typedef $$AnimalsTableProcessedTableManager =
         bool boxId,
         bool pictureMediaId,
         bool feedingEventsRefs,
+        bool animalPictureAssociationsRefs,
       })
     >;
 typedef $$FeedingEventsTableCreateCompanionBuilder =
@@ -5532,6 +6768,849 @@ typedef $$FeedingEventsTableProcessedTableManager =
       FeedingEvent,
       PrefetchHooks Function({bool animalId})
     >;
+typedef $$AnimalPictureAssociationsTableCreateCompanionBuilder =
+    AnimalPictureAssociationsCompanion Function({
+      Value<int> id,
+      required int animalId,
+      required int mediaAssetId,
+      required DateTime capturedAt,
+      required int sortOrder,
+    });
+typedef $$AnimalPictureAssociationsTableUpdateCompanionBuilder =
+    AnimalPictureAssociationsCompanion Function({
+      Value<int> id,
+      Value<int> animalId,
+      Value<int> mediaAssetId,
+      Value<DateTime> capturedAt,
+      Value<int> sortOrder,
+    });
+
+final class $$AnimalPictureAssociationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $AnimalPictureAssociationsTable,
+          AnimalPictureAssociation
+        > {
+  $$AnimalPictureAssociationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AnimalsTable _animalIdTable(_$AppDatabase db) => db.animals
+      .createAlias('animal_picture_associations__animal_id__animals__id');
+
+  $$AnimalsTableProcessedTableManager get animalId {
+    final $_column = $_itemColumn<int>('animal_id')!;
+
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_animalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MediaAssetsTable _mediaAssetIdTable(_$AppDatabase db) =>
+      db.mediaAssets.createAlias(
+        'animal_picture_associations__media_asset_id__media_assets__id',
+      );
+
+  $$MediaAssetsTableProcessedTableManager get mediaAssetId {
+    final $_column = $_itemColumn<int>('media_asset_id')!;
+
+    final manager = $$MediaAssetsTableTableManager(
+      $_db,
+      $_db.mediaAssets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_mediaAssetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$AnimalPictureAssociationsTableFilterComposer
+    extends Composer<_$AppDatabase, $AnimalPictureAssociationsTable> {
+  $$AnimalPictureAssociationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AnimalsTableFilterComposer get animalId {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MediaAssetsTableFilterComposer get mediaAssetId {
+    final $$MediaAssetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.mediaAssetId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableFilterComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AnimalPictureAssociationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AnimalPictureAssociationsTable> {
+  $$AnimalPictureAssociationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AnimalsTableOrderingComposer get animalId {
+    final $$AnimalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MediaAssetsTableOrderingComposer get mediaAssetId {
+    final $$MediaAssetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.mediaAssetId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AnimalPictureAssociationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AnimalPictureAssociationsTable> {
+  $$AnimalPictureAssociationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$AnimalsTableAnnotationComposer get animalId {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MediaAssetsTableAnnotationComposer get mediaAssetId {
+    final $$MediaAssetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.mediaAssetId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AnimalPictureAssociationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AnimalPictureAssociationsTable,
+          AnimalPictureAssociation,
+          $$AnimalPictureAssociationsTableFilterComposer,
+          $$AnimalPictureAssociationsTableOrderingComposer,
+          $$AnimalPictureAssociationsTableAnnotationComposer,
+          $$AnimalPictureAssociationsTableCreateCompanionBuilder,
+          $$AnimalPictureAssociationsTableUpdateCompanionBuilder,
+          (
+            AnimalPictureAssociation,
+            $$AnimalPictureAssociationsTableReferences,
+          ),
+          AnimalPictureAssociation,
+          PrefetchHooks Function({bool animalId, bool mediaAssetId})
+        > {
+  $$AnimalPictureAssociationsTableTableManager(
+    _$AppDatabase db,
+    $AnimalPictureAssociationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AnimalPictureAssociationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$AnimalPictureAssociationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$AnimalPictureAssociationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> animalId = const Value.absent(),
+                Value<int> mediaAssetId = const Value.absent(),
+                Value<DateTime> capturedAt = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => AnimalPictureAssociationsCompanion(
+                id: id,
+                animalId: animalId,
+                mediaAssetId: mediaAssetId,
+                capturedAt: capturedAt,
+                sortOrder: sortOrder,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int animalId,
+                required int mediaAssetId,
+                required DateTime capturedAt,
+                required int sortOrder,
+              }) => AnimalPictureAssociationsCompanion.insert(
+                id: id,
+                animalId: animalId,
+                mediaAssetId: mediaAssetId,
+                capturedAt: capturedAt,
+                sortOrder: sortOrder,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$AnimalPictureAssociationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({animalId = false, mediaAssetId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (animalId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.animalId,
+                        referencedTable:
+                            $$AnimalPictureAssociationsTableReferences
+                                ._animalIdTable(db),
+                        referencedColumn:
+                            $$AnimalPictureAssociationsTableReferences
+                                ._animalIdTable(db)
+                                .id,
+                      ) as T;
+                    }
+                    if (mediaAssetId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.mediaAssetId,
+                        referencedTable:
+                            $$AnimalPictureAssociationsTableReferences
+                                ._mediaAssetIdTable(db),
+                        referencedColumn:
+                            $$AnimalPictureAssociationsTableReferences
+                                ._mediaAssetIdTable(db)
+                                .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$AnimalPictureAssociationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AnimalPictureAssociationsTable,
+      AnimalPictureAssociation,
+      $$AnimalPictureAssociationsTableFilterComposer,
+      $$AnimalPictureAssociationsTableOrderingComposer,
+      $$AnimalPictureAssociationsTableAnnotationComposer,
+      $$AnimalPictureAssociationsTableCreateCompanionBuilder,
+      $$AnimalPictureAssociationsTableUpdateCompanionBuilder,
+      (AnimalPictureAssociation, $$AnimalPictureAssociationsTableReferences),
+      AnimalPictureAssociation,
+      PrefetchHooks Function({bool animalId, bool mediaAssetId})
+    >;
+typedef $$BoxPictureAssociationsTableCreateCompanionBuilder =
+    BoxPictureAssociationsCompanion Function({
+      Value<int> id,
+      required int boxId,
+      required int mediaAssetId,
+      required DateTime capturedAt,
+      required int sortOrder,
+    });
+typedef $$BoxPictureAssociationsTableUpdateCompanionBuilder =
+    BoxPictureAssociationsCompanion Function({
+      Value<int> id,
+      Value<int> boxId,
+      Value<int> mediaAssetId,
+      Value<DateTime> capturedAt,
+      Value<int> sortOrder,
+    });
+
+final class $$BoxPictureAssociationsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $BoxPictureAssociationsTable,
+          BoxPictureAssociation
+        > {
+  $$BoxPictureAssociationsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BoxesTable _boxIdTable(_$AppDatabase db) =>
+      db.boxes.createAlias('box_picture_associations__box_id__boxes__id');
+
+  $$BoxesTableProcessedTableManager get boxId {
+    final $_column = $_itemColumn<int>('box_id')!;
+
+    final manager = $$BoxesTableTableManager(
+      $_db,
+      $_db.boxes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_boxIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MediaAssetsTable _mediaAssetIdTable(_$AppDatabase db) =>
+      db.mediaAssets.createAlias(
+        'box_picture_associations__media_asset_id__media_assets__id',
+      );
+
+  $$MediaAssetsTableProcessedTableManager get mediaAssetId {
+    final $_column = $_itemColumn<int>('media_asset_id')!;
+
+    final manager = $$MediaAssetsTableTableManager(
+      $_db,
+      $_db.mediaAssets,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_mediaAssetIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$BoxPictureAssociationsTableFilterComposer
+    extends Composer<_$AppDatabase, $BoxPictureAssociationsTable> {
+  $$BoxPictureAssociationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BoxesTableFilterComposer get boxId {
+    final $$BoxesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableFilterComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MediaAssetsTableFilterComposer get mediaAssetId {
+    final $$MediaAssetsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.mediaAssetId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableFilterComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BoxPictureAssociationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BoxPictureAssociationsTable> {
+  $$BoxPictureAssociationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BoxesTableOrderingComposer get boxId {
+    final $$BoxesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableOrderingComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MediaAssetsTableOrderingComposer get mediaAssetId {
+    final $$MediaAssetsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.mediaAssetId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableOrderingComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BoxPictureAssociationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BoxPictureAssociationsTable> {
+  $$BoxPictureAssociationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$BoxesTableAnnotationComposer get boxId {
+    final $$BoxesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MediaAssetsTableAnnotationComposer get mediaAssetId {
+    final $$MediaAssetsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.mediaAssetId,
+      referencedTable: $db.mediaAssets,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MediaAssetsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.mediaAssets,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BoxPictureAssociationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BoxPictureAssociationsTable,
+          BoxPictureAssociation,
+          $$BoxPictureAssociationsTableFilterComposer,
+          $$BoxPictureAssociationsTableOrderingComposer,
+          $$BoxPictureAssociationsTableAnnotationComposer,
+          $$BoxPictureAssociationsTableCreateCompanionBuilder,
+          $$BoxPictureAssociationsTableUpdateCompanionBuilder,
+          (BoxPictureAssociation, $$BoxPictureAssociationsTableReferences),
+          BoxPictureAssociation,
+          PrefetchHooks Function({bool boxId, bool mediaAssetId})
+        > {
+  $$BoxPictureAssociationsTableTableManager(
+    _$AppDatabase db,
+    $BoxPictureAssociationsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoxPictureAssociationsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$BoxPictureAssociationsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$BoxPictureAssociationsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> boxId = const Value.absent(),
+                Value<int> mediaAssetId = const Value.absent(),
+                Value<DateTime> capturedAt = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => BoxPictureAssociationsCompanion(
+                id: id,
+                boxId: boxId,
+                mediaAssetId: mediaAssetId,
+                capturedAt: capturedAt,
+                sortOrder: sortOrder,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int boxId,
+                required int mediaAssetId,
+                required DateTime capturedAt,
+                required int sortOrder,
+              }) => BoxPictureAssociationsCompanion.insert(
+                id: id,
+                boxId: boxId,
+                mediaAssetId: mediaAssetId,
+                capturedAt: capturedAt,
+                sortOrder: sortOrder,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$BoxPictureAssociationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({boxId = false, mediaAssetId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (boxId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.boxId,
+                        referencedTable: $$BoxPictureAssociationsTableReferences
+                            ._boxIdTable(db),
+                        referencedColumn:
+                            $$BoxPictureAssociationsTableReferences
+                                ._boxIdTable(db)
+                                .id,
+                      ) as T;
+                    }
+                    if (mediaAssetId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.mediaAssetId,
+                        referencedTable: $$BoxPictureAssociationsTableReferences
+                            ._mediaAssetIdTable(db),
+                        referencedColumn:
+                            $$BoxPictureAssociationsTableReferences
+                                ._mediaAssetIdTable(db)
+                                .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$BoxPictureAssociationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BoxPictureAssociationsTable,
+      BoxPictureAssociation,
+      $$BoxPictureAssociationsTableFilterComposer,
+      $$BoxPictureAssociationsTableOrderingComposer,
+      $$BoxPictureAssociationsTableAnnotationComposer,
+      $$BoxPictureAssociationsTableCreateCompanionBuilder,
+      $$BoxPictureAssociationsTableUpdateCompanionBuilder,
+      (BoxPictureAssociation, $$BoxPictureAssociationsTableReferences),
+      BoxPictureAssociation,
+      PrefetchHooks Function({bool boxId, bool mediaAssetId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5544,4 +7623,14 @@ class $AppDatabaseManager {
       $$AnimalsTableTableManager(_db, _db.animals);
   $$FeedingEventsTableTableManager get feedingEvents =>
       $$FeedingEventsTableTableManager(_db, _db.feedingEvents);
+  $$AnimalPictureAssociationsTableTableManager get animalPictureAssociations =>
+      $$AnimalPictureAssociationsTableTableManager(
+        _db,
+        _db.animalPictureAssociations,
+      );
+  $$BoxPictureAssociationsTableTableManager get boxPictureAssociations =>
+      $$BoxPictureAssociationsTableTableManager(
+        _db,
+        _db.boxPictureAssociations,
+      );
 }

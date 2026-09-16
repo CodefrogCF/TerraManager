@@ -116,6 +116,7 @@ Completed development areas:
 - synchronized offline English and German privacy content
 - localized licence guidance with the authoritative English GPL text
 - one reversible menu toggle per Box and Animal overview sort criterion
+- ordered Animal and Box picture histories with selectable primary images
 
 v0.7.1 implementation and release validation are complete.
 
@@ -141,10 +142,10 @@ and in-app presentation required for Feeding Reminders. Issue #77 completed the
 publication of release build `0.13.0+27`.
 
 v0.14.0 implementation, documentation, automated testing, supported builds and
-manual regression validation are complete. Issues #78 and #79 provide
+manual regression validation are complete. Issues #81 and #82 provide
 consistent Animal form labels and direct Animal creation from Box details.
-Issues #80 and #81 add persistent, backup-compatible Box and Animal Overview
-sorting with contextual detail navigation. Issue #82 completes release build
+Issues #83 and #85 add persistent, backup-compatible Box and Animal Overview
+sorting with contextual detail navigation. Issue #86 completes release build
 `0.14.0+32`.
 
 v0.14.1 implementation, documentation, automated testing, supported builds and
@@ -641,7 +642,7 @@ iOS validation is currently deferred because no macOS development environment or
 
 ## v0.12.0 – Media Optimization
 
-### Picture Cropping
+### Picture Cropping — Issue #80
 
 - [x] Add a shared free-form cropping screen
 - [x] Crop Camera and Gallery pictures before applying them
@@ -732,7 +733,7 @@ roughly one sixth of its previous size.
 
 ## v0.14.0 – Pre-1.0 UX Polish
 
-### Animal Form Labels — Issue #78
+### Animal Form Labels — Issue #81
 
 - [x] Replace raw English Sex enum labels
 - [x] Show exactly Male, Female and Unknown in the sex selector
@@ -743,7 +744,7 @@ roughly one sixth of its previous size.
 - [x] Add form, detail and localization regression tests
 - [x] Validate the updated controls manually on Android
 
-### Add Animal from Box Details — Issue #79
+### Add Animal from Box Details — Issue #82
 
 - [x] Show Add Animal below empty and populated assigned-Animal sections
 - [x] Open New Animal with the originating Box preselected
@@ -753,7 +754,7 @@ roughly one sixth of its previous size.
 - [x] Add localized widget regression coverage
 - [x] Validate direct creation manually on Android
 
-### Box Overview Sorting — Issue #80
+### Box Overview Sorting — Issue #83
 
 - [x] Add created-date and natural Box-label sorting modes
 - [x] Persist and back up the selected Box ordering
@@ -761,7 +762,7 @@ roughly one sixth of its previous size.
 - [x] Add sorting, settings and backup regression tests
 - [x] Validate all Box ordering modes manually on Android
 
-### Animal Overview Sorting — Issue #81
+### Animal Overview Sorting — Issue #85
 
 - [x] Add created-date, displayed-name, age and latest-feeding sorting modes
 - [x] Handle missing birth and FeedingEvent data deterministically
@@ -771,7 +772,7 @@ roughly one sixth of its previous size.
 - [x] Add sorting, settings and backup regression tests
 - [x] Validate all Animal ordering modes manually on Android
 
-### Release — Issue #82
+### Release — Issue #86
 
 - [x] Complete automated and manual regression testing
 - [x] Review English and German presentation
@@ -1292,10 +1293,10 @@ roughly one sixth of its previous size.
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate English and German localizations and Drift migration artifacts
 - [x] Complete formatting, analysis and automated source regression
-- [x] Publish the annotated `v1.7.0` tag
-- [x] Confirm the final GitHub Actions **Quality gates** run
-- [x] Record release-owner Android/Web artifacts and manual checks
-- [x] Publish the GitHub and Google Play releases
+- [ ] Publish the annotated `v1.7.0` tag
+- [ ] Confirm the final GitHub Actions **Quality gates** run
+- [ ] Record release-owner Android/Web artifacts and manual checks
+- [ ] Publish the GitHub and Google Play releases
 
 ---
 
@@ -1327,10 +1328,32 @@ roughly one sixth of its previous size.
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate the Schema Version 11 snapshot and Drift migration artifacts
 - [x] Complete formatting, analysis and the 691-test source regression
-- [x] Publish the annotated `v1.7.1` tag
+- [ ] Publish the annotated `v1.7.1` tag
 - [ ] Confirm the final GitHub Actions **Quality gates** run
-- [x] Record release-owner Android/Web artifacts and manual checks
-- [x] Publish the GitHub and Google Play releases
+- [ ] Record release-owner Android/Web artifacts and manual checks
+- [ ] Publish the GitHub and Google Play releases
+
+---
+
+## Post-v1.7.1 – Media Galleries
+
+### Animal and Box picture histories — Issue #78
+
+- [x] Store ordered media associations for Animals and Boxes
+- [x] Preserve every existing persistent picture during the v11 to v12
+  migration
+- [x] Keep one selectable primary image on each detail page
+- [x] Record a capture or import timestamp for every gallery entry
+- [x] Retain previous pictures when a new image is selected
+- [x] Open every gallery image in the existing full-screen viewer
+- [x] Require confirmation before deleting one gallery image
+- [x] Keep unrelated images untouched during deletion
+- [x] Duplicate complete galleries with independent MediaAssets
+- [x] Preserve gallery order, timestamps and primary selection in Backup
+  Format Version 2
+- [x] Keep older single-picture backups restorable
+- [x] Add migration, repository, widget and backup regression coverage
+- [x] Add no storage, media, network or other device permission
 
 ---
 

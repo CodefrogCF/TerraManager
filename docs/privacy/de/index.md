@@ -41,7 +41,7 @@ Abhängig von der Nutzung der Anwendung können dazu gehören:
 * Tiernamen und Artinformationen;
 * Geschlecht sowie Geburts- oder Schlupfinformationen;
 * Tiernotizen;
-* Tierbilder;
+* Tier- und Boxbilder einschließlich Bildhistorien;
 * Behausungs- oder Boxdatensätze;
 * Maße von Behausungen;
 * Behausungs- oder Boxnotizen;
@@ -128,11 +128,13 @@ Eine Sicherung kann in TerraManager gespeicherte Sammlungsinformationen enthalte
 
 ## 6. Bilder
 
-TerraManager ermöglicht es, Tierdatensätzen Bilder zuzuordnen.
+TerraManager ermöglicht es, Tier- und Boxdatensätzen Bilder und lokale
+Bildhistorien zuzuordnen.
 
 Für TerraManager ausgewählte oder erstellte Bilder werden zur Verwendung in der Anwendung verarbeitet und als Teil der lokal verwalteten TerraManager-Daten gespeichert.
 
-TerraManager lädt Tierbilder nicht automatisch auf einen TerraManager-Server hoch.
+TerraManager lädt Tier- oder Boxbilder nicht automatisch auf einen
+TerraManager-Server hoch.
 
 Wenn Daten mit Bildern exportiert, freigegeben oder gesichert werden, können diese Dateien durch das von der Benutzerin oder dem Benutzer ausgewählte Ziel verarbeitet werden.
 
@@ -345,4 +347,3 @@ Fragen zum Datenschutzverhalten von TerraManager können über die aktuellen Sup
 [TerraManager-Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md)
 
 Wird TerraManager über einen App-Store vertrieben, kann außerdem der aktuelle Entwickler- oder Supportkontakt im jeweiligen Storeeintrag verwendet werden.
-

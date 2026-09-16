@@ -18,275 +18,38 @@ Public project information:
 
 ## Project Status
 
-Latest completed release milestone:
+Latest published application version: **v1.7.1+65 – Enclosure Notes &
+Migration**.
 
-**v1.7.1 – Enclosure Notes & Migration**
+The current source extends that release with Issue #78 picture histories:
 
-Current application version and build:
+- Animals and Boxes can keep ordered local picture galleries;
+- every picture retains its capture or import timestamp;
+- any gallery picture can become the primary detail image;
+- individual pictures require confirmation before deletion;
+- Database Schema Version 12 migrates existing single pictures into galleries;
+- Portable Backup Format Version 2 preserves gallery order, timestamps and the
+  primary selection; and
+- the existing user-initiated Camera and Gallery flow is reused without adding
+  device permissions.
 
-**v1.7.1+65**
-
-Implemented milestones in the current source state:
-
-- v0.1.0 – Foundation
-- v0.2.0 – User Interface
-- v0.3.0 – QR Code
-- v0.4.0 – Android and Web Platform Support
-- v0.5.0 – Usability & Settings
-- v0.6.0 – Backup & Restore
-- v0.7.0 – Editing & Overview
-- v0.7.1 – Maintenance
-- v0.8.0 – Contextual Navigation
-- v0.9.0 – Feeding Workflow & Media
-- v0.10.0 – Localization
-- v0.11.0 – Personalization & Capture
-- v0.12.0 – Media Optimization
-- v0.13.0 – Feeding Reminders
-- v0.14.0 – Pre-1.0 UX Polish
-- v0.14.1 – Post-release Fixes
-- v1.0.0 – MVP Release
-- v1.1.0 – Detail & Workflow Polish
-- v1.1.1 – Optional Box Names
-- v1.2.0 – Box Lifecycle & History
-- v1.3.0 – Primary Page Navigation
-- v1.4.0 – Animal Profiles and Input Quality
-- v1.5.0 – Overview Quick Actions
-- v1.6.0 – Batch QR Export
-- v1.6.1 – UX Consistency & Localization
-- v1.7.0 – Animal Taxonomy & Category Views
-- v1.7.1 – Enclosure Notes & Migration
-
-Android and Web are currently validated platforms.
-
-The v0.14.1 patch implementation, automated regression, supported builds and
-manual validation are complete. The release corrects reminder calculation for
-Animals with existing feeding history and simplifies Box Overview sorting to
-ascending or descending Box number while preserving legacy settings and backup
-compatibility. The validation record and release notes are available in
-`docs/release-v0.14.1.md`.
-
-TerraManager v1.0.0 is released as the stable MVP baseline. Development now
-continues with the v1.1.0 Detail & Workflow Polish milestone.
-
-Development build `0.14.2+34` establishes `com.codefrog.terramanager` as the
-permanent application identity, replaces the remaining Flutter placeholder
-metadata and uses the TerraManager icon throughout the Android and Web
-projects. This work is tracked by Issue #89.
-
-Development build `0.14.3+35` replaces the temporary Android debug signing of
-release artifacts with an explicit production-signing configuration. Local
-credentials are loaded from the ignored `android/key.properties` file or from
-`TERRAMANAGER_*` environment variables; Release builds fail clearly when the
-configuration is incomplete. Key creation, secure backup, build verification
-and the one-time transition from earlier debug-signed installations are
-documented in `docs/android-release-signing.md`. This work is tracked by Issue
-#90.
-
-The production key has been created and backed up, both signed Android
-artifacts have been built and verified, and the one-time physical-device
-transition has been completed successfully. Future directly distributed
-Android builds must retain this production certificate.
-
-Development build `0.14.4+36` adds the GPL-3.0-or-later project licence and
-the public privacy, permission, installation, update, support, security and
-contribution documentation required by Issue #91. It also corrects completion
-states in historical v0.11.0 and v0.12.0 release records.
-
-Development build `0.14.5+37` replaces the ambiguous Continue-style Quick
-Feeding action with an explicit **Scan a different Box** cancellation action.
-It discards the unsaved Box-specific feeding form, returns to Feeding Mode and
-restarts the scanner without creating a FeedingEvent.
-
-Development build `0.14.6+38` adds reproducible GitHub Actions quality gates
-for dependency-lock verification, localization generation, formatting,
-analysis, tests, Android Debug and Web Release builds. The supported Flutter,
-Dart, Java, Gradle and dependency baseline, including the current upstream
-Kotlin-plugin warning, is documented in `docs/toolchain-baseline.md`.
-
-Release `1.0.0+39` completed the final Android, Web, backup, localization,
-signing and artifact regression defined in `docs/release-v1.0.0.md`.
-
-Development build `1.0.2+43` begins the v1.1.0 milestone. Issue #94 displays
-the current Animal picture as a thumbnail in the assigned-Animal list on Box
-details and retains the existing fallback icon when no usable picture exists.
-
-Development build `1.0.3+44` moves the Box QR code, permanent identifier and
-PNG export action into one section at the bottom of Box details. Issue #95
-removes the former print action and its dedicated dependencies while keeping
-existing QR identifiers and scanner compatibility unchanged.
-
-Development build `1.0.4+45` adds optional multiline notes to Boxes. Issue #96
-persists them through Database Schema Version 6, displays non-empty notes on
-Box details and preserves them in current backups while older backups restore
-with empty Box notes.
-
-Development build `1.0.5+46` moves the Box deletion action out of Box details
-and into a destructive section at the bottom of Edit Box. Issue #97 preserves
-confirmation and assigned-Animal protection while returning safely to the Box
-Overview after deletion, including from a contextually swiped Box. Automated
-and manual validation are complete.
-
-Development build `1.0.6+47` implements Issue #98. The Latest Feeding card on
-Animal details now opens the complete feeding history, while a dedicated
-top-level action opens Feeding Reminder settings for active Animals. Reminder
-controls no longer occupy Edit Animal, and ordinary Animal changes preserve
-the existing reminder configuration.
-
-Development build `1.0.7+48` implements Issue #99. Settings now uses one
-compact, localized accent-color dropdown and provides an About TerraManager
-dialog under Legal & Privacy with the installed application version, build
-number and developer information.
-
-Development build `1.0.8+49` implements Issue #100. The destructive Restore
-confirmation now offers a safety-backup checkbox that is enabled by default
-but can be disabled for an individual restore, including when the current
-database is empty.
-
-Release `1.1.0+50` consolidates Issues #94–#100 and their final Android, Web,
-migration, backup and localization regression tracked by Issue #101. Its
-validation record is maintained in `docs/release-v1.1.0.md`.
-
-Development build `1.1.1+51` implements tester feedback by adding optional
-free-form Box names. Named Boxes keep their generated Box number visible and
-the Box Overview can be sorted by name A–Z or Z–A. Database Schema Version 7
-adds the nullable name without changing existing Box data, while Portable
-Backup Format Version 2 remains backward compatible.
-
-Issue #102 adds the Box lifecycle persistence foundation in Database Schema
-Version 8. Boxes have an active/archived status, archive reason, timestamp and
-optional archive notes. Existing databases and older backups retain active
-Boxes with empty archive metadata. Current Format 2 backups preserve these
-fields along with the permanent QR identifier, picture and other Box data.
-Issue #103 adds archive and restore workflows on top of this data model.
-Use **Archive Box** in Edit Box, choose a reason and confirm. Assigned active
-Animals must first be moved to another active Box; the blocking dialog lists
-them and never archives Animals automatically. Confirming archive discards
-unsaved Edit Box changes while retaining the previously saved Box data.
-
-Open **Archived Boxes** from the Box Overview to inspect an archived record
-and restore it with the same QR identifier. Archived records are excluded
-from the active overview and Animal assignment controls. Both QR scanners
-explain when a scanned Box is archived and keep active workflows closed.
-Archive/restore actions are protected against duplicate submissions. A Box can
-only be deleted permanently from the bottom of its archived detail view, after
-a second confirmation. Edit Box no longer offers direct deletion.
-
-Release `1.2.0+54` consolidates optional Box names and the persistent Box
-lifecycle, archive, history, restore and permanent-deletion workflows delivered
-by Issues #102–#104. The final migration, backup, QR, Android and Web release
-validation is tracked by Issue #105 and recorded in
-`docs/release-v1.2.0.md`.
-
-Release `1.3.0+55` implements Issue #106 by adding adjacent horizontal swipe
-navigation between Box Overview, Animal Overview and Settings. The shared shell
-keeps each primary page alive, synchronizes the navigation indicator and
-preserves overview scroll position, sorting and Settings state. Navigation-bar
-taps remain available, and keyboard users can move with `Ctrl+Page Up` and
-`Ctrl+Page Down`. Contextual Animal and Box detail swipes remain confined to
-their detail route. The release also refreshes Animal Overview immediately when
-an Animal is created directly from Box details. The complete regression,
-compatibility, build and publication checklist for Issue #107 is recorded in
-`docs/release-v1.3.0.md`.
-
-Release `1.4.0+59` completes Issues #108–#113. Animal forms identify named
-Boxes, overview name sorting follows embedded numbers naturally, environmental
-inputs enforce supported humidity and temperature bounds, and the localized
-sex choices include Hermaphrodite / other. An expandable section stores five
-optional profile notes without occupying detail space when they are empty.
-Database Schema Version 9 preserves existing Animals and Portable Backup
-Format Version 2 carries the additional values while remaining compatible
-with older backups. Settings now presents the complete GPL-3.0-or-later license
-offline directly below Privacy Policy. Source validation and the separate
-release-owner checklist are recorded in `docs/release-v1.4.0.md`.
-
-Release `1.5.0+60` completes Issues #114 and #115. Long press and secondary
-click open localized quick-action menus in the Animal and Box overviews.
-Animals can create a feeding, be renamed, edited, archived or duplicated;
-Boxes can be renamed, edited, duplicated or archived. Duplicates are
-independent active records with new database identities, and Box duplicates
-receive new permanent QR identifiers. Reusable profile data and pictures are
-copied, while Animal feeding history and lifecycle metadata remain with the
-source. Source and release-owner validation are recorded in
-`docs/release-v1.5.0.md`.
-
-Release `1.6.0+62` completes Issues #116 and #117. Settings provides one shared
-selection workflow for saving active and archived Box QR codes individually,
-as a ZIP archive or on paginated A4 PDF sheets. PDF codes use selectable sizes
-from 6 mm to 20 mm and include safe Box labels. ZIP and PDF output is generated
-entirely on-device and saved through the operating-system destination dialog
-without additional broad storage, media or network permissions. Source and
-release-owner validation are recorded in `docs/release-v1.6.0.md`.
-
-Release `1.6.1+63` completes Issues #122–#126. Animal History now uses the
-same stored-picture thumbnail treatment as other Animal lists, PDF QR sizing
-uses one accessible 6–20 mm slider, and Weight accepts multiline notes.
-Privacy and licence information follows the selected English or German app
-language while remaining completely available offline; the unchanged English
-GPL text remains authoritative. Overview sort menus expose one entry per
-criterion and reverse the active direction when selected again without
-changing persisted or backup values. Source and release-owner validation are
-recorded in `docs/release-v1.6.1.md`.
-
-Release `1.7.0+64` completes Issues #127 and #128. New Animal and Edit Animal
-store a required primary category plus an optional compatible subcategory, and
-Animal details show both localized values. Existing records migrate to Other
-without a subcategory in Database Schema Version 10. Portable Backup Format
-Version 2 carries stable taxonomy values while older Format 1 and Format 2
-backups retain their fallback behavior. Animal Overview adds a Category mode
-that groups every visible Animal according to the complete #127 taxonomy,
-orders names naturally inside each final group and passes the flattened visible
-order to contextual detail navigation. Source and release-owner validation are
-recorded in `docs/release-v1.7.0.md`.
-
-Release `1.7.1+65` advances the database to Schema Version 11. The optional
-temperature-zone note now belongs to the Box and appears directly above its
-ordinary Notes. During migration and legacy backup restore, the first non-empty
-Animal value by ID seeds its assigned Box only when that Box has no value. The
-released Schema Version 10 snapshot remains unchanged so v1.7.0 installations
-follow the explicit v10 to v11 step. The three Box QR export actions keep their
-shared selection workflow while using a shorter PNG description and standard
-Settings dividers. The update adds no device permission. Source and
-release-owner validation are recorded in `docs/release-v1.7.1.md`.
+Android and Web are the validated platforms. iOS remains planned and has not
+been validated. The complete version history is maintained in
+[CHANGELOG.md](CHANGELOG.md), while completed and planned work is maintained in
+the [roadmap](docs/roadmap.md).
 
 ### Android transition to the permanent application ID
 
-Releases through v0.14.1 used the temporary Android identifier
-`com.example.flutter_application_1`. Android treats
-`com.codefrog.terramanager` as a separate application, so the new build cannot
-update an existing pre-v1.0 installation in place.
+Releases through v0.14.1 used `com.example.flutter_application_1`. Current
+Android releases use `com.codefrog.terramanager`, which Android treats as a
+separate application. Before replacing an old installation, create a current
+`.tmbackup`, restore it in the new application and verify Animals, Boxes,
+FeedingEvents, settings and pictures before removing the old installation.
 
-Before moving to a build with the permanent identifier:
-
-1. Create a current `.tmbackup` file in v0.14.1.
-2. Keep the old installation until the backup file is stored safely.
-3. Install the new TerraManager application.
-4. Restore the backup through Settings.
-5. Verify Animals, Boxes, FeedingEvents, settings and pictures before removing
-   the old installation.
-
-No database or backup-format conversion is required. Portable Backup Format
-Version 2 remains compatible with the new application identity.
-
-The completed v0.14.0 validation record remains available in
-`docs/release-v0.14.0.md`.
-
-The completed v0.13.0 validation record remains available in
-`docs/release-v0.13.0.md`.
-
-The completed v0.12.0 validation record remains available in
-`docs/release-v0.12.0.md`.
-
-Portable backup and restore has been validated:
-
-- Android → Android
-- Web → Web
-- Android → Web
-- Web → Android
-
-TerraManager provides complete English and German interfaces. The language can
-follow the operating system or be selected explicitly as English or Deutsch in
-Settings. Manual selections are applied immediately and persist across normal
-application restarts.
+Portable Backup Format Version 2 has been validated for Android → Android,
+Web → Web, Android → Web and Web → Android transfers. TerraManager provides
+complete English and German interfaces, with immediate persistent language
+selection in Settings.
 
 ## Implemented Features
 
@@ -313,6 +76,7 @@ application restarts.
 - direct New Animal navigation with the originating Box preselected
 - optional width, height and depth
 - optional multiline temperature-zone notes above ordinary Box notes
+- ordered Box picture galleries with selectable primary images
 - optional free-form Box names
 - optional multiline Box notes
 - persistent Box pictures
@@ -354,6 +118,8 @@ application restarts.
 - preferred temperature range
 - preferred humidity range
 - optional picture
+- ordered Animal picture galleries with capture/import timestamps and a
+  selectable primary image
 - Add/Change Picture action with Camera and Gallery source selection for Animal
   pictures
 - free-form cropping before a selected or captured Animal picture is applied
@@ -1211,16 +977,6 @@ Additional documentation:
 - [MVP functional requirements](docs/functional-requirements-MVP.md)
 - [Non-MVP functional requirements](docs/functional-requirements-non-MVP.md)
 - [Android release signing](docs/android-release-signing.md)
-- [v1.0.0 release validation](docs/release-v1.0.0.md)
-- [v1.1.0 release validation](docs/release-v1.1.0.md)
-- [v1.2.0 release validation](docs/release-v1.2.0.md)
-- [v1.3.0 release validation](docs/release-v1.3.0.md)
-- [v1.4.0 release validation](docs/release-v1.4.0.md)
-- [v1.5.0 release validation](docs/release-v1.5.0.md)
-- [v1.6.0 release validation](docs/release-v1.6.0.md)
-- [v1.6.1 release validation](docs/release-v1.6.1.md)
-- [v1.7.0 release validation](docs/release-v1.7.0.md)
-- [v1.7.1 release validation](docs/release-v1.7.1.md)
 - [Privacy](PRIVACY.md)
 - [Datenschutz (Deutsch)](PRIVACY.de.md)
 - [Support](SUPPORT.md)

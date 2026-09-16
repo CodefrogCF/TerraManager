@@ -248,7 +248,7 @@ void main() {
     expect(find.text('Choose from Gallery'), findsOneWidget);
   });
 
-  testWidgets('atomically stores one normalized Box replacement', (
+  testWidgets('stores a normalized Box replacement and keeps history', (
     tester,
   ) async {
     final existingBytes = base64Decode(
@@ -305,8 +305,12 @@ void main() {
     expect(media!.fileName, 'edited-box.webp');
     expect(media.mimeType, 'image/webp');
     expect(media.data, normalizedTestPictureBytes);
-    expect(await MediaRepository(database).getMediaById(oldMediaId), isNull);
-    expect(allMedia, hasLength(1));
+    expect(await MediaRepository(database).getMediaById(oldMediaId), isNotNull);
+    expect(allMedia, hasLength(2));
+    expect(
+      await database.select(database.boxPictureAssociations).get(),
+      hasLength(2),
+    );
   });
 
   testWidgets('failed processing preserves the existing Box picture', (

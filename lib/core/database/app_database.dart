@@ -18,6 +18,8 @@ import 'enums/sex.dart';
 
 import 'tables/boxes.dart';
 import 'tables/animals.dart';
+import 'tables/animal_picture_associations.dart';
+import 'tables/box_picture_associations.dart';
 import 'tables/feeding_events.dart';
 import 'tables/media_assets.dart';
 
@@ -25,7 +27,16 @@ import 'app_database.steps.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Boxes, MediaAssets, Animals, FeedingEvents])
+@DriftDatabase(
+  tables: [
+    Boxes,
+    MediaAssets,
+    Animals,
+    FeedingEvents,
+    AnimalPictureAssociations,
+    BoxPictureAssociations,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(
@@ -129,6 +140,11 @@ class AppDatabase extends _$AppDatabase {
                 await m.addColumn(schema.boxes, schema.boxes.temperatureZones);
                 await copyLegacyAnimalTemperatureZonesToBoxes();
               },
+              from11To12: (m, schema) async {
+                await m.createTable(schema.animalPictureAssociations);
+                await m.createTable(schema.boxPictureAssociations);
+                await migrateExistingPicturesToGalleries();
+              },
             ),
           );
 
@@ -153,7 +169,29 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
+
+  Future<void> migrateExistingPicturesToGalleries() async {
+    await customStatement('''
+      INSERT INTO animal_picture_associations
+        (animal_id, media_asset_id, captured_at, sort_order)
+      SELECT animals.id, media_assets.id, media_assets.created_at, 0
+      FROM animals
+      INNER JOIN media_assets
+        ON media_assets.id = animals.picture_media_id
+      WHERE animals.picture_media_id IS NOT NULL
+    ''');
+
+    await customStatement('''
+      INSERT INTO box_picture_associations
+        (box_id, media_asset_id, captured_at, sort_order)
+      SELECT boxes.id, media_assets.id, media_assets.created_at, 0
+      FROM boxes
+      INNER JOIN media_assets
+        ON media_assets.id = boxes.picture_media_id
+      WHERE boxes.picture_media_id IS NOT NULL
+    ''');
+  }
 
   Future<void> copyLegacyAnimalTemperatureZonesToBoxes() async {
     await customStatement('''

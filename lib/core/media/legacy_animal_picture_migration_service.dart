@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../database/app_database.dart';
 import '../database/repositories/media_repository.dart';
+import '../database/repositories/picture_gallery_repository.dart';
 import 'image_media_info.dart';
 
 class LegacyPictureData {
@@ -102,6 +103,12 @@ class LegacyAnimalPictureMigrationService {
               'for animal ${animal.id}',
             );
           }
+
+          await PictureGalleryRepository(database)
+              .ensureAnimalPictureAssociation(
+                animalId: animal.id,
+                mediaId: mediaId,
+              );
 
           return true;
         });

@@ -54,6 +54,7 @@ class BackupBox {
   final String? notes;
 
   final String? pictureMediaPath;
+  final List<BackupPicture> pictures;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -72,6 +73,7 @@ class BackupBox {
     this.temperatureZones,
     this.notes,
     this.pictureMediaPath,
+    this.pictures = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -91,12 +93,15 @@ class BackupBox {
       'temperatureZones': temperatureZones,
       'notes': notes,
       'pictureMediaPath': pictureMediaPath,
+      'pictures': pictures.map((picture) => picture.toJson()).toList(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
   factory BackupBox.fromJson(Map<String, dynamic> json) {
+    final createdAt = DateTime.parse(json['createdAt'] as String);
+    final pictureMediaPath = json['pictureMediaPath'] as String?;
     return BackupBox(
       id: json['id'] as int,
       qrId: json['qrId'] as String,
@@ -113,8 +118,13 @@ class BackupBox {
       depthCm: (json['depthCm'] as num?)?.toDouble(),
       temperatureZones: json['temperatureZones'] as String?,
       notes: json['notes'] as String?,
-      pictureMediaPath: json['pictureMediaPath'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      pictureMediaPath: pictureMediaPath,
+      pictures: _picturesFromJson(
+        json,
+        fallbackMediaPath: pictureMediaPath,
+        fallbackCapturedAt: createdAt,
+      ),
+      createdAt: createdAt,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
@@ -150,6 +160,7 @@ class BackupAnimal {
   final String? temperatureZones;
 
   final String? pictureMediaPath;
+  final List<BackupPicture> pictures;
   final String? notes;
 
   final String? archiveReason;
@@ -183,6 +194,7 @@ class BackupAnimal {
     this.restOrDormancyPeriods,
     this.temperatureZones,
     required this.pictureMediaPath,
+    this.pictures = const [],
     required this.notes,
     required this.archiveReason,
     required this.archivedAt,
@@ -215,6 +227,7 @@ class BackupAnimal {
       'restOrDormancyPeriods': restOrDormancyPeriods,
       'temperatureZones': temperatureZones,
       'pictureMediaPath': pictureMediaPath,
+      'pictures': pictures.map((picture) => picture.toJson()).toList(),
       'notes': notes,
       'archiveReason': archiveReason,
       'archivedAt': archivedAt?.toIso8601String(),
@@ -227,6 +240,8 @@ class BackupAnimal {
   }
 
   factory BackupAnimal.fromJson(Map<String, dynamic> json) {
+    final createdAt = DateTime.parse(json['createdAt'] as String);
+    final pictureMediaPath = json['pictureMediaPath'] as String?;
     return BackupAnimal(
       id: json['id'] as int,
       boxId: json['boxId'] as int?,
@@ -251,7 +266,12 @@ class BackupAnimal {
       sheddingNotes: json['sheddingNotes'] as String?,
       restOrDormancyPeriods: json['restOrDormancyPeriods'] as String?,
       temperatureZones: json['temperatureZones'] as String?,
-      pictureMediaPath: json['pictureMediaPath'] as String?,
+      pictureMediaPath: pictureMediaPath,
+      pictures: _picturesFromJson(
+        json,
+        fallbackMediaPath: pictureMediaPath,
+        fallbackCapturedAt: createdAt,
+      ),
       notes: json['notes'] as String?,
       archiveReason: json['archiveReason'] as String?,
       archivedAt: json['archivedAt'] == null
@@ -262,10 +282,46 @@ class BackupAnimal {
       feedingReminderBaseline: json['feedingReminderBaseline'] == null
           ? null
           : DateTime.parse(json['feedingReminderBaseline'] as String),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: createdAt,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
+}
+
+class BackupPicture {
+  const BackupPicture({required this.mediaPath, required this.capturedAt});
+
+  final String mediaPath;
+  final DateTime capturedAt;
+
+  Map<String, dynamic> toJson() {
+    return {'mediaPath': mediaPath, 'capturedAt': capturedAt.toIso8601String()};
+  }
+
+  factory BackupPicture.fromJson(Map<String, dynamic> json) {
+    return BackupPicture(
+      mediaPath: json['mediaPath'] as String,
+      capturedAt: DateTime.parse(json['capturedAt'] as String),
+    );
+  }
+}
+
+List<BackupPicture> _picturesFromJson(
+  Map<String, dynamic> json, {
+  required String? fallbackMediaPath,
+  required DateTime fallbackCapturedAt,
+}) {
+  if (json.containsKey('pictures')) {
+    return (json['pictures'] as List<dynamic>)
+        .map((item) => BackupPicture.fromJson(item as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+  if (fallbackMediaPath == null) {
+    return const [];
+  }
+  return [
+    BackupPicture(mediaPath: fallbackMediaPath, capturedAt: fallbackCapturedAt),
+  ];
 }
 
 class BackupFeedingEvent {

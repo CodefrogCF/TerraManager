@@ -197,6 +197,8 @@ class AppSettingsController extends ChangeNotifier {
       'labelDescending' || 'createdNewestFirst' => BoxSortOrder.labelDescending,
       'nameAscending' => BoxSortOrder.nameAscending,
       'nameDescending' => BoxSortOrder.nameDescending,
+      'volumeAscending' => BoxSortOrder.volumeAscending,
+      'volumeDescending' => BoxSortOrder.volumeDescending,
       _ => BoxSortOrder.labelAscending,
     };
   }

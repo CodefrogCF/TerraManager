@@ -32,6 +32,7 @@ void main() {
           birthDateAccuracy: 'yearKnown',
           tempMin: 24,
           tempMax: 28,
+          nighttimeTemperature: 20,
           humidityMin: 40,
           humidityMax: 60,
           originHabitat: 'North America',
@@ -95,6 +96,7 @@ void main() {
       'Less active in winter',
     );
     expect(restored.animals.single.temperatureZones, isNull);
+    expect(restored.animals.single.nighttimeTemperature, 20);
 
     expect(restored.animals.single.feedingReminderIntervalDays, 7);
 
@@ -187,5 +189,6 @@ void main() {
     expect(restored.sheddingNotes, isNull);
     expect(restored.restOrDormancyPeriods, isNull);
     expect(restored.temperatureZones, isNull);
+    expect(restored.nighttimeTemperature, isNull);
   });
 }

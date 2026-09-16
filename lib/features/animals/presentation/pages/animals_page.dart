@@ -596,7 +596,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
                     key: Key('animal-category-heading-${category.name}'),
                     padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                     child: Text(
-                      context.l10n.animalCategoryLabel(category),
+                      context.l10n.animalCategoryPluralLabel(category),
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),
@@ -613,7 +613,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
                     child: Text(
                       subcategory == null
                           ? context.l10n.notSpecified
-                          : context.l10n.animalSubcategoryLabel(subcategory),
+                          : context.l10n.animalSubcategoryPluralLabel(
+                              subcategory,
+                            ),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),

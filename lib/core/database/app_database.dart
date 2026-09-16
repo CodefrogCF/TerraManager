@@ -145,6 +145,12 @@ class AppDatabase extends _$AppDatabase {
                 await m.createTable(schema.boxPictureAssociations);
                 await migrateExistingPicturesToGalleries();
               },
+              from12To13: (m, schema) async {
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.nighttimeTemperature,
+                );
+              },
             ),
           );
 
@@ -169,7 +175,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   Future<void> migrateExistingPicturesToGalleries() async {
     await customStatement('''

@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_category.dart';
@@ -69,8 +70,14 @@ void main() {
   Future<void> pumpPage(
     WidgetTester tester, {
     AppSettingsController? settingsController,
+    Locale? locale,
   }) async {
-    final app = MaterialApp(home: AnimalsPage(database: database));
+    final app = MaterialApp(
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: AnimalsPage(database: database),
+    );
 
     await tester.pumpWidget(
       settingsController == null
@@ -378,6 +385,9 @@ void main() {
       find.byKey(const Key('animal-subcategory-heading-snake')),
       findsOneWidget,
     );
+    expect(find.text('Amphibians'), findsOneWidget);
+    expect(find.text('Reptiles'), findsOneWidget);
+    expect(find.text('Snakes'), findsOneWidget);
     expect(find.text('Jumping spider'), findsNothing);
 
     await tester.tap(find.byKey(Key('animal-list-item-$snake10Id')));
@@ -391,6 +401,41 @@ void main() {
       snake2Id,
       snake10Id,
     ]);
+
+    settingsController.dispose();
+  });
+
+  testWidgets('uses German plural taxonomy labels in grouped view', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+    await createTestAnimal(
+      boxId: boxId,
+      category: AnimalCategory.reptile,
+      subcategory: AnimalSubcategory.snake,
+    );
+    await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Gecko',
+      category: AnimalCategory.reptile,
+      subcategory: AnimalSubcategory.lizard,
+    );
+    final settingsController = AppSettingsController();
+    await settingsController.load();
+    await settingsController.setAnimalSortOrder(
+      AnimalSortOrder.categoryAscending,
+    );
+
+    await pumpPage(
+      tester,
+      settingsController: settingsController,
+      locale: const Locale('de'),
+    );
+
+    expect(find.text('Reptilien'), findsOneWidget);
+    expect(find.text('Schlangen'), findsOneWidget);
+    expect(find.text('Reptil'), findsNothing);
+    expect(find.text('Schlange'), findsNothing);
 
     settingsController.dispose();
   });

@@ -13,14 +13,33 @@ void main() {
     expect(BoxSortCriterion.name.defaultOrder, BoxSortOrder.nameAscending);
     expect(BoxSortOrder.nameAscending.reversed, BoxSortOrder.nameDescending);
     expect(BoxSortOrder.nameDescending.reversed, BoxSortOrder.nameAscending);
+    expect(BoxSortCriterion.volume.defaultOrder, BoxSortOrder.volumeAscending);
+    expect(
+      BoxSortOrder.volumeAscending.reversed,
+      BoxSortOrder.volumeDescending,
+    );
+    expect(
+      BoxSortOrder.volumeDescending.reversed,
+      BoxSortOrder.volumeAscending,
+    );
   });
 
-  Box box(int id, DateTime createdAt, {String? name}) {
+  Box box(
+    int id,
+    DateTime createdAt, {
+    String? name,
+    double? widthCm,
+    double? heightCm,
+    double? depthCm,
+  }) {
     return Box(
       status: BoxStatus.active,
       id: id,
       qrId: 'box-$id',
       name: name,
+      widthCm: widthCm,
+      heightCm: heightCm,
+      depthCm: depthCm,
       createdAt: createdAt,
       updatedAt: createdAt,
     );
@@ -57,7 +76,7 @@ void main() {
     expect(descending.map((box) => box.id), [1, 2, 3]);
   });
 
-  test('sorts unnamed Boxes by their displayed fallback labels', () {
+  test('keeps unnamed Boxes last in both name directions', () {
     final createdAt = DateTime(2026, 9, 1);
     final boxes = [
       box(12, createdAt),
@@ -69,8 +88,27 @@ void main() {
     final ascending = sortBoxesForOverview(boxes, BoxSortOrder.nameAscending);
     final descending = sortBoxesForOverview(boxes, BoxSortOrder.nameDescending);
 
-    expect(ascending.map((box) => box.id), [3, 2, 12, 1]);
-    expect(descending.map((box) => box.id), [1, 12, 2, 3]);
+    expect(ascending.map((box) => box.id), [3, 1, 2, 12]);
+    expect(descending.map((box) => box.id), [1, 3, 2, 12]);
+  });
+
+  test('sorts calculated volumes and keeps incomplete dimensions last', () {
+    final createdAt = DateTime(2026, 9, 1);
+    final boxes = [
+      box(4, createdAt, widthCm: 10, heightCm: 10, depthCm: 10),
+      box(2, createdAt, widthCm: 20, heightCm: 10, depthCm: 10),
+      box(3, createdAt, widthCm: 10, heightCm: 10),
+      box(1, createdAt, widthCm: 20, heightCm: 10, depthCm: 10),
+    ];
+
+    final ascending = sortBoxesForOverview(boxes, BoxSortOrder.volumeAscending);
+    final descending = sortBoxesForOverview(
+      boxes,
+      BoxSortOrder.volumeDescending,
+    );
+
+    expect(ascending.map((box) => box.id), [4, 1, 2, 3]);
+    expect(descending.map((box) => box.id), [1, 2, 4, 3]);
   });
 
   test('uses the Box id as a stable fallback for equal names', () {

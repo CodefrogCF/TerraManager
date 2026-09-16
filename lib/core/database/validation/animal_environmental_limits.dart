@@ -13,6 +13,7 @@ class AnimalEnvironmentalLimits {
   static void validate({
     required double temperatureMinimum,
     required double temperatureMaximum,
+    double? nighttimeTemperature,
     required double humidityMinimum,
     required double humidityMaximum,
   }) {
@@ -28,6 +29,14 @@ class AnimalEnvironmentalLimits {
       minimum: minimumTemperatureCelsius,
       maximum: maximumTemperatureCelsius,
     );
+    if (nighttimeTemperature != null) {
+      _requireWithinRange(
+        fieldName: 'nighttimeTemperature',
+        value: nighttimeTemperature,
+        minimum: minimumTemperatureCelsius,
+        maximum: maximumTemperatureCelsius,
+      );
+    }
     _requireWithinRange(
       fieldName: 'humidityMinimum',
       value: humidityMinimum,

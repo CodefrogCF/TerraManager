@@ -8,6 +8,42 @@ The project uses semantic versioning.
 
 ### Added
 
+- show localized plural category and subcategory headings in grouped Animal
+  Overview views (Issue #129)
+- add an optional bounded nighttime temperature to Animal profiles, details,
+  duplication and portable backups (Issue #131)
+- make the assigned Box label on Animal details open the corresponding Box,
+  including its optional name (Issue #132)
+- add persistent ascending and descending Box volume sorting based on complete
+  width × height × depth values (Issue #134)
+
+### Changed
+
+- place only active due feeding reminders above the Animal picture and move
+  Latest Feeding directly below the Animal names (Issue #130)
+- keep unnamed Boxes after every named Box in both alphabetical directions
+  while retaining natural number ordering and deterministic ties (Issue #133)
+- rename Animal temperature inputs to minimum and maximum daytime temperature
+- advance the local database to Schema Version 13; existing Animals receive a
+  null nighttime temperature
+
+### Privacy
+
+- keep all v1.8.0 data, sorting and navigation local without adding device,
+  storage, media or network permissions
+
+### Testing
+
+- cover English and German plural taxonomy headings, due-reminder visibility,
+  Box links, nighttime-temperature persistence, migration, duplication and
+  backup compatibility, unnamed-Box ordering and volume sorting
+
+Portable Backup Format Version 2 remains current and backward compatible.
+
+## [1.7.2] - 2026-09-16
+
+### Added
+
 - add ordered picture histories to Animal and Box details, including local
   capture/import timestamps, full-screen viewing, selectable primary images
   and confirmed individual deletion (Issue #78)

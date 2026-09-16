@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.7.1 – Enclosure Notes & Migration**
+**v1.7.2 – Media Galleries**
 
 Current application version and build:
 
-**v1.7.1+65**
+**v1.7.2+66**
 
 Completed development areas:
 
@@ -66,7 +66,7 @@ Completed development areas:
 - efficient aggregate lookup and recalculation after FeedingEvent changes
 - non-modal, localized Feeding Reminder summary and due markers in the Animal
   Overview
-- due and scheduled reminder status on Animal details
+- due reminder status above the Animal picture
 - reminder navigation and immediate refresh after normal and Quick Feeding
   changes
 - localized Animal sex and birth-date-accuracy labels without raw enum text
@@ -117,6 +117,13 @@ Completed development areas:
 - localized licence guidance with the authoritative English GPL text
 - one reversible menu toggle per Box and Animal overview sort criterion
 - ordered Animal and Box picture histories with selectable primary images
+- plural localized taxonomy headings in grouped Animal Overview views
+- optional nighttime temperature with minimum and maximum daytime temperature
+  labels
+- Latest Feeding directly below Animal names
+- linked assigned-Box labels on Animal details
+- alphabetical Box sorting with unnamed Boxes last in both directions
+- persistent Box volume sorting with incomplete dimensions last
 
 v0.7.1 implementation and release validation are complete.
 
@@ -1335,7 +1342,7 @@ roughly one sixth of its previous size.
 
 ---
 
-## Post-v1.7.1 – Media Galleries
+## v1.7.2 – Media Galleries
 
 ### Animal and Box picture histories — Issue #78
 
@@ -1354,6 +1361,66 @@ roughly one sixth of its previous size.
 - [x] Keep older single-picture backups restorable
 - [x] Add migration, repository, widget and backup regression coverage
 - [x] Add no storage, media, network or other device permission
+
+### v1.7.2 Release
+
+- [x] Set the source version to `1.7.2+66`
+- [x] Advance to Database Schema Version 12
+- [x] Preserve Portable Backup Format Version 2 compatibility
+- [x] Complete central documentation and automated source regression
+- [x] Publish the `v1.7.2` tag
+
+---
+
+## v1.8.0 – Animal Details, Sorting & Environmental Data
+
+### Grouped taxonomy labels — Issue #129
+
+- [x] Use localized plural category and displayed subcategory headings
+- [x] Keep singular labels in forms and Animal details
+- [x] Preserve stored taxonomy values, grouping order and contextual navigation
+
+### Animal detail priorities — Issues #130 and #132
+
+- [x] Show active due reminders above the Animal picture
+- [x] Omit scheduled and archived reminder placeholders
+- [x] Place Latest Feeding directly below the Animal names
+- [x] Keep Latest Feeding linked to the complete feeding history
+- [x] Show the optional Box name before `Box N`
+- [x] Open the assigned Box from an accessible link and return to the same
+  Animal
+- [x] Fall back safely for missing or inconsistent legacy Box references
+
+### Animal nighttime temperature — Issue #131
+
+- [x] Label the existing range as minimum and maximum daytime temperature
+- [x] Add an optional bounded nighttime temperature under Additional
+  characteristics
+- [x] Persist the value through editing, duplication and Backup Format Version
+  2
+- [x] Add nullable `Animal.nighttimeTemperature` in Schema Version 13
+- [x] Keep existing data and older backups compatible with a null default
+
+### Box ordering — Issues #133 and #134
+
+- [x] Keep unnamed Boxes last for Name A–Z and Name Z–A
+- [x] Preserve natural case-insensitive name sorting and deterministic ID ties
+- [x] Add a reversible localized Volume criterion
+- [x] Calculate volume only from complete width × height × depth values
+- [x] Keep incomplete dimensions last in both volume directions
+- [x] Persist and back up both volume directions
+- [x] Pass the visible order into contextual Box navigation
+
+### v1.8.0 Release
+
+- [ ] Set the release version and build number
+- [x] Advance to Database Schema Version 13
+- [x] Preserve Portable Backup Format Version 2 compatibility
+- [x] Generate English and German localizations and Drift migration artifacts
+- [x] Add no device permissions
+- [ ] Confirm the final GitHub Actions **Quality gates** run
+- [ ] Record release-owner Android/Web artifacts and manual checks
+- [ ] Publish the GitHub and Google Play releases
 
 ---
 

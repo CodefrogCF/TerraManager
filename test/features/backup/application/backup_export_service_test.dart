@@ -70,6 +70,7 @@ void main() {
       birthDateAccuracy: BirthDateAccuracy.yearKnown,
       tempMin: 24,
       tempMax: 28,
+      nighttimeTemperature: 19,
       humidityMin: 40,
       humidityMax: 60,
       originHabitat: 'North America',
@@ -150,6 +151,7 @@ void main() {
       'Less active in winter',
     );
     expect(result.data.animals.single.temperatureZones, isNull);
+    expect(result.data.animals.single.nighttimeTemperature, 19);
 
     expect(
       result.data.animals.single.feedingReminderBaseline,

@@ -56,6 +56,7 @@ void main() {
     int? feedingReminderIntervalDays,
     String? feedingReminderBaseline,
     Object? originHabitat,
+    double? nighttimeTemperature,
   }) {
     return {
       'id': id,
@@ -68,6 +69,7 @@ void main() {
       'birthDateAccuracy': null,
       'tempMin': 20.0,
       'tempMax': 25.0,
+      'nighttimeTemperature': ?nighttimeTemperature,
       'humidityMin': 40.0,
       'humidityMax': 60.0,
       'originHabitat': ?originHabitat,
@@ -388,6 +390,23 @@ void main() {
       feedingReminderBaseline: '2026-09-08T12:00:00.000',
     )..['feedingReminderIntervalDays'] = 0;
     final bytes = createArchive(data: dataJson(animals: [animal]));
+
+    expect(
+      () => validator.validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidData,
+        ),
+      ),
+    );
+  });
+
+  test('rejects an out-of-range nighttime temperature', () {
+    final bytes = createArchive(
+      data: dataJson(animals: [activeAnimal(nighttimeTemperature: 61)]),
+    );
 
     expect(
       () => validator.validate(bytes),

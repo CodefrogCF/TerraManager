@@ -10,10 +10,12 @@ This document describes the current platform validation status of TerraManager.
 | Web | Validated |
 | iOS | Planned / not validated |
 
-The current source is based on v1.7.1 and includes the post-release Issue #78
-picture-gallery implementation. Platform validation covers Database Schema
-Version 12, ordered Animal and Box galleries, the compatible Portable Backup
-Format Version 2 representation, and the unchanged device-permission boundary.
+The current source is based on v1.7.2 and implements the v1.8.0 milestone.
+Automated validation covers Database Schema Version 13, ordered Animal and Box
+galleries, the optional nighttime temperature, plural taxonomy headings,
+prioritized Animal feeding details, Box links and the two new Box-ordering
+rules. Portable Backup Format Version 2 and the device-permission boundary are
+unchanged.
 
 Portable Backup Format Version 2 has been validated between the currently
 supported platforms. Backup Format Version 1 remains supported for legacy restore:
@@ -84,11 +86,14 @@ Validated functionality includes:
 - box creation and persistence
 - natural ascending/descending Box Overview sorting, including migrated legacy
   ordering preferences
+- alphabetical Box ordering with unnamed Boxes last in both directions
+- calculated-volume Box ordering with incomplete dimensions last
 - persistent Box ordering and matching contextual detail navigation
 - creation-time, displayed-name, age, latest-feeding and category Animal
   Overview sorting
 - localized category and conditional subcategory headings with natural A–Z
   rows, deterministic ordering and matching contextual detail navigation
+- plural English and German taxonomy headings in grouped Animal views
 - direct Animal creation from empty and populated Box details with the Box
   preselected
 - immediate Animal Overview refresh after direct creation from Box details
@@ -116,6 +121,8 @@ Validated functionality includes:
 - detail actions after swiping and Back navigation to the originating overview
 - normal detail navigation without a swipe context
 - animal creation and persistence
+- optional bounded nighttime temperature with Schema Version 13 migration and
+  portable backup compatibility
 - feeding history
 - notes
 - persistent animal pictures
@@ -137,6 +144,9 @@ Validated functionality includes:
 - restoring archived animals
 - permanent deletion of archived animals
 - latest feeding display
+- active due feeding reminders above the Animal picture and Latest Feeding
+  directly below the Animal names
+- accessible assigned-Box navigation from Animal details
 - System / Light / Dark appearance selection
 - accent color selection
 - appearance-setting persistence across application restarts

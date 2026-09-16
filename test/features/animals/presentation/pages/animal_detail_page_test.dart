@@ -1,4 +1,5 @@
 import 'package:drift/native.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -7,6 +8,7 @@ import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 
@@ -62,6 +64,8 @@ void main() {
     expect(detailPage.navigationContext, isNull);
     expect(find.text('Test Snake'), findsOneWidget);
     expect(find.text('Pantherophis guttatus'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Sex'), 200);
+    await tester.pumpAndSettle();
     expect(find.text('Sex'), findsOneWidget);
     expect(find.text('Hermaphrodite / other'), findsOneWidget);
     expect(find.text('10.05.2024'), findsOneWidget);
@@ -108,6 +112,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(find.text('Sex'), 200);
+    await tester.pumpAndSettle();
     expect(find.text('Sex'), findsOneWidget);
     expect(find.text('Unknown'), findsOneWidget);
   });
@@ -257,7 +263,7 @@ void main() {
       humidityMin: 40,
       humidityMax: 60,
     );
-    final now = DateTime(2026, 9, 12, 12);
+    var now = DateTime(2026, 9, 12, 12);
 
     await tester.pumpWidget(
       MaterialApp(
@@ -271,6 +277,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('feeding-reminder-button')), findsOneWidget);
+    expect(find.byKey(const Key('feeding-reminder-status')), findsNothing);
 
     await tester.tap(find.byKey(const Key('feeding-reminder-button')));
     await tester.pumpAndSettle();
@@ -286,6 +293,7 @@ void main() {
       find.byKey(const Key('feeding-reminder-interval-days-field')),
       '7',
     );
+    now = DateTime(2026, 9, 20, 12);
     await tester.tap(find.byKey(const Key('save-feeding-reminder-button')));
     await tester.pumpAndSettle();
 
@@ -295,8 +303,111 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Next feeding scheduled'), findsOneWidget);
-    expect(find.text('Due on 19.09.2026 12:00'), findsOneWidget);
+    expect(find.text('Feeding due'), findsOneWidget);
+    expect(find.text('Due since 19.09.2026 12:00'), findsOneWidget);
+  });
+
+  testWidgets('archived Animal never shows an actionable due reminder', (
+    tester,
+  ) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'archived-reminder-box'));
+    final repository = AnimalRepository(database);
+    final animalId = await repository.createAnimal(
+      boxId: boxId,
+      commonName: 'Archived Reminder Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+      feedingReminderIntervalDays: 1,
+      feedingReminderBaseline: DateTime(2026, 9, 1),
+    );
+    await repository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.rehomed,
+      archivedAt: DateTime(2026, 9, 2),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(
+          database: database,
+          animalId: animalId,
+          reminderNow: () => DateTime(2026, 9, 20),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('feeding-reminder-status')), findsNothing);
+  });
+
+  testWidgets('named Box reference opens the assigned Box details', (
+    tester,
+  ) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'named-detail-box',
+            name: const Value('Rainforest'),
+          ),
+        );
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Linked Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Rainforest · Box $boxId'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('animal-box-detail')));
+    await tester.pumpAndSettle();
+
+    final boxPage = tester.widget<BoxDetailPage>(find.byType(BoxDetailPage));
+    expect(boxPage.box.id, boxId);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('Linked Snake'), findsOneWidget);
+  });
+
+  testWidgets('unnamed Box reference uses the generated Box number', (
+    tester,
+  ) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'unnamed-detail-box'));
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Linked Animal',
+      latinName: 'Test species',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Box $boxId'), findsOneWidget);
   });
 
   testWidgets('shows picture placeholder when animal has no picture', (

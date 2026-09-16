@@ -1576,3 +1576,47 @@ Disadvantages:
   authoritative migrated value
 - the legacy Animal column remains until a later compatibility-breaking schema
   and backup revision can remove it safely
+
+---
+
+## ADR-025: Prioritize actionable Animal data and derive Box volume
+
+**Status:** Accepted
+
+**Date:** 2026-09-16
+
+### Context
+
+Animal details mixed scheduled reminders and feeding history below general
+profile data, while assigned Boxes were plain text. Box ordering also needed
+useful behavior for unnamed records and optional dimensions without storing a
+second derived value.
+
+### Decision
+
+Animal details show only active due reminders above the picture and place the
+latest FeedingEvent directly below the names. The assigned Box label uses the
+same optional-name plus generated-number representation as selection controls
+and opens the existing Box detail page. Missing legacy references remain plain
+generated labels instead of blocking the Animal page.
+
+Grouped overview headings derive plural English and German labels solely for
+presentation; singular form/detail labels and stable taxonomy values remain
+unchanged.
+
+Schema Version 13 adds nullable `Animal.nighttimeTemperature`. It shares the
+daytime temperature bounds and remains optional across forms, details,
+duplication and Backup Format Version 2.
+
+Box volume is calculated at sort time as `widthCm × heightCm × depthCm` only
+when all dimensions exist. Incomplete values sort after calculated values in
+both directions. Name sorting similarly places blank names last in both
+directions. Stable Box IDs resolve all ties and both volume directions use
+stable preference and backup strings.
+
+### Consequences
+
+- actionable feeding and navigation information is easier to reach
+- no redundant volume value can become stale
+- older databases, settings and backups keep their existing defaults
+- every new capability remains local and requires no additional permission

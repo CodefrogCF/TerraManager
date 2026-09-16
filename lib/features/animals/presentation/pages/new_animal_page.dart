@@ -54,6 +54,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _weightController = TextEditingController();
   final _sheddingNotesController = TextEditingController();
   final _restOrDormancyPeriodsController = TextEditingController();
+  final _nighttimeTemperatureController = TextEditingController();
   final _notesController = TextEditingController();
   final _feedingReminderIntervalDaysController = TextEditingController();
 
@@ -102,6 +103,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     _weightController.dispose();
     _sheddingNotesController.dispose();
     _restOrDormancyPeriodsController.dispose();
+    _nighttimeTemperatureController.dispose();
     _notesController.dispose();
     _feedingReminderIntervalDaysController.dispose();
     super.dispose();
@@ -229,6 +231,9 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
           birthDateAccuracy: _birthDateAccuracy,
           tempMin: double.parse(_tempMinController.text),
           tempMax: double.parse(_tempMaxController.text),
+          nighttimeTemperature: _optionalDouble(
+            _nighttimeTemperatureController,
+          ),
           humidityMin: double.parse(_humidityMinController.text),
           humidityMax: double.parse(_humidityMaxController.text),
           originHabitat: _optionalText(_originHabitatController),
@@ -569,6 +574,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               weightController: _weightController,
               sheddingNotesController: _sheddingNotesController,
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
+              nighttimeTemperatureController: _nighttimeTemperatureController,
             ),
             const SizedBox(height: 16),
 
@@ -615,6 +621,11 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   String? _optionalText(TextEditingController controller) {
     final value = controller.text.trim();
     return value.isEmpty ? null : value;
+  }
+
+  double? _optionalDouble(TextEditingController controller) {
+    final value = controller.text.trim();
+    return value.isEmpty ? null : double.parse(value);
   }
 
   Widget _numberField({

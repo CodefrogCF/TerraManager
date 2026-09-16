@@ -115,6 +115,7 @@ void main() {
             birthDateAccuracy: null,
             tempMin: 24,
             tempMax: 28,
+            nighttimeTemperature: 19,
             humidityMin: 50,
             humidityMax: 70,
             originHabitat: 'South America',
@@ -290,6 +291,7 @@ void main() {
     expect(animal.weight, '95 g');
     expect(animal.sheddingNotes, 'Last shed complete');
     expect(animal.restOrDormancyPeriods, 'No dormancy');
+    expect(animal.nighttimeTemperature, 19);
     expect(animal.temperatureZones, '24–28 °C');
 
     // Backups created before reminder configuration was introduced omit both

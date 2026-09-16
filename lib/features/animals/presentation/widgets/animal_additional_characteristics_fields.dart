@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations_context.dart';
+import '../animal_environmental_validator.dart';
 
 class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
   final bool expanded;
@@ -11,6 +12,7 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
   final TextEditingController weightController;
   final TextEditingController sheddingNotesController;
   final TextEditingController restOrDormancyPeriodsController;
+  final TextEditingController nighttimeTemperatureController;
 
   const AnimalAdditionalCharacteristicsFields({
     super.key,
@@ -21,6 +23,7 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
     required this.weightController,
     required this.sheddingNotesController,
     required this.restOrDormancyPeriodsController,
+    required this.nighttimeTemperatureController,
     this.onChanged,
   });
 
@@ -62,6 +65,21 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
             controller: restOrDormancyPeriodsController,
             label: context.l10n.restOrDormancyPeriods,
             maxLines: 3,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            key: const Key('nighttime-temperature-field'),
+            controller: nighttimeTemperatureController,
+            enabled: enabled,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: onChanged,
+            validator: (value) => validateOptionalAnimalTemperatureInput(
+              localizations: context.l10n,
+              value: value,
+            ),
+            decoration: InputDecoration(
+              labelText: context.l10n.nighttimeTemperatureCelsius,
+            ),
           ),
         ],
       ],

@@ -53,6 +53,46 @@ extension AppLocalizationsLabels on AppLocalizations {
     };
   }
 
+  String animalCategoryPluralLabel(AnimalCategory category) {
+    return switch (category) {
+      AnimalCategory.amphibian => categoryAmphibians,
+      AnimalCategory.reptile => categoryReptiles,
+      AnimalCategory.arachnid => categoryArachnids,
+      AnimalCategory.insect => categoryInsects,
+      AnimalCategory.myriapod => categoryMyriapods,
+      AnimalCategory.crustacean => categoryCrustaceans,
+      AnimalCategory.mollusc => categoryMolluscs,
+      AnimalCategory.otherInvertebrate => categoryOtherInvertebrates,
+      AnimalCategory.other => categoryOthers,
+    };
+  }
+
+  String animalSubcategoryPluralLabel(AnimalSubcategory subcategory) {
+    return switch (subcategory) {
+      AnimalSubcategory.snake => subcategorySnakes,
+      AnimalSubcategory.lizard => subcategoryLizards,
+      AnimalSubcategory.turtle => subcategoryTurtles,
+      AnimalSubcategory.frogOrToad => subcategoryFrogsOrToads,
+      AnimalSubcategory.newtOrSalamander => subcategoryNewtsOrSalamanders,
+      AnimalSubcategory.tarantula => subcategoryTarantulas,
+      AnimalSubcategory.otherSpider => subcategoryOtherSpiders,
+      AnimalSubcategory.scorpion => subcategoryScorpions,
+      AnimalSubcategory.whipSpiderOrWhipScorpion =>
+        subcategoryWhipSpidersOrWhipScorpions,
+      AnimalSubcategory.beetle => subcategoryBeetles,
+      AnimalSubcategory.cockroach => subcategoryCockroaches,
+      AnimalSubcategory.mantis => subcategoryMantises,
+      AnimalSubcategory.grasshopperOrCricket =>
+        subcategoryGrasshoppersOrCrickets,
+      AnimalSubcategory.millipede => subcategoryMillipedes,
+      AnimalSubcategory.centipede => subcategoryCentipedes,
+      AnimalSubcategory.isopod => subcategoryIsopods,
+      AnimalSubcategory.crab => subcategoryCrabs,
+      AnimalSubcategory.snail => subcategorySnails,
+      AnimalSubcategory.other => subcategoryOthers,
+    };
+  }
+
   String boxArchiveReasonLabel(BoxArchiveReason reason) {
     return switch (reason) {
       BoxArchiveReason.sold => archiveReasonSold,
@@ -129,6 +169,8 @@ extension AppLocalizationsLabels on AppLocalizations {
       BoxSortOrder.labelDescending => boxSortLabelDescending,
       BoxSortOrder.nameAscending => boxSortNameAscending,
       BoxSortOrder.nameDescending => boxSortNameDescending,
+      BoxSortOrder.volumeAscending => boxSortVolumeAscending,
+      BoxSortOrder.volumeDescending => boxSortVolumeDescending,
     };
   }
 
@@ -139,6 +181,7 @@ extension AppLocalizationsLabels on AppLocalizations {
     final criterionLabel = switch (criterion) {
       BoxSortCriterion.label => boxSortNumberCriterion,
       BoxSortCriterion.name => boxSortNameCriterion,
+      BoxSortCriterion.volume => boxSortVolumeCriterion,
     };
 
     if (activeOrder == null) {
@@ -147,9 +190,11 @@ extension AppLocalizationsLabels on AppLocalizations {
 
     final directionLabel = switch (activeOrder) {
       BoxSortOrder.labelAscending ||
-      BoxSortOrder.nameAscending => sortDirectionAscending,
+      BoxSortOrder.nameAscending ||
+      BoxSortOrder.volumeAscending => sortDirectionAscending,
       BoxSortOrder.labelDescending ||
-      BoxSortOrder.nameDescending => sortDirectionDescending,
+      BoxSortOrder.nameDescending ||
+      BoxSortOrder.volumeDescending => sortDirectionDescending,
     };
 
     return sortCriterionWithDirection(criterionLabel, directionLabel);

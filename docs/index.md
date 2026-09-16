@@ -18,20 +18,22 @@ Public project information:
 
 ## Project Status
 
-Latest published application version: **v1.7.1+65 – Enclosure Notes &
-Migration**.
+Latest published application version: **v1.7.2+66 – Media Galleries**.
 
-The current source extends that release with Issue #78 picture histories:
+The current source implements the v1.8.0 Animal details, sorting and
+environmental-data milestone:
 
-- Animals and Boxes can keep ordered local picture galleries;
-- every picture retains its capture or import timestamp;
-- any gallery picture can become the primary detail image;
-- individual pictures require confirmation before deletion;
-- Database Schema Version 12 migrates existing single pictures into galleries;
-- Portable Backup Format Version 2 preserves gallery order, timestamps and the
-  primary selection; and
-- the existing user-initiated Camera and Gallery flow is reused without adding
-  device permissions.
+- grouped Animal Overview headings use localized plural taxonomy labels;
+- active due feeding reminders appear above the Animal picture and Latest
+  Feeding appears directly below the names;
+- assigned Box labels include optional Box names and open the corresponding Box;
+- Animals can store an optional bounded nighttime temperature alongside the
+  renamed minimum and maximum daytime temperatures;
+- unnamed Boxes remain last in both alphabetical directions;
+- Boxes can be sorted by calculated volume, with incomplete dimensions last;
+- Database Schema Version 13 adds the nullable nighttime-temperature column;
+- Portable Backup Format Version 2 remains backward compatible; and
+- no new device permission is required.
 
 Android and Web are the validated platforms. iOS remains planned and has not
 been validated. The complete version history is maintained in the project
@@ -92,6 +94,8 @@ selection in Settings.
 - Box thumbnails in the overview
 - localized Box Overview sorting by ascending or descending natural Box number
 - localized Box Overview sorting by name A–Z or Z–A with unnamed Boxes last
+- localized Box Overview sorting by calculated volume, with incomplete
+  dimensions last
 - persistent Box Overview ordering across application restarts
 - preserved Box overview scroll position after detail navigation
 - contextual swipe navigation through the Box Overview ordering
@@ -129,6 +133,8 @@ selection in Settings.
 - notes
 - optional origin or habitat, weight, shedding notes and rest or dormancy
   periods
+- optional nighttime temperature and explicit minimum/maximum daytime
+  temperature labels
 - required localized Animal category and optional compatible subcategory
 - taxonomy persistence through editing, duplication, migration and backup
 - active and archived lifecycle states
@@ -142,6 +148,7 @@ selection in Settings.
   age, latest FeedingEvent or category
 - accessible category groups with conditional subcategory headings and natural
   A–Z Animal ordering inside every final group
+- localized plural category and subcategory headings in grouped views
 - deterministic placement of Animals without birth or feeding data
 - persistent Animal Overview ordering across application restarts
 - preserved Animal overview scroll position after detail navigation
@@ -162,7 +169,8 @@ selection in Settings.
 - non-modal overview summary listing currently due Animals
 - visible due markers in the Animal Overview
 - most-overdue-first reminder ordering
-- due or scheduled status with calculated date on Animal details
+- active due status above the Animal picture without a scheduled placeholder
+- assigned Box link with optional Box name on Animal details
 - direct navigation from reminder entries to the Animal and feeding workflow
 - immediate reminder refresh after normal and Quick Feeding changes
 
@@ -589,6 +597,7 @@ Animal
 ├── birthDateAccuracy
 ├── tempMin
 ├── tempMax
+├── nighttimeTemperature
 ├── humidityMin
 ├── humidityMax
 ├── originHabitat

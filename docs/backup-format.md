@@ -479,6 +479,7 @@ birthDate
 birthDateAccuracy
 tempMin
 tempMax
+nighttimeTemperature
 humidityMin
 humidityMax
 originHabitat
@@ -514,6 +515,7 @@ Example active Animal:
   "birthDateAccuracy": "yearKnown",
   "tempMin": 24.0,
   "tempMax": 28.0,
+  "nighttimeTemperature": 20.0,
   "humidityMin": 40.0,
   "humidityMax": 60.0,
   "originHabitat": "North America",
@@ -559,6 +561,7 @@ Example archived Animal:
   "birthDateAccuracy": null,
   "tempMin": 24.0,
   "tempMax": 28.0,
+  "nighttimeTemperature": null,
   "humidityMin": 40.0,
   "humidityMax": 60.0,
   "originHabitat": null,
@@ -603,6 +606,12 @@ records where any or all optional keys are absent and maps those fields to
 `null`. A present non-string value is invalid application data. The
 representation remains free-form and does not imply a unit, history or
 relationship to measurements.
+
+TerraManager v1.8.0 adds nullable numeric `nighttimeTemperature` without
+changing Backup Format Version 2. Missing and explicit null values restore as
+no nighttime temperature. Present values must be finite and within the same
+inclusive 0–60 °C range as the daytime temperature fields. The existing
+`tempMin` and `tempMax` keys represent minimum and maximum daytime temperature.
 
 ### Animal Taxonomy Fields
 
@@ -1111,13 +1120,16 @@ labelAscending
 labelDescending
 nameAscending
 nameDescending
+volumeAscending
+volumeDescending
 ```
 
 If the field is absent, restore uses `BoxSortOrder.labelAscending`. Legacy
 `createdOldestFirst` values map to `labelAscending`, while
 `createdNewestFirst` maps to `labelDescending`. If the field is present with any
 other unknown value, backup validation must fail. New backups write one of the
-four current label or name values.
+six current label, name or calculated-volume values. Volume ordering remains a
+presentation setting; no calculated volume is stored in the backup.
 
 ## Archive Validation
 

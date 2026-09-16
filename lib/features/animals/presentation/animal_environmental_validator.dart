@@ -61,3 +61,31 @@ String _formatLimit(double value) {
 
   return value.toString();
 }
+
+String? validateOptionalAnimalTemperatureInput({
+  required AppLocalizations localizations,
+  required String? value,
+}) {
+  final trimmedValue = value?.trim();
+  if (trimmedValue == null || trimmedValue.isEmpty) {
+    return null;
+  }
+
+  final parsedValue = double.tryParse(trimmedValue);
+  if (parsedValue == null || !parsedValue.isFinite) {
+    return localizations.pleaseEnterValidNumber;
+  }
+
+  if (!AnimalEnvironmentalLimits.isWithinRange(
+    parsedValue,
+    AnimalEnvironmentalLimits.minimumTemperatureCelsius,
+    AnimalEnvironmentalLimits.maximumTemperatureCelsius,
+  )) {
+    return localizations.environmentalValueOutOfRange(
+      _formatLimit(AnimalEnvironmentalLimits.minimumTemperatureCelsius),
+      _formatLimit(AnimalEnvironmentalLimits.maximumTemperatureCelsius),
+    );
+  }
+
+  return null;
+}

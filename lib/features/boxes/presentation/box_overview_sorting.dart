@@ -19,6 +19,16 @@ List<Box> sortBoxesForOverview(Iterable<Box> boxes, BoxSortOrder sortOrder) {
         second,
         descending: true,
       ),
+      BoxSortOrder.volumeAscending => _compareVolume(
+        first,
+        second,
+        descending: false,
+      ),
+      BoxSortOrder.volumeDescending => _compareVolume(
+        first,
+        second,
+        descending: true,
+      ),
     };
   });
 
@@ -26,8 +36,17 @@ List<Box> sortBoxesForOverview(Iterable<Box> boxes, BoxSortOrder sortOrder) {
 }
 
 int _compareNames(Box first, Box second, {required bool descending}) {
-  final firstName = _displayedName(first);
-  final secondName = _displayedName(second);
+  final firstName = _name(first);
+  final secondName = _name(second);
+
+  if (firstName == null || secondName == null) {
+    if (firstName == null && secondName == null) {
+      return first.id.compareTo(second.id);
+    }
+
+    return firstName == null ? 1 : -1;
+  }
+
   final comparison = descending
       ? compareNaturalStrings(secondName, firstName)
       : compareNaturalStrings(firstName, secondName);
@@ -39,12 +58,43 @@ int _compareNames(Box first, Box second, {required bool descending}) {
   return first.id.compareTo(second.id);
 }
 
-String _displayedName(Box box) {
+String? _name(Box box) {
   final trimmed = box.name?.trim();
 
   if (trimmed == null || trimmed.isEmpty) {
-    return 'Box ${box.id}';
+    return null;
   }
 
   return trimmed;
+}
+
+int _compareVolume(Box first, Box second, {required bool descending}) {
+  final firstVolume = _volume(first);
+  final secondVolume = _volume(second);
+
+  if (firstVolume == null || secondVolume == null) {
+    if (firstVolume == null && secondVolume == null) {
+      return first.id.compareTo(second.id);
+    }
+
+    return firstVolume == null ? 1 : -1;
+  }
+
+  final comparison = descending
+      ? secondVolume.compareTo(firstVolume)
+      : firstVolume.compareTo(secondVolume);
+
+  return comparison != 0 ? comparison : first.id.compareTo(second.id);
+}
+
+double? _volume(Box box) {
+  final width = box.widthCm;
+  final height = box.heightCm;
+  final depth = box.depthCm;
+
+  if (width == null || height == null || depth == null) {
+    return null;
+  }
+
+  return width * height * depth;
 }

@@ -187,6 +187,12 @@ non-destructive rule and accepts missing Box temperature-zone keys from older
 Format 1 and Format 2 backups. Migration regressions assert data behavior and
 snapshot transitions without hard-coding the current schema number.
 
+Schema Version 13 adds nullable `Animal.nighttimeTemperature`. Generate and
+retain the version 13 Drift snapshot, verify direct v12 → v13 migration, and
+keep the new field nullable so existing databases and older Format 2 backups
+restore without synthetic values. Repository and backup validation apply the
+same inclusive 0–60 °C bounds used by daytime temperatures.
+
 Issue #128 derives category groups from the current filtered Animal list. Cover
 the complete Issue #127 category order, reversed primary order, localized
 headings, conditional subcategory headings, named subcategories followed by
@@ -378,8 +384,10 @@ Examples:
 - APK certificate verification and SHA-256 checksums
 - non-modal due summary, due count and due markers in the Animal Overview
 - most-overdue-first order and navigation to the correct Animal
-- due and scheduled status cards with the calculated due timestamp on Animal
-  details
+- an active due-only status card above the Animal picture, with no scheduled or
+  archived placeholder
+- Latest Feeding directly below the Animal names
+- an accessible assigned-Box link with a safe generated-label fallback
 - immediate refresh after FeedingEvent creation, editing and deletion
 - Animal Overview refresh after a QR Quick Feeding submission
 - English and German reminder counts and status labels
@@ -400,6 +408,8 @@ Examples:
 - language persistence and unsupported-locale fallback
 - language-setting backup and restore
 - natural ascending/descending Box Overview sorting
+- unnamed Boxes last in both alphabetical directions
+- calculated-volume sorting with incomplete dimensions last
 - Box sort-order persistence after an application restart
 - contextual Box detail swiping in the currently visible order
 - Box sort-order backup, restore and legacy creation-order migration behavior

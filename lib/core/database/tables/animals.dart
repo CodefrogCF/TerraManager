@@ -40,6 +40,8 @@ class Animals extends Table {
 
   RealColumn get tempMax => real()();
 
+  RealColumn get nighttimeTemperature => real().nullable()();
+
   RealColumn get humidityMin => real()();
 
   RealColumn get humidityMax => real()();

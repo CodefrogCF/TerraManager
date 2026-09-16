@@ -56,6 +56,11 @@ void main() {
     expect(l10n.additionalCharacteristics, 'Additional characteristics');
     expect(l10n.originHabitat, 'Origin / habitat');
     expect(l10n.restOrDormancyPeriods, 'Rest or dormancy periods');
+    expect(l10n.minimumTemperatureCelsius, 'Minimum daytime temperature (°C)');
+    expect(l10n.maximumTemperatureCelsius, 'Maximum daytime temperature (°C)');
+    expect(l10n.nighttimeTemperatureCelsius, 'Nighttime temperature (°C)');
+    expect(l10n.categoryReptiles, 'Reptiles');
+    expect(l10n.subcategorySnakes, 'Snakes');
     expect(l10n.licenseTitle, 'License');
     expect(l10n.birthDateAccuracyExact, 'Exact');
     expect(l10n.birthDateAccuracyMonthKnown, 'Month known');
@@ -65,6 +70,8 @@ void main() {
     expect(l10n.boxSortLabelDescending, 'Box number descending');
     expect(l10n.boxSortNameAscending, 'Name A–Z');
     expect(l10n.boxSortNameDescending, 'Name Z–A');
+    expect(l10n.boxSortVolumeAscending, 'Volume ascending');
+    expect(l10n.boxSortVolumeDescending, 'Volume descending');
     expect(l10n.sortAnimals, 'Sort animals');
     expect(l10n.animalSortCreatedOldestFirst, 'Oldest added first');
     expect(l10n.animalSortCreatedNewestFirst, 'Newest added first');
@@ -164,6 +171,11 @@ void main() {
     expect(l10n.additionalCharacteristics, 'Zusätzliche Merkmale');
     expect(l10n.originHabitat, 'Herkunft / Lebensraum');
     expect(l10n.restOrDormancyPeriods, 'Ruhe- oder Dormanzzeiten');
+    expect(l10n.minimumTemperatureCelsius, 'Minimale Tagestemperatur (°C)');
+    expect(l10n.maximumTemperatureCelsius, 'Maximale Tagestemperatur (°C)');
+    expect(l10n.nighttimeTemperatureCelsius, 'Nachttemperatur (°C)');
+    expect(l10n.categoryReptiles, 'Reptilien');
+    expect(l10n.subcategorySnakes, 'Schlangen');
     expect(l10n.licenseTitle, 'Lizenz');
     expect(l10n.birthDateAccuracyExact, 'Genau');
     expect(l10n.birthDateAccuracyMonthKnown, 'Monat bekannt');
@@ -173,6 +185,8 @@ void main() {
     expect(l10n.boxSortLabelDescending, 'Boxnummer absteigend');
     expect(l10n.boxSortNameAscending, 'Name A–Z');
     expect(l10n.boxSortNameDescending, 'Name Z–A');
+    expect(l10n.boxSortVolumeAscending, 'Volumen aufsteigend');
+    expect(l10n.boxSortVolumeDescending, 'Volumen absteigend');
     expect(l10n.sortAnimals, 'Tiere sortieren');
     expect(l10n.animalSortCreatedOldestFirst, 'Zuerst hinzugefügt');
     expect(l10n.animalSortCreatedNewestFirst, 'Zuletzt hinzugefügt');

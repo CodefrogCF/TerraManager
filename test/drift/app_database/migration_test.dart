@@ -684,6 +684,7 @@ void main() {
                 humidityMax: 60,
                 feedingReminderIntervalDays: const Value(7),
                 feedingReminderBaseline: Value(baseline),
+                nighttimeTemperature: const Value(19.5),
               ),
             );
 
@@ -699,6 +700,7 @@ void main() {
 
         expect(animal.feedingReminderIntervalDays, 7);
         expect(animal.feedingReminderBaseline, baseline);
+        expect(animal.nighttimeTemperature, 19.5);
       } finally {
         await openDatabase?.close();
 

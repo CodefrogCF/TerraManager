@@ -1407,6 +1407,17 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _nighttimeTemperatureMeta =
+      const VerificationMeta('nighttimeTemperature');
+  @override
+  late final GeneratedColumn<double> nighttimeTemperature =
+      GeneratedColumn<double>(
+        'nighttime_temperature',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _humidityMinMeta = const VerificationMeta(
     'humidityMin',
   );
@@ -1607,6 +1618,7 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     birthDateAccuracy,
     tempMin,
     tempMax,
+    nighttimeTemperature,
     humidityMin,
     humidityMax,
     originHabitat,
@@ -1683,6 +1695,15 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
       );
     } else if (isInserting) {
       context.missing(_tempMaxMeta);
+    }
+    if (data.containsKey('nighttime_temperature')) {
+      context.handle(
+        _nighttimeTemperatureMeta,
+        nighttimeTemperature.isAcceptableOrUnknown(
+          data['nighttime_temperature']!,
+          _nighttimeTemperatureMeta,
+        ),
+      );
     }
     if (data.containsKey('humidity_min')) {
       context.handle(
@@ -1884,6 +1905,10 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.double,
         data['${effectivePrefix}temp_max'],
       )!,
+      nighttimeTemperature: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}nighttime_temperature'],
+      ),
       humidityMin: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}humidity_min'],
@@ -1998,6 +2023,7 @@ class Animal extends DataClass implements Insertable<Animal> {
   final BirthDateAccuracy? birthDateAccuracy;
   final double tempMin;
   final double tempMax;
+  final double? nighttimeTemperature;
   final double humidityMin;
   final double humidityMax;
   final String? originHabitat;
@@ -2028,6 +2054,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     this.birthDateAccuracy,
     required this.tempMin,
     required this.tempMax,
+    this.nighttimeTemperature,
     required this.humidityMin,
     required this.humidityMax,
     this.originHabitat,
@@ -2083,6 +2110,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     }
     map['temp_min'] = Variable<double>(tempMin);
     map['temp_max'] = Variable<double>(tempMax);
+    if (!nullToAbsent || nighttimeTemperature != null) {
+      map['nighttime_temperature'] = Variable<double>(nighttimeTemperature);
+    }
     map['humidity_min'] = Variable<double>(humidityMin);
     map['humidity_max'] = Variable<double>(humidityMax);
     if (!nullToAbsent || originHabitat != null) {
@@ -2157,6 +2187,9 @@ class Animal extends DataClass implements Insertable<Animal> {
           : Value(birthDateAccuracy),
       tempMin: Value(tempMin),
       tempMax: Value(tempMax),
+      nighttimeTemperature: nighttimeTemperature == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nighttimeTemperature),
       humidityMin: Value(humidityMin),
       humidityMax: Value(humidityMax),
       originHabitat: originHabitat == null && nullToAbsent
@@ -2224,6 +2257,9 @@ class Animal extends DataClass implements Insertable<Animal> {
       ),
       tempMin: serializer.fromJson<double>(json['tempMin']),
       tempMax: serializer.fromJson<double>(json['tempMax']),
+      nighttimeTemperature: serializer.fromJson<double?>(
+        json['nighttimeTemperature'],
+      ),
       humidityMin: serializer.fromJson<double>(json['humidityMin']),
       humidityMax: serializer.fromJson<double>(json['humidityMax']),
       originHabitat: serializer.fromJson<String?>(json['originHabitat']),
@@ -2269,6 +2305,7 @@ class Animal extends DataClass implements Insertable<Animal> {
       ),
       'tempMin': serializer.toJson<double>(tempMin),
       'tempMax': serializer.toJson<double>(tempMax),
+      'nighttimeTemperature': serializer.toJson<double?>(nighttimeTemperature),
       'humidityMin': serializer.toJson<double>(humidityMin),
       'humidityMax': serializer.toJson<double>(humidityMax),
       'originHabitat': serializer.toJson<String?>(originHabitat),
@@ -2308,6 +2345,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     Value<BirthDateAccuracy?> birthDateAccuracy = const Value.absent(),
     double? tempMin,
     double? tempMax,
+    Value<double?> nighttimeTemperature = const Value.absent(),
     double? humidityMin,
     double? humidityMax,
     Value<String?> originHabitat = const Value.absent(),
@@ -2340,6 +2378,9 @@ class Animal extends DataClass implements Insertable<Animal> {
         : this.birthDateAccuracy,
     tempMin: tempMin ?? this.tempMin,
     tempMax: tempMax ?? this.tempMax,
+    nighttimeTemperature: nighttimeTemperature.present
+        ? nighttimeTemperature.value
+        : this.nighttimeTemperature,
     humidityMin: humidityMin ?? this.humidityMin,
     humidityMax: humidityMax ?? this.humidityMax,
     originHabitat: originHabitat.present
@@ -2394,6 +2435,9 @@ class Animal extends DataClass implements Insertable<Animal> {
           : this.birthDateAccuracy,
       tempMin: data.tempMin.present ? data.tempMin.value : this.tempMin,
       tempMax: data.tempMax.present ? data.tempMax.value : this.tempMax,
+      nighttimeTemperature: data.nighttimeTemperature.present
+          ? data.nighttimeTemperature.value
+          : this.nighttimeTemperature,
       humidityMin: data.humidityMin.present
           ? data.humidityMin.value
           : this.humidityMin,
@@ -2455,6 +2499,7 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('birthDateAccuracy: $birthDateAccuracy, ')
           ..write('tempMin: $tempMin, ')
           ..write('tempMax: $tempMax, ')
+          ..write('nighttimeTemperature: $nighttimeTemperature, ')
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
           ..write('originHabitat: $originHabitat, ')
@@ -2490,6 +2535,7 @@ class Animal extends DataClass implements Insertable<Animal> {
     birthDateAccuracy,
     tempMin,
     tempMax,
+    nighttimeTemperature,
     humidityMin,
     humidityMax,
     originHabitat,
@@ -2524,6 +2570,7 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.birthDateAccuracy == this.birthDateAccuracy &&
           other.tempMin == this.tempMin &&
           other.tempMax == this.tempMax &&
+          other.nighttimeTemperature == this.nighttimeTemperature &&
           other.humidityMin == this.humidityMin &&
           other.humidityMax == this.humidityMax &&
           other.originHabitat == this.originHabitat &&
@@ -2557,6 +2604,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<BirthDateAccuracy?> birthDateAccuracy;
   final Value<double> tempMin;
   final Value<double> tempMax;
+  final Value<double?> nighttimeTemperature;
   final Value<double> humidityMin;
   final Value<double> humidityMax;
   final Value<String?> originHabitat;
@@ -2587,6 +2635,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.birthDateAccuracy = const Value.absent(),
     this.tempMin = const Value.absent(),
     this.tempMax = const Value.absent(),
+    this.nighttimeTemperature = const Value.absent(),
     this.humidityMin = const Value.absent(),
     this.humidityMax = const Value.absent(),
     this.originHabitat = const Value.absent(),
@@ -2618,6 +2667,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.birthDateAccuracy = const Value.absent(),
     required double tempMin,
     required double tempMax,
+    this.nighttimeTemperature = const Value.absent(),
     required double humidityMin,
     required double humidityMax,
     this.originHabitat = const Value.absent(),
@@ -2654,6 +2704,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<String>? birthDateAccuracy,
     Expression<double>? tempMin,
     Expression<double>? tempMax,
+    Expression<double>? nighttimeTemperature,
     Expression<double>? humidityMin,
     Expression<double>? humidityMax,
     Expression<String>? originHabitat,
@@ -2685,6 +2736,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       if (birthDateAccuracy != null) 'birth_date_accuracy': birthDateAccuracy,
       if (tempMin != null) 'temp_min': tempMin,
       if (tempMax != null) 'temp_max': tempMax,
+      if (nighttimeTemperature != null)
+        'nighttime_temperature': nighttimeTemperature,
       if (humidityMin != null) 'humidity_min': humidityMin,
       if (humidityMax != null) 'humidity_max': humidityMax,
       if (originHabitat != null) 'origin_habitat': originHabitat,
@@ -2721,6 +2774,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<BirthDateAccuracy?>? birthDateAccuracy,
     Value<double>? tempMin,
     Value<double>? tempMax,
+    Value<double?>? nighttimeTemperature,
     Value<double>? humidityMin,
     Value<double>? humidityMax,
     Value<String?>? originHabitat,
@@ -2752,6 +2806,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       birthDateAccuracy: birthDateAccuracy ?? this.birthDateAccuracy,
       tempMin: tempMin ?? this.tempMin,
       tempMax: tempMax ?? this.tempMax,
+      nighttimeTemperature: nighttimeTemperature ?? this.nighttimeTemperature,
       humidityMin: humidityMin ?? this.humidityMin,
       humidityMax: humidityMax ?? this.humidityMax,
       originHabitat: originHabitat ?? this.originHabitat,
@@ -2825,6 +2880,11 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     }
     if (tempMax.present) {
       map['temp_max'] = Variable<double>(tempMax.value);
+    }
+    if (nighttimeTemperature.present) {
+      map['nighttime_temperature'] = Variable<double>(
+        nighttimeTemperature.value,
+      );
     }
     if (humidityMin.present) {
       map['humidity_min'] = Variable<double>(humidityMin.value);
@@ -2903,6 +2963,7 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('birthDateAccuracy: $birthDateAccuracy, ')
           ..write('tempMin: $tempMin, ')
           ..write('tempMax: $tempMax, ')
+          ..write('nighttimeTemperature: $nighttimeTemperature, ')
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
           ..write('originHabitat: $originHabitat, ')
@@ -5383,6 +5444,7 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<BirthDateAccuracy?> birthDateAccuracy,
   required double tempMin,
   required double tempMax,
+  Value<double?> nighttimeTemperature,
   required double humidityMin,
   required double humidityMax,
   Value<String?> originHabitat,
@@ -5414,6 +5476,7 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<BirthDateAccuracy?> birthDateAccuracy,
   Value<double> tempMin,
   Value<double> tempMax,
+  Value<double?> nighttimeTemperature,
   Value<double> humidityMin,
   Value<double> humidityMax,
   Value<String?> originHabitat,
@@ -5581,6 +5644,11 @@ class $$AnimalsTableFilterComposer
 
   ColumnFilters<double> get tempMax => $composableBuilder(
     column: $table.tempMax,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get nighttimeTemperature => $composableBuilder(
+    column: $table.nighttimeTemperature,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5832,6 +5900,11 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get nighttimeTemperature => $composableBuilder(
+    column: $table.nighttimeTemperature,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get humidityMin => $composableBuilder(
     column: $table.humidityMin,
     builder: (column) => ColumnOrderings(column),
@@ -6008,6 +6081,11 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<double> get tempMax =>
       $composableBuilder(column: $table.tempMax, builder: (column) => column);
+
+  GeneratedColumn<double> get nighttimeTemperature => $composableBuilder(
+    column: $table.nighttimeTemperature,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<double> get humidityMin => $composableBuilder(
     column: $table.humidityMin,
@@ -6227,6 +6305,7 @@ class $$AnimalsTableTableManager
                     const Value.absent(),
                 Value<double> tempMin = const Value.absent(),
                 Value<double> tempMax = const Value.absent(),
+                Value<double?> nighttimeTemperature = const Value.absent(),
                 Value<double> humidityMin = const Value.absent(),
                 Value<double> humidityMax = const Value.absent(),
                 Value<String?> originHabitat = const Value.absent(),
@@ -6258,6 +6337,7 @@ class $$AnimalsTableTableManager
                 birthDateAccuracy: birthDateAccuracy,
                 tempMin: tempMin,
                 tempMax: tempMax,
+                nighttimeTemperature: nighttimeTemperature,
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
                 originHabitat: originHabitat,
@@ -6291,6 +6371,7 @@ class $$AnimalsTableTableManager
                     const Value.absent(),
                 required double tempMin,
                 required double tempMax,
+                Value<double?> nighttimeTemperature = const Value.absent(),
                 required double humidityMin,
                 required double humidityMax,
                 Value<String?> originHabitat = const Value.absent(),
@@ -6322,6 +6403,7 @@ class $$AnimalsTableTableManager
                 birthDateAccuracy: birthDateAccuracy,
                 tempMin: tempMin,
                 tempMax: tempMax,
+                nighttimeTemperature: nighttimeTemperature,
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
                 originHabitat: originHabitat,

@@ -149,6 +149,7 @@ class BackupAnimal {
 
   final double tempMin;
   final double tempMax;
+  final double? nighttimeTemperature;
 
   final double humidityMin;
   final double humidityMax;
@@ -186,6 +187,7 @@ class BackupAnimal {
     required this.birthDateAccuracy,
     required this.tempMin,
     required this.tempMax,
+    this.nighttimeTemperature,
     required this.humidityMin,
     required this.humidityMax,
     this.originHabitat,
@@ -219,6 +221,7 @@ class BackupAnimal {
       'birthDateAccuracy': birthDateAccuracy,
       'tempMin': tempMin,
       'tempMax': tempMax,
+      'nighttimeTemperature': nighttimeTemperature,
       'humidityMin': humidityMin,
       'humidityMax': humidityMax,
       'originHabitat': originHabitat,
@@ -259,6 +262,7 @@ class BackupAnimal {
       birthDateAccuracy: json['birthDateAccuracy'] as String?,
       tempMin: (json['tempMin'] as num).toDouble(),
       tempMax: (json['tempMax'] as num).toDouble(),
+      nighttimeTemperature: (json['nighttimeTemperature'] as num?)?.toDouble(),
       humidityMin: (json['humidityMin'] as num).toDouble(),
       humidityMax: (json['humidityMax'] as num).toDouble(),
       originHabitat: json['originHabitat'] as String?,

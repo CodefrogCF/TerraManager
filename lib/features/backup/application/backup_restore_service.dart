@@ -304,6 +304,7 @@ class BackupRestoreService {
                 birthDateAccuracy: Value(birthDateAccuracy),
                 tempMin: Value(animal.tempMin),
                 tempMax: Value(animal.tempMax),
+                nighttimeTemperature: Value(animal.nighttimeTemperature),
                 humidityMin: Value(animal.humidityMin),
                 humidityMax: Value(animal.humidityMax),
                 originHabitat: Value(animal.originHabitat),

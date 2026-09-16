@@ -110,6 +110,8 @@ class BackupSettingsCodec {
       BoxSortOrder.labelDescending => 'labelDescending',
       BoxSortOrder.nameAscending => 'nameAscending',
       BoxSortOrder.nameDescending => 'nameDescending',
+      BoxSortOrder.volumeAscending => 'volumeAscending',
+      BoxSortOrder.volumeDescending => 'volumeDescending',
     };
   }
 
@@ -119,6 +121,8 @@ class BackupSettingsCodec {
       'labelDescending' || 'createdNewestFirst' => BoxSortOrder.labelDescending,
       'nameAscending' => BoxSortOrder.nameAscending,
       'nameDescending' => BoxSortOrder.nameDescending,
+      'volumeAscending' => BoxSortOrder.volumeAscending,
+      'volumeDescending' => BoxSortOrder.volumeDescending,
       _ => throw FormatException(
         'Unsupported BoxSortOrder backup value: $value',
       ),

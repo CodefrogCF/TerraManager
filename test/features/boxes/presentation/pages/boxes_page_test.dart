@@ -230,7 +230,7 @@ void main() {
     expect(find.text('Box name'), findsOneWidget);
     expect(
       find.byType(CheckedPopupMenuItem<BoxSortCriterion>),
-      findsNWidgets(2),
+      findsNWidgets(3),
     );
     expect(
       find.byKey(const Key('box-sort-option-labelDescending')),
@@ -301,8 +301,10 @@ void main() {
       ),
     );
     expect(
-      tester.getTopLeft(find.byKey(Key('box-list-item-$unnamedId'))).dy,
-      lessThan(tester.getTopLeft(find.byKey(Key('box-list-item-$zuluId'))).dy),
+      tester.getTopLeft(find.byKey(Key('box-list-item-$zuluId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('box-list-item-$unnamedId'))).dy,
+      ),
     );
 
     expect(settingsController.boxSortOrder, BoxSortOrder.nameAscending);
@@ -318,8 +320,63 @@ void main() {
 
     expect(detailPage.navigationContext!.recordIds, [
       alphaId,
-      unnamedId,
       zuluId,
+      unnamedId,
+    ]);
+  });
+
+  testWidgets('sorts by volume, persists it and passes visible order', (
+    tester,
+  ) async {
+    final repository = BoxRepository(database);
+    final largeId = await repository.createBox(
+      'box-large',
+      widthCm: 20,
+      heightCm: 20,
+      depthCm: 20,
+    );
+    final incompleteId = await repository.createBox(
+      'box-incomplete',
+      widthCm: 10,
+      heightCm: 10,
+    );
+    final smallId = await repository.createBox(
+      'box-small',
+      widthCm: 10,
+      heightCm: 10,
+      depthCm: 10,
+    );
+    final settingsController = AppSettingsController();
+    await settingsController.load();
+    await pumpPage(tester, settingsController: settingsController);
+
+    await tester.tap(find.byKey(const Key('box-sort-button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Volume'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('box-sort-option-volume')));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.byKey(Key('box-list-item-$smallId'))).dy,
+      lessThan(tester.getTopLeft(find.byKey(Key('box-list-item-$largeId'))).dy),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(Key('box-list-item-$largeId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('box-list-item-$incompleteId'))).dy,
+      ),
+    );
+    expect(settingsController.boxSortOrder, BoxSortOrder.volumeAscending);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('box_sort_order'), 'volumeAscending');
+
+    await tester.tap(find.byKey(Key('box-list-item-$largeId')));
+    await tester.pumpAndSettle();
+    final detailPage = tester.widget<BoxDetailPage>(find.byType(BoxDetailPage));
+    expect(detailPage.navigationContext!.recordIds, [
+      smallId,
+      largeId,
+      incompleteId,
     ]);
   });
 

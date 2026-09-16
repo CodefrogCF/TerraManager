@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **12**.
+The current Drift database schema version is **13**.
 
 The current database model consists of:
 
@@ -159,6 +159,7 @@ Animal
 ├── birthDateAccuracy
 ├── tempMin
 ├── tempMax
+├── nighttimeTemperature
 ├── humidityMin
 ├── humidityMax
 ├── originHabitat
@@ -187,8 +188,9 @@ Animal
 - sex – optional sex
 - birthDate – optional date of birth
 - birthDateAccuracy – optional indication of birth date accuracy
-- tempMin – preferred minimum temperature
-- tempMax – preferred maximum temperature
+- tempMin – preferred minimum daytime temperature
+- tempMax – preferred maximum daytime temperature
+- nighttimeTemperature – optional preferred nighttime temperature
 - humidityMin – preferred minimum humidity
 - humidityMax – preferred maximum humidity
 - originHabitat – optional free-form origin or habitat note
@@ -604,7 +606,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 12.
+The current Drift database schema version is 13.
 
 ### Schema Version 1
 
@@ -790,3 +792,12 @@ sort order `0` for every existing non-null `pictureMediaId` and copies the
 MediaAsset creation timestamp into `capturedAt`. Existing owner records,
 primary references, picture bytes, lifecycle data, FeedingEvents and settings
 remain unchanged.
+
+### Schema Version 13
+
+Schema Version 13 adds the nullable `Animal.nighttimeTemperature` column. The
+v12 → v13 migration only adds this optional real-number field, so every
+existing Animal keeps all profile, lifecycle, gallery and feeding data and
+begins with no nighttime value. New and edited values use the same inclusive
+0–60 °C bounds as daytime temperatures. `tempMin` must still not exceed
+`tempMax`; the optional nighttime value is validated independently.

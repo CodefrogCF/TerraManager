@@ -85,6 +85,10 @@ void main() {
       'Reduced activity in winter',
     );
     await tester.enterText(
+      find.byKey(const Key('nighttime-temperature-field')),
+      '19.5',
+    );
+    await tester.enterText(
       find.byKey(const Key('common-name-field')),
       'Test Snake',
     );
@@ -105,6 +109,7 @@ void main() {
     expect(animal.weight, '125 g\nafter feeding');
     expect(animal.sheddingNotes, 'Complete sheds');
     expect(animal.restOrDormancyPeriods, 'Reduced activity in winter');
+    expect(animal.nighttimeTemperature, 19.5);
     expect(animal.temperatureZones, isNull);
   });
 
@@ -125,6 +130,7 @@ void main() {
       weight: '80 g\nbefore feeding',
       sheddingNotes: 'Regular',
       restOrDormancyPeriods: 'December',
+      nighttimeTemperature: 18,
     );
     await openPage(
       tester,
@@ -141,11 +147,13 @@ void main() {
     );
     expect(editWeightField.maxLines, 3);
     expect(editWeightField.controller.text, '80 g\nbefore feeding');
+    expect(find.text('18.0'), findsOneWidget);
     for (final key in [
       'origin-habitat-field',
       'weight-field',
       'shedding-notes-field',
       'rest-or-dormancy-periods-field',
+      'nighttime-temperature-field',
     ]) {
       await tester.enterText(find.byKey(Key(key)), '');
     }
@@ -158,6 +166,7 @@ void main() {
     expect(animal.weight, isNull);
     expect(animal.sheddingNotes, isNull);
     expect(animal.restOrDormancyPeriods, isNull);
+    expect(animal.nighttimeTemperature, isNull);
     expect(find.byKey(const Key('temperature-zones-field')), findsNothing);
   });
 
@@ -176,6 +185,7 @@ void main() {
       humidityMax: 60,
       originHabitat: 'Savanna',
       weight: '  ',
+      nighttimeTemperature: 17,
     );
     await tester.pumpWidget(
       MaterialApp(
@@ -193,6 +203,11 @@ void main() {
     expect(find.byKey(const Key('temperature-zones-detail')), findsNothing);
     expect(find.byKey(const Key('weight-detail')), findsNothing);
     expect(find.byKey(const Key('shedding-notes-detail')), findsNothing);
+    expect(
+      find.byKey(const Key('nighttime-temperature-detail')),
+      findsOneWidget,
+    );
+    expect(find.text('17.0 °C'), findsOneWidget);
   });
 
   testWidgets('Animal details preserve multiline Weight content', (
@@ -304,6 +319,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('animal-subcategory-detail')),
+      300,
+    );
+    await tester.pumpAndSettle();
     expect(find.byKey(const Key('animal-category-detail')), findsOneWidget);
     expect(find.byKey(const Key('animal-subcategory-detail')), findsOneWidget);
     expect(find.text('Arachnid'), findsOneWidget);

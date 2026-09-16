@@ -152,9 +152,7 @@ void main() {
     expect(find.text('Most Overdue'), findsOneWidget);
   });
 
-  testWidgets('shows the calculated state and opens feeding history', (
-    tester,
-  ) async {
+  testWidgets('omits a reminder card while feeding is not due', (tester) async {
     final animalId = await createAnimal(
       commonName: 'Scheduled Animal',
       intervalDays: 7,
@@ -169,18 +167,8 @@ void main() {
 
     final status = find.byKey(const Key('feeding-reminder-status'));
 
-    await tester.scrollUntilVisible(status, 300);
-    await tester.pumpAndSettle();
-
-    expect(status, findsOneWidget);
-    expect(find.text('Next feeding scheduled'), findsOneWidget);
-    expect(find.text('Due on 27.09.2026 12:00'), findsOneWidget);
-
-    await tester.tap(status);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Feeding History'), findsOneWidget);
-    expect(find.byKey(const Key('add-feeding-button')), findsOneWidget);
+    expect(status, findsNothing);
+    expect(find.text('Next feeding scheduled'), findsNothing);
   });
 
   testWidgets('recording a feeding refreshes detail and overview reminders', (
@@ -219,10 +207,8 @@ void main() {
 
     await tester.pageBack();
     await tester.pumpAndSettle();
-    await tester.scrollUntilVisible(status, 300);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Next feeding scheduled'), findsOneWidget);
+    expect(status, findsNothing);
+    expect(find.text('Next feeding scheduled'), findsNothing);
     expect(find.text('Feeding due'), findsNothing);
 
     await tester.pageBack();
@@ -248,11 +234,9 @@ void main() {
 
     final status = find.byKey(const Key('feeding-reminder-status'));
 
-    await tester.scrollUntilVisible(status, 300);
-    await tester.pumpAndSettle();
-    expect(find.text('Next feeding scheduled'), findsOneWidget);
+    expect(status, findsNothing);
 
-    await tester.tap(status);
+    await tester.tap(find.byKey(const Key('feeding-history-button')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(Key('delete-feeding-button-$feedingId')));
     await tester.pumpAndSettle();

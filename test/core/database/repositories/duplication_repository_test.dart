@@ -124,6 +124,7 @@ void main() {
         birthDateAccuracy: BirthDateAccuracy.exact,
         tempMin: 22,
         tempMax: 31,
+        nighttimeTemperature: 19,
         humidityMin: 45,
         humidityMax: 70,
         originHabitat: 'Forest',
@@ -167,6 +168,7 @@ void main() {
       expect(duplicate.birthDateAccuracy, source.birthDateAccuracy);
       expect(duplicate.tempMin, source.tempMin);
       expect(duplicate.tempMax, source.tempMax);
+      expect(duplicate.nighttimeTemperature, source.nighttimeTemperature);
       expect(duplicate.humidityMin, source.humidityMin);
       expect(duplicate.humidityMax, source.humidityMax);
       expect(duplicate.originHabitat, source.originHabitat);

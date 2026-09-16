@@ -14,6 +14,8 @@ import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../feedings/presentation/pages/feeding_reminder_settings_page.dart';
+import '../../../boxes/presentation/box_selection_label.dart';
+import '../../../boxes/presentation/pages/box_detail_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../media/presentation/pages/picture_gallery_page.dart';
 import '../animal_display_names.dart';
@@ -56,6 +58,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
   late Future<FeedingEvent?> _latestFeedingFuture;
   late Future<FeedingReminderState?> _feedingReminderFuture;
   late Future<MediaAsset?> _pictureMediaFuture;
+  late Future<Box?> _boxFuture;
 
   double _horizontalDragDistance = 0;
   bool _lifecycleActionInProgress = false;
@@ -84,6 +87,14 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       }
 
       return MediaRepository(widget.database).getMediaById(mediaId);
+    });
+
+    _boxFuture = _animalFuture.then((animal) {
+      final boxId = animal?.boxId;
+      if (boxId == null) {
+        return null;
+      }
+      return BoxRepository(widget.database).getBoxById(boxId);
     });
   }
 
@@ -161,6 +172,14 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       return;
     }
     setState(_loadAnimal);
+  }
+
+  Future<void> _openBoxDetails(Box box) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => BoxDetailPage(database: widget.database, box: box),
+      ),
+    );
   }
 
   Future<void> _openFeedingReminderSettings() async {
@@ -456,50 +475,36 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LinearProgressIndicator(
-            key: Key('feeding-reminder-loading'),
-          );
+          return const SizedBox.shrink();
         }
 
         final reminder = snapshot.data;
 
-        if (reminder == null) {
+        if (reminder == null || !reminder.isDue) {
           return const SizedBox.shrink();
         }
 
         final colorScheme = Theme.of(context).colorScheme;
-        final containerColor = reminder.isDue
-            ? colorScheme.errorContainer
-            : colorScheme.secondaryContainer;
-        final contentColor = reminder.isDue
-            ? colorScheme.onErrorContainer
-            : colorScheme.onSecondaryContainer;
+        final containerColor = colorScheme.errorContainer;
+        final contentColor = colorScheme.onErrorContainer;
 
         return Card(
           key: const Key('feeding-reminder-status'),
           color: containerColor,
           child: ListTile(
             leading: Icon(
-              reminder.isDue
-                  ? Icons.notification_important_outlined
-                  : Icons.schedule_outlined,
+              Icons.notification_important_outlined,
               color: contentColor,
             ),
             title: Text(
-              reminder.isDue
-                  ? context.l10n.feedingDue
-                  : context.l10n.feedingScheduled,
+              context.l10n.feedingDue,
               style: TextStyle(
                 color: contentColor,
                 fontWeight: FontWeight.w600,
               ),
             ),
             subtitle: Text(
-              reminder.isDue
-                  ? context.l10n.feedingDueSince(
-                      _formatDateTime(reminder.dueAt),
-                    )
-                  : context.l10n.feedingDueOn(_formatDateTime(reminder.dueAt)),
+              context.l10n.feedingDueSince(_formatDateTime(reminder.dueAt)),
               key: const Key('feeding-reminder-due-date'),
               style: TextStyle(color: contentColor),
             ),
@@ -508,6 +513,86 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildLatestFeeding(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          context.l10n.latestFeeding,
+          key: const Key('latest-feeding-heading'),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        FutureBuilder<FeedingEvent?>(
+          future: _latestFeedingFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(
+                context.l10n.failedToLoadLatestFeeding,
+                key: const Key('latest-feeding-error'),
+              );
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: LinearProgressIndicator(
+                  key: Key('latest-feeding-loading'),
+                ),
+              );
+            }
+
+            final feeding = snapshot.data;
+            if (feeding == null) {
+              return Text(
+                context.l10n.noFeedingEventsAvailable,
+                key: const Key('latest-feeding-empty-state'),
+              );
+            }
+
+            return Card(
+              key: const Key('latest-feeding-section'),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                key: const Key('latest-feeding-history-action'),
+                onTap: _openFeedingHistory,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.restaurant),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _formatDateTime(feeding.fedAt),
+                              key: const Key('latest-feeding-date'),
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                          ),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+                      if (feeding.notes?.trim().isNotEmpty == true) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          feeding.notes!,
+                          key: const Key('latest-feeding-note'),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -596,6 +681,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       animal.weight,
       animal.sheddingNotes,
       animal.restOrDormancyPeriods,
+      animal.nighttimeTemperature?.toString(),
     ].any((value) => value != null && value.trim().isNotEmpty);
 
     return ListView(
@@ -610,6 +696,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           ),
           const SizedBox(height: 16),
         ],
+
+        if (!isArchived) ...[_buildFeedingReminderStatus(context)],
 
         FutureBuilder<MediaAsset?>(
           future: _pictureMediaFuture,
@@ -648,6 +736,9 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           displayNames.secondary,
           style: Theme.of(context).textTheme.titleMedium,
         ),
+        const SizedBox(height: 16),
+
+        _buildLatestFeeding(context),
         const SizedBox(height: 24),
 
         _DetailRow(
@@ -655,10 +746,20 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           value: isArchived ? context.l10n.archived : context.l10n.active,
         ),
 
-        if (!isArchived && animal.boxId != null)
-          _DetailRow(
-            label: context.l10n.box,
-            value: context.l10n.boxLabel(animal.boxId!),
+        if (animal.boxId != null)
+          FutureBuilder<Box?>(
+            future: _boxFuture,
+            builder: (context, boxSnapshot) {
+              final box = boxSnapshot.data;
+              return _DetailRow(
+                key: const Key('animal-box-detail'),
+                label: context.l10n.box,
+                value: box == null
+                    ? context.l10n.boxLabel(animal.boxId!)
+                    : boxSelectionLabel(context.l10n, box),
+                onTap: box == null ? null : () => _openBoxDetails(box),
+              );
+            },
           ),
 
         _DetailRow(
@@ -739,91 +840,13 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               label: context.l10n.restOrDormancyPeriods,
               value: animal.restOrDormancyPeriods!,
             ),
+          if (animal.nighttimeTemperature != null)
+            _DetailRow(
+              key: const Key('nighttime-temperature-detail'),
+              label: context.l10n.nighttimeTemperatureCelsius,
+              value: '${animal.nighttimeTemperature} °C',
+            ),
         ],
-
-        const SizedBox(height: 16),
-
-        _buildFeedingReminderStatus(context),
-
-        const SizedBox(height: 16),
-
-        Text(
-          context.l10n.latestFeeding,
-          key: const Key('latest-feeding-heading'),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-
-        FutureBuilder<FeedingEvent?>(
-          future: _latestFeedingFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text(
-                context.l10n.failedToLoadLatestFeeding,
-                key: const Key('latest-feeding-error'),
-              );
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: LinearProgressIndicator(
-                  key: Key('latest-feeding-loading'),
-                ),
-              );
-            }
-
-            final feeding = snapshot.data;
-
-            if (feeding == null) {
-              return Text(
-                context.l10n.noFeedingEventsAvailable,
-                key: const Key('latest-feeding-empty-state'),
-              );
-            }
-
-            return Card(
-              key: const Key('latest-feeding-section'),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                key: const Key('latest-feeding-history-action'),
-                onTap: _openFeedingHistory,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.restaurant),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _formatDateTime(feeding.fedAt),
-                              key: const Key('latest-feeding-date'),
-                              style: Theme.of(context).textTheme.titleSmall,
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-
-                      if (feeding.notes != null &&
-                          feeding.notes!.trim().isNotEmpty) ...[
-                        const SizedBox(height: 12),
-
-                        Text(
-                          feeding.notes!,
-                          key: const Key('latest-feeding-note'),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
 
         if (animal.notes != null && animal.notes!.isNotEmpty) ...[
           const SizedBox(height: 16),
@@ -979,8 +1002,14 @@ class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
 class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
+  final VoidCallback? onTap;
 
-  const _DetailRow({super.key, required this.label, required this.value});
+  const _DetailRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -996,7 +1025,26 @@ class _DetailRow extends StatelessWidget {
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(child: Text(value)),
+          Expanded(
+            child: onTap == null
+                ? Text(value)
+                : Semantics(
+                    link: true,
+                    child: InkWell(
+                      onTap: onTap,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+          ),
         ],
       ),
     );

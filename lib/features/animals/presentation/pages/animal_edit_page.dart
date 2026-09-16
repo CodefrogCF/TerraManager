@@ -53,6 +53,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _weightController = TextEditingController();
   final _sheddingNotesController = TextEditingController();
   final _restOrDormancyPeriodsController = TextEditingController();
+  final _nighttimeTemperatureController = TextEditingController();
   final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
@@ -108,6 +109,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     _weightController.dispose();
     _sheddingNotesController.dispose();
     _restOrDormancyPeriodsController.dispose();
+    _nighttimeTemperatureController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -166,6 +168,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _sheddingNotesController.text = animal.sheddingNotes ?? '';
       _restOrDormancyPeriodsController.text =
           animal.restOrDormancyPeriods ?? '';
+      _nighttimeTemperatureController.text =
+          animal.nighttimeTemperature?.toString() ?? '';
       _notesController.text = animal.notes ?? '';
 
       _additionalCharacteristicsExpanded = [
@@ -173,6 +177,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         animal.weight,
         animal.sheddingNotes,
         animal.restOrDormancyPeriods,
+        animal.nighttimeTemperature?.toString(),
       ].any((value) => value != null && value.trim().isNotEmpty);
 
       _sex = animal.sex ?? Sex.unknown;
@@ -340,6 +345,9 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           birthDateAccuracy: _birthDateAccuracy,
           tempMin: double.parse(_tempMinController.text),
           tempMax: double.parse(_tempMaxController.text),
+          nighttimeTemperature: _optionalDouble(
+            _nighttimeTemperatureController,
+          ),
           humidityMin: double.parse(_humidityMinController.text),
           humidityMax: double.parse(_humidityMaxController.text),
           originHabitat: _optionalText(_originHabitatController),
@@ -801,6 +809,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               weightController: _weightController,
               sheddingNotesController: _sheddingNotesController,
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
+              nighttimeTemperatureController: _nighttimeTemperatureController,
             ),
             const SizedBox(height: 16),
 
@@ -848,6 +857,11 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   String? _optionalText(TextEditingController controller) {
     final value = controller.text.trim();
     return value.isEmpty ? null : value;
+  }
+
+  double? _optionalDouble(TextEditingController controller) {
+    final value = controller.text.trim();
+    return value.isEmpty ? null : double.parse(value);
   }
 
   Widget _numberField({

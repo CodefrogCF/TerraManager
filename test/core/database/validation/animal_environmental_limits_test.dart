@@ -60,4 +60,27 @@ void main() {
       throwsArgumentError,
     );
   });
+
+  test('validates optional nighttime temperature with the same bounds', () {
+    expect(
+      () => AnimalEnvironmentalLimits.validate(
+        temperatureMinimum: 20,
+        temperatureMaximum: 30,
+        nighttimeTemperature: 18,
+        humidityMinimum: 40,
+        humidityMaximum: 60,
+      ),
+      returnsNormally,
+    );
+    expect(
+      () => AnimalEnvironmentalLimits.validate(
+        temperatureMinimum: 20,
+        temperatureMaximum: 30,
+        nighttimeTemperature: 61,
+        humidityMinimum: 40,
+        humidityMaximum: 60,
+      ),
+      throwsArgumentError,
+    );
+  });
 }

@@ -79,6 +79,10 @@ The application must allow the user to:
 - preserve Animal Overview scroll position after returning from related detail/history workflows
 - view Animal details
 - open the complete feeding history by selecting the Latest Feeding card
+- show Latest Feeding directly below the Animal names
+- show active due reminders above the Animal picture and omit scheduled or
+  archived reminder placeholders
+- open an assigned Box from its named or generated label on Animal details
 - swipe between Animal details using the ordering of the source collection
 - edit Animal data
 - open dedicated Feeding Reminder settings from active Animal details
@@ -94,6 +98,8 @@ The application must allow the user to:
 - expand or collapse optional additional characteristics in both Animal forms
 - add, edit and clear origin or habitat, weight, shedding notes, rest or
   dormancy periods as independent text fields
+- add, edit and clear an optional nighttime temperature within the same bounds
+  as the minimum and maximum daytime temperatures
 - omit empty additional characteristics from Animal details
 - store preferred temperature values
 - store preferred humidity values
@@ -209,6 +215,14 @@ When a FeedingEvent exists, its Latest Feeding card must be visibly actionable
 and open the complete feeding history for that Animal.
 
 The displayed value must refresh after the feeding history is modified.
+
+Grouped Animal Overview headings use localized plural category and displayed
+subcategory labels. Singular taxonomy labels remain in forms and Animal
+details, and stored portable taxonomy values do not change.
+
+Alphabetical Box sorting keeps unnamed Boxes last in both directions. Volume
+sorting multiplies complete width, height and depth values, reverses when the
+active criterion is selected again, and keeps incomplete dimensions last.
 
 The application must provide a dedicated Feeding Mode that allows the user to:
 

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 
 import '../../../core/database/enums/animal_category.dart';
+import '../../../core/database/validation/animal_environmental_limits.dart';
 import '../../../core/qr/qr_validator.dart';
 import '../domain/backup_data.dart';
 import '../domain/backup_enum_codec.dart';
@@ -317,6 +318,7 @@ class BackupValidationService {
       }
 
       _validateAnimalEnums(animal);
+      _validateAnimalEnvironment(animal);
 
       _validateAnimalLifecycle(animal, boxIds);
       if (animal.status == 'active' && archivedBoxIds.contains(animal.boxId)) {
@@ -447,6 +449,24 @@ class BackupValidationService {
         message:
             'Animal ${animal.id} contains '
             'an unsupported enum value.',
+        cause: error,
+      );
+    }
+  }
+
+  void _validateAnimalEnvironment(BackupAnimal animal) {
+    try {
+      AnimalEnvironmentalLimits.validate(
+        temperatureMinimum: animal.tempMin,
+        temperatureMaximum: animal.tempMax,
+        nighttimeTemperature: animal.nighttimeTemperature,
+        humidityMinimum: animal.humidityMin,
+        humidityMaximum: animal.humidityMax,
+      );
+    } on ArgumentError catch (error) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidData,
+        message: 'Animal ${animal.id} contains invalid environmental values.',
         cause: error,
       );
     }

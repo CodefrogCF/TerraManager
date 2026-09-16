@@ -77,6 +77,7 @@ class AnimalRepository {
     BirthDateAccuracy? birthDateAccuracy,
     required double tempMin,
     required double tempMax,
+    double? nighttimeTemperature,
     required double humidityMin,
     required double humidityMax,
     String? originHabitat,
@@ -92,6 +93,7 @@ class AnimalRepository {
     AnimalEnvironmentalLimits.validate(
       temperatureMinimum: tempMin,
       temperatureMaximum: tempMax,
+      nighttimeTemperature: nighttimeTemperature,
       humidityMinimum: humidityMin,
       humidityMaximum: humidityMax,
     );
@@ -117,6 +119,7 @@ class AnimalRepository {
               birthDateAccuracy: Value.absentIfNull(birthDateAccuracy),
               tempMin: tempMin,
               tempMax: tempMax,
+              nighttimeTemperature: Value.absentIfNull(nighttimeTemperature),
               humidityMin: humidityMin,
               humidityMax: humidityMax,
               originHabitat: Value.absentIfNull(originHabitat),
@@ -197,6 +200,7 @@ class AnimalRepository {
       AnimalEnvironmentalLimits.validate(
         temperatureMinimum: source.tempMin,
         temperatureMaximum: source.tempMax,
+        nighttimeTemperature: source.nighttimeTemperature,
         humidityMinimum: source.humidityMin,
         humidityMaximum: source.humidityMax,
       );
@@ -228,6 +232,9 @@ class AnimalRepository {
               birthDateAccuracy: Value.absentIfNull(source.birthDateAccuracy),
               tempMin: source.tempMin,
               tempMax: source.tempMax,
+              nighttimeTemperature: Value.absentIfNull(
+                source.nighttimeTemperature,
+              ),
               humidityMin: source.humidityMin,
               humidityMax: source.humidityMax,
               originHabitat: Value.absentIfNull(source.originHabitat),
@@ -268,6 +275,7 @@ class AnimalRepository {
     BirthDateAccuracy? birthDateAccuracy,
     required double tempMin,
     required double tempMax,
+    double? nighttimeTemperature,
     required double humidityMin,
     required double humidityMax,
     String? originHabitat,
@@ -283,6 +291,7 @@ class AnimalRepository {
     AnimalEnvironmentalLimits.validate(
       temperatureMinimum: tempMin,
       temperatureMaximum: tempMax,
+      nighttimeTemperature: nighttimeTemperature,
       humidityMinimum: humidityMin,
       humidityMaximum: humidityMax,
     );
@@ -324,6 +333,7 @@ class AnimalRepository {
                   birthDateAccuracy: Value(birthDateAccuracy),
                   tempMin: Value(tempMin),
                   tempMax: Value(tempMax),
+                  nighttimeTemperature: Value(nighttimeTemperature),
                   humidityMin: Value(humidityMin),
                   humidityMax: Value(humidityMax),
                   originHabitat: Value(originHabitat),

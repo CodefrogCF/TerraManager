@@ -123,6 +123,7 @@ class BackupExportService {
                 ),
           tempMin: animal.tempMin,
           tempMax: animal.tempMax,
+          nighttimeTemperature: animal.nighttimeTemperature,
           humidityMin: animal.humidityMin,
           humidityMax: animal.humidityMax,
           originHabitat: animal.originHabitat,

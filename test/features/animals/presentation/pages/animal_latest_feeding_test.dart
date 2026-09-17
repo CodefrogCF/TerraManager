@@ -45,10 +45,18 @@ void main() {
     );
   }
 
-  Future<void> pumpDetail(WidgetTester tester, {required int animalId}) async {
+  Future<void> pumpDetail(
+    WidgetTester tester, {
+    required int animalId,
+    DateTime Function()? now,
+  }) async {
     await tester.pumpWidget(
       MaterialApp(
-        home: AnimalDetailPage(database: database, animalId: animalId),
+        home: AnimalDetailPage(
+          database: database,
+          animalId: animalId,
+          reminderNow: now,
+        ),
       ),
     );
 
@@ -163,5 +171,43 @@ void main() {
     expect(find.text('New feeding from history'), findsOneWidget);
 
     expect(find.byKey(const Key('latest-feeding-section')), findsOneWidget);
+  });
+  testWidgets('shows a future next feeding below latest feeding', (
+    tester,
+  ) async {
+    final boxId = await boxRepository.createBox(
+      'TM:BOX:22222222-bbbb-4222-8222-222222222222',
+    );
+    final animalId = await animalRepository.createAnimal(
+      boxId: boxId,
+      commonName: 'Reminder Animal',
+      latinName: 'Test species',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      feedingReminderIntervalDays: 7,
+      feedingReminderBaseline: DateTime(2026, 9, 10, 12),
+    );
+
+    await pumpDetail(
+      tester,
+      animalId: animalId,
+      now: () => DateTime(2026, 9, 12, 12),
+    );
+    await scrollToLatestFeeding(tester);
+
+    expect(find.byKey(const Key('next-feeding-section')), findsOneWidget);
+    expect(find.text('Next feeding'), findsOneWidget);
+    expect(find.text('Scheduled for 17.09.2026 12:00'), findsOneWidget);
+    expect(find.byKey(const Key('feeding-reminder-status')), findsNothing);
+
+    final latestY = tester
+        .getTopLeft(find.byKey(const Key('latest-feeding-heading')))
+        .dy;
+    final nextY = tester
+        .getTopLeft(find.byKey(const Key('next-feeding-section')))
+        .dy;
+    expect(nextY, greaterThan(latestY));
   });
 }

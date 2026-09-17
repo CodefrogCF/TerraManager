@@ -14,6 +14,8 @@ class AnimalEnvironmentalLimits {
     required double temperatureMinimum,
     required double temperatureMaximum,
     double? nighttimeTemperature,
+    double? nighttimeTemperatureMinimum,
+    double? nighttimeTemperatureMaximum,
     required double humidityMinimum,
     required double humidityMaximum,
   }) {
@@ -29,14 +31,28 @@ class AnimalEnvironmentalLimits {
       minimum: minimumTemperatureCelsius,
       maximum: maximumTemperatureCelsius,
     );
-    if (nighttimeTemperature != null) {
+
+    final effectiveNightMinimum =
+        nighttimeTemperatureMinimum ?? nighttimeTemperature;
+    final effectiveNightMaximum =
+        nighttimeTemperatureMaximum ?? nighttimeTemperature;
+    if (effectiveNightMinimum != null) {
       _requireWithinRange(
-        fieldName: 'nighttimeTemperature',
-        value: nighttimeTemperature,
+        fieldName: 'nighttimeTemperatureMinimum',
+        value: effectiveNightMinimum,
         minimum: minimumTemperatureCelsius,
         maximum: maximumTemperatureCelsius,
       );
     }
+    if (effectiveNightMaximum != null) {
+      _requireWithinRange(
+        fieldName: 'nighttimeTemperatureMaximum',
+        value: effectiveNightMaximum,
+        minimum: minimumTemperatureCelsius,
+        maximum: maximumTemperatureCelsius,
+      );
+    }
+
     _requireWithinRange(
       fieldName: 'humidityMinimum',
       value: humidityMinimum,
@@ -50,16 +66,36 @@ class AnimalEnvironmentalLimits {
       maximum: maximumHumidityPercent,
     );
 
-    if (temperatureMinimum > temperatureMaximum) {
-      throw ArgumentError(
-        'temperatureMinimum must not be greater than temperatureMaximum',
+    _requireOrdered(
+      minimumName: 'temperatureMinimum',
+      minimum: temperatureMinimum,
+      maximumName: 'temperatureMaximum',
+      maximum: temperatureMaximum,
+    );
+    if (effectiveNightMinimum != null && effectiveNightMaximum != null) {
+      _requireOrdered(
+        minimumName: 'nighttimeTemperatureMinimum',
+        minimum: effectiveNightMinimum,
+        maximumName: 'nighttimeTemperatureMaximum',
+        maximum: effectiveNightMaximum,
       );
     }
+    _requireOrdered(
+      minimumName: 'humidityMinimum',
+      minimum: humidityMinimum,
+      maximumName: 'humidityMaximum',
+      maximum: humidityMaximum,
+    );
+  }
 
-    if (humidityMinimum > humidityMaximum) {
-      throw ArgumentError(
-        'humidityMinimum must not be greater than humidityMaximum',
-      );
+  static void _requireOrdered({
+    required String minimumName,
+    required double minimum,
+    required String maximumName,
+    required double maximum,
+  }) {
+    if (minimum > maximum) {
+      throw ArgumentError('$minimumName must not be greater than $maximumName');
     }
   }
 

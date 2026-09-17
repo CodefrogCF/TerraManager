@@ -130,6 +130,32 @@ class BackupBox {
   }
 }
 
+class BackupWeightEntry {
+  final int id;
+  final double weightGrams;
+  final DateTime measuredAt;
+
+  const BackupWeightEntry({
+    required this.id,
+    required this.weightGrams,
+    required this.measuredAt,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'weightGrams': weightGrams,
+    'measuredAt': measuredAt.toIso8601String(),
+  };
+
+  factory BackupWeightEntry.fromJson(Map<String, dynamic> json) {
+    return BackupWeightEntry(
+      id: json['id'] as int,
+      weightGrams: (json['weightGrams'] as num).toDouble(),
+      measuredAt: DateTime.parse(json['measuredAt'] as String),
+    );
+  }
+}
+
 class BackupAnimal {
   final int id;
   final int? boxId;
@@ -150,12 +176,15 @@ class BackupAnimal {
   final double tempMin;
   final double tempMax;
   final double? nighttimeTemperature;
+  final double? nighttimeTemperatureMin;
+  final double? nighttimeTemperatureMax;
 
   final double humidityMin;
   final double humidityMax;
 
   final String? originHabitat;
   final String? weight;
+  final List<BackupWeightEntry> weightHistory;
   final String? sheddingNotes;
   final String? restOrDormancyPeriods;
   final String? temperatureZones;
@@ -188,10 +217,13 @@ class BackupAnimal {
     required this.tempMin,
     required this.tempMax,
     this.nighttimeTemperature,
+    this.nighttimeTemperatureMin,
+    this.nighttimeTemperatureMax,
     required this.humidityMin,
     required this.humidityMax,
     this.originHabitat,
     this.weight,
+    this.weightHistory = const [],
     this.sheddingNotes,
     this.restOrDormancyPeriods,
     this.temperatureZones,
@@ -222,10 +254,13 @@ class BackupAnimal {
       'tempMin': tempMin,
       'tempMax': tempMax,
       'nighttimeTemperature': nighttimeTemperature,
+      'nighttimeTemperatureMin': nighttimeTemperatureMin,
+      'nighttimeTemperatureMax': nighttimeTemperatureMax,
       'humidityMin': humidityMin,
       'humidityMax': humidityMax,
       'originHabitat': originHabitat,
       'weight': weight,
+      'weightHistory': weightHistory.map((entry) => entry.toJson()).toList(),
       'sheddingNotes': sheddingNotes,
       'restOrDormancyPeriods': restOrDormancyPeriods,
       'temperatureZones': temperatureZones,
@@ -263,10 +298,21 @@ class BackupAnimal {
       tempMin: (json['tempMin'] as num).toDouble(),
       tempMax: (json['tempMax'] as num).toDouble(),
       nighttimeTemperature: (json['nighttimeTemperature'] as num?)?.toDouble(),
+      nighttimeTemperatureMin: (json['nighttimeTemperatureMin'] as num?)
+          ?.toDouble(),
+      nighttimeTemperatureMax: (json['nighttimeTemperatureMax'] as num?)
+          ?.toDouble(),
       humidityMin: (json['humidityMin'] as num).toDouble(),
       humidityMax: (json['humidityMax'] as num).toDouble(),
       originHabitat: json['originHabitat'] as String?,
       weight: json['weight'] as String?,
+      weightHistory: (json['weightHistory'] as List<dynamic>? ?? const [])
+          .map(
+            (entry) => BackupWeightEntry.fromJson(
+              Map<String, dynamic>.from(entry as Map),
+            ),
+          )
+          .toList(),
       sheddingNotes: json['sheddingNotes'] as String?,
       restOrDormancyPeriods: json['restOrDormancyPeriods'] as String?,
       temperatureZones: json['temperatureZones'] as String?,

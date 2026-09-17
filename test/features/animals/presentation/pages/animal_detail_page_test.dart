@@ -11,6 +11,7 @@ import 'package:terramanager/features/animals/presentation/pages/animal_detail_p
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
   late AppDatabase database;
@@ -75,6 +76,9 @@ void main() {
 
     expect(find.text('Year known'), findsOneWidget);
 
+    expect(find.text('Daytime temperature'), findsOneWidget);
+    expect(find.text('Temperature'), findsNothing);
+    expect(find.text('Daytime temperature (°C)'), findsNothing);
     await tester.scrollUntilVisible(find.text('24.0 °C – 28.0 °C'), 200);
     await tester.pumpAndSettle();
 
@@ -89,6 +93,49 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Test notes'), findsOneWidget);
+  });
+
+  testWidgets('localizes temperature labels and decimal values in details', (
+    tester,
+  ) async {
+    await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: 1,
+      commonName: 'Testtier',
+      latinName: 'Testudo test',
+      tempMin: 24,
+      tempMax: 28.5,
+      humidityMin: 40,
+      humidityMax: 60,
+      nighttimeTemperatureMin: 17,
+      nighttimeTemperatureMax: 19.5,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('de'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final daytime = find.byKey(const Key('daytime-temperature-detail'));
+    await tester.scrollUntilVisible(daytime, 200);
+    await tester.pumpAndSettle();
+    expect(find.text('Tagestemperatur'), findsOneWidget);
+    expect(find.text('24,0 °C – 28,5 °C'), findsOneWidget);
+    expect(find.text('Tagestemperatur (°C)'), findsNothing);
+
+    final nighttime = find.byKey(const Key('nighttime-temperature-detail'));
+    await tester.scrollUntilVisible(nighttime, 200);
+    await tester.pumpAndSettle();
+    expect(find.text('Nachttemperatur'), findsOneWidget);
+    expect(find.text('17,0 °C – 19,5 °C'), findsOneWidget);
+    expect(find.text('Nachttemperatur (°C)'), findsNothing);
   });
 
   testWidgets('shows legacy missing sex as Unknown', (tester) async {

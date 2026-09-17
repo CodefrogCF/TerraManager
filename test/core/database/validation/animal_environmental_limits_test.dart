@@ -61,12 +61,13 @@ void main() {
     );
   });
 
-  test('validates optional nighttime temperature with the same bounds', () {
+  test('validates optional nighttime ranges with the same bounds', () {
     expect(
       () => AnimalEnvironmentalLimits.validate(
         temperatureMinimum: 20,
         temperatureMaximum: 30,
-        nighttimeTemperature: 18,
+        nighttimeTemperatureMinimum: 16.5,
+        nighttimeTemperatureMaximum: 18,
         humidityMinimum: 40,
         humidityMaximum: 60,
       ),
@@ -76,11 +77,35 @@ void main() {
       () => AnimalEnvironmentalLimits.validate(
         temperatureMinimum: 20,
         temperatureMaximum: 30,
-        nighttimeTemperature: 61,
+        nighttimeTemperatureMinimum: 18,
+        nighttimeTemperatureMaximum: 17,
         humidityMinimum: 40,
         humidityMaximum: 60,
       ),
       throwsArgumentError,
+    );
+    expect(
+      () => AnimalEnvironmentalLimits.validate(
+        temperatureMinimum: 20,
+        temperatureMaximum: 30,
+        nighttimeTemperatureMaximum: 61,
+        humidityMinimum: 40,
+        humidityMaximum: 60,
+      ),
+      throwsArgumentError,
+    );
+  });
+
+  test('keeps the legacy single nighttime value compatible', () {
+    expect(
+      () => AnimalEnvironmentalLimits.validate(
+        temperatureMinimum: 20,
+        temperatureMaximum: 30,
+        nighttimeTemperature: 18,
+        humidityMinimum: 40,
+        humidityMaximum: 60,
+      ),
+      returnsNormally,
     );
   });
 }

@@ -8,6 +8,15 @@ The project uses semantic versioning.
 
 ### Added
 
+- add shared side-by-side minimum and maximum controls for daytime temperature,
+  nighttime temperature and humidity in New Animal and Edit Animal (Issues
+  #136 and #137)
+- show the next scheduled feeding directly below Latest Feeding while an active
+  reminder is not yet due (Issue #138)
+- add positive numeric Animal weights in grams with timestamped history and a
+  reverse-chronological history view (Issue #139)
+- add a quick weight action beside Weight History on Animal details and add or
+  edit or delete measurement actions inside the history view
 - add a responsive German and English GitHub Pages homepage with shared
   localized content, download links, guides, support, local Privacy Policy and
   license access (Issue #119)
@@ -24,6 +33,19 @@ The project uses semantic versioning.
 
 ### Changed
 
+- label daytime and nighttime temperature explicitly on Animal details, format
+  both ranges with one locale-aware decimal place and keep `°C` on values only
+- arrange Additional characteristics consistently as birth date, accuracy,
+  sex, weight, origin, nighttime temperature, rest periods, shedding notes and
+  notes (Issue #140)
+- replace the single nighttime-temperature input with independent optional
+  minimum and maximum values and migrate an existing value to both bounds
+- migrate only unambiguous legacy gram values into weight history while
+  retaining other legacy text until the user replaces it
+- duplicate only an Animal's current weight as a fresh measurement and retain
+  complete weight history through archive and portable backup workflows
+- advance the local database to Schema Version 14 with nullable nighttime
+  bounds and the `AnimalWeightEntries` table
 - place only active due feeding reminders above the Animal picture and move
   Latest Feeding directly below the Animal names (Issue #130)
 - keep unnamed Boxes after every named Box in both alphabetical directions
@@ -34,16 +56,23 @@ The project uses semantic versioning.
 
 ### Privacy
 
+- keep v1.9.0 form, feeding and weight-history data entirely local without new
+  device, storage, media or network permissions
 - keep all v1.8.0 data, sorting and navigation local without adding device,
   storage, media or network permissions
 
 ### Testing
 
+- cover paired form layouts, range validation, Additional-characteristic order,
+  localized detail temperatures, future feeding display, weight-history create,
+  edit and delete rules, duplication, migration, backup validation and restore
+  compatibility
 - cover English and German plural taxonomy headings, due-reminder visibility,
   Box links, nighttime-temperature persistence, migration, duplication and
   backup compatibility, unnamed-Box ordering and volume sorting
 
-Portable Backup Format Version 2 remains current and backward compatible.
+Database Schema Version 14 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
 
 ## [1.7.2] - 2026-09-16
 

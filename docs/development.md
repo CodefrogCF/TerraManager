@@ -215,6 +215,23 @@ keep the new field nullable so existing databases and older Format 2 backups
 restore without synthetic values. Repository and backup validation apply the
 same inclusive 0–60 °C bounds used by daytime temperatures.
 
+Schema Version 14 adds nullable `Animal.nighttimeTemperatureMin` and
+`Animal.nighttimeTemperatureMax` plus `AnimalWeightEntries`. Retain the version
+13 snapshot and cover a populated direct v13 → v14 migration. A legacy
+nighttime value must seed both new bounds. Convert only unambiguous positive
+gram strings into timestamped history and retain all other legacy weight text.
+Repository tests must prove that unrelated edits and numerically unchanged
+weights do not create duplicate entries, while archive, permanent deletion and
+duplication follow their documented ownership rules. Weight-history UI tests
+must also cover add, edit, cancel-delete and confirmed-delete flows, and a
+repository deletion must require both the entry ID and owning Animal ID.
+
+Backup Format Version 2 carries the additive nighttime bounds and nested weight
+history. Keep missing keys compatible with older backups, validate positive
+finite gram values, unique history IDs and valid timestamps, and test export,
+validation and restore together. The v1.9.0 UI and persistence changes remain
+local and must not add platform permission declarations.
+
 Issue #128 derives category groups from the current filtered Animal list. Cover
 the complete Issue #127 category order, reversed primary order, localized
 headings, conditional subcategory headings, named subcategories followed by

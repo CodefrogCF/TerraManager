@@ -2,12 +2,13 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **13**.
+The current Drift database schema version is **14**.
 
 The current database model consists of:
 
 - Boxes
 - Animals
+- AnimalWeightEntries
 - FeedingEvents
 - MediaAssets
 - AnimalPictureAssociations
@@ -24,6 +25,8 @@ Box
  │
  └──── 1:n ──── Active Animal
                    │
+                   ├──── 1:n ──── AnimalWeightEntry
+                   │
                    ├──── 1:n ──── FeedingEvent
                    │
                    └──── 1:n ──── AnimalPictureAssociation ──── 1:1 ──── MediaAsset
@@ -31,12 +34,13 @@ Box
 Archived Animal
  │
  ├── boxId = null
+ ├──── 1:n ──── AnimalWeightEntry
  ├──── 1:n ──── FeedingEvent
  └──── 1:n ──── AnimalPictureAssociation ──── 1:1 ──── MediaAsset
 ```
 
-An Animal remains the owner of its feeding history and picture gallery while
-archived.
+An Animal remains the owner of its weight history, feeding history and picture
+gallery while archived.
 
 `Box.pictureMediaId` and `Animal.pictureMediaId` identify the primary detail
 image within the corresponding gallery. They can be `null` while historical
@@ -160,6 +164,8 @@ Animal
 ├── tempMin
 ├── tempMax
 ├── nighttimeTemperature
+├── nighttimeTemperatureMin
+├── nighttimeTemperatureMax
 ├── humidityMin
 ├── humidityMax
 ├── originHabitat
@@ -190,11 +196,15 @@ Animal
 - birthDateAccuracy – optional indication of birth date accuracy
 - tempMin – preferred minimum daytime temperature
 - tempMax – preferred maximum daytime temperature
-- nighttimeTemperature – optional preferred nighttime temperature
+- nighttimeTemperature – legacy single nighttime temperature retained for
+  migration and older backup compatibility
+- nighttimeTemperatureMin – optional preferred minimum nighttime temperature
+- nighttimeTemperatureMax – optional preferred maximum nighttime temperature
 - humidityMin – preferred minimum humidity
 - humidityMax – preferred maximum humidity
 - originHabitat – optional free-form origin or habitat note
-- weight – optional free-form current weight description
+- weight – legacy free-form weight retained only when it cannot be migrated
+  safely to grams
 - sheddingNotes – optional free-form shedding note
 - restOrDormancyPeriods – optional free-form rest or dormancy description
 - picturePath – nullable legacy picture reference retained for migration compatibility
@@ -237,8 +247,8 @@ archivedAt = archive date
 archiveNotes = optional
 ```
 
-Archiving an Animal does not remove its Animal record, picture or feeding
-history. It also retains the optional feeding reminder configuration. Reminder
+Archiving an Animal does not remove its Animal record, picture, weight history
+or feeding history. It also retains the optional feeding reminder configuration. Reminder
 queries suppress archived Animals instead of deleting their configuration.
 The archive action is available at the bottom of Edit Animal and warns before
 discarding unsaved form changes.
@@ -252,6 +262,38 @@ considered permanently removed.
 Lifecycle consistency is enforced by the repository/application layer.
 
 Nullable Animal fields can be explicitly cleared when an Animal is edited.
+
+The current numeric weight is derived from the newest `AnimalWeightEntry` by
+`measuredAt` and deterministic ID tie breaking. Saving the same numeric value or
+editing unrelated fields does not create another entry.
+
+## AnimalWeightEntry
+
+An AnimalWeightEntry records one positive Animal weight measurement in grams.
+
+```text
+AnimalWeightEntry
+├── id
+├── animalId
+├── weightGrams
+└── measuredAt
+```
+
+### Fields
+
+- id – auto-incrementing primary key
+- animalId – foreign key referencing Animal with cascading deletion
+- weightGrams – positive finite decimal weight in grams
+- measuredAt – measurement timestamp
+
+Entries are returned in reverse chronological order. Archiving retains every
+entry, permanent Animal deletion removes them through the foreign key, and
+duplication creates one fresh entry from the source Animal's current weight
+instead of copying its complete history. Animal details provide a quick entry
+action, and the history view can add measurements or correct an existing
+measurement's gram value and timestamp without creating another row. Individual
+entries can be permanently deleted after confirmation; the next newest entry
+then becomes the current weight.
 
 ### Feeding Reminder Configuration
 
@@ -506,6 +548,7 @@ Tables are defined in:
 lib/core/database/tables/
 ├── boxes.dart
 ├── animals.dart
+├── animal_weight_entries.dart
 ├── feeding_events.dart
 └── media_assets.dart
 ```
@@ -537,6 +580,7 @@ Database access is separated through repositories:
 ```text
 lib/core/database/repositories/
 ├── animal_repository.dart
+├── animal_weight_repository.dart
 ├── box_repository.dart
 ├── feeding_repository.dart
 └── media_repository.dart
@@ -561,6 +605,13 @@ AnimalRepository
 ├── archive Animal
 ├── restore Animal
 └── permanently delete archived Animal
+
+AnimalWeightRepository
+├── add a positive finite measurement
+├── retrieve reverse-chronological history
+├── retrieve the current measurement
+├── update an owned measurement
+└── delete an owned measurement
 
 FeedingRepository
 ├── create FeedingEvent
@@ -606,7 +657,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 13.
+The current Drift database schema version is 14.
 
 ### Schema Version 1
 
@@ -801,3 +852,26 @@ existing Animal keeps all profile, lifecycle, gallery and feeding data and
 begins with no nighttime value. New and edited values use the same inclusive
 0–60 °C bounds as daytime temperatures. `tempMin` must still not exceed
 `tempMax`; the optional nighttime value is validated independently.
+
+### Schema Version 14
+
+Schema Version 14 adds two nullable Animal columns and one history table:
+
+```text
+Animal.nighttimeTemperatureMin
+Animal.nighttimeTemperatureMax
+AnimalWeightEntries
+```
+
+The v13 → v14 migration copies every existing non-null
+`Animal.nighttimeTemperature` value to both new bounds. It retains the legacy
+column for older database and backup compatibility. Current forms write the new
+independent bounds, each using the inclusive 0–60 °C limit; a populated minimum
+must not exceed a populated maximum.
+
+The migration converts a legacy `Animal.weight` only when it is an unambiguous,
+positive gram value such as `140 g`. It inserts one measurement using the
+Animal's `updatedAt` timestamp and then clears the migrated text. Ambiguous text
+remains untouched and visible until the user replaces it with a numeric gram
+value. All Box, Animal, FeedingEvent, lifecycle, taxonomy and gallery data is
+preserved.

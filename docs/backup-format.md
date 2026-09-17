@@ -109,7 +109,9 @@ It extends portable Box data with dimensions and Box pictures. Current Version
 2 records can additionally contain optional Box names, lifecycle metadata,
 temperature zones and notes. Animal records can contain optional profile fields
 plus stable category and subcategory values. Animal and Box records can also
-contain additive ordered `pictures` lists for local picture histories.
+contain additive ordered `pictures` lists for local picture histories. Current
+Animal records can additionally contain nighttime minimum/maximum values and a
+timestamped `weightHistory` list.
 
 Archive structure:
 
@@ -270,7 +272,8 @@ The three collections must always be present, including when they are empty.
 ## Record IDs
 
 Backup Format Versions 1 and 2 preserve the integer IDs of Boxes, Animals and
-FeedingEvents.
+FeedingEvents. Current Format 2 exports also preserve each nested Animal weight
+entry ID.
 
 This is possible because the current restore model uses full replacement rather than
 merge semantics.
@@ -480,10 +483,13 @@ birthDateAccuracy
 tempMin
 tempMax
 nighttimeTemperature
+nighttimeTemperatureMin
+nighttimeTemperatureMax
 humidityMin
 humidityMax
 originHabitat
 weight
+weightHistory
 sheddingNotes
 restOrDormancyPeriods
 temperatureZones
@@ -515,11 +521,20 @@ Example active Animal:
   "birthDateAccuracy": "yearKnown",
   "tempMin": 24.0,
   "tempMax": 28.0,
-  "nighttimeTemperature": 20.0,
+  "nighttimeTemperature": null,
+  "nighttimeTemperatureMin": 18.0,
+  "nighttimeTemperatureMax": 20.0,
   "humidityMin": 40.0,
   "humidityMax": 60.0,
   "originHabitat": "North America",
-  "weight": "140 g",
+  "weight": null,
+  "weightHistory": [
+    {
+      "id": 7,
+      "weightGrams": 140.5,
+      "measuredAt": "2026-09-08T12:00:00.000"
+    }
+  ],
   "sheddingNotes": "Complete sheds",
   "restOrDormancyPeriods": "Less active in winter",
   "temperatureZones": null,
@@ -562,10 +577,13 @@ Example archived Animal:
   "tempMin": 24.0,
   "tempMax": 28.0,
   "nighttimeTemperature": null,
+  "nighttimeTemperatureMin": null,
+  "nighttimeTemperatureMax": null,
   "humidityMin": 40.0,
   "humidityMax": 60.0,
   "originHabitat": null,
   "weight": null,
+  "weightHistory": [],
   "sheddingNotes": null,
   "restOrDormancyPeriods": null,
   "temperatureZones": null,
@@ -601,17 +619,30 @@ seeds its assigned Box only when that Box has no value; the lowest Animal ID
 wins deterministically. Export preserves any legacy Animal value already
 present so old data is not silently discarded.
 
-`null` represents an empty value. Restore accepts older Format 1 and Format 2
-records where any or all optional keys are absent and maps those fields to
-`null`. A present non-string value is invalid application data. The
-representation remains free-form and does not imply a unit, history or
-relationship to measurements.
+`null` represents an empty legacy string value. Restore accepts older Format 1
+and Format 2 records where any or all optional keys are absent and maps those
+fields to `null`. A present non-string legacy value is invalid application data.
 
 TerraManager v1.8.0 adds nullable numeric `nighttimeTemperature` without
 changing Backup Format Version 2. Missing and explicit null values restore as
 no nighttime temperature. Present values must be finite and within the same
 inclusive 0–60 °C range as the daytime temperature fields. The existing
 `tempMin` and `tempMax` keys represent minimum and maximum daytime temperature.
+
+TerraManager v1.9.0 adds nullable `nighttimeTemperatureMin` and
+`nighttimeTemperatureMax` without changing Backup Format Version 2. When both
+new keys are absent, restore uses a valid legacy `nighttimeTemperature` value
+for both bounds. Each populated bound must be finite and within 0–60 °C, and a
+populated minimum must not exceed a populated maximum.
+
+Current exports retain the legacy `weight` key for compatibility and add a
+`weightHistory` list. Every entry contains a unique integer `id`, positive
+finite `weightGrams` and an ISO 8601 `measuredAt` timestamp. Missing history
+restores as an empty list. If an older record has no history, restore converts
+an unambiguous positive gram string such as `140 g` into one timestamped entry;
+ambiguous free-form text remains in the legacy field until it is replaced.
+Archiving retains the full list, and current duplication creates one new
+measurement rather than copying historical entries.
 
 ### Animal Taxonomy Fields
 
@@ -1473,6 +1504,7 @@ TerraManager 0.14.1 -> Backup Format 2 with legacy Box-sort value mapping
 TerraManager 1.4.0 -> Backup Format 2 with optional Animal profile fields
 TerraManager 1.7.0 -> Backup Format 2 with stable Animal taxonomy fields
 TerraManager 1.7.1 -> Backup Format 2 with Box temperature-zone ownership
+TerraManager 1.9.0 -> Backup Format 2 with nighttime ranges and weight history
 ```
 
 A later application release may continue to use Backup Format 2 if its portable
@@ -1590,6 +1622,8 @@ Version 2 preserves:
 - Animal IDs
 - stable Animal category and optional compatible subcategory
 - optional Animal profile fields and legacy temperature-zone compatibility
+- optional nighttime minimum/maximum values and legacy single-value fallback
+- timestamped positive gram weight history with legacy text compatibility
 - active and archived lifecycle state
 - Box assignments for active Animals
 - archive metadata

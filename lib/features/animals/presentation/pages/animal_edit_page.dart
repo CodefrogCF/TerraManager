@@ -9,6 +9,7 @@ import '../../../../core/database/enums/animal_category.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/animal_weight_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/media_repository.dart';
@@ -22,6 +23,7 @@ import '../animal_archive_dialog.dart';
 import '../animal_environmental_validator.dart';
 import '../widgets/animal_additional_characteristics_fields.dart';
 import '../widgets/animal_picture.dart';
+import '../widgets/animal_range_fields.dart';
 import '../widgets/animal_taxonomy_fields.dart';
 
 class AnimalEditPage extends StatefulWidget {
@@ -53,7 +55,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _weightController = TextEditingController();
   final _sheddingNotesController = TextEditingController();
   final _restOrDormancyPeriodsController = TextEditingController();
-  final _nighttimeTemperatureController = TextEditingController();
+  final _nighttimeTemperatureMinController = TextEditingController();
+  final _nighttimeTemperatureMaxController = TextEditingController();
   final _notesController = TextEditingController();
 
   late final PictureSelectionFlow _pictureSelectionFlow;
@@ -109,7 +112,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     _weightController.dispose();
     _sheddingNotesController.dispose();
     _restOrDormancyPeriodsController.dispose();
-    _nighttimeTemperatureController.dispose();
+    _nighttimeTemperatureMinController.dispose();
+    _nighttimeTemperatureMaxController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -141,6 +145,9 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         return;
       }
 
+      final latestWeight = await AnimalWeightRepository(widget.database)
+          .getLatest(animal.id);
+
       final boxes = await boxRepository.getActiveBoxes();
 
       MediaAsset? pictureMedia;
@@ -164,20 +171,36 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _humidityMinController.text = animal.humidityMin.toString();
       _humidityMaxController.text = animal.humidityMax.toString();
       _originHabitatController.text = animal.originHabitat ?? '';
-      _weightController.text = animal.weight ?? '';
+      _weightController.text = latestWeight?.weightGrams.toString() ?? '';
       _sheddingNotesController.text = animal.sheddingNotes ?? '';
       _restOrDormancyPeriodsController.text =
           animal.restOrDormancyPeriods ?? '';
-      _nighttimeTemperatureController.text =
-          animal.nighttimeTemperature?.toString() ?? '';
+      _nighttimeTemperatureMinController.text =
+          (animal.nighttimeTemperatureMin ?? animal.nighttimeTemperature)
+              ?.toString() ??
+          '';
+      _nighttimeTemperatureMaxController.text =
+          (animal.nighttimeTemperatureMax ?? animal.nighttimeTemperature)
+              ?.toString() ??
+          '';
       _notesController.text = animal.notes ?? '';
 
       _additionalCharacteristicsExpanded = [
         animal.originHabitat,
+        animal.birthDate?.toString(),
+        animal.birthDateAccuracy?.name,
+        animal.sex == null || animal.sex == Sex.unknown
+            ? null
+            : animal.sex!.name,
+        latestWeight?.weightGrams.toString(),
         animal.weight,
-        animal.sheddingNotes,
-        animal.restOrDormancyPeriods,
+        animal.originHabitat,
+        animal.nighttimeTemperatureMin?.toString(),
+        animal.nighttimeTemperatureMax?.toString(),
         animal.nighttimeTemperature?.toString(),
+        animal.restOrDormancyPeriods,
+        animal.sheddingNotes,
+        animal.notes,
       ].any((value) => value != null && value.trim().isNotEmpty);
 
       _sex = animal.sex ?? Sex.unknown;
@@ -343,15 +366,19 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           sex: _sex,
           birthDate: _birthDate,
           birthDateAccuracy: _birthDateAccuracy,
-          tempMin: double.parse(_tempMinController.text),
-          tempMax: double.parse(_tempMaxController.text),
-          nighttimeTemperature: _optionalDouble(
-            _nighttimeTemperatureController,
+          tempMin: parseAnimalDecimal(_tempMinController.text)!,
+          tempMax: parseAnimalDecimal(_tempMaxController.text)!,
+          nighttimeTemperatureMin: _optionalDouble(
+            _nighttimeTemperatureMinController,
           ),
-          humidityMin: double.parse(_humidityMinController.text),
-          humidityMax: double.parse(_humidityMaxController.text),
+          nighttimeTemperatureMax: _optionalDouble(
+            _nighttimeTemperatureMaxController,
+          ),
+          humidityMin: parseAnimalDecimal(_humidityMinController.text)!,
+          humidityMax: parseAnimalDecimal(_humidityMaxController.text)!,
           originHabitat: _optionalText(_originHabitatController),
-          weight: _optionalText(_weightController),
+          weight: _animal!.weight,
+          weightGrams: _optionalDouble(_weightController),
           sheddingNotes: _optionalText(_sheddingNotesController),
           restOrDormancyPeriods: _optionalText(
             _restOrDormancyPeriodsController,
@@ -675,126 +702,33 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             ),
             const SizedBox(height: 16),
 
-            DropdownButtonFormField<Sex>(
-              key: const Key('sex-field'),
-              initialValue: _sex,
-              decoration: InputDecoration(labelText: context.l10n.sex),
-              items: Sex.values
-                  .map(
-                    (sex) => DropdownMenuItem<Sex>(
-                      value: sex,
-                      child: Text(context.l10n.animalSexLabel(sex)),
-                    ),
-                  )
-                  .toList(),
-              onChanged: _actionInProgress
-                  ? null
-                  : (value) {
-                      if (value == null) {
-                        return;
-                      }
-
-                      setState(() {
-                        _sex = value;
-                        _hasUnsavedChanges = true;
-                      });
-                    },
+            AnimalRangeFields.temperature(
+              key: const Key('daytime-temperature-range'),
+              heading: context.l10n.daytimeTemperatureCelsius,
+              minimumKey: const Key('temp-min-field'),
+              maximumKey: const Key('temp-max-field'),
+              minimumController: _tempMinController,
+              maximumController: _tempMaxController,
+              required: true,
+              enabled: !_actionInProgress,
+              onChanged: (_) => _markAsChanged(),
             ),
             const SizedBox(height: 16),
 
-            ListTile(
-              key: const Key('birth-date-field'),
-              contentPadding: EdgeInsets.zero,
-              title: Text(context.l10n.birthDate),
-              subtitle: Text(
-                _birthDate == null
-                    ? context.l10n.notSpecified
-                    : _formatDate(_birthDate!),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.calendar_today),
-                onPressed: _actionInProgress ? null : _selectBirthDate,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            DropdownButtonFormField<BirthDateAccuracy?>(
-              key: const Key('birth-date-accuracy-field'),
-              initialValue: _birthDateAccuracy,
-              decoration: InputDecoration(
-                labelText: context.l10n.birthDateAccuracy,
-              ),
-              items: [
-                DropdownMenuItem<BirthDateAccuracy?>(
-                  value: null,
-                  child: Text(context.l10n.unknown),
-                ),
-                ...BirthDateAccuracy.values.map(
-                  (accuracy) => DropdownMenuItem<BirthDateAccuracy?>(
-                    value: accuracy,
-                    child: Text(context.l10n.birthAccuracyLabel(accuracy)),
-                  ),
-                ),
-              ],
-              onChanged: _actionInProgress
-                  ? null
-                  : (value) {
-                      setState(() {
-                        _birthDateAccuracy = value;
-                        _hasUnsavedChanges = true;
-                      });
-                    },
-            ),
-            const SizedBox(height: 16),
-
-            _numberField(
-              key: const Key('temp-min-field'),
-              controller: _tempMinController,
-              label: context.l10n.minimumTemperatureCelsius,
-              pairedController: _tempMaxController,
-              minimumAllowed:
-                  AnimalEnvironmentalLimits.minimumTemperatureCelsius,
-              maximumAllowed:
-                  AnimalEnvironmentalLimits.maximumTemperatureCelsius,
-              isMinimum: true,
-            ),
-            const SizedBox(height: 16),
-
-            _numberField(
-              key: const Key('temp-max-field'),
-              controller: _tempMaxController,
-              label: context.l10n.maximumTemperatureCelsius,
-              pairedController: _tempMinController,
-              minimumAllowed:
-                  AnimalEnvironmentalLimits.minimumTemperatureCelsius,
-              maximumAllowed:
-                  AnimalEnvironmentalLimits.maximumTemperatureCelsius,
-              isMinimum: false,
-            ),
-            const SizedBox(height: 16),
-
-            _numberField(
-              key: const Key('humidity-min-field'),
-              controller: _humidityMinController,
-              label: context.l10n.minimumHumidityPercent,
-              pairedController: _humidityMaxController,
+            AnimalRangeFields(
+              key: const Key('humidity-range'),
+              heading: context.l10n.humidityPercent,
+              minimumKey: const Key('humidity-min-field'),
+              maximumKey: const Key('humidity-max-field'),
+              minimumController: _humidityMinController,
+              maximumController: _humidityMaxController,
               minimumAllowed: AnimalEnvironmentalLimits.minimumHumidityPercent,
               maximumAllowed: AnimalEnvironmentalLimits.maximumHumidityPercent,
-              isMinimum: true,
+              required: true,
+              enabled: !_actionInProgress,
+              onChanged: (_) => _markAsChanged(),
             ),
             const SizedBox(height: 16),
-
-            _numberField(
-              key: const Key('humidity-max-field'),
-              controller: _humidityMaxController,
-              label: context.l10n.maximumHumidityPercent,
-              pairedController: _humidityMinController,
-              minimumAllowed: AnimalEnvironmentalLimits.minimumHumidityPercent,
-              maximumAllowed: AnimalEnvironmentalLimits.maximumHumidityPercent,
-              isMinimum: false,
-            ),
-            const SizedBox(height: 16),
-
             AnimalAdditionalCharacteristicsFields(
               expanded: _additionalCharacteristicsExpanded,
               enabled: !_actionInProgress && !_processingPicture,
@@ -805,25 +739,87 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                 });
               },
               onChanged: (_) => _markAsChanged(),
-              originHabitatController: _originHabitatController,
+              birthDateField: ListTile(
+                key: const Key('birth-date-field'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.l10n.birthDate),
+                subtitle: Text(
+                  _birthDate == null
+                      ? context.l10n.notSpecified
+                      : _formatDate(_birthDate!),
+                ),
+                trailing: IconButton(
+                  key: const Key('birth-date-button'),
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: _actionInProgress ? null : _selectBirthDate,
+                ),
+              ),
+              birthDateAccuracyField:
+                  DropdownButtonFormField<BirthDateAccuracy?>(
+                    key: const Key('birth-date-accuracy-field'),
+                    initialValue: _birthDateAccuracy,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.birthDateAccuracy,
+                    ),
+                    items: [
+                      DropdownMenuItem<BirthDateAccuracy?>(
+                        value: null,
+                        child: Text(context.l10n.unknown),
+                      ),
+                      ...BirthDateAccuracy.values.map(
+                        (accuracy) => DropdownMenuItem<BirthDateAccuracy?>(
+                          value: accuracy,
+                          child: Text(
+                            context.l10n.birthAccuracyLabel(accuracy),
+                          ),
+                        ),
+                      ),
+                    ],
+                    onChanged: _actionInProgress
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _birthDateAccuracy = value;
+                              _hasUnsavedChanges = true;
+                            });
+                          },
+                  ),
+              sexField: DropdownButtonFormField<Sex>(
+                key: const Key('sex-field'),
+                initialValue: _sex,
+                decoration: InputDecoration(labelText: context.l10n.sex),
+                items: Sex.values
+                    .map(
+                      (sex) => DropdownMenuItem<Sex>(
+                        value: sex,
+                        child: Text(context.l10n.animalSexLabel(sex)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: _actionInProgress
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          setState(() {
+                            _sex = value;
+                            _hasUnsavedChanges = true;
+                          });
+                        }
+                      },
+              ),
               weightController: _weightController,
-              sheddingNotesController: _sheddingNotesController,
+              legacyWeight: _animal?.weight,
+              originHabitatController: _originHabitatController,
+              nighttimeTemperatureMinController:
+                  _nighttimeTemperatureMinController,
+              nighttimeTemperatureMaxController:
+                  _nighttimeTemperatureMaxController,
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
-              nighttimeTemperatureController: _nighttimeTemperatureController,
+              sheddingNotesController: _sheddingNotesController,
+              notesController: _notesController,
             ),
             const SizedBox(height: 16),
-
-            TextFormField(
-              key: const Key('notes-field'),
-              controller: _notesController,
-              onChanged: (_) => _markAsChanged(),
-              maxLines: 5,
-              decoration: InputDecoration(
-                labelText: context.l10n.notes,
-                alignLabelWithHint: true,
-              ),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
 
             FilledButton.icon(
               key: const Key('save-animal-form-button'),
@@ -861,33 +857,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   double? _optionalDouble(TextEditingController controller) {
     final value = controller.text.trim();
-    return value.isEmpty ? null : double.parse(value);
-  }
-
-  Widget _numberField({
-    required Key key,
-    required TextEditingController controller,
-    required String label,
-    required TextEditingController pairedController,
-    required double minimumAllowed,
-    required double maximumAllowed,
-    required bool isMinimum,
-  }) {
-    return TextFormField(
-      key: key,
-      controller: controller,
-      onChanged: (_) => _markAsChanged(),
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(labelText: label),
-      validator: (value) => validateAnimalEnvironmentalInput(
-        localizations: context.l10n,
-        value: value,
-        pairedValue: pairedController.text,
-        minimumAllowed: minimumAllowed,
-        maximumAllowed: maximumAllowed,
-        isMinimum: isMinimum,
-      ),
-    );
+    return parseAnimalDecimal(value);
   }
 
   Future<void> _selectBirthDate() async {

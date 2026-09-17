@@ -19,9 +19,11 @@ import 'enums/sex.dart';
 import 'tables/boxes.dart';
 import 'tables/animals.dart';
 import 'tables/animal_picture_associations.dart';
+import 'tables/animal_weight_entries.dart';
 import 'tables/box_picture_associations.dart';
 import 'tables/feeding_events.dart';
 import 'tables/media_assets.dart';
+import 'validation/animal_weight_parser.dart';
 
 import 'app_database.steps.dart';
 
@@ -32,6 +34,7 @@ part 'app_database.g.dart';
     Boxes,
     MediaAssets,
     Animals,
+    AnimalWeightEntries,
     FeedingEvents,
     AnimalPictureAssociations,
     BoxPictureAssociations,
@@ -151,6 +154,18 @@ class AppDatabase extends _$AppDatabase {
                   schema.animals.nighttimeTemperature,
                 );
               },
+              from13To14: (m, schema) async {
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.nighttimeTemperatureMin,
+                );
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.nighttimeTemperatureMax,
+                );
+                await m.createTable(schema.animalWeightEntries);
+                await migrateSchema13AnimalData();
+              },
             ),
           );
 
@@ -175,7 +190,36 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
+
+  Future<void> migrateSchema13AnimalData() async {
+    await customStatement('''
+      UPDATE animals
+      SET nighttime_temperature_min = nighttime_temperature,
+          nighttime_temperature_max = nighttime_temperature
+      WHERE nighttime_temperature IS NOT NULL
+    ''');
+
+    final legacyAnimals = await select(animals).get();
+    for (final animal in legacyAnimals) {
+      final weightGrams = AnimalWeightParser.parseUnambiguousLegacyGrams(
+        animal.weight,
+      );
+      if (weightGrams == null) {
+        continue;
+      }
+      await into(animalWeightEntries).insert(
+        AnimalWeightEntriesCompanion.insert(
+          animalId: animal.id,
+          weightGrams: weightGrams,
+          measuredAt: animal.updatedAt,
+        ),
+      );
+      await (update(animals)..where((row) => row.id.equals(animal.id))).write(
+        const AnimalsCompanion(weight: Value(null)),
+      );
+    }
+  }
 
   Future<void> migrateExistingPicturesToGalleries() async {
     await customStatement('''

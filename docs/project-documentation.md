@@ -25,20 +25,24 @@ Public project information:
 
 ## Project Status
 
-Latest published application version: **v1.7.2+66 – Media Galleries**.
+Latest published application version: **v1.8.0+67 – Animal Details, Sorting &
+Environmental Data**.
 
-The current source implements the v1.8.0 Animal details, sorting and
-environmental-data milestone:
+The current source implements the v1.9.0 Animal input and history milestone:
 
-- grouped Animal Overview headings use localized plural taxonomy labels;
-- active due feeding reminders appear above the Animal picture and Latest
-  Feeding appears directly below the names;
-- assigned Box labels include optional Box names and open the corresponding Box;
-- Animals can store an optional bounded nighttime temperature alongside the
-  renamed minimum and maximum daytime temperatures;
-- unnamed Boxes remain last in both alphabetical directions;
-- Boxes can be sorted by calculated volume, with incomplete dimensions last;
-- Database Schema Version 13 adds the nullable nighttime-temperature column;
+- daytime temperature, nighttime temperature and humidity use consistent
+  paired minimum/maximum controls;
+- Animal details identify daytime and nighttime temperature separately and
+  show locale-aware values with one decimal place and the unit beside the value;
+- optional Animal characteristics follow one shared order in New Animal and
+  Edit Animal;
+- Animal weight is stored as positive grams with a timestamped history;
+- unambiguous legacy gram values migrate safely while other legacy text remains
+  available until it is replaced;
+- Animal details show the next scheduled feeding directly below Latest Feeding
+  while active due reminders remain above the picture;
+- Database Schema Version 14 adds nighttime minimum/maximum columns and the
+  Animal weight-history table;
 - Portable Backup Format Version 2 remains backward compatible; and
 - no new device permission is required.
 
@@ -126,8 +130,7 @@ selection in Settings.
 - birth date
 - birth date accuracy
 - localized Exact, Month known and Year known birth-date-accuracy values
-- preferred temperature range
-- preferred humidity range
+- paired minimum/maximum daytime temperature and humidity controls
 - optional picture
 - ordered Animal picture galleries with capture/import timestamps and a
   selectable primary image
@@ -138,10 +141,13 @@ selection in Settings.
   Animal pictures
 - full-screen Animal picture viewing with zooming and panning
 - notes
-- optional origin or habitat, weight, shedding notes and rest or dormancy
-  periods
-- optional nighttime temperature and explicit minimum/maximum daytime
-  temperature labels
+- optional origin or habitat, numeric weight in grams, shedding notes and rest
+  or dormancy periods
+- timestamped weight history with quick entry from Animal details plus add,
+  edit and confirmed delete actions in the reverse-chronological history view
+- optional minimum/maximum nighttime temperature below the daytime range
+- shared Additional characteristics order for birth date, accuracy, sex,
+  weight, origin, nighttime temperature, rest periods, shedding notes and notes
 - required localized Animal category and optional compatible subcategory
 - taxonomy persistence through editing, duplication, migration and backup
 - active and archived lifecycle states
@@ -177,6 +183,8 @@ selection in Settings.
 - visible due markers in the Animal Overview
 - most-overdue-first reminder ordering
 - active due status above the Animal picture without a scheduled placeholder
+- next scheduled feeding below Latest Feeding while its reminder is active and
+  not yet due
 - assigned Box link with optional Box name on Animal details
 - direct navigation from reminder entries to the Animal and feeding workflow
 - immediate reminder refresh after normal and Quick Feeding changes
@@ -190,6 +198,7 @@ selection in Settings.
 - FeedingEvent deletion with confirmation
 - latest feeding lookup
 - latest feeding displayed directly on animal details
+- next scheduled feeding displayed below Latest Feeding before it becomes due
 - direct feeding-history navigation from the Latest Feeding card
 - automatic refresh after feeding edits and deletions
 - efficient bulk lookup of reminder state without one feeding query per Animal

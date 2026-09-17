@@ -122,6 +122,13 @@ void main() {
     await tester.enterText(find.byKey(const Key('humidity-max-field')), '60');
   }
 
+  Future<void> expandAdditionalCharacteristics(WidgetTester tester) async {
+    final button = find.byKey(const Key('additional-characteristics-button'));
+    await tester.ensureVisible(button);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('shows loading indicator while loading boxes', (tester) async {
     await createTestBox();
 
@@ -154,11 +161,13 @@ void main() {
       findsNothing,
     );
 
-    expect(find.byKey(const Key('sex-field')), findsOneWidget);
+    expect(find.byKey(const Key('sex-field')), findsNothing);
+
+    await expandAdditionalCharacteristics(tester);
 
     expect(find.byKey(const Key('birth-date-field')), findsOneWidget);
-
     expect(find.byKey(const Key('birth-date-accuracy-field')), findsOneWidget);
+    expect(find.byKey(const Key('sex-field')), findsOneWidget);
 
     expect(find.byKey(const Key('temp-min-field')), findsOneWidget);
 
@@ -248,6 +257,8 @@ void main() {
     await createTestBox();
 
     await pumpPage(tester);
+
+    await expandAdditionalCharacteristics(tester);
 
     final sexDropdown = tester.widget<DropdownButton<Sex>>(
       find.descendant(
@@ -437,6 +448,8 @@ void main() {
 
     await fillRequiredFields(tester, boxLabel: 'Box 1');
 
+    await expandAdditionalCharacteristics(tester);
+
     final sexField = find.byKey(const Key('sex-field'));
 
     await tester.ensureVisible(sexField);
@@ -532,6 +545,8 @@ void main() {
     await pumpPageWithNavigation(tester);
 
     await fillRequiredFields(tester, boxLabel: 'Box 1');
+
+    await expandAdditionalCharacteristics(tester);
 
     final notesField = find.byKey(const Key('notes-field'));
 

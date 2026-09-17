@@ -57,6 +57,9 @@ void main() {
     String? feedingReminderBaseline,
     Object? originHabitat,
     double? nighttimeTemperature,
+    double? nighttimeTemperatureMin,
+    double? nighttimeTemperatureMax,
+    List<Map<String, dynamic>> weightHistory = const [],
   }) {
     return {
       'id': id,
@@ -70,9 +73,12 @@ void main() {
       'tempMin': 20.0,
       'tempMax': 25.0,
       'nighttimeTemperature': ?nighttimeTemperature,
+      'nighttimeTemperatureMin': ?nighttimeTemperatureMin,
+      'nighttimeTemperatureMax': ?nighttimeTemperatureMax,
       'humidityMin': 40.0,
       'humidityMax': 60.0,
       'originHabitat': ?originHabitat,
+      'weightHistory': weightHistory,
       'pictureMediaPath': pictureMediaPath,
       'notes': null,
       'archiveReason': archiveReason,
@@ -201,6 +207,94 @@ void main() {
     final result = validator.validate(bytes);
 
     expect(result.data.animals.single.originHabitat, 'South America');
+  });
+
+  test('accepts nighttime ranges and positive weight history', () {
+    final animal = activeAnimal(
+      nighttimeTemperatureMin: 17,
+      nighttimeTemperatureMax: 19.5,
+      weightHistory: [
+        {
+          'id': 7,
+          'weightGrams': 140.5,
+          'measuredAt': '2026-09-10T12:00:00.000',
+        },
+      ],
+    );
+
+    final result = validator.validate(
+      createArchive(data: dataJson(animals: [animal])),
+    );
+
+    expect(result.data.animals.single.nighttimeTemperatureMin, 17);
+    expect(result.data.animals.single.nighttimeTemperatureMax, 19.5);
+    expect(result.data.animals.single.weightHistory.single.weightGrams, 140.5);
+  });
+
+  test('rejects reversed nighttime ranges', () {
+    final animal = activeAnimal(
+      nighttimeTemperatureMin: 20,
+      nighttimeTemperatureMax: 18,
+    );
+
+    expect(
+      () =>
+          validator.validate(createArchive(data: dataJson(animals: [animal]))),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidData,
+        ),
+      ),
+    );
+  });
+
+  test('rejects invalid and duplicate weight-history entries', () {
+    final invalidWeight = activeAnimal(
+      weightHistory: [
+        {'id': 7, 'weightGrams': 0, 'measuredAt': '2026-09-10T12:00:00.000'},
+      ],
+    );
+    final first = activeAnimal(
+      id: 10,
+      weightHistory: [
+        {'id': 7, 'weightGrams': 140, 'measuredAt': '2026-09-10T12:00:00.000'},
+      ],
+    );
+    final second = activeAnimal(
+      id: 11,
+      weightHistory: [
+        {'id': 7, 'weightGrams': 80, 'measuredAt': '2026-09-11T12:00:00.000'},
+      ],
+    );
+
+    expect(
+      () => validator.validate(
+        createArchive(data: dataJson(animals: [invalidWeight])),
+      ),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidData,
+        ),
+      ),
+    );
+    expect(
+      () => validator.validate(
+        createArchive(
+          data: dataJson(animals: [first, second], feedingEvents: []),
+        ),
+      ),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.duplicateRecordId,
+        ),
+      ),
+    );
   });
 
   test('rejects a non-text Animal characteristic', () {

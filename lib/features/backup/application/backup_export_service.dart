@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/repositories/animal_repository.dart';
+import '../../../core/database/repositories/animal_weight_repository.dart';
 import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
 import '../../../core/database/repositories/media_repository.dart';
@@ -94,6 +95,8 @@ class BackupExportService {
     final backupAnimals = <BackupAnimal>[];
 
     for (final animal in animals) {
+      final weightHistory = await AnimalWeightRepository(database)
+          .getHistory(animal.id);
       final exportedPictures = await _exportAnimalPictures(
         animal: animal,
         mediaRepository: mediaRepository,
@@ -124,10 +127,21 @@ class BackupExportService {
           tempMin: animal.tempMin,
           tempMax: animal.tempMax,
           nighttimeTemperature: animal.nighttimeTemperature,
+          nighttimeTemperatureMin: animal.nighttimeTemperatureMin,
+          nighttimeTemperatureMax: animal.nighttimeTemperatureMax,
           humidityMin: animal.humidityMin,
           humidityMax: animal.humidityMax,
           originHabitat: animal.originHabitat,
           weight: animal.weight,
+          weightHistory: weightHistory
+              .map(
+                (entry) => BackupWeightEntry(
+                  id: entry.id,
+                  weightGrams: entry.weightGrams,
+                  measuredAt: entry.measuredAt,
+                ),
+              )
+              .toList(),
           sheddingNotes: animal.sheddingNotes,
           restOrDormancyPeriods: animal.restOrDormancyPeriods,
           temperatureZones: animal.temperatureZones,

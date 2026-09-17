@@ -299,6 +299,7 @@ class BackupValidationService {
     }
 
     final animalIds = <int>{};
+    final weightEntryIds = <int>{};
 
     for (final animal in data.animals) {
       if (animal.id <= 0) {
@@ -330,6 +331,23 @@ class BackupValidationService {
       }
 
       _validateFeedingReminder(animal);
+
+      for (final entry in animal.weightHistory) {
+        if (entry.id <= 0 ||
+            !entry.weightGrams.isFinite ||
+            entry.weightGrams <= 0) {
+          throw BackupValidationException(
+            code: BackupValidationErrorCode.invalidData,
+            message: 'Animal ${animal.id} contains an invalid weight entry.',
+          );
+        }
+        if (!weightEntryIds.add(entry.id)) {
+          throw BackupValidationException(
+            code: BackupValidationErrorCode.duplicateRecordId,
+            message: 'Duplicate AnimalWeightEntry ID: ${entry.id}',
+          );
+        }
+      }
     }
 
     final feedingIds = <int>{};
@@ -460,6 +478,8 @@ class BackupValidationService {
         temperatureMinimum: animal.tempMin,
         temperatureMaximum: animal.tempMax,
         nighttimeTemperature: animal.nighttimeTemperature,
+        nighttimeTemperatureMinimum: animal.nighttimeTemperatureMin,
+        nighttimeTemperatureMaximum: animal.nighttimeTemperatureMax,
         humidityMinimum: animal.humidityMin,
         humidityMaximum: animal.humidityMax,
       );

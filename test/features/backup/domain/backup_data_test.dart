@@ -33,10 +33,19 @@ void main() {
           tempMin: 24,
           tempMax: 28,
           nighttimeTemperature: 20,
+          nighttimeTemperatureMin: 18,
+          nighttimeTemperatureMax: 21,
           humidityMin: 40,
           humidityMax: 60,
           originHabitat: 'North America',
-          weight: '140 g',
+          weight: 'legacy note',
+          weightHistory: [
+            BackupWeightEntry(
+              id: 7,
+              weightGrams: 140.5,
+              measuredAt: DateTime(2026, 8, 2, 10),
+            ),
+          ],
           sheddingNotes: 'Complete sheds',
           restOrDormancyPeriods: 'Less active in winter',
           pictureMediaPath: 'media/animals/10.jpg',
@@ -89,7 +98,9 @@ void main() {
     expect(restored.animals.single.birthDateAccuracy, 'yearKnown');
 
     expect(restored.animals.single.originHabitat, 'North America');
-    expect(restored.animals.single.weight, '140 g');
+    expect(restored.animals.single.weight, 'legacy note');
+    expect(restored.animals.single.weightHistory.single.id, 7);
+    expect(restored.animals.single.weightHistory.single.weightGrams, 140.5);
     expect(restored.animals.single.sheddingNotes, 'Complete sheds');
     expect(
       restored.animals.single.restOrDormancyPeriods,
@@ -97,6 +108,8 @@ void main() {
     );
     expect(restored.animals.single.temperatureZones, isNull);
     expect(restored.animals.single.nighttimeTemperature, 20);
+    expect(restored.animals.single.nighttimeTemperatureMin, 18);
+    expect(restored.animals.single.nighttimeTemperatureMax, 21);
 
     expect(restored.animals.single.feedingReminderIntervalDays, 7);
 

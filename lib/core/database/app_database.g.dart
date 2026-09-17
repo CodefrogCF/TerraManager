@@ -1418,6 +1418,28 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         type: DriftSqlType.double,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _nighttimeTemperatureMinMeta =
+      const VerificationMeta('nighttimeTemperatureMin');
+  @override
+  late final GeneratedColumn<double> nighttimeTemperatureMin =
+      GeneratedColumn<double>(
+        'nighttime_temperature_min',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _nighttimeTemperatureMaxMeta =
+      const VerificationMeta('nighttimeTemperatureMax');
+  @override
+  late final GeneratedColumn<double> nighttimeTemperatureMax =
+      GeneratedColumn<double>(
+        'nighttime_temperature_max',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _humidityMinMeta = const VerificationMeta(
     'humidityMin',
   );
@@ -1619,6 +1641,8 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     tempMin,
     tempMax,
     nighttimeTemperature,
+    nighttimeTemperatureMin,
+    nighttimeTemperatureMax,
     humidityMin,
     humidityMax,
     originHabitat,
@@ -1702,6 +1726,24 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         nighttimeTemperature.isAcceptableOrUnknown(
           data['nighttime_temperature']!,
           _nighttimeTemperatureMeta,
+        ),
+      );
+    }
+    if (data.containsKey('nighttime_temperature_min')) {
+      context.handle(
+        _nighttimeTemperatureMinMeta,
+        nighttimeTemperatureMin.isAcceptableOrUnknown(
+          data['nighttime_temperature_min']!,
+          _nighttimeTemperatureMinMeta,
+        ),
+      );
+    }
+    if (data.containsKey('nighttime_temperature_max')) {
+      context.handle(
+        _nighttimeTemperatureMaxMeta,
+        nighttimeTemperatureMax.isAcceptableOrUnknown(
+          data['nighttime_temperature_max']!,
+          _nighttimeTemperatureMaxMeta,
         ),
       );
     }
@@ -1909,6 +1951,14 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.double,
         data['${effectivePrefix}nighttime_temperature'],
       ),
+      nighttimeTemperatureMin: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}nighttime_temperature_min'],
+      ),
+      nighttimeTemperatureMax: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}nighttime_temperature_max'],
+      ),
       humidityMin: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}humidity_min'],
@@ -2024,6 +2074,8 @@ class Animal extends DataClass implements Insertable<Animal> {
   final double tempMin;
   final double tempMax;
   final double? nighttimeTemperature;
+  final double? nighttimeTemperatureMin;
+  final double? nighttimeTemperatureMax;
   final double humidityMin;
   final double humidityMax;
   final String? originHabitat;
@@ -2055,6 +2107,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     required this.tempMin,
     required this.tempMax,
     this.nighttimeTemperature,
+    this.nighttimeTemperatureMin,
+    this.nighttimeTemperatureMax,
     required this.humidityMin,
     required this.humidityMax,
     this.originHabitat,
@@ -2112,6 +2166,16 @@ class Animal extends DataClass implements Insertable<Animal> {
     map['temp_max'] = Variable<double>(tempMax);
     if (!nullToAbsent || nighttimeTemperature != null) {
       map['nighttime_temperature'] = Variable<double>(nighttimeTemperature);
+    }
+    if (!nullToAbsent || nighttimeTemperatureMin != null) {
+      map['nighttime_temperature_min'] = Variable<double>(
+        nighttimeTemperatureMin,
+      );
+    }
+    if (!nullToAbsent || nighttimeTemperatureMax != null) {
+      map['nighttime_temperature_max'] = Variable<double>(
+        nighttimeTemperatureMax,
+      );
     }
     map['humidity_min'] = Variable<double>(humidityMin);
     map['humidity_max'] = Variable<double>(humidityMax);
@@ -2190,6 +2254,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       nighttimeTemperature: nighttimeTemperature == null && nullToAbsent
           ? const Value.absent()
           : Value(nighttimeTemperature),
+      nighttimeTemperatureMin: nighttimeTemperatureMin == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nighttimeTemperatureMin),
+      nighttimeTemperatureMax: nighttimeTemperatureMax == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nighttimeTemperatureMax),
       humidityMin: Value(humidityMin),
       humidityMax: Value(humidityMax),
       originHabitat: originHabitat == null && nullToAbsent
@@ -2260,6 +2330,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       nighttimeTemperature: serializer.fromJson<double?>(
         json['nighttimeTemperature'],
       ),
+      nighttimeTemperatureMin: serializer.fromJson<double?>(
+        json['nighttimeTemperatureMin'],
+      ),
+      nighttimeTemperatureMax: serializer.fromJson<double?>(
+        json['nighttimeTemperatureMax'],
+      ),
       humidityMin: serializer.fromJson<double>(json['humidityMin']),
       humidityMax: serializer.fromJson<double>(json['humidityMax']),
       originHabitat: serializer.fromJson<String?>(json['originHabitat']),
@@ -2306,6 +2382,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       'tempMin': serializer.toJson<double>(tempMin),
       'tempMax': serializer.toJson<double>(tempMax),
       'nighttimeTemperature': serializer.toJson<double?>(nighttimeTemperature),
+      'nighttimeTemperatureMin': serializer.toJson<double?>(
+        nighttimeTemperatureMin,
+      ),
+      'nighttimeTemperatureMax': serializer.toJson<double?>(
+        nighttimeTemperatureMax,
+      ),
       'humidityMin': serializer.toJson<double>(humidityMin),
       'humidityMax': serializer.toJson<double>(humidityMax),
       'originHabitat': serializer.toJson<String?>(originHabitat),
@@ -2346,6 +2428,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     double? tempMin,
     double? tempMax,
     Value<double?> nighttimeTemperature = const Value.absent(),
+    Value<double?> nighttimeTemperatureMin = const Value.absent(),
+    Value<double?> nighttimeTemperatureMax = const Value.absent(),
     double? humidityMin,
     double? humidityMax,
     Value<String?> originHabitat = const Value.absent(),
@@ -2381,6 +2465,12 @@ class Animal extends DataClass implements Insertable<Animal> {
     nighttimeTemperature: nighttimeTemperature.present
         ? nighttimeTemperature.value
         : this.nighttimeTemperature,
+    nighttimeTemperatureMin: nighttimeTemperatureMin.present
+        ? nighttimeTemperatureMin.value
+        : this.nighttimeTemperatureMin,
+    nighttimeTemperatureMax: nighttimeTemperatureMax.present
+        ? nighttimeTemperatureMax.value
+        : this.nighttimeTemperatureMax,
     humidityMin: humidityMin ?? this.humidityMin,
     humidityMax: humidityMax ?? this.humidityMax,
     originHabitat: originHabitat.present
@@ -2438,6 +2528,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       nighttimeTemperature: data.nighttimeTemperature.present
           ? data.nighttimeTemperature.value
           : this.nighttimeTemperature,
+      nighttimeTemperatureMin: data.nighttimeTemperatureMin.present
+          ? data.nighttimeTemperatureMin.value
+          : this.nighttimeTemperatureMin,
+      nighttimeTemperatureMax: data.nighttimeTemperatureMax.present
+          ? data.nighttimeTemperatureMax.value
+          : this.nighttimeTemperatureMax,
       humidityMin: data.humidityMin.present
           ? data.humidityMin.value
           : this.humidityMin,
@@ -2500,6 +2596,8 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('tempMin: $tempMin, ')
           ..write('tempMax: $tempMax, ')
           ..write('nighttimeTemperature: $nighttimeTemperature, ')
+          ..write('nighttimeTemperatureMin: $nighttimeTemperatureMin, ')
+          ..write('nighttimeTemperatureMax: $nighttimeTemperatureMax, ')
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
           ..write('originHabitat: $originHabitat, ')
@@ -2536,6 +2634,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     tempMin,
     tempMax,
     nighttimeTemperature,
+    nighttimeTemperatureMin,
+    nighttimeTemperatureMax,
     humidityMin,
     humidityMax,
     originHabitat,
@@ -2571,6 +2671,8 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.tempMin == this.tempMin &&
           other.tempMax == this.tempMax &&
           other.nighttimeTemperature == this.nighttimeTemperature &&
+          other.nighttimeTemperatureMin == this.nighttimeTemperatureMin &&
+          other.nighttimeTemperatureMax == this.nighttimeTemperatureMax &&
           other.humidityMin == this.humidityMin &&
           other.humidityMax == this.humidityMax &&
           other.originHabitat == this.originHabitat &&
@@ -2605,6 +2707,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<double> tempMin;
   final Value<double> tempMax;
   final Value<double?> nighttimeTemperature;
+  final Value<double?> nighttimeTemperatureMin;
+  final Value<double?> nighttimeTemperatureMax;
   final Value<double> humidityMin;
   final Value<double> humidityMax;
   final Value<String?> originHabitat;
@@ -2636,6 +2740,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.tempMin = const Value.absent(),
     this.tempMax = const Value.absent(),
     this.nighttimeTemperature = const Value.absent(),
+    this.nighttimeTemperatureMin = const Value.absent(),
+    this.nighttimeTemperatureMax = const Value.absent(),
     this.humidityMin = const Value.absent(),
     this.humidityMax = const Value.absent(),
     this.originHabitat = const Value.absent(),
@@ -2668,6 +2774,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     required double tempMin,
     required double tempMax,
     this.nighttimeTemperature = const Value.absent(),
+    this.nighttimeTemperatureMin = const Value.absent(),
+    this.nighttimeTemperatureMax = const Value.absent(),
     required double humidityMin,
     required double humidityMax,
     this.originHabitat = const Value.absent(),
@@ -2705,6 +2813,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<double>? tempMin,
     Expression<double>? tempMax,
     Expression<double>? nighttimeTemperature,
+    Expression<double>? nighttimeTemperatureMin,
+    Expression<double>? nighttimeTemperatureMax,
     Expression<double>? humidityMin,
     Expression<double>? humidityMax,
     Expression<String>? originHabitat,
@@ -2738,6 +2848,10 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       if (tempMax != null) 'temp_max': tempMax,
       if (nighttimeTemperature != null)
         'nighttime_temperature': nighttimeTemperature,
+      if (nighttimeTemperatureMin != null)
+        'nighttime_temperature_min': nighttimeTemperatureMin,
+      if (nighttimeTemperatureMax != null)
+        'nighttime_temperature_max': nighttimeTemperatureMax,
       if (humidityMin != null) 'humidity_min': humidityMin,
       if (humidityMax != null) 'humidity_max': humidityMax,
       if (originHabitat != null) 'origin_habitat': originHabitat,
@@ -2775,6 +2889,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<double>? tempMin,
     Value<double>? tempMax,
     Value<double?>? nighttimeTemperature,
+    Value<double?>? nighttimeTemperatureMin,
+    Value<double?>? nighttimeTemperatureMax,
     Value<double>? humidityMin,
     Value<double>? humidityMax,
     Value<String?>? originHabitat,
@@ -2807,6 +2923,10 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
       tempMin: tempMin ?? this.tempMin,
       tempMax: tempMax ?? this.tempMax,
       nighttimeTemperature: nighttimeTemperature ?? this.nighttimeTemperature,
+      nighttimeTemperatureMin:
+          nighttimeTemperatureMin ?? this.nighttimeTemperatureMin,
+      nighttimeTemperatureMax:
+          nighttimeTemperatureMax ?? this.nighttimeTemperatureMax,
       humidityMin: humidityMin ?? this.humidityMin,
       humidityMax: humidityMax ?? this.humidityMax,
       originHabitat: originHabitat ?? this.originHabitat,
@@ -2884,6 +3004,16 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     if (nighttimeTemperature.present) {
       map['nighttime_temperature'] = Variable<double>(
         nighttimeTemperature.value,
+      );
+    }
+    if (nighttimeTemperatureMin.present) {
+      map['nighttime_temperature_min'] = Variable<double>(
+        nighttimeTemperatureMin.value,
+      );
+    }
+    if (nighttimeTemperatureMax.present) {
+      map['nighttime_temperature_max'] = Variable<double>(
+        nighttimeTemperatureMax.value,
       );
     }
     if (humidityMin.present) {
@@ -2964,6 +3094,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('tempMin: $tempMin, ')
           ..write('tempMax: $tempMax, ')
           ..write('nighttimeTemperature: $nighttimeTemperature, ')
+          ..write('nighttimeTemperatureMin: $nighttimeTemperatureMin, ')
+          ..write('nighttimeTemperatureMax: $nighttimeTemperatureMax, ')
           ..write('humidityMin: $humidityMin, ')
           ..write('humidityMax: $humidityMax, ')
           ..write('originHabitat: $originHabitat, ')
@@ -2981,6 +3113,317 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('feedingReminderBaseline: $feedingReminderBaseline, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AnimalWeightEntriesTable extends AnimalWeightEntries
+    with TableInfo<$AnimalWeightEntriesTable, AnimalWeightEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AnimalWeightEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _animalIdMeta = const VerificationMeta(
+    'animalId',
+  );
+  @override
+  late final GeneratedColumn<int> animalId = GeneratedColumn<int>(
+    'animal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES animals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _weightGramsMeta = const VerificationMeta(
+    'weightGrams',
+  );
+  @override
+  late final GeneratedColumn<double> weightGrams = GeneratedColumn<double>(
+    'weight_grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _measuredAtMeta = const VerificationMeta(
+    'measuredAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> measuredAt = GeneratedColumn<DateTime>(
+    'measured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, animalId, weightGrams, measuredAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'animal_weight_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AnimalWeightEntry> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('animal_id')) {
+      context.handle(
+        _animalIdMeta,
+        animalId.isAcceptableOrUnknown(data['animal_id']!, _animalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_animalIdMeta);
+    }
+    if (data.containsKey('weight_grams')) {
+      context.handle(
+        _weightGramsMeta,
+        weightGrams.isAcceptableOrUnknown(
+          data['weight_grams']!,
+          _weightGramsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_weightGramsMeta);
+    }
+    if (data.containsKey('measured_at')) {
+      context.handle(
+        _measuredAtMeta,
+        measuredAt.isAcceptableOrUnknown(data['measured_at']!, _measuredAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_measuredAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AnimalWeightEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AnimalWeightEntry(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      animalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}animal_id'],
+      )!,
+      weightGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight_grams'],
+      )!,
+      measuredAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}measured_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AnimalWeightEntriesTable createAlias(String alias) {
+    return $AnimalWeightEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class AnimalWeightEntry extends DataClass
+    implements Insertable<AnimalWeightEntry> {
+  final int id;
+  final int animalId;
+  final double weightGrams;
+  final DateTime measuredAt;
+  const AnimalWeightEntry({
+    required this.id,
+    required this.animalId,
+    required this.weightGrams,
+    required this.measuredAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['animal_id'] = Variable<int>(animalId);
+    map['weight_grams'] = Variable<double>(weightGrams);
+    map['measured_at'] = Variable<DateTime>(measuredAt);
+    return map;
+  }
+
+  AnimalWeightEntriesCompanion toCompanion(bool nullToAbsent) {
+    return AnimalWeightEntriesCompanion(
+      id: Value(id),
+      animalId: Value(animalId),
+      weightGrams: Value(weightGrams),
+      measuredAt: Value(measuredAt),
+    );
+  }
+
+  factory AnimalWeightEntry.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AnimalWeightEntry(
+      id: serializer.fromJson<int>(json['id']),
+      animalId: serializer.fromJson<int>(json['animalId']),
+      weightGrams: serializer.fromJson<double>(json['weightGrams']),
+      measuredAt: serializer.fromJson<DateTime>(json['measuredAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'animalId': serializer.toJson<int>(animalId),
+      'weightGrams': serializer.toJson<double>(weightGrams),
+      'measuredAt': serializer.toJson<DateTime>(measuredAt),
+    };
+  }
+
+  AnimalWeightEntry copyWith({
+    int? id,
+    int? animalId,
+    double? weightGrams,
+    DateTime? measuredAt,
+  }) => AnimalWeightEntry(
+    id: id ?? this.id,
+    animalId: animalId ?? this.animalId,
+    weightGrams: weightGrams ?? this.weightGrams,
+    measuredAt: measuredAt ?? this.measuredAt,
+  );
+  AnimalWeightEntry copyWithCompanion(AnimalWeightEntriesCompanion data) {
+    return AnimalWeightEntry(
+      id: data.id.present ? data.id.value : this.id,
+      animalId: data.animalId.present ? data.animalId.value : this.animalId,
+      weightGrams: data.weightGrams.present
+          ? data.weightGrams.value
+          : this.weightGrams,
+      measuredAt: data.measuredAt.present
+          ? data.measuredAt.value
+          : this.measuredAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimalWeightEntry(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('weightGrams: $weightGrams, ')
+          ..write('measuredAt: $measuredAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, animalId, weightGrams, measuredAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AnimalWeightEntry &&
+          other.id == this.id &&
+          other.animalId == this.animalId &&
+          other.weightGrams == this.weightGrams &&
+          other.measuredAt == this.measuredAt);
+}
+
+class AnimalWeightEntriesCompanion extends UpdateCompanion<AnimalWeightEntry> {
+  final Value<int> id;
+  final Value<int> animalId;
+  final Value<double> weightGrams;
+  final Value<DateTime> measuredAt;
+  const AnimalWeightEntriesCompanion({
+    this.id = const Value.absent(),
+    this.animalId = const Value.absent(),
+    this.weightGrams = const Value.absent(),
+    this.measuredAt = const Value.absent(),
+  });
+  AnimalWeightEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required int animalId,
+    required double weightGrams,
+    required DateTime measuredAt,
+  }) : animalId = Value(animalId),
+       weightGrams = Value(weightGrams),
+       measuredAt = Value(measuredAt);
+  static Insertable<AnimalWeightEntry> custom({
+    Expression<int>? id,
+    Expression<int>? animalId,
+    Expression<double>? weightGrams,
+    Expression<DateTime>? measuredAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (animalId != null) 'animal_id': animalId,
+      if (weightGrams != null) 'weight_grams': weightGrams,
+      if (measuredAt != null) 'measured_at': measuredAt,
+    });
+  }
+
+  AnimalWeightEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? animalId,
+    Value<double>? weightGrams,
+    Value<DateTime>? measuredAt,
+  }) {
+    return AnimalWeightEntriesCompanion(
+      id: id ?? this.id,
+      animalId: animalId ?? this.animalId,
+      weightGrams: weightGrams ?? this.weightGrams,
+      measuredAt: measuredAt ?? this.measuredAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (animalId.present) {
+      map['animal_id'] = Variable<int>(animalId.value);
+    }
+    if (weightGrams.present) {
+      map['weight_grams'] = Variable<double>(weightGrams.value);
+    }
+    if (measuredAt.present) {
+      map['measured_at'] = Variable<DateTime>(measuredAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnimalWeightEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('weightGrams: $weightGrams, ')
+          ..write('measuredAt: $measuredAt')
           ..write(')'))
         .toString();
   }
@@ -4043,6 +4486,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MediaAssetsTable mediaAssets = $MediaAssetsTable(this);
   late final $BoxesTable boxes = $BoxesTable(this);
   late final $AnimalsTable animals = $AnimalsTable(this);
+  late final $AnimalWeightEntriesTable animalWeightEntries =
+      $AnimalWeightEntriesTable(this);
   late final $FeedingEventsTable feedingEvents = $FeedingEventsTable(this);
   late final $AnimalPictureAssociationsTable animalPictureAssociations =
       $AnimalPictureAssociationsTable(this);
@@ -4056,12 +4501,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     mediaAssets,
     boxes,
     animals,
+    animalWeightEntries,
     feedingEvents,
     animalPictureAssociations,
     boxPictureAssociations,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'animals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('animal_weight_entries', kind: UpdateKind.delete)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'animals',
@@ -5445,6 +5898,8 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   required double tempMin,
   required double tempMax,
   Value<double?> nighttimeTemperature,
+  Value<double?> nighttimeTemperatureMin,
+  Value<double?> nighttimeTemperatureMax,
   required double humidityMin,
   required double humidityMax,
   Value<String?> originHabitat,
@@ -5477,6 +5932,8 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<double> tempMin,
   Value<double> tempMax,
   Value<double?> nighttimeTemperature,
+  Value<double?> nighttimeTemperatureMin,
+  Value<double?> nighttimeTemperatureMax,
   Value<double> humidityMin,
   Value<double> humidityMax,
   Value<String?> originHabitat,
@@ -5531,6 +5988,27 @@ final class $$AnimalsTableReferences
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$AnimalWeightEntriesTable, List<AnimalWeightEntry>>
+  _animalWeightEntriesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.animalWeightEntries,
+        aliasName: 'animals__id__animal_weight_entries__animal_id',
+      );
+
+  $$AnimalWeightEntriesTableProcessedTableManager get animalWeightEntriesRefs {
+    final manager = $$AnimalWeightEntriesTableTableManager(
+      $_db,
+      $_db.animalWeightEntries,
+    ).filter((f) => f.animalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _animalWeightEntriesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 
@@ -5649,6 +6127,16 @@ class $$AnimalsTableFilterComposer
 
   ColumnFilters<double> get nighttimeTemperature => $composableBuilder(
     column: $table.nighttimeTemperature,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get nighttimeTemperatureMin => $composableBuilder(
+    column: $table.nighttimeTemperatureMin,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get nighttimeTemperatureMax => $composableBuilder(
+    column: $table.nighttimeTemperatureMax,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5783,6 +6271,31 @@ class $$AnimalsTableFilterComposer
     return composer;
   }
 
+  Expression<bool> animalWeightEntriesRefs(
+    Expression<bool> Function($$AnimalWeightEntriesTableFilterComposer f) f,
+  ) {
+    final $$AnimalWeightEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.animalWeightEntries,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalWeightEntriesTableFilterComposer(
+            $db: $db,
+            $table: $db.animalWeightEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<bool> feedingEventsRefs(
     Expression<bool> Function($$FeedingEventsTableFilterComposer f) f,
   ) {
@@ -5902,6 +6415,16 @@ class $$AnimalsTableOrderingComposer
 
   ColumnOrderings<double> get nighttimeTemperature => $composableBuilder(
     column: $table.nighttimeTemperature,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get nighttimeTemperatureMin => $composableBuilder(
+    column: $table.nighttimeTemperatureMin,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get nighttimeTemperatureMax => $composableBuilder(
+    column: $table.nighttimeTemperatureMax,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -6087,6 +6610,16 @@ class $$AnimalsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<double> get nighttimeTemperatureMin => $composableBuilder(
+    column: $table.nighttimeTemperatureMin,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get nighttimeTemperatureMax => $composableBuilder(
+    column: $table.nighttimeTemperatureMax,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<double> get humidityMin => $composableBuilder(
     column: $table.humidityMin,
     builder: (column) => column,
@@ -6206,6 +6739,32 @@ class $$AnimalsTableAnnotationComposer
     return composer;
   }
 
+  Expression<T> animalWeightEntriesRefs<T extends Object>(
+    Expression<T> Function($$AnimalWeightEntriesTableAnnotationComposer a) f,
+  ) {
+    final $$AnimalWeightEntriesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.animalWeightEntries,
+          getReferencedColumn: (t) => t.animalId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$AnimalWeightEntriesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.animalWeightEntries,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> feedingEventsRefs<T extends Object>(
     Expression<T> Function($$FeedingEventsTableAnnotationComposer a) f,
   ) {
@@ -6275,6 +6834,7 @@ class $$AnimalsTableTableManager
           PrefetchHooks Function({
             bool boxId,
             bool pictureMediaId,
+            bool animalWeightEntriesRefs,
             bool feedingEventsRefs,
             bool animalPictureAssociationsRefs,
           })
@@ -6306,6 +6866,8 @@ class $$AnimalsTableTableManager
                 Value<double> tempMin = const Value.absent(),
                 Value<double> tempMax = const Value.absent(),
                 Value<double?> nighttimeTemperature = const Value.absent(),
+                Value<double?> nighttimeTemperatureMin = const Value.absent(),
+                Value<double?> nighttimeTemperatureMax = const Value.absent(),
                 Value<double> humidityMin = const Value.absent(),
                 Value<double> humidityMax = const Value.absent(),
                 Value<String?> originHabitat = const Value.absent(),
@@ -6338,6 +6900,8 @@ class $$AnimalsTableTableManager
                 tempMin: tempMin,
                 tempMax: tempMax,
                 nighttimeTemperature: nighttimeTemperature,
+                nighttimeTemperatureMin: nighttimeTemperatureMin,
+                nighttimeTemperatureMax: nighttimeTemperatureMax,
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
                 originHabitat: originHabitat,
@@ -6372,6 +6936,8 @@ class $$AnimalsTableTableManager
                 required double tempMin,
                 required double tempMax,
                 Value<double?> nighttimeTemperature = const Value.absent(),
+                Value<double?> nighttimeTemperatureMin = const Value.absent(),
+                Value<double?> nighttimeTemperatureMax = const Value.absent(),
                 required double humidityMin,
                 required double humidityMax,
                 Value<String?> originHabitat = const Value.absent(),
@@ -6404,6 +6970,8 @@ class $$AnimalsTableTableManager
                 tempMin: tempMin,
                 tempMax: tempMax,
                 nighttimeTemperature: nighttimeTemperature,
+                nighttimeTemperatureMin: nighttimeTemperatureMin,
+                nighttimeTemperatureMax: nighttimeTemperatureMax,
                 humidityMin: humidityMin,
                 humidityMax: humidityMax,
                 originHabitat: originHabitat,
@@ -6434,12 +7002,14 @@ class $$AnimalsTableTableManager
               ({
                 boxId = false,
                 pictureMediaId = false,
+                animalWeightEntriesRefs = false,
                 feedingEventsRefs = false,
                 animalPictureAssociationsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (animalWeightEntriesRefs) db.animalWeightEntries,
                     if (feedingEventsRefs) db.feedingEvents,
                     if (animalPictureAssociationsRefs)
                       db.animalPictureAssociations,
@@ -6487,6 +7057,27 @@ class $$AnimalsTableTableManager
                       },
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (animalWeightEntriesRefs)
+                        await $_getPrefetchedData<
+                          Animal,
+                          $AnimalsTable,
+                          AnimalWeightEntry
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AnimalsTableReferences
+                              ._animalWeightEntriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AnimalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).animalWeightEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.animalId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (feedingEventsRefs)
                         await $_getPrefetchedData<
                           Animal,
@@ -6552,9 +7143,321 @@ typedef $$AnimalsTableProcessedTableManager =
       PrefetchHooks Function({
         bool boxId,
         bool pictureMediaId,
+        bool animalWeightEntriesRefs,
         bool feedingEventsRefs,
         bool animalPictureAssociationsRefs,
       })
+    >;
+typedef $$AnimalWeightEntriesTableCreateCompanionBuilder =
+    AnimalWeightEntriesCompanion Function({
+      Value<int> id,
+      required int animalId,
+      required double weightGrams,
+      required DateTime measuredAt,
+    });
+typedef $$AnimalWeightEntriesTableUpdateCompanionBuilder =
+    AnimalWeightEntriesCompanion Function({
+      Value<int> id,
+      Value<int> animalId,
+      Value<double> weightGrams,
+      Value<DateTime> measuredAt,
+    });
+
+final class $$AnimalWeightEntriesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $AnimalWeightEntriesTable,
+          AnimalWeightEntry
+        > {
+  $$AnimalWeightEntriesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AnimalsTable _animalIdTable(_$AppDatabase db) =>
+      db.animals.createAlias('animal_weight_entries__animal_id__animals__id');
+
+  $$AnimalsTableProcessedTableManager get animalId {
+    final $_column = $_itemColumn<int>('animal_id')!;
+
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_animalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$AnimalWeightEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $AnimalWeightEntriesTable> {
+  $$AnimalWeightEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weightGrams => $composableBuilder(
+    column: $table.weightGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get measuredAt => $composableBuilder(
+    column: $table.measuredAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AnimalsTableFilterComposer get animalId {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AnimalWeightEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AnimalWeightEntriesTable> {
+  $$AnimalWeightEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weightGrams => $composableBuilder(
+    column: $table.weightGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get measuredAt => $composableBuilder(
+    column: $table.measuredAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AnimalsTableOrderingComposer get animalId {
+    final $$AnimalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AnimalWeightEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AnimalWeightEntriesTable> {
+  $$AnimalWeightEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get weightGrams => $composableBuilder(
+    column: $table.weightGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get measuredAt => $composableBuilder(
+    column: $table.measuredAt,
+    builder: (column) => column,
+  );
+
+  $$AnimalsTableAnnotationComposer get animalId {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AnimalWeightEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AnimalWeightEntriesTable,
+          AnimalWeightEntry,
+          $$AnimalWeightEntriesTableFilterComposer,
+          $$AnimalWeightEntriesTableOrderingComposer,
+          $$AnimalWeightEntriesTableAnnotationComposer,
+          $$AnimalWeightEntriesTableCreateCompanionBuilder,
+          $$AnimalWeightEntriesTableUpdateCompanionBuilder,
+          (AnimalWeightEntry, $$AnimalWeightEntriesTableReferences),
+          AnimalWeightEntry,
+          PrefetchHooks Function({bool animalId})
+        > {
+  $$AnimalWeightEntriesTableTableManager(
+    _$AppDatabase db,
+    $AnimalWeightEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AnimalWeightEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AnimalWeightEntriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$AnimalWeightEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> animalId = const Value.absent(),
+                Value<double> weightGrams = const Value.absent(),
+                Value<DateTime> measuredAt = const Value.absent(),
+              }) => AnimalWeightEntriesCompanion(
+                id: id,
+                animalId: animalId,
+                weightGrams: weightGrams,
+                measuredAt: measuredAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int animalId,
+                required double weightGrams,
+                required DateTime measuredAt,
+              }) => AnimalWeightEntriesCompanion.insert(
+                id: id,
+                animalId: animalId,
+                weightGrams: weightGrams,
+                measuredAt: measuredAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$AnimalWeightEntriesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({animalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (animalId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.animalId,
+                        referencedTable: $$AnimalWeightEntriesTableReferences
+                            ._animalIdTable(db),
+                        referencedColumn: $$AnimalWeightEntriesTableReferences
+                            ._animalIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$AnimalWeightEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AnimalWeightEntriesTable,
+      AnimalWeightEntry,
+      $$AnimalWeightEntriesTableFilterComposer,
+      $$AnimalWeightEntriesTableOrderingComposer,
+      $$AnimalWeightEntriesTableAnnotationComposer,
+      $$AnimalWeightEntriesTableCreateCompanionBuilder,
+      $$AnimalWeightEntriesTableUpdateCompanionBuilder,
+      (AnimalWeightEntry, $$AnimalWeightEntriesTableReferences),
+      AnimalWeightEntry,
+      PrefetchHooks Function({bool animalId})
     >;
 typedef $$FeedingEventsTableCreateCompanionBuilder =
     FeedingEventsCompanion Function({
@@ -7703,6 +8606,8 @@ class $AppDatabaseManager {
       $$BoxesTableTableManager(_db, _db.boxes);
   $$AnimalsTableTableManager get animals =>
       $$AnimalsTableTableManager(_db, _db.animals);
+  $$AnimalWeightEntriesTableTableManager get animalWeightEntries =>
+      $$AnimalWeightEntriesTableTableManager(_db, _db.animalWeightEntries);
   $$FeedingEventsTableTableManager get feedingEvents =>
       $$FeedingEventsTableTableManager(_db, _db.feedingEvents);
   $$AnimalPictureAssociationsTableTableManager get animalPictureAssociations =>

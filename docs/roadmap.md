@@ -1424,6 +1424,65 @@ roughly one sixth of its previous size.
 
 ---
 
+## v1.9.0 – Animal Input & History
+
+### Paired environmental inputs — Issues #136 and #137
+
+- [x] Present daytime temperature and humidity as labeled minimum/maximum pairs
+- [x] Replace the single nighttime-temperature control with optional minimum
+  and maximum fields using the same responsive component
+- [x] Accept localized decimal input while retaining the existing temperature
+  and humidity bounds
+- [x] Reject reversed ranges without requiring both optional bounds
+- [x] Migrate a legacy nighttime value to both new bounds
+- [x] Preserve new and legacy values through duplication and Backup Format
+  Version 2
+
+### Scheduled feeding on Animal details — Issue #138
+
+- [x] Keep active due reminders above the Animal picture
+- [x] Show a future next-feeding timestamp directly below Latest Feeding
+- [x] Omit the scheduled card for disabled, due and archived reminders
+- [x] Refresh derived reminder data after feeding and reminder changes
+- [x] Add no background service, notification or device permission
+
+### Numeric Animal weight history — Issue #139
+
+- [x] Accept optional positive decimal weights in grams
+- [x] Create a timestamped measurement only when the numeric value changes
+- [x] Show the current weight and reverse-chronological history on Animal
+  details
+- [x] Add a quick measurement action beside Weight History on Animal details
+- [x] Add new measurements and edit values or timestamps in Weight History
+- [x] Delete individual measurements from Weight History after confirmation
+- [x] Preserve history while archived and delete it with its Animal
+- [x] Duplicate only the current weight as one new measurement
+- [x] Migrate unambiguous legacy gram values and retain ambiguous legacy text
+- [x] Export, validate and restore complete weight history in Backup Format 2
+
+### Additional-characteristic order — Issue #140
+
+- [x] Use one shared expandable section in New Animal and Edit Animal
+- [x] Order birth date, accuracy, sex, weight, origin, nighttime temperature,
+  rest periods, shedding notes and notes consistently
+- [x] Expand Edit Animal automatically when any optional value is populated
+- [x] Keep Animal details aligned with the daytime and nighttime range order
+- [x] Label both temperature ranges without units and render locale-aware values
+  with one decimal place and `°C`
+
+### v1.9.0 Release
+
+- [ ] Set the release version and build number
+- [x] Advance to Database Schema Version 14
+- [x] Preserve Portable Backup Format Version 2 compatibility
+- [x] Generate English and German localizations and Drift migration artifacts
+- [x] Add no device permissions
+- [ ] Confirm the final GitHub Actions **Quality gates** run
+- [ ] Record release-owner Android/Web artifacts and manual checks
+- [ ] Publish the GitHub and Google Play releases
+
+---
+
 ## Website 1.0 – Homepage, Downloads & Guides
 
 ### TerraManager project homepage — Issue #119
@@ -1465,7 +1524,6 @@ Possible later development areas include:
 - cloud synchronization
 - user accounts
 - multi-device synchronization
-- animal weight history
 - shedding history
 - health and event tracking
 - breeding records

@@ -1,6 +1,14 @@
 import '../../../core/database/validation/animal_environmental_limits.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
+double? parseAnimalDecimal(String? value) {
+  final normalized = value?.trim().replaceAll(',', '.');
+  if (normalized == null || normalized.isEmpty) {
+    return null;
+  }
+  return double.tryParse(normalized);
+}
+
 String? validateAnimalEnvironmentalInput({
   required AppLocalizations localizations,
   required String? value,
@@ -8,14 +16,15 @@ String? validateAnimalEnvironmentalInput({
   required double minimumAllowed,
   required double maximumAllowed,
   required bool isMinimum,
+  bool required = true,
 }) {
   final trimmedValue = value?.trim();
 
   if (trimmedValue == null || trimmedValue.isEmpty) {
-    return localizations.pleaseEnterValue;
+    return required ? localizations.pleaseEnterValue : null;
   }
 
-  final parsedValue = double.tryParse(trimmedValue);
+  final parsedValue = parseAnimalDecimal(trimmedValue);
 
   if (parsedValue == null || !parsedValue.isFinite) {
     return localizations.pleaseEnterValidNumber;
@@ -32,7 +41,7 @@ String? validateAnimalEnvironmentalInput({
     );
   }
 
-  final parsedPair = double.tryParse(pairedValue.trim());
+  final parsedPair = parseAnimalDecimal(pairedValue);
 
   if (parsedPair == null ||
       !AnimalEnvironmentalLimits.isWithinRange(
@@ -71,7 +80,7 @@ String? validateOptionalAnimalTemperatureInput({
     return null;
   }
 
-  final parsedValue = double.tryParse(trimmedValue);
+  final parsedValue = parseAnimalDecimal(trimmedValue);
   if (parsedValue == null || !parsedValue.isFinite) {
     return localizations.pleaseEnterValidNumber;
   }

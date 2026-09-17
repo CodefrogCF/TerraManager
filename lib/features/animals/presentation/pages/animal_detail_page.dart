@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/enums/sex.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/animal_weight_repository.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/box_lifecycle_exception.dart';
@@ -21,6 +23,7 @@ import '../../../media/presentation/pages/picture_gallery_page.dart';
 import '../animal_display_names.dart';
 import '../widgets/animal_picture.dart';
 import 'animal_edit_page.dart';
+import 'animal_weight_history_page.dart';
 
 class AnimalDetailPage extends StatefulWidget {
   final AppDatabase database;
@@ -57,6 +60,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
   late Future<Animal?> _animalFuture;
   late Future<FeedingEvent?> _latestFeedingFuture;
   late Future<FeedingReminderState?> _feedingReminderFuture;
+  late Future<AnimalWeightEntry?> _latestWeightFuture;
   late Future<MediaAsset?> _pictureMediaFuture;
   late Future<Box?> _boxFuture;
 
@@ -78,6 +82,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
   void _loadAnimal() {
     _animalFuture = AnimalRepository(widget.database).getAnimalById(_animalId);
+    _latestWeightFuture = AnimalWeightRepository(widget.database)
+        .getLatest(_animalId);
 
     _pictureMediaFuture = _animalFuture.then((animal) async {
       final mediaId = animal?.pictureMediaId;
@@ -156,6 +162,33 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       _loadLatestFeeding();
       _loadFeedingReminder();
     });
+  }
+
+  Future<void> _openWeightHistory() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => AnimalWeightHistoryPage(
+          database: widget.database,
+          animalId: _animalId,
+        ),
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    setState(_loadAnimal);
+  }
+
+  Future<void> _addWeightEntry() async {
+    final created = await showWeightEntryDialog(
+      context: context,
+      database: widget.database,
+      animalId: _animalId,
+    );
+    if (!mounted || created != true) {
+      return;
+    }
+    setState(_loadAnimal);
   }
 
   Future<void> _openPictureGallery() async {
@@ -596,6 +629,46 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     );
   }
 
+  Widget _buildNextFeeding(BuildContext context) {
+    return FutureBuilder<FeedingReminderState?>(
+      future: _feedingReminderFuture,
+      builder: (context, snapshot) {
+        final reminder = snapshot.data;
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            snapshot.hasError ||
+            reminder == null ||
+            reminder.isDue) {
+          return const SizedBox.shrink();
+        }
+        return Column(
+          key: const Key('next-feeding-section'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 12),
+            Text(
+              context.l10n.nextFeeding,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.event_outlined),
+                title: Text(
+                  context.l10n.feedingScheduledFor(
+                    _formatDateTime(reminder.dueAt),
+                  ),
+                  key: const Key('next-feeding-date'),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _openFeedingHistory,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Animal?>(
@@ -678,10 +751,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     );
     final hasAdditionalCharacteristics = [
       animal.originHabitat,
-      animal.weight,
       animal.sheddingNotes,
       animal.restOrDormancyPeriods,
-      animal.nighttimeTemperature?.toString(),
     ].any((value) => value != null && value.trim().isNotEmpty);
 
     return ListView(
@@ -739,6 +810,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         const SizedBox(height: 16),
 
         _buildLatestFeeding(context),
+        if (!isArchived) _buildNextFeeding(context),
         const SizedBox(height: 24),
 
         _DetailRow(
@@ -793,12 +865,22 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           ),
 
         _DetailRow(
-          label: context.l10n.temperature,
-          value: context.l10n.temperatureRange(
-            animal.tempMin.toString(),
-            animal.tempMax.toString(),
-          ),
+          key: const Key('daytime-temperature-detail'),
+          label: context.l10n.daytimeTemperature,
+          value: _formatTemperatureRange(animal.tempMin, animal.tempMax),
         ),
+
+        if (animal.nighttimeTemperatureMin != null ||
+            animal.nighttimeTemperatureMax != null ||
+            animal.nighttimeTemperature != null)
+          _DetailRow(
+            key: const Key('nighttime-temperature-detail'),
+            label: context.l10n.nighttimeTemperature,
+            value: _formatOptionalRange(
+              animal.nighttimeTemperatureMin ?? animal.nighttimeTemperature,
+              animal.nighttimeTemperatureMax ?? animal.nighttimeTemperature,
+            ),
+          ),
 
         _DetailRow(
           label: context.l10n.humidity,
@@ -808,6 +890,54 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           ),
         ),
 
+        FutureBuilder<AnimalWeightEntry?>(
+          future: _latestWeightFuture,
+          builder: (context, snapshot) {
+            final latest = snapshot.data;
+            if (snapshot.hasError) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (latest != null)
+                  _DetailRow(
+                    key: const Key('weight-detail'),
+                    label: context.l10n.weight,
+                    value: context.l10n.weightMeasurement(
+                      _formatNumber(latest.weightGrams),
+                    ),
+                  )
+                else if (animal.weight?.trim().isNotEmpty == true)
+                  _DetailRow(
+                    key: const Key('legacy-weight-detail'),
+                    label: context.l10n.weight,
+                    value: animal.weight!,
+                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton.icon(
+                        key: const Key('weight-add-button'),
+                        onPressed: _addWeightEntry,
+                        icon: const Icon(Icons.add),
+                        label: Text(context.l10n.addWeightMeasurement),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextButton.icon(
+                        key: const Key('weight-history-button'),
+                        onPressed: _openWeightHistory,
+                        icon: const Icon(Icons.history),
+                        label: Text(context.l10n.weightHistory),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
         if (hasAdditionalCharacteristics) ...[
           const SizedBox(height: 16),
           Text(
@@ -822,12 +952,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               label: context.l10n.originHabitat,
               value: animal.originHabitat!,
             ),
-          if (animal.weight?.trim().isNotEmpty == true)
-            _DetailRow(
-              key: const Key('weight-detail'),
-              label: context.l10n.weight,
-              value: animal.weight!,
-            ),
           if (animal.sheddingNotes?.trim().isNotEmpty == true)
             _DetailRow(
               key: const Key('shedding-notes-detail'),
@@ -839,12 +963,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               key: const Key('rest-or-dormancy-periods-detail'),
               label: context.l10n.restOrDormancyPeriods,
               value: animal.restOrDormancyPeriods!,
-            ),
-          if (animal.nighttimeTemperature != null)
-            _DetailRow(
-              key: const Key('nighttime-temperature-detail'),
-              label: context.l10n.nighttimeTemperatureCelsius,
-              value: '${animal.nighttimeTemperature} °C',
             ),
         ],
 
@@ -934,6 +1052,36 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
         const SizedBox(height: 24),
       ],
     );
+  }
+
+  String _formatOptionalRange(double? minimum, double? maximum) {
+    if (minimum != null && maximum != null) {
+      return _formatTemperatureRange(minimum, maximum);
+    }
+    final value = minimum ?? maximum;
+    return value == null
+        ? context.l10n.notSpecified
+        : [_formatTemperatureNumber(value), '°C'].join(' ');
+  }
+
+  String _formatTemperatureRange(double minimum, double maximum) {
+    return context.l10n.temperatureRange(
+      _formatTemperatureNumber(minimum),
+      _formatTemperatureNumber(maximum),
+    );
+  }
+
+  String _formatTemperatureNumber(double value) {
+    return NumberFormat(
+      '0.0',
+      Localizations.localeOf(context).toLanguageTag(),
+    ).format(value);
+  }
+
+  static String _formatNumber(double value) {
+    return value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toString();
   }
 }
 

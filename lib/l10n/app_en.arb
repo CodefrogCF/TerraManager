@@ -708,5 +708,50 @@
       "date": { "type": "String" },
       "time": { "type": "String" }
     }
-  }
+  },
+  "minimum": "Min",
+  "maximum": "Max",
+  "daytimeTemperatureCelsius": "Daytime temperature (°C)",
+  "daytimeTemperature": "Daytime temperature",
+  "nighttimeTemperature": "Nighttime temperature",
+  "humidityPercent": "Humidity (%)",
+  "weightGrams": "Weight (g)",
+  "pleaseEnterPositiveNumber": "Please enter a positive number",
+  "legacyWeightValue": "Legacy value: {value}. Enter a weight in grams to replace it.",
+  "@legacyWeightValue": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "nextFeeding": "Next feeding",
+  "feedingScheduledFor": "Scheduled for {dateTime}",
+  "@feedingScheduledFor": {
+    "placeholders": {
+      "dateTime": { "type": "String" }
+    }
+  },
+  "weightHistory": "Weight history",
+  "noWeightHistory": "No weight measurements yet",
+  "weightMeasurement": "{weight} g",
+  "@weightMeasurement": {
+    "placeholders": {
+      "weight": { "type": "String" }
+    }
+  },
+  "failedToLoadWeightHistory": "Weight history could not be loaded",
+  "addWeightMeasurement": "Add weight",
+  "editWeightMeasurement": "Edit weight",
+  "failedToSaveWeightMeasurement": "Weight measurement could not be saved",
+  "failedToUpdateWeightMeasurement": "Weight measurement could not be updated",
+  "deleteWeightMeasurement": "Delete weight",
+  "deleteWeightMeasurementQuestion": "Delete weight measurement?",
+  "deleteWeightMeasurementWarning": "Delete {weight} from {dateTime} permanently?\n\nThis action cannot be undone.",
+  "@deleteWeightMeasurementWarning": {
+    "placeholders": {
+      "weight": { "type": "String" },
+      "dateTime": { "type": "String" }
+    }
+  },
+  "failedToDeleteWeightMeasurement": "Weight measurement could not be deleted",
+  "weightDateTimeInFuture": "Weight date and time cannot be in the future"
 }

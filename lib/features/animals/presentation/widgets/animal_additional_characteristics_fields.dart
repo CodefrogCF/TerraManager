@@ -1,34 +1,48 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/database/validation/animal_weight_parser.dart';
 import '../../../../l10n/app_localizations_context.dart';
-import '../animal_environmental_validator.dart';
+import 'animal_range_fields.dart';
 
 class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
   final bool expanded;
   final bool enabled;
   final VoidCallback onToggle;
   final ValueChanged<String>? onChanged;
-  final TextEditingController originHabitatController;
+  final Widget birthDateField;
+  final Widget birthDateAccuracyField;
+  final Widget sexField;
   final TextEditingController weightController;
-  final TextEditingController sheddingNotesController;
+  final String? legacyWeight;
+  final TextEditingController originHabitatController;
+  final TextEditingController nighttimeTemperatureMinController;
+  final TextEditingController nighttimeTemperatureMaxController;
   final TextEditingController restOrDormancyPeriodsController;
-  final TextEditingController nighttimeTemperatureController;
+  final TextEditingController sheddingNotesController;
+  final TextEditingController notesController;
 
   const AnimalAdditionalCharacteristicsFields({
     super.key,
     required this.expanded,
     required this.enabled,
     required this.onToggle,
-    required this.originHabitatController,
+    required this.birthDateField,
+    required this.birthDateAccuracyField,
+    required this.sexField,
     required this.weightController,
-    required this.sheddingNotesController,
+    required this.originHabitatController,
+    required this.nighttimeTemperatureMinController,
+    required this.nighttimeTemperatureMaxController,
     required this.restOrDormancyPeriodsController,
-    required this.nighttimeTemperatureController,
+    required this.sheddingNotesController,
+    required this.notesController,
+    this.legacyWeight,
     this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    final normalizedLegacyWeight = legacyWeight?.trim();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -40,16 +54,59 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
         ),
         if (expanded) ...[
           const SizedBox(height: 16),
+          birthDateField,
+          const SizedBox(height: 16),
+          birthDateAccuracyField,
+          const SizedBox(height: 16),
+          sexField,
+          const SizedBox(height: 16),
+          TextFormField(
+            key: const Key('weight-field'),
+            controller: weightController,
+            enabled: enabled,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              labelText: context.l10n.weightGrams,
+              helperText:
+                  normalizedLegacyWeight == null ||
+                      normalizedLegacyWeight.isEmpty
+                  ? null
+                  : context.l10n.legacyWeightValue(normalizedLegacyWeight),
+            ),
+            validator: (value) {
+              final trimmed = value?.trim() ?? '';
+              if (trimmed.isEmpty) {
+                return null;
+              }
+              return AnimalWeightParser.parseInput(trimmed) == null
+                  ? context.l10n.pleaseEnterPositiveNumber
+                  : null;
+            },
+          ),
+          const SizedBox(height: 16),
           _optionalTextField(
             key: const Key('origin-habitat-field'),
             controller: originHabitatController,
             label: context.l10n.originHabitat,
           ),
           const SizedBox(height: 16),
+          AnimalRangeFields.temperature(
+            key: const Key('nighttime-temperature-range'),
+            heading: context.l10n.nighttimeTemperatureCelsius,
+            minimumKey: const Key('nighttime-temperature-min-field'),
+            maximumKey: const Key('nighttime-temperature-max-field'),
+            minimumController: nighttimeTemperatureMinController,
+            maximumController: nighttimeTemperatureMaxController,
+            required: false,
+            enabled: enabled,
+            onChanged: onChanged,
+          ),
+          const SizedBox(height: 16),
           _optionalTextField(
-            key: const Key('weight-field'),
-            controller: weightController,
-            label: context.l10n.weight,
+            key: const Key('rest-or-dormancy-periods-field'),
+            controller: restOrDormancyPeriodsController,
+            label: context.l10n.restOrDormancyPeriods,
             maxLines: 3,
           ),
           const SizedBox(height: 16),
@@ -61,25 +118,10 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _optionalTextField(
-            key: const Key('rest-or-dormancy-periods-field'),
-            controller: restOrDormancyPeriodsController,
-            label: context.l10n.restOrDormancyPeriods,
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            key: const Key('nighttime-temperature-field'),
-            controller: nighttimeTemperatureController,
-            enabled: enabled,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            onChanged: onChanged,
-            validator: (value) => validateOptionalAnimalTemperatureInput(
-              localizations: context.l10n,
-              value: value,
-            ),
-            decoration: InputDecoration(
-              labelText: context.l10n.nighttimeTemperatureCelsius,
-            ),
+            key: const Key('notes-field'),
+            controller: notesController,
+            label: context.l10n.notes,
+            maxLines: 5,
           ),
         ],
       ],

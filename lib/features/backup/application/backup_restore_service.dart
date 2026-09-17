@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/validation/animal_weight_parser.dart';
 import '../../settings/app_settings_controller.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_data.dart';
@@ -180,6 +181,8 @@ class BackupRestoreService {
     return database.transaction(() async {
       await database.delete(database.feedingEvents).go();
 
+      await database.delete(database.animalWeightEntries).go();
+
       await database.delete(database.animalPictureAssociations).go();
 
       await database.delete(database.boxPictureAssociations).go();
@@ -195,6 +198,7 @@ class BackupRestoreService {
         "WHERE name IN ("
         "'boxes', "
         "'animals', "
+        "'animal_weight_entries', "
         "'feeding_events', "
         "'media_assets', "
         "'animal_picture_associations', "
@@ -288,6 +292,20 @@ class BackupRestoreService {
         );
         restoredMediaCount += restoredPictures.items.length;
 
+        final parsedLegacyWeight = animal.weightHistory.isEmpty
+            ? AnimalWeightParser.parseUnambiguousLegacyGrams(animal.weight)
+            : null;
+        final restoredWeightHistory = animal.weightHistory.isNotEmpty
+            ? animal.weightHistory
+            : parsedLegacyWeight == null
+            ? const <BackupWeightEntry>[]
+            : [
+                BackupWeightEntry(
+                  id: 0,
+                  weightGrams: parsedLegacyWeight,
+                  measuredAt: animal.updatedAt,
+                ),
+              ];
         await database
             .into(database.animals)
             .insert(
@@ -305,10 +323,18 @@ class BackupRestoreService {
                 tempMin: Value(animal.tempMin),
                 tempMax: Value(animal.tempMax),
                 nighttimeTemperature: Value(animal.nighttimeTemperature),
+                nighttimeTemperatureMin: Value(
+                  animal.nighttimeTemperatureMin ?? animal.nighttimeTemperature,
+                ),
+                nighttimeTemperatureMax: Value(
+                  animal.nighttimeTemperatureMax ?? animal.nighttimeTemperature,
+                ),
                 humidityMin: Value(animal.humidityMin),
                 humidityMax: Value(animal.humidityMax),
                 originHabitat: Value(animal.originHabitat),
-                weight: Value(animal.weight),
+                weight: Value(
+                  parsedLegacyWeight == null ? animal.weight : null,
+                ),
                 sheddingNotes: Value(animal.sheddingNotes),
                 restOrDormancyPeriods: Value(animal.restOrDormancyPeriods),
                 temperatureZones: Value(animal.temperatureZones),
@@ -327,6 +353,18 @@ class BackupRestoreService {
               ),
             );
 
+        for (final entry in restoredWeightHistory) {
+          await database
+              .into(database.animalWeightEntries)
+              .insert(
+                AnimalWeightEntriesCompanion.insert(
+                  id: entry.id > 0 ? Value(entry.id) : const Value.absent(),
+                  animalId: animal.id,
+                  weightGrams: entry.weightGrams,
+                  measuredAt: entry.measuredAt,
+                ),
+              );
+        }
         for (final (index, item) in restoredPictures.items.indexed) {
           await database
               .into(database.animalPictureAssociations)

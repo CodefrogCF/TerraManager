@@ -11,6 +11,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
+import 'package:terramanager/core/database/repositories/animal_weight_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/features/backup/application/backup_restore_exception.dart';
 import 'package:terramanager/features/backup/application/backup_restore_service.dart';
@@ -288,7 +289,12 @@ void main() {
     expect(animal.commonName, 'Restored Animal');
     expect(animal.sex, Sex.other);
     expect(animal.originHabitat, 'South America');
-    expect(animal.weight, '95 g');
+    expect(animal.weight, isNull);
+    expect(
+      (await AnimalWeightRepository(database).getLatest(animal.id))!
+          .weightGrams,
+      95,
+    );
     expect(animal.sheddingNotes, 'Last shed complete');
     expect(animal.restOrDormancyPeriods, 'No dormancy');
     expect(animal.nighttimeTemperature, 19);

@@ -40,7 +40,12 @@ class Animals extends Table {
 
   RealColumn get tempMax => real()();
 
+  // Kept for lossless compatibility with Schema 13 and older backups.
   RealColumn get nighttimeTemperature => real().nullable()();
+
+  RealColumn get nighttimeTemperatureMin => real().nullable()();
+
+  RealColumn get nighttimeTemperatureMax => real().nullable()();
 
   RealColumn get humidityMin => real()();
 

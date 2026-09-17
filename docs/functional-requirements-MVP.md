@@ -100,6 +100,11 @@ The application must allow the user to:
   dormancy periods as independent text fields
 - add, edit and clear an optional nighttime temperature within the same bounds
   as the minimum and maximum daytime temperatures
+- identify daytime and nighttime temperature separately in Animal details,
+  format both with one locale-aware decimal place and place the unit beside the
+  value rather than the row label
+- add, edit and permanently delete individual timestamped weight measurements,
+  requiring confirmation before deletion
 - omit empty additional characteristics from Animal details
 - store preferred temperature values
 - store preferred humidity values

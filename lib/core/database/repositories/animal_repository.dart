@@ -8,6 +8,7 @@ import '../enums/birth_date_accuracy.dart';
 import '../enums/sex.dart';
 import '../enums/box_status.dart';
 import '../validation/animal_environmental_limits.dart';
+import 'animal_weight_repository.dart';
 import 'box_lifecycle_exception.dart';
 import 'picture_gallery_repository.dart';
 
@@ -78,10 +79,14 @@ class AnimalRepository {
     required double tempMin,
     required double tempMax,
     double? nighttimeTemperature,
+    double? nighttimeTemperatureMin,
+    double? nighttimeTemperatureMax,
     required double humidityMin,
     required double humidityMax,
     String? originHabitat,
     String? weight,
+    double? weightGrams,
+    DateTime? weightMeasuredAt,
     String? sheddingNotes,
     String? restOrDormancyPeriods,
     int? pictureMediaId,
@@ -94,6 +99,8 @@ class AnimalRepository {
       temperatureMinimum: tempMin,
       temperatureMaximum: tempMax,
       nighttimeTemperature: nighttimeTemperature,
+      nighttimeTemperatureMinimum: nighttimeTemperatureMin,
+      nighttimeTemperatureMaximum: nighttimeTemperatureMax,
       humidityMinimum: humidityMin,
       humidityMaximum: humidityMax,
     );
@@ -120,6 +127,12 @@ class AnimalRepository {
               tempMin: tempMin,
               tempMax: tempMax,
               nighttimeTemperature: Value.absentIfNull(nighttimeTemperature),
+              nighttimeTemperatureMin: Value.absentIfNull(
+                nighttimeTemperatureMin ?? nighttimeTemperature,
+              ),
+              nighttimeTemperatureMax: Value.absentIfNull(
+                nighttimeTemperatureMax ?? nighttimeTemperature,
+              ),
               humidityMin: humidityMin,
               humidityMax: humidityMax,
               originHabitat: Value.absentIfNull(originHabitat),
@@ -137,6 +150,13 @@ class AnimalRepository {
               ),
             ),
           );
+      if (weightGrams != null) {
+        await AnimalWeightRepository(database).add(
+          animalId: animalId,
+          weightGrams: weightGrams,
+          measuredAt: weightMeasuredAt,
+        );
+      }
       if (pictureMediaId != null) {
         await PictureGalleryRepository(database).ensureAnimalPictureAssociation(
           animalId: animalId,
@@ -201,6 +221,8 @@ class AnimalRepository {
         temperatureMinimum: source.tempMin,
         temperatureMaximum: source.tempMax,
         nighttimeTemperature: source.nighttimeTemperature,
+        nighttimeTemperatureMinimum: source.nighttimeTemperatureMin,
+        nighttimeTemperatureMaximum: source.nighttimeTemperatureMax,
         humidityMinimum: source.humidityMin,
         humidityMaximum: source.humidityMax,
       );
@@ -218,6 +240,9 @@ class AnimalRepository {
         );
       }
 
+      final sourceWeight = await AnimalWeightRepository(database)
+          .getLatest(source.id);
+
       final targetAnimalId = await database
           .into(database.animals)
           .insert(
@@ -234,6 +259,12 @@ class AnimalRepository {
               tempMax: source.tempMax,
               nighttimeTemperature: Value.absentIfNull(
                 source.nighttimeTemperature,
+              ),
+              nighttimeTemperatureMin: Value.absentIfNull(
+                source.nighttimeTemperatureMin,
+              ),
+              nighttimeTemperatureMax: Value.absentIfNull(
+                source.nighttimeTemperatureMax,
               ),
               humidityMin: source.humidityMin,
               humidityMax: source.humidityMax,
@@ -255,6 +286,11 @@ class AnimalRepository {
               ),
             ),
           );
+      if (sourceWeight != null) {
+        await AnimalWeightRepository(
+          database,
+        ).add(animalId: targetAnimalId, weightGrams: sourceWeight.weightGrams);
+      }
       await galleryRepository.duplicateAnimalGallery(
         sourceAnimalId: source.id,
         targetAnimalId: targetAnimalId,
@@ -276,10 +312,14 @@ class AnimalRepository {
     required double tempMin,
     required double tempMax,
     double? nighttimeTemperature,
+    double? nighttimeTemperatureMin,
+    double? nighttimeTemperatureMax,
     required double humidityMin,
     required double humidityMax,
     String? originHabitat,
     String? weight,
+    double? weightGrams,
+    DateTime? weightMeasuredAt,
     String? sheddingNotes,
     String? restOrDormancyPeriods,
     int? pictureMediaId,
@@ -292,6 +332,8 @@ class AnimalRepository {
       temperatureMinimum: tempMin,
       temperatureMaximum: tempMax,
       nighttimeTemperature: nighttimeTemperature,
+      nighttimeTemperatureMinimum: nighttimeTemperatureMin,
+      nighttimeTemperatureMaximum: nighttimeTemperatureMax,
       humidityMinimum: humidityMin,
       humidityMaximum: humidityMax,
     );
@@ -334,6 +376,8 @@ class AnimalRepository {
                   tempMin: Value(tempMin),
                   tempMax: Value(tempMax),
                   nighttimeTemperature: Value(nighttimeTemperature),
+                  nighttimeTemperatureMin: Value(nighttimeTemperatureMin),
+                  nighttimeTemperatureMax: Value(nighttimeTemperatureMax),
                   humidityMin: Value(humidityMin),
                   humidityMax: Value(humidityMax),
                   originHabitat: Value(originHabitat),
@@ -351,6 +395,18 @@ class AnimalRepository {
                 ),
               );
 
+      if (updatedRows > 0 && weightGrams != null) {
+        final recorded = await AnimalWeightRepository(database).recordIfChanged(
+          animalId: animalId,
+          weightGrams: weightGrams,
+          measuredAt: weightMeasuredAt,
+        );
+        if (recorded) {
+          await (database.update(database.animals)
+                ..where((animal) => animal.id.equals(animalId)))
+              .write(const AnimalsCompanion(weight: Value(null)));
+        }
+      }
       if (updatedRows > 0 && pictureMediaId != null) {
         await PictureGalleryRepository(database).ensureAnimalPictureAssociation(
           animalId: animalId,

@@ -570,5 +570,44 @@
       "date": { "type": "String" },
       "time": { "type": "String" }
     }
-  }
+  },
+  "minimum": "Min.",
+  "maximum": "Max.",
+  "daytimeTemperatureCelsius": "Tagestemperatur (°C)",
+  "daytimeTemperature": "Tagestemperatur",
+  "nighttimeTemperature": "Nachttemperatur",
+  "humidityPercent": "Luftfeuchtigkeit (%)",
+  "weightGrams": "Gewicht (g)",
+  "pleaseEnterPositiveNumber": "Bitte eine positive Zahl eingeben",
+  "legacyWeightValue": "Bisheriger Wert: {value}. Ein Gewicht in Gramm eingeben, um ihn zu ersetzen.",
+  "@legacyWeightValue": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "nextFeeding": "Nächste Fütterung",
+  "feedingScheduledFor": "Geplant für {dateTime}",
+  "@feedingScheduledFor": {
+    "placeholders": {
+      "dateTime": { "type": "String" }
+    }
+  },
+  "weightHistory": "Gewichtsverlauf",
+  "noWeightHistory": "Noch keine Gewichtsmessungen",
+  "weightMeasurement": "{weight} g",
+  "@weightMeasurement": {
+    "placeholders": {
+      "weight": { "type": "String" }
+    }
+  },
+  "failedToLoadWeightHistory": "Der Gewichtsverlauf konnte nicht geladen werden",
+  "addWeightMeasurement": "Gewicht hinzufügen",
+  "editWeightMeasurement": "Gewicht bearbeiten",
+  "failedToSaveWeightMeasurement": "Die Gewichtsmessung konnte nicht gespeichert werden",
+  "failedToUpdateWeightMeasurement": "Die Gewichtsmessung konnte nicht aktualisiert werden",
+  "deleteWeightMeasurement": "Gewicht löschen",
+  "deleteWeightMeasurementQuestion": "Gewichtsmessung löschen?",
+  "deleteWeightMeasurementWarning": "{weight} vom {dateTime} dauerhaft löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
+  "failedToDeleteWeightMeasurement": "Die Gewichtsmessung konnte nicht gelöscht werden",
+  "weightDateTimeInFuture": "Datum und Uhrzeit der Gewichtsmessung dürfen nicht in der Zukunft liegen"
 }

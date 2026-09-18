@@ -23,11 +23,11 @@
 }
 
 .guide-hero-shot {
-  width: min(315px, 100%);
+  width: min(270px, 100%);
   justify-self: center;
-  padding: 14px;
+  padding: 12px;
   border: 1px solid rgba(7, 59, 43, 0.14);
-  border-radius: 34px;
+  border-radius: 30px;
   background: #fff;
   box-shadow: var(--shadow);
   transform: rotate(1.5deg);
@@ -117,10 +117,10 @@
 
 .guide-step {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(330px, 1.1fr);
-  gap: 70px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 56px;
   align-items: center;
-  padding: 48px 0;
+  padding: 44px 0;
 }
 
 .guide-step + .guide-step {
@@ -174,13 +174,13 @@
 }
 
 .app-shot {
-  width: min(330px, 100%);
+  width: min(280px, 100%);
   justify-self: center;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: 24px;
   background: #fff;
-  box-shadow: 0 20px 46px rgba(18, 35, 27, 0.1);
+  box-shadow: 0 16px 36px rgba(18, 35, 27, 0.09);
 }
 
 .dark-shot {
@@ -201,9 +201,10 @@
 
 .shot-pair {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  align-items: center;
+  grid-template-columns: repeat(2, minmax(0, 250px));
+  justify-content: center;
+  gap: 18px;
+  align-items: start;
 }
 
 .shot-pair .app-shot {
@@ -215,7 +216,7 @@
 }
 
 .solo-shot {
-  width: min(360px, 100%);
+  width: min(290px, 100%);
 }
 
 .guide-finish {
@@ -266,7 +267,13 @@
     grid-template-columns: 1fr;
   }
 
+  .app-shot,
+  .solo-shot,
   .shot-pair .app-shot {
-    width: min(340px, 100%);
+    width: min(300px, 92vw);
+  }
+
+  .guide-hero-shot {
+    width: min(260px, 80vw);
   }
 }

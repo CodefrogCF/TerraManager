@@ -62,6 +62,7 @@ String decodePrintedQr(String payload, BoxQrPdfLayout layout) {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   test('calculates unclipped A4 layouts for every supported preset', () {
     const expectedCapacity = {6: 380, 10: 195, 15: 120, 20: 80};
 

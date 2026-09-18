@@ -1,8 +1,8 @@
 import 'dart:math' as math;
-import 'dart:typed_data';
 
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter/services.dart';
 
 import '../../../core/database/app_database.dart';
 
@@ -144,7 +144,11 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
       throw ArgumentError.value(boxes, 'boxes', 'Select at least one Box.');
     }
 
+    final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+    final labelFont = pw.Font.ttf(fontData);
+
     final placements = layout.placementsFor(items.length);
+
     final document = pw.Document(
       title: 'TerraManager Box QR Codes',
       author: 'TerraManager',
@@ -171,7 +175,11 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
                 pw.Positioned(
                   left: placement.leftMm * PdfPageFormat.mm,
                   top: placement.topMm * PdfPageFormat.mm,
-                  child: _buildItem(items[placement.itemIndex], layout: layout),
+                  child: _buildItem(
+                    items[placement.itemIndex],
+                    layout: layout,
+                    font: labelFont,
+                  ),
                 ),
             ],
           ),
@@ -182,7 +190,11 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
     return document.save();
   }
 
-  pw.Widget _buildItem(BoxQrPdfItem item, {required BoxQrPdfLayout layout}) {
+  pw.Widget _buildItem(
+    BoxQrPdfItem item, {
+    required BoxQrPdfLayout layout,
+    required pw.Font font,
+  }) {
     final qrSize = layout.qrSizeMm * PdfPageFormat.mm;
     final labelHeight = BoxQrPdfLayout.labelHeightMm * PdfPageFormat.mm;
     final quietZone = layout.quietZoneMm * PdfPageFormat.mm;
@@ -211,7 +223,7 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
                 child: pw.Text(
                   item.label,
                   maxLines: 1,
-                  style: const pw.TextStyle(fontSize: 5),
+                  style: pw.TextStyle(font: font, fontSize: 5),
                 ),
               ),
             ),
@@ -225,9 +237,7 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
     final boxNumber = '#${box.id}';
     final name = box.name?.trim();
 
-    if (name == null ||
-        name.isEmpty ||
-        name.runes.any((character) => character > 255)) {
+    if (name == null || name.isEmpty) {
       return 'Box ${box.id}';
     }
 

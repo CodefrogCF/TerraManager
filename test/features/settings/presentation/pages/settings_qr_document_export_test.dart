@@ -1,7 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terramanager/core/database/app_database.dart';
@@ -269,23 +268,31 @@ void main() {
   testWidgets('PDF generation failure saves no incomplete file', (
     tester,
   ) async {
-    await createBox('TM:BOX:88888888-8888-4888-8888-888888888888');
-    final storage = _RecordingDocumentStorage();
-    await pumpSettings(
-      tester,
-      archiveExporter: _RecordingArchiveExporter(),
-      pdfExporter: _RecordingPdfExporter(shouldFail: true),
-      storage: storage,
-    );
+    final originalDebugPrint = debugPrint;
 
-    await openAction(tester, const Key('save-box-qr-codes-pdf-button'));
-    await tester.tap(find.byKey(const Key('confirm-box-qr-export-button')));
-    await tester.pumpAndSettle();
+    debugPrint = (String? message, {int? wrapWidth}) {};
 
-    expect(storage.calls, isEmpty);
-    expect(
-      find.text('Box QR codes could not be saved as a PDF file'),
-      findsOneWidget,
-    );
+    try {
+      await createBox('TM:BOX:88888888-8888-4888-8888-888888888888');
+      final storage = _RecordingDocumentStorage();
+      await pumpSettings(
+        tester,
+        archiveExporter: _RecordingArchiveExporter(),
+        pdfExporter: _RecordingPdfExporter(shouldFail: true),
+        storage: storage,
+      );
+
+      await openAction(tester, const Key('save-box-qr-codes-pdf-button'));
+      await tester.tap(find.byKey(const Key('confirm-box-qr-export-button')));
+      await tester.pumpAndSettle();
+
+      expect(storage.calls, isEmpty);
+      expect(
+        find.text('Box QR codes could not be saved as a PDF file'),
+        findsOneWidget,
+      );
+    } finally {
+      debugPrint = originalDebugPrint;
+    }
   });
 }

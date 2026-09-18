@@ -24,22 +24,30 @@ import 'package:terramanager/features/settings/app_settings_controller.dart';
 
 void main() {
   late AppDatabase source;
-  late AppDatabase target;
+  AppDatabase? target;
   late AppSettingsController settings;
+  var sourceClosed = false;
   final archivedAt = DateTime(2026, 9, 13, 12, 30);
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
+
     source = AppDatabase.test(NativeDatabase.memory());
-    target = AppDatabase.test(NativeDatabase.memory());
+    target = null;
+    sourceClosed = false;
+
     settings = AppSettingsController();
     await settings.load();
   });
 
   tearDown(() async {
     settings.dispose();
-    await source.close();
-    await target.close();
+
+    if (!sourceClosed) {
+      await source.close();
+    }
+
+    await target?.close();
   });
 
   Future<BackupExportResult> export(AppDatabase database) {
@@ -51,8 +59,16 @@ void main() {
   }
 
   Future<void> restore(Uint8List bytes) async {
+    if (!sourceClosed) {
+      await source.close();
+      sourceClosed = true;
+    }
+
+    final restoreDatabase = AppDatabase.test(NativeDatabase.memory());
+    target = restoreDatabase;
+
     await BackupRestoreService(
-      database: target,
+      database: restoreDatabase,
       settingsController: settings,
       safetyBackupWriter: (_) async {},
     ).restore(
@@ -133,19 +149,29 @@ void main() {
     );
     expect(validated.data.boxes.last.archiveNotes, isNull);
     await restore(original.bytes);
-    final restored = await export(target);
+    final restoredDatabase = target!;
+
+    final restored = await export(restoredDatabase);
+
     expect(restored.data.toJson(), original.data.toJson());
+
     expect(
       BackupValidationService().validate(restored.bytes).mediaFiles,
       validated.mediaFiles,
     );
-    final restoredBoxes = await target.select(target.boxes).get();
+
+    final restoredBoxes = await restoredDatabase
+        .select(restoredDatabase.boxes)
+        .get();
+
     expect(
       restoredBoxes.skip(1).map((box) => box.archiveReason),
       BoxArchiveReason.values,
     );
+
     expect(
-      (await target.select(target.animals).getSingle()).boxId,
+      (await restoredDatabase.select(restoredDatabase.animals).getSingle())
+          .boxId,
       restoredBoxes.first.id,
     );
   });
@@ -180,13 +206,24 @@ void main() {
           schemaVersion: version == 1 ? 2 : 7,
         );
         await restore(bytes);
-        final box = await target.select(target.boxes).getSingle();
+
+        final restoredDatabase = target!;
+
+        final box = await restoredDatabase
+            .select(restoredDatabase.boxes)
+            .getSingle();
+
         expect(box.status, BoxStatus.active);
         expect(box.archiveReason, isNull);
         expect(box.archivedAt, isNull);
         expect(box.archiveNotes, isNull);
         expect(box.qrId, original.data.boxes.single.qrId);
-        expect((await target.select(target.animals).getSingle()).boxId, box.id);
+
+        expect(
+          (await restoredDatabase.select(restoredDatabase.animals).getSingle())
+              .boxId,
+          box.id,
+        );
       },
     );
   }

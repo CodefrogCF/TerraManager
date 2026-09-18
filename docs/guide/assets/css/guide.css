@@ -211,6 +211,49 @@
   padding: 84px 0;
 }
 
+@media (min-width: 941px) {
+  .guide-step {
+    grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+    gap: 42px;
+    align-items: start;
+    padding: 34px 0;
+  }
+
+  .guide-step.reverse {
+    grid-template-columns: minmax(220px, 0.65fr) minmax(0, 1.35fr);
+  }
+
+  .guide-section {
+    padding: 72px 0;
+  }
+
+  .guide-section-heading {
+    margin-bottom: 44px;
+  }
+
+  .app-shot {
+    width: min(200px, 100%);
+  }
+
+  .solo-shot {
+    width: min(220px, 100%);
+  }
+
+  .shot-pair {
+    grid-template-columns: repeat(2, minmax(0, 210px));
+    gap: 16px;
+    justify-content: center;
+  }
+
+  .shot-pair .app-shot {
+    width: 100%;
+  }
+
+  .guide-hero-shot {
+    width: min(240px, 100%);
+  }
+}
+
 @media (max-width: 940px) {
   .guide-hero-grid,
   .guide-step {

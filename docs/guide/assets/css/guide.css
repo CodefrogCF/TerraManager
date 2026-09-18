@@ -140,6 +140,18 @@
   order: 1;
 }
 
+.step-number {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: var(--lime-soft);
+  color: var(--green-900);
+  font-weight: 850;
+}
+
 .guide-copy h3 {
   font-size: clamp(1.5rem, 3vw, 2.15rem);
 }

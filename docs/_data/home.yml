@@ -80,9 +80,9 @@ de:
       - title: Visueller Benutzer-Guide
         body: Boxen und Tiere anlegen, QR-Codes nutzen, Fütterungen dokumentieren, Erinnerungen verwalten und Daten sichern.
         url: /guide/
-      - title: Installation und Updates
-        body: Vertrauenswürdige Builds, Android-Signatur und sichere Aktualisierung.
-        url: /installation-and-updates.html
+#      - title: Installation und Updates
+#        body: Vertrauenswürdige Builds, Android-Signatur und sichere Aktualisierung.
+#        url: /installation-and-updates.html
       - title: Android-Test
         body: Anmeldung und Installation über den geschlossenen Google-Play-Test.
         url: /testing/

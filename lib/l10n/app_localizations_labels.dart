@@ -226,7 +226,6 @@ extension AppLocalizationsLabels on AppLocalizations {
       AnimalSortCriterion.displayName => animalSortDisplayNameCriterion,
       AnimalSortCriterion.age => animalSortAgeCriterion,
       AnimalSortCriterion.latestFeeding => animalSortLatestFeedingCriterion,
-      AnimalSortCriterion.category => animalSortCategoryCriterion,
     };
 
     if (activeOrder == null) {

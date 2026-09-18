@@ -232,12 +232,18 @@ finite gram values, unique history IDs and valid timestamps, and test export,
 validation and restore together. The v1.9.0 UI and persistence changes remain
 local and must not add platform permission declarations.
 
-Issue #128 derives category groups from the current filtered Animal list. Cover
-the complete Issue #127 category order, reversed primary order, localized
-headings, conditional subcategory headings, named subcategories followed by
-Other and Not specified, and natural A–Z Animal ordering with ID tie breaking.
-The row widgets retain thumbnails, reminders and quick actions, and contextual
+Issue #142 keeps category grouping independent from Animal sorting. Cover the
+complete Issue #127 category order, localized headings, conditional subcategory
+headings, named subcategories followed by Other and Not specified, and every
+regular sort direction inside final groups with ID tie breaking. Verify the
+persistent toggle, legacy Category sort migration and backup compatibility. The
+row widgets retain thumbnails, reminders and quick actions, and contextual
 detail navigation receives the flattened visible group order.
+
+Issue #143 keeps the Box QR identifier immutable while moving its read-only
+label, value and explanation below Notes and directly above Save and Archive.
+Widget coverage must verify this order with enlarged text and a small viewport,
+and prove ordinary edits do not alter the identifier.
 
 The three Settings QR export actions retain the shared selection workflow.
 Keep the individual PNG description concise and use the same dividers as other
@@ -459,11 +465,12 @@ Examples:
 - complete Animal taxonomy creation, editing, details and duplication
 - populated v9 to v10 taxonomy migration with legacy `other` defaults
 - taxonomy backup export, validation, restore and incompatible-value rejection
-- category grouping in both primary directions with conditional localized
-  subcategory headings and natural A–Z row ordering
-- Animal sort-order persistence after an application restart
+- independent category grouping with conditional localized subcategory headings
+- all regular Animal sort directions inside final category groups
+- Animal sort-order and category-view persistence after an application restart
 - contextual Animal detail swiping in the currently visible order
-- Animal sort-order backup, restore and legacy-backup default behavior
+- Animal sort-order and category-view backup, restore, legacy Category migration
+  and missing-field default behavior
 - one bulk latest-feeding lookup for Animal sorting and reminder summaries
 
 For image-storage measurements, use the same source picture and equivalent crop

@@ -1023,11 +1023,19 @@ TerraManager 0.13.4 adds another optional field:
 animalSortOrder
 ```
 
+TerraManager v1.9.1 adds another optional field:
+
+```text
+animalCategoryViewEnabled
+```
+
 These additive fields remain part of Backup Format Version 2. Older Version 1
 and Version 2 backups without these optional settings remain compatible.
 Missing `language` uses the System language, while missing `animalNameOrder`
 uses common name first, missing `boxSortOrder` uses ascending Box number and
-missing `animalSortOrder` uses oldest-created Animal first.
+missing `animalSortOrder` uses oldest-created Animal first. A missing
+`animalCategoryViewEnabled` value uses the flat view unless the backup contains
+a legacy Category sort value.
 
 Example:
 
@@ -1038,6 +1046,7 @@ Example:
   "language": "german",
   "animalNameOrder": "latinNameFirst",
   "animalSortOrder": "latestFeedingOldestFirst",
+  "animalCategoryViewEnabled": true,
   "boxSortOrder": "labelDescending"
 }
 ```
@@ -1135,12 +1144,23 @@ ageOldestFirst
 ageYoungestFirst
 latestFeedingNewestFirst
 latestFeedingOldestFirst
-categoryAscending
-categoryDescending
 ```
 
 If the field is absent, restore uses `AnimalSortOrder.createdOldestFirst`. If
-the field is present with an unknown value, backup validation must fail.
+the field is present with an unknown value, backup validation must fail. The
+legacy values `categoryAscending` and `categoryDescending` remain accepted for
+older backups. They enable category grouping and map to
+`displayNameAscending` and `displayNameDescending`, respectively; new backups
+do not write either legacy value.
+
+## Animal Category-View Setting
+
+The optional Boolean `animalCategoryViewEnabled` field controls whether the
+Animal Overview displays the flat list or canonical category groups. If the
+field is absent, restore uses `false`, except for a legacy Category sort value,
+which enables the grouped view during migration. A present non-Boolean value is
+invalid. The setting affects presentation only and does not change stored
+Animal taxonomy or Backup Format Version 2.
 
 ## Stable Box Sort-Order Values
 
@@ -1605,6 +1625,7 @@ settings.json
 ├── language (optional; exported by TerraManager 0.10.0 and later)
 ├── animalNameOrder (optional; exported by TerraManager 0.11.0 and later)
 ├── animalSortOrder (optional; exported by TerraManager 0.13.4 and later)
+├── animalCategoryViewEnabled (optional; exported by TerraManager v1.9.1 and later)
 └── boxSortOrder (optional; exported by TerraManager 0.13.3 and later)
 
 media/

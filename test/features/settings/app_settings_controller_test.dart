@@ -30,6 +30,8 @@ void main() {
 
     expect(controller.animalSortOrder, AnimalSortOrder.createdOldestFirst);
 
+    expect(controller.animalCategoryViewEnabled, isFalse);
+
     expect(controller.boxSortOrder, BoxSortOrder.labelAscending);
   });
 
@@ -40,6 +42,7 @@ void main() {
       'language': 'german',
       'animal_name_order': 'latinNameFirst',
       'animal_sort_order': 'latestFeedingOldestFirst',
+      'animal_category_view_enabled': true,
       'box_sort_order': 'labelDescending',
     });
 
@@ -59,6 +62,8 @@ void main() {
       controller.animalSortOrder,
       AnimalSortOrder.latestFeedingOldestFirst,
     );
+
+    expect(controller.animalCategoryViewEnabled, isTrue);
 
     expect(controller.boxSortOrder, BoxSortOrder.labelDescending);
   });
@@ -186,6 +191,36 @@ void main() {
     expect(preferences.getString('animal_sort_order'), 'ageYoungestFirst');
   });
 
+  test('persists the independent Animal category view setting', () async {
+    final controller = AppSettingsController();
+
+    await controller.load();
+    await controller.setAnimalCategoryViewEnabled(true);
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(controller.animalCategoryViewEnabled, isTrue);
+    expect(preferences.getBool('animal_category_view_enabled'), isTrue);
+  });
+
+  test('migrates legacy category sort settings safely', () async {
+    for (final entry in {
+      'categoryAscending': AnimalSortOrder.displayNameAscending,
+      'categoryDescending': AnimalSortOrder.displayNameDescending,
+    }.entries) {
+      SharedPreferences.setMockInitialValues({'animal_sort_order': entry.key});
+      final controller = AppSettingsController();
+
+      await controller.load();
+
+      expect(controller.animalCategoryViewEnabled, isTrue);
+      expect(controller.animalSortOrder, entry.value);
+      final preferences = await SharedPreferences.getInstance();
+      expect(preferences.getBool('animal_category_view_enabled'), isTrue);
+      expect(preferences.getString('animal_sort_order'), entry.value.name);
+      controller.dispose();
+    }
+  });
+
   test('invalid persisted settings fall back safely', () async {
     SharedPreferences.setMockInitialValues({
       'theme_mode': 'invalid-theme',
@@ -210,6 +245,8 @@ void main() {
 
     expect(controller.animalSortOrder, AnimalSortOrder.createdOldestFirst);
 
+    expect(controller.animalCategoryViewEnabled, isFalse);
+
     expect(controller.boxSortOrder, BoxSortOrder.labelAscending);
   });
 
@@ -224,6 +261,7 @@ void main() {
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
       animalSortOrder: AnimalSortOrder.latestFeedingNewestFirst,
+      animalCategoryViewEnabled: true,
       boxSortOrder: BoxSortOrder.labelDescending,
     );
 
@@ -239,6 +277,8 @@ void main() {
       controller.animalSortOrder,
       AnimalSortOrder.latestFeedingNewestFirst,
     );
+
+    expect(controller.animalCategoryViewEnabled, isTrue);
 
     expect(controller.boxSortOrder, BoxSortOrder.labelDescending);
 
@@ -256,6 +296,8 @@ void main() {
       preferences.getString('animal_sort_order'),
       'latestFeedingNewestFirst',
     );
+
+    expect(preferences.getBool('animal_category_view_enabled'), isTrue);
 
     expect(preferences.getString('box_sort_order'), 'labelDescending');
   });

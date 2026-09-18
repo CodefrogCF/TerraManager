@@ -148,6 +148,7 @@ void main() {
         language: 'german',
         animalNameOrder: 'latinNameFirst',
         animalSortOrder: 'latestFeedingOldestFirst',
+        animalCategoryViewEnabled: true,
         boxSortOrder: 'createdNewestFirst',
       ),
       mediaFiles: includePicture
@@ -239,6 +240,7 @@ void main() {
 
         expect(backup.data.animals.single.commonName, 'Old Animal');
         expect(backup.settings.animalSortOrder, 'ageYoungestFirst');
+        expect(backup.settings.animalCategoryViewEnabled, isFalse);
         expect(backup.settings.boxSortOrder, 'labelDescending');
       },
     );
@@ -349,6 +351,8 @@ void main() {
       settingsController.animalSortOrder,
       AnimalSortOrder.latestFeedingOldestFirst,
     );
+
+    expect(settingsController.animalCategoryViewEnabled, isTrue);
 
     expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
   });

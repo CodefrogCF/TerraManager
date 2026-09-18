@@ -8,6 +8,8 @@ The project uses semantic versioning.
 
 ### Added
 
+- add an independent, persistent Animal Overview category-group toggle directly
+  beside the sort control (Issue #142)
 - add shared side-by-side minimum and maximum controls for daytime temperature,
   nighttime temperature and humidity in New Animal and Edit Animal (Issues
   #136 and #137)
@@ -33,6 +35,12 @@ The project uses semantic versioning.
 
 ### Changed
 
+- remove Category from the Animal sort menu and apply creation time, displayed
+  name, age and latest-feeding sorting inside every final category group
+- migrate legacy Category sort preferences to enabled category grouping with
+  the equivalent displayed-name direction
+- move the immutable Box QR identifier and its explanation below Notes and
+  directly above Save and Archive in Edit Box (Issue #143)
 - label daytime and nighttime temperature explicitly on Animal details, format
   both ranges with one locale-aware decimal place and keep `°C` on values only
 - arrange Additional characteristics consistently as birth date, accuracy,
@@ -56,6 +64,8 @@ The project uses semantic versioning.
 
 ### Privacy
 
+- keep the v1.9.1 overview and Edit Box refinements local without database
+  changes or new device, storage, media or network permissions
 - keep v1.9.0 form, feeding and weight-history data entirely local without new
   device, storage, media or network permissions
 - keep all v1.8.0 data, sorting and navigation local without adding device,
@@ -63,6 +73,9 @@ The project uses semantic versioning.
 
 ### Testing
 
+- cover the independent category toggle, all regular sort directions inside
+  grouped views, legacy preference migration, backup compatibility, flattened
+  contextual navigation and the responsive Edit Box field order
 - cover paired form layouts, range validation, Additional-characteristic order,
   localized detail temperatures, future feeding display, weight-history create,
   edit and delete rules, duplication, migration, backup validation and restore

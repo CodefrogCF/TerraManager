@@ -528,6 +528,8 @@
   "boxSortNameCriterion": "Box name",
   "boxSortVolumeCriterion": "Volume",
   "sortAnimals": "Sort animals",
+  "showAnimalCategoryGroups": "Show category groups",
+  "hideAnimalCategoryGroups": "Hide category groups",
   "animalSortCreatedOldestFirst": "Oldest added first",
   "animalSortCreatedNewestFirst": "Newest added first",
   "animalSortNameAscending": "Name A–Z",

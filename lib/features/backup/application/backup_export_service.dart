@@ -42,6 +42,7 @@ class BackupExportService {
     AppLanguage language = AppLanguage.system,
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
+    bool animalCategoryViewEnabled = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
     DateTime? createdAt,
   }) async {
@@ -182,6 +183,7 @@ class BackupExportService {
       language: language,
       animalNameOrder: animalNameOrder,
       animalSortOrder: animalSortOrder,
+      animalCategoryViewEnabled: animalCategoryViewEnabled,
       boxSortOrder: boxSortOrder,
     );
 

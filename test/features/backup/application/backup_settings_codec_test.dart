@@ -169,4 +169,19 @@ void main() {
       expect(decoded, entry.key);
     }
   });
+
+  test('legacy category sort encodes as independent view and name order', () {
+    final encoded = BackupSettingsCodec.encode(
+      themeMode: ThemeMode.system,
+      accent: AppAccent.green,
+      animalSortOrder: AnimalSortOrder.categoryDescending,
+    );
+
+    expect(encoded.animalSortOrder, 'displayNameDescending');
+    expect(encoded.animalCategoryViewEnabled, isTrue);
+    expect(
+      BackupSettingsCodec.decodeAnimalSortOrder('categoryAscending'),
+      AnimalSortOrder.categoryAscending,
+    );
+  });
 }

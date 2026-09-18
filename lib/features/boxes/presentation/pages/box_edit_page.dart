@@ -546,21 +546,6 @@ class _BoxEditPageState extends State<BoxEditPage> {
             const SizedBox(height: 24),
 
             Text(
-              context.l10n.qrIdentifier,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-
-            SelectableText(_box!.qrId, key: const Key('box-edit-qr-id')),
-            const SizedBox(height: 4),
-
-            Text(
-              context.l10n.permanentQrIdentifierHint,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 24),
-
-            Text(
               context.l10n.dimensions,
               style: Theme.of(context).textTheme.titleMedium,
             ),
@@ -610,6 +595,23 @@ class _BoxEditPageState extends State<BoxEditPage> {
                 helperText: context.l10n.optional,
                 alignLabelWithHint: true,
               ),
+            ),
+            const SizedBox(height: 24),
+
+            Text(
+              context.l10n.qrIdentifier,
+              key: const Key('box-edit-qr-label'),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+
+            SelectableText(_box!.qrId, key: const Key('box-edit-qr-id')),
+            const SizedBox(height: 4),
+
+            Text(
+              context.l10n.permanentQrIdentifierHint,
+              key: const Key('box-edit-qr-hint'),
+              style: Theme.of(context).textTheme.bodySmall,
             ),
             const SizedBox(height: 24),
 

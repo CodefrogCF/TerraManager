@@ -73,13 +73,13 @@ List<Animal> sortAnimalsForOverview(
         descending: false,
         missingFirst: true,
       ),
-      AnimalSortOrder.categoryAscending => _compareCategories(
+      AnimalSortOrder.categoryAscending => _compareDisplayNames(
         first,
         second,
         nameOrder,
         descending: false,
       ),
-      AnimalSortOrder.categoryDescending => _compareCategories(
+      AnimalSortOrder.categoryDescending => _compareDisplayNames(
         first,
         second,
         nameOrder,
@@ -120,13 +120,9 @@ List<AnimalCategoryOverviewGroup> groupAnimalsForCategoryOverview(
   Iterable<Animal> animals, {
   required AnimalSortOrder sortOrder,
   required AnimalNameOrder nameOrder,
+  required Map<int, DateTime> latestFeedingTimes,
   required String Function(AnimalSubcategory subcategory) subcategoryLabel,
 }) {
-  assert(
-    sortOrder == AnimalSortOrder.categoryAscending ||
-        sortOrder == AnimalSortOrder.categoryDescending,
-  );
-
   final animalsByCategory = <AnimalCategory, List<Animal>>{};
   for (final animal in animals) {
     animalsByCategory.putIfAbsent(animal.category, () => []).add(animal);
@@ -135,11 +131,7 @@ List<AnimalCategoryOverviewGroup> groupAnimalsForCategoryOverview(
   final categories = AnimalCategory.values
       .where(animalsByCategory.containsKey)
       .toList(growable: false);
-  final orderedCategories = sortOrder == AnimalSortOrder.categoryDescending
-      ? categories.reversed
-      : categories;
-
-  return orderedCategories
+  return categories
       .map((category) {
         final categoryAnimals = animalsByCategory[category]!;
         final hasSpecifiedSubcategory = categoryAnimals.any(
@@ -147,15 +139,12 @@ List<AnimalCategoryOverviewGroup> groupAnimalsForCategoryOverview(
         );
 
         if (!hasSpecifiedSubcategory) {
-          final sorted = categoryAnimals.toList()
-            ..sort(
-              (first, second) => _compareDisplayNames(
-                first,
-                second,
-                nameOrder,
-                descending: false,
-              ),
-            );
+          final sorted = sortAnimalsForOverview(
+            categoryAnimals,
+            sortOrder: sortOrder,
+            nameOrder: nameOrder,
+            latestFeedingTimes: latestFeedingTimes,
+          );
           return AnimalCategoryOverviewGroup(
             category: category,
             subgroups: [
@@ -197,15 +186,12 @@ List<AnimalCategoryOverviewGroup> groupAnimalsForCategoryOverview(
           category: category,
           subgroups: orderedSubcategories
               .map((subcategory) {
-                final sorted = animalsBySubcategory[subcategory]!.toList()
-                  ..sort(
-                    (first, second) => _compareDisplayNames(
-                      first,
-                      second,
-                      nameOrder,
-                      descending: false,
-                    ),
-                  );
+                final sorted = sortAnimalsForOverview(
+                  animalsBySubcategory[subcategory]!,
+                  sortOrder: sortOrder,
+                  nameOrder: nameOrder,
+                  latestFeedingTimes: latestFeedingTimes,
+                );
                 return AnimalSubcategoryOverviewGroup(
                   subcategory: subcategory,
                   showHeading: true,
@@ -216,21 +202,6 @@ List<AnimalCategoryOverviewGroup> groupAnimalsForCategoryOverview(
         );
       })
       .toList(growable: false);
-}
-
-int _compareCategories(
-  Animal first,
-  Animal second,
-  AnimalNameOrder nameOrder, {
-  required bool descending,
-}) {
-  final categoryComparison = descending
-      ? second.category.index.compareTo(first.category.index)
-      : first.category.index.compareTo(second.category.index);
-  if (categoryComparison != 0) {
-    return categoryComparison;
-  }
-  return _compareDisplayNames(first, second, nameOrder, descending: false);
 }
 
 int _compareDisplayNames(

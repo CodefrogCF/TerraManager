@@ -89,10 +89,11 @@ Validated functionality includes:
 - alphabetical Box ordering with unnamed Boxes last in both directions
 - calculated-volume Box ordering with incomplete dimensions last
 - persistent Box ordering and matching contextual detail navigation
-- creation-time, displayed-name, age, latest-feeding and category Animal
-  Overview sorting
-- localized category and conditional subcategory headings with natural A–Z
-  rows, deterministic ordering and matching contextual detail navigation
+- creation-time, displayed-name, age and latest-feeding Animal Overview sorting
+  in flat and category-grouped views
+- an independent persistent category-view toggle with localized category and
+  conditional subcategory headings, deterministic ordering and matching
+  contextual detail navigation
 - plural English and German taxonomy headings in grouped Animal views
 - direct Animal creation from empty and populated Box details with the Box
   preselected
@@ -238,10 +239,10 @@ Validated functionality includes:
 - new permanent QR identifiers for Box duplicates
 - natural ascending/descending Box Overview sorting, including legacy backup
   order mapping
-- creation-time, displayed-name, age, latest-feeding and category Animal
-  Overview sorting
-- localized category and conditional subcategory headings with natural A–Z
-  rows, persistent ordering and matching contextual detail navigation
+- creation-time, displayed-name, age and latest-feeding Animal Overview sorting
+  in flat and category-grouped views
+- an independent persistent category-view toggle with localized category and
+  conditional subcategory headings and matching contextual detail navigation
 - Box editing and optional dimensions
 - Box-owned multiline temperature-zone notes in create, edit and details
 - deterministic legacy Animal-value transfer during Schema Version 11 migration

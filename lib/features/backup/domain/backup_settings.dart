@@ -4,6 +4,7 @@ class BackupSettings {
   final String language;
   final String animalNameOrder;
   final String animalSortOrder;
+  final bool animalCategoryViewEnabled;
   final String boxSortOrder;
 
   const BackupSettings({
@@ -12,6 +13,7 @@ class BackupSettings {
     this.language = 'system',
     this.animalNameOrder = 'commonNameFirst',
     this.animalSortOrder = 'createdOldestFirst',
+    this.animalCategoryViewEnabled = false,
     this.boxSortOrder = 'labelAscending',
   });
 
@@ -22,6 +24,7 @@ class BackupSettings {
       'language': language,
       'animalNameOrder': animalNameOrder,
       'animalSortOrder': animalSortOrder,
+      'animalCategoryViewEnabled': animalCategoryViewEnabled,
       'boxSortOrder': boxSortOrder,
     };
   }
@@ -34,6 +37,12 @@ class BackupSettings {
       animalNameOrder: json['animalNameOrder'] as String? ?? 'commonNameFirst',
       animalSortOrder:
           json['animalSortOrder'] as String? ?? 'createdOldestFirst',
+      animalCategoryViewEnabled:
+          json['animalCategoryViewEnabled'] as bool? ??
+          const {
+            'categoryAscending',
+            'categoryDescending',
+          }.contains(json['animalSortOrder']),
       boxSortOrder: json['boxSortOrder'] as String? ?? 'labelAscending',
     );
   }

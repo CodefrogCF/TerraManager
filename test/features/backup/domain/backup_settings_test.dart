@@ -10,6 +10,7 @@ void main() {
       language: 'german',
       animalNameOrder: 'latinNameFirst',
       animalSortOrder: 'latestFeedingOldestFirst',
+      animalCategoryViewEnabled: true,
       boxSortOrder: 'labelDescending',
     );
 
@@ -24,6 +25,8 @@ void main() {
     expect(restored.animalNameOrder, 'latinNameFirst');
 
     expect(restored.animalSortOrder, 'latestFeedingOldestFirst');
+
+    expect(restored.animalCategoryViewEnabled, isTrue);
 
     expect(restored.boxSortOrder, 'labelDescending');
   });
@@ -40,6 +43,18 @@ void main() {
 
     expect(restored.animalSortOrder, 'createdOldestFirst');
 
+    expect(restored.animalCategoryViewEnabled, isFalse);
+
     expect(restored.boxSortOrder, 'labelAscending');
+  });
+
+  test('legacy category sort enables category view', () {
+    final restored = BackupSettings.fromJson({
+      'themeMode': 'light',
+      'accent': 'blue',
+      'animalSortOrder': 'categoryDescending',
+    });
+
+    expect(restored.animalCategoryViewEnabled, isTrue);
   });
 }

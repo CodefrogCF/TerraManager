@@ -260,17 +260,26 @@ void main() {
     await settingsController.load();
     await pumpPage(tester, settingsController: settingsController);
 
-    await tester.tap(find.byKey(const Key('animal-sort-button')));
+    final categoryToggle = find.byKey(const Key('animal-category-view-toggle'));
+    final sortButton = find.byKey(const Key('animal-sort-button'));
+    expect(categoryToggle, findsOneWidget);
+    expect(
+      tester.getCenter(categoryToggle).dx,
+      lessThan(tester.getCenter(sortButton).dx),
+    );
+    expect(find.byTooltip('Show category groups'), findsOneWidget);
+
+    await tester.tap(sortButton);
     await tester.pumpAndSettle();
 
     expect(find.text('Creation time: oldest first'), findsOneWidget);
     expect(find.text('Displayed name'), findsOneWidget);
     expect(find.text('Age'), findsOneWidget);
     expect(find.text('Latest feeding'), findsOneWidget);
-    expect(find.text('Category'), findsOneWidget);
+    expect(find.text('Category'), findsNothing);
     expect(
       find.byType(CheckedPopupMenuItem<AnimalSortCriterion>),
-      findsNWidgets(5),
+      findsNWidgets(4),
     );
     expect(
       find.byKey(const Key('animal-sort-option-latestFeedingOldestFirst')),
@@ -368,8 +377,9 @@ void main() {
     final settingsController = AppSettingsController();
     await settingsController.load();
     await settingsController.setAnimalSortOrder(
-      AnimalSortOrder.categoryAscending,
+      AnimalSortOrder.displayNameAscending,
     );
+    await settingsController.setAnimalCategoryViewEnabled(true);
 
     await pumpPage(tester, settingsController: settingsController);
 
@@ -422,9 +432,7 @@ void main() {
     );
     final settingsController = AppSettingsController();
     await settingsController.load();
-    await settingsController.setAnimalSortOrder(
-      AnimalSortOrder.categoryAscending,
-    );
+    await settingsController.setAnimalCategoryViewEnabled(true);
 
     await pumpPage(
       tester,
@@ -440,30 +448,41 @@ void main() {
     settingsController.dispose();
   });
 
-  testWidgets('toggles and persists the Category view direction', (
+  testWidgets('toggles and persists category grouping independently', (
     tester,
   ) async {
     final boxId = await createTestBox();
     await createTestAnimal(boxId: boxId, category: AnimalCategory.reptile);
     final settingsController = AppSettingsController();
     await settingsController.load();
-    await settingsController.setAnimalSortOrder(
-      AnimalSortOrder.categoryAscending,
-    );
     await pumpPage(tester, settingsController: settingsController);
 
-    await tester.tap(find.byKey(const Key('animal-sort-button')));
-    await tester.pumpAndSettle();
-    expect(find.text('Category: ascending'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('animal-sort-option-category')));
+    expect(
+      find.byKey(const Key('animal-category-heading-reptile')),
+      findsNothing,
+    );
+    expect(settingsController.animalCategoryViewEnabled, isFalse);
+
+    await tester.tap(find.byKey(const Key('animal-category-view-toggle')));
     await tester.pumpAndSettle();
 
     expect(
-      settingsController.animalSortOrder,
-      AnimalSortOrder.categoryDescending,
+      find.byKey(const Key('animal-category-heading-reptile')),
+      findsOneWidget,
     );
+    expect(settingsController.animalCategoryViewEnabled, isTrue);
+    expect(find.byTooltip('Hide category groups'), findsOneWidget);
     final preferences = await SharedPreferences.getInstance();
-    expect(preferences.getString('animal_sort_order'), 'categoryDescending');
+    expect(preferences.getBool('animal_category_view_enabled'), isTrue);
+    expect(preferences.getString('animal_sort_order'), isNull);
+
+    await tester.tap(find.byKey(const Key('animal-category-view-toggle')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('animal-category-heading-reptile')),
+      findsNothing,
+    );
+    expect(preferences.getBool('animal_category_view_enabled'), isFalse);
 
     settingsController.dispose();
   });

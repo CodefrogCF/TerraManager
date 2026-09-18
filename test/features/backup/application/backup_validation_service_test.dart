@@ -380,6 +380,7 @@ void main() {
     );
 
     expect(result.settings.animalSortOrder, 'categoryDescending');
+    expect(result.settings.animalCategoryViewEnabled, isTrue);
   });
 
   test('accepts legacy settings without additive preferences', () {

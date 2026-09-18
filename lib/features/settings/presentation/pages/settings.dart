@@ -176,6 +176,7 @@ class _SettingsPageState extends State<SettingsPage> {
         animalNameOrder: settings.animalNameOrder,
         animalSortOrder: settings.animalSortOrder,
         boxSortOrder: settings.boxSortOrder,
+        animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
       );
 
       final savedPath = await _backupFileGateway.saveBackup(backup);

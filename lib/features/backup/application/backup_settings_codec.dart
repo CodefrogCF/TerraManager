@@ -16,6 +16,7 @@ class BackupSettingsCodec {
     AppLanguage language = AppLanguage.system,
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
+    bool animalCategoryViewEnabled = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
   }) {
     return BackupSettings(
@@ -23,7 +24,9 @@ class BackupSettingsCodec {
       accent: encodeAccent(accent),
       language: encodeLanguage(language),
       animalNameOrder: encodeAnimalNameOrder(animalNameOrder),
-      animalSortOrder: encodeAnimalSortOrder(animalSortOrder),
+      animalSortOrder: encodeAnimalSortOrder(animalSortOrder.normalized),
+      animalCategoryViewEnabled:
+          animalCategoryViewEnabled || animalSortOrder.isLegacyCategoryOrder,
       boxSortOrder: encodeBoxSortOrder(boxSortOrder),
     );
   }

@@ -1500,13 +1500,15 @@ compatibility table. Missing taxonomy keys from Format 1 and older Format 2
 backups use the migration fallback, while unsupported, localized or
 incompatible present values fail validation.
 
-Category overview groups are derived from current Animal records. Primary
-groups follow the stable category order, with the reverse setting changing only
-that primary order. A category displays subcategory headings only when at least
-one contained Animal has a subcategory. Named headings sort by localized text;
-Other and Not specified remain last. Animals sort naturally A–Z by the selected
-display name with database ID as the final tie breaker. Contextual navigation
-uses the flattened visible order.
+Category overview groups are derived from current Animal records and enabled by
+an independent persistent toggle beside the sort control. Primary groups always
+follow the stable category order. A category displays subcategory headings only
+when at least one contained Animal has a subcategory. Named headings sort by
+localized text; Other and Not specified remain last. The selected regular
+creation, displayed-name, age or latest-feeding order applies inside every final
+group, with database ID as the final tie breaker. Legacy Category sort
+preferences enable grouping and migrate to the matching displayed-name order.
+Contextual navigation uses the flattened visible order.
 
 ### Consequences
 
@@ -1516,6 +1518,7 @@ Advantages:
 - form, validation, backup and grouping share one compatibility definition
 - existing data upgrades without guessed classifications
 - grouped rows retain existing thumbnails, reminders and quick actions
+- flat and grouped views share the same four regular sort criteria
 - every Issue #127 primary category participates in overview grouping
 
 Disadvantages:
@@ -1523,6 +1526,7 @@ Disadvantages:
 - users must classify newly created Animals
 - changing the taxonomy later requires an explicit compatibility decision
 - locale collation can change subcategory heading order between languages
+- one additional portable Boolean preference records the category-view state
 
 ---
 

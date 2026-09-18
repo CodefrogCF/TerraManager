@@ -73,6 +73,8 @@ void main() {
     expect(l10n.boxSortVolumeAscending, 'Volume ascending');
     expect(l10n.boxSortVolumeDescending, 'Volume descending');
     expect(l10n.sortAnimals, 'Sort animals');
+    expect(l10n.showAnimalCategoryGroups, 'Show category groups');
+    expect(l10n.hideAnimalCategoryGroups, 'Hide category groups');
     expect(l10n.animalSortCreatedOldestFirst, 'Oldest added first');
     expect(l10n.animalSortCreatedNewestFirst, 'Newest added first');
     expect(l10n.animalSortNameAscending, 'Name A–Z');
@@ -188,6 +190,8 @@ void main() {
     expect(l10n.boxSortVolumeAscending, 'Volumen aufsteigend');
     expect(l10n.boxSortVolumeDescending, 'Volumen absteigend');
     expect(l10n.sortAnimals, 'Tiere sortieren');
+    expect(l10n.showAnimalCategoryGroups, 'Kategoriegruppen anzeigen');
+    expect(l10n.hideAnimalCategoryGroups, 'Kategoriegruppen ausblenden');
     expect(l10n.animalSortCreatedOldestFirst, 'Zuerst hinzugefügt');
     expect(l10n.animalSortCreatedNewestFirst, 'Zuletzt hinzugefügt');
     expect(l10n.animalSortNameAscending, 'Name A–Z');

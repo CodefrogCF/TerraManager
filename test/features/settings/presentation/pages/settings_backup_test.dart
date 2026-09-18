@@ -127,6 +127,7 @@ void main() {
     await settingsController.setAnimalSortOrder(
       AnimalSortOrder.latestFeedingOldestFirst,
     );
+    await settingsController.setAnimalCategoryViewEnabled(true);
     await settingsController.setBoxSortOrder(BoxSortOrder.labelDescending);
 
     await database
@@ -168,6 +169,11 @@ void main() {
       'latestFeedingOldestFirst',
     );
 
+    expect(
+      fileGateway.savedBackups.single.settings.animalCategoryViewEnabled,
+      isTrue,
+    );
+
     expect(find.text('Backup created successfully.'), findsOneWidget);
 
     expect(find.byKey(const Key('backup-progress')), findsNothing);
@@ -200,6 +206,7 @@ void main() {
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
       animalSortOrder: AnimalSortOrder.ageYoungestFirst,
+      animalCategoryViewEnabled: true,
       boxSortOrder: BoxSortOrder.labelDescending,
       createdAt: DateTime.utc(2026, 9, 2, 15),
     );
@@ -269,6 +276,8 @@ void main() {
       AnimalSortOrder.ageYoungestFirst,
     );
 
+    expect(settingsController.animalCategoryViewEnabled, isTrue);
+
     expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
 
     // Restore creates a safety
@@ -295,6 +304,11 @@ void main() {
     expect(
       fileGateway.savedBackups.single.settings.animalSortOrder,
       'createdOldestFirst',
+    );
+
+    expect(
+      fileGateway.savedBackups.single.settings.animalCategoryViewEnabled,
+      isFalse,
     );
 
     expect(find.text('Backup restored successfully.'), findsOneWidget);

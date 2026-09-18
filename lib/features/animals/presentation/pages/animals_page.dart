@@ -484,6 +484,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     final settings = AppSettingsScope.maybeOf(context);
     final animalSortOrder =
         settings?.animalSortOrder ?? AnimalSortOrder.createdOldestFirst;
+    final categoryViewEnabled = settings?.animalCategoryViewEnabled ?? false;
     final animalNameOrder =
         settings?.animalNameOrder ?? AnimalNameOrder.commonNameFirst;
 
@@ -491,6 +492,20 @@ class _AnimalsPageState extends State<AnimalsPage> {
       appBar: AppBar(
         title: Text(context.l10n.navigationAnimals),
         actions: [
+          IconButton(
+            key: const Key('animal-category-view-toggle'),
+            isSelected: categoryViewEnabled,
+            onPressed: settings == null
+                ? null
+                : () => settings.setAnimalCategoryViewEnabled(
+                    !categoryViewEnabled,
+                  ),
+            icon: const Icon(Icons.toggle_on_outlined),
+            selectedIcon: const Icon(Icons.toggle_off_outlined),
+            tooltip: categoryViewEnabled
+                ? context.l10n.hideAnimalCategoryGroups
+                : context.l10n.showAnimalCategoryGroups,
+          ),
           PopupMenuButton<AnimalSortCriterion>(
             key: const Key('animal-sort-button'),
             initialValue: animalSortOrder.criterion,
@@ -540,12 +555,13 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
           final data = snapshot.data;
           final rawAnimals = data?.animals ?? const <Animal>[];
-          final categoryGroups =
-              animalSortOrder.criterion == AnimalSortCriterion.category
+          final categoryGroups = categoryViewEnabled
               ? groupAnimalsForCategoryOverview(
                   rawAnimals,
                   sortOrder: animalSortOrder,
                   nameOrder: animalNameOrder,
+                  latestFeedingTimes:
+                      data?.latestFeedingTimes ?? const <int, DateTime>{},
                   subcategoryLabel: context.l10n.animalSubcategoryLabel,
                 )
               : null;

@@ -17,7 +17,6 @@ void main() {
         AnimalSortCriterion.age: AnimalSortOrder.ageOldestFirst,
         AnimalSortCriterion.latestFeeding:
             AnimalSortOrder.latestFeedingNewestFirst,
-        AnimalSortCriterion.category: AnimalSortOrder.categoryAscending,
       };
 
       for (final entry in defaults.entries) {
@@ -354,20 +353,21 @@ void main() {
           animals,
           sortOrder: order,
           nameOrder: AnimalNameOrder.commonNameFirst,
+          latestFeedingTimes: const {},
           subcategoryLabel: (value) => value.name,
         ).map((group) => group.category).toList();
 
-    expect(categories(AnimalSortOrder.categoryAscending), [
+    expect(categories(AnimalSortOrder.createdOldestFirst), [
       AnimalCategory.reptile,
       AnimalCategory.arachnid,
       AnimalCategory.otherInvertebrate,
       AnimalCategory.other,
     ]);
-    expect(categories(AnimalSortOrder.categoryDescending), [
-      AnimalCategory.other,
-      AnimalCategory.otherInvertebrate,
-      AnimalCategory.arachnid,
+    expect(categories(AnimalSortOrder.displayNameDescending), [
       AnimalCategory.reptile,
+      AnimalCategory.arachnid,
+      AnimalCategory.otherInvertebrate,
+      AnimalCategory.other,
     ]);
   });
 
@@ -423,14 +423,16 @@ void main() {
 
       final ascending = groupAnimalsForCategoryOverview(
         animals,
-        sortOrder: AnimalSortOrder.categoryAscending,
+        sortOrder: AnimalSortOrder.displayNameAscending,
         nameOrder: AnimalNameOrder.commonNameFirst,
+        latestFeedingTimes: const {},
         subcategoryLabel: label,
       ).single;
       final descending = groupAnimalsForCategoryOverview(
         animals,
-        sortOrder: AnimalSortOrder.categoryDescending,
+        sortOrder: AnimalSortOrder.displayNameDescending,
         nameOrder: AnimalNameOrder.commonNameFirst,
+        latestFeedingTimes: const {},
         subcategoryLabel: label,
       ).single;
 
@@ -450,8 +452,55 @@ void main() {
         2,
         1,
       ]);
+      expect(descending.subgroups.first.animals.map((animal) => animal.id), [
+        1,
+        2,
+      ]);
     },
   );
+
+  test('applies every regular sort order inside final category groups', () {
+    final animals = [
+      animal(
+        id: 1,
+        commonName: 'Animal 10',
+        latinName: 'Species 10',
+        category: AnimalCategory.reptile,
+        subcategory: AnimalSubcategory.snake,
+        createdAt: firstCreated,
+        birthDate: DateTime(2020),
+      ),
+      animal(
+        id: 2,
+        commonName: 'Animal 2',
+        latinName: 'Species 2',
+        category: AnimalCategory.reptile,
+        subcategory: AnimalSubcategory.snake,
+        createdAt: secondCreated,
+        birthDate: DateTime(2024),
+      ),
+    ];
+    final latestFeedings = {1: DateTime(2026, 9, 10), 2: DateTime(2026, 9, 1)};
+
+    Iterable<int> groupedIds(AnimalSortOrder order) {
+      return groupAnimalsForCategoryOverview(
+        animals,
+        sortOrder: order,
+        nameOrder: AnimalNameOrder.commonNameFirst,
+        latestFeedingTimes: latestFeedings,
+        subcategoryLabel: (value) => value.name,
+      ).single.animals.map((animal) => animal.id);
+    }
+
+    expect(groupedIds(AnimalSortOrder.createdOldestFirst), [1, 2]);
+    expect(groupedIds(AnimalSortOrder.createdNewestFirst), [2, 1]);
+    expect(groupedIds(AnimalSortOrder.displayNameAscending), [2, 1]);
+    expect(groupedIds(AnimalSortOrder.displayNameDescending), [1, 2]);
+    expect(groupedIds(AnimalSortOrder.ageOldestFirst), [1, 2]);
+    expect(groupedIds(AnimalSortOrder.ageYoungestFirst), [2, 1]);
+    expect(groupedIds(AnimalSortOrder.latestFeedingNewestFirst), [1, 2]);
+    expect(groupedIds(AnimalSortOrder.latestFeedingOldestFirst), [2, 1]);
+  });
 
   test('omits unnecessary subcategory headings', () {
     final group = groupAnimalsForCategoryOverview(
@@ -464,8 +513,9 @@ void main() {
           createdAt: firstCreated,
         ),
       ],
-      sortOrder: AnimalSortOrder.categoryAscending,
+      sortOrder: AnimalSortOrder.createdOldestFirst,
       nameOrder: AnimalNameOrder.commonNameFirst,
+      latestFeedingTimes: const {},
       subcategoryLabel: (value) => value.name,
     ).single;
 

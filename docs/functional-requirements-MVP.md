@@ -26,6 +26,8 @@ The application must allow the user to:
 - display Box temperature zones on details only when content is present
 - add, edit and clear optional multiline Box notes
 - display Box notes on details only when content is present
+- display the immutable QR identifier and its explanation below Notes and
+  directly above Save and Archive in Edit Box
 - add, replace or remove a persistent Box picture
 - take a new Box picture with a supported device camera
 - select a Box picture from the device gallery
@@ -70,11 +72,14 @@ The application must allow the user to:
 - sort the Animal overview by the displayed primary name in both directions
 - sort the Animal overview by oldest or youngest age
 - sort the Animal overview by newest or oldest latest FeedingEvent
-- group the Animal overview by the complete stable category taxonomy
+- enable or disable category grouping independently beside the sort control
+- group the Animal overview by the complete stable category taxonomy while
+  retaining the selected creation, name, age or latest-feeding order
 - show localized, accessible category and conditional subcategory headings
-- sort Animals naturally A–Z inside every final category group
+- apply the selected regular sort direction inside every final category group
 - place missing birth and FeedingEvent data deterministically
 - persist the selected Animal Overview order between application restarts
+- persist the category-view setting between application restarts
 - display Animal thumbnails where pictures are available
 - preserve Animal Overview scroll position after returning from related detail/history workflows
 - view Animal details
@@ -409,7 +414,7 @@ The application must allow the user to:
 - export FeedingEvents
 - export Box pictures
 - export Animal pictures
-- export appearance, language and overview-order settings
+- export appearance, language, overview-order and category-view settings
 - select an existing TerraManager backup
 - inspect backup metadata before restore
 - restore a compatible TerraManager backup
@@ -439,6 +444,9 @@ The application must allow the user to:
   number
 - restore older backups without an Animal sort-order field using
   oldest-created Animal first
+- restore older backups without a category-view field using the flat view
+- migrate legacy Category sort values to enabled grouping with the matching
+  displayed-name direction
 - export and restore optional per-Animal feeding reminder configuration
 - restore older backups without reminder fields with reminders disabled
 - restore older backups without Animal taxonomy as Other with no subcategory

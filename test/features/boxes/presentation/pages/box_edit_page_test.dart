@@ -30,9 +30,14 @@ void main() {
     WidgetTester tester, {
     required int boxId,
     PictureSelectionFlow? pictureSelectionFlow,
+    TextScaler textScaler = TextScaler.noScaling,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+          child: child!,
+        ),
         home: BoxEditPage(
           database: database,
           boxId: boxId,
@@ -89,13 +94,25 @@ void main() {
     expect(find.byKey(const Key('remove-box-picture-button')), findsNothing);
   });
 
-  testWidgets('offers archive at the form bottom without direct deletion', (
+  testWidgets('places QR information between Notes and bottom actions', (
     tester,
   ) async {
     final boxId = await BoxRepository(database).createBox('archive-action-box');
 
-    await pumpPage(tester, boxId: boxId);
+    await pumpPage(
+      tester,
+      boxId: boxId,
+      textScaler: const TextScaler.linear(2),
+    );
 
+    final temperatureZones = find.byKey(
+      const Key('box-temperature-zones-field'),
+    );
+    final notes = find.byKey(const Key('box-notes-field'));
+    final qrLabel = find.byKey(const Key('box-edit-qr-label'));
+    final qrId = find.byKey(const Key('box-edit-qr-id'));
+    final qrHint = find.byKey(const Key('box-edit-qr-hint'));
+    final saveButton = find.byKey(const Key('save-box-form-button'));
     final archiveButton = find.byKey(const Key('archive-box-button'));
 
     await tester.scrollUntilVisible(
@@ -108,20 +125,30 @@ void main() {
     expect(archiveButton, findsOneWidget);
     expect(find.byKey(const Key('delete-box-button')), findsNothing);
     expect(tester.widget<OutlinedButton>(archiveButton).onPressed, isNotNull);
-    expect(
-      tester.getTopLeft(archiveButton).dy,
-      greaterThan(
-        tester.getTopLeft(find.byKey(const Key('save-box-form-button'))).dy,
-      ),
-    );
+    final ordered = [
+      temperatureZones,
+      notes,
+      qrLabel,
+      qrId,
+      qrHint,
+      saveButton,
+      archiveButton,
+    ];
+    for (var index = 1; index < ordered.length; index++) {
+      expect(
+        tester.getTopLeft(ordered[index - 1]).dy,
+        lessThan(tester.getTopLeft(ordered[index]).dy),
+      );
+    }
   });
 
   testWidgets('loads, edits, and clears temperature zones and notes', (
     tester,
   ) async {
     final repository = BoxRepository(database);
+    const qrId = 'box-notes';
     final boxId = await repository.createBox(
-      'box-notes',
+      qrId,
       temperatureZones: 'Original temperature zones',
       notes: 'Original notes',
     );
@@ -157,6 +184,7 @@ void main() {
 
     expect(box!.temperatureZones, 'Warm side 28 °C');
     expect(box.notes, 'Updated\nmultiline notes');
+    expect(box.qrId, qrId);
 
     await tester.tap(find.byKey(const Key('open-box-edit-button')));
     await tester.pumpAndSettle();
@@ -178,6 +206,7 @@ void main() {
     box = await repository.getBoxById(boxId);
 
     expect(box!.temperatureZones, isNull);
+    expect(box.qrId, qrId);
     expect(box.notes, isNull);
   });
 

@@ -13,6 +13,8 @@ class AppSettingsController extends ChangeNotifier {
   static const String _languageKey = 'language';
   static const String _animalNameOrderKey = 'animal_name_order';
   static const String _animalSortOrderKey = 'animal_sort_order';
+  static const String _animalCategoryViewEnabledKey =
+      'animal_category_view_enabled';
   static const String _boxSortOrderKey = 'box_sort_order';
 
   ThemeMode _themeMode = ThemeMode.system;
@@ -20,6 +22,7 @@ class AppSettingsController extends ChangeNotifier {
   AppLanguage _language = AppLanguage.system;
   AnimalNameOrder _animalNameOrder = AnimalNameOrder.commonNameFirst;
   AnimalSortOrder _animalSortOrder = AnimalSortOrder.createdOldestFirst;
+  bool _animalCategoryViewEnabled = false;
   BoxSortOrder _boxSortOrder = BoxSortOrder.labelAscending;
 
   ThemeMode get themeMode => _themeMode;
@@ -27,6 +30,7 @@ class AppSettingsController extends ChangeNotifier {
   AppLanguage get language => _language;
   AnimalNameOrder get animalNameOrder => _animalNameOrder;
   AnimalSortOrder get animalSortOrder => _animalSortOrder;
+  bool get animalCategoryViewEnabled => _animalCategoryViewEnabled;
   BoxSortOrder get boxSortOrder => _boxSortOrder;
 
   Future<void> load() async {
@@ -42,9 +46,22 @@ class AppSettingsController extends ChangeNotifier {
       preferences.getString(_animalNameOrderKey),
     );
 
-    _animalSortOrder = _parseAnimalSortOrder(
-      preferences.getString(_animalSortOrderKey),
-    );
+    final storedAnimalSortOrder = preferences.getString(_animalSortOrderKey);
+    final parsedAnimalSortOrder = _parseAnimalSortOrder(storedAnimalSortOrder);
+    _animalSortOrder = parsedAnimalSortOrder.normalized;
+    _animalCategoryViewEnabled =
+        preferences.getBool(_animalCategoryViewEnabledKey) ??
+        parsedAnimalSortOrder.isLegacyCategoryOrder;
+
+    if (parsedAnimalSortOrder.isLegacyCategoryOrder) {
+      await preferences.setString(_animalSortOrderKey, _animalSortOrder.name);
+      if (!preferences.containsKey(_animalCategoryViewEnabledKey)) {
+        await preferences.setBool(
+          _animalCategoryViewEnabledKey,
+          _animalCategoryViewEnabled,
+        );
+      }
+    }
 
     final storedBoxSortOrder = preferences.getString(_boxSortOrderKey);
     _boxSortOrder = _parseBoxSortOrder(storedBoxSortOrder);
@@ -123,16 +140,37 @@ class AppSettingsController extends ChangeNotifier {
   }
 
   Future<void> setAnimalSortOrder(AnimalSortOrder animalSortOrder) async {
-    if (_animalSortOrder == animalSortOrder) {
+    final normalizedSortOrder = animalSortOrder.normalized;
+    final enableCategoryView = animalSortOrder.isLegacyCategoryOrder;
+    if (_animalSortOrder == normalizedSortOrder &&
+        (!enableCategoryView || _animalCategoryViewEnabled)) {
       return;
     }
 
-    _animalSortOrder = animalSortOrder;
+    _animalSortOrder = normalizedSortOrder;
+    if (enableCategoryView) {
+      _animalCategoryViewEnabled = true;
+    }
     notifyListeners();
 
     final preferences = await SharedPreferences.getInstance();
 
-    await preferences.setString(_animalSortOrderKey, animalSortOrder.name);
+    await preferences.setString(_animalSortOrderKey, normalizedSortOrder.name);
+    if (enableCategoryView) {
+      await preferences.setBool(_animalCategoryViewEnabledKey, true);
+    }
+  }
+
+  Future<void> setAnimalCategoryViewEnabled(bool enabled) async {
+    if (_animalCategoryViewEnabled == enabled) {
+      return;
+    }
+
+    _animalCategoryViewEnabled = enabled;
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_animalCategoryViewEnabledKey, enabled);
   }
 
   ThemeMode _parseThemeMode(String? value) {
@@ -223,6 +261,7 @@ class AppSettingsController extends ChangeNotifier {
     required AppLanguage language,
     required AnimalNameOrder animalNameOrder,
     required AnimalSortOrder animalSortOrder,
+    bool animalCategoryViewEnabled = false,
     required BoxSortOrder boxSortOrder,
   }) async {
     final preferences = await SharedPreferences.getInstance();
@@ -232,6 +271,7 @@ class AppSettingsController extends ChangeNotifier {
     final previousLanguage = _language;
     final previousAnimalNameOrder = _animalNameOrder;
     final previousAnimalSortOrder = _animalSortOrder;
+    final previousAnimalCategoryViewEnabled = _animalCategoryViewEnabled;
     final previousBoxSortOrder = _boxSortOrder;
 
     final previousStoredTheme = preferences.getString(_themeModeKey);
@@ -245,7 +285,14 @@ class AppSettingsController extends ChangeNotifier {
     final previousStoredAnimalSortOrder = preferences.getString(
       _animalSortOrderKey,
     );
+    final previousStoredAnimalCategoryViewEnabled = preferences.getBool(
+      _animalCategoryViewEnabledKey,
+    );
     final previousStoredBoxSortOrder = preferences.getString(_boxSortOrderKey);
+
+    final normalizedAnimalSortOrder = animalSortOrder.normalized;
+    final normalizedAnimalCategoryViewEnabled =
+        animalCategoryViewEnabled || animalSortOrder.isLegacyCategoryOrder;
 
     try {
       final themeSaved = await preferences.setString(
@@ -283,11 +330,20 @@ class AppSettingsController extends ChangeNotifier {
 
       final animalSortOrderSaved = await preferences.setString(
         _animalSortOrderKey,
-        animalSortOrder.name,
+        normalizedAnimalSortOrder.name,
       );
 
       if (!animalSortOrderSaved) {
         throw StateError('Failed to persist Animal sort order');
+      }
+
+      final animalCategoryViewEnabledSaved = await preferences.setBool(
+        _animalCategoryViewEnabledKey,
+        normalizedAnimalCategoryViewEnabled,
+      );
+
+      if (!animalCategoryViewEnabledSaved) {
+        throw StateError('Failed to persist Animal category view');
       }
 
       final boxSortOrderSaved = await preferences.setString(
@@ -303,7 +359,8 @@ class AppSettingsController extends ChangeNotifier {
       _accent = accent;
       _language = language;
       _animalNameOrder = animalNameOrder;
-      _animalSortOrder = animalSortOrder;
+      _animalSortOrder = normalizedAnimalSortOrder;
+      _animalCategoryViewEnabled = normalizedAnimalCategoryViewEnabled;
       _boxSortOrder = boxSortOrder;
 
       notifyListeners();
@@ -344,6 +401,15 @@ class AppSettingsController extends ChangeNotifier {
         );
       }
 
+      if (previousStoredAnimalCategoryViewEnabled == null) {
+        await preferences.remove(_animalCategoryViewEnabledKey);
+      } else {
+        await preferences.setBool(
+          _animalCategoryViewEnabledKey,
+          previousStoredAnimalCategoryViewEnabled,
+        );
+      }
+
       if (previousStoredBoxSortOrder == null) {
         await preferences.remove(_boxSortOrderKey);
       } else {
@@ -358,6 +424,7 @@ class AppSettingsController extends ChangeNotifier {
       _language = previousLanguage;
       _animalNameOrder = previousAnimalNameOrder;
       _animalSortOrder = previousAnimalSortOrder;
+      _animalCategoryViewEnabled = previousAnimalCategoryViewEnabled;
       _boxSortOrder = previousBoxSortOrder;
 
       notifyListeners();

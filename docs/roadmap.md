@@ -1472,10 +1472,49 @@ roughly one sixth of its previous size.
 
 ### v1.9.0 Release
 
-- [ ] Set the release version and build number
+- [x] Set the release version and build number
 - [x] Advance to Database Schema Version 14
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate English and German localizations and Drift migration artifacts
+- [x] Add no device permissions
+- [x] Confirm the final GitHub Actions **Quality gates** run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
+
+---
+
+## v1.9.1 – Overview & Edit Box Refinements
+
+### Independent Animal category view — Issue #142
+
+- [x] Remove Category from the Animal Overview sort menu
+- [x] Add an accessible category-view toggle directly left of the sort control
+- [x] Keep canonical category and conditional subcategory headings in the
+  grouped view
+- [x] Apply creation, displayed-name, age and latest-feeding sorting in flat and
+  grouped views
+- [x] Apply the selected direction inside every final category group
+- [x] Preserve the flattened visible order for contextual Animal navigation
+- [x] Persist and back up the category-view setting
+- [x] Migrate legacy Category sort settings to enabled grouping and the
+  corresponding displayed-name direction
+- [x] Provide English and German labels and accessible toggle semantics
+
+### Edit Box QR information order — Issue #143
+
+- [x] Keep temperature zones and Notes together in their existing order
+- [x] Move the read-only QR identifier and explanation below Notes
+- [x] Keep Save followed by Archive as the bottom actions
+- [x] Preserve the permanent QR identifier across ordinary edits
+- [x] Support enlarged accessibility text and small screens
+- [x] Add no database, backup-format or permission change
+
+### v1.9.1 Release
+
+- [x] Set the release version and build number
+- [x] Keep Database Schema Version 14
+- [x] Preserve Portable Backup Format Version 2 compatibility
+- [x] Generate English and German localizations
 - [x] Add no device permissions
 - [ ] Confirm the final GitHub Actions **Quality gates** run
 - [ ] Record release-owner Android/Web artifacts and manual checks
@@ -1507,7 +1546,7 @@ roughly one sixth of its previous size.
   below the configured GitHub Pages base path
 - [x] Add automated source checks for localization structure, privacy,
   accessibility markers, metadata and internal page targets
-- [ ] Enable GitHub Pages from the repository `docs/` directory and verify the
+- [x] Enable GitHub Pages from the repository `docs/` directory and verify the
   published site at `https://codefrogcf.github.io/TerraManager/`
 
 ---

@@ -104,6 +104,7 @@ void main() {
       language: AppLanguage.german,
       animalNameOrder: AnimalNameOrder.latinNameFirst,
       animalSortOrder: AnimalSortOrder.latestFeedingOldestFirst,
+      animalCategoryViewEnabled: true,
       boxSortOrder: BoxSortOrder.labelDescending,
       createdAt: DateTime(2026, 9, 2, 15, 30),
     );
@@ -129,6 +130,8 @@ void main() {
     expect(result.settings.animalNameOrder, 'latinNameFirst');
 
     expect(result.settings.animalSortOrder, 'latestFeedingOldestFirst');
+
+    expect(result.settings.animalCategoryViewEnabled, isTrue);
 
     expect(result.settings.boxSortOrder, 'labelDescending');
 
@@ -192,6 +195,8 @@ void main() {
     expect(settingsJson['animalNameOrder'], 'latinNameFirst');
 
     expect(settingsJson['animalSortOrder'], 'latestFeedingOldestFirst');
+
+    expect(settingsJson['animalCategoryViewEnabled'], isTrue);
 
     expect(settingsJson['boxSortOrder'], 'labelDescending');
 

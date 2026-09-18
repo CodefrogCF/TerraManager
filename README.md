@@ -20,25 +20,18 @@ Public project information:
 
 ## Project Status
 
-Latest published application version: **v1.8.0+67 – Animal Details, Sorting &
-Environmental Data**.
+Latest published application version: **v1.9.0+68 – Animal Input & History**.
 
-The current source implements the v1.9.0 Animal input and history milestone:
+The current source also implements the v1.9.1 overview and Edit Box refinements:
 
-- daytime temperature, nighttime temperature and humidity use consistent
-  paired minimum/maximum controls;
-- Animal details identify daytime and nighttime temperature separately and
-  show locale-aware values with one decimal place and the unit beside the value;
-- optional Animal characteristics follow one shared order in New Animal and
-  Edit Animal;
-- Animal weight is stored as positive grams with a timestamped history;
-- unambiguous legacy gram values migrate safely while other legacy text remains
-  available until it is replaced;
-- Animal details show the next scheduled feeding directly below Latest Feeding
-  while active due reminders remain above the picture;
-- Database Schema Version 14 adds nighttime minimum/maximum columns and the
-  Animal weight-history table;
-- Portable Backup Format Version 2 remains backward compatible; and
+- Animal category grouping is controlled independently beside the sort menu;
+- creation time, displayed name, age and latest feeding work in flat and
+  category-grouped views;
+- legacy Category sort preferences migrate safely to the grouped view;
+- Edit Box places the immutable QR identifier below Notes and above the bottom
+  Save and Archive actions;
+- Database Schema Version 14 and Portable Backup Format Version 2 remain
+  current and backward compatible; and
 - no new device permission is required.
 
 Android and Web are the validated platforms. iOS remains planned and has not
@@ -94,7 +87,8 @@ selection in Settings.
 - WebP optimization with a maximum 1920-pixel longest edge for new and replaced
   Box pictures
 - full-screen Box picture viewing with zooming and panning
-- Box editing while keeping the QR identifier immutable
+- Box editing with the immutable QR identifier below Notes and above Save and
+  Archive
 - human-readable local labels (`Box N`)
 - Box names as primary overview labels while keeping `Box N` visible
 - Box thumbnails in the overview
@@ -154,9 +148,10 @@ selection in Settings.
 - preserved feeding history while archived
 - Animal thumbnails in the overview
 - localized Animal Overview sorting by creation time, displayed primary name,
-  age, latest FeedingEvent or category
-- accessible category groups with conditional subcategory headings and natural
-  A–Z Animal ordering inside every final group
+  age or latest FeedingEvent
+- independent persistent category grouping directly beside the sort control
+- accessible category groups with conditional subcategory headings and the
+  selected regular sort order inside every final group
 - localized plural category and subcategory headings in grouped views
 - deterministic placement of Animals without birth or feeding data
 - persistent Animal Overview ordering across application restarts
@@ -241,8 +236,8 @@ selection in Settings.
 - destructive restore confirmation
 - optional safety backup before restore, enabled by default
 - full local data restore
-- appearance, language, Animal name-order, Animal sort-order and Box sort-order
-  setting backup and restore
+- appearance, language, Animal name-order, Animal sort-order, category-view and
+  Box sort-order setting backup and restore
 
 ### Backup & Restore
 
@@ -256,10 +251,10 @@ selection in Settings.
 - Box and Animal picture export and restore
 - mixed legacy PNG/JPEG and normalized WebP picture backups
 - centralized archive-extension and restored MIME-type mapping
-- appearance, language, Animal name-order, Animal sort-order and Box sort-order
-  setting export and restore
+- appearance, language, Animal name-order, Animal sort-order, category-view and
+  Box sort-order setting export and restore
 - backward-compatible restore of backups without language, Animal name-order,
-  Animal sort-order or Box sort-order settings
+  Animal sort-order, category-view or Box sort-order settings
 - per-Animal feeding reminder configuration export and restore
 - backward-compatible restore of backups without reminder fields, with
   reminders disabled
@@ -324,16 +319,17 @@ in new backups. Older missing or oldest-created-first values map to ascending
 Box number; newest-created-first values map to descending Box number.
 
 The Animal Overview sort menu offers oldest/newest creation time, displayed
-name A–Z/Z–A, oldest/youngest age, newest/oldest latest feeding and category.
+name A–Z/Z–A, oldest/youngest age and newest/oldest latest feeding.
 Name sorting uses the currently preferred primary Animal name. Missing birth
 dates remain last in both age directions. Never-fed Animals appear first when
 sorting by the oldest feeding and last when sorting by the newest feeding.
-Category mode follows the stable taxonomy order, conditionally shows localized
-subcategory headings and keeps Animals naturally sorted A–Z inside each final
-group. Reversing category mode changes only the primary category order. The
-flattened visible order also controls contextual Animal detail navigation,
-persists locally and is included in new backups. Older backups default to
-oldest-created Animal first.
+The independent category button beside the sort control switches between flat
+and grouped views. Grouped views keep the canonical taxonomy order, show
+localized conditional subcategory headings and apply the selected regular sort
+inside every final group. Both the sort order and category-view setting persist
+locally and are included in new backups. Legacy Category sort preferences
+enable the grouped view and migrate to the matching displayed-name direction.
+The flattened visible order also controls contextual Animal detail navigation.
 
 ### Primary Page Navigation
 

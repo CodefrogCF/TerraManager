@@ -1516,9 +1516,9 @@ roughly one sixth of its previous size.
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate English and German localizations
 - [x] Add no device permissions
-- [ ] Confirm the final GitHub Actions **Quality gates** run
-- [ ] Record release-owner Android/Web artifacts and manual checks
-- [ ] Publish the GitHub and Google Play releases
+- [x] Confirm the final GitHub Actions **Quality gates** run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
 
 ---
 

@@ -1255,10 +1255,10 @@ roughly one sixth of its previous size.
 - [x] Generate English and German localizations
 - [x] Complete formatting, analysis and automated source regression
 - [x] Synchronize bundled and public privacy documentation
-- [ ] Publish the annotated `v1.6.1` tag
-- [ ] Confirm the final GitHub Actions Quality gates run
-- [ ] Record release-owner Android/Web artifacts and manual checks
-- [ ] Publish the GitHub and Google Play releases
+- [x] Publish the annotated `v1.6.1` tag
+- [x] Confirm the final GitHub Actions Quality gates run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
 
 ---
 
@@ -1300,10 +1300,10 @@ roughly one sixth of its previous size.
 - [x] Preserve Portable Backup Format Version 2 compatibility
 - [x] Generate English and German localizations and Drift migration artifacts
 - [x] Complete formatting, analysis and automated source regression
-- [ ] Publish the annotated `v1.7.0` tag
-- [ ] Confirm the final GitHub Actions **Quality gates** run
-- [ ] Record release-owner Android/Web artifacts and manual checks
-- [ ] Publish the GitHub and Google Play releases
+- [x] Publish the annotated `v1.7.0` tag
+- [x] Confirm the final GitHub Actions **Quality gates** run
+- [x] Record release-owner Android/Web artifacts and manual checks
+- [x] Publish the GitHub and Google Play releases
 
 ---
 

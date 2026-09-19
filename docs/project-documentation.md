@@ -974,6 +974,38 @@ Do not manually edit generated Drift files.
 
 ## Documentation
 
+### Keeping Screenshots and Guides Current
+
+Public screenshots and user guides are maintained as part of the release process.
+
+When a release changes visible application behaviour, navigation, labels, dialogs, workflows or other user-facing UI, the related documentation must be reviewed before the release is considered complete.
+
+The release documentation check includes:
+
+- review the public homepage and feature showcase for outdated screenshots or descriptions
+- review the German and English visual guides for affected workflows
+- update screenshots when the visible application state or interaction has materially changed
+- keep screenshot filenames and guide references stable where practical
+- update both localized guide texts when documented behaviour changes
+- review the downloadable German and English user manuals when the affected feature is covered there
+- verify that guide images, manual downloads and internal documentation links resolve correctly after deployment
+
+Screenshots should represent a current supported TerraManager release and should avoid displaying private user data. Example data may be used where necessary to demonstrate a feature clearly.
+
+Minor visual changes that do not affect the documented workflow do not require screenshots to be replaced automatically. Screenshots should be updated when the existing image could mislead a user about the current interface or expected interaction.
+
+For each release, documentation changes should be handled alongside the corresponding implementation issue or release milestone rather than deferred indefinitely. If no documentation update is required, that should be confirmed during the release review.
+
+The current public documentation surfaces include:
+
+- the German and English project homepage
+- the German and English visual user guide
+- the downloadable German and English user manuals
+- installation and update instructions
+- privacy, support and project documentation
+
+This keeps the public feature showcase and user-facing documentation aligned with the application version being released.
+
 Additional documentation:
 
 - [Roadmap](roadmap.md)

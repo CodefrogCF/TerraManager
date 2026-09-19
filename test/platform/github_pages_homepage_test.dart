@@ -125,7 +125,7 @@ void main() {
     expect(normalize(publicPage), repositoryLicense);
   });
 
-    test('publishes valid download destinations on the homepage', () {
+  test('publishes valid download destinations on the homepage', () {
     final layout = read('docs/_layouts/home.html');
 
     const playStoreUrl =

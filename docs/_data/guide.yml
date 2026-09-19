@@ -1,0 +1,405 @@
+de:
+  locale: de_DE
+  title: TerraManager Guide – Schnellstart und täglicher Workflow
+  description: Visueller TerraManager Guide für Boxen, Tiere, QR-Codes, Fütterungen, Erinnerungen, Archivierung und Backups.
+  skip: Zum Inhalt springen
+  nav_label: Guide-Navigation
+  nav:
+    start: Schnellstart
+    qr: QR & Scanner
+    feeding: Fütterungen
+    backup: Backup
+  language_label: Sprache wechseln
+  language_name: English
+  home_label: Startseite
+  hero:
+    eyebrow: Visueller Schnellstart
+    heading: TerraManager in wenigen Schritten
+    body: Vom ersten Behälter bis zur täglichen Fütterungsroutine – dieser Guide zeigt die wichtigsten Abläufe direkt an der App.
+    primary: Guide starten
+    manual: Vollständiges Handbuch
+    image: animals-overview.webp
+    image_alt: Tierübersicht in TerraManager
+  jump:
+    heading: Direkt zum Thema
+    items:
+      - number: "01"
+        target: start
+        title: Bestand anlegen
+        body: Boxen und Tiere erfassen
+      - number: "02"
+        target: qr
+        title: QR-Codes nutzen
+        body: Drucken, anbringen, scannen
+      - number: "03"
+        target: feeding
+        title: Fütterungen
+        body: Einzeln oder per Box-Scan
+      - number: "04"
+        target: reminders
+        title: Erinnerungen
+        body: Intervalle und Fälligkeiten
+      - number: "05"
+        target: archive
+        title: Archivieren
+        body: Historie statt Löschen
+      - number: "06"
+        target: backup
+        title: Daten sichern
+        body: Backup und Wiederherstellung
+  sections:
+    - id: start
+      number: "01"
+      eyebrow: Bestand anlegen
+      heading: Boxen und Tiere bilden die Grundlage
+      lead: Lege zuerst den realen Behälter als Box an. Danach erfasst du das Tier und weist ihm die passende Box zu.
+      heading_image:
+        file: box_detail.webp
+        alt: Detailansicht einer Box
+        caption: Boxdetailansicht
+      steps:
+        - number: "1"
+          heading: Box anlegen
+          body_html: Öffne <strong>Boxen</strong> und tippe auf <strong>+</strong>. Hinterlege einen Namen, Abmessungen, optional ein Bild und weitere Informationen. Nach dem Speichern erhält die Box automatisch eine eindeutige QR-Kennung.
+          note_html: "Tipp: Ein aussagekräftiges Bild erleichtert später die visuelle Zuordnung – besonders bei größeren Beständen."
+          images:
+            - file: boxes-overview.webp
+              alt: Boxübersicht mit mehreren Behältern
+              caption: Boxübersicht
+            - file: box-create.webp
+              alt: Maske zum Erstellen einer neuen Box
+              caption: Neue Box erstellen
+        - number: "2"
+          reverse: true
+          heading: Tier erfassen und zuweisen
+          body_html: Unter <strong>Tiere</strong> legst du den Tierdatensatz an. Je nach Bedarf kannst du Trivial- und wissenschaftlichen Namen, Kategorie, Geschlecht, Geburtsdatum, Temperatur- und Feuchtebereiche, Herkunft, Gewicht und Notizen hinterlegen.<br><br>Wähle anschließend die zugehörige Box. Eine Box kann auch mehrere Tiere enthalten.
+          images:
+            - file: animal-edit.webp
+              alt: Bearbeitungsansicht eines Tieres
+              caption: Tier bearbeiten
+            - file: animal-details.webp
+              alt: Detailansicht eines Tieres
+              caption: Tierdetails
+        - number: "3"
+          heading: Bilder fortlaufend ergänzen
+          body_html: Neben dem Hauptbild kannst du weitere Aufnahmen in der Galerie speichern. Ein Bild lässt sich jederzeit als primäres Bild auswählen, ohne die übrigen Aufnahmen zu entfernen.
+          images:
+            - file: gallery.webp
+              alt: Bildergalerie eines Tieres
+              caption: Bildergalerie
+    - id: qr
+      number: "02"
+      eyebrow: QR-Codes
+      heading: Physische Box und Datensatz direkt verbinden
+      lead: Jede Box besitzt einen eindeutigen QR-Code. Gedruckt am Behälter führt er beim Scannen direkt zum passenden Workflow.
+      tone: soft
+      steps:
+        - number: "4"
+          heading: Codes als PDF exportieren
+          body_html: Unter <strong>Einstellungen</strong> kannst du aktive Boxen auswählen und ihre QR-Codes gesammelt als druckfertige A4-PDF speichern. Die physische Größe der Codes lässt sich dabei festlegen.
+          images:
+            - file: qr-pdf-export.webp
+              alt: Dialog zum PDF-Export von Box-QR-Codes
+              caption: QR-Codes gesammelt als PDF exportieren
+        - number: "5"
+          reverse: true
+          heading: Anbringen und scannen
+          body_html: Bringe den Ausdruck am realen Terrarium oder Behälter an. Der integrierte Scanner erkennt den TerraManager-Code und ordnet ihn unmittelbar der richtigen Box zu.
+          wide_images: true
+          images:
+            - file: qr-on-enclosure.webp
+              alt: QR-Code an einem Terrarium
+              caption: QR-Code am Behälter
+            - file: qr-scanner.webp
+              alt: QR-Scanner in TerraManager
+              caption: Integrierter Scanner
+    - id: feeding
+      number: "03"
+      eyebrow: Fütterungen
+      heading: Direkt dokumentieren – einzeln oder per Box-Scan
+      lead: Fütterungen werden mit Zeitpunkt sowie Futter beziehungsweise Menge gespeichert und bleiben chronologisch nachvollziehbar.
+      steps:
+        - number: "6"
+          heading: Fütterungshistorie
+          body_html: Die Historie zeigt bisherige Fütterungen eines Tieres. Vorhandene Einträge können korrigiert oder bei Fehleingaben gelöscht werden.
+          images:
+            - file: feeding-history.webp
+              alt: Fütterungshistorie eines Tieres
+              caption: Chronologische Fütterungshistorie
+        - number: "7"
+          reverse: true
+          heading: Schnelle Fütterung per Box-Scan
+          body_html: Scanne zuerst die Box. TerraManager zeigt anschließend die darin aktiven Tiere. Wähle ein oder mehrere tatsächlich gefütterte Tiere aus und speichere die Fütterung gemeinsam. Für jedes ausgewählte Tier entsteht ein eigener Eintrag.
+          note_html: <strong>Falsche Box gescannt?</strong> „Andere Box scannen“ führt zurück zum Scanner und dient zur Korrektur des versehentlichen Scans.
+          images:
+            - file: quick-feeding.webp
+              alt: Schnelle Fütterung nach einem Box-Scan
+              caption: Mehrere Tiere einer Box auswählen
+    - id: reminders
+      number: "04"
+      eyebrow: Erinnerungen
+      heading: Individuelle Fütterungsrhythmen im Blick behalten
+      lead: Für jedes Tier kann ein eigenes Fütterungsintervall in Tagen aktiviert werden.
+      tone: soft
+      steps:
+        - number: "8"
+          heading: Intervall festlegen
+          body_html: Öffne das Erinnerungssymbol in den Tierdetails, aktiviere die Fütterungserinnerung und gib eine positive Anzahl ganzer Tage als Intervall an.
+          images:
+            - file: feeding-reminder-settings.webp
+              alt: Einstellungen für eine Fütterungserinnerung
+              caption: Individuelles Erinnerungsintervall
+        - number: "9"
+          reverse: true
+          heading: Fällige Tiere erkennen
+          body_html: Erreicht oder überschreitet ein Tier den errechneten Termin, erscheint es als <strong>Fällig</strong>. Zusätzlich zeigt die Tierübersicht eine hervorgehobene Erinnerungsübersicht mit den betroffenen Tieren und Fälligkeitszeitpunkten.
+          images:
+            - file: feeding-reminders-due.webp
+              alt: Tierübersicht mit mehreren fälligen Fütterungen
+              caption: Fällige Fütterungen zentral im Blick
+    - id: archive
+      number: "05"
+      eyebrow: Historie
+      heading: Archivieren statt Informationen verlieren
+      lead: Nicht mehr aktive Tiere und Boxen können aus dem aktiven Bestand entfernt werden, ohne ihre bisherigen Daten zu löschen.
+      steps:
+        - number: "10"
+          heading: Archivinformationen erhalten
+          body_html: Beim Archivieren können Grund, Datum und eine optionale Notiz hinterlegt werden. Archivierte Datensätze bleiben aufrufbar und können später wiederhergestellt werden.
+          note_html: „Dauerhaft löschen“ entfernt den Datensatz endgültig. Für ehemalige Tiere mit relevanter Historie ist die Archivierung die passendere Option.
+          images:
+            - file: animal-history.webp
+              alt: Tierhistorie mit archiviertem Tier
+              caption: Tierhistorie
+            - file: archive-details.webp
+              alt: Archivinformationen und Wiederherstellen-Schaltfläche
+              caption: Archivdetails und Wiederherstellung
+    - id: backup
+      number: "06"
+      eyebrow: Datensicherung
+      heading: Regelmäßig sichern und kontrolliert wiederherstellen
+      lead: Mit wachsendem Bestand enthalten Backups nicht nur Stammdaten, sondern auch Bilder, Fütterungen, Gewichtsverläufe und historische Informationen.
+      tone: dark
+      steps:
+        - number: "11"
+          heading: Safety Backup bei Wiederherstellung
+          body_html: Vor einer Wiederherstellung ist standardmäßig ein zusätzliches Safety Backup des aktuellen Zustands vorgesehen. Der Schutz ist als Opt-out ausgeführt und kann bewusst deaktiviert werden.
+          note_html: Solange das Safety Backup aktiviert bleibt, ist vor jeder Wiederherstellung keine separate manuelle Zwischensicherung erforderlich.
+          images:
+            - file: restore-safety-backup.webp
+              alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
+              caption: Safety Backup vor der Wiederherstellung
+  finish:
+    heading: Das war der Kernworkflow
+    body: "Im Alltag reduziert sich TerraManager damit auf wenige wiederkehrende Schritte: Box identifizieren, Versorgung dokumentieren, Fälligkeiten prüfen und den gewachsenen Datenbestand regelmäßig sichern."
+    download: TerraManager herunterladen
+    manual: Handbuch öffnen
+  footer:
+    tagline: Lokale Terrarienverwaltung von Codefrog.
+    nav_label: Fußnavigation
+    home: Startseite
+    privacy: Datenschutz
+    github: GitHub
+
+en:
+  locale: en_US
+  title: TerraManager Guide – Quick start and daily workflow
+  description: Visual TerraManager guide for enclosures, animals, QR codes, feedings, reminders, archiving and backups.
+  skip: Skip to content
+  nav_label: Guide navigation
+  nav:
+    start: Quick start
+    qr: QR & Scanner
+    feeding: Feedings
+    backup: Backup
+  language_label: Change language
+  language_name: Deutsch
+  home_label: Home
+  hero:
+    eyebrow: Visual quick start
+    heading: TerraManager in a few steps
+    body: From your first enclosure to the daily feeding routine – this guide shows the most important workflows directly in the app.
+    primary: Start the guide
+    manual: Full manual (German)
+    image: animals-overview.webp
+    image_alt: Animal overview in TerraManager
+  jump:
+    heading: Jump to a topic
+    items:
+      - number: "01"
+        target: start
+        title: Set up your collection
+        body: Add enclosures and animals
+      - number: "02"
+        target: qr
+        title: Use QR codes
+        body: Print, attach and scan
+      - number: "03"
+        target: feeding
+        title: Feedings
+        body: Individually or by enclosure scan
+      - number: "04"
+        target: reminders
+        title: Reminders
+        body: Intervals and due feedings
+      - number: "05"
+        target: archive
+        title: Archive records
+        body: Keep history instead of deleting
+      - number: "06"
+        target: backup
+        title: Back up your data
+        body: Backup and restore
+  sections:
+    - id: start
+      number: "01"
+      eyebrow: Set up your collection
+      heading: Enclosures and animals are the foundation
+      lead: Create the physical enclosure first. Then add the animal and assign it to the appropriate enclosure.
+      heading_image:
+        file: box_detail.webp
+        alt: Enclosure detail view
+        caption: Enclosure details
+      steps:
+        - number: "1"
+          heading: Add an enclosure
+          body_html: Open <strong>Enclosures</strong> and tap <strong>+</strong>. Add a name, dimensions, optionally a picture and any other useful information. After saving, the enclosure receives its own unique QR identifier automatically.
+          note_html: "Tip: A clear picture makes visual identification easier later, especially in larger collections."
+          images:
+            - file: boxes-overview.webp
+              alt: Enclosure overview with multiple enclosures
+              caption: Enclosure overview
+            - file: box-create.webp
+              alt: Form for creating a new enclosure
+              caption: Create a new enclosure
+        - number: "2"
+          reverse: true
+          heading: Add and assign an animal
+          body_html: Under <strong>Animals</strong>, create the animal record. Depending on your needs, you can record common and scientific names, category, sex, date of birth, temperature and humidity ranges, origin, weight and notes.<br><br>Then select the appropriate enclosure. One enclosure can contain multiple animals.
+          images:
+            - file: animal-edit.webp
+              alt: Animal edit screen
+              caption: Edit animal
+            - file: animal-details.webp
+              alt: Animal detail screen
+              caption: Animal details
+        - number: "3"
+          heading: Keep adding pictures
+          body_html: In addition to the primary picture, you can store more pictures in the gallery. Any picture can later be selected as the primary image without deleting the others.
+          images:
+            - file: gallery.webp
+              alt: Animal picture gallery
+              caption: Picture gallery
+    - id: qr
+      number: "02"
+      eyebrow: QR codes
+      heading: Connect the physical enclosure to its record
+      lead: Every enclosure has a unique QR code. Attach the printed code to the enclosure and scan it to open the matching workflow immediately.
+      tone: soft
+      steps:
+        - number: "4"
+          heading: Export codes as PDF
+          body_html: Under <strong>Settings</strong>, select active enclosures and export their QR codes together as a print-ready A4 PDF. You can choose the physical QR-code size before creating the document.
+          images:
+            - file: qr-pdf-export.webp
+              alt: Dialog for exporting enclosure QR codes to PDF
+              caption: Export QR codes together as PDF
+        - number: "5"
+          reverse: true
+          heading: Attach and scan
+          body_html: Attach the printed code to the actual terrarium or enclosure. TerraManager’s integrated scanner recognizes the code and associates it directly with the correct enclosure.
+          wide_images: true
+          images:
+            - file: qr-on-enclosure.webp
+              alt: QR code attached to a terrarium
+              caption: QR code on the enclosure
+            - file: qr-scanner.webp
+              alt: QR scanner in TerraManager
+              caption: Integrated scanner
+    - id: feeding
+      number: "03"
+      eyebrow: Feedings
+      heading: Record feedings directly – individually or by enclosure scan
+      lead: Feedings are stored with date, time and food or quantity, creating a chronological history for each animal.
+      steps:
+        - number: "6"
+          heading: Feeding history
+          body_html: The feeding history shows the animal’s previous feedings. Existing entries can be corrected or deleted if they were entered by mistake.
+          images:
+            - file: feeding-history.webp
+              alt: Animal feeding history
+              caption: Chronological feeding history
+        - number: "7"
+          reverse: true
+          heading: Quick feeding by enclosure scan
+          body_html: Scan the enclosure first. TerraManager then shows the active animals assigned to it. Select one or more animals that were actually fed and save the feeding together. A separate feeding entry is created for each selected animal.
+          note_html: <strong>Scanned the wrong enclosure?</strong> “Scan another enclosure” returns to the scanner so you can correct the accidental scan.
+          images:
+            - file: quick-feeding.webp
+              alt: Quick feeding after scanning an enclosure
+              caption: Select multiple animals from one enclosure
+    - id: reminders
+      number: "04"
+      eyebrow: Reminders
+      heading: Keep individual feeding schedules in view
+      lead: Each animal can have its own feeding reminder interval in days.
+      tone: soft
+      steps:
+        - number: "8"
+          heading: Set an interval
+          body_html: Open the reminder action in the animal details, enable the feeding reminder and enter a positive whole number of days as the interval.
+          images:
+            - file: feeding-reminder-settings.webp
+              alt: Feeding reminder settings
+              caption: Individual reminder interval
+        - number: "9"
+          reverse: true
+          heading: See which animals are due
+          body_html: When the calculated date is reached or passed, the animal is marked as <strong>Due</strong>. The animal overview also shows a highlighted reminder summary with the affected animals and their due times.
+          images:
+            - file: feeding-reminders-due.webp
+              alt: Animal overview with several due feedings
+              caption: Due feedings at a glance
+    - id: archive
+      number: "05"
+      eyebrow: History
+      heading: Archive records instead of losing information
+      lead: Animals and enclosures that are no longer active can be removed from the active collection without deleting their existing information.
+      steps:
+        - number: "10"
+          heading: Preserve archive information
+          body_html: When archiving, you can record a reason, date and optional note. Archived records remain accessible and can be restored later.
+          note_html: “Delete permanently” removes the record for good. For former animals whose history is still relevant, archiving is the better choice.
+          images:
+            - file: animal-history.webp
+              alt: Animal history with an archived animal
+              caption: Animal history
+            - file: archive-details.webp
+              alt: Archive information with restore action
+              caption: Archive details and restore
+    - id: backup
+      number: "06"
+      eyebrow: Backup
+      heading: Back up regularly and restore in a controlled way
+      lead: As your collection grows, backups contain not only core records but also pictures, feedings, weight history and archived information.
+      tone: dark
+      steps:
+        - number: "11"
+          heading: Safety backup before restore
+          body_html: Before restoring a backup, TerraManager offers an additional safety backup of the current state by default. This protection is opt-out and can be deliberately disabled.
+          note_html: As long as the safety backup remains enabled, you do not need to create an extra manual backup before every restore.
+          images:
+            - file: restore-safety-backup.webp
+              alt: Restore dialog with safety backup enabled
+              caption: Safety backup before restore
+  finish:
+    heading: That is the core workflow
+    body: "For daily use, TerraManager comes down to a few recurring actions: identify the enclosure, record care, check due feedings and regularly back up the growing collection data."
+    download: Download TerraManager
+    manual: Open manual (German)
+  footer:
+    tagline: Local terrarium management by Codefrog.
+    nav_label: Footer navigation
+    home: Home
+    privacy: Privacy
+    github: GitHub

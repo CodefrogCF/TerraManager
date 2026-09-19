@@ -1,0 +1,165 @@
+{% assign t = site.data.guide[page.lang] %}
+{% if page.lang == 'de' %}
+  {% assign alternate_path = '/guide/en/' %}
+  {% assign home_path = '/' %}
+  {% assign privacy_path = '/privacy/de/' %}
+{% else %}
+  {% assign alternate_path = '/guide/' %}
+  {% assign home_path = '/en/' %}
+  {% assign privacy_path = '/privacy/' %}
+{% endif %}
+<!doctype html>
+<html lang="{{ page.lang }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#073b2b">
+    <title>{{ t.title }}</title>
+    <meta name="description" content="{{ t.description }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    <link rel="alternate" hreflang="de" href="{{ '/guide/' | absolute_url }}">
+    <link rel="alternate" hreflang="en" href="{{ '/guide/en/' | absolute_url }}">
+    <link rel="alternate" hreflang="x-default" href="{{ '/guide/' | absolute_url }}">
+    <link rel="icon" type="image/png" href="{{ '/assets/images/app-icon.png' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/home.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/guide/assets/css/guide.css' | relative_url }}">
+  </head>
+  <body>
+    <a class="skip-link" href="#guide-content">{{ t.skip }}</a>
+
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="brand" href="{{ home_path | relative_url }}" aria-label="TerraManager {{ t.home_label }}">
+          <img src="{{ '/assets/images/app-icon.png' | relative_url }}" alt="" width="44" height="44">
+          <span>TerraManager</span>
+        </a>
+        <nav aria-label="{{ t.nav_label }}">
+          <ul class="nav-list">
+            <li><a href="#start">{{ t.nav.start }}</a></li>
+            <li><a href="#qr">{{ t.nav.qr }}</a></li>
+            <li><a href="#feeding">{{ t.nav.feeding }}</a></li>
+            <li><a href="#backup">{{ t.nav.backup }}</a></li>
+          </ul>
+        </nav>
+        <a class="language-link" href="{{ alternate_path | relative_url }}" lang="{% if page.lang == 'de' %}en{% else %}de{% endif %}" aria-label="{{ t.language_label }}: {{ t.language_name }}">
+          <span aria-hidden="true">🌐</span> {{ t.language_name }}
+        </a>
+      </div>
+    </header>
+
+    <main id="guide-content">
+      <section class="guide-hero">
+        <div class="shell guide-hero-grid">
+          <div>
+            <p class="eyebrow">{{ t.hero.eyebrow }}</p>
+            <h1>{{ t.hero.heading }}</h1>
+            <p class="hero-body">{{ t.hero.body }}</p>
+            <div class="button-row">
+              <a class="button button-primary" href="#start">{{ t.hero.primary }}</a>
+              <a class="button button-secondary" href="{{ '/guide/TerraManager-Handbuch.pdf' | relative_url }}">{{ t.hero.manual }}</a>
+            </div>
+          </div>
+          <figure class="guide-hero-shot">
+            <img src="{{ '/guide/assets/images/' | append: t.hero.image | relative_url }}" alt="{{ t.hero.image_alt }}">
+          </figure>
+        </div>
+      </section>
+
+      <section class="guide-jump section-tight" aria-labelledby="jump-heading">
+        <div class="shell">
+          <h2 id="jump-heading">{{ t.jump.heading }}</h2>
+          <div class="jump-grid">
+            {% for item in t.jump.items %}
+              <a href="#{{ item.target }}"><span>{{ item.number }}</span><strong>{{ item.title }}</strong><small>{{ item.body }}</small></a>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      {% for section in t.sections %}
+        {% assign section_class = 'guide-section' %}
+        {% if section.tone == 'soft' %}
+          {% assign section_class = section_class | append: ' guide-section-soft' %}
+        {% elsif section.tone == 'dark' %}
+          {% assign section_class = section_class | append: ' guide-section-dark' %}
+        {% endif %}
+        <section class="{{ section_class }}" id="{{ section.id }}">
+          <div class="shell">
+            <div class="guide-section-heading">
+              <p class="eyebrow{% if section.tone == 'dark' %} light{% endif %}">{{ section.number }} · {{ section.eyebrow }}</p>
+              <h2>{{ section.heading }}</h2>
+              <p>{{ section.lead }}</p>
+              {% if section.heading_image %}
+                <figure class="app-shot solo-shot">
+                  <img src="{{ '/guide/assets/images/' | append: section.heading_image.file | relative_url }}" alt="{{ section.heading_image.alt }}">
+                  <figcaption>{{ section.heading_image.caption }}</figcaption>
+                </figure>
+              {% endif %}
+            </div>
+
+            {% for step in section.steps %}
+              <article class="guide-step{% if step.reverse %} reverse{% endif %}">
+                <div class="guide-copy">
+                  <span class="step-number">{{ step.number }}</span>
+                  <h3>{{ step.heading }}</h3>
+                  <p>{{ step.body_html }}</p>
+                  {% if step.note_html %}
+                    <p class="guide-note{% if section.tone == 'dark' %} dark-note{% endif %}">{{ step.note_html }}</p>
+                  {% endif %}
+                </div>
+
+                {% if step.images.size > 1 %}
+                  <div class="shot-pair{% if step.wide_images %} wide-shot-pair{% endif %}">
+                    {% for image in step.images %}
+                      <figure class="app-shot">
+                        <img src="{{ '/guide/assets/images/' | append: image.file | relative_url }}" alt="{{ image.alt }}">
+                        <figcaption>{{ image.caption }}</figcaption>
+                      </figure>
+                    {% endfor %}
+                  </div>
+                {% else %}
+                  {% assign image = step.images[0] %}
+                  <figure class="app-shot solo-shot{% if section.tone == 'dark' %} dark-shot{% endif %}">
+                    <img src="{{ '/guide/assets/images/' | append: image.file | relative_url }}" alt="{{ image.alt }}">
+                    <figcaption>{{ image.caption }}</figcaption>
+                  </figure>
+                {% endif %}
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      {% endfor %}
+
+      <section class="guide-finish">
+        <div class="shell support-card">
+          <div>
+            <h2>{{ t.finish.heading }}</h2>
+            <p>{{ t.finish.body }}</p>
+          </div>
+          <div class="button-row support-actions">
+            <a class="button button-primary" href="{{ home_path | relative_url }}#download">{{ t.finish.download }}</a>
+            <a class="button button-secondary" href="{{ '/guide/TerraManager-Handbuch.pdf' | relative_url }}">{{ t.finish.manual }}</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="shell footer-grid">
+        <div class="footer-brand">
+          <img src="{{ '/assets/images/app-icon.png' | relative_url }}" alt="" width="38" height="38">
+          <div><strong>TerraManager</strong><span>{{ t.footer.tagline }}</span></div>
+        </div>
+        <nav aria-label="{{ t.footer.nav_label }}">
+          <ul>
+            <li><a href="{{ home_path | relative_url }}">{{ t.footer.home }}</a></li>
+            <li><a href="{{ privacy_path | relative_url }}">{{ t.footer.privacy }}</a></li>
+            <li><a href="https://github.com/CodefrogCF/TerraManager">{{ t.footer.github }}</a></li>
+          </ul>
+        </nav>
+        <p>© 2026 Codefrog · GPL-3.0-or-later</p>
+      </div>
+    </footer>
+  </body>
+</html>

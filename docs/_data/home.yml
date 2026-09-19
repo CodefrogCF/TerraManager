@@ -181,9 +181,12 @@ en:
     heading: Answers without detours
     body: The guides cover installation, updates, privacy and the closed Android test. Technical project documentation remains available separately.
     cards:
-      - title: Installation and updates
-        body: Trusted builds, Android signing and safe updates.
-        url: /installation-and-updates.html
+      - title: Visual user guide
+        body: Add enclosures and animals, use QR codes, record feedings, manage reminders and back up your data.
+        url: /guide/en/
+#      - title: Installation and updates
+#        body: Trusted builds, Android signing and safe updates.
+#        url: /installation-and-updates.html
       - title: Android testing
         body: Registration and installation through the closed Google Play test.
         url: /testing/

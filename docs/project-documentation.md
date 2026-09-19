@@ -25,9 +25,7 @@ Public project information:
 
 ## Project Status
 
-Latest published application version: **v1.9.0+68 – Animal Input & History**.
-
-The current source also implements the v1.9.1 overview and Edit Box refinements:
+Latest published application version: **v1.9.2+70 – Animal Input & History**.
 
 - Animal category grouping is controlled independently beside the sort menu;
 - creation time, displayed name, age and latest feeding work in flat and

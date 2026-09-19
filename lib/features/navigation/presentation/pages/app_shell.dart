@@ -6,6 +6,7 @@ import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/pages/animals_page.dart';
 import '../../../boxes/presentation/pages/boxes_page.dart';
 import '../../../settings/presentation/pages/settings.dart';
+import '../../../feedings/application/feeding_reminder_service.dart';
 
 class AppShell extends StatefulWidget {
   final AppDatabase database;
@@ -25,6 +26,35 @@ class _AppShellState extends State<AppShell> {
   int _dataRevision = 0;
   double _horizontalDragDistance = 0;
   int _animalsRevision = 0;
+  bool _hasDueFeedings = false;
+  int _dueFeedingsRequest = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshDueFeedings();
+  }
+
+  Future<void> _refreshDueFeedings() async {
+    final request = ++_dueFeedingsRequest;
+
+    final dueStates = await FeedingReminderService(widget.database)
+        .getDueReminderStates();
+
+    if (!mounted || request != _dueFeedingsRequest) {
+      return;
+    }
+
+    final hasDueFeedings = dueStates.isNotEmpty;
+
+    if (_hasDueFeedings == hasDueFeedings) {
+      return;
+    }
+
+    setState(() {
+      _hasDueFeedings = hasDueFeedings;
+    });
+  }
 
   void _selectPage(int index) {
     if (index < 0 || index >= _pageCount || index == _currentIndex) {
@@ -68,18 +98,37 @@ class _AppShellState extends State<AppShell> {
     setState(() {
       _dataRevision++;
     });
+
+    _refreshDueFeedings();
   }
 
   void _handleFeedingChanged() {
     setState(() {
       _dataRevision++;
     });
+
+    _refreshDueFeedings();
   }
 
-  void _handleAnimalsChanged() {
+  void _handleAnimalsDataChanged() {
     setState(() {
       _animalsRevision++;
     });
+
+    _refreshDueFeedings();
+  }
+
+  Widget _animalsNavigationIcon({required bool selected}) {
+    return Badge(
+      key: Key(
+        selected
+            ? 'animals-feeding-due-badge-selected'
+            : 'animals-feeding-due-badge',
+      ),
+      isLabelVisible: _hasDueFeedings,
+      label: const Text('!'),
+      child: Icon(selected ? Icons.pets : Icons.pets_outlined),
+    );
   }
 
   @override
@@ -89,12 +138,13 @@ class _AppShellState extends State<AppShell> {
         key: ValueKey('boxes-$_dataRevision'),
         database: widget.database,
         onFeedingChanged: _handleFeedingChanged,
-        onAnimalsChanged: _handleAnimalsChanged,
+        onAnimalsChanged: _handleAnimalsDataChanged,
       ),
       AnimalsPage(
         key: ValueKey('animals-$_dataRevision'),
         database: widget.database,
         dataRevision: _animalsRevision,
+        onDataChanged: _handleAnimalsDataChanged,
       ),
       SettingsPage(
         database: widget.database,
@@ -155,8 +205,8 @@ class _AppShellState extends State<AppShell> {
               label: context.l10n.navigationBoxes,
             ),
             NavigationDestination(
-              icon: const Icon(Icons.pets_outlined),
-              selectedIcon: const Icon(Icons.pets),
+              icon: _animalsNavigationIcon(selected: false),
+              selectedIcon: _animalsNavigationIcon(selected: true),
               label: context.l10n.navigationAnimals,
             ),
             NavigationDestination(

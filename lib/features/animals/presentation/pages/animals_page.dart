@@ -32,12 +32,14 @@ class AnimalsPage extends StatefulWidget {
   final AppDatabase database;
   final FeedingReminderClock? reminderNow;
   final int dataRevision;
+  final VoidCallback? onDataChanged;
 
   const AnimalsPage({
     super.key,
     required this.database,
     this.reminderNow,
     this.dataRevision = 0,
+    this.onDataChanged,
   });
 
   @override
@@ -166,6 +168,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
     setState(() {
       _loadAnimals();
     });
+
+    widget.onDataChanged?.call();
   }
 
   Future<void> _openAnimalDetail(Animal animal, List<Animal> animals) async {
@@ -192,6 +196,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
 
     await _reloadAnimalsPreservingScroll(previousOffset);
+    widget.onDataChanged?.call();
   }
 
   Future<void> _handleAnimalAction(
@@ -228,6 +233,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
 
     await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+    widget.onDataChanged?.call();
+
     if (mounted) {
       _showMessage(context.l10n.feedingCreated);
     }
@@ -274,6 +281,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     );
     if (mounted) {
       await _reloadAnimalsPreservingScroll(previousOffset);
+      widget.onDataChanged?.call();
     }
   }
 
@@ -302,6 +310,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
       }
 
       await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+      widget.onDataChanged?.call();
+
       if (mounted) {
         _showMessage(context.l10n.animalArchived);
       }
@@ -352,6 +362,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
         return;
       }
       await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+      widget.onDataChanged?.call();
+
       if (mounted) {
         _showMessage(context.l10n.animalDuplicated);
       }

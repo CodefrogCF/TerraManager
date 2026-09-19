@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/presentation/pages/app_shell.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
@@ -58,6 +59,34 @@ void main() {
       const Offset(400, 0),
     );
     await tester.pumpAndSettle();
+  }
+
+  Future<int> createAnimalWithReminder({
+    required DateTime baseline,
+    int intervalDays = 1,
+  }) async {
+    final boxId = await BoxRepository(database)
+        .createBoxWithGeneratedQrId(name: 'Reminder Box');
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Reminder Animal',
+      latinName: 'Test species',
+      tempMin: 20,
+      tempMax: 30,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final updated = await AnimalRepository(database).updateFeedingReminder(
+      animalId: animalId,
+      intervalDays: intervalDays,
+      baseline: baseline,
+    );
+
+    expect(updated, isTrue);
+
+    return animalId;
   }
 
   testWidgets('shows Boxes as the initial primary page', (tester) async {
@@ -344,5 +373,152 @@ void main() {
     await swipeLeft(tester);
     expect(find.text('Fresh Snake'), findsOneWidget);
     expect(find.text('No animals available'), findsNothing);
+  });
+
+  testWidgets('hides Animals navigation due badge when nothing is due', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    final badge = tester.widget<Badge>(
+      find.byKey(const Key('animals-feeding-due-badge')),
+    );
+
+    expect(badge.isLabelVisible, isFalse);
+  });
+
+  testWidgets('shows Animals navigation due badge when a feeding is due', (
+    tester,
+  ) async {
+    await createAnimalWithReminder(
+      baseline: DateTime.now().subtract(const Duration(days: 2)),
+      intervalDays: 1,
+    );
+
+    await pumpApp(tester);
+
+    final badge = tester.widget<Badge>(
+      find.byKey(const Key('animals-feeding-due-badge')),
+    );
+
+    expect(badge.isLabelVisible, isTrue);
+  });
+
+  testWidgets('hides Animals navigation badge when reminder is not due yet', (
+    tester,
+  ) async {
+    await createAnimalWithReminder(baseline: DateTime.now(), intervalDays: 7);
+
+    await pumpApp(tester);
+
+    final badge = tester.widget<Badge>(
+      find.byKey(const Key('animals-feeding-due-badge')),
+    );
+
+    expect(badge.isLabelVisible, isFalse);
+  });
+
+  testWidgets('keeps due-feeding indicator visible on other primary pages', (
+    tester,
+  ) async {
+    await createAnimalWithReminder(
+      baseline: DateTime.now().subtract(const Duration(days: 2)),
+      intervalDays: 1,
+    );
+
+    await pumpApp(tester);
+
+    expect(
+      tester
+          .widget<Badge>(find.byKey(const Key('animals-feeding-due-badge')))
+          .isLabelVisible,
+      isTrue,
+    );
+
+    await tester.tap(find.text('Settings').last);
+    await tester.pumpAndSettle();
+
+    expect(selectedPage(tester), 2);
+
+    final badge = tester.widget<Badge>(
+      find.byKey(const Key('animals-feeding-due-badge')),
+    );
+
+    expect(badge.isLabelVisible, isTrue);
+  });
+
+  testWidgets('refreshes navigation badge after reminder changes', (
+    tester,
+  ) async {
+    final animalId = await createAnimalWithReminder(
+      baseline: DateTime.now().subtract(const Duration(days: 2)),
+      intervalDays: 1,
+    );
+
+    await pumpApp(tester);
+
+    expect(
+      tester
+          .widget<Badge>(find.byKey(const Key('animals-feeding-due-badge')))
+          .isLabelVisible,
+      isTrue,
+    );
+
+    await tester.tap(find.text('Animals').last);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('animal-list-item-$animalId')));
+    await tester.pumpAndSettle();
+
+    // Open the existing feeding-reminder settings from Animal Details.
+    await tester.tap(find.byKey(const Key('feeding-reminder-button')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('feeding-reminder-settings-page')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('feeding-reminder-enabled-switch')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(const Key('save-feeding-reminder-form-button')),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    final badge = tester.widget<Badge>(
+      find.byKey(const Key('animals-feeding-due-badge-selected')),
+    );
+
+    expect(badge.isLabelVisible, isFalse);
+  });
+
+  testWidgets('ignores animals with disabled feeding reminders', (
+    tester,
+  ) async {
+    final animalId = await createAnimalWithReminder(
+      baseline: DateTime.now().subtract(const Duration(days: 2)),
+      intervalDays: 1,
+    );
+
+    final updated = await AnimalRepository(database).updateFeedingReminder(
+      animalId: animalId,
+      intervalDays: null,
+      baseline: null,
+    );
+
+    expect(updated, isTrue);
+
+    await pumpApp(tester);
+
+    final badge = tester.widget<Badge>(
+      find.byKey(const Key('animals-feeding-due-badge')),
+    );
+
+    expect(badge.isLabelVisible, isFalse);
   });
 }

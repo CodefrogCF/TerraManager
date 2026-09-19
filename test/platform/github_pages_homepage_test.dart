@@ -124,4 +124,78 @@ void main() {
 
     expect(normalize(publicPage), repositoryLicense);
   });
+
+    test('publishes valid download destinations on the homepage', () {
+    final layout = read('docs/_layouts/home.html');
+
+    const playStoreUrl =
+        'https://play.google.com/store/apps/details?id=com.codefrog.terramanager';
+    const githubReleasesUrl =
+        'https://github.com/CodefrogCF/TerraManager/releases';
+
+    expect(
+      layout,
+      contains('href="$playStoreUrl"'),
+      reason: 'The homepage must link to the TerraManager Play Store listing.',
+    );
+
+    expect(
+      layout,
+      contains('href="$githubReleasesUrl"'),
+      reason: 'The homepage must link to GitHub Releases.',
+    );
+
+    for (final url in [playStoreUrl, githubReleasesUrl]) {
+      final uri = Uri.parse(url);
+
+      expect(uri.isAbsolute, isTrue, reason: url);
+      expect(uri.scheme, 'https', reason: url);
+      expect(uri.host, isNotEmpty, reason: url);
+    }
+
+    expect(
+      layout.toLowerCase(),
+      isNot(contains('href="#"')),
+      reason: 'Download actions must not use placeholder links.',
+    );
+  });
+
+  test(
+    'download destinations are reachable',
+    () async {
+      const urls = [
+        'https://play.google.com/store/apps/details?id=com.codefrog.terramanager',
+        'https://github.com/CodefrogCF/TerraManager/releases',
+      ];
+
+      final client = HttpClient()
+        ..userAgent = 'TerraManager release link check';
+
+      try {
+        for (final url in urls) {
+          final request = await client.getUrl(Uri.parse(url));
+          request.followRedirects = true;
+          request.maxRedirects = 5;
+
+          final response = await request.close();
+
+          // Consume the response so the connection can be cleanly released.
+          await response.drain<void>();
+
+          expect(
+            response.statusCode,
+            inInclusiveRange(200, 399),
+            reason:
+                '$url returned HTTP ${response.statusCode} instead of a '
+                'successful response or redirect.',
+          );
+        }
+      } finally {
+        client.close(force: true);
+      }
+    },
+    skip: Platform.environment['RUN_DOWNLOAD_LINK_CHECK'] != 'true'
+        ? 'Run with RUN_DOWNLOAD_LINK_CHECK=true as part of the release check.'
+        : false,
+  );
 }

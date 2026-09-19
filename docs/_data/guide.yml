@@ -220,7 +220,7 @@ en:
     heading: TerraManager in a few steps
     body: From your first enclosure to the daily feeding routine – this guide shows the most important workflows directly in the app.
     primary: Start the guide
-    manual: Full manual (German)
+    manual: Full manual
     image: animals-overview.webp
     image_alt: Animal overview in TerraManager
   jump:
@@ -396,7 +396,7 @@ en:
     heading: That is the core workflow
     body: "For daily use, TerraManager comes down to a few recurring actions: identify the enclosure, record care, check due feedings and regularly back up the growing collection data."
     download: Download TerraManager
-    manual: Open manual (German)
+    manual: Open manual
   footer:
     tagline: Local terrarium management by Codefrog.
     nav_label: Footer navigation

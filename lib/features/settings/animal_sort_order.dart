@@ -62,6 +62,6 @@ extension AnimalSortCriterionDefaults on AnimalSortCriterion {
     AnimalSortCriterion.displayName => AnimalSortOrder.displayNameAscending,
     AnimalSortCriterion.age => AnimalSortOrder.ageOldestFirst,
     AnimalSortCriterion.latestFeeding =>
-      AnimalSortOrder.latestFeedingNewestFirst,
+      AnimalSortOrder.latestFeedingOldestFirst,
   };
 }

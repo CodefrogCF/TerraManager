@@ -16,7 +16,7 @@ void main() {
         AnimalSortCriterion.displayName: AnimalSortOrder.displayNameAscending,
         AnimalSortCriterion.age: AnimalSortOrder.ageOldestFirst,
         AnimalSortCriterion.latestFeeding:
-            AnimalSortOrder.latestFeedingNewestFirst,
+            AnimalSortOrder.latestFeedingOldestFirst,
       };
 
       for (final entry in defaults.entries) {
@@ -522,5 +522,26 @@ void main() {
     expect(group.subgroups, hasLength(1));
     expect(group.subgroups.single.showHeading, isFalse);
     expect(group.subgroups.single.subcategory, isNull);
+  });
+
+  test('latest feeding criterion defaults to oldest feeding first', () {
+    expect(
+      AnimalSortCriterion.latestFeeding.defaultOrder,
+      AnimalSortOrder.latestFeedingOldestFirst,
+    );
+  });
+
+  test('latest feeding sort toggles between oldest and newest', () {
+    final first = AnimalSortCriterion.latestFeeding.defaultOrder;
+
+    expect(first, AnimalSortOrder.latestFeedingOldestFirst);
+
+    final second = first.reversed;
+
+    expect(second, AnimalSortOrder.latestFeedingNewestFirst);
+
+    final third = second.reversed;
+
+    expect(third, AnimalSortOrder.latestFeedingOldestFirst);
   });
 }

@@ -7,6 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
+import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/presentation/pages/app_shell.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
@@ -521,4 +523,106 @@ void main() {
 
     expect(badge.isLabelVisible, isFalse);
   });
+
+  testWidgets(
+    'Animal detail navigation follows latest-feeding overview order',
+    (tester) async {
+      final boxId = await BoxRepository(database)
+          .createBoxWithGeneratedQrId(name: 'Feeding Sort Box');
+
+      final animalRepository = AnimalRepository(database);
+      final feedingRepository = FeedingRepository(database);
+
+      final recentId = await animalRepository.createAnimal(
+        boxId: boxId,
+        commonName: 'Recent',
+        latinName: 'Species recent',
+        tempMin: 20,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 70,
+      );
+
+      final oldId = await animalRepository.createAnimal(
+        boxId: boxId,
+        commonName: 'Old',
+        latinName: 'Species old',
+        tempMin: 20,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 70,
+      );
+
+      final neverId = await animalRepository.createAnimal(
+        boxId: boxId,
+        commonName: 'Never',
+        latinName: 'Species never',
+        tempMin: 20,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 70,
+      );
+
+      await feedingRepository.addFeeding(recentId, DateTime(2026, 9, 18));
+
+      await feedingRepository.addFeeding(oldId, DateTime(2026, 9, 1));
+
+      await settingsController.setAnimalSortOrder(
+        AnimalSortOrder.latestFeedingOldestFirst,
+      );
+
+      await pumpApp(tester);
+
+      await tester.tap(find.text('Animals').last);
+      await tester.pumpAndSettle();
+
+      // Oldest-first order is:
+      // Never fed -> Old feeding -> Recent feeding.
+      final neverTile = find.byKey(Key('animal-list-item-$neverId'));
+      final oldTile = find.byKey(Key('animal-list-item-$oldId'));
+      final recentTile = find.byKey(Key('animal-list-item-$recentId'));
+
+      expect(
+        tester.getTopLeft(neverTile).dy,
+        lessThan(tester.getTopLeft(oldTile).dy),
+      );
+      expect(
+        tester.getTopLeft(oldTile).dy,
+        lessThan(tester.getTopLeft(recentTile).dy),
+      );
+
+      // Open the middle item.
+      await tester.tap(oldTile);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Old'), findsWidgets);
+
+      // Swipe right: previous item in the visible ordering is Never.
+      await tester.drag(
+        find.byKey(const Key('animal-detail-swipe-area')),
+        const Offset(400, 0),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Never'), findsWidgets);
+
+      // Return to Old.
+      await tester.drag(
+        find.byKey(const Key('animal-detail-swipe-area')),
+        const Offset(-400, 0),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Old'), findsWidgets);
+
+      // Swipe left: next item is Recent.
+      await tester.drag(
+        find.byKey(const Key('animal-detail-swipe-area')),
+        const Offset(-400, 0),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Recent'), findsWidgets);
+    },
+  );
 }

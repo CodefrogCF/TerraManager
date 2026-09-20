@@ -270,7 +270,6 @@ class AnimalRepository {
               humidityMax: source.humidityMax,
               originHabitat: Value.absentIfNull(source.originHabitat),
               weight: Value.absentIfNull(source.weight),
-              sheddingNotes: Value.absentIfNull(source.sheddingNotes),
               restOrDormancyPeriods: Value.absentIfNull(
                 source.restOrDormancyPeriods,
               ),

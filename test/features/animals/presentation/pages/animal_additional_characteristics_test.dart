@@ -105,10 +105,6 @@ void main() {
       find.byKey(const Key('rest-or-dormancy-periods-field')),
       'Reduced activity in winter',
     );
-    await tester.enterText(
-      find.byKey(const Key('shedding-notes-field')),
-      'Complete sheds',
-    );
     await tester.enterText(find.byKey(const Key('notes-field')), 'Calm animal');
 
     await tester.tap(find.byKey(const Key('save-animal-button')));
@@ -121,7 +117,6 @@ void main() {
     expect(animal.nighttimeTemperatureMin, 18);
     expect(animal.nighttimeTemperatureMax, 20);
     expect(animal.restOrDormancyPeriods, 'Reduced activity in winter');
-    expect(animal.sheddingNotes, 'Complete sheds');
     expect(animal.notes, 'Calm animal');
 
     final history = await AnimalWeightRepository(database)

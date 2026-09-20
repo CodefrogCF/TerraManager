@@ -12,6 +12,7 @@ import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
 import '../../../core/database/repositories/media_repository.dart';
 import '../../../core/database/repositories/picture_gallery_repository.dart';
+import '../../../core/database/repositories/shedding_repository.dart';
 import '../../settings/app_accent.dart';
 import '../../settings/app_language.dart';
 import '../../settings/animal_name_order.dart';
@@ -99,6 +100,8 @@ class BackupExportService {
     for (final animal in animals) {
       final weightHistory = await AnimalWeightRepository(database)
           .getHistory(animal.id);
+      final sheddingHistory = await SheddingRepository(database)
+          .getHistory(animal.id);
       final exportedPictures = await _exportAnimalPictures(
         animal: animal,
         mediaRepository: mediaRepository,
@@ -145,6 +148,17 @@ class BackupExportService {
               )
               .toList(),
           sheddingNotes: animal.sheddingNotes,
+          sheddingHistory: sheddingHistory
+              .map(
+                (entry) => BackupSheddingEvent(
+                  id: entry.id,
+                  shedAt: entry.shedAt,
+                  notes: entry.notes,
+                  createdAt: entry.createdAt,
+                  updatedAt: entry.updatedAt,
+                ),
+              )
+              .toList(),
           restOrDormancyPeriods: animal.restOrDormancyPeriods,
           temperatureZones: animal.temperatureZones,
           pictureMediaPath: exportedPictures.primaryPath,

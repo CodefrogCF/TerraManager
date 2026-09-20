@@ -10,6 +10,7 @@ import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/database/repositories/shedding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
@@ -22,6 +23,8 @@ import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../media/presentation/pages/picture_gallery_page.dart';
 import '../animal_display_names.dart';
 import '../widgets/animal_picture.dart';
+import '../shedding_entry_dialog.dart';
+import 'shedding_history_page.dart';
 import 'animal_edit_page.dart';
 import 'animal_weight_history_page.dart';
 
@@ -61,6 +64,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
   late Future<FeedingEvent?> _latestFeedingFuture;
   late Future<FeedingReminderState?> _feedingReminderFuture;
   late Future<AnimalWeightEntry?> _latestWeightFuture;
+  late Future<SheddingEvent?> _latestSheddingFuture;
   late Future<MediaAsset?> _pictureMediaFuture;
   late Future<Box?> _boxFuture;
 
@@ -78,10 +82,17 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     _loadAnimal();
     _loadLatestFeeding();
     _loadFeedingReminder();
+    _loadLatestShedding();
+  }
+
+  void _loadLatestShedding() {
+    _latestSheddingFuture = SheddingRepository(widget.database)
+        .getLatest(_animalId);
   }
 
   void _loadAnimal() {
     _animalFuture = AnimalRepository(widget.database).getAnimalById(_animalId);
+
     _latestWeightFuture = AnimalWeightRepository(widget.database)
         .getLatest(_animalId);
 
@@ -97,9 +108,11 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
     _boxFuture = _animalFuture.then((animal) {
       final boxId = animal?.boxId;
+
       if (boxId == null) {
         return null;
       }
+
       return BoxRepository(widget.database).getBoxById(boxId);
     });
   }
@@ -143,6 +156,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       _invalidateNavigationContextIfNeeded(animal);
       _loadAnimal();
       _loadFeedingReminder();
+      _loadLatestShedding();
     });
   }
 
@@ -189,6 +203,35 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       return;
     }
     setState(_loadAnimal);
+  }
+
+  Future<void> _openSheddingHistory() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            SheddingHistoryPage(database: widget.database, animalId: _animalId),
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(_loadLatestShedding);
+  }
+
+  Future<void> _addSheddingEntry() async {
+    final created = await showSheddingEntryDialog(
+      context: context,
+      database: widget.database,
+      animalId: _animalId,
+    );
+
+    if (!mounted || created != true) {
+      return;
+    }
+
+    setState(_loadLatestShedding);
   }
 
   Future<void> _openPictureGallery() async {
@@ -492,6 +535,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       _loadAnimal();
       _loadLatestFeeding();
       _loadFeedingReminder();
+      _loadLatestShedding();
     });
   }
 
@@ -751,7 +795,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     );
     final hasAdditionalCharacteristics = [
       animal.originHabitat,
-      animal.sheddingNotes,
       animal.restOrDormancyPeriods,
     ].any((value) => value != null && value.trim().isNotEmpty);
 
@@ -894,9 +937,11 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           future: _latestWeightFuture,
           builder: (context, snapshot) {
             final latest = snapshot.data;
+
             if (snapshot.hasError) {
               return const SizedBox.shrink();
             }
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -938,6 +983,58 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             );
           },
         ),
+
+        const SizedBox(height: 8),
+
+        FutureBuilder<SheddingEvent?>(
+          future: _latestSheddingFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const SizedBox.shrink();
+            }
+
+            final latest = snapshot.data;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (latest != null)
+                  _DetailRow(
+                    key: const Key('shedding-detail'),
+                    label: context.l10n.latestShedding,
+                    value: _formatDateTime(latest.shedAt),
+                  )
+                else
+                  _DetailRow(
+                    key: const Key('shedding-empty-detail'),
+                    label: context.l10n.latestShedding,
+                    value: context.l10n.noSheddingEventsAvailable,
+                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton.icon(
+                        key: const Key('shedding-add-button'),
+                        onPressed: _addSheddingEntry,
+                        icon: const Icon(Icons.add),
+                        label: Text(context.l10n.addSheddingEvent),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextButton.icon(
+                        key: const Key('shedding-history-button'),
+                        onPressed: _openSheddingHistory,
+                        icon: const Icon(Icons.history),
+                        label: Text(context.l10n.sheddingHistory),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
+
         if (hasAdditionalCharacteristics) ...[
           const SizedBox(height: 16),
           Text(
@@ -951,12 +1048,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               key: const Key('origin-habitat-detail'),
               label: context.l10n.originHabitat,
               value: animal.originHabitat!,
-            ),
-          if (animal.sheddingNotes?.trim().isNotEmpty == true)
-            _DetailRow(
-              key: const Key('shedding-notes-detail'),
-              label: context.l10n.sheddingNotes,
-              value: animal.sheddingNotes!,
             ),
           if (animal.restOrDormancyPeriods?.trim().isNotEmpty == true)
             _DetailRow(

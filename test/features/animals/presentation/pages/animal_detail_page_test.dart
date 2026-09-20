@@ -7,6 +7,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
+import 'package:terramanager/core/database/repositories/shedding_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
@@ -252,6 +253,233 @@ void main() {
     expect(find.text('Feeding History'), findsOneWidget);
 
     expect(find.byKey(const Key('add-feeding-button')), findsOneWidget);
+  });
+
+  testWidgets('shows latest shedding on animal detail', (tester) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'shedding-detail-box'));
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Shedding Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final repository = SheddingRepository(database);
+
+    await repository.add(
+      animalId: animalId,
+      shedAt: DateTime(2026, 8, 10, 12),
+      notes: 'Older shed',
+    );
+
+    await repository.add(
+      animalId: animalId,
+      shedAt: DateTime(2026, 9, 20, 18, 30),
+      notes: 'Latest shed',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    final latestShedding = find.byKey(const Key('shedding-detail'));
+
+    await tester.scrollUntilVisible(latestShedding, 300);
+
+    await tester.pumpAndSettle();
+
+    expect(latestShedding, findsOneWidget);
+
+    expect(find.text('Latest shedding'), findsOneWidget);
+
+    expect(find.text('20.09.2026 18:30'), findsOneWidget);
+
+    expect(find.text('10.08.2026 12:00'), findsNothing);
+  });
+
+  testWidgets('adds shedding directly from animal detail', (tester) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'shedding-add-detail-box'));
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Shedding Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    final addButton = find.byKey(const Key('shedding-add-button'));
+
+    await tester.scrollUntilVisible(addButton, 300);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('shedding-empty-detail')), findsOneWidget);
+
+    await tester.tap(addButton);
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('shedding-dialog')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('shedding-notes-field')),
+      'Complete shed from detail',
+    );
+
+    await tester.tap(find.byKey(const Key('save-shedding-button')));
+
+    await tester.pumpAndSettle();
+
+    final history = await SheddingRepository(database).getHistory(animalId);
+
+    expect(history, hasLength(1));
+
+    expect(history.single.notes, 'Complete shed from detail');
+
+    expect(find.byKey(const Key('shedding-detail')), findsOneWidget);
+
+    expect(find.byKey(const Key('shedding-empty-detail')), findsNothing);
+  });
+
+  testWidgets(
+    'shedding history button opens history and refreshes detail on return',
+    (tester) async {
+      final boxId = await database
+          .into(database.boxes)
+          .insert(BoxesCompanion.insert(qrId: 'shedding-history-detail-box'));
+
+      final animalId = await AnimalRepository(database).createAnimal(
+        boxId: boxId,
+        commonName: 'History Snake',
+        latinName: 'Pantherophis guttatus',
+        tempMin: 24,
+        tempMax: 28,
+        humidityMin: 40,
+        humidityMax: 60,
+      );
+
+      final repository = SheddingRepository(database);
+
+      await repository.add(
+        animalId: animalId,
+        shedAt: DateTime(2026, 8, 1, 10),
+        notes: 'Previous shed',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: AnimalDetailPage(database: database, animalId: animalId),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final historyButton = find.byKey(const Key('shedding-history-button'));
+
+      await tester.scrollUntilVisible(historyButton, 300);
+
+      await tester.pumpAndSettle();
+
+      await tester.tap(historyButton);
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Shedding history'), findsOneWidget);
+
+      expect(find.text('Previous shed'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('add-shedding-button')));
+
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('shedding-notes-field')),
+        'New latest shed',
+      );
+
+      await tester.tap(find.byKey(const Key('save-shedding-button')));
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('New latest shed'), findsOneWidget);
+
+      await tester.pageBack();
+
+      await tester.pumpAndSettle();
+
+      final latestDetail = find.byKey(const Key('shedding-detail'));
+
+      await tester.scrollUntilVisible(latestDetail, 300);
+
+      await tester.pumpAndSettle();
+
+      expect(latestDetail, findsOneWidget);
+
+      final history = await repository.getHistory(animalId);
+
+      expect(history, hasLength(2));
+
+      expect(history.first.notes, 'New latest shed');
+    },
+  );
+
+  testWidgets('does not show legacy shedding notes on animal detail', (
+    tester,
+  ) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'legacy-shedding-detail-box'));
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Legacy Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await (database.update(
+      database.animals,
+    )..where((animal) => animal.id.equals(animalId))).write(
+      const AnimalsCompanion(sheddingNotes: Value('Legacy shedding text')),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Legacy shedding text'), findsNothing);
+
+    expect(find.byKey(const Key('shedding-notes-detail')), findsNothing);
   });
 
   testWidgets('latest feeding opens the Animal feeding history', (

@@ -53,7 +53,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   final _humidityMaxController = TextEditingController();
   final _originHabitatController = TextEditingController();
   final _weightController = TextEditingController();
-  final _sheddingNotesController = TextEditingController();
   final _restOrDormancyPeriodsController = TextEditingController();
   final _nighttimeTemperatureMinController = TextEditingController();
   final _nighttimeTemperatureMaxController = TextEditingController();
@@ -103,7 +102,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
     _humidityMaxController.dispose();
     _originHabitatController.dispose();
     _weightController.dispose();
-    _sheddingNotesController.dispose();
     _restOrDormancyPeriodsController.dispose();
     _nighttimeTemperatureMinController.dispose();
     _nighttimeTemperatureMaxController.dispose();
@@ -244,7 +242,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
           humidityMax: parseAnimalDecimal(_humidityMaxController.text)!,
           originHabitat: _optionalText(_originHabitatController),
           weightGrams: _optionalDouble(_weightController),
-          sheddingNotes: _optionalText(_sheddingNotesController),
           restOrDormancyPeriods: _optionalText(
             _restOrDormancyPeriodsController,
           ),
@@ -555,7 +552,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               nighttimeTemperatureMaxController:
                   _nighttimeTemperatureMaxController,
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
-              sheddingNotesController: _sheddingNotesController,
               notesController: _notesController,
             ),
             const SizedBox(height: 16),

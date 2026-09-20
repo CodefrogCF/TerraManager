@@ -200,6 +200,8 @@ class BackupRestoreService {
 
       await database.delete(database.animalWeightEntries).go();
 
+      await database.delete(database.sheddingEvents).go();
+
       await database.delete(database.animalPictureAssociations).go();
 
       await database.delete(database.boxPictureAssociations).go();
@@ -216,6 +218,7 @@ class BackupRestoreService {
         "'boxes', "
         "'animals', "
         "'animal_weight_entries', "
+        "'shedding_events', "
         "'feeding_events', "
         "'media_assets', "
         "'animal_picture_associations', "
@@ -323,6 +326,21 @@ class BackupRestoreService {
                   measuredAt: animal.updatedAt,
                 ),
               ];
+        final legacySheddingNotes = animal.sheddingNotes?.trim();
+
+        final restoredSheddingHistory = animal.sheddingHistory.isNotEmpty
+            ? animal.sheddingHistory
+            : legacySheddingNotes == null || legacySheddingNotes.isEmpty
+            ? const <BackupSheddingEvent>[]
+            : [
+                BackupSheddingEvent(
+                  id: 0,
+                  shedAt: animal.updatedAt,
+                  notes: legacySheddingNotes,
+                  createdAt: animal.updatedAt,
+                  updatedAt: animal.updatedAt,
+                ),
+              ];
         await database
             .into(database.animals)
             .insert(
@@ -352,7 +370,7 @@ class BackupRestoreService {
                 weight: Value(
                   parsedLegacyWeight == null ? animal.weight : null,
                 ),
-                sheddingNotes: Value(animal.sheddingNotes),
+                sheddingNotes: const Value(null),
                 restOrDormancyPeriods: Value(animal.restOrDormancyPeriods),
                 temperatureZones: Value(animal.temperatureZones),
                 picturePath: const Value(null),
@@ -379,6 +397,20 @@ class BackupRestoreService {
                   animalId: animal.id,
                   weightGrams: entry.weightGrams,
                   measuredAt: entry.measuredAt,
+                ),
+              );
+        }
+        for (final entry in restoredSheddingHistory) {
+          await database
+              .into(database.sheddingEvents)
+              .insert(
+                SheddingEventsCompanion(
+                  id: entry.id > 0 ? Value(entry.id) : const Value.absent(),
+                  animalId: Value(animal.id),
+                  shedAt: Value(entry.shedAt),
+                  notes: Value(entry.notes),
+                  createdAt: Value(entry.createdAt),
+                  updatedAt: Value(entry.updatedAt),
                 ),
               );
         }

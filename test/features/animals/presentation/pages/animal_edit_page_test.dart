@@ -12,6 +12,7 @@ import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
+import 'package:terramanager/core/database/repositories/shedding_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_edit_page.dart';
 import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
 import 'package:terramanager/features/media/presentation/widgets/picture_selection_controls.dart';
@@ -781,4 +782,114 @@ void main() {
       expect(animal.feedingReminderBaseline, baseline);
     },
   );
+
+  testWidgets('does not expose legacy shedding notes field', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPage(tester, animalId: animalId);
+
+    expect(find.byKey(const Key('shedding-notes-field')), findsNothing);
+
+    expect(
+      find.byKey(const Key('edit-animal-add-shedding-button')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(const Key('edit-animal-shedding-history-button')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('adds shedding event from edit animal', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPage(tester, animalId: animalId);
+
+    final addButton = find.byKey(const Key('edit-animal-add-shedding-button'));
+
+    await tester.ensureVisible(addButton);
+    await tester.tap(addButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('shedding-dialog')), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const Key('shedding-notes-field')),
+      'Shed added from edit',
+    );
+
+    await tester.tap(find.byKey(const Key('save-shedding-button')));
+
+    await tester.pumpAndSettle();
+
+    final history = await SheddingRepository(database).getHistory(animalId);
+
+    expect(history, hasLength(1));
+    expect(history.single.notes, 'Shed added from edit');
+
+    expect(find.text('Edit Animal'), findsOneWidget);
+  });
+
+  testWidgets('opens shedding history from edit animal', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await SheddingRepository(database).add(
+      animalId: animalId,
+      shedAt: DateTime(2026, 9, 10, 12),
+      notes: 'Existing shed',
+    );
+
+    await pumpPage(tester, animalId: animalId);
+
+    final historyButton = find.byKey(
+      const Key('edit-animal-shedding-history-button'),
+    );
+
+    await tester.ensureVisible(historyButton);
+
+    await tester.tap(historyButton);
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Shedding history'), findsOneWidget);
+
+    expect(find.text('Existing shed'), findsOneWidget);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit Animal'), findsOneWidget);
+  });
+
+  testWidgets('ordinary animal edits preserve shedding history', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal();
+
+    final repository = SheddingRepository(database);
+
+    final eventId = await repository.add(
+      animalId: animalId,
+      shedAt: DateTime(2026, 9, 5, 18),
+      notes: 'Existing shed',
+    );
+
+    await pumpPage(tester, animalId: animalId);
+
+    await tester.enterText(
+      find.byKey(const Key('common-name-field')),
+      'Renamed Snake',
+    );
+
+    await tester.tap(find.byTooltip('Save'));
+
+    await tester.pumpAndSettle();
+
+    final history = await repository.getHistory(animalId);
+
+    expect(history, hasLength(1));
+    expect(history.single.id, eventId);
+    expect(history.single.notes, 'Existing shed');
+  });
 }

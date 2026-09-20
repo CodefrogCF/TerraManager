@@ -13,6 +13,7 @@ import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/animal_weight_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/core/database/repositories/shedding_repository.dart';
 import 'package:terramanager/features/backup/application/backup_restore_exception.dart';
 import 'package:terramanager/features/backup/application/backup_restore_service.dart';
 import 'package:terramanager/features/backup/application/validated_backup.dart';
@@ -298,7 +299,23 @@ void main() {
           .weightGrams,
       95,
     );
-    expect(animal.sheddingNotes, 'Last shed complete');
+    expect(animal.sheddingNotes, isNull);
+
+    final sheddingHistory = await SheddingRepository(database)
+        .getHistory(animal.id);
+
+    expect(sheddingHistory, hasLength(1));
+
+    final shedding = sheddingHistory.single;
+
+    expect(shedding.animalId, animal.id);
+    expect(shedding.notes, 'Last shed complete');
+
+    expect(shedding.shedAt, animal.updatedAt);
+
+    expect(shedding.createdAt, animal.updatedAt);
+
+    expect(shedding.updatedAt, animal.updatedAt);
     expect(animal.restOrDormancyPeriods, 'No dormancy');
     expect(animal.nighttimeTemperature, 19);
     expect(animal.temperatureZones, '24–28 °C');

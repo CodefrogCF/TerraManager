@@ -18,7 +18,6 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
   final TextEditingController nighttimeTemperatureMinController;
   final TextEditingController nighttimeTemperatureMaxController;
   final TextEditingController restOrDormancyPeriodsController;
-  final TextEditingController sheddingNotesController;
   final TextEditingController notesController;
 
   const AnimalAdditionalCharacteristicsFields({
@@ -34,7 +33,6 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
     required this.nighttimeTemperatureMinController,
     required this.nighttimeTemperatureMaxController,
     required this.restOrDormancyPeriodsController,
-    required this.sheddingNotesController,
     required this.notesController,
     this.legacyWeight,
     this.onChanged,
@@ -107,13 +105,6 @@ class AnimalAdditionalCharacteristicsFields extends StatelessWidget {
             key: const Key('rest-or-dormancy-periods-field'),
             controller: restOrDormancyPeriodsController,
             label: context.l10n.restOrDormancyPeriods,
-            maxLines: 3,
-          ),
-          const SizedBox(height: 16),
-          _optionalTextField(
-            key: const Key('shedding-notes-field'),
-            controller: sheddingNotesController,
-            label: context.l10n.sheddingNotes,
             maxLines: 3,
           ),
           const SizedBox(height: 16),

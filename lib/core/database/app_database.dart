@@ -23,6 +23,7 @@ import 'tables/animal_weight_entries.dart';
 import 'tables/box_picture_associations.dart';
 import 'tables/feeding_events.dart';
 import 'tables/media_assets.dart';
+import 'tables/shedding_events.dart';
 import 'validation/animal_weight_parser.dart';
 
 import 'app_database.steps.dart';
@@ -35,6 +36,7 @@ part 'app_database.g.dart';
     MediaAssets,
     Animals,
     AnimalWeightEntries,
+    SheddingEvents,
     FeedingEvents,
     AnimalPictureAssociations,
     BoxPictureAssociations,
@@ -166,6 +168,10 @@ class AppDatabase extends _$AppDatabase {
                 await m.createTable(schema.animalWeightEntries);
                 await migrateSchema13AnimalData();
               },
+              from14To15: (m, schema) async {
+                await m.createTable(schema.sheddingEvents);
+                await migrateLegacySheddingNotes();
+              },
             ),
           );
 
@@ -190,7 +196,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''
@@ -217,6 +223,38 @@ class AppDatabase extends _$AppDatabase {
       );
       await (update(animals)..where((row) => row.id.equals(animal.id))).write(
         const AnimalsCompanion(weight: Value(null)),
+      );
+    }
+  }
+
+  Future<void> migrateLegacySheddingNotes() async {
+    final legacyAnimals = await select(animals).get();
+
+    for (final animal in legacyAnimals) {
+      final rawNotes = animal.sheddingNotes;
+
+      if (rawNotes == null) {
+        continue;
+      }
+
+      final notes = rawNotes.trim();
+
+      if (notes.isNotEmpty) {
+        final migratedAt = animal.updatedAt;
+
+        await into(sheddingEvents).insert(
+          SheddingEventsCompanion(
+            animalId: Value(animal.id),
+            shedAt: Value(migratedAt),
+            notes: Value(notes),
+            createdAt: Value(migratedAt),
+            updatedAt: Value(migratedAt),
+          ),
+        );
+      }
+
+      await (update(animals)..where((row) => row.id.equals(animal.id))).write(
+        const AnimalsCompanion(sheddingNotes: Value(null)),
       );
     }
   }

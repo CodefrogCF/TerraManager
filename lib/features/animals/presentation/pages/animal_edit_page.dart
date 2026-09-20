@@ -25,6 +25,8 @@ import '../widgets/animal_additional_characteristics_fields.dart';
 import '../widgets/animal_picture.dart';
 import '../widgets/animal_range_fields.dart';
 import '../widgets/animal_taxonomy_fields.dart';
+import '../shedding_entry_dialog.dart';
+import 'shedding_history_page.dart';
 
 class AnimalEditPage extends StatefulWidget {
   final AppDatabase database;
@@ -53,7 +55,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   final _humidityMaxController = TextEditingController();
   final _originHabitatController = TextEditingController();
   final _weightController = TextEditingController();
-  final _sheddingNotesController = TextEditingController();
   final _restOrDormancyPeriodsController = TextEditingController();
   final _nighttimeTemperatureMinController = TextEditingController();
   final _nighttimeTemperatureMaxController = TextEditingController();
@@ -110,12 +111,40 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     _humidityMaxController.dispose();
     _originHabitatController.dispose();
     _weightController.dispose();
-    _sheddingNotesController.dispose();
     _restOrDormancyPeriodsController.dispose();
     _nighttimeTemperatureMinController.dispose();
     _nighttimeTemperatureMaxController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  Future<void> _addSheddingEntry() async {
+    final animal = _animal;
+
+    if (_actionInProgress || _processingPicture || animal == null) {
+      return;
+    }
+
+    await showSheddingEntryDialog(
+      context: context,
+      database: widget.database,
+      animalId: animal.id,
+    );
+  }
+
+  Future<void> _openSheddingHistory() async {
+    final animal = _animal;
+
+    if (_actionInProgress || _processingPicture || animal == null) {
+      return;
+    }
+
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            SheddingHistoryPage(database: widget.database, animalId: animal.id),
+      ),
+    );
   }
 
   Future<void> _loadAnimal() async {
@@ -172,7 +201,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _humidityMaxController.text = animal.humidityMax.toString();
       _originHabitatController.text = animal.originHabitat ?? '';
       _weightController.text = latestWeight?.weightGrams.toString() ?? '';
-      _sheddingNotesController.text = animal.sheddingNotes ?? '';
       _restOrDormancyPeriodsController.text =
           animal.restOrDormancyPeriods ?? '';
       _nighttimeTemperatureMinController.text =
@@ -199,7 +227,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         animal.nighttimeTemperatureMax?.toString(),
         animal.nighttimeTemperature?.toString(),
         animal.restOrDormancyPeriods,
-        animal.sheddingNotes,
         animal.notes,
       ].any((value) => value != null && value.trim().isNotEmpty);
 
@@ -379,7 +406,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
           originHabitat: _optionalText(_originHabitatController),
           weight: _animal!.weight,
           weightGrams: _optionalDouble(_weightController),
-          sheddingNotes: _optionalText(_sheddingNotesController),
           restOrDormancyPeriods: _optionalText(
             _restOrDormancyPeriodsController,
           ),
@@ -815,11 +841,37 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               nighttimeTemperatureMaxController:
                   _nighttimeTemperatureMaxController,
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
-              sheddingNotesController: _sheddingNotesController,
               notesController: _notesController,
             ),
             const SizedBox(height: 16),
-            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('edit-animal-add-shedding-button'),
+                    onPressed: _actionInProgress || _processingPicture
+                        ? null
+                        : _addSheddingEntry,
+                    icon: const Icon(Icons.add),
+                    label: Text(context.l10n.addSheddingEvent),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    key: const Key('edit-animal-shedding-history-button'),
+                    onPressed: _actionInProgress || _processingPicture
+                        ? null
+                        : _openSheddingHistory,
+                    icon: const Icon(Icons.history),
+                    label: Text(context.l10n.sheddingHistory),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
 
             FilledButton.icon(
               key: const Key('save-animal-form-button'),

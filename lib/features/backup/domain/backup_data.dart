@@ -156,6 +156,42 @@ class BackupWeightEntry {
   }
 }
 
+class BackupSheddingEvent {
+  final int id;
+  final DateTime shedAt;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const BackupSheddingEvent({
+    required this.id,
+    required this.shedAt,
+    required this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'shedAt': shedAt.toIso8601String(),
+      'notes': notes,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  factory BackupSheddingEvent.fromJson(Map<String, dynamic> json) {
+    return BackupSheddingEvent(
+      id: json['id'] as int,
+      shedAt: DateTime.parse(json['shedAt'] as String),
+      notes: json['notes'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
+  }
+}
+
 class BackupAnimal {
   final int id;
   final int? boxId;
@@ -186,6 +222,7 @@ class BackupAnimal {
   final String? weight;
   final List<BackupWeightEntry> weightHistory;
   final String? sheddingNotes;
+  final List<BackupSheddingEvent> sheddingHistory;
   final String? restOrDormancyPeriods;
   final String? temperatureZones;
 
@@ -225,6 +262,7 @@ class BackupAnimal {
     this.weight,
     this.weightHistory = const [],
     this.sheddingNotes,
+    this.sheddingHistory = const [],
     this.restOrDormancyPeriods,
     this.temperatureZones,
     required this.pictureMediaPath,
@@ -262,6 +300,9 @@ class BackupAnimal {
       'weight': weight,
       'weightHistory': weightHistory.map((entry) => entry.toJson()).toList(),
       'sheddingNotes': sheddingNotes,
+      'sheddingHistory': sheddingHistory
+          .map((entry) => entry.toJson())
+          .toList(),
       'restOrDormancyPeriods': restOrDormancyPeriods,
       'temperatureZones': temperatureZones,
       'pictureMediaPath': pictureMediaPath,
@@ -314,6 +355,13 @@ class BackupAnimal {
           )
           .toList(),
       sheddingNotes: json['sheddingNotes'] as String?,
+      sheddingHistory: (json['sheddingHistory'] as List<dynamic>? ?? const [])
+          .map(
+            (entry) => BackupSheddingEvent.fromJson(
+              Map<String, dynamic>.from(entry as Map),
+            ),
+          )
+          .toList(),
       restOrDormancyPeriods: json['restOrDormancyPeriods'] as String?,
       temperatureZones: json['temperatureZones'] as String?,
       pictureMediaPath: pictureMediaPath,

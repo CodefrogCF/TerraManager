@@ -3429,6 +3429,406 @@ class AnimalWeightEntriesCompanion extends UpdateCompanion<AnimalWeightEntry> {
   }
 }
 
+class $SheddingEventsTable extends SheddingEvents
+    with TableInfo<$SheddingEventsTable, SheddingEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SheddingEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _animalIdMeta = const VerificationMeta(
+    'animalId',
+  );
+  @override
+  late final GeneratedColumn<int> animalId = GeneratedColumn<int>(
+    'animal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES animals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _shedAtMeta = const VerificationMeta('shedAt');
+  @override
+  late final GeneratedColumn<DateTime> shedAt = GeneratedColumn<DateTime>(
+    'shed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    animalId,
+    shedAt,
+    notes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'shedding_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SheddingEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('animal_id')) {
+      context.handle(
+        _animalIdMeta,
+        animalId.isAcceptableOrUnknown(data['animal_id']!, _animalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_animalIdMeta);
+    }
+    if (data.containsKey('shed_at')) {
+      context.handle(
+        _shedAtMeta,
+        shedAt.isAcceptableOrUnknown(data['shed_at']!, _shedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shedAtMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SheddingEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SheddingEvent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      animalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}animal_id'],
+      )!,
+      shedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}shed_at'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SheddingEventsTable createAlias(String alias) {
+    return $SheddingEventsTable(attachedDatabase, alias);
+  }
+}
+
+class SheddingEvent extends DataClass implements Insertable<SheddingEvent> {
+  final int id;
+  final int animalId;
+  final DateTime shedAt;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const SheddingEvent({
+    required this.id,
+    required this.animalId,
+    required this.shedAt,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['animal_id'] = Variable<int>(animalId);
+    map['shed_at'] = Variable<DateTime>(shedAt);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SheddingEventsCompanion toCompanion(bool nullToAbsent) {
+    return SheddingEventsCompanion(
+      id: Value(id),
+      animalId: Value(animalId),
+      shedAt: Value(shedAt),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SheddingEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SheddingEvent(
+      id: serializer.fromJson<int>(json['id']),
+      animalId: serializer.fromJson<int>(json['animalId']),
+      shedAt: serializer.fromJson<DateTime>(json['shedAt']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'animalId': serializer.toJson<int>(animalId),
+      'shedAt': serializer.toJson<DateTime>(shedAt),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SheddingEvent copyWith({
+    int? id,
+    int? animalId,
+    DateTime? shedAt,
+    Value<String?> notes = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => SheddingEvent(
+    id: id ?? this.id,
+    animalId: animalId ?? this.animalId,
+    shedAt: shedAt ?? this.shedAt,
+    notes: notes.present ? notes.value : this.notes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  SheddingEvent copyWithCompanion(SheddingEventsCompanion data) {
+    return SheddingEvent(
+      id: data.id.present ? data.id.value : this.id,
+      animalId: data.animalId.present ? data.animalId.value : this.animalId,
+      shedAt: data.shedAt.present ? data.shedAt.value : this.shedAt,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SheddingEvent(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('shedAt: $shedAt, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, animalId, shedAt, notes, createdAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SheddingEvent &&
+          other.id == this.id &&
+          other.animalId == this.animalId &&
+          other.shedAt == this.shedAt &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SheddingEventsCompanion extends UpdateCompanion<SheddingEvent> {
+  final Value<int> id;
+  final Value<int> animalId;
+  final Value<DateTime> shedAt;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  const SheddingEventsCompanion({
+    this.id = const Value.absent(),
+    this.animalId = const Value.absent(),
+    this.shedAt = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+  });
+  SheddingEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required int animalId,
+    required DateTime shedAt,
+    this.notes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) : animalId = Value(animalId),
+       shedAt = Value(shedAt),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<SheddingEvent> custom({
+    Expression<int>? id,
+    Expression<int>? animalId,
+    Expression<DateTime>? shedAt,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (animalId != null) 'animal_id': animalId,
+      if (shedAt != null) 'shed_at': shedAt,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+    });
+  }
+
+  SheddingEventsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? animalId,
+    Value<DateTime>? shedAt,
+    Value<String?>? notes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+  }) {
+    return SheddingEventsCompanion(
+      id: id ?? this.id,
+      animalId: animalId ?? this.animalId,
+      shedAt: shedAt ?? this.shedAt,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (animalId.present) {
+      map['animal_id'] = Variable<int>(animalId.value);
+    }
+    if (shedAt.present) {
+      map['shed_at'] = Variable<DateTime>(shedAt.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SheddingEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('shedAt: $shedAt, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $FeedingEventsTable extends FeedingEvents
     with TableInfo<$FeedingEventsTable, FeedingEvent> {
   @override
@@ -4488,6 +4888,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AnimalsTable animals = $AnimalsTable(this);
   late final $AnimalWeightEntriesTable animalWeightEntries =
       $AnimalWeightEntriesTable(this);
+  late final $SheddingEventsTable sheddingEvents = $SheddingEventsTable(this);
   late final $FeedingEventsTable feedingEvents = $FeedingEventsTable(this);
   late final $AnimalPictureAssociationsTable animalPictureAssociations =
       $AnimalPictureAssociationsTable(this);
@@ -4502,6 +4903,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     boxes,
     animals,
     animalWeightEntries,
+    sheddingEvents,
     feedingEvents,
     animalPictureAssociations,
     boxPictureAssociations,
@@ -4514,6 +4916,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('animal_weight_entries', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'animals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('shedding_events', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -6012,6 +6421,24 @@ final class $$AnimalsTableReferences
     );
   }
 
+  static MultiTypedResultKey<$SheddingEventsTable, List<SheddingEvent>>
+  _sheddingEventsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.sheddingEvents,
+    aliasName: 'animals__id__shedding_events__animal_id',
+  );
+
+  $$SheddingEventsTableProcessedTableManager get sheddingEventsRefs {
+    final manager = $$SheddingEventsTableTableManager(
+      $_db,
+      $_db.sheddingEvents,
+    ).filter((f) => f.animalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_sheddingEventsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$FeedingEventsTable, List<FeedingEvent>>
   _feedingEventsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.feedingEvents,
@@ -6287,6 +6714,31 @@ class $$AnimalsTableFilterComposer
           }) => $$AnimalWeightEntriesTableFilterComposer(
             $db: $db,
             $table: $db.animalWeightEntries,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> sheddingEventsRefs(
+    Expression<bool> Function($$SheddingEventsTableFilterComposer f) f,
+  ) {
+    final $$SheddingEventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sheddingEvents,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SheddingEventsTableFilterComposer(
+            $db: $db,
+            $table: $db.sheddingEvents,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -6765,6 +7217,31 @@ class $$AnimalsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> sheddingEventsRefs<T extends Object>(
+    Expression<T> Function($$SheddingEventsTableAnnotationComposer a) f,
+  ) {
+    final $$SheddingEventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.sheddingEvents,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SheddingEventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.sheddingEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> feedingEventsRefs<T extends Object>(
     Expression<T> Function($$FeedingEventsTableAnnotationComposer a) f,
   ) {
@@ -6835,6 +7312,7 @@ class $$AnimalsTableTableManager
             bool boxId,
             bool pictureMediaId,
             bool animalWeightEntriesRefs,
+            bool sheddingEventsRefs,
             bool feedingEventsRefs,
             bool animalPictureAssociationsRefs,
           })
@@ -7003,6 +7481,7 @@ class $$AnimalsTableTableManager
                 boxId = false,
                 pictureMediaId = false,
                 animalWeightEntriesRefs = false,
+                sheddingEventsRefs = false,
                 feedingEventsRefs = false,
                 animalPictureAssociationsRefs = false,
               }) {
@@ -7010,6 +7489,7 @@ class $$AnimalsTableTableManager
                   db: db,
                   explicitlyWatchedTables: [
                     if (animalWeightEntriesRefs) db.animalWeightEntries,
+                    if (sheddingEventsRefs) db.sheddingEvents,
                     if (feedingEventsRefs) db.feedingEvents,
                     if (animalPictureAssociationsRefs)
                       db.animalPictureAssociations,
@@ -7072,6 +7552,27 @@ class $$AnimalsTableTableManager
                                 table,
                                 p0,
                               ).animalWeightEntriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.animalId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (sheddingEventsRefs)
+                        await $_getPrefetchedData<
+                          Animal,
+                          $AnimalsTable,
+                          SheddingEvent
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AnimalsTableReferences
+                              ._sheddingEventsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AnimalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).sheddingEventsRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.animalId == item.id,
@@ -7144,6 +7645,7 @@ typedef $$AnimalsTableProcessedTableManager =
         bool boxId,
         bool pictureMediaId,
         bool animalWeightEntriesRefs,
+        bool sheddingEventsRefs,
         bool feedingEventsRefs,
         bool animalPictureAssociationsRefs,
       })
@@ -7457,6 +7959,340 @@ typedef $$AnimalWeightEntriesTableProcessedTableManager =
       $$AnimalWeightEntriesTableUpdateCompanionBuilder,
       (AnimalWeightEntry, $$AnimalWeightEntriesTableReferences),
       AnimalWeightEntry,
+      PrefetchHooks Function({bool animalId})
+    >;
+typedef $$SheddingEventsTableCreateCompanionBuilder =
+    SheddingEventsCompanion Function({
+      Value<int> id,
+      required int animalId,
+      required DateTime shedAt,
+      Value<String?> notes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+    });
+typedef $$SheddingEventsTableUpdateCompanionBuilder =
+    SheddingEventsCompanion Function({
+      Value<int> id,
+      Value<int> animalId,
+      Value<DateTime> shedAt,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+    });
+
+final class $$SheddingEventsTableReferences
+    extends BaseReferences<_$AppDatabase, $SheddingEventsTable, SheddingEvent> {
+  $$SheddingEventsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AnimalsTable _animalIdTable(_$AppDatabase db) =>
+      db.animals.createAlias('shedding_events__animal_id__animals__id');
+
+  $$AnimalsTableProcessedTableManager get animalId {
+    final $_column = $_itemColumn<int>('animal_id')!;
+
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_animalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$SheddingEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $SheddingEventsTable> {
+  $$SheddingEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get shedAt => $composableBuilder(
+    column: $table.shedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AnimalsTableFilterComposer get animalId {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SheddingEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SheddingEventsTable> {
+  $$SheddingEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get shedAt => $composableBuilder(
+    column: $table.shedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AnimalsTableOrderingComposer get animalId {
+    final $$AnimalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SheddingEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SheddingEventsTable> {
+  $$SheddingEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get shedAt =>
+      $composableBuilder(column: $table.shedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$AnimalsTableAnnotationComposer get animalId {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$SheddingEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SheddingEventsTable,
+          SheddingEvent,
+          $$SheddingEventsTableFilterComposer,
+          $$SheddingEventsTableOrderingComposer,
+          $$SheddingEventsTableAnnotationComposer,
+          $$SheddingEventsTableCreateCompanionBuilder,
+          $$SheddingEventsTableUpdateCompanionBuilder,
+          (SheddingEvent, $$SheddingEventsTableReferences),
+          SheddingEvent,
+          PrefetchHooks Function({bool animalId})
+        > {
+  $$SheddingEventsTableTableManager(
+    _$AppDatabase db,
+    $SheddingEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SheddingEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SheddingEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SheddingEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> animalId = const Value.absent(),
+                Value<DateTime> shedAt = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+              }) => SheddingEventsCompanion(
+                id: id,
+                animalId: animalId,
+                shedAt: shedAt,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int animalId,
+                required DateTime shedAt,
+                Value<String?> notes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+              }) => SheddingEventsCompanion.insert(
+                id: id,
+                animalId: animalId,
+                shedAt: shedAt,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$SheddingEventsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({animalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (animalId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.animalId,
+                        referencedTable: $$SheddingEventsTableReferences
+                            ._animalIdTable(db),
+                        referencedColumn: $$SheddingEventsTableReferences
+                            ._animalIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$SheddingEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SheddingEventsTable,
+      SheddingEvent,
+      $$SheddingEventsTableFilterComposer,
+      $$SheddingEventsTableOrderingComposer,
+      $$SheddingEventsTableAnnotationComposer,
+      $$SheddingEventsTableCreateCompanionBuilder,
+      $$SheddingEventsTableUpdateCompanionBuilder,
+      (SheddingEvent, $$SheddingEventsTableReferences),
+      SheddingEvent,
       PrefetchHooks Function({bool animalId})
     >;
 typedef $$FeedingEventsTableCreateCompanionBuilder =
@@ -8608,6 +9444,8 @@ class $AppDatabaseManager {
       $$AnimalsTableTableManager(_db, _db.animals);
   $$AnimalWeightEntriesTableTableManager get animalWeightEntries =>
       $$AnimalWeightEntriesTableTableManager(_db, _db.animalWeightEntries);
+  $$SheddingEventsTableTableManager get sheddingEvents =>
+      $$SheddingEventsTableTableManager(_db, _db.sheddingEvents);
   $$FeedingEventsTableTableManager get feedingEvents =>
       $$FeedingEventsTableTableManager(_db, _db.feedingEvents);
   $$AnimalPictureAssociationsTableTableManager get animalPictureAssociations =>

@@ -613,5 +613,27 @@
   "deleteWeightMeasurementQuestion": "Gewichtsmessung löschen?",
   "deleteWeightMeasurementWarning": "{weight} vom {dateTime} dauerhaft löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.",
   "failedToDeleteWeightMeasurement": "Die Gewichtsmessung konnte nicht gelöscht werden",
-  "weightDateTimeInFuture": "Datum und Uhrzeit der Gewichtsmessung dürfen nicht in der Zukunft liegen"
+  "weightDateTimeInFuture": "Datum und Uhrzeit der Gewichtsmessung dürfen nicht in der Zukunft liegen",
+  "sheddingHistory": "Häutungshistorie",
+  "noSheddingHistory": "Noch keine Häutungen erfasst.",
+  "failedToLoadSheddingHistory": "Die Häutungshistorie konnte nicht geladen werden.",
+  "addSheddingEvent": "Häutung hinzufügen",
+  "editSheddingEvent": "Häutung bearbeiten",
+  "deleteSheddingEvent": "Häutung löschen",
+  "deleteSheddingEventQuestion": "Häutungseintrag löschen?",
+  "deleteSheddingEventWarning": "Der Häutungseintrag vom {dateTime} wird dauerhaft gelöscht.",
+  "@deleteSheddingEventWarning": {
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToDeleteSheddingEvent": "Der Häutungseintrag konnte nicht gelöscht werden.",
+  "failedToUpdateSheddingEvent": "Der Häutungseintrag konnte nicht aktualisiert werden.",
+  "failedToSaveSheddingEvent": "Der Häutungseintrag konnte nicht gespeichert werden.",
+  "sheddingDateTimeInFuture": "Datum und Uhrzeit der Häutung dürfen nicht in der Zukunft liegen.",
+  "sheddingNotes": "Notizen",
+  "latestShedding": "Letzte Häutung",
+  "noSheddingEventsAvailable": "Noch keine Häutungen erfasst."
 }

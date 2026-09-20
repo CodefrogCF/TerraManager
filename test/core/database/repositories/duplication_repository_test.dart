@@ -173,7 +173,7 @@ void main() {
       expect(duplicate.humidityMax, source.humidityMax);
       expect(duplicate.originHabitat, source.originHabitat);
       expect(duplicate.weight, source.weight);
-      expect(duplicate.sheddingNotes, source.sheddingNotes);
+      expect(duplicate.sheddingNotes, isNull);
       expect(duplicate.restOrDormancyPeriods, source.restOrDormancyPeriods);
       expect(duplicate.notes, source.notes);
       expect(

@@ -757,5 +757,27 @@
     }
   },
   "failedToDeleteWeightMeasurement": "Weight measurement could not be deleted",
-  "weightDateTimeInFuture": "Weight date and time cannot be in the future"
+  "weightDateTimeInFuture": "Weight date and time cannot be in the future",
+  "sheddingHistory": "Shedding history",
+  "noSheddingHistory": "No shedding history yet.",
+  "failedToLoadSheddingHistory": "Failed to load shedding history.",
+  "addSheddingEvent": "Add shedding",
+  "editSheddingEvent": "Edit shedding",
+  "deleteSheddingEvent": "Delete shedding",
+  "deleteSheddingEventQuestion": "Delete shedding entry?",
+  "deleteSheddingEventWarning": "The shedding entry from {dateTime} will be permanently deleted.",
+  "@deleteSheddingEventWarning": {
+    "placeholders": {
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  },
+  "failedToDeleteSheddingEvent": "Failed to delete shedding entry.",
+  "failedToUpdateSheddingEvent": "Failed to update shedding entry.",
+  "failedToSaveSheddingEvent": "Failed to save shedding entry.",
+  "sheddingDateTimeInFuture": "The shedding date and time cannot be in the future.",
+  "sheddingNotes": "Notes",
+  "latestShedding": "Latest shedding",
+  "noSheddingEventsAvailable": "No shedding entries available."
 }

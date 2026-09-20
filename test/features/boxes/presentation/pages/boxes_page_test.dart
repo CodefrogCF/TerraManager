@@ -499,4 +499,77 @@ void main() {
 
     expect(positionAfter, closeTo(positionBefore, 1.0));
   });
+
+  testWidgets('switches Box Overview between compact and Big Picture Mode', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+
+    final boxId = await BoxRepository(database)
+        .createBox('big-picture-box', name: 'Display Box');
+
+    final settingsController = AppSettingsController();
+
+    await settingsController.load();
+
+    await tester.pumpWidget(
+      AppSettingsScope(
+        controller: settingsController,
+        child: MaterialApp(home: BoxesPage(database: database)),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(settingsController.bigPictureModeEnabled, isFalse);
+
+    expect(
+      find.byKey(const PageStorageKey<String>('boxes-overview-list')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(const PageStorageKey<String>('boxes-overview-grid')),
+      findsNothing,
+    );
+
+    expect(find.byKey(Key('box-list-item-$boxId')), findsOneWidget);
+
+    await settingsController.setBigPictureModeEnabled(true);
+
+    await tester.pumpAndSettle();
+
+    expect(settingsController.bigPictureModeEnabled, isTrue);
+
+    expect(
+      find.byKey(const PageStorageKey<String>('boxes-overview-list')),
+      findsNothing,
+    );
+
+    expect(
+      find.byKey(const PageStorageKey<String>('boxes-overview-grid')),
+      findsOneWidget,
+    );
+
+    expect(find.byKey(Key('box-list-item-$boxId')), findsOneWidget);
+
+    expect(find.byKey(Key('box-big-picture-$boxId')), findsOneWidget);
+
+    await settingsController.setBigPictureModeEnabled(false);
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const PageStorageKey<String>('boxes-overview-list')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(const PageStorageKey<String>('boxes-overview-grid')),
+      findsNothing,
+    );
+
+    settingsController.dispose();
+    await database.close();
+  });
 }

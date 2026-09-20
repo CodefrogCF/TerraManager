@@ -644,4 +644,87 @@ void main() {
 
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('switches Animal Overview between compact and Big Picture Mode', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+
+    final boxId = await BoxRepository(database)
+        .createBox('animal-big-picture-box');
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Test Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final settingsController = AppSettingsController();
+
+    await settingsController.load();
+
+    await tester.pumpWidget(
+      AppSettingsScope(
+        controller: settingsController,
+        child: MaterialApp(home: AnimalsPage(database: database)),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(settingsController.bigPictureModeEnabled, isFalse);
+
+    expect(
+      find.byKey(const PageStorageKey<String>('animals-overview-list')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(const PageStorageKey<String>('animals-overview-grid')),
+      findsNothing,
+    );
+
+    expect(find.byKey(Key('animal-list-item-$animalId')), findsOneWidget);
+
+    await settingsController.setBigPictureModeEnabled(true);
+
+    await tester.pumpAndSettle();
+
+    expect(settingsController.bigPictureModeEnabled, isTrue);
+
+    expect(
+      find.byKey(const PageStorageKey<String>('animals-overview-list')),
+      findsNothing,
+    );
+
+    expect(
+      find.byKey(const PageStorageKey<String>('animals-overview-grid')),
+      findsOneWidget,
+    );
+
+    expect(find.byKey(Key('animal-list-item-$animalId')), findsOneWidget);
+
+    expect(find.byKey(Key('animal-big-picture-$animalId')), findsOneWidget);
+
+    await settingsController.setBigPictureModeEnabled(false);
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const PageStorageKey<String>('animals-overview-list')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(const PageStorageKey<String>('animals-overview-grid')),
+      findsNothing,
+    );
+
+    settingsController.dispose();
+    await database.close();
+  });
 }

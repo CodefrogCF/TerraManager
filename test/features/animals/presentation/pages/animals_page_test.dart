@@ -297,27 +297,8 @@ void main() {
 
     expect(
       settingsController.animalSortOrder,
-      AnimalSortOrder.latestFeedingNewestFirst,
+      AnimalSortOrder.latestFeedingOldestFirst,
     );
-    expect(
-      tester.getTopLeft(find.byKey(Key('animal-list-item-$recentId'))).dy,
-      lessThan(
-        tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
-      ),
-    );
-    expect(
-      tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
-      lessThan(
-        tester.getTopLeft(find.byKey(Key('animal-list-item-$neverId'))).dy,
-      ),
-    );
-
-    await tester.tap(find.byKey(const Key('animal-sort-button')));
-    await tester.pumpAndSettle();
-    expect(find.text('Latest feeding: newest first'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('animal-sort-option-latestFeeding')));
-    await tester.pumpAndSettle();
-
     expect(
       tester.getTopLeft(find.byKey(Key('animal-list-item-$neverId'))).dy,
       lessThan(
@@ -331,16 +312,35 @@ void main() {
       ),
     );
 
+    await tester.tap(find.byKey(const Key('animal-sort-button')));
+    await tester.pumpAndSettle();
+    expect(find.text('Latest feeding: oldest first'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('animal-sort-option-latestFeeding')));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.getTopLeft(find.byKey(Key('animal-list-item-$recentId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
+      ),
+    );
+    expect(
+      tester.getTopLeft(find.byKey(Key('animal-list-item-$oldId'))).dy,
+      lessThan(
+        tester.getTopLeft(find.byKey(Key('animal-list-item-$neverId'))).dy,
+      ),
+    );
+
     expect(
       settingsController.animalSortOrder,
-      AnimalSortOrder.latestFeedingOldestFirst,
+      AnimalSortOrder.latestFeedingNewestFirst,
     );
 
     final preferences = await SharedPreferences.getInstance();
 
     expect(
       preferences.getString('animal_sort_order'),
-      'latestFeedingOldestFirst',
+      'latestFeedingNewestFirst',
     );
 
     await tester.tap(find.byKey(Key('animal-list-item-$oldId')));
@@ -350,7 +350,7 @@ void main() {
       find.byType(AnimalDetailPage),
     );
 
-    expect(detailPage.navigationContext!.recordIds, [neverId, oldId, recentId]);
+    expect(detailPage.navigationContext!.recordIds, [recentId, oldId, neverId]);
   });
 
   testWidgets('groups category views and passes their flattened order', (

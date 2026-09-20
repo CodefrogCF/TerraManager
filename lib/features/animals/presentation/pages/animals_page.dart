@@ -71,6 +71,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     final previousOffset = _scrollController.hasClients
         ? _scrollController.offset
         : 0.0;
+
     _loadAnimals();
     _restoreScrollAfterLoad(previousOffset);
   }
@@ -90,12 +91,15 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
   Future<_AnimalsOverviewData> _fetchOverview() async {
     final animals = await AnimalRepository(widget.database).getActiveAnimals();
+
     final latestFeedingTimes = await FeedingRepository(widget.database)
         .getLatestFeedingTimes(animals.map((animal) => animal.id));
+
     final reminderService = FeedingReminderService(
       widget.database,
       now: widget.reminderNow,
     );
+
     final dueReminders = reminderService
         .calculateReminderStates(
           animals: animals,
@@ -196,6 +200,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
 
     await _reloadAnimalsPreservingScroll(previousOffset);
+
     widget.onDataChanged?.call();
   }
 
@@ -207,15 +212,19 @@ class _AnimalsPageState extends State<AnimalsPage> {
       case _AnimalOverviewAction.createFeeding:
         await _createFeeding(animal);
         return;
+
       case _AnimalOverviewAction.rename:
         await _renameAnimal(animal);
         return;
+
       case _AnimalOverviewAction.edit:
         await _editAnimal(animal);
         return;
+
       case _AnimalOverviewAction.archive:
         await _archiveAnimal(animal);
         return;
+
       case _AnimalOverviewAction.duplicate:
         await _duplicateAnimal(animal);
         return;
@@ -228,11 +237,13 @@ class _AnimalsPageState extends State<AnimalsPage> {
       database: widget.database,
       animalId: animal.id,
     );
+
     if (!mounted || created != true) {
       return;
     }
 
     await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+
     widget.onDataChanged?.call();
 
     if (mounted) {
@@ -245,6 +256,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
       context: context,
       builder: (_) => RenameAnimalDialog(initialName: animal.commonName),
     );
+
     if (!mounted || name == null) {
       return;
     }
@@ -252,15 +264,18 @@ class _AnimalsPageState extends State<AnimalsPage> {
     try {
       final renamed = await AnimalRepository(widget.database)
           .renameAnimal(animalId: animal.id, commonName: name);
+
       if (!mounted) {
         return;
       }
+
       if (!renamed) {
         _showMessage(context.l10n.failedToRenameAnimal);
         return;
       }
 
       await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+
       if (mounted) {
         _showMessage(context.l10n.animalRenamed);
       }
@@ -273,14 +288,17 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
   Future<void> _editAnimal(Animal animal) async {
     final previousOffset = _currentScrollOffset();
+
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (_) =>
             AnimalEditPage(database: widget.database, animalId: animal.id),
       ),
     );
+
     if (mounted) {
       await _reloadAnimalsPreservingScroll(previousOffset);
+
       widget.onDataChanged?.call();
     }
   }
@@ -290,6 +308,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
       context: context,
       builder: (_) => const AnimalArchiveDialog(hasUnsavedChanges: false),
     );
+
     if (!mounted || input == null) {
       return;
     }
@@ -301,15 +320,18 @@ class _AnimalsPageState extends State<AnimalsPage> {
         archivedAt: input.archivedAt,
         archiveNotes: input.notes,
       );
+
       if (!mounted) {
         return;
       }
+
       if (!archived) {
         _showMessage(context.l10n.failedToArchiveAnimal);
         return;
       }
 
       await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+
       widget.onDataChanged?.call();
 
       if (mounted) {
@@ -324,17 +346,21 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
   Future<void> _duplicateAnimal(Animal animal) async {
     List<Box> boxes;
+
     try {
       boxes = await BoxRepository(widget.database).getActiveBoxes();
     } catch (_) {
       if (mounted) {
         _showMessage(context.l10n.failedToLoadBoxes);
       }
+
       return;
     }
+
     if (!mounted) {
       return;
     }
+
     if (boxes.isEmpty) {
       await _showNoBoxesDialog();
       return;
@@ -348,6 +374,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
         initialBoxId: animal.boxId,
       ),
     );
+
     if (!mounted || input == null) {
       return;
     }
@@ -358,10 +385,13 @@ class _AnimalsPageState extends State<AnimalsPage> {
         boxId: input.boxId,
         commonName: input.commonName,
       );
+
       if (!mounted) {
         return;
       }
+
       await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+
       widget.onDataChanged?.call();
 
       if (mounted) {
@@ -451,7 +481,10 @@ class _AnimalsPageState extends State<AnimalsPage> {
               color: colorScheme.onErrorContainer.withAlpha(64),
             ),
             ListTile(
-              key: Key('feeding-reminder-summary-item-${reminder.animalId}'),
+              key: Key(
+                'feeding-reminder-summary-item-'
+                '${reminder.animalId}',
+              ),
               title: Text(
                 AnimalDisplayNames.fromContext(
                   context,
@@ -491,14 +524,494 @@ class _AnimalsPageState extends State<AnimalsPage> {
     await _reloadAnimalsPreservingScroll(previousOffset);
   }
 
+  List<PopupMenuEntry<_AnimalOverviewAction>> _animalOverviewMenuItems(
+    BuildContext context,
+  ) {
+    return [
+      _animalMenuItem(
+        action: _AnimalOverviewAction.createFeeding,
+        icon: Icons.restaurant_outlined,
+        label: context.l10n.createFeeding,
+      ),
+      _animalMenuItem(
+        action: _AnimalOverviewAction.rename,
+        icon: Icons.drive_file_rename_outline,
+        label: context.l10n.renameAnimal,
+      ),
+      _animalMenuItem(
+        action: _AnimalOverviewAction.edit,
+        icon: Icons.edit_outlined,
+        label: context.l10n.editAnimal,
+      ),
+      _animalMenuItem(
+        action: _AnimalOverviewAction.archive,
+        icon: Icons.archive_outlined,
+        label: context.l10n.archiveAnimal,
+      ),
+      _animalMenuItem(
+        action: _AnimalOverviewAction.duplicate,
+        icon: Icons.copy_outlined,
+        label: context.l10n.duplicateAnimal,
+      ),
+    ];
+  }
+
+  Widget _buildDueMarker(BuildContext context, Animal animal) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      key: Key('animal-due-marker-${animal.id}'),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        context.l10n.due,
+        style: TextStyle(
+          color: colorScheme.onErrorContainer,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompactAnimalTile(
+    BuildContext context, {
+    required Animal animal,
+    required List<Animal> animals,
+    required FeedingReminderState? dueReminder,
+    required AnimalDisplayNames displayNames,
+  }) {
+    return OverviewContextMenu<_AnimalOverviewAction>(
+      key: Key('animal-context-menu-region-${animal.id}'),
+      menuButtonKey: Key('animal-context-menu-button-${animal.id}'),
+      tooltip: context.l10n.animalActions(displayNames.primary),
+      onSelected: (action) {
+        _handleAnimalAction(action, animal);
+      },
+      itemBuilder: (context) => _animalOverviewMenuItems(context),
+      builder: (context, menuButton) => ListTile(
+        key: Key('animal-list-item-${animal.id}'),
+        leading: FutureBuilder<MediaAsset?>(
+          future: _pictureFutureFor(animal.pictureMediaId),
+          builder: (context, pictureSnapshot) {
+            return MediaThumbnail(
+              key: Key('animal-thumbnail-${animal.id}'),
+              pictureBytes: pictureSnapshot.data?.data,
+              picturePath: pictureSnapshot.data == null
+                  ? animal.picturePath
+                  : null,
+              fallbackIcon: Icons.emoji_nature_outlined,
+              semanticsLabel: context.l10n.animalThumbnailLabel(
+                displayNames.primary,
+              ),
+            );
+          },
+        ),
+        title: Text(displayNames.primary),
+        subtitle: Text(displayNames.secondary),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (dueReminder != null) ...[
+              _buildDueMarker(context, animal),
+              const SizedBox(width: 4),
+            ],
+            menuButton,
+          ],
+        ),
+        onTap: () {
+          _openAnimalDetail(animal, animals);
+        },
+      ),
+    );
+  }
+
+  Widget _buildBigPictureAnimalCard(
+    BuildContext context, {
+    required Animal animal,
+    required List<Animal> animals,
+    required FeedingReminderState? dueReminder,
+    required AnimalDisplayNames displayNames,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return OverviewContextMenu<_AnimalOverviewAction>(
+      key: Key('animal-context-menu-region-${animal.id}'),
+      menuButtonKey: Key('animal-context-menu-button-${animal.id}'),
+      tooltip: context.l10n.animalActions(displayNames.primary),
+      onSelected: (action) {
+        _handleAnimalAction(action, animal);
+      },
+      itemBuilder: (context) => _animalOverviewMenuItems(context),
+      builder: (context, menuButton) {
+        return Card(
+          key: Key('animal-list-item-${animal.id}'),
+          margin: EdgeInsets.zero,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () {
+              _openAnimalDetail(animal, animals);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      FutureBuilder<MediaAsset?>(
+                        future: _pictureFutureFor(animal.pictureMediaId),
+                        builder: (context, pictureSnapshot) {
+                          if (pictureSnapshot.connectionState ==
+                                  ConnectionState.waiting &&
+                              animal.pictureMediaId != null) {
+                            return Container(
+                              key: Key(
+                                'animal-big-picture-'
+                                '${animal.id}',
+                              ),
+                              color: colorScheme.surfaceContainerHighest,
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(),
+                            );
+                          }
+
+                          final pictureBytes = pictureSnapshot.data?.data;
+
+                          if (pictureBytes != null) {
+                            return Container(
+                              key: Key('animal-big-picture-${animal.id}'),
+                              color: colorScheme.surfaceContainerHighest,
+                              child: Image.memory(
+                                pictureBytes,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                gaplessPlayback: true,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Center(
+                                    child: Icon(
+                                      Icons.emoji_nature_outlined,
+                                      size: 72,
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          }
+
+                          final picturePath = animal.picturePath;
+
+                          if (picturePath != null &&
+                              picturePath.trim().isNotEmpty) {
+                            return Container(
+                              key: Key('animal-big-picture-${animal.id}'),
+                              color: colorScheme.surfaceContainerHighest,
+                              alignment: Alignment.center,
+                              child: MediaThumbnail(
+                                key: Key('animal-thumbnail-${animal.id}'),
+                                picturePath: picturePath,
+                                fallbackIcon: Icons.emoji_nature_outlined,
+                                semanticsLabel: context.l10n
+                                    .animalThumbnailLabel(displayNames.primary),
+                              ),
+                            );
+                          }
+
+                          return Container(
+                            key: Key('animal-big-picture-${animal.id}'),
+                            color: colorScheme.surfaceContainerHighest,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.emoji_nature_outlined,
+                              size: 72,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          );
+                        },
+                      ),
+                      if (dueReminder != null)
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: _buildDueMarker(context, animal),
+                        ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 8, 14),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayNames.primary,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              displayNames.secondary,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                      menuButton,
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryHeading(BuildContext context, AnimalCategory category) {
+    return Semantics(
+      header: true,
+      child: Padding(
+        key: Key(
+          'animal-category-heading-'
+          '${category.name}',
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+        child: Text(
+          context.l10n.animalCategoryPluralLabel(category),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubcategoryHeading(
+    BuildContext context,
+    AnimalSubcategory? subcategory,
+  ) {
+    final headingKey = subcategory?.name ?? 'not-specified';
+
+    return Semantics(
+      header: true,
+      child: Padding(
+        key: Key(
+          'animal-subcategory-heading-'
+          '$headingKey',
+        ),
+        padding: const EdgeInsets.fromLTRB(32, 12, 16, 4),
+        child: Text(
+          subcategory == null
+              ? context.l10n.notSpecified
+              : context.l10n.animalSubcategoryPluralLabel(subcategory),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+      ),
+    );
+  }
+
+  SliverGridDelegate _bigPictureGridDelegate(double maxWidth) {
+    final crossAxisCount = switch (maxWidth) {
+      >= 1000 => 3,
+      >= 600 => 2,
+      _ => 1,
+    };
+
+    return SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: crossAxisCount,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: crossAxisCount == 1 ? 1.35 : 1.0,
+    );
+  }
+
+  Widget _buildBigPictureAnimalGrid(
+    BuildContext context, {
+    required List<Animal> animals,
+    required List<AnimalCategoryOverviewGroup>? categoryGroups,
+    required List<FeedingReminderState> dueReminders,
+    required Map<int, FeedingReminderState> dueRemindersByAnimalId,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gridDelegate = _bigPictureGridDelegate(constraints.maxWidth);
+
+        final slivers = <Widget>[];
+
+        if (dueReminders.isNotEmpty) {
+          slivers.add(
+            SliverToBoxAdapter(
+              child: _buildReminderSummary(context, dueReminders, animals),
+            ),
+          );
+        }
+
+        if (categoryGroups == null) {
+          slivers.add(
+            SliverPadding(
+              padding: const EdgeInsets.all(12),
+              sliver: SliverGrid(
+                gridDelegate: gridDelegate,
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final animal = animals[index];
+
+                  final dueReminder = dueRemindersByAnimalId[animal.id];
+
+                  final displayNames = AnimalDisplayNames.fromContext(
+                    context,
+                    commonName: animal.commonName,
+                    latinName: animal.latinName,
+                  );
+
+                  return _buildBigPictureAnimalCard(
+                    context,
+                    animal: animal,
+                    animals: animals,
+                    dueReminder: dueReminder,
+                    displayNames: displayNames,
+                  );
+                }, childCount: animals.length),
+              ),
+            ),
+          );
+        } else {
+          for (final group in categoryGroups) {
+            slivers.add(
+              SliverToBoxAdapter(
+                child: _buildCategoryHeading(context, group.category),
+              ),
+            );
+
+            for (final subgroup in group.subgroups) {
+              if (subgroup.showHeading) {
+                slivers.add(
+                  SliverToBoxAdapter(
+                    child: _buildSubcategoryHeading(
+                      context,
+                      subgroup.subcategory,
+                    ),
+                  ),
+                );
+              }
+
+              slivers.add(
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                  sliver: SliverGrid(
+                    gridDelegate: gridDelegate,
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final animal = subgroup.animals[index];
+
+                      final dueReminder = dueRemindersByAnimalId[animal.id];
+
+                      final displayNames = AnimalDisplayNames.fromContext(
+                        context,
+                        commonName: animal.commonName,
+                        latinName: animal.latinName,
+                      );
+
+                      return _buildBigPictureAnimalCard(
+                        context,
+                        animal: animal,
+                        animals: animals,
+                        dueReminder: dueReminder,
+                        displayNames: displayNames,
+                      );
+                    }, childCount: subgroup.animals.length),
+                  ),
+                ),
+              );
+            }
+          }
+        }
+
+        return CustomScrollView(
+          key: const PageStorageKey<String>('animals-overview-grid'),
+          controller: _scrollController,
+          slivers: slivers,
+        );
+      },
+    );
+  }
+
+  Widget _buildCompactAnimalOverview(
+    BuildContext context, {
+    required List<Animal> animals,
+    required List<AnimalCategoryOverviewGroup>? categoryGroups,
+    required List<FeedingReminderState> dueReminders,
+    required Map<int, FeedingReminderState> dueRemindersByAnimalId,
+  }) {
+    final hasReminderSummary = dueReminders.isNotEmpty;
+
+    final overviewEntries = categoryGroups == null
+        ? animals.map(_AnimalOverviewListEntry.animal).toList(growable: false)
+        : _categoryOverviewEntries(categoryGroups);
+
+    return ListView.builder(
+      key: const PageStorageKey<String>('animals-overview-list'),
+      controller: _scrollController,
+      itemCount: overviewEntries.length + (hasReminderSummary ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (hasReminderSummary && index == 0) {
+          return _buildReminderSummary(context, dueReminders, animals);
+        }
+
+        final entryIndex = hasReminderSummary ? index - 1 : index;
+
+        final entry = overviewEntries[entryIndex];
+
+        if (entry.category != null) {
+          return _buildCategoryHeading(context, entry.category!);
+        }
+
+        if (entry.isSubcategoryHeading) {
+          return _buildSubcategoryHeading(context, entry.subcategory);
+        }
+
+        final animal = entry.animal!;
+
+        final dueReminder = dueRemindersByAnimalId[animal.id];
+
+        final displayNames = AnimalDisplayNames.fromContext(
+          context,
+          commonName: animal.commonName,
+          latinName: animal.latinName,
+        );
+
+        return _buildCompactAnimalTile(
+          context,
+          animal: animal,
+          animals: animals,
+          dueReminder: dueReminder,
+          displayNames: displayNames,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.maybeOf(context);
+
     final animalSortOrder =
         settings?.animalSortOrder ?? AnimalSortOrder.createdOldestFirst;
+
     final categoryViewEnabled = settings?.animalCategoryViewEnabled ?? false;
+
     final animalNameOrder =
         settings?.animalNameOrder ?? AnimalNameOrder.commonNameFirst;
+
+    final bigPictureModeEnabled = settings?.bigPictureModeEnabled ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -525,6 +1038,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
               final sortOrder = criterion == animalSortOrder.criterion
                   ? animalSortOrder.reversed
                   : criterion.defaultOrder;
+
               settings?.setAnimalSortOrder(sortOrder);
             },
             icon: const Icon(Icons.sort),
@@ -532,8 +1046,12 @@ class _AnimalsPageState extends State<AnimalsPage> {
             itemBuilder: (context) {
               return AnimalSortCriterion.values.map((criterion) {
                 final isActive = criterion == animalSortOrder.criterion;
+
                 return CheckedPopupMenuItem<AnimalSortCriterion>(
-                  key: Key('animal-sort-option-${criterion.name}'),
+                  key: Key(
+                    'animal-sort-option-'
+                    '${criterion.name}',
+                  ),
                   value: criterion,
                   checked: isActive,
                   child: Text(
@@ -566,7 +1084,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
           }
 
           final data = snapshot.data;
+
           final rawAnimals = data?.animals ?? const <Animal>[];
+
           final categoryGroups = categoryViewEnabled
               ? groupAnimalsForCategoryOverview(
                   rawAnimals,
@@ -577,6 +1097,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
                   subcategoryLabel: context.l10n.animalSubcategoryLabel,
                 )
               : null;
+
           final animals = categoryGroups == null
               ? sortAnimalsForOverview(
                   rawAnimals,
@@ -588,6 +1109,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
               : categoryGroups
                     .expand((group) => group.animals)
                     .toList(growable: false);
+
           final dueReminders =
               data?.dueReminders ?? const <FeedingReminderState>[];
 
@@ -598,155 +1120,23 @@ class _AnimalsPageState extends State<AnimalsPage> {
           final dueRemindersByAnimalId = {
             for (final reminder in dueReminders) reminder.animalId: reminder,
           };
-          final hasReminderSummary = dueReminders.isNotEmpty;
-          final overviewEntries = categoryGroups == null
-              ? animals
-                    .map(_AnimalOverviewListEntry.animal)
-                    .toList(growable: false)
-              : _categoryOverviewEntries(categoryGroups);
 
-          return ListView.builder(
-            key: const PageStorageKey<String>('animals-overview-list'),
-            controller: _scrollController,
-            itemCount: overviewEntries.length + (hasReminderSummary ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (hasReminderSummary && index == 0) {
-                return _buildReminderSummary(context, dueReminders, animals);
-              }
+          if (bigPictureModeEnabled) {
+            return _buildBigPictureAnimalGrid(
+              context,
+              animals: animals,
+              categoryGroups: categoryGroups,
+              dueReminders: dueReminders,
+              dueRemindersByAnimalId: dueRemindersByAnimalId,
+            );
+          }
 
-              final entryIndex = hasReminderSummary ? index - 1 : index;
-              final entry = overviewEntries[entryIndex];
-              if (entry.category != null) {
-                final category = entry.category!;
-                return Semantics(
-                  header: true,
-                  child: Padding(
-                    key: Key('animal-category-heading-${category.name}'),
-                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                    child: Text(
-                      context.l10n.animalCategoryPluralLabel(category),
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                  ),
-                );
-              }
-              if (entry.isSubcategoryHeading) {
-                final subcategory = entry.subcategory;
-                final headingKey = subcategory?.name ?? 'not-specified';
-                return Semantics(
-                  header: true,
-                  child: Padding(
-                    key: Key('animal-subcategory-heading-$headingKey'),
-                    padding: const EdgeInsets.fromLTRB(32, 12, 16, 4),
-                    child: Text(
-                      subcategory == null
-                          ? context.l10n.notSpecified
-                          : context.l10n.animalSubcategoryPluralLabel(
-                              subcategory,
-                            ),
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                );
-              }
-
-              final animal = entry.animal!;
-              final dueReminder = dueRemindersByAnimalId[animal.id];
-              final displayNames = AnimalDisplayNames.fromContext(
-                context,
-                commonName: animal.commonName,
-                latinName: animal.latinName,
-              );
-
-              return OverviewContextMenu<_AnimalOverviewAction>(
-                key: Key('animal-context-menu-region-${animal.id}'),
-                menuButtonKey: Key('animal-context-menu-button-${animal.id}'),
-                tooltip: context.l10n.animalActions(displayNames.primary),
-                onSelected: (action) {
-                  _handleAnimalAction(action, animal);
-                },
-                itemBuilder: (context) => [
-                  _animalMenuItem(
-                    action: _AnimalOverviewAction.createFeeding,
-                    icon: Icons.restaurant_outlined,
-                    label: context.l10n.createFeeding,
-                  ),
-                  _animalMenuItem(
-                    action: _AnimalOverviewAction.rename,
-                    icon: Icons.drive_file_rename_outline,
-                    label: context.l10n.renameAnimal,
-                  ),
-                  _animalMenuItem(
-                    action: _AnimalOverviewAction.edit,
-                    icon: Icons.edit_outlined,
-                    label: context.l10n.editAnimal,
-                  ),
-                  _animalMenuItem(
-                    action: _AnimalOverviewAction.archive,
-                    icon: Icons.archive_outlined,
-                    label: context.l10n.archiveAnimal,
-                  ),
-                  _animalMenuItem(
-                    action: _AnimalOverviewAction.duplicate,
-                    icon: Icons.copy_outlined,
-                    label: context.l10n.duplicateAnimal,
-                  ),
-                ],
-                builder: (context, menuButton) => ListTile(
-                  key: Key('animal-list-item-${animal.id}'),
-                  leading: FutureBuilder<MediaAsset?>(
-                    future: _pictureFutureFor(animal.pictureMediaId),
-                    builder: (context, pictureSnapshot) {
-                      return MediaThumbnail(
-                        key: Key('animal-thumbnail-${animal.id}'),
-                        pictureBytes: pictureSnapshot.data?.data,
-                        picturePath: pictureSnapshot.data == null
-                            ? animal.picturePath
-                            : null,
-                        fallbackIcon: Icons.emoji_nature_outlined,
-                        semanticsLabel: context.l10n.animalThumbnailLabel(
-                          displayNames.primary,
-                        ),
-                      );
-                    },
-                  ),
-                  title: Text(displayNames.primary),
-                  subtitle: Text(displayNames.secondary),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (dueReminder != null) ...[
-                        Container(
-                          key: Key('animal-due-marker-${animal.id}'),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.errorContainer,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Text(
-                            context.l10n.due,
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onErrorContainer,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                      ],
-                      menuButton,
-                    ],
-                  ),
-                  onTap: () {
-                    _openAnimalDetail(animal, animals);
-                  },
-                ),
-              );
-            },
+          return _buildCompactAnimalOverview(
+            context,
+            animals: animals,
+            categoryGroups: categoryGroups,
+            dueReminders: dueReminders,
+            dueRemindersByAnimalId: dueRemindersByAnimalId,
           );
         },
       ),
@@ -830,10 +1220,16 @@ List<_AnimalOverviewListEntry> _categoryOverviewEntries(
 
 String _formatDateTime(DateTime dateTime) {
   final localDateTime = dateTime.toLocal();
+
   final day = localDateTime.day.toString().padLeft(2, '0');
+
   final month = localDateTime.month.toString().padLeft(2, '0');
+
   final hour = localDateTime.hour.toString().padLeft(2, '0');
+
   final minute = localDateTime.minute.toString().padLeft(2, '0');
 
-  return '$day.$month.${localDateTime.year} $hour:$minute';
+  return '$day.$month.'
+      '${localDateTime.year} '
+      '$hour:$minute';
 }

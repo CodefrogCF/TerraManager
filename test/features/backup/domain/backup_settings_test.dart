@@ -11,6 +11,7 @@ void main() {
       animalNameOrder: 'latinNameFirst',
       animalSortOrder: 'latestFeedingOldestFirst',
       animalCategoryViewEnabled: true,
+      bigPictureModeEnabled: true,
       boxSortOrder: 'labelDescending',
     );
 
@@ -27,6 +28,8 @@ void main() {
     expect(restored.animalSortOrder, 'latestFeedingOldestFirst');
 
     expect(restored.animalCategoryViewEnabled, isTrue);
+
+    expect(restored.bigPictureModeEnabled, isTrue);
 
     expect(restored.boxSortOrder, 'labelDescending');
   });
@@ -56,5 +59,14 @@ void main() {
     });
 
     expect(restored.animalCategoryViewEnabled, isTrue);
+  });
+
+  test('defaults Big Picture Mode to false when missing from JSON', () {
+    final settings = BackupSettings.fromJson({
+      'themeMode': 'system',
+      'accent': 'green',
+    });
+
+    expect(settings.bigPictureModeEnabled, isFalse);
   });
 }

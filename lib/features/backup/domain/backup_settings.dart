@@ -5,6 +5,7 @@ class BackupSettings {
   final String animalNameOrder;
   final String animalSortOrder;
   final bool animalCategoryViewEnabled;
+  final bool bigPictureModeEnabled;
   final String boxSortOrder;
 
   const BackupSettings({
@@ -14,6 +15,7 @@ class BackupSettings {
     this.animalNameOrder = 'commonNameFirst',
     this.animalSortOrder = 'createdOldestFirst',
     this.animalCategoryViewEnabled = false,
+    this.bigPictureModeEnabled = false,
     this.boxSortOrder = 'labelAscending',
   });
 
@@ -25,6 +27,7 @@ class BackupSettings {
       'animalNameOrder': animalNameOrder,
       'animalSortOrder': animalSortOrder,
       'animalCategoryViewEnabled': animalCategoryViewEnabled,
+      'bigPictureModeEnabled': bigPictureModeEnabled,
       'boxSortOrder': boxSortOrder,
     };
   }
@@ -43,6 +46,7 @@ class BackupSettings {
             'categoryAscending',
             'categoryDescending',
           }.contains(json['animalSortOrder']),
+      bigPictureModeEnabled: json['bigPictureModeEnabled'] as bool? ?? false,
       boxSortOrder: json['boxSortOrder'] as String? ?? 'labelAscending',
     );
   }

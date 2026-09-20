@@ -105,6 +105,7 @@ void main() {
       animalNameOrder: AnimalNameOrder.latinNameFirst,
       animalSortOrder: AnimalSortOrder.latestFeedingOldestFirst,
       animalCategoryViewEnabled: true,
+      bigPictureModeEnabled: true,
       boxSortOrder: BoxSortOrder.labelDescending,
       createdAt: DateTime(2026, 9, 2, 15, 30),
     );
@@ -132,6 +133,8 @@ void main() {
     expect(result.settings.animalSortOrder, 'latestFeedingOldestFirst');
 
     expect(result.settings.animalCategoryViewEnabled, isTrue);
+
+    expect(result.settings.bigPictureModeEnabled, isTrue);
 
     expect(result.settings.boxSortOrder, 'labelDescending');
 

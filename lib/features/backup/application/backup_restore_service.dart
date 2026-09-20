@@ -51,6 +51,9 @@ class BackupRestoreService {
     final previousAnimalCategoryViewEnabled =
         settingsController.animalCategoryViewEnabled;
 
+    final previousBigPictureModeEnabled =
+        settingsController.bigPictureModeEnabled;
+
     final previousBoxSortOrder = settingsController.boxSortOrder;
 
     final restoredThemeMode = BackupSettingsCodec.decodeThemeMode(
@@ -75,6 +78,8 @@ class BackupRestoreService {
 
     final restoredAnimalCategoryViewEnabled =
         backup.settings.animalCategoryViewEnabled;
+
+    final restoredBigPictureModeEnabled = backup.settings.bigPictureModeEnabled;
 
     final restoredBoxSortOrder = BackupSettingsCodec.decodeBoxSortOrder(
       backup.settings.boxSortOrder,
@@ -103,6 +108,7 @@ class BackupRestoreService {
           animalNameOrder: previousAnimalNameOrder,
           animalSortOrder: previousAnimalSortOrder,
           animalCategoryViewEnabled: previousAnimalCategoryViewEnabled,
+          bigPictureModeEnabled: previousBigPictureModeEnabled,
           boxSortOrder: previousBoxSortOrder,
         );
       } catch (error) {
@@ -134,6 +140,7 @@ class BackupRestoreService {
         animalNameOrder: restoredAnimalNameOrder,
         animalSortOrder: restoredAnimalSortOrder,
         animalCategoryViewEnabled: restoredAnimalCategoryViewEnabled,
+        bigPictureModeEnabled: restoredBigPictureModeEnabled,
         boxSortOrder: restoredBoxSortOrder,
       );
     } catch (error) {
@@ -157,6 +164,7 @@ class BackupRestoreService {
           animalNameOrder: previousAnimalNameOrder,
           animalSortOrder: previousAnimalSortOrder,
           animalCategoryViewEnabled: previousAnimalCategoryViewEnabled,
+          bigPictureModeEnabled: previousBigPictureModeEnabled,
           boxSortOrder: previousBoxSortOrder,
         );
       } catch (rollbackError) {

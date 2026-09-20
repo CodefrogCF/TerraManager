@@ -65,6 +65,7 @@ class _BoxesPageState extends State<BoxesPage> {
     _pictureFutures.clear();
 
     final repository = BoxRepository(widget.database);
+
     _boxesFuture = widget.showArchived
         ? repository.getArchivedBoxes()
         : repository.getActiveBoxes();
@@ -194,12 +195,15 @@ class _BoxesPageState extends State<BoxesPage> {
       case _BoxOverviewAction.rename:
         await _renameBox(box);
         return;
+
       case _BoxOverviewAction.edit:
         await _editBox(box);
         return;
+
       case _BoxOverviewAction.duplicate:
         await _duplicateBox(box);
         return;
+
       case _BoxOverviewAction.archive:
         await _archiveBox(box);
         return;
@@ -211,6 +215,7 @@ class _BoxesPageState extends State<BoxesPage> {
       context: context,
       builder: (_) => RenameBoxDialog(initialName: box.name),
     );
+
     if (!mounted || input == null) {
       return;
     }
@@ -218,15 +223,18 @@ class _BoxesPageState extends State<BoxesPage> {
     try {
       final renamed = await BoxRepository(widget.database)
           .renameBox(boxId: box.id, name: input.name);
+
       if (!mounted) {
         return;
       }
+
       if (!renamed) {
         _showMessage(context.l10n.failedToRenameBox);
         return;
       }
 
       await _reloadBoxesPreservingScroll(_currentScrollOffset());
+
       if (mounted) {
         _showMessage(context.l10n.boxRenamed);
       }
@@ -239,11 +247,13 @@ class _BoxesPageState extends State<BoxesPage> {
 
   Future<void> _editBox(Box box) async {
     final previousOffset = _currentScrollOffset();
+
     await Navigator.of(context).push<BoxEditResult>(
       MaterialPageRoute(
         builder: (_) => BoxEditPage(database: widget.database, boxId: box.id),
       ),
     );
+
     if (mounted) {
       await _reloadBoxesPreservingScroll(previousOffset);
     }
@@ -251,6 +261,7 @@ class _BoxesPageState extends State<BoxesPage> {
 
   Future<void> _duplicateBox(Box box) async {
     final sourceName = _boxName(box);
+
     final input = await showDialog<BoxNameInput>(
       context: context,
       builder: (_) => DuplicateBoxDialog(
@@ -259,6 +270,7 @@ class _BoxesPageState extends State<BoxesPage> {
             : context.l10n.copyName(sourceName),
       ),
     );
+
     if (!mounted || input == null) {
       return;
     }
@@ -266,6 +278,7 @@ class _BoxesPageState extends State<BoxesPage> {
     try {
       await BoxRepository(widget.database)
           .duplicateBox(sourceBoxId: box.id, name: input.name);
+
       if (!mounted) {
         return;
       }
@@ -276,6 +289,7 @@ class _BoxesPageState extends State<BoxesPage> {
       }
 
       await _reloadBoxesPreservingScroll(_currentScrollOffset());
+
       if (mounted) {
         _showMessage(context.l10n.boxDuplicated);
       }
@@ -290,14 +304,17 @@ class _BoxesPageState extends State<BoxesPage> {
     try {
       final animals = await AnimalRepository(widget.database)
           .getAnimalsForBox(box.id);
+
       if (!mounted) {
         return;
       }
+
       if (animals.isNotEmpty) {
         await showDialog<void>(
           context: context,
           builder: (_) => CannotArchiveBoxDialog(animals: animals),
         );
+
         return;
       }
 
@@ -305,6 +322,7 @@ class _BoxesPageState extends State<BoxesPage> {
         context: context,
         builder: (_) => const ArchiveBoxDialog(hasUnsavedChanges: false),
       );
+
       if (!mounted || input == null) {
         return;
       }
@@ -315,15 +333,18 @@ class _BoxesPageState extends State<BoxesPage> {
         archivedAt: DateTime.now(),
         archiveNotes: input.notes,
       );
+
       if (!mounted) {
         return;
       }
+
       if (!archived) {
         _showMessage(context.l10n.failedToArchiveBox);
         return;
       }
 
       await _reloadBoxesPreservingScroll(_currentScrollOffset());
+
       if (mounted) {
         _showMessage(context.l10n.boxArchived);
       }
@@ -364,6 +385,7 @@ class _BoxesPageState extends State<BoxesPage> {
 
   Future<void> _openArchive() async {
     final previousOffset = _currentScrollOffset();
+
     await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
         builder: (_) => BoxesPage(
@@ -374,6 +396,7 @@ class _BoxesPageState extends State<BoxesPage> {
         ),
       ),
     );
+
     if (mounted) {
       await _reloadBoxesPreservingScroll(previousOffset);
     }
@@ -390,10 +413,229 @@ class _BoxesPageState extends State<BoxesPage> {
     );
   }
 
+  List<PopupMenuEntry<_BoxOverviewAction>> _boxOverviewMenuItems(
+    BuildContext context,
+  ) {
+    return [
+      if (!widget.showArchived) ...[
+        _boxMenuItem(
+          action: _BoxOverviewAction.rename,
+          icon: Icons.drive_file_rename_outline,
+          label: context.l10n.renameBox,
+        ),
+        _boxMenuItem(
+          action: _BoxOverviewAction.edit,
+          icon: Icons.edit_outlined,
+          label: context.l10n.editBox,
+        ),
+      ],
+      _boxMenuItem(
+        action: _BoxOverviewAction.duplicate,
+        icon: Icons.copy_outlined,
+        label: context.l10n.duplicateBox,
+      ),
+      if (!widget.showArchived)
+        _boxMenuItem(
+          action: _BoxOverviewAction.archive,
+          icon: Icons.archive_outlined,
+          label: context.l10n.archiveBox,
+        ),
+    ];
+  }
+
+  Widget _buildCompactBoxTile(
+    BuildContext context, {
+    required Box box,
+    required List<Box> boxes,
+    required String? boxName,
+    required String boxLabel,
+    required String dimensions,
+  }) {
+    return OverviewContextMenu<_BoxOverviewAction>(
+      key: Key('box-context-menu-region-${box.id}'),
+      menuButtonKey: Key('box-context-menu-button-${box.id}'),
+      tooltip: context.l10n.boxActions(boxName ?? boxLabel),
+      onSelected: (action) {
+        _handleBoxAction(action, box);
+      },
+      itemBuilder: (context) => _boxOverviewMenuItems(context),
+      builder: (context, menuButton) => ListTile(
+        key: Key('box-list-item-${box.id}'),
+        leading: FutureBuilder<MediaAsset?>(
+          future: _pictureFutureFor(box.pictureMediaId),
+          builder: (context, pictureSnapshot) {
+            return MediaThumbnail(
+              key: Key('box-thumbnail-${box.id}'),
+              pictureBytes: pictureSnapshot.data?.data,
+              fallbackIcon: Icons.inventory_2_outlined,
+            );
+          },
+        ),
+        title: Text(
+          boxName ?? boxLabel,
+          key: boxName == null
+              ? Key('box-label-${box.id}')
+              : Key('box-name-${box.id}'),
+        ),
+        subtitle: boxName == null
+            ? Text(dimensions)
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(boxLabel, key: Key('box-label-${box.id}')),
+                  Text(dimensions),
+                ],
+              ),
+        isThreeLine: boxName != null,
+        trailing: menuButton,
+        onTap: () {
+          _openBoxDetail(box, boxes);
+        },
+      ),
+    );
+  }
+
+  Widget _buildBigPictureBoxCard(
+    BuildContext context, {
+    required Box box,
+    required List<Box> boxes,
+    required String? boxName,
+    required String boxLabel,
+    required String dimensions,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return OverviewContextMenu<_BoxOverviewAction>(
+      key: Key('box-context-menu-region-${box.id}'),
+      menuButtonKey: Key('box-context-menu-button-${box.id}'),
+      tooltip: context.l10n.boxActions(boxName ?? boxLabel),
+      onSelected: (action) {
+        _handleBoxAction(action, box);
+      },
+      itemBuilder: (context) => _boxOverviewMenuItems(context),
+      builder: (context, menuButton) {
+        return Card(
+          key: Key('box-list-item-${box.id}'),
+          clipBehavior: Clip.antiAlias,
+          margin: EdgeInsets.zero,
+          child: InkWell(
+            onTap: () {
+              _openBoxDetail(box, boxes);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: FutureBuilder<MediaAsset?>(
+                    future: _pictureFutureFor(box.pictureMediaId),
+                    builder: (context, pictureSnapshot) {
+                      final pictureBytes = pictureSnapshot.data?.data;
+
+                      if (pictureSnapshot.connectionState ==
+                              ConnectionState.waiting &&
+                          box.pictureMediaId != null) {
+                        return Container(
+                          key: Key('box-big-picture-${box.id}'),
+                          color: colorScheme.surfaceContainerHighest,
+                          alignment: Alignment.center,
+                          child: const CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (pictureBytes == null) {
+                        return Container(
+                          key: Key('box-big-picture-${box.id}'),
+                          color: colorScheme.surfaceContainerHighest,
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.inventory_2_outlined,
+                            size: 72,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        );
+                      }
+
+                      return Container(
+                        key: Key('box-big-picture-${box.id}'),
+                        color: colorScheme.surfaceContainerHighest,
+                        child: Image.memory(
+                          pictureBytes,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          gaplessPlayback: true,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Center(
+                              child: Icon(
+                                Icons.inventory_2_outlined,
+                                size: 72,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 8, 14),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              boxName ?? boxLabel,
+                              key: boxName == null
+                                  ? Key('box-label-${box.id}')
+                                  : Key('box-name-${box.id}'),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            if (boxName != null) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                boxLabel,
+                                key: Key('box-label-${box.id}'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ],
+                            const SizedBox(height: 4),
+                            Text(
+                              dimensions,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
+                      menuButton,
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.maybeOf(context);
+
     final boxSortOrder = settings?.boxSortOrder ?? BoxSortOrder.labelAscending;
+
+    final bigPictureModeEnabled = settings?.bigPictureModeEnabled ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -410,6 +652,7 @@ class _BoxesPageState extends State<BoxesPage> {
               final sortOrder = criterion == boxSortOrder.criterion
                   ? boxSortOrder.reversed
                   : criterion.defaultOrder;
+
               settings?.setBoxSortOrder(sortOrder);
             },
             icon: const Icon(Icons.sort),
@@ -417,6 +660,7 @@ class _BoxesPageState extends State<BoxesPage> {
             itemBuilder: (context) {
               return BoxSortCriterion.values.map((criterion) {
                 final isActive = criterion == boxSortOrder.criterion;
+
                 return CheckedPopupMenuItem<BoxSortCriterion>(
                   key: Key('box-sort-option-${criterion.name}'),
                   value: criterion,
@@ -479,6 +723,46 @@ class _BoxesPageState extends State<BoxesPage> {
             );
           }
 
+          if (bigPictureModeEnabled) {
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final crossAxisCount = switch (constraints.maxWidth) {
+                  >= 1000 => 3,
+                  >= 600 => 2,
+                  _ => 1,
+                };
+
+                return GridView.builder(
+                  key: const PageStorageKey<String>('boxes-overview-grid'),
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: crossAxisCount == 1 ? 1.45 : 1.15,
+                  ),
+                  itemCount: boxes.length,
+                  itemBuilder: (context, index) {
+                    final box = boxes[index];
+                    final boxName = _boxName(box);
+                    final boxLabel = context.l10n.boxLabel(box.id);
+                    final dimensions = _formatDimensions(context, box);
+
+                    return _buildBigPictureBoxCard(
+                      context,
+                      box: box,
+                      boxes: boxes,
+                      boxName: boxName,
+                      boxLabel: boxLabel,
+                      dimensions: dimensions,
+                    );
+                  },
+                );
+              },
+            );
+          }
+
           return ListView.builder(
             key: const PageStorageKey<String>('boxes-overview-list'),
             controller: _scrollController,
@@ -489,72 +773,13 @@ class _BoxesPageState extends State<BoxesPage> {
               final boxLabel = context.l10n.boxLabel(box.id);
               final dimensions = _formatDimensions(context, box);
 
-              return OverviewContextMenu<_BoxOverviewAction>(
-                key: Key('box-context-menu-region-${box.id}'),
-                menuButtonKey: Key('box-context-menu-button-${box.id}'),
-                tooltip: context.l10n.boxActions(boxName ?? boxLabel),
-                onSelected: (action) {
-                  _handleBoxAction(action, box);
-                },
-                itemBuilder: (context) => [
-                  if (!widget.showArchived) ...[
-                    _boxMenuItem(
-                      action: _BoxOverviewAction.rename,
-                      icon: Icons.drive_file_rename_outline,
-                      label: context.l10n.renameBox,
-                    ),
-                    _boxMenuItem(
-                      action: _BoxOverviewAction.edit,
-                      icon: Icons.edit_outlined,
-                      label: context.l10n.editBox,
-                    ),
-                  ],
-                  _boxMenuItem(
-                    action: _BoxOverviewAction.duplicate,
-                    icon: Icons.copy_outlined,
-                    label: context.l10n.duplicateBox,
-                  ),
-                  if (!widget.showArchived)
-                    _boxMenuItem(
-                      action: _BoxOverviewAction.archive,
-                      icon: Icons.archive_outlined,
-                      label: context.l10n.archiveBox,
-                    ),
-                ],
-                builder: (context, menuButton) => ListTile(
-                  key: Key('box-list-item-${box.id}'),
-                  leading: FutureBuilder<MediaAsset?>(
-                    future: _pictureFutureFor(box.pictureMediaId),
-                    builder: (context, pictureSnapshot) {
-                      return MediaThumbnail(
-                        key: Key('box-thumbnail-${box.id}'),
-                        pictureBytes: pictureSnapshot.data?.data,
-                        fallbackIcon: Icons.inventory_2_outlined,
-                      );
-                    },
-                  ),
-                  title: Text(
-                    boxName ?? boxLabel,
-                    key: boxName == null
-                        ? Key('box-label-${box.id}')
-                        : Key('box-name-${box.id}'),
-                  ),
-                  subtitle: boxName == null
-                      ? Text(dimensions)
-                      : Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(boxLabel, key: Key('box-label-${box.id}')),
-                            Text(dimensions),
-                          ],
-                        ),
-                  isThreeLine: boxName != null,
-                  trailing: menuButton,
-                  onTap: () {
-                    _openBoxDetail(box, boxes);
-                  },
-                ),
+              return _buildCompactBoxTile(
+                context,
+                box: box,
+                boxes: boxes,
+                boxName: boxName,
+                boxLabel: boxLabel,
+                dimensions: dimensions,
               );
             },
           );

@@ -43,6 +43,7 @@ class BackupExportService {
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
     bool animalCategoryViewEnabled = false,
+    bool bigPictureModeEnabled = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
     DateTime? createdAt,
   }) async {
@@ -184,6 +185,7 @@ class BackupExportService {
       animalNameOrder: animalNameOrder,
       animalSortOrder: animalSortOrder,
       animalCategoryViewEnabled: animalCategoryViewEnabled,
+      bigPictureModeEnabled: bigPictureModeEnabled,
       boxSortOrder: boxSortOrder,
     );
 

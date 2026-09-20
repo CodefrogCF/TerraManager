@@ -15,6 +15,7 @@ class AppSettingsController extends ChangeNotifier {
   static const String _animalSortOrderKey = 'animal_sort_order';
   static const String _animalCategoryViewEnabledKey =
       'animal_category_view_enabled';
+  static const String _bigPictureModeEnabledKey = 'big_picture_mode_enabled';
   static const String _boxSortOrderKey = 'box_sort_order';
 
   ThemeMode _themeMode = ThemeMode.system;
@@ -23,6 +24,7 @@ class AppSettingsController extends ChangeNotifier {
   AnimalNameOrder _animalNameOrder = AnimalNameOrder.commonNameFirst;
   AnimalSortOrder _animalSortOrder = AnimalSortOrder.createdOldestFirst;
   bool _animalCategoryViewEnabled = false;
+  bool _bigPictureModeEnabled = false;
   BoxSortOrder _boxSortOrder = BoxSortOrder.labelAscending;
 
   ThemeMode get themeMode => _themeMode;
@@ -31,6 +33,7 @@ class AppSettingsController extends ChangeNotifier {
   AnimalNameOrder get animalNameOrder => _animalNameOrder;
   AnimalSortOrder get animalSortOrder => _animalSortOrder;
   bool get animalCategoryViewEnabled => _animalCategoryViewEnabled;
+  bool get bigPictureModeEnabled => _bigPictureModeEnabled;
   BoxSortOrder get boxSortOrder => _boxSortOrder;
 
   Future<void> load() async {
@@ -52,6 +55,9 @@ class AppSettingsController extends ChangeNotifier {
     _animalCategoryViewEnabled =
         preferences.getBool(_animalCategoryViewEnabledKey) ??
         parsedAnimalSortOrder.isLegacyCategoryOrder;
+
+    _bigPictureModeEnabled =
+        preferences.getBool(_bigPictureModeEnabledKey) ?? false;
 
     if (parsedAnimalSortOrder.isLegacyCategoryOrder) {
       await preferences.setString(_animalSortOrderKey, _animalSortOrder.name);
@@ -173,6 +179,18 @@ class AppSettingsController extends ChangeNotifier {
     await preferences.setBool(_animalCategoryViewEnabledKey, enabled);
   }
 
+  Future<void> setBigPictureModeEnabled(bool enabled) async {
+    if (_bigPictureModeEnabled == enabled) {
+      return;
+    }
+
+    _bigPictureModeEnabled = enabled;
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_bigPictureModeEnabledKey, enabled);
+  }
+
   ThemeMode _parseThemeMode(String? value) {
     if (value == null) {
       return ThemeMode.system;
@@ -262,6 +280,7 @@ class AppSettingsController extends ChangeNotifier {
     required AnimalNameOrder animalNameOrder,
     required AnimalSortOrder animalSortOrder,
     bool animalCategoryViewEnabled = false,
+    bool bigPictureModeEnabled = false,
     required BoxSortOrder boxSortOrder,
   }) async {
     final preferences = await SharedPreferences.getInstance();
@@ -272,6 +291,7 @@ class AppSettingsController extends ChangeNotifier {
     final previousAnimalNameOrder = _animalNameOrder;
     final previousAnimalSortOrder = _animalSortOrder;
     final previousAnimalCategoryViewEnabled = _animalCategoryViewEnabled;
+    final previousBigPictureModeEnabled = _bigPictureModeEnabled;
     final previousBoxSortOrder = _boxSortOrder;
 
     final previousStoredTheme = preferences.getString(_themeModeKey);
@@ -287,6 +307,9 @@ class AppSettingsController extends ChangeNotifier {
     );
     final previousStoredAnimalCategoryViewEnabled = preferences.getBool(
       _animalCategoryViewEnabledKey,
+    );
+    final previousStoredBigPictureModeEnabled = preferences.getBool(
+      _bigPictureModeEnabledKey,
     );
     final previousStoredBoxSortOrder = preferences.getString(_boxSortOrderKey);
 
@@ -346,6 +369,15 @@ class AppSettingsController extends ChangeNotifier {
         throw StateError('Failed to persist Animal category view');
       }
 
+      final bigPictureModeEnabledSaved = await preferences.setBool(
+        _bigPictureModeEnabledKey,
+        bigPictureModeEnabled,
+      );
+
+      if (!bigPictureModeEnabledSaved) {
+        throw StateError('Failed to persist Big Picture Mode');
+      }
+
       final boxSortOrderSaved = await preferences.setString(
         _boxSortOrderKey,
         boxSortOrder.name,
@@ -361,6 +393,7 @@ class AppSettingsController extends ChangeNotifier {
       _animalNameOrder = animalNameOrder;
       _animalSortOrder = normalizedAnimalSortOrder;
       _animalCategoryViewEnabled = normalizedAnimalCategoryViewEnabled;
+      _bigPictureModeEnabled = bigPictureModeEnabled;
       _boxSortOrder = boxSortOrder;
 
       notifyListeners();
@@ -410,6 +443,15 @@ class AppSettingsController extends ChangeNotifier {
         );
       }
 
+      if (previousStoredBigPictureModeEnabled == null) {
+        await preferences.remove(_bigPictureModeEnabledKey);
+      } else {
+        await preferences.setBool(
+          _bigPictureModeEnabledKey,
+          previousStoredBigPictureModeEnabled,
+        );
+      }
+
       if (previousStoredBoxSortOrder == null) {
         await preferences.remove(_boxSortOrderKey);
       } else {
@@ -425,6 +467,7 @@ class AppSettingsController extends ChangeNotifier {
       _animalNameOrder = previousAnimalNameOrder;
       _animalSortOrder = previousAnimalSortOrder;
       _animalCategoryViewEnabled = previousAnimalCategoryViewEnabled;
+      _bigPictureModeEnabled = previousBigPictureModeEnabled;
       _boxSortOrder = previousBoxSortOrder;
 
       notifyListeners();

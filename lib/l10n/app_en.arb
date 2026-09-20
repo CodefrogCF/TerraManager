@@ -458,6 +458,8 @@
   "accentOrange": "Orange",
   "accentPurple": "Purple",
   "accentRed": "Red",
+  "bigPictureMode": "Big Picture Mode",
+  "bigPictureModeDescription": "Use larger, image-focused cards in Box and Animal overviews.",
   "changesSavedAutomatically": "Changes are saved automatically.",
   "backupAndRestore": "Backup & Restore",
   "backupSectionDescription": "Create a portable TerraManager backup or replace the current local data from an existing backup.",

@@ -320,6 +320,8 @@
   "accentOrange": "Orange",
   "accentPurple": "Violett",
   "accentRed": "Rot",
+  "bigPictureMode": "Großbildmodus",
+  "bigPictureModeDescription": "Verwendet größere, bildorientierte Karten in der Box- und Tierübersicht.",
   "changesSavedAutomatically": "Änderungen werden automatisch gespeichert.",
   "backupAndRestore": "Sicherung & Wiederherstellung",
   "backupSectionDescription": "Erstelle eine portable TerraManager-Sicherung oder ersetze die aktuellen lokalen Daten durch eine vorhandene Sicherung.",

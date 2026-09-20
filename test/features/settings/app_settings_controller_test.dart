@@ -301,4 +301,37 @@ void main() {
 
     expect(preferences.getString('box_sort_order'), 'labelDescending');
   });
+
+  test('Big Picture Mode is disabled by default', () async {
+    SharedPreferences.setMockInitialValues({});
+
+    final controller = AppSettingsController();
+    await controller.load();
+
+    expect(controller.bigPictureModeEnabled, isFalse);
+
+    controller.dispose();
+  });
+
+  test('persists Big Picture Mode', () async {
+    SharedPreferences.setMockInitialValues({});
+
+    final controller = AppSettingsController();
+    await controller.load();
+
+    await controller.setBigPictureModeEnabled(true);
+
+    expect(controller.bigPictureModeEnabled, isTrue);
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.getBool('big_picture_mode_enabled'), isTrue);
+
+    final restoredController = AppSettingsController();
+    await restoredController.load();
+
+    expect(restoredController.bigPictureModeEnabled, isTrue);
+
+    controller.dispose();
+    restoredController.dispose();
+  });
 }

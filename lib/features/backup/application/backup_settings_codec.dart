@@ -17,6 +17,7 @@ class BackupSettingsCodec {
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
     bool animalCategoryViewEnabled = false,
+    bool bigPictureModeEnabled = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
   }) {
     return BackupSettings(
@@ -27,6 +28,7 @@ class BackupSettingsCodec {
       animalSortOrder: encodeAnimalSortOrder(animalSortOrder.normalized),
       animalCategoryViewEnabled:
           animalCategoryViewEnabled || animalSortOrder.isLegacyCategoryOrder,
+      bigPictureModeEnabled: bigPictureModeEnabled,
       boxSortOrder: encodeBoxSortOrder(boxSortOrder),
     );
   }

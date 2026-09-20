@@ -149,6 +149,7 @@ void main() {
         animalNameOrder: 'latinNameFirst',
         animalSortOrder: 'latestFeedingOldestFirst',
         animalCategoryViewEnabled: true,
+        bigPictureModeEnabled: true,
         boxSortOrder: 'createdNewestFirst',
       ),
       mediaFiles: includePicture
@@ -353,6 +354,8 @@ void main() {
     );
 
     expect(settingsController.animalCategoryViewEnabled, isTrue);
+
+    expect(settingsController.bigPictureModeEnabled, isTrue);
 
     expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
   });

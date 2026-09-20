@@ -177,6 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
         animalSortOrder: settings.animalSortOrder,
         boxSortOrder: settings.boxSortOrder,
         animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
+        bigPictureModeEnabled: settings.bigPictureModeEnabled,
       );
 
       final savedPath = await _backupFileGateway.saveBackup(backup);
@@ -820,6 +821,19 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
               ),
             ),
+          ),
+
+          const SizedBox(height: 32),
+
+          SwitchListTile(
+            key: const Key('big-picture-mode-switch'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(context.l10n.bigPictureMode),
+            subtitle: Text(context.l10n.bigPictureModeDescription),
+            value: settings.bigPictureModeEnabled,
+            onChanged: _operationBusy
+                ? null
+                : settings.setBigPictureModeEnabled,
           ),
 
           const SizedBox(height: 32),

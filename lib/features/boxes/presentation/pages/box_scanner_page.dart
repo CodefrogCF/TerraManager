@@ -126,7 +126,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
 
         if (closeScanner) {
           Navigator.of(context).pop(true);
-        return;
+          return;
         }
 
         setState(() {

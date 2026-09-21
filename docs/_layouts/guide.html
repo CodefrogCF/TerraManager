@@ -3,10 +3,12 @@
   {% assign alternate_path = '/guide/en/' %}
   {% assign home_path = '/' %}
   {% assign privacy_path = '/privacy/de/' %}
+  {% assign manual_path = '/guide/TerraManager-Handbuch.pdf' %}
 {% else %}
   {% assign alternate_path = '/guide/' %}
   {% assign home_path = '/en/' %}
   {% assign privacy_path = '/privacy/' %}
+  {% assign manual_path = '/guide/TerraManager-User-Manual.pdf' %}
 {% endif %}
 <!doctype html>
 <html lang="{{ page.lang }}">
@@ -57,7 +59,7 @@
             <p class="hero-body">{{ t.hero.body }}</p>
             <div class="button-row">
               <a class="button button-primary" href="#start">{{ t.hero.primary }}</a>
-              <a class="button button-secondary" href="{{ '/guide/TerraManager-User-Manual.pdf' | relative_url }}">{{ t.hero.manual }}</a>
+              <a class="button button-secondary" href="{{ manual_path | relative_url }}">{{ t.hero.manual }}</a>
             </div>
           </div>
           <figure class="guide-hero-shot">
@@ -139,7 +141,7 @@
           </div>
           <div class="button-row support-actions">
             <a class="button button-primary" href="{{ home_path | relative_url }}#download">{{ t.finish.download }}</a>
-            <a class="button button-secondary" href="{{ '/guide/TerraManager-User-Manual.pdf' | relative_url }}">{{ t.finish.manual }}</a>
+            <a class="button button-secondary" href="{{ manual_path | relative_url }}">{{ t.finish.manual }}</a>
           </div>
         </div>
       </section>

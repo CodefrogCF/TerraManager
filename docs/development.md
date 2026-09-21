@@ -135,138 +135,6 @@ dart run drift_dev make-migrations
 
 Migration output must be reviewed and covered by schema migration tests.
 
-Schema Version 5 adds the nullable Animal columns
-`feedingReminderIntervalDays` and `feedingReminderBaseline`. Migration tests
-must verify that Version 4 data is preserved and both fields are initialized to
-`null` for existing Animals.
-
-Schema Version 8 adds Box lifecycle state and archive metadata for Issue #102.
-Regenerate Drift output and migration helpers after changing this schema.
-Migration coverage includes all prior schema paths and a populated Version 7
-database; restart and backup tests cover every Box archive reason and legacy
-Format 1/2 defaults.
-
-Issue #103 adds archive and restore UI workflows without another schema change.
-Regression must cover occupied Boxes, assignments made while confirmation is
-open, duplicate archive/restore calls, active-only assignment choices and stale
-Animal forms. Test both QR scanners with archived and restored identifiers in
-English and German. Confirm archive/restore navigation from a contextually
-swiped Box and preservation of pictures, QR identifiers and ordinary notes.
-Verify that active Boxes have no permanent-delete action, while archived Box
-details offer the confirmed destructive action only at the bottom of the page.
-Verify that active Animal details no longer expose archive directly and that
-Edit Animal places the archive action after the save action with draft warning.
-Physical camera behavior remains part of Android and Web manual validation.
-
-Schema Version 9 adds the nullable Animal fields `originHabitat`, `weight`,
-`sheddingNotes`, `restOrDormancyPeriods` and `temperatureZones` for Issue #112.
-Regenerate Drift output, create the v9 schema snapshot and verify a populated
-v8 database before changing the migration baseline. Existing values must remain
-untouched and all five new fields must begin as `null`.
-
-Portable Backup Format Version 2 carries these fields as optional strings.
-Keep absent keys compatible with older Format 1 and Format 2 backups, reject
-present non-string values and cover export, validation and restore together.
-New Animal and Edit Animal share one additional-characteristics widget so their
-labels, expansion behavior and field keys stay aligned. Detail pages must omit
-the complete section when every value is empty.
-
-Issue #113 uses the shared legal-document page for Privacy Policy and License.
-The app bundles the root `LICENSE` directly instead of maintaining a second
-copy. References are displayed as part of the local document without opening
-an external application, matching the Privacy Policy behavior.
-
-Issue #106 keeps Box Overview, Animal Overview and Settings in one
-`IndexedStack` and adds horizontal root-page gestures around that container.
-Do not replace the stack with independently rebuilt routes: overview scroll
-controllers, sort choices and transient Settings state must survive both swipe
-and navigation-bar changes. Keep horizontal drag thresholds separate from
-vertical scrolling, and keep dialogs, dropdowns, crop routes and contextual
-detail gestures above the root shell. The Box and Animal overview floating
-actions require distinct Hero tags while both pages remain mounted.
-
-Changes made from one retained page must explicitly refresh affected sibling
-data. Direct Animal creation from Box details increments the Animal data
-revision; `AnimalsPage.didUpdateWidget` reloads its query and restores the
-existing scroll offset. Regression tests must first load Animal Overview, create
-an Animal from Box details, and then prove that the same overview instance shows
-the new record without restarting the application.
-
-Schema Version 10 adds the required Animal category and nullable subcategory.
-Regenerate Drift output, preserve the released v10 schema snapshot and verify a
-populated v9 database. Existing Animals must migrate to `other` with a null
-subcategory. New Animal and Edit Animal share one taxonomy widget and must offer
-only category-compatible values. Repository, backup and restore paths must
-reject unsupported or incompatible combinations while accepting missing
-taxonomy values from older Format 1 and Format 2 backups.
-
-Schema Version 11 adds the nullable Box temperature-zone note. Verify a direct
-populated v10 migration: the first non-empty legacy Animal value by Animal ID
-seeds its assigned Box only when the Box has no value, while Boxes without a
-source stay empty and foreign keys remain valid. Current Animal forms and
-details no longer expose the legacy column. Backup restore follows the same
-non-destructive rule and accepts missing Box temperature-zone keys from older
-Format 1 and Format 2 backups. Migration regressions assert data behavior and
-snapshot transitions without hard-coding the current schema number.
-
-Schema Version 13 adds nullable `Animal.nighttimeTemperature`. Generate and
-retain the version 13 Drift snapshot, verify direct v12 → v13 migration, and
-keep the new field nullable so existing databases and older Format 2 backups
-restore without synthetic values. Repository and backup validation apply the
-same inclusive 0–60 °C bounds used by daytime temperatures.
-
-Schema Version 14 adds nullable `Animal.nighttimeTemperatureMin` and
-`Animal.nighttimeTemperatureMax` plus `AnimalWeightEntries`. Retain the version
-13 snapshot and cover a populated direct v13 → v14 migration. A legacy
-nighttime value must seed both new bounds. Convert only unambiguous positive
-gram strings into timestamped history and retain all other legacy weight text.
-Repository tests must prove that unrelated edits and numerically unchanged
-weights do not create duplicate entries, while archive, permanent deletion and
-duplication follow their documented ownership rules. Weight-history UI tests
-must also cover add, edit, cancel-delete and confirmed-delete flows, and a
-repository deletion must require both the entry ID and owning Animal ID.
-
-Schema Version 15 adds `SheddingEvents`. Retain the released Version 14
-snapshot and cover a populated direct v14 → v15 migration. Every non-empty
-legacy `Animal.sheddingNotes` value must create exactly one shedding event
-using the Animal's `updatedAt` timestamp because no original shedding timestamp
-exists. Whitespace-only and null values create no event. Clear the legacy field
-after migration but retain the column for older database and backup
-compatibility.
-
-Current New Animal, Edit Animal and duplication workflows must not create or
-copy legacy shedding-note values. Shedding history is owned by the Animal,
-survives archiving and is removed with permanent Animal deletion.
-
-Backup Format Version 2 carries nested `sheddingHistory` without increasing the
-format version. Missing history remains compatible with older backups. A legacy
-non-empty `sheddingNotes` value creates one event only when explicit shedding
-history is absent. Repository, migration, backup and widget tests must cover
-create, edit, delete, ordering, archive retention and legacy conversion.
-
-Backup Format Version 2 carries the additive nighttime bounds and nested weight
-history. Keep missing keys compatible with older backups, validate positive
-finite gram values, unique history IDs and valid timestamps, and test export,
-validation and restore together. The v1.9.0 UI and persistence changes remain
-local and must not add platform permission declarations.
-
-Issue #142 keeps category grouping independent from Animal sorting. Cover the
-complete Issue #127 category order, localized headings, conditional subcategory
-headings, named subcategories followed by Other and Not specified, and every
-regular sort direction inside final groups with ID tie breaking. Verify the
-persistent toggle, legacy Category sort migration and backup compatibility. The
-row widgets retain thumbnails, reminders and quick actions, and contextual
-detail navigation receives the flattened visible group order.
-
-Issue #143 keeps the Box QR identifier immutable while moving its read-only
-label, value and explanation below Notes and directly above Save and Archive.
-Widget coverage must verify this order with enlarged text and a small viewport,
-and prove ordinary edits do not alter the identifier.
-
-The three Settings QR export actions retain the shared selection workflow.
-Keep the individual PNG description concise and use the same dividers as other
-Settings action lists between PNG, ZIP and PDF.
-
 ## Android Development
 
 TerraManager uses the permanent Android namespace and application ID:
@@ -283,20 +151,6 @@ android/app/src/main/kotlin/com/codefrog/terramanager/MainActivity.kt
 
 Do not change the application ID after v1.0. Android uses it as part of the
 installed application's identity, storage isolation and update path.
-
-Builds through v0.14.1 used the temporary identifier
-`com.example.flutter_application_1`. They cannot be updated in place by a build
-using the permanent identifier. Export a `.tmbackup` from the old installation,
-install the permanent-ID build and restore that backup before removing the old
-application. Database Schema Version 5 and Portable Backup Format Version 2 do
-not change for this transition.
-
-Android Debug builds remain available without release credentials. Android
-Release builds require a dedicated local production key and refuse to fall back
-to the debug certificate. Follow `android-release-signing.md` to create the
-keystore, configure either `android/key.properties` or environment variables,
-back up the key and verify the resulting artifacts. Never commit the real
-keystore or passwords.
 
 List available devices:
 
@@ -395,139 +249,26 @@ flutter build web
 Run:
 
 ```text
+dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
 ```
 
-If platform-related code changed, additionally validate the affected platform manually.
-
-For public-documentation changes, also run:
+If platform-specific behaviour changed, validate the affected platform manually.
+For public-documentation changes also run:
 
 ```text
 flutter test test/platform/public_documentation_test.dart
 ```
 
-For CI or toolchain changes, also run:
+For CI or toolchain changes also run:
 
 ```text
 flutter test test/platform/toolchain_quality_gates_test.dart
 ```
 
-Review all Markdown links in the rendered GitHub repository and confirm that
-no example contains a real password, backup, private path or signing secret.
-
-Examples:
-
-- camera access
-- gallery storage
-- browser downloads
-- printing
-- image picker
-- picture cropping after Camera and Gallery selection
-- WebP encoding of confirmed crops on Android and Web
-- maximum 1920-pixel longest edge without upscaling
-- `.webp` filename and `image/webp` MediaAsset metadata
-- visible processing feedback and disabled picture/save actions during encoding
-- duplicate-tap protection for picture processing and form saving
-- reminder controls disabled by default for new Animals
-- positive whole-day validation when a reminder is enabled
-- reminder interval and baseline persistence after an application restart
-- reminder configuration retention across archive and restore
-- current and legacy backup round trips for reminder configuration
-- reminder calculation from the latest FeedingEvent when present, otherwise
-  from the reminder baseline
-- exact due-boundary behavior with an injected clock
-- recalculation after FeedingEvent creation, editing and deletion
-- disabled and archived Animal exclusion from reminder results
-- due ordering from most overdue to least overdue
-- reminder calculation after restoring current backup data
-- absence of a reminder summary when no active Animal is due
-- Debug Android build without `android/key.properties`
-- production-signed APK and AAB builds with local release credentials
-- APK certificate verification and SHA-256 checksums
-- non-modal due summary, due count and due markers in the Animal Overview
-- most-overdue-first order and navigation to the correct Animal
-- an active due-only status card above the Animal picture, with no scheduled or
-  archived placeholder
-- Latest Feeding directly below the Animal names
-- an accessible assigned-Box link with a safe generated-label fallback
-- immediate refresh after FeedingEvent creation, editing and deletion
-- Animal Overview refresh after a QR Quick Feeding submission
-- English and German reminder counts and status labels
-- absence of automatically opened dialogs or system-notification permission
-  requests
-- atomic replacement that retains the old picture after processing/save errors
-- migration of existing Animal and Box pictures into one-entry galleries
-- stable gallery ordering and capture/import timestamps
-- adding a picture without deleting earlier gallery entries
-- changing the primary picture and confirmed individual deletion
-- gallery order and primary-selection backup round trips
-- WebP and legacy image display in overview, detail and full-screen contexts
-- unchanged display and backup behavior for existing JPEG and PNG pictures
-- mixed PNG/JPEG and WebP backup export, validation and restore
-- restored filename, MIME type and byte-for-byte media equality
-- persistent database storage
-- System, English and German language selection
-- language persistence and unsupported-locale fallback
-- language-setting backup and restore
-- natural ascending/descending Box Overview sorting
-- unnamed Boxes last in both alphabetical directions
-- calculated-volume sorting with incomplete dimensions last
-- Box sort-order persistence after an application restart
-- contextual Box detail swiping in the currently visible order
-- Box sort-order backup, restore and legacy creation-order migration behavior
-- oldest/newest creation order and natural ascending/descending Animal sorting
-- oldest/youngest Animal sorting with missing birth dates placed deterministically
-- newest/oldest FeedingEvent sorting with never-fed Animals placed deterministically
-- Animal sorting based on the currently selected common/Latin primary name
-- complete Animal taxonomy creation, editing, details and duplication
-- populated v9 to v10 taxonomy migration with legacy `other` defaults
-- taxonomy backup export, validation, restore and incompatible-value rejection
-- independent category grouping with conditional localized subcategory headings
-- all regular Animal sort directions inside final category groups
-- Animal sort-order and category-view persistence after an application restart
-- contextual Animal detail swiping in the currently visible order
-- Animal sort-order and category-view backup, restore, legacy Category migration
-  and missing-field default behavior
-- one bulk latest-feeding lookup for Animal sorting and reminder summaries
-
-For image-storage measurements, use the same source picture and equivalent crop
-before and after optimization. Record:
-
-- source file byte size and dimensions
-- stored WebP byte size and dimensions
-- `.tmbackup` size or the corresponding archive media-entry size
-- percentage reduction: `(originalBytes - webpBytes) / originalBytes * 100`
-
-Test at least one landscape and one portrait photo. Also confirm that an
-existing JPEG or PNG still opens and survives backup restore without being
-rewritten.
-
-The completed real-world measurement used a data set containing 44 Boxes, 45
-Animals, 20 FeedingEvents and 67 pictures. Its portable backup decreased from
-approximately 140 MB to 22.7 MB after normalization: about 117.3 MB or 83.8%
-smaller, and roughly 6.2 times smaller overall.
-
-## Recommended Release Validation
-
-Before a milestone release, the release owner should run the supported quality
-gates and platform checks for the affected source state:
-
-```text
-flutter clean
-flutter pub get
-flutter gen-l10n
-flutter analyze
-flutter test
-flutter build apk --debug
-flutter build apk --release
-flutter build web
-```
-
-Then perform manual regression testing on every validated target platform,
-verify signed artifacts and backups, and record the user-visible result in the
-GitHub Release and `CHANGELOG.md`. Release-specific validation files are not
-kept under `docs/`.
+Release validation is maintained separately in
+[release-checklist.md](release-checklist.md).
 
 ## Git Workflow
 

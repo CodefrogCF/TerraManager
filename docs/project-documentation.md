@@ -15,479 +15,64 @@ iOS support is planned, but has not yet been validated because no macOS build en
 Public project information:
 
 - [Project homepage](https://codefrogcf.github.io/TerraManager/)
-- [Project documentation](docs/project-documentation.md)
-- [Installation and updates](docs/installation-and-updates.md)
-- [Privacy](PRIVACY.md)
-- [Datenschutz (Deutsch)](PRIVACY.de.md)
-- [Support](SUPPORT.md)
-- [Security](SECURITY.md)
-- [Contributing](CONTRIBUTING.md)
-- [GPL-3.0-or-later license](LICENSE)
+- [Installation and updates](installation-and-updates.md)
+- [Release checklist](release-checklist.md)
+- [Documentation maintenance](documentation-maintenance.md)
+- [Roadmap](roadmap.md)
+- [Privacy](https://github.com/CodefrogCF/TerraManager/blob/main/PRIVACY.md)
+- [Datenschutz (Deutsch)](https://github.com/CodefrogCF/TerraManager/blob/main/PRIVACY.de.md)
+- [Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md)
+- [Security](https://github.com/CodefrogCF/TerraManager/blob/main/SECURITY.md)
+- [Contributing](https://github.com/CodefrogCF/TerraManager/blob/main/CONTRIBUTING.md)
+- [GPL-3.0-or-later license](https://github.com/CodefrogCF/TerraManager/blob/main/LICENSE)
 
 ## Project Status
 
-Latest published application version: **v1.10.0+74 - Animal Workflow & History Polish**.
+Current application version: **v1.10.1+75**.
 
-- Animal category grouping is controlled independently beside the sort menu;
-- creation time, displayed name, age and latest feeding work in flat and
-  category-grouped views;
-- legacy Category sort preferences migrate safely to the grouped view;
-- Edit Box places the immutable QR identifier below Notes and above the bottom
-  Save and Archive actions;
-- Animal shedding documentation now uses timestamped history instead of the
-  legacy free-form shedding-note field;
-- Database Schema Version 15 and Portable Backup Format Version 2 remain
-  current and backward compatible;
-- no new device permission is required.
-
-Android and Web are the validated platforms. iOS remains planned and has not
-been validated. The complete version history is maintained in
-[CHANGELOG.md](CHANGELOG.md), while completed and planned work is maintained in
-the [roadmap](docs/roadmap.md).
-
-### Android transition to the permanent application ID
-
-Releases through v0.14.1 used `com.example.flutter_application_1`. Current
-Android releases use `com.codefrog.terramanager`, which Android treats as a
-separate application. Before replacing an old installation, create a current
-`.tmbackup`, restore it in the new application and verify Animals, Boxes,
-FeedingEvents, settings and pictures before removing the old installation.
-
-Portable Backup Format Version 2 has been validated for Android → Android,
-Web → Web, Android → Web and Web → Android transfers. TerraManager provides
-complete English and German interfaces, with immediate persistent language
-selection in Settings.
-
-## Implemented Features
-
-### Boxes
-
-- box overview
-- box creation
-- automatic unique QR ID generation
-- box detail screen
-- permanent QR identifiers
-- QR code display
-- QR code export as PNG
-- local QR image storage
-- QR code scanning
-- optional camera-light controls in the Box and Feeding Mode scanners
-- unknown and invalid QR handling
-- assigned animal list on box detail
-- current Animal picture thumbnails in Box-detail assignment lists
-- Box information and assigned Animals before the consolidated bottom QR
-  section
-- permanent QR identifier and PNG export action grouped with the QR code
-- navigation from box to assigned animal
-- Add Animal action below empty and populated Box assignment sections
-- direct New Animal navigation with the originating Box preselected
-- optional width, height and depth
-- optional multiline temperature-zone notes above ordinary Box notes
-- ordered Box picture galleries with selectable primary images
-- optional free-form Box names
-- optional multiline Box notes
-- persistent Box pictures
-- Add/Change Picture action with Camera and Gallery source selection for Box
-  pictures
-- free-form cropping before a selected or captured Box picture is applied
-- WebP optimization with a maximum 1920-pixel longest edge for new and replaced
-  Box pictures
-- full-screen Box picture viewing with zooming and panning
-- Box editing with the immutable QR identifier below Notes and above Save and
-  Archive
-- human-readable local labels (`Box N`)
-- Box names as primary overview labels while keeping `Box N` visible
-- Box thumbnails in the overview
-- localized Box Overview sorting by ascending or descending natural Box number
-- localized Box Overview sorting by name A–Z or Z–A with unnamed Boxes last
-- localized Box Overview sorting by calculated volume, with incomplete
-  dimensions last
-- persistent Box Overview ordering across application restarts
-- preserved Box overview scroll position after detail navigation
-- contextual swipe navigation through the Box Overview ordering
-- long-press and secondary-click overview actions for Rename, Edit, Duplicate
-  and Archive
-- independent active Box duplication with a new database ID, permanent QR
-  identifier and copied picture media
-- archive and restore workflows that keep assigned active Animals protected
-- permanent deletion available only for archived Boxes after confirmation
-
-### Animals
-
-- active animal overview
-- animal creation
-- animal detail screen
-- animal editing
-- box assignment
-- common and Latin names
-- localized Male, Female, Hermaphrodite / other and Unknown sex values without
-  duplicate options
-- birth date
-- birth date accuracy
-- localized Exact, Month known and Year known birth-date-accuracy values
-- paired minimum/maximum daytime temperature and humidity controls
-- optional picture
-- ordered Animal picture galleries with capture/import timestamps and a
-  selectable primary image
-- Add/Change Picture action with Camera and Gallery source selection for Animal
-  pictures
-- free-form cropping before a selected or captured Animal picture is applied
-- WebP optimization with a maximum 1920-pixel longest edge for new and replaced
-  Animal pictures
-- full-screen Animal picture viewing with zooming and panning
-- notes
-- optional origin or habitat, numeric weight in grams and rest or dormancy
-  periods
-- timestamped shedding history with optional notes, quick entry from Animal
-  details and Edit Animal, plus edit and confirmed delete actions
-- timestamped weight history with quick entry from Animal details plus add,
-  edit and confirmed delete actions in the reverse-chronological history view
-- optional minimum/maximum nighttime temperature below the daytime range
-- shared Additional characteristics order for birth date, accuracy, sex,
-  weight, origin, nighttime temperature, rest periods and notes
-- required localized Animal category and optional compatible subcategory
-- taxonomy persistence through editing, duplication, migration and backup
-- active and archived lifecycle states
-- archive reasons, dates and optional archive notes
-- archive action at the bottom of Edit Animal, with an unsaved-change warning
-- dedicated Animal History view
-- restore archived animals
-- permanent deletion of archived animals
-- preserved feeding history while archived
-- Animal thumbnails in the overview
-- localized Animal Overview sorting by creation time, displayed primary name,
-  age or latest FeedingEvent
-- independent persistent category grouping directly beside the sort control
-- accessible category groups with conditional subcategory headings and the
-  selected regular sort order inside every final group
-- localized plural category and subcategory headings in grouped views
-- deterministic placement of Animals without birth or feeding data
-- persistent Animal Overview ordering across application restarts
-- preserved Animal overview scroll position after detail navigation
-- contextual swipe navigation through Active Animals, Animal History and
-  Box-specific Animal collections
-- long-press and secondary-click overview actions for Create Feeding, Rename,
-  Edit, Archive and Duplicate
-- active and archived Animal duplication into a selected active Box with a new
-  database ID, copied picture media and no copied feeding history
-- optional per-Animal feeding reminder configuration
-- dedicated Feeding Reminder settings from active Animal details
-- positive whole-day reminder intervals
-- reminder baselines set when reminders are enabled
-- reminder configuration retained while an Animal is archived
-- due timestamps calculated from the latest feeding when one exists, otherwise
-  from the reminder baseline
-- disabled and archived Animals excluded from active reminder results
-- non-modal overview summary listing currently due Animals
-- visible due markers in the Animal Overview
-- most-overdue-first reminder ordering
-- active due status above the Animal picture without a scheduled placeholder
-- next scheduled feeding below Latest Feeding while its reminder is active and
-  not yet due
-- assigned Box link with optional Box name on Animal details
-- direct navigation from reminder entries to the Animal and feeding workflow
-- immediate reminder refresh after normal and Quick Feeding changes
-
-### Feeding
-
-- feeding event history
-- feeding timestamps
-- optional feeding notes
-- FeedingEvent editing
-- FeedingEvent deletion with confirmation
-- latest feeding lookup
-- latest feeding displayed directly on animal details
-- next scheduled feeding displayed below Latest Feeding before it becomes due
-- direct feeding-history navigation from the Latest Feeding card
-- automatic refresh after feeding edits and deletions
-- efficient bulk lookup of reminder state without one feeding query per Animal
-- deterministic due-state calculation at exact timestamp boundaries
-- automatic reminder rescheduling from current history after feeding creation,
-  editing or deletion
-- dedicated QR Feeding Mode from the Box Overview
-- scanned Box resolution to its currently assigned active Animals
-- empty state for Boxes without active Animals
-- one- and multi-Animal quick feeding selection
-- current date and time pre-filled for quick feeding entries
-- optional shared quick-feeding notes
-- atomic creation of one FeedingEvent per selected Animal
-- duplicate-submission protection
-- immediate return to scanning after saving or choosing Scan a different Box
-
-### Settings
-
-- System theme mode
-- Light theme mode
-- Dark theme mode
-- predefined accent colors in a compact dropdown
-- immediate appearance changes
-- persistent appearance settings
-- selectable Common name first or Latin name first Animal presentation
-- immediate and persistent Animal name-order changes
-- immediate and persistent Animal Overview sort-order changes
-- immediate and persistent Box Overview sort-order changes
-- System language mode
-- explicit English and German language selection
-- immediate language changes without an application restart
-- persistent language selection
-- installed version, build number and developer information under Legal &
-  Privacy
-- bundled Privacy Policy and complete GPL-3.0-or-later License available
-  without an external application
-- shared active and archived Box selection for all batch QR exports
-- save selected Box QR codes as individual PNG images or one ZIP archive
-- create paginated A4 PDF sheets with selectable 6–20 mm vector QR codes and
-  Box labels
-- portable `.tmbackup` backup creation
-- backup file selection and validation
-- pre-restore backup information
-- destructive restore confirmation
-- optional safety backup before restore, enabled by default
-- full local data restore
-- appearance, language, Animal name-order, Animal sort-order, category-view and
-  Box sort-order setting backup and restore
-
-### Backup & Restore
-
-- versioned portable `.tmbackup` archive format
-- Backup Format Version 2 for current exports
-- backward-compatible restore of Backup Format Version 1
-- backup format version independent from database schema version
-- Box export and restore, including names, dimensions, notes and pictures
-- Animal export and restore
-- FeedingEvent export and restore
-- Box and Animal picture export and restore
-- mixed legacy PNG/JPEG and normalized WebP picture backups
-- centralized archive-extension and restored MIME-type mapping
-- appearance, language, Animal name-order, Animal sort-order, category-view and
-  Box sort-order setting export and restore
-- backward-compatible restore of backups without language, Animal name-order,
-  Animal sort-order, category-view or Box sort-order settings
-- per-Animal feeding reminder configuration export and restore
-- backward-compatible restore of backups without reminder fields, with
-  reminders disabled
-- permanent Box QR identifiers preserved
-- backup validation before destructive operations
-- relationship and lifecycle validation
-- archive path safety validation
-- per-restore safety-backup choice, enabled by default
-- explicit destructive restore confirmation
-- transactional database replacement
-- Android and Web portability
-- Android → Web restore validation
-- Web → Android restore validation
-- generated QR images excluded from backups
-
-A real-world backup containing 44 Boxes, 45 Animals, 20 FeedingEvents and 67
-pictures decreased from approximately 140 MB to 22.7 MB after picture
-normalization. This is a reduction of about 83.8%, or roughly 6.2 times smaller.
-
-### Platform Support
-
-Validated:
+Validated release platforms:
 
 - Android
 - Web
 
-Not yet validated:
+iOS support remains planned but has not yet been validated.
 
-- iOS
+The current technical compatibility baseline is:
 
-### Localization
+- Database Schema Version 15
+- Portable Backup Format Version 2
+- permanent Android application ID `com.codefrog.terramanager`
 
-TerraManager supports:
+For authoritative details see:
 
-- English (`en`)
-- German (`de`)
+- [Platform support](platform-support.md)
+- [Data model](data-model.md)
+- [Backup format](backup-format.md)
+- [Installation and updates](installation-and-updates.md)
 
-The default `System` setting follows the operating-system language. If the
-system language is not supported, TerraManager falls back to English.
+Published changes are recorded in the
+[CHANGELOG](https://github.com/CodefrogCF/TerraManager/blob/main/CHANGELOG.md).
 
-Settings also provides explicit `English` and `Deutsch` selections. A manual
-selection is applied immediately, stored through `shared_preferences`, and
-restored the next time the application starts.
+## Current Capabilities
 
-The selected language is included in newly created `.tmbackup` files. Restoring
-a backup also restores its language setting. Backups created before language
-selection was introduced remain compatible and use `System` when the language
-field is absent.
+TerraManager provides local-first management for Boxes, Animals, feeding
+records, reminders, pictures, QR workflows, lifecycle history and portable
+backups.
 
-Settings also controls whether an Animal's common name or Latin name is shown
-first. The preference is applied immediately to Animal overviews, history,
-details, Box assignments and Quick Feeding Mode. It is stored locally and
-included in newly created `.tmbackup` files. Older backups default to common
-name first.
+The public homepage and user guides describe the current user-facing workflows:
 
-The Box Overview sort menu offers ascending or descending Box number and name
-A–Z or Z–A. Box numbers are compared numerically, so `Box 10` correctly follows
-`Box 2` in ascending order. Name sorting is case-insensitive and keeps unnamed
-Boxes after named Boxes in both directions. The selected ordering is applied to
-both the list and contextual Box detail navigation, stored locally and included
-in new backups. Older missing or oldest-created-first values map to ascending
-Box number; newest-created-first values map to descending Box number.
+- [Project homepage](https://codefrogcf.github.io/TerraManager/)
+- [German visual user guide](https://codefrogcf.github.io/TerraManager/guide/)
+- [English visual user guide](https://codefrogcf.github.io/TerraManager/guide/en/)
 
-The Animal Overview sort menu offers oldest/newest creation time, displayed
-name A–Z/Z–A, oldest/youngest age and newest/oldest latest feeding.
-Name sorting uses the currently preferred primary Animal name. Missing birth
-dates remain last in both age directions. Never-fed Animals appear first when
-sorting by the oldest feeding and last when sorting by the newest feeding.
-The independent category button beside the sort control switches between flat
-and grouped views. Grouped views keep the canonical taxonomy order, show
-localized conditional subcategory headings and apply the selected regular sort
-inside every final group. Both the sort order and category-view setting persist
-locally and are included in new backups. Legacy Category sort preferences
-enable the grouped view and migrate to the matching displayed-name direction.
-The flattened visible order also controls contextual Animal detail navigation.
+Published feature changes are recorded in the repository
+[CHANGELOG](https://github.com/CodefrogCF/TerraManager/blob/main/CHANGELOG.md).
 
-### Primary Page Navigation
+Current and planned development work is tracked in the
+[roadmap](roadmap.md).
 
-The three root pages form one ordered sequence:
-
-```text
-Box Overview ↔ Animal Overview ↔ Settings
-```
-
-A horizontal swipe moves to the adjacent page when one exists. Vertical
-scrolling and short horizontal movements do not switch pages. The bottom
-navigation bar always marks the current page and remains available for direct
-selection. `Ctrl+Page Up` moves left and `Ctrl+Page Down` moves right when
-keyboard input is available.
-
-The root pages use one state-preserving container. Moving between them does not
-recreate list subscriptions or discard current scroll positions, overview sort
-choices or Settings state. Dialogs, dropdown menus, picture cropping,
-full-screen media and pushed detail routes remain outside the root swipe area.
-Normal platform Back behaviour is therefore unchanged.
-
-### Contextual Detail Navigation
-
-Animal and Box detail pages can receive a `DetailNavigationContext` containing:
-
-- the ordered record IDs from the source collection
-- the currently displayed record ID
-- the source of the navigation
-- the source Box ID when navigating through Animals assigned to one Box
-
-Supported sources are:
-
-- Active Animals
-- Animal History
-- Animals assigned to one Box
-- Box Overview
-
-Horizontal swipes move only within this source-specific ordering. The first and
-last records form navigation boundaries, so swiping cannot leave the original
-collection.
-
-The detail route remains open while the displayed record changes. Editing and
-other actions therefore continue to target the currently displayed record, and
-Back returns to the overview from which the route was opened.
-
-Detail pages can still be opened without a navigation context. In that case,
-they behave as normal non-swipe detail pages.
-
-### Overview Quick Actions and Duplication
-
-Long press or secondary click an active Animal or Box overview entry to open
-its localized quick-action menu. Animal actions create a feeding, rename the
-common name, open Edit Animal, archive or duplicate. Box actions rename, open
-Edit Box, duplicate or archive. The actions reuse the established validation,
-confirmation and refresh workflows.
-
-A duplicate is inserted as a new active record. Box duplicates receive a new
-database ID and permanent `TM:BOX:<UUID-v4>` identifier. Animal duplicates
-receive a new database ID and are assigned to the active Box selected in the
-dialog. Reusable profile values and picture bytes are copied into independent
-records. Lifecycle metadata is cleared, and Animal feeding history is not
-copied. Animal History exposes Duplicate for archived Animals while leaving the
-archived source unchanged.
-
-### Batch Box QR Export
-
-Settings offers three Box QR actions: save individual PNG images, save one ZIP
-archive and save one A4 PDF. Each action opens the same checklist containing
-active and archived Boxes, selects all entries initially and allows Select all,
-Clear and individual opt-out before export.
-
-The PDF workflow accepts integer sizes from 6 mm to 20 mm and provides 6, 10,
-15 and 20 mm presets. It places vector QR codes on exact A4 pages, adds a Box
-name and stable Box number below each code, truncates long labels safely and
-starts additional pages automatically. ZIP and PDF bytes are completed in
-memory before one operating-system save dialog opens, so generation failures
-cannot leave an unnoticed partial document. Cancelling the dialog reports no
-false success. The workflow is offline and adds no broad storage, media or
-network permission.
-
-### Picture Selection and Cropping
-
-New and edited Box and Animal forms share one picture-selection flow. After the
-user selects a Gallery picture or captures a new photo, a dedicated cropping
-screen opens before the form preview changes.
-
-The crop frame can be moved and resized freely. The underlying picture can also
-be panned and zoomed. Applying the crop returns the resulting image bytes to the
-form, while cancelling keeps the previous picture and form state unchanged.
-
-Source orientation is normalized before cropping. Cropped pictures continue to
-use the existing persistent `MediaAssets` and portable backup flow.
-
-After confirmation, a crop is resized without upscaling so its longest edge is
-at most 1920 pixels. It is then encoded as WebP with quality 82. The stored
-filename uses `.webp` and the MIME type is `image/webp`.
-
-The form shows a processing indicator while the confirmed crop is normalized.
-During that time, further picture actions and saving are disabled. The handlers
-also reject repeated calls, so rapid taps cannot start parallel processing or
-create duplicate media records.
-
-Existing stored JPEG, PNG and other supported pictures are deliberately not
-rewritten automatically. They remain readable and portable; selecting a
-replacement moves that record to the optimized WebP flow. When an existing
-picture is replaced, the new MediaAsset, the Box or Animal update and removal
-of the superseded MediaAsset are committed in one transaction. A processing or
-save failure therefore leaves the previously stored picture intact.
-
-### Full-Screen Pictures
-
-Box and Animal pictures shown on their detail pages can be opened in a dedicated
-full-screen viewer.
-
-The viewer:
-
-- displays the complete picture against a dark background
-- supports zoom levels from 1x to 5x
-- supports panning while zoomed
-- closes through its close button or normal platform Back navigation
-
-Because the viewer uses its own route, gestures inside the picture do not change
-the contextual Animal or Box detail record underneath it.
-
-### QR Feeding Mode
-
-The Box Overview provides a dedicated Feeding Mode that is separate from normal
-Box-detail scanning.
-
-After a valid Box QR code is scanned, TerraManager displays only the active
-Animals currently assigned to that Box. All displayed Animals are selected by
-default, allowing a single-Animal Box to be recorded with one save action after
-scanning. The selection can be changed for individual or grouped feedings.
-
-The feeding timestamp defaults to the current date and time and can be adjusted.
-One optional note is applied to every FeedingEvent created by the operation.
-
-Saving creates one normal FeedingEvent for every selected Animal inside a single
-database transaction. If one insert fails, none of the grouped feeding remains.
-While the transaction is running, repeated submissions are ignored.
-
-After saving or choosing **Scan a different Box**, the scanner resumes so the
-next Box can be scanned immediately. The second action cancels the unsaved
-Box-specific feeding form without creating a FeedingEvent. Newly created
-entries are available through the existing Animal feeding history and latest-
-feeding display.
-
-Both the normal Box scanner and the Feeding Mode scanner provide a camera-light
-control when the active camera reports torch support. The control is omitted on
-unsupported cameras and platforms.
+This document intentionally does not maintain a second feature-by-feature
+specification.
 
 ## Concept
 
@@ -553,136 +138,17 @@ local TerraManager state with the selected backup.
 
 ## Data Model
 
-The current database structure is:
+The authoritative current database model, entity relationships, lifecycle rules
+and schema history are maintained in:
 
-```text
-Box
- │
- ├──── 0:1 ──── MediaAsset
- │
- └──── 1:n ──── Active Animal
-                   │
-                   ├──── 1:n ──── FeedingEvent
-                   │
-                   └──── 0:1 ──── MediaAsset
+[Data model](data-model.md)
 
-Archived Animal
- │
- ├── no active box assignment
- ├──── 1:n ──── FeedingEvent
- └──── 0:1 ──── MediaAsset
-```
+Portable backup representation is intentionally documented separately in:
 
-### Box
+[Backup format](backup-format.md)
 
-```text
-Box
-├── id
-├── qrId
-├── name
-├── status
-├── archiveReason
-├── archivedAt
-├── archiveNotes
-├── widthCm
-├── heightCm
-├── depthCm
-├── temperatureZones
-├── notes
-├── pictureMediaId
-├── createdAt
-└── updatedAt
-```
-
-`qrId` is unique and permanently identifies the box. Name, width, height,
-depth, temperature zones and notes are optional. `status` defaults to `active`;
-archived Boxes store an
-archive reason, timestamp and optional archive notes while retaining their
-other data.
-`pictureMediaId` optionally references persistent image data stored in `MediaAssets`.
-
-The QR format is:
-
-```text
-TM:BOX:<UUID-v4>
-```
-
-### Animal
-
-```text
-Animal
-├── id
-├── boxId
-├── status
-├── commonName
-├── latinName
-├── sex
-├── birthDate
-├── birthDateAccuracy
-├── tempMin
-├── tempMax
-├── nighttimeTemperature
-├── humidityMin
-├── humidityMax
-├── originHabitat
-├── weight
-├── sheddingNotes
-├── restOrDormancyPeriods
-├── picturePath
-├── pictureMediaId
-├── notes
-├── archiveReason
-├── archivedAt
-├── archiveNotes
-├── createdAt
-└── updatedAt
-```
-
-Active animals are assigned to a box.
-
-Archived animals have no active box assignment. Their animal data, picture and
-feeding history remain stored until the animal is explicitly deleted permanently.
-
-`pictureMediaId` references persistent image data stored in `MediaAssets`.
-
-`picturePath` is retained only for migration and compatibility with pictures
-created by earlier TerraManager versions. New pictures are stored through
-`MediaAssets`.
-
-### MediaAsset
-
-```text
-MediaAsset
-├── id
-├── fileName
-├── mimeType
-├── data
-├── createdAt
-└── updatedAt
-```
-
-Box and Animal pictures are stored persistently as binary data in the local Drift
-database.
-
-This avoids relying on temporary or platform-specific paths returned by image
-selection APIs.
-
-The same persistence model is used on Android and Web and allows Box and Animal
-pictures to be included in portable TerraManager backups.
-
-### FeedingEvent
-
-```text
-FeedingEvent
-├── id
-├── animalId
-├── fedAt
-└── notes
-```
-
-An animal can have multiple feeding events.
-
-The latest feeding is derived from the feeding history and is not stored separately.
+These documents are the technical source of truth for database and backup
+compatibility.
 
 ## QR Architecture
 
@@ -861,15 +327,14 @@ must not be edited manually.
 
 ## Installation and Updates
 
-Android users install the trusted Release APK. The Android App Bundle is meant
-for store distribution and is not directly installed on a device. Web
-operators deploy the complete static build to one stable HTTPS origin because
-browser data is tied to its origin and profile.
+Installation, update, migration and Web deployment instructions are maintained
+in the canonical guide:
 
-Create a current `.tmbackup` before every application update or Web deployment.
-The complete installation, artifact-verification, production-certificate and
-pre-v1.0 transition guidance is in
-[docs/installation-and-updates.md](docs/installation-and-updates.md).
+[Installation and updates](installation-and-updates.md)
+
+Android production signing is maintained separately in:
+
+[Android release signing](android-release-signing.md)
 
 ## Privacy and Permissions
 
@@ -881,22 +346,22 @@ application and do not request system notification permission.
 
 Portable `.tmbackup` archives include records, settings and pictures and are
 not encrypted. Store them as sensitive files. The complete data and permission
-description is available in [PRIVACY.md](PRIVACY.md).
+description is available in [PRIVACY.md](../PRIVACY.md).
 
 ## Support and Security
 
 Report reproducible problems and feature requests through
 [GitHub Issues](https://github.com/CodefrogCF/TerraManager/issues), following
-[SUPPORT.md](SUPPORT.md). Do not publish real backups, private notes, pictures,
+[SUPPORT.md](../SUPPORT.md). Do not publish real backups, private notes, pictures,
 passwords or signing material. Potential vulnerabilities should follow the
-private-first process in [SECURITY.md](SECURITY.md).
+private-first process in [SECURITY.md](../SECURITY.md).
 
 ## License and Commercial Use
 
-Copyright (C) 2026 CodefrogCF.
+Copyright (C) 2026 Codefrog.
 
 TerraManager is free software licensed under the
-[GNU General Public License v3.0 or later](LICENSE), identified as
+[GNU General Public License v3.0 or later](../LICENSE), identified as
 `GPL-3.0-or-later`. The licence permits private and commercial use,
 modification and redistribution subject to its terms. In particular, a
 distributed modified version must preserve the recipients' GPL freedoms and
@@ -907,138 +372,41 @@ custom development or alternative commercial licence terms. Those offerings
 do not reduce the rights granted for the GPL-licensed project.
 
 Before submitting source code, translations, artwork or substantial
-documentation, read [CONTRIBUTING.md](CONTRIBUTING.md). The current
+documentation, read [CONTRIBUTING.md](../CONTRIBUTING.md). The current
 contribution policy deliberately preserves the option of consistent future
 dual licensing.
 
-## Development Workflow
+## Development
 
-Development is tracked with:
+Development setup, code generation and issue-level validation are maintained in:
 
-- Git
-- GitHub Issues
-- GitHub Milestones
-- Architecture Decision Records
-- automated tests
+[Development guide](development.md)
 
-Typical workflow:
+The supported toolchain and automated quality-gate baseline are maintained in:
 
-```text
-Issue
-  ↓
-Implementation
-  ↓
-Tests
-  ↓
-flutter analyze
-  ↓
-flutter test
-  ↓
-Manual validation where required
-  ↓
-Commit
-  ↓
-Push
-  ↓
-Close Issue
-```
+[Toolchain baseline](toolchain-baseline.md)
 
-## Testing
+Release validation is maintained in:
 
-Run static analysis:
-
-```text
-flutter analyze
-```
-
-Run the complete automated test suite:
-
-```text
-flutter test
-```
-
-Platform-specific functionality such as camera access and gallery storage must
-additionally be validated on the target platform. Language selection should be
-checked using supported and unsupported system locales.
-
-## Code Generation
-
-After changing localization resources in `lib/l10n/`:
-
-```text
-flutter gen-l10n
-```
-
-Generated localization files in `lib/l10n/generated/` must not be edited
-manually.
-
-After changing Drift tables, converters or related database definitions:
-
-```text
-dart run build_runner build
-```
-
-When changing the database schema, Drift migration files must also be updated:
-
-```text
-dart run drift_dev make-migrations
-```
-
-Do not manually edit generated Drift files.
+[Release checklist](release-checklist.md)
 
 ## Documentation
 
-### Keeping Screenshots and Guides Current
+Documentation ownership, localization alignment, screenshot maintenance and
+release-review responsibilities are defined in:
 
-Public screenshots and user guides are maintained as part of the release process.
+[Documentation maintenance](documentation-maintenance.md)
 
-When a release changes visible application behaviour, navigation, labels, dialogs, workflows or other user-facing UI, the related documentation must be reviewed before the release is considered complete.
+Key authoritative documents:
 
-The release documentation check includes:
-
-- review the public homepage and feature showcase for outdated screenshots or descriptions
-- review the German and English visual guides for affected workflows
-- update screenshots when the visible application state or interaction has materially changed
-- keep screenshot filenames and guide references stable where practical
-- update both localized guide texts when documented behaviour changes
-- review the downloadable German and English user manuals when the affected feature is covered there
-- verify that guide images, manual downloads and internal documentation links resolve correctly after deployment
-
-Screenshots should represent a current supported TerraManager release and should avoid displaying private user data. Example data may be used where necessary to demonstrate a feature clearly.
-
-Minor visual changes that do not affect the documented workflow do not require screenshots to be replaced automatically. Screenshots should be updated when the existing image could mislead a user about the current interface or expected interaction.
-
-For each release, documentation changes should be handled alongside the corresponding implementation issue or release milestone rather than deferred indefinitely. If no documentation update is required, that should be confirmed during the release review.
-
-The current public documentation surfaces include:
-
-- the German and English project homepage
-- the German and English visual user guide
-- the downloadable German and English user manuals
-- installation and update instructions
-- privacy, support and project documentation
-
-This keeps the public feature showcase and user-facing documentation aligned with the application version being released.
-
-Additional documentation:
-
-- [Roadmap](roadmap.md)
-- [Development guide](development.md)
-- [Toolchain and quality-gate baseline](toolchain-baseline.md)
 - [Installation and updates](installation-and-updates.md)
+- [Release checklist](release-checklist.md)
+- [Development guide](development.md)
 - [Platform support](platform-support.md)
 - [Data model](data-model.md)
 - [Backup format](backup-format.md)
 - [Architecture decisions](architecture-decisions.md)
-- [MVP functional requirements](functional-requirements-MVP.md)
-- [Non-MVP functional requirements](functional-requirements-non-MVP.md)
-- [Android release signing](android-release-signing.md)
-- [Privacy](privacy/)
-- [Datenschutz (Deutsch)](privacy/de/)
-- [Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md)
-- [Security policy](https://github.com/CodefrogCF/TerraManager/blob/main/SECURITY.md)
-- [Contribution policy](https://github.com/CodefrogCF/TerraManager/blob/main/CONTRIBUTING.md)
-- [Changelog](https://github.com/CodefrogCF/TerraManager/blob/main/CHANGELOG.md)
+- [Roadmap](roadmap.md)
 
 ## Known Limitations
 

@@ -2,7 +2,7 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **14**.
+The current Drift database schema version is **15**.
 
 The current database model consists of:
 
@@ -681,7 +681,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 14.
+The current Drift database schema version is 15.
 
 ### Schema Version 1
 

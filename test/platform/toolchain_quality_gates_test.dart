@@ -50,10 +50,10 @@ void main() {
     expect(workflow, isNot(contains('flutter build appbundle --release')));
   });
 
-  test('documents dependency, signing and Kotlin migration boundaries', () {
+  test('documents dependency signing and Kotlin migration boundaries', () {
     final baseline = read('docs/toolchain-baseline.md');
     final development = read('docs/development.md');
-    final readme = read('README.md');
+    final projectDocumentation = read('docs/project-documentation.md');
     final gradleProperties = read('android/gradle.properties');
 
     expect(baseline, contains('Flutter 3.47.2'));
@@ -65,8 +65,14 @@ void main() {
     expect(baseline, contains('flutter_image_compress_common'));
     expect(baseline, contains('mobile_scanner'));
     expect(baseline, contains('Built-in Kotlin'));
+
     expect(development, contains('toolchain-baseline.md'));
-    expect(readme, contains('](docs/toolchain-baseline.md)'));
+
+    expect(
+      projectDocumentation,
+      contains('[Toolchain baseline](toolchain-baseline.md)'),
+    );
+
     expect(gradleProperties, contains('android.newDsl=false'));
     expect(gradleProperties, contains('android.builtInKotlin=false'));
   });

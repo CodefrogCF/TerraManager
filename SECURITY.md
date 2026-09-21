@@ -2,9 +2,11 @@
 
 ## Supported versions
 
-Before v1.0, security fixes are provided on a best-effort basis for the latest
-development or released version only. The supported-version policy may be
-revised when v1.0 is published.
+Security fixes are provided on a best-effort basis for the latest released
+TerraManager version.
+
+Older releases may receive fixes only when necessary for migration,
+compatibility or responsible disclosure handling.
 
 ## Reporting a vulnerability
 

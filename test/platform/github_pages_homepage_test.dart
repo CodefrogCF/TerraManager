@@ -198,4 +198,49 @@ void main() {
         ? 'Run with RUN_DOWNLOAD_LINK_CHECK=true as part of the release check.'
         : false,
   );
+
+  test('localized visual guides link to the matching localized manual', () {
+    final layout = read('docs/_layouts/guide.html');
+
+    expect(
+      layout,
+      contains("{% assign manual_path = '/guide/TerraManager-Handbuch.pdf' %}"),
+    );
+
+    expect(
+      layout,
+      contains(
+        "{% assign manual_path = '/guide/TerraManager-User-Manual.pdf' %}",
+      ),
+    );
+
+    expect(layout, contains('href="{{ manual_path | relative_url }}"'));
+
+    expect(
+      RegExp(r'''href="\{\{\s*'/guide/TerraManager-User-Manual\.pdf' ''')
+          .hasMatch(layout),
+      isFalse,
+      reason:
+          'The English manual must not be hard-coded for both guide languages.',
+    );
+  });
+
+  test('publishes both localized user manuals', () {
+    const manuals = [
+      'docs/guide/TerraManager-Handbuch.pdf',
+      'docs/guide/TerraManager-User-Manual.pdf',
+    ];
+
+    for (final path in manuals) {
+      final file = File(path);
+
+      expect(file.existsSync(), isTrue, reason: path);
+
+      expect(
+        file.lengthSync(),
+        greaterThan(0),
+        reason: '$path must not be empty',
+      );
+    }
+  });
 }

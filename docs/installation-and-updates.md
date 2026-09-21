@@ -14,57 +14,21 @@ Third-party builds may contain changes not reviewed by the TerraManager
 maintainer. Their distributor is responsible for documenting those changes,
 signing identity, support and privacy behaviour.
 
-TerraManager v1.0.0 is the first stable MVP release using the permanent
-application identity and production signing certificate. Version 1.0.0 keeps
-Database Schema Version 5 and Portable Backup Format Version 2.
+Current TerraManager releases use the permanent Android application identity
+`com.codefrog.terramanager` and the established production signing
+certificate.
 
-TerraManager v1.1.0 keeps the same application identity, production signing
-certificate and Portable Backup Format Version 2. It advances the local
-database to Schema Version 6 for optional Box notes; the migration preserves
-existing Boxes, Animals, FeedingEvents and media.
+The current technical compatibility baseline is documented separately:
 
-TerraManager v1.1.1 keeps the same application identity, signing certificate
-and Portable Backup Format Version 2. It advances the local database to Schema
-Version 7 for optional Box names. The automatic migration preserves existing
-data and leaves existing Boxes unnamed until a name is assigned.
+- [Data model](data-model.md) — current Database Schema Version and migrations
+- [Backup format](backup-format.md) — portable backup compatibility
+- [Changelog](https://github.com/CodefrogCF/TerraManager/blob/main/CHANGELOG.md)
+  — release-specific changes
 
-TerraManager v1.2.0 keeps the same application identity, production signing
-certificate and Portable Backup Format Version 2. It advances the local
-database to Schema Version 8 for the Box lifecycle and archive metadata. A
-direct update from a production-signed v1.1.x installation preserves Boxes,
-Animals, FeedingEvents, settings and media; existing Boxes remain active until
-they are explicitly archived.
+Normal updates from an existing production-signed TerraManager installation
+apply the required database migrations automatically.
 
-TerraManager v1.3.0 keeps the same application identity, production signing
-certificate, Database Schema Version 8 and Portable Backup Format Version 2.
-The update adds primary-page swipe navigation and requires no data conversion.
-A direct update from production-signed v1.2.0 preserves all records, settings
-and media.
-
-TerraManager v1.4.0 keeps the same application identity, production signing
-certificate and Portable Backup Format Version 2. It advances the local
-database to Schema Version 9 for five optional Animal profile notes. A direct
-update from production-signed v1.3.x preserves all records, settings and media;
-existing Animals receive empty additional characteristics. Current exports
-include these values, while older Format 1 and Format 2 backups remain
-restorable.
-
-TerraManager v1.7.0 keeps the same application identity, production signing
-certificate and Portable Backup Format Version 2. It advances the local
-database to Schema Version 10 for Animal category and subcategory values. A
-direct update from a production-signed v1.6.x installation preserves every
-record, setting and media item; existing Animals receive category Other with no
-subcategory. Current exports include the stable taxonomy values, while Format 1
-and older Format 2 backups remain restorable with the same fallback.
-
-TerraManager v1.7.1 advances the local database to Schema Version 11 while
-keeping the same application identity, production signing certificate and
-Portable Backup Format Version 2. The explicit v10 to v11 step adds the optional
-Box temperature-zone field and copies the first non-empty legacy Animal value
-by ID to its assigned Box. A direct update from v1.6.x executes both ordered
-migration steps; a direct update from v1.7.0 executes only v10 to v11. Records,
-settings and media remain available, and no additional device permission is
-required.
+Create a current `.tmbackup` before updating.
 
 ## Android installation
 

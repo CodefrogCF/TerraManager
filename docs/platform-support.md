@@ -10,23 +10,6 @@ This document describes the current platform validation status of TerraManager.
 | Web | Validated |
 | iOS | Planned / not validated |
 
-The current source is based on v1.7.2 and implements the v1.8.0 milestone.
-Automated validation covers Database Schema Version 13, ordered Animal and Box
-galleries, the optional nighttime temperature, plural taxonomy headings,
-prioritized Animal feeding details, Box links and the two new Box-ordering
-rules. Portable Backup Format Version 2 and the device-permission boundary are
-unchanged.
-
-Portable Backup Format Version 2 has been validated between the currently
-supported platforms. Backup Format Version 1 remains supported for legacy restore:
-
-```text
-Android → Android
-Web → Web
-Android → Web
-Web → Android
-```
-
 ## Permanent Application Identity
 
 Development build `0.14.2+34` adopts `com.codefrog.terramanager` as the
@@ -43,23 +26,18 @@ installation.
 
 ## Android Production Signing
 
-Development build `0.14.3+35` removes debug signing from the Android Release
-build type. The build reads production credentials from the ignored
-`android/key.properties` file or from `TERRAMANAGER_*` environment variables.
-Debug builds do not require either source. Release builds stop before packaging
-when configuration is missing, incomplete or points to a missing keystore.
+Official Android releases use the permanent application identity
+`com.codefrog.terramanager` and the established production signing
+configuration.
 
-The signing key itself is deliberately not part of the repository. Production
-APK and AAB construction, certificate verification, secure key backup and the
-physical-device transition were validated by the release owner. The complete
-procedure remains documented in `android-release-signing.md`.
+The authoritative signing, credential and certificate-verification procedure is
+maintained in:
 
-Build `0.14.2+34` already uses the permanent application ID but is signed with
-the Android debug certificate. Android therefore cannot install the first
-production-signed build as an update over it. Create and verify a `.tmbackup`,
-uninstall the debug-signed application, install the production-signed build and
-restore the backup. Future directly distributed builds must keep the same
-production signing certificate.
+[Android release signing](android-release-signing.md)
+
+User-facing installation and update guidance is maintained in:
+
+[Installation and updates](installation-and-updates.md)
 
 ## Android
 

@@ -75,7 +75,7 @@ de:
   guides:
     eyebrow: Hilfe und Dokumentation
     heading: Antworten ohne Umwege
-    body: Die Anleitungen erklären Installation, Updates, Datenschutz und den geschlossenen Android-Test. Die technische Projektdokumentation bleibt separat erreichbar.
+    body: Der visuelle Guide erklärt die wichtigsten Arbeitsabläufe. Weitere Seiten führen zu Android-Test, Installation, Updates und technischer Projektdokumentation.
     cards:
       - title: Visueller Benutzer-Guide
         body: Boxen und Tiere anlegen, QR-Codes nutzen, Fütterungen dokumentieren, Erinnerungen verwalten und Daten sichern.
@@ -179,7 +179,7 @@ en:
   guides:
     eyebrow: Help and documentation
     heading: Answers without detours
-    body: The guides cover installation, updates, privacy and the closed Android test. Technical project documentation remains available separately.
+    body: The visual guide covers the main daily workflows. Additional pages provide Android testing, installation, update and technical project documentation.
     cards:
       - title: Visual user guide
         body: Add enclosures and animals, use QR codes, record feedings, manage reminders and back up your data.

@@ -217,6 +217,8 @@ void main() {
         notes: duplicate.notes,
         feedingReminderIntervalDays: duplicate.feedingReminderIntervalDays,
         feedingReminderBaseline: duplicate.feedingReminderBaseline,
+        showWeightOnDetail: duplicate.showWeightOnDetail,
+        showSheddingOnDetail: duplicate.showSheddingOnDetail,
       );
       expect(
         (await animals.getAnimalById(sourceId))!.commonName,

@@ -383,6 +383,8 @@ class BackupRestoreService {
                   animal.feedingReminderIntervalDays,
                 ),
                 feedingReminderBaseline: Value(animal.feedingReminderBaseline),
+                showWeightOnDetail: Value(animal.showWeightOnDetail),
+                showSheddingOnDetail: Value(animal.showSheddingOnDetail),
                 createdAt: Value(animal.createdAt),
                 updatedAt: Value(animal.updatedAt),
               ),

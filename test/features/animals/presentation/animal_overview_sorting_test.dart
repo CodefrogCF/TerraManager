@@ -49,6 +49,8 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 70,
+      showWeightOnDetail: true,
+      showSheddingOnDetail: true,
       createdAt: createdAt,
       updatedAt: createdAt,
     );

@@ -784,5 +784,9 @@
   "sortArchivedBoxes": "Sort archived Boxes",
   "archiveSortNameCriterion": "Name",
   "clearBirthDate": "Clear birth date",
-  "selectBirthDate": "Select birth date"
+  "selectBirthDate": "Select birth date",
+  "showWeightOnAnimalDetail": "Show weight on Animal Detail",
+  "showWeightOnAnimalDetailDescription": "Show weight information and weight actions on the Animal Detail page.",
+  "showSheddingOnAnimalDetail": "Show shedding on Animal Detail",
+  "showSheddingOnAnimalDetailDescription": "Show shedding information and shedding actions on the Animal Detail page."
 }

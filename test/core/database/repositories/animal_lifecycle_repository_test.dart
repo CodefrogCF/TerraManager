@@ -297,6 +297,8 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      showWeightOnDetail: false,
+      showSheddingOnDetail: false,
     );
 
     expect(updated, isFalse);

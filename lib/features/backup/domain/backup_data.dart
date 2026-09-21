@@ -237,6 +237,9 @@ class BackupAnimal {
   final int? feedingReminderIntervalDays;
   final DateTime? feedingReminderBaseline;
 
+  final bool showWeightOnDetail;
+  final bool showSheddingOnDetail;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -273,6 +276,8 @@ class BackupAnimal {
     required this.archiveNotes,
     this.feedingReminderIntervalDays,
     this.feedingReminderBaseline,
+    this.showWeightOnDetail = true,
+    this.showSheddingOnDetail = true,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -313,6 +318,8 @@ class BackupAnimal {
       'archiveNotes': archiveNotes,
       'feedingReminderIntervalDays': feedingReminderIntervalDays,
       'feedingReminderBaseline': feedingReminderBaseline?.toIso8601String(),
+      'showWeightOnDetail': showWeightOnDetail,
+      'showSheddingOnDetail': showSheddingOnDetail,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
@@ -380,6 +387,8 @@ class BackupAnimal {
       feedingReminderBaseline: json['feedingReminderBaseline'] == null
           ? null
           : DateTime.parse(json['feedingReminderBaseline'] as String),
+      showWeightOnDetail: json['showWeightOnDetail'] as bool? ?? true,
+      showSheddingOnDetail: json['showSheddingOnDetail'] as bool? ?? true,
       createdAt: createdAt,
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );

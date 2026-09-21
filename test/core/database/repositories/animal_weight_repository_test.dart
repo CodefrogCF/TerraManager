@@ -51,6 +51,8 @@ void main() {
         humidityMax: 60,
         weightGrams: 50.0,
         weightMeasuredAt: DateTime(2026, 9, 5),
+        showWeightOnDetail: true,
+        showSheddingOnDetail: true,
       );
       expect(await weights.getHistory(animalId), hasLength(1));
 
@@ -65,6 +67,8 @@ void main() {
         humidityMax: 60,
         weightGrams: 55.5,
         weightMeasuredAt: secondMeasuredAt,
+        showWeightOnDetail: true,
+        showSheddingOnDetail: true,
       );
       final history = await weights.getHistory(animalId);
       expect(history.map((entry) => entry.weightGrams), [55.5, 50]);

@@ -94,6 +94,8 @@ class AnimalRepository {
     String? notes,
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
+    bool showWeightOnDetail = true,
+    bool showSheddingOnDetail = true,
   }) {
     AnimalEnvironmentalLimits.validate(
       temperatureMinimum: tempMin,
@@ -148,6 +150,8 @@ class AnimalRepository {
               feedingReminderBaseline: Value.absentIfNull(
                 feedingReminderBaseline,
               ),
+              showWeightOnDetail: Value(showWeightOnDetail),
+              showSheddingOnDetail: Value(showSheddingOnDetail),
             ),
           );
       if (weightGrams != null) {
@@ -283,6 +287,8 @@ class AnimalRepository {
               feedingReminderBaseline: Value.absentIfNull(
                 source.feedingReminderBaseline,
               ),
+              showWeightOnDetail: Value(source.showWeightOnDetail),
+              showSheddingOnDetail: Value(source.showSheddingOnDetail),
             ),
           );
       if (sourceWeight != null) {
@@ -326,6 +332,8 @@ class AnimalRepository {
     String? notes,
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
+    required bool showWeightOnDetail,
+    required bool showSheddingOnDetail,
   }) async {
     AnimalEnvironmentalLimits.validate(
       temperatureMinimum: tempMin,
@@ -390,6 +398,8 @@ class AnimalRepository {
                     feedingReminderIntervalDays,
                   ),
                   feedingReminderBaseline: Value(feedingReminderBaseline),
+                  showWeightOnDetail: Value(showWeightOnDetail),
+                  showSheddingOnDetail: Value(showSheddingOnDetail),
                   updatedAt: Value(DateTime.now()),
                 ),
               );

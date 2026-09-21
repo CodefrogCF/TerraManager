@@ -934,107 +934,111 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           ),
         ),
 
-        FutureBuilder<AnimalWeightEntry?>(
-          future: _latestWeightFuture,
-          builder: (context, snapshot) {
-            final latest = snapshot.data;
+        if (animal.showWeightOnDetail) ...[
+          FutureBuilder<AnimalWeightEntry?>(
+            future: _latestWeightFuture,
+            builder: (context, snapshot) {
+              final latest = snapshot.data;
 
-            if (snapshot.hasError) {
-              return const SizedBox.shrink();
-            }
+              if (snapshot.hasError) {
+                return const SizedBox.shrink();
+              }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (latest != null)
-                  _DetailRow(
-                    key: const Key('weight-detail'),
-                    label: context.l10n.weight,
-                    value: context.l10n.weightMeasurement(
-                      _formatNumber(latest.weightGrams),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (latest != null)
+                    _DetailRow(
+                      key: const Key('weight-detail'),
+                      label: context.l10n.weight,
+                      value: context.l10n.weightMeasurement(
+                        _formatNumber(latest.weightGrams),
+                      ),
+                    )
+                  else if (animal.weight?.trim().isNotEmpty == true)
+                    _DetailRow(
+                      key: const Key('legacy-weight-detail'),
+                      label: context.l10n.weight,
+                      value: animal.weight!,
                     ),
-                  )
-                else if (animal.weight?.trim().isNotEmpty == true)
-                  _DetailRow(
-                    key: const Key('legacy-weight-detail'),
-                    label: context.l10n.weight,
-                    value: animal.weight!,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton.icon(
+                          key: const Key('weight-add-button'),
+                          onPressed: _addWeightEntry,
+                          icon: const Icon(Icons.add),
+                          label: Text(context.l10n.addWeightMeasurement),
+                        ),
+                      ),
+                      Expanded(
+                        child: TextButton.icon(
+                          key: const Key('weight-history-button'),
+                          onPressed: _openWeightHistory,
+                          icon: const Icon(Icons.history),
+                          label: Text(context.l10n.weightHistory),
+                        ),
+                      ),
+                    ],
                   ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton.icon(
-                        key: const Key('weight-add-button'),
-                        onPressed: _addWeightEntry,
-                        icon: const Icon(Icons.add),
-                        label: Text(context.l10n.addWeightMeasurement),
-                      ),
+                ],
+              );
+            },
+          ),
+
+          const SizedBox(height: 8),
+        ],
+
+        if (animal.showSheddingOnDetail) ...[
+          FutureBuilder<SheddingEvent?>(
+            future: _latestSheddingFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const SizedBox.shrink();
+              }
+
+              final latest = snapshot.data;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (latest != null)
+                    _DetailRow(
+                      key: const Key('shedding-detail'),
+                      label: context.l10n.latestShedding,
+                      value: _formatDateTime(latest.shedAt),
+                    )
+                  else
+                    _DetailRow(
+                      key: const Key('shedding-empty-detail'),
+                      label: context.l10n.latestShedding,
+                      value: context.l10n.noSheddingEventsAvailable,
                     ),
-                    Expanded(
-                      child: TextButton.icon(
-                        key: const Key('weight-history-button'),
-                        onPressed: _openWeightHistory,
-                        icon: const Icon(Icons.history),
-                        label: Text(context.l10n.weightHistory),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextButton.icon(
+                          key: const Key('shedding-add-button'),
+                          onPressed: _addSheddingEntry,
+                          icon: const Icon(Icons.add),
+                          label: Text(context.l10n.addSheddingEvent),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-
-        const SizedBox(height: 8),
-
-        FutureBuilder<SheddingEvent?>(
-          future: _latestSheddingFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return const SizedBox.shrink();
-            }
-
-            final latest = snapshot.data;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (latest != null)
-                  _DetailRow(
-                    key: const Key('shedding-detail'),
-                    label: context.l10n.latestShedding,
-                    value: _formatDateTime(latest.shedAt),
-                  )
-                else
-                  _DetailRow(
-                    key: const Key('shedding-empty-detail'),
-                    label: context.l10n.latestShedding,
-                    value: context.l10n.noSheddingEventsAvailable,
+                      Expanded(
+                        child: TextButton.icon(
+                          key: const Key('shedding-history-button'),
+                          onPressed: _openSheddingHistory,
+                          icon: const Icon(Icons.history),
+                          label: Text(context.l10n.sheddingHistory),
+                        ),
+                      ),
+                    ],
                   ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton.icon(
-                        key: const Key('shedding-add-button'),
-                        onPressed: _addSheddingEntry,
-                        icon: const Icon(Icons.add),
-                        label: Text(context.l10n.addSheddingEvent),
-                      ),
-                    ),
-                    Expanded(
-                      child: TextButton.icon(
-                        key: const Key('shedding-history-button'),
-                        onPressed: _openSheddingHistory,
-                        icon: const Icon(Icons.history),
-                        label: Text(context.l10n.sheddingHistory),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
+                ],
+              );
+            },
+          ),
+        ],
 
         if (hasAdditionalCharacteristics) ...[
           const SizedBox(height: 16),

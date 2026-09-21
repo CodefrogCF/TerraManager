@@ -14,6 +14,7 @@ import 'package:terramanager/core/database/repositories/feeding_repository.dart'
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
 import 'package:terramanager/core/database/enums/animal_category.dart';
+import 'package:terramanager/core/database/repositories/animal_weight_repository.dart';
 
 void main() {
   late AppDatabase database;
@@ -1001,6 +1002,8 @@ void main() {
       notes: null,
       feedingReminderIntervalDays: null,
       feedingReminderBaseline: null,
+      showWeightOnDetail: true,
+      showSheddingOnDetail: true,
     );
 
     await tester.pumpWidget(
@@ -1013,5 +1016,82 @@ void main() {
 
     expect(find.text('10.05.2024'), findsNothing);
     expect(find.text('Year known'), findsNothing);
+  });
+
+  testWidgets('hides complete Weight section when disabled', (tester) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'hidden-weight-box'));
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Hidden Weight Animal',
+      latinName: 'Test species',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      weightGrams: 42,
+      showWeightOnDetail: false,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('weight-detail')), findsNothing);
+    expect(find.byKey(const Key('legacy-weight-detail')), findsNothing);
+    expect(find.byKey(const Key('weight-add-button')), findsNothing);
+    expect(find.byKey(const Key('weight-history-button')), findsNothing);
+
+    final history = await AnimalWeightRepository(database).getHistory(animalId);
+
+    expect(history, hasLength(1));
+    expect(history.single.weightGrams, 42);
+  });
+
+  testWidgets('hides complete Shedding section when disabled', (tester) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'hidden-shedding-box'));
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Hidden Shedding Animal',
+      latinName: 'Test species',
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      showSheddingOnDetail: false,
+    );
+
+    await SheddingRepository(database).add(
+      animalId: animalId,
+      shedAt: DateTime(2026, 9, 1),
+      notes: 'Stored shedding event',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('shedding-detail')), findsNothing);
+    expect(find.byKey(const Key('shedding-empty-detail')), findsNothing);
+    expect(find.byKey(const Key('shedding-add-button')), findsNothing);
+    expect(find.byKey(const Key('shedding-history-button')), findsNothing);
+
+    final history = await SheddingRepository(database).getHistory(animalId);
+
+    expect(history, hasLength(1));
+    expect(history.single.notes, 'Stored shedding event');
   });
 }

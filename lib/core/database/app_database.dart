@@ -172,6 +172,16 @@ class AppDatabase extends _$AppDatabase {
                 await m.createTable(schema.sheddingEvents);
                 await migrateLegacySheddingNotes();
               },
+              from15To16: (m, schema) async {
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.showWeightOnDetail,
+                );
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.showSheddingOnDetail,
+                );
+              },
             ),
           );
 
@@ -196,7 +206,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''
@@ -206,32 +216,58 @@ class AppDatabase extends _$AppDatabase {
       WHERE nighttime_temperature IS NOT NULL
     ''');
 
-    final legacyAnimals = await select(animals).get();
-    for (final animal in legacyAnimals) {
+    final legacyAnimals = await (selectOnly(
+      animals,
+    )..addColumns([animals.id, animals.weight, animals.updatedAt])).get();
+
+    for (final row in legacyAnimals) {
+      final animalId = row.read(animals.id);
+      final weight = row.read(animals.weight);
+      final updatedAt = row.read(animals.updatedAt);
+
+      if (animalId == null || updatedAt == null) {
+        continue;
+      }
+
       final weightGrams = AnimalWeightParser.parseUnambiguousLegacyGrams(
-        animal.weight,
+        weight,
       );
+
       if (weightGrams == null) {
         continue;
       }
+
       await into(animalWeightEntries).insert(
         AnimalWeightEntriesCompanion.insert(
-          animalId: animal.id,
+          animalId: animalId,
           weightGrams: weightGrams,
-          measuredAt: animal.updatedAt,
+          measuredAt: updatedAt,
         ),
       );
-      await (update(animals)..where((row) => row.id.equals(animal.id))).write(
+
+      await (update(animals)..where((row) => row.id.equals(animalId))).write(
         const AnimalsCompanion(weight: Value(null)),
       );
     }
   }
 
   Future<void> migrateLegacySheddingNotes() async {
-    final legacyAnimals = await select(animals).get();
+    final legacyAnimals =
+        await (selectOnly(animals)..addColumns([
+              animals.id,
+              animals.sheddingNotes,
+              animals.updatedAt,
+            ]))
+            .get();
 
-    for (final animal in legacyAnimals) {
-      final rawNotes = animal.sheddingNotes;
+    for (final row in legacyAnimals) {
+      final animalId = row.read(animals.id);
+      final rawNotes = row.read(animals.sheddingNotes);
+      final updatedAt = row.read(animals.updatedAt);
+
+      if (animalId == null || updatedAt == null) {
+        continue;
+      }
 
       if (rawNotes == null) {
         continue;
@@ -240,20 +276,18 @@ class AppDatabase extends _$AppDatabase {
       final notes = rawNotes.trim();
 
       if (notes.isNotEmpty) {
-        final migratedAt = animal.updatedAt;
-
         await into(sheddingEvents).insert(
           SheddingEventsCompanion(
-            animalId: Value(animal.id),
-            shedAt: Value(migratedAt),
+            animalId: Value(animalId),
+            shedAt: Value(updatedAt),
             notes: Value(notes),
-            createdAt: Value(migratedAt),
-            updatedAt: Value(migratedAt),
+            createdAt: Value(updatedAt),
+            updatedAt: Value(updatedAt),
           ),
         );
       }
 
-      await (update(animals)..where((row) => row.id.equals(animal.id))).write(
+      await (update(animals)..where((row) => row.id.equals(animalId))).write(
         const AnimalsCompanion(sheddingNotes: Value(null)),
       );
     }

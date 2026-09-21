@@ -1602,6 +1602,34 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _showWeightOnDetailMeta =
+      const VerificationMeta('showWeightOnDetail');
+  @override
+  late final GeneratedColumn<bool> showWeightOnDetail = GeneratedColumn<bool>(
+    'show_weight_on_detail',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("show_weight_on_detail" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _showSheddingOnDetailMeta =
+      const VerificationMeta('showSheddingOnDetail');
+  @override
+  late final GeneratedColumn<bool> showSheddingOnDetail = GeneratedColumn<bool>(
+    'show_shedding_on_detail',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("show_shedding_on_detail" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1658,6 +1686,8 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     archiveNotes,
     feedingReminderIntervalDays,
     feedingReminderBaseline,
+    showWeightOnDetail,
+    showSheddingOnDetail,
     createdAt,
     updatedAt,
   ];
@@ -1868,6 +1898,24 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         ),
       );
     }
+    if (data.containsKey('show_weight_on_detail')) {
+      context.handle(
+        _showWeightOnDetailMeta,
+        showWeightOnDetail.isAcceptableOrUnknown(
+          data['show_weight_on_detail']!,
+          _showWeightOnDetailMeta,
+        ),
+      );
+    }
+    if (data.containsKey('show_shedding_on_detail')) {
+      context.handle(
+        _showSheddingOnDetailMeta,
+        showSheddingOnDetail.isAcceptableOrUnknown(
+          data['show_shedding_on_detail']!,
+          _showSheddingOnDetailMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -2021,6 +2069,14 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}feeding_reminder_baseline'],
       ),
+      showWeightOnDetail: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}show_weight_on_detail'],
+      )!,
+      showSheddingOnDetail: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}show_shedding_on_detail'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2091,6 +2147,8 @@ class Animal extends DataClass implements Insertable<Animal> {
   final String? archiveNotes;
   final int? feedingReminderIntervalDays;
   final DateTime? feedingReminderBaseline;
+  final bool showWeightOnDetail;
+  final bool showSheddingOnDetail;
   final DateTime createdAt;
   final DateTime updatedAt;
   const Animal({
@@ -2124,6 +2182,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     this.archiveNotes,
     this.feedingReminderIntervalDays,
     this.feedingReminderBaseline,
+    required this.showWeightOnDetail,
+    required this.showSheddingOnDetail,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -2224,6 +2284,8 @@ class Animal extends DataClass implements Insertable<Animal> {
         feedingReminderBaseline,
       );
     }
+    map['show_weight_on_detail'] = Variable<bool>(showWeightOnDetail);
+    map['show_shedding_on_detail'] = Variable<bool>(showSheddingOnDetail);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2302,6 +2364,8 @@ class Animal extends DataClass implements Insertable<Animal> {
       feedingReminderBaseline: feedingReminderBaseline == null && nullToAbsent
           ? const Value.absent()
           : Value(feedingReminderBaseline),
+      showWeightOnDetail: Value(showWeightOnDetail),
+      showSheddingOnDetail: Value(showSheddingOnDetail),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2359,6 +2423,10 @@ class Animal extends DataClass implements Insertable<Animal> {
       feedingReminderBaseline: serializer.fromJson<DateTime?>(
         json['feedingReminderBaseline'],
       ),
+      showWeightOnDetail: serializer.fromJson<bool>(json['showWeightOnDetail']),
+      showSheddingOnDetail: serializer.fromJson<bool>(
+        json['showSheddingOnDetail'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2409,6 +2477,8 @@ class Animal extends DataClass implements Insertable<Animal> {
       'feedingReminderBaseline': serializer.toJson<DateTime?>(
         feedingReminderBaseline,
       ),
+      'showWeightOnDetail': serializer.toJson<bool>(showWeightOnDetail),
+      'showSheddingOnDetail': serializer.toJson<bool>(showSheddingOnDetail),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2445,6 +2515,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     Value<String?> archiveNotes = const Value.absent(),
     Value<int?> feedingReminderIntervalDays = const Value.absent(),
     Value<DateTime?> feedingReminderBaseline = const Value.absent(),
+    bool? showWeightOnDetail,
+    bool? showSheddingOnDetail,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => Animal(
@@ -2502,6 +2574,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     feedingReminderBaseline: feedingReminderBaseline.present
         ? feedingReminderBaseline.value
         : this.feedingReminderBaseline,
+    showWeightOnDetail: showWeightOnDetail ?? this.showWeightOnDetail,
+    showSheddingOnDetail: showSheddingOnDetail ?? this.showSheddingOnDetail,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2575,6 +2649,12 @@ class Animal extends DataClass implements Insertable<Animal> {
       feedingReminderBaseline: data.feedingReminderBaseline.present
           ? data.feedingReminderBaseline.value
           : this.feedingReminderBaseline,
+      showWeightOnDetail: data.showWeightOnDetail.present
+          ? data.showWeightOnDetail.value
+          : this.showWeightOnDetail,
+      showSheddingOnDetail: data.showSheddingOnDetail.present
+          ? data.showSheddingOnDetail.value
+          : this.showSheddingOnDetail,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2613,6 +2693,8 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('archiveNotes: $archiveNotes, ')
           ..write('feedingReminderIntervalDays: $feedingReminderIntervalDays, ')
           ..write('feedingReminderBaseline: $feedingReminderBaseline, ')
+          ..write('showWeightOnDetail: $showWeightOnDetail, ')
+          ..write('showSheddingOnDetail: $showSheddingOnDetail, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2651,6 +2733,8 @@ class Animal extends DataClass implements Insertable<Animal> {
     archiveNotes,
     feedingReminderIntervalDays,
     feedingReminderBaseline,
+    showWeightOnDetail,
+    showSheddingOnDetail,
     createdAt,
     updatedAt,
   ]);
@@ -2689,6 +2773,8 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.feedingReminderIntervalDays ==
               this.feedingReminderIntervalDays &&
           other.feedingReminderBaseline == this.feedingReminderBaseline &&
+          other.showWeightOnDetail == this.showWeightOnDetail &&
+          other.showSheddingOnDetail == this.showSheddingOnDetail &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2724,6 +2810,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<String?> archiveNotes;
   final Value<int?> feedingReminderIntervalDays;
   final Value<DateTime?> feedingReminderBaseline;
+  final Value<bool> showWeightOnDetail;
+  final Value<bool> showSheddingOnDetail;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const AnimalsCompanion({
@@ -2757,6 +2845,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.archiveNotes = const Value.absent(),
     this.feedingReminderIntervalDays = const Value.absent(),
     this.feedingReminderBaseline = const Value.absent(),
+    this.showWeightOnDetail = const Value.absent(),
+    this.showSheddingOnDetail = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -2791,6 +2881,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.archiveNotes = const Value.absent(),
     this.feedingReminderIntervalDays = const Value.absent(),
     this.feedingReminderBaseline = const Value.absent(),
+    this.showWeightOnDetail = const Value.absent(),
+    this.showSheddingOnDetail = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : commonName = Value(commonName),
@@ -2830,6 +2922,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<String>? archiveNotes,
     Expression<int>? feedingReminderIntervalDays,
     Expression<DateTime>? feedingReminderBaseline,
+    Expression<bool>? showWeightOnDetail,
+    Expression<bool>? showSheddingOnDetail,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -2870,6 +2964,10 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
         'feeding_reminder_interval_days': feedingReminderIntervalDays,
       if (feedingReminderBaseline != null)
         'feeding_reminder_baseline': feedingReminderBaseline,
+      if (showWeightOnDetail != null)
+        'show_weight_on_detail': showWeightOnDetail,
+      if (showSheddingOnDetail != null)
+        'show_shedding_on_detail': showSheddingOnDetail,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -2906,6 +3004,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<String?>? archiveNotes,
     Value<int?>? feedingReminderIntervalDays,
     Value<DateTime?>? feedingReminderBaseline,
+    Value<bool>? showWeightOnDetail,
+    Value<bool>? showSheddingOnDetail,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -2945,6 +3045,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           feedingReminderIntervalDays ?? this.feedingReminderIntervalDays,
       feedingReminderBaseline:
           feedingReminderBaseline ?? this.feedingReminderBaseline,
+      showWeightOnDetail: showWeightOnDetail ?? this.showWeightOnDetail,
+      showSheddingOnDetail: showSheddingOnDetail ?? this.showSheddingOnDetail,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -3069,6 +3171,14 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
         feedingReminderBaseline.value,
       );
     }
+    if (showWeightOnDetail.present) {
+      map['show_weight_on_detail'] = Variable<bool>(showWeightOnDetail.value);
+    }
+    if (showSheddingOnDetail.present) {
+      map['show_shedding_on_detail'] = Variable<bool>(
+        showSheddingOnDetail.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -3111,6 +3221,8 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('archiveNotes: $archiveNotes, ')
           ..write('feedingReminderIntervalDays: $feedingReminderIntervalDays, ')
           ..write('feedingReminderBaseline: $feedingReminderBaseline, ')
+          ..write('showWeightOnDetail: $showWeightOnDetail, ')
+          ..write('showSheddingOnDetail: $showSheddingOnDetail, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -6324,6 +6436,8 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<String?> archiveNotes,
   Value<int?> feedingReminderIntervalDays,
   Value<DateTime?> feedingReminderBaseline,
+  Value<bool> showWeightOnDetail,
+  Value<bool> showSheddingOnDetail,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -6358,6 +6472,8 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<String?> archiveNotes,
   Value<int?> feedingReminderIntervalDays,
   Value<DateTime?> feedingReminderBaseline,
+  Value<bool> showWeightOnDetail,
+  Value<bool> showSheddingOnDetail,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
 });
@@ -6639,6 +6755,16 @@ class $$AnimalsTableFilterComposer
 
   ColumnFilters<DateTime> get feedingReminderBaseline => $composableBuilder(
     column: $table.feedingReminderBaseline,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get showWeightOnDetail => $composableBuilder(
+    column: $table.showWeightOnDetail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get showSheddingOnDetail => $composableBuilder(
+    column: $table.showSheddingOnDetail,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6950,6 +7076,16 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get showWeightOnDetail => $composableBuilder(
+    column: $table.showWeightOnDetail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get showSheddingOnDetail => $composableBuilder(
+    column: $table.showSheddingOnDetail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -7136,6 +7272,16 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get feedingReminderBaseline => $composableBuilder(
     column: $table.feedingReminderBaseline,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get showWeightOnDetail => $composableBuilder(
+    column: $table.showWeightOnDetail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get showSheddingOnDetail => $composableBuilder(
+    column: $table.showSheddingOnDetail,
     builder: (column) => column,
   );
 
@@ -7362,6 +7508,8 @@ class $$AnimalsTableTableManager
                 Value<String?> archiveNotes = const Value.absent(),
                 Value<int?> feedingReminderIntervalDays = const Value.absent(),
                 Value<DateTime?> feedingReminderBaseline = const Value.absent(),
+                Value<bool> showWeightOnDetail = const Value.absent(),
+                Value<bool> showSheddingOnDetail = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => AnimalsCompanion(
@@ -7395,6 +7543,8 @@ class $$AnimalsTableTableManager
                 archiveNotes: archiveNotes,
                 feedingReminderIntervalDays: feedingReminderIntervalDays,
                 feedingReminderBaseline: feedingReminderBaseline,
+                showWeightOnDetail: showWeightOnDetail,
+                showSheddingOnDetail: showSheddingOnDetail,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -7432,6 +7582,8 @@ class $$AnimalsTableTableManager
                 Value<String?> archiveNotes = const Value.absent(),
                 Value<int?> feedingReminderIntervalDays = const Value.absent(),
                 Value<DateTime?> feedingReminderBaseline = const Value.absent(),
+                Value<bool> showWeightOnDetail = const Value.absent(),
+                Value<bool> showSheddingOnDetail = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => AnimalsCompanion.insert(
@@ -7465,6 +7617,8 @@ class $$AnimalsTableTableManager
                 archiveNotes: archiveNotes,
                 feedingReminderIntervalDays: feedingReminderIntervalDays,
                 feedingReminderBaseline: feedingReminderBaseline,
+                showWeightOnDetail: showWeightOnDetail,
+                showSheddingOnDetail: showSheddingOnDetail,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

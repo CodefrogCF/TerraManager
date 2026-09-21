@@ -204,4 +204,67 @@ void main() {
     expect(restored.temperatureZones, isNull);
     expect(restored.nighttimeTemperature, isNull);
   });
+
+  test('Animal visibility settings survive json round trip', () {
+    final animal = BackupAnimal(
+      id: 1,
+      boxId: 1,
+      status: 'active',
+      commonName: 'Test Animal',
+      latinName: 'Test species',
+      sex: null,
+      birthDate: null,
+      birthDateAccuracy: null,
+      tempMin: 20,
+      tempMax: 25,
+      humidityMin: 40,
+      humidityMax: 60,
+      pictureMediaPath: null,
+      notes: null,
+      archiveReason: null,
+      archivedAt: null,
+      archiveNotes: null,
+      showWeightOnDetail: false,
+      showSheddingOnDetail: false,
+      createdAt: DateTime(2026, 9, 21),
+      updatedAt: DateTime(2026, 9, 21),
+    );
+
+    final restored = BackupAnimal.fromJson(animal.toJson());
+
+    expect(restored.showWeightOnDetail, isFalse);
+    expect(restored.showSheddingOnDetail, isFalse);
+  });
+
+  test('legacy Animal backup defaults visibility settings to enabled', () {
+    final json =
+        BackupAnimal(
+            id: 1,
+            boxId: 1,
+            status: 'active',
+            commonName: 'Legacy Animal',
+            latinName: 'Test species',
+            sex: null,
+            birthDate: null,
+            birthDateAccuracy: null,
+            tempMin: 20,
+            tempMax: 25,
+            humidityMin: 40,
+            humidityMax: 60,
+            pictureMediaPath: null,
+            notes: null,
+            archiveReason: null,
+            archivedAt: null,
+            archiveNotes: null,
+            createdAt: DateTime(2026, 9, 21),
+            updatedAt: DateTime(2026, 9, 21),
+          ).toJson()
+          ..remove('showWeightOnDetail')
+          ..remove('showSheddingOnDetail');
+
+    final restored = BackupAnimal.fromJson(json);
+
+    expect(restored.showWeightOnDetail, isTrue);
+    expect(restored.showSheddingOnDetail, isTrue);
+  });
 }

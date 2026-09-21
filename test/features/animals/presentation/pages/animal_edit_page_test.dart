@@ -996,4 +996,55 @@ void main() {
 
     expect(find.byType(DatePickerDialog), findsOneWidget);
   });
+
+  testWidgets('weight and shedding detail visibility default to enabled', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPage(tester, animalId: animalId);
+
+    final weightSwitch = tester.widget<SwitchListTile>(
+      find.byKey(const Key('show-weight-on-detail-switch')),
+    );
+
+    final sheddingSwitch = tester.widget<SwitchListTile>(
+      find.byKey(const Key('show-shedding-on-detail-switch')),
+    );
+
+    expect(weightSwitch.value, isTrue);
+    expect(sheddingSwitch.value, isTrue);
+  });
+
+  testWidgets('persists Animal Detail visibility settings', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPageWithNavigation(tester, animalId: animalId);
+
+    final weightSwitch = find.byKey(const Key('show-weight-on-detail-switch'));
+
+    final sheddingSwitch = find.byKey(
+      const Key('show-shedding-on-detail-switch'),
+    );
+
+    await tester.ensureVisible(weightSwitch);
+    await tester.pumpAndSettle();
+    await tester.tap(weightSwitch);
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(sheddingSwitch);
+    await tester.pumpAndSettle();
+    await tester.tap(sheddingSwitch);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('save-animal-button')));
+
+    await tester.pumpAndSettle();
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+
+    expect(animal, isNotNull);
+    expect(animal!.showWeightOnDetail, isFalse);
+    expect(animal.showSheddingOnDetail, isFalse);
+  });
 }

@@ -79,6 +79,12 @@ class Animals extends Table {
 
   DateTimeColumn get feedingReminderBaseline => dateTime().nullable()();
 
+  BoolColumn get showWeightOnDetail =>
+      boolean().withDefault(const Constant(true))();
+
+  BoolColumn get showSheddingOnDetail =>
+      boolean().withDefault(const Constant(true))();
+
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();

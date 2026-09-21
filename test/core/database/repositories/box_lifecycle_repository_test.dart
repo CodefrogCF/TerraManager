@@ -225,6 +225,8 @@ void main() {
           tempMax: 30,
           humidityMin: 40,
           humidityMax: 60,
+          showWeightOnDetail: false,
+          showSheddingOnDetail: false,
         ),
         throwsA(isA<BoxAssignmentException>()),
       );

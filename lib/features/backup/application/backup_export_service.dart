@@ -171,6 +171,8 @@ class BackupExportService {
           archiveNotes: animal.archiveNotes,
           feedingReminderIntervalDays: animal.feedingReminderIntervalDays,
           feedingReminderBaseline: animal.feedingReminderBaseline,
+          showWeightOnDetail: animal.showWeightOnDetail,
+          showSheddingOnDetail: animal.showSheddingOnDetail,
           createdAt: animal.createdAt,
           updatedAt: animal.updatedAt,
         ),

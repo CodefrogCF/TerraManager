@@ -252,6 +252,8 @@ void main() {
       humidityMin: 45,
       humidityMax: 65,
       notes: 'Aktualisierte Notizen',
+      showWeightOnDetail: false,
+      showSheddingOnDetail: false,
     );
 
     expect(updated, isTrue);
@@ -285,6 +287,8 @@ void main() {
       tempMax: 28,
       humidityMin: 40,
       humidityMax: 60,
+      showWeightOnDetail: false,
+      showSheddingOnDetail: false,
     );
 
     expect(updated, isFalse);
@@ -354,6 +358,8 @@ void main() {
       humidityMax: 60,
       picturePath: null,
       notes: null,
+      showWeightOnDetail: false,
+      showSheddingOnDetail: false,
     );
 
     expect(success, isTrue);
@@ -396,6 +402,8 @@ void main() {
       humidityMin: 40,
       humidityMax: 60,
       notes: 'Updated notes',
+      showWeightOnDetail: false,
+      showSheddingOnDetail: false,
     );
 
     expect(success, isTrue);

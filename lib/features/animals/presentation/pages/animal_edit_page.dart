@@ -87,6 +87,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   bool _processingPicture = false;
   bool _hasUnsavedChanges = false;
   bool _additionalCharacteristicsExpanded = false;
+  bool _showWeightOnDetail = true;
+  bool _showSheddingOnDetail = true;
 
   String? _error;
   Animal? _animal;
@@ -235,6 +237,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
       _subcategory = animal.subcategory;
       _birthDate = animal.birthDate;
       _birthDateAccuracy = animal.birthDateAccuracy;
+      _showWeightOnDetail = animal.showWeightOnDetail;
+      _showSheddingOnDetail = animal.showSheddingOnDetail;
       _boxId = boxes.any((box) => box.id == animal.boxId) ? animal.boxId : null;
 
       _pictureMediaId = animal.pictureMediaId;
@@ -416,6 +420,8 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               : _notesController.text.trim(),
           feedingReminderIntervalDays: _animal!.feedingReminderIntervalDays,
           feedingReminderBaseline: _animal!.feedingReminderBaseline,
+          showWeightOnDetail: _showWeightOnDetail,
+          showSheddingOnDetail: _showSheddingOnDetail,
         );
 
         if (!updated) {
@@ -856,6 +862,43 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               restOrDormancyPeriodsController: _restOrDormancyPeriodsController,
               notesController: _notesController,
             ),
+
+            const SizedBox(height: 16),
+
+            SwitchListTile(
+              key: const Key('show-weight-on-detail-switch'),
+              contentPadding: EdgeInsets.zero,
+              title: Text(context.l10n.showWeightOnAnimalDetail),
+              subtitle: Text(context.l10n.showWeightOnAnimalDetailDescription),
+              value: _showWeightOnDetail,
+              onChanged: _actionInProgress || _processingPicture
+                  ? null
+                  : (value) {
+                      setState(() {
+                        _showWeightOnDetail = value;
+                        _hasUnsavedChanges = true;
+                      });
+                    },
+            ),
+
+            SwitchListTile(
+              key: const Key('show-shedding-on-detail-switch'),
+              contentPadding: EdgeInsets.zero,
+              title: Text(context.l10n.showSheddingOnAnimalDetail),
+              subtitle: Text(
+                context.l10n.showSheddingOnAnimalDetailDescription,
+              ),
+              value: _showSheddingOnDetail,
+              onChanged: _actionInProgress || _processingPicture
+                  ? null
+                  : (value) {
+                      setState(() {
+                        _showSheddingOnDetail = value;
+                        _hasUnsavedChanges = true;
+                      });
+                    },
+            ),
+
             const SizedBox(height: 16),
 
             Row(

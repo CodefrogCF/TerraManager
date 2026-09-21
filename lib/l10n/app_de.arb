@@ -640,5 +640,9 @@
   "sortArchivedBoxes": "Archivierte Boxen sortieren",
   "archiveSortNameCriterion": "Name",
   "clearBirthDate": "Geburtsdatum entfernen",
-  "selectBirthDate": "Geburtsdatum auswählen"
+  "selectBirthDate": "Geburtsdatum auswählen",
+  "showWeightOnAnimalDetail": "Gewicht in Tierdetails anzeigen",
+  "showWeightOnAnimalDetailDescription": "Gewichtsinformationen und Gewichtsaktionen in den Tierdetails anzeigen.",
+  "showSheddingOnAnimalDetail": "Häutung in Tierdetails anzeigen",
+  "showSheddingOnAnimalDetailDescription": "Häutungsinformationen und Häutungsaktionen in den Tierdetails anzeigen."
 }

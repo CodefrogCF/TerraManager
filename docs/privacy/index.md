@@ -48,6 +48,7 @@ Depending on how the application is used, this may include:
 * associations between animals and Boxes;
 * creation and modification dates;
 * FeedingEvents and feeding history;
+* Animal weight and shedding histories;
 * QR identifiers;
 * application preferences and settings.
 

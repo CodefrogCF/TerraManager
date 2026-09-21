@@ -20,9 +20,7 @@ Public project information:
 
 ## Project Status
 
-Latest published application version: **v1.9.0+68 – Animal Input & History**.
-
-The current source also implements the v1.9.1 overview and Edit Box refinements:
+Latest published application version: **v1.10.0+74 - Animal Workflow & History Polish**.
 
 - Animal category grouping is controlled independently beside the sort menu;
 - creation time, displayed name, age and latest feeding work in flat and
@@ -30,8 +28,10 @@ The current source also implements the v1.9.1 overview and Edit Box refinements:
 - legacy Category sort preferences migrate safely to the grouped view;
 - Edit Box places the immutable QR identifier below Notes and above the bottom
   Save and Archive actions;
-- Database Schema Version 14 and Portable Backup Format Version 2 remain
-  current and backward compatible; and
+- Animal shedding documentation now uses timestamped history instead of the
+  legacy free-form shedding-note field;
+- Database Schema Version 15 and Portable Backup Format Version 2 remain
+  current and backward compatible;
 - no new device permission is required.
 
 Android and Web are the validated platforms. iOS remains planned and has not
@@ -130,13 +130,15 @@ selection in Settings.
   Animal pictures
 - full-screen Animal picture viewing with zooming and panning
 - notes
-- optional origin or habitat, numeric weight in grams, shedding notes and rest
-  or dormancy periods
+- optional origin or habitat, numeric weight in grams and rest or dormancy
+  periods
+- timestamped shedding history with optional notes, quick entry from Animal
+  details and Edit Animal, plus edit and confirmed delete actions
 - timestamped weight history with quick entry from Animal details plus add,
   edit and confirmed delete actions in the reverse-chronological history view
 - optional minimum/maximum nighttime temperature below the daytime range
 - shared Additional characteristics order for birth date, accuracy, sex,
-  weight, origin, nighttime temperature, rest periods, shedding notes and notes
+  weight, origin, nighttime temperature, rest periods and notes
 - required localized Animal category and optional compatible subcategory
 - taxonomy persistence through editing, duplication, migration and backup
 - active and archived lifecycle states

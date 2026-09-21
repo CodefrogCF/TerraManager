@@ -226,6 +226,24 @@ duplication follow their documented ownership rules. Weight-history UI tests
 must also cover add, edit, cancel-delete and confirmed-delete flows, and a
 repository deletion must require both the entry ID and owning Animal ID.
 
+Schema Version 15 adds `SheddingEvents`. Retain the released Version 14
+snapshot and cover a populated direct v14 → v15 migration. Every non-empty
+legacy `Animal.sheddingNotes` value must create exactly one shedding event
+using the Animal's `updatedAt` timestamp because no original shedding timestamp
+exists. Whitespace-only and null values create no event. Clear the legacy field
+after migration but retain the column for older database and backup
+compatibility.
+
+Current New Animal, Edit Animal and duplication workflows must not create or
+copy legacy shedding-note values. Shedding history is owned by the Animal,
+survives archiving and is removed with permanent Animal deletion.
+
+Backup Format Version 2 carries nested `sheddingHistory` without increasing the
+format version. Missing history remains compatible with older backups. A legacy
+non-empty `sheddingNotes` value creates one event only when explicit shedding
+history is absent. Repository, migration, backup and widget tests must cover
+create, edit, delete, ordering, archive retention and legacy conversion.
+
 Backup Format Version 2 carries the additive nighttime bounds and nested weight
 history. Keep missing keys compatible with older backups, validate positive
 finite gram values, unique history IDs and valid timestamps, and test export,

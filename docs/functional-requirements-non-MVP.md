@@ -65,8 +65,6 @@ Possible future features may include:
 
 - historical Animal-to-Box assignment tracking
 - Box-specific Animal assignment history views
-- Animal weight history
-- shedding history
 - health/event tracking
 - breeding records
 - enclosure maintenance history

@@ -44,6 +44,7 @@ Abhängig von der Nutzung der Anwendung können dazu gehören:
 * Zuordnungen zwischen Tieren und Boxen;
 * Erstellungs- und Änderungsdaten;
 * FeedingEvents und Fütterungsverlauf;
+* Gewichts- und Häutungsverläufe von Tieren;
 * QR-Kennungen;
 * Anwendungseinstellungen.
 

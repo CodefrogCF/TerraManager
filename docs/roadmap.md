@@ -1522,6 +1522,28 @@ roughly one sixth of its previous size.
 
 ---
 
+## v1.10.0 — Animal Workflow & History Polish
+
+### Animal shedding history — Issue #146
+
+- [x] Replace the free-form shedding note with timestamped `SheddingEvents`
+- [x] Store an event timestamp and optional notes
+- [x] Add shedding events from Animal details
+- [x] Add shedding events from Edit Animal
+- [x] Provide reverse-chronological shedding history
+- [x] Edit existing shedding events
+- [x] Delete shedding events after confirmation
+- [x] Preserve shedding history while Animals are archived
+- [x] Preserve shedding history through Backup Format Version 2
+- [x] Restore legacy backups containing only `sheddingNotes`
+- [x] Migrate existing database `sheddingNotes` without discarding data
+- [x] Stop New Animal and duplication from creating legacy shedding notes
+- [x] Advance to Database Schema Version 15
+- [x] Add repository, migration, backup and widget regression coverage
+- [x] Keep Android and Web behavior platform-neutral
+
+---
+
 ## Website 1.0 – Homepage, Downloads & Guides
 
 ### TerraManager project homepage — Issue #119
@@ -1563,7 +1585,6 @@ Possible later development areas include:
 - cloud synchronization
 - user accounts
 - multi-device synchronization
-- shedding history
 - health and event tracking
 - breeding records
 - enclosure maintenance history

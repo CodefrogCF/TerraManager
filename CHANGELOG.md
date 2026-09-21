@@ -4,34 +4,69 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
-## [Unreleased]
+## [1.10.0] - 2026-09-20
+
+### Added
+
+- replace the legacy free-form Animal shedding note with timestamped shedding
+  history containing an optional note per event
+- add quick shedding entry and shedding-history access to Animal details and
+  Edit Animal
+- add reverse-chronological shedding history with create, edit and confirmed
+  delete actions
+
+### Changed
+
+- migrate every non-empty legacy `Animal.sheddingNotes` value to one
+  `SheddingEvent` using the Animal's existing `updatedAt` timestamp, then clear
+  the legacy field
+- stop New Animal, Edit Animal and Animal duplication from creating or copying
+  legacy shedding-note values
+- retain `Animal.sheddingNotes` only for database and portable-backup
+  compatibility with earlier TerraManager versions
+- preserve complete shedding history while Animals are archived and through
+  Portable Backup Format Version 2 export and restore
+- advance the local database to Schema Version 15 with the `SheddingEvents`
+  table
+
+### Testing
+
+- cover shedding-history repository ordering, creation, editing and deletion,
+  direct v14 to v15 migration, legacy-note conversion, backup export and restore,
+  archived Animals, Animal details and Edit Animal workflows
+- verify that New Animal and duplication no longer create or copy legacy
+  shedding-note values
+
+Database Schema Version 15 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
+## [1.8.0 - 1.9.4]
 
 ### Added
 
 - add an independent, persistent Animal Overview category-group toggle directly
-  beside the sort control (Issue #142)
+  beside the sort control
 - add shared side-by-side minimum and maximum controls for daytime temperature,
-  nighttime temperature and humidity in New Animal and Edit Animal (Issues
-  #136 and #137)
+  nighttime temperature and humidity in New Animal and Edit Animal
 - show the next scheduled feeding directly below Latest Feeding while an active
-  reminder is not yet due (Issue #138)
+  reminder is not yet due
 - add positive numeric Animal weights in grams with timestamped history and a
-  reverse-chronological history view (Issue #139)
+  reverse-chronological history view
 - add a quick weight action beside Weight History on Animal details and add or
   edit or delete measurement actions inside the history view
 - add a responsive German and English GitHub Pages homepage with shared
   localized content, download links, guides, support, local Privacy Policy and
-  license access (Issue #119)
+  license access
 - add a CSS-based device mockup and complete link-preview, favicon and page
   metadata without trackers, cookies, external scripts or web fonts
 - show localized plural category and subcategory headings in grouped Animal
-  Overview views (Issue #129)
+  Overview views
 - add an optional bounded nighttime temperature to Animal profiles, details,
-  duplication and portable backups (Issue #131)
+  duplication and portable backups
 - make the assigned Box label on Animal details open the corresponding Box,
-  including its optional name (Issue #132)
+  including its optional name
 - add persistent ascending and descending Box volume sorting based on complete
-  width × height × depth values (Issue #134)
+  width × height × depth values
 
 ### Changed
 
@@ -40,12 +75,12 @@ The project uses semantic versioning.
 - migrate legacy Category sort preferences to enabled category grouping with
   the equivalent displayed-name direction
 - move the immutable Box QR identifier and its explanation below Notes and
-  directly above Save and Archive in Edit Box (Issue #143)
+  directly above Save and Archive in Edit Box
 - label daytime and nighttime temperature explicitly on Animal details, format
   both ranges with one locale-aware decimal place and keep `°C` on values only
 - arrange Additional characteristics consistently as birth date, accuracy,
   sex, weight, origin, nighttime temperature, rest periods, shedding notes and
-  notes (Issue #140)
+  notes
 - replace the single nighttime-temperature input with independent optional
   minimum and maximum values and migrate an existing value to both bounds
 - migrate only unambiguous legacy gram values into weight history while
@@ -55,9 +90,9 @@ The project uses semantic versioning.
 - advance the local database to Schema Version 14 with nullable nighttime
   bounds and the `AnimalWeightEntries` table
 - place only active due feeding reminders above the Animal picture and move
-  Latest Feeding directly below the Animal names (Issue #130)
+  Latest Feeding directly below the Animal names
 - keep unnamed Boxes after every named Box in both alphabetical directions
-  while retaining natural number ordering and deterministic ties (Issue #133)
+  while retaining natural number ordering and deterministic ties
 - rename Animal temperature inputs to minimum and maximum daytime temperature
 - advance the local database to Schema Version 13; existing Animals receive a
   null nighttime temperature
@@ -93,7 +128,7 @@ current and backward compatible.
 
 - add ordered picture histories to Animal and Box details, including local
   capture/import timestamps, full-screen viewing, selectable primary images
-  and confirmed individual deletion (Issue #78)
+  and confirmed individual deletion
 - preserve complete galleries, ordering and primary selection in Portable
   Backup Format Version 2
 
@@ -154,10 +189,9 @@ current and backward compatible.
 
 - add required Animal categories and optional category-specific subcategories
   to New Animal and Edit Animal, with localized labels and stable stored values
-  (Issue #127)
 - display saved taxonomy on Animal details and preserve it during duplication
 - add a Category criterion to Animal Overview that groups visible Animals under
-  accessible category and conditional subcategory headings (Issue #128)
+  accessible category and conditional subcategory headings
 
 ### Changed
 
@@ -165,7 +199,7 @@ current and backward compatible.
   category `other` without a subcategory
 - extend Portable Backup Format Version 2 with category and optional
   subcategory while retaining Format 1 and older Format 2 restore compatibility
-- sort category groups in the complete #127 taxonomy order and reverse only the
+- sort category groups in the complete taxonomy order and reverse only the
   primary group order when the active criterion is selected again
 - keep subcategories and Animals A–Z inside groups using localized headings,
   natural number ordering and deterministic ID tie breaking
@@ -189,22 +223,20 @@ current and backward compatible.
 
 - show stored pictures as thumbnails in Animal History, with the existing
   fallback for missing or invalid media and localized accessibility labels
-  (Issue #122)
 - bundle a complete German privacy policy alongside the synchronized English
-  policy and public privacy pages (Issue #125)
+  policy and public privacy pages
 
 ### Changed
 
 - simplify PDF QR sizing to the accessible integer slider from 6 mm to 20 mm
-  while preserving the 15 mm default and generated document layout (Issue
-  #123)
+  while preserving the 15 mm default and generated document layout
 - make Weight a multiline free-form field in New Animal and Edit Animal while
-  preserving its existing database and backup representation (Issue #124)
+  preserving its existing database and backup representation
 - present localized English or German legal information entirely offline and
   retain the unchanged authoritative English GPL-3.0-or-later text
 - replace paired overview sort entries with one entry per criterion; selecting
   the active criterion reverses its direction while stored enum and backup
-  values remain compatible (Issue #126)
+  values remain compatible
 - advance the release version to `1.6.1+63`
 
 ### Testing
@@ -226,10 +258,10 @@ unchanged.
 ### Added
 
 - add one shared Settings selection workflow for active and archived Box QR
-  codes, with all Boxes selected initially and individual opt-out (Issue #116)
+  codes, with all Boxes selected initially and individual opt-out
 - save the selected QR codes as individual PNG images or one ZIP archive
 - generate paginated A4 PDF sheets containing the selected QR codes, Box names
-  and stable Box numbers (Issue #117)
+  and stable Box numbers
 - choose the printed QR size from 6 mm to 20 mm with 6, 10, 15 and 20 mm
   presets
 
@@ -262,13 +294,13 @@ unchanged.
 ### Added
 
 - add localized context menus to active Animal and Box overview entries,
-  opened by long press or secondary click (Issue #114)
+  opened by long press or secondary click
 - expose Create Feeding, Rename, Edit, Archive and Duplicate quick actions for
   active Animals
 - expose Rename, Edit, Duplicate and Archive quick actions for active Boxes
 - allow archived Animals to be duplicated from Animal History
 - duplicate Boxes and Animals as independent active records while retaining
-  their reusable profile data and copying picture media (Issue #115)
+  their reusable profile data and copying picture media
 
 ### Changed
 
@@ -296,23 +328,22 @@ unchanged.
 ### Added
 
 - show optional Box names together with the stable Box number in New Animal and
-  Edit Animal assignment choices (Issue #108)
+  Edit Animal assignment choices
 - add the localized `Hermaphrodite / other` Animal sex value with the stable
-  portable value `other` (Issue #111)
+  portable value `other`
 - add an expandable Additional characteristics section to both Animal forms
   for origin or habitat, weight, shedding notes, rest or dormancy periods and
-  temperature zones (Issue #112)
+  temperature zones
 - display only populated additional characteristics on Animal details
 - add an offline License entry directly below Privacy Policy in Settings,
-  backed by the authoritative repository `LICENSE` file (Issue #113)
+  backed by the authoritative repository `LICENSE` file
 
 ### Changed
 
 - sort names containing numbers naturally in Box and Animal overviews, so
-  names 1 through 10 follow numeric order (Issue #109)
+  names 1 through 10 follow numeric order
 - restrict humidity to 0–100 percent and temperature to the documented
   realistic range while retaining minimum/maximum ordering validation
-  (Issue #110)
 - advance the release version to `1.4.0+59`
 - advance the local database to Schema Version 9 with five nullable Animal
   profile columns; existing records migrate with all five values empty
@@ -340,7 +371,7 @@ compatibility baseline.
 ### Added
 
 - added horizontal swipe navigation between the adjacent Box Overview, Animal
-  Overview and Settings primary pages (Issue #106)
+  Overview and Settings primary pages
 - added localized semantics for the current primary page and navigation region
 - added `Ctrl+Page Up` and `Ctrl+Page Down` as keyboard-compatible primary-page
   navigation
@@ -367,7 +398,6 @@ compatibility baseline.
   the Animal Overview has already loaded
 - completed the v1.3.0 automated regression and documented the release-owner
   build, signature and Google Play publication workflow
-  (Issue #107)
 
 Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
 
@@ -376,7 +406,7 @@ Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
 ### Added
 
 - added an Archive Box action to Edit Box with a required localized reason,
-  optional archive note and explicit confirmation (Issue #103)
+  optional archive note and explicit confirmation
 - added an Archived Boxes entry point and a confirmed Restore Box action
 - display archive reason, timestamp and notes on archived Box details
 - added localized archived-QR results in both the Box and Feeding Mode scanners
@@ -422,7 +452,7 @@ Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
 - advanced the release version to `1.2.0+54`
 - added the final v1.2.0 validation, compatibility, signature and artifact-hash
   record
-- completed the Box Lifecycle & History milestone delivered by Issues #102–#104
+- completed the Box Lifecycle & History milestone
 
 Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
 
@@ -430,7 +460,7 @@ Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
 
 ### Added
 
-- added persistent Box lifecycle fields for Issue #102: active/archived status,
+- added persistent Box lifecycle fields: active/archived status,
   archive reason, archive timestamp and optional archive notes
 - added English and German labels for Sold, Replaced, Damaged and Other Box
   archive reasons; database and backup values remain language independent
@@ -585,21 +615,18 @@ actions and archive navigation are separate workflow work.
 ### Validated
 
 - `flutter analyze` without issues
-- complete automated test suite with 453 passing tests after Issue #95
 - revised Box-detail order, QR export and removed printing workflow through
   manual testing
-- complete automated test suite with 466 passing tests after Issue #96
 - optional Box note creation, editing, clearing, display, backup and restore
   workflows through manual testing
-- complete automated test suite after Issue #97
+- complete automated test suite
 - Edit Box deletion confirmation, cancellation, assigned-Animal protection and
   overview return through manual testing
-- complete automated and manual validation after Issue #99
-- complete automated and manual validation after Issue #100
+- complete automated and manual validation
 - completed the v1.1.0 automated, migration, backup and Android/Web manual
-  regression for Issue #101
+  regression
 - completed supported release builds, production-signature verification and
-  the final Quality gates run for Issue #101
+  the final Quality gates run
 - recorded final release artifact hashes for the APK and Android App Bundle
 - prepared the v1.1.0 regression, compatibility and release checklist
 

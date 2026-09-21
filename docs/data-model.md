@@ -170,7 +170,7 @@ Animal
 ├── humidityMax
 ├── originHabitat
 ├── weight
-├── sheddingNotes
+├── sheddingNotes         (legacy)
 ├── restOrDormancyPeriods
 ├── picturePath
 ├── pictureMediaId
@@ -205,7 +205,9 @@ Animal
 - originHabitat – optional free-form origin or habitat note
 - weight – legacy free-form weight retained only when it cannot be migrated
   safely to grams
-- sheddingNotes – optional free-form shedding note
+- sheddingNotes – legacy nullable free-form shedding note retained only for
+  migration and older backup compatibility; current application workflows use
+  `SheddingEvents`
 - restOrDormancyPeriods – optional free-form rest or dormancy description
 - picturePath – nullable legacy picture reference retained for migration compatibility
 - pictureMediaId – nullable foreign key referencing MediaAsset
@@ -247,11 +249,11 @@ archivedAt = archive date
 archiveNotes = optional
 ```
 
-Archiving an Animal does not remove its Animal record, picture, weight history
-or feeding history. It also retains the optional feeding reminder configuration. Reminder
-queries suppress archived Animals instead of deleting their configuration.
-The archive action is available at the bottom of Edit Animal and warns before
-discarding unsaved form changes.
+Archiving an Animal does not remove its Animal record, picture, weight history,
+shedding history or feeding history. It also retains the optional feeding
+reminder configuration. Reminder queries suppress archived Animals instead of
+deleting their configuration. The archive action is available at the bottom
+of Edit Animal and warns before discarding unsaved form changes.
 
 Restoring an archived Animal requires assigning a Box again.
 
@@ -294,6 +296,28 @@ action, and the history view can add measurements or correct an existing
 measurement's gram value and timestamp without creating another row. Individual
 entries can be permanently deleted after confirmation; the next newest entry
 then becomes the current weight.
+
+### SheddingEvent
+
+```text
+SheddingEvent
+├── id
+├── animalId
+├── shedAt
+├── notes
+├── createdAt
+└── updatedAt
+```
+
+An Animal can have zero or more shedding events.
+`animalId` references the owning Animal. `shedAt` records when the shedding
+occurred. `notes` is optional. `createdAt` and `updatedAt` preserve event
+metadata independently from the Animal record.
+Shedding history is ordered by `shedAt` descending and then by event ID
+descending for deterministic ties.
+Archiving an Animal retains its complete shedding history. Permanent Animal
+deletion removes the associated shedding events through the database
+relationship.
 
 ### Feeding Reminder Configuration
 
@@ -351,7 +375,7 @@ details request the state for one Animal and display its due or scheduled
 timestamp. Feeding history changes trigger a new calculation; no presentation
 state is written back to the database.
 
-## Record Duplication (Issues #114 and #115)
+## Record Duplication
 
 Duplication creates a normal independent record through repository
 transactions; the database does not store a link between source and duplicate.
@@ -875,3 +899,29 @@ Animal's `updatedAt` timestamp and then clears the migrated text. Ambiguous text
 remains untouched and visible until the user replaces it with a numeric gram
 value. All Box, Animal, FeedingEvent, lifecycle, taxonomy and gallery data is
 preserved.
+
+### Schema Version 15
+
+Schema Version 15 adds the `SheddingEvents` history table.
+
+```text
+SheddingEvents
+├── id
+├── animalId
+├── shedAt
+├── notes
+├── createdAt
+└── updatedAt
+```
+
+During the v14 → v15 migration, every non-empty legacy
+`Animal.sheddingNotes` value creates one `SheddingEvent`. Because the legacy
+field contains no historical timestamp, the Animal's existing `updatedAt`
+timestamp is used for `shedAt`, `createdAt` and `updatedAt`.
+
+Whitespace-only legacy values create no event. After migration,
+`Animal.sheddingNotes` is cleared. The legacy database column remains present
+for compatibility with older databases and backups.
+
+All existing Animal, Box, feeding, weight, gallery, taxonomy and lifecycle data
+is preserved.

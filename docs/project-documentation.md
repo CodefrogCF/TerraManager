@@ -14,18 +14,19 @@ iOS support is planned, but has not yet been validated because no macOS build en
 
 Public project information:
 
-- [Project homepage]({{ '/' | relative_url }})
-- [Installation and updates](installation-and-updates.md)
-- [Privacy](privacy/)
-- [Datenschutz (Deutsch)](privacy/de/)
-- [Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md)
-- [Security](https://github.com/CodefrogCF/TerraManager/blob/main/SECURITY.md)
-- [Contributing](https://github.com/CodefrogCF/TerraManager/blob/main/CONTRIBUTING.md)
-- [GPL-3.0-or-later license](https://github.com/CodefrogCF/TerraManager/blob/main/LICENSE)
+- [Project homepage](https://codefrogcf.github.io/TerraManager/)
+- [Project documentation](docs/project-documentation.md)
+- [Installation and updates](docs/installation-and-updates.md)
+- [Privacy](PRIVACY.md)
+- [Datenschutz (Deutsch)](PRIVACY.de.md)
+- [Support](SUPPORT.md)
+- [Security](SECURITY.md)
+- [Contributing](CONTRIBUTING.md)
+- [GPL-3.0-or-later license](LICENSE)
 
 ## Project Status
 
-Latest published application version: **v1.9.2+70 – Animal Input & History**.
+Latest published application version: **v1.10.0+74 - Animal Workflow & History Polish**.
 
 - Animal category grouping is controlled independently beside the sort menu;
 - creation time, displayed name, age and latest feeding work in flat and
@@ -33,14 +34,16 @@ Latest published application version: **v1.9.2+70 – Animal Input & History**.
 - legacy Category sort preferences migrate safely to the grouped view;
 - Edit Box places the immutable QR identifier below Notes and above the bottom
   Save and Archive actions;
-- Database Schema Version 14 and Portable Backup Format Version 2 remain
-  current and backward compatible; and
+- Animal shedding documentation now uses timestamped history instead of the
+  legacy free-form shedding-note field;
+- Database Schema Version 15 and Portable Backup Format Version 2 remain
+  current and backward compatible;
 - no new device permission is required.
 
 Android and Web are the validated platforms. iOS remains planned and has not
-been validated. The complete version history is maintained in the project
-changelog, while completed and planned work is maintained in the
-[roadmap](roadmap.md).
+been validated. The complete version history is maintained in
+[CHANGELOG.md](CHANGELOG.md), while completed and planned work is maintained in
+the [roadmap](docs/roadmap.md).
 
 ### Android transition to the permanent application ID
 
@@ -133,17 +136,20 @@ selection in Settings.
   Animal pictures
 - full-screen Animal picture viewing with zooming and panning
 - notes
-- optional origin or habitat, numeric weight in grams, shedding notes and rest
-  or dormancy periods
+- optional origin or habitat, numeric weight in grams and rest or dormancy
+  periods
+- timestamped shedding history with optional notes, quick entry from Animal
+  details and Edit Animal, plus edit and confirmed delete actions
 - timestamped weight history with quick entry from Animal details plus add,
   edit and confirmed delete actions in the reverse-chronological history view
 - optional minimum/maximum nighttime temperature below the daytime range
 - shared Additional characteristics order for birth date, accuracy, sex,
-  weight, origin, nighttime temperature, rest periods, shedding notes and notes
+  weight, origin, nighttime temperature, rest periods and notes
 - required localized Animal category and optional compatible subcategory
 - taxonomy persistence through editing, duplication, migration and backup
 - active and archived lifecycle states
 - archive reasons, dates and optional archive notes
+- archive action at the bottom of Edit Animal, with an unsaved-change warning
 - dedicated Animal History view
 - restore archived animals
 - permanent deletion of archived animals
@@ -573,6 +579,11 @@ Archived Animal
 Box
 ├── id
 ├── qrId
+├── name
+├── status
+├── archiveReason
+├── archivedAt
+├── archiveNotes
 ├── widthCm
 ├── heightCm
 ├── depthCm
@@ -583,8 +594,11 @@ Box
 └── updatedAt
 ```
 
-`qrId` is unique and permanently identifies the box. Width, height, depth,
-temperature zones and notes are optional.
+`qrId` is unique and permanently identifies the box. Name, width, height,
+depth, temperature zones and notes are optional. `status` defaults to `active`;
+archived Boxes store an
+archive reason, timestamp and optional archive notes while retaining their
+other data.
 `pictureMediaId` optionally references persistent image data stored in `MediaAssets`.
 
 The QR format is:
@@ -855,7 +869,7 @@ browser data is tied to its origin and profile.
 Create a current `.tmbackup` before every application update or Web deployment.
 The complete installation, artifact-verification, production-certificate and
 pre-v1.0 transition guidance is in
-[docs/installation-and-updates.md](installation-and-updates.md).
+[docs/installation-and-updates.md](docs/installation-and-updates.md).
 
 ## Privacy and Permissions
 
@@ -867,22 +881,22 @@ application and do not request system notification permission.
 
 Portable `.tmbackup` archives include records, settings and pictures and are
 not encrypted. Store them as sensitive files. The complete data and permission
-description is available in [PRIVACY.md](privacy/).
+description is available in [PRIVACY.md](PRIVACY.md).
 
 ## Support and Security
 
 Report reproducible problems and feature requests through
 [GitHub Issues](https://github.com/CodefrogCF/TerraManager/issues), following
-[SUPPORT.md](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md). Do not publish real backups, private notes, pictures,
+[SUPPORT.md](SUPPORT.md). Do not publish real backups, private notes, pictures,
 passwords or signing material. Potential vulnerabilities should follow the
-private-first process in [SECURITY.md](https://github.com/CodefrogCF/TerraManager/blob/main/SECURITY.md).
+private-first process in [SECURITY.md](SECURITY.md).
 
 ## License and Commercial Use
 
 Copyright (C) 2026 CodefrogCF.
 
 TerraManager is free software licensed under the
-[GNU General Public License v3.0 or later](https://github.com/CodefrogCF/TerraManager/blob/main/LICENSE), identified as
+[GNU General Public License v3.0 or later](LICENSE), identified as
 `GPL-3.0-or-later`. The licence permits private and commercial use,
 modification and redistribution subject to its terms. In particular, a
 distributed modified version must preserve the recipients' GPL freedoms and
@@ -893,7 +907,7 @@ custom development or alternative commercial licence terms. Those offerings
 do not reduce the rights granted for the GPL-licensed project.
 
 Before submitting source code, translations, artwork or substantial
-documentation, read [CONTRIBUTING.md](https://github.com/CodefrogCF/TerraManager/blob/main/CONTRIBUTING.md). The current
+documentation, read [CONTRIBUTING.md](CONTRIBUTING.md). The current
 contribution policy deliberately preserves the option of consistent future
 dual licensing.
 

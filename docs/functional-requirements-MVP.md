@@ -101,8 +101,13 @@ The application must allow the user to:
 - persist Animal pictures across normal application restarts or browser reloads
 - add and edit notes
 - expand or collapse optional additional characteristics in both Animal forms
-- add, edit and clear origin or habitat, weight, shedding notes, rest or
-  dormancy periods as independent text fields
+- add, edit and clear origin or habitat and rest or dormancy periods as
+  independent optional text fields
+- add timestamped Animal shedding events with optional notes
+- review shedding events in reverse chronological order
+- edit existing shedding events
+- permanently delete individual shedding events after confirmation
+- retain shedding history while an Animal is archived
 - add, edit and clear an optional nighttime temperature within the same bounds
   as the minimum and maximum daytime temperatures
 - identify daytime and nighttime temperature separately in Animal details,

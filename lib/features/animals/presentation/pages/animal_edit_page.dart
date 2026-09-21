@@ -17,6 +17,7 @@ import '../../../../core/database/validation/animal_environmental_limits.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
+import '../../../boxes/presentation/pages/box_scanner_page.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../animal_archive_dialog.dart';
@@ -118,6 +119,131 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
     _nighttimeTemperatureMaxController.dispose();
     _notesController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openRehouseScanner() async {
+    final animal = _animal;
+
+    if (animal == null || _actionInProgress || _processingPicture) {
+      return;
+    }
+
+    final moved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => BoxScannerPage(
+          database: widget.database,
+          title: context.l10n.rehouseMode,
+          onBoxScanned: (box) async {
+            final confirmed = await _confirmRehouse(animal: animal, box: box);
+
+            return confirmed;
+          },
+        ),
+      ),
+    );
+
+    if (!mounted || moved != true) {
+      return;
+    }
+
+    _hasUnsavedChanges = false;
+    Navigator.of(context).pop(true);
+  }
+
+  Future<bool> _confirmRehouse({
+    required Animal animal,
+    required Box box,
+  }) async {
+    if (box.id == animal.boxId) {
+      if (!mounted) {
+        return false;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.animalAlreadyInBox)));
+
+      return false;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          key: const Key('rehouse-confirmation-dialog'),
+          title: Text(context.l10n.rehouseAnimalTitle),
+          content: Text(
+            context.l10n.rehouseAnimalConfirmation(
+              animal.commonName,
+              boxSelectionLabel(context.l10n, box),
+            ),
+          ),
+          actions: [
+            TextButton(
+              key: const Key('rehouse-cancel-button'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(false);
+              },
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              key: const Key('rehouse-confirm-button'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop(true);
+              },
+              child: Text(context.l10n.rehouseAnimalAction),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return false;
+    }
+
+    try {
+      final moved = await AnimalRepository(widget.database)
+          .moveAnimalToBox(animalId: animal.id, boxId: box.id);
+
+      if (!mounted) {
+        return true;
+      }
+
+      if (!moved) {
+        setState(() {
+          _error = context.l10n.failedToRehouseAnimal;
+        });
+
+        return false;
+      }
+
+      _hasUnsavedChanges = false;
+
+      Navigator.of(context).pop(true);
+
+      return true;
+    } on BoxAssignmentException {
+      if (!mounted) {
+        return false;
+      }
+
+      setState(() {
+        _error = context.l10n.boxUnavailableForAssignment;
+      });
+
+      return false;
+    } catch (_) {
+      if (!mounted) {
+        return false;
+      }
+
+      setState(() {
+        _error = context.l10n.failedToRehouseAnimal;
+      });
+
+      return false;
+    }
   }
 
   Future<void> _addSheddingEntry() async {
@@ -658,35 +784,51 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
             ),
             const SizedBox(height: 24),
 
-            DropdownButtonFormField<int>(
-              key: const Key('box-field'),
-              initialValue: _boxId,
-              decoration: InputDecoration(
-                labelText: context.l10n.associatedBox,
-              ),
-              items: _boxes
-                  .map(
-                    (box) => DropdownMenuItem<int>(
-                      value: box.id,
-                      child: Text(boxSelectionLabel(context.l10n, box)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    key: const Key('box-field'),
+                    initialValue: _boxId,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.associatedBox,
                     ),
-                  )
-                  .toList(),
-              onChanged: _actionInProgress
-                  ? null
-                  : (value) {
-                      setState(() {
-                        _boxId = value;
-                        _hasUnsavedChanges = true;
-                      });
-                    },
-              validator: (value) {
-                if (value == null) {
-                  return context.l10n.pleaseSelectBox;
-                }
+                    items: _boxes
+                        .map(
+                          (box) => DropdownMenuItem<int>(
+                            value: box.id,
+                            child: Text(boxSelectionLabel(context.l10n, box)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: _actionInProgress
+                        ? null
+                        : (value) {
+                            setState(() {
+                              _boxId = value;
+                              _hasUnsavedChanges = true;
+                            });
+                          },
+                    validator: (value) {
+                      if (value == null) {
+                        return context.l10n.pleaseSelectBox;
+                      }
 
-                return null;
-              },
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  key: const Key('rehouse-scan-button'),
+                  onPressed: _actionInProgress || _processingPicture
+                      ? null
+                      : _openRehouseScanner,
+                  icon: const Icon(Icons.qr_code_scanner),
+                  tooltip: context.l10n.scanNewBox,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 

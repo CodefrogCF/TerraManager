@@ -20,7 +20,7 @@ Public project information:
 
 ## Project Status
 
-Latest published application version: **v1.10.2+76**.
+Latest published application version: **v1.10.3+77**.
 
 - Animal category grouping is controlled independently beside the sort menu;
 - creation time, displayed name, age and latest feeding work in flat and

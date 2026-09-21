@@ -658,5 +658,22 @@
         "type": "String"
       }
     }
-  }
+  },
+  "rehouseMode": "Umsetzmodus",
+  "scanNewBox": "Neue Box scannen",
+  "rehouseAnimalTitle": "Tier umsetzen?",
+  "rehouseAnimalConfirmation": "{animal} in {box} umsetzen?",
+  "@rehouseAnimalConfirmation": {
+    "placeholders": {
+      "animal": {
+        "type": "String"
+      },
+      "box": {
+        "type": "String"
+      }
+    }
+  },
+  "rehouseAnimalAction": "Tier umsetzen",
+  "animalAlreadyInBox": "Dieses Tier ist bereits der gescannten Box zugewiesen.",
+  "failedToRehouseAnimal": "Tier konnte nicht umgesetzt werden."
 }

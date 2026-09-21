@@ -802,5 +802,22 @@
         "type": "String"
       }
     }
-  }
+  },
+  "rehouseMode": "Rehouse Mode",
+  "scanNewBox": "Scan new Box",
+  "rehouseAnimalTitle": "Move Animal?",
+  "rehouseAnimalConfirmation": "Move {animal} to {box}?",
+  "@rehouseAnimalConfirmation": {
+    "placeholders": {
+      "animal": {
+        "type": "String"
+      },
+      "box": {
+        "type": "String"
+      }
+    }
+  },
+  "rehouseAnimalAction": "Move Animal",
+  "animalAlreadyInBox": "This Animal is already assigned to the scanned Box.",
+  "failedToRehouseAnimal": "Failed to move Animal."
 }

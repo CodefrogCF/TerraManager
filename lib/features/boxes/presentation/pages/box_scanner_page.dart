@@ -17,6 +17,8 @@ class BoxScannerPage extends StatefulWidget {
 
   final Future<void> Function()? stopScanner;
   final Future<void> Function()? startScanner;
+  final Future<bool> Function(Box box)? onBoxScanned;
+  final String? title;
 
   const BoxScannerPage({
     super.key,
@@ -24,6 +26,8 @@ class BoxScannerPage extends StatefulWidget {
     this.onHandlerReady,
     this.stopScanner,
     this.startScanner,
+    this.onBoxScanned,
+    this.title,
   });
 
   @override
@@ -113,6 +117,26 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
         return;
       }
 
+      if (widget.onBoxScanned != null) {
+        final closeScanner = await widget.onBoxScanned!(box);
+
+        if (!mounted) {
+          return;
+        }
+
+        if (closeScanner) {
+          Navigator.of(context).pop(true);
+        return;
+        }
+
+        setState(() {
+          _processing = false;
+        });
+
+        await _startScanner();
+        return;
+      }
+
       await Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => BoxDetailPage(database: widget.database, box: box),
@@ -163,7 +187,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.scanBoxTitle)),
+      appBar: AppBar(title: Text(widget.title ?? context.l10n.scanBoxTitle)),
       body: Column(
         children: [
           Expanded(

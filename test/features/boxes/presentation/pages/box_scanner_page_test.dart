@@ -80,6 +80,103 @@ void main() {
     expect(find.text('Box not found'), findsOneWidget);
   });
 
+  testWidgets('selection mode forwards scanned active Box to callback', (
+    tester,
+  ) async {
+    const qrId = 'TM:BOX:87654321-4321-4123-8123-cba987654321';
+
+    final boxId = await BoxRepository(database)
+        .createBox(qrId, name: 'Target Box');
+
+    late Future<void> Function(String) scan;
+
+    Box? scannedBox;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BoxScannerPage(
+          database: database,
+          onHandlerReady: (handler) {
+            scan = handler;
+          },
+          stopScanner: () async {},
+          startScanner: () async {},
+          onBoxScanned: (box) async {
+            scannedBox = box;
+
+            return false;
+          },
+        ),
+      ),
+    );
+
+    await tester.pump();
+
+    await scan(qrId);
+    await tester.pumpAndSettle();
+
+    expect(scannedBox, isNotNull);
+    expect(scannedBox!.id, boxId);
+    expect(scannedBox!.qrId, qrId);
+    expect(scannedBox!.name, 'Target Box');
+
+    expect(find.byType(BoxDetailPage), findsNothing);
+
+    // Returning false keeps the scanner open.
+    expect(find.byType(BoxScannerPage), findsOneWidget);
+  });
+
+  testWidgets('selection mode closes scanner when callback accepts Box', (
+    tester,
+  ) async {
+    const qrId = 'TM:BOX:abcdef12-3456-4789-8123-abcdef123456';
+
+    await BoxRepository(database).createBox(qrId);
+
+    late Future<void> Function(String) scan;
+
+    bool? result;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: ElevatedButton(
+                key: const Key('open-scanner-button'),
+                onPressed: () async {
+                  result = await Navigator.of(context).push<bool>(
+                    MaterialPageRoute<bool>(
+                      builder: (_) => BoxScannerPage(
+                        database: database,
+                        onHandlerReady: (handler) {
+                          scan = handler;
+                        },
+                        stopScanner: () async {},
+                        startScanner: () async {},
+                        onBoxScanned: (_) async => true,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Open Scanner'),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.tap(find.byKey(const Key('open-scanner-button')));
+    await tester.pumpAndSettle();
+
+    await scan(qrId);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BoxScannerPage), findsNothing);
+    expect(result, isTrue);
+  });
+
   testWidgets('opens box detail for known QR code', (tester) async {
     const qrId = 'TM:BOX:12345678-1234-4123-8123-123456789abc';
 

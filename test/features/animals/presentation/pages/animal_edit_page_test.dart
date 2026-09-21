@@ -14,6 +14,7 @@ import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/core/database/repositories/shedding_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_edit_page.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_scanner_page.dart';
 import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
 import 'package:terramanager/features/media/presentation/widgets/picture_selection_controls.dart';
 
@@ -1046,5 +1047,179 @@ void main() {
     expect(animal, isNotNull);
     expect(animal!.showWeightOnDetail, isFalse);
     expect(animal.showSheddingOnDetail, isFalse);
+  });
+
+  testWidgets('opens Rehouse Mode from Edit Animal Box field', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPageWithNavigation(tester, animalId: animalId);
+
+    final scanButton = find.byKey(const Key('rehouse-scan-button'));
+
+    expect(scanButton, findsOneWidget);
+
+    await tester.ensureVisible(scanButton);
+    await tester.tap(scanButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BoxScannerPage), findsOneWidget);
+    expect(find.text('Rehouse Mode'), findsOneWidget);
+  });
+
+  testWidgets('cancelling Rehouse confirmation keeps current Box', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal();
+
+    final targetBoxId = await BoxRepository(database).createBox(
+      'TM:BOX:11112222-3333-4444-8555-666677778888',
+      name: 'Target Box',
+    );
+
+    final targetBox = (await BoxRepository(database).getBoxById(targetBoxId))!;
+
+    final before = await AnimalRepository(database).getAnimalById(animalId);
+
+    await pumpPageWithNavigation(tester, animalId: animalId);
+
+    final scanButton = find.byKey(const Key('rehouse-scan-button'));
+
+    await tester.ensureVisible(scanButton);
+    await tester.tap(scanButton);
+    await tester.pumpAndSettle();
+
+    final scanner = tester.widget<BoxScannerPage>(find.byType(BoxScannerPage));
+
+    final callbackFuture = scanner.onBoxScanned!(targetBox);
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('rehouse-confirmation-dialog')),
+      findsOneWidget,
+    );
+
+    final dialog = find.byKey(const Key('rehouse-confirmation-dialog'));
+
+    expect(dialog, findsOneWidget);
+
+    expect(
+      find.descendant(of: dialog, matching: find.textContaining('Test Snake')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.descendant(of: dialog, matching: find.textContaining('Target Box')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('rehouse-cancel-button')));
+
+    await tester.pumpAndSettle();
+
+    final accepted = await callbackFuture;
+
+    expect(accepted, isFalse);
+
+    final after = await AnimalRepository(database).getAnimalById(animalId);
+
+    expect(after!.boxId, before!.boxId);
+
+    // Scanner remains open after cancelling.
+    expect(find.byType(BoxScannerPage), findsOneWidget);
+  });
+
+  testWidgets('confirming Rehouse moves Animal to scanned Box', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final sourceAnimal = await AnimalRepository(database)
+        .getAnimalById(animalId);
+
+    final targetBoxId = await BoxRepository(database).createBox(
+      'TM:BOX:99990000-1111-4222-8333-444455556666',
+      name: 'New Home',
+    );
+
+    final targetBox = (await BoxRepository(database).getBoxById(targetBoxId))!;
+
+    await pumpPageWithNavigation(tester, animalId: animalId);
+
+    final scanButton = find.byKey(const Key('rehouse-scan-button'));
+
+    await tester.ensureVisible(scanButton);
+    await tester.tap(scanButton);
+    await tester.pumpAndSettle();
+
+    final scanner = tester.widget<BoxScannerPage>(find.byType(BoxScannerPage));
+
+    final callbackFuture = scanner.onBoxScanned!(targetBox);
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('rehouse-confirmation-dialog')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('rehouse-confirm-button')));
+
+    await tester.pumpAndSettle();
+
+    final accepted = await callbackFuture;
+
+    expect(accepted, isTrue);
+
+    await tester.pumpAndSettle();
+
+    final movedAnimal = await AnimalRepository(database)
+        .getAnimalById(animalId);
+
+    expect(movedAnimal, isNotNull);
+    expect(movedAnimal!.boxId, targetBoxId);
+
+    // Ordinary Animal data remains unchanged.
+    expect(movedAnimal.commonName, sourceAnimal!.commonName);
+    expect(movedAnimal.latinName, sourceAnimal.latinName);
+    expect(movedAnimal.notes, sourceAnimal.notes);
+
+    // Edit page and scanner have closed after success.
+    expect(find.byType(AnimalEditPage), findsNothing);
+    expect(find.byType(BoxScannerPage), findsNothing);
+
+    // Back on the parent route from pumpPageWithNavigation().
+    expect(find.text('Open Edit'), findsOneWidget);
+  });
+
+  testWidgets('scanning current Box does not move Animal', (tester) async {
+    final animalId = await createTestAnimal();
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+
+    final currentBox = (await BoxRepository(database)
+        .getBoxById(animal!.boxId!))!;
+
+    await pumpPageWithNavigation(tester, animalId: animalId);
+
+    final scanButton = find.byKey(const Key('rehouse-scan-button'));
+
+    await tester.ensureVisible(scanButton);
+    await tester.tap(scanButton);
+    await tester.pumpAndSettle();
+
+    final scanner = tester.widget<BoxScannerPage>(find.byType(BoxScannerPage));
+
+    final accepted = await scanner.onBoxScanned!(currentBox);
+
+    await tester.pumpAndSettle();
+
+    expect(accepted, isFalse);
+
+    final unchanged = await AnimalRepository(database).getAnimalById(animalId);
+
+    expect(unchanged!.boxId, currentBox.id);
+
+    expect(find.byKey(const Key('rehouse-confirmation-dialog')), findsNothing);
+
+    expect(find.byType(BoxScannerPage), findsOneWidget);
   });
 }

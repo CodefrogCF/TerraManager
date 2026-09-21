@@ -426,6 +426,40 @@ class AnimalRepository {
     });
   }
 
+  Future<bool> moveAnimalToBox({
+    required int animalId,
+    required int boxId,
+  }) async {
+    return database.transaction(() async {
+      await _requireActiveBox(boxId);
+
+      final animal = await getAnimalById(animalId);
+
+      if (animal == null || animal.status != AnimalStatus.active) {
+        return false;
+      }
+
+      if (animal.boxId == boxId) {
+        return false;
+      }
+
+      final updatedRows =
+          await (database.update(database.animals)..where(
+                (row) =>
+                    row.id.equals(animalId) &
+                    row.status.equalsValue(AnimalStatus.active),
+              ))
+              .write(
+                AnimalsCompanion(
+                  boxId: Value(boxId),
+                  updatedAt: Value(DateTime.now()),
+                ),
+              );
+
+      return updatedRows == 1;
+    });
+  }
+
   Future<bool> updateFeedingReminder({
     required int animalId,
     required int? intervalDays,

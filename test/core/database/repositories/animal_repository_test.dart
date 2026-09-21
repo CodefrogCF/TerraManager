@@ -7,6 +7,7 @@ import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/database/enums/sex.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
+import 'package:terramanager/core/database/repositories/box_repository.dart';
 
 void main() {
   late AppDatabase database;
@@ -584,5 +585,68 @@ void main() {
       ),
       throwsArgumentError,
     );
+  });
+
+  test('moveAnimalToBox only changes Box assignment', () async {
+    final sourceBoxId = await BoxRepository(database).createBox('source-box');
+
+    final targetBoxId = await BoxRepository(database).createBox('target-box');
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: sourceBoxId,
+      commonName: 'Test Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+      notes: 'Keep me',
+      feedingReminderIntervalDays: 7,
+      feedingReminderBaseline: DateTime(2026, 9, 20),
+    );
+
+    final before = await AnimalRepository(database).getAnimalById(animalId);
+
+    final moved = await AnimalRepository(database)
+        .moveAnimalToBox(animalId: animalId, boxId: targetBoxId);
+
+    expect(moved, isTrue);
+
+    final after = await AnimalRepository(database).getAnimalById(animalId);
+
+    expect(after, isNotNull);
+    expect(after!.boxId, targetBoxId);
+
+    expect(after.commonName, before!.commonName);
+    expect(after.latinName, before.latinName);
+    expect(after.notes, before.notes);
+    expect(
+      after.feedingReminderIntervalDays,
+      before.feedingReminderIntervalDays,
+    );
+    expect(after.feedingReminderBaseline, before.feedingReminderBaseline);
+  });
+
+  test('moveAnimalToBox ignores the current Box', () async {
+    final boxId = await BoxRepository(database).createBox('same-box');
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Test Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final moved = await AnimalRepository(database)
+        .moveAnimalToBox(animalId: animalId, boxId: boxId);
+
+    expect(moved, isFalse);
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+
+    expect(animal!.boxId, boxId);
   });
 }

@@ -14,6 +14,7 @@ import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_history_page.dart';
 
 void main() {
   late AppDatabase database;
@@ -571,5 +572,19 @@ void main() {
 
     settingsController.dispose();
     await database.close();
+  });
+
+  testWidgets('archive button opens dedicated Box History', (tester) async {
+    await pumpPage(tester);
+
+    await tester.tap(find.byKey(const Key('box-archive-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BoxHistoryPage), findsOneWidget);
+
+    expect(find.text('Archived Boxes'), findsOneWidget);
+
+    expect(find.byKey(const Key('box-history-empty-state')), findsOneWidget);
   });
 }

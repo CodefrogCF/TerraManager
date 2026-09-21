@@ -6,9 +6,12 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/presentation/widgets/overview_context_menu.dart';
+import '../../../../core/sorting/archive_sorting.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
+import '../../../settings/app_settings_controller.dart';
+import '../../../settings/archive_sort_order.dart';
 import '../animal_display_names.dart';
 import '../animal_quick_action_dialogs.dart';
 import 'animal_detail_page.dart';
@@ -26,16 +29,19 @@ class AnimalHistoryPage extends StatefulWidget {
 
 class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
   late Future<List<Animal>> _animalsFuture;
+
   final Map<int, Future<MediaAsset?>> _pictureFutures = {};
 
   @override
   void initState() {
     super.initState();
+
     _loadAnimals();
   }
 
   void _loadAnimals() {
     _pictureFutures.clear();
+
     _animalsFuture = AnimalRepository(widget.database).getArchivedAnimals();
   }
 
@@ -68,24 +74,26 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
       return;
     }
 
-    setState(() {
-      _loadAnimals();
-    });
+    setState(_loadAnimals);
   }
 
   Future<void> _duplicateAnimal(Animal animal) async {
     List<Box> boxes;
+
     try {
       boxes = await BoxRepository(widget.database).getActiveBoxes();
     } catch (_) {
       if (mounted) {
         _showMessage(context.l10n.failedToLoadBoxes);
       }
+
       return;
     }
+
     if (!mounted) {
       return;
     }
+
     if (boxes.isEmpty) {
       await showDialog<void>(
         context: context,
@@ -101,6 +109,7 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
           ],
         ),
       );
+
       return;
     }
 
@@ -111,6 +120,7 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
         boxes: boxes,
       ),
     );
+
     if (!mounted || input == null) {
       return;
     }
@@ -121,9 +131,11 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
         boxId: input.boxId,
         commonName: input.commonName,
       );
+
       if (!mounted) {
         return;
       }
+
       Navigator.of(context).pop(true);
     } catch (_) {
       if (mounted) {
@@ -139,8 +151,51 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = AppSettingsScope.maybeOf(context);
+
+    final sortOrder =
+        settings?.animalArchiveSortOrder ??
+        ArchiveSortOrder.archivedNewestFirst;
+
     return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.animalHistory)),
+      appBar: AppBar(
+        title: Text(context.l10n.animalHistory),
+        actions: [
+          PopupMenuButton<ArchiveSortCriterion>(
+            key: const Key('animal-archive-sort-button'),
+            initialValue: sortOrder.criterion,
+            onSelected: (criterion) {
+              final selectedOrder = criterion == sortOrder.criterion
+                  ? sortOrder.reversed
+                  : criterion.defaultOrder;
+
+              settings?.setAnimalArchiveSortOrder(selectedOrder);
+            },
+            icon: const Icon(Icons.sort),
+            tooltip: context.l10n.sortArchivedAnimals,
+            itemBuilder: (context) {
+              return ArchiveSortCriterion.values.map((criterion) {
+                final isActive = criterion == sortOrder.criterion;
+
+                return CheckedPopupMenuItem<ArchiveSortCriterion>(
+                  key: Key(
+                    'animal-archive-sort-option-'
+                    '${criterion.name}',
+                  ),
+                  value: criterion,
+                  checked: isActive,
+                  child: Text(
+                    context.l10n.archiveSortCriterionMenuLabel(
+                      criterion,
+                      activeOrder: isActive ? sortOrder : null,
+                    ),
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<List<Animal>>(
         future: _animalsFuture,
         builder: (context, snapshot) {
@@ -152,7 +207,21 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final animals = snapshot.data ?? [];
+          final rawAnimals = snapshot.data ?? const <Animal>[];
+
+          final animals = sortArchivedRecords<Animal>(
+            rawAnimals,
+            sortOrder: sortOrder,
+            archivedAt: (animal) => animal.archivedAt,
+            displayName: (animal) {
+              return AnimalDisplayNames.fromContext(
+                context,
+                commonName: animal.commonName,
+                latinName: animal.latinName,
+              ).primary;
+            },
+            id: (animal) => animal.id,
+          );
 
           if (animals.isEmpty) {
             return Center(
@@ -162,9 +231,11 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
           }
 
           return ListView.builder(
+            key: const Key('animal-history-list'),
             itemCount: animals.length,
             itemBuilder: (context, index) {
               final animal = animals[index];
+
               final displayNames = AnimalDisplayNames.fromContext(
                 context,
                 commonName: animal.commonName,
@@ -172,9 +243,13 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
               );
 
               return OverviewContextMenu<_ArchivedAnimalAction>(
-                key: Key('archived-animal-context-menu-region-${animal.id}'),
+                key: Key(
+                  'archived-animal-context-menu-region-'
+                  '${animal.id}',
+                ),
                 menuButtonKey: Key(
-                  'archived-animal-context-menu-button-${animal.id}',
+                  'archived-animal-context-menu-button-'
+                  '${animal.id}',
                 ),
                 tooltip: context.l10n.animalActions(displayNames.primary),
                 onSelected: (_) {
@@ -193,12 +268,18 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
                   ),
                 ],
                 builder: (context, menuButton) => ListTile(
-                  key: Key('archived-animal-list-item-${animal.id}'),
+                  key: Key(
+                    'archived-animal-list-item-'
+                    '${animal.id}',
+                  ),
                   leading: FutureBuilder<MediaAsset?>(
                     future: _pictureFutureFor(animal.pictureMediaId),
                     builder: (context, pictureSnapshot) {
                       return MediaThumbnail(
-                        key: Key('archived-animal-thumbnail-${animal.id}'),
+                        key: Key(
+                          'archived-animal-thumbnail-'
+                          '${animal.id}',
+                        ),
                         pictureBytes: pictureSnapshot.data?.data,
                         picturePath: pictureSnapshot.data == null
                             ? animal.picturePath

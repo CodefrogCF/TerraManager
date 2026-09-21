@@ -6,6 +6,7 @@ import 'app_language.dart';
 import 'animal_name_order.dart';
 import 'animal_sort_order.dart';
 import 'box_sort_order.dart';
+import 'archive_sort_order.dart';
 
 class AppSettingsController extends ChangeNotifier {
   static const String _themeModeKey = 'theme_mode';
@@ -17,6 +18,9 @@ class AppSettingsController extends ChangeNotifier {
       'animal_category_view_enabled';
   static const String _bigPictureModeEnabledKey = 'big_picture_mode_enabled';
   static const String _boxSortOrderKey = 'box_sort_order';
+  static const String _animalArchiveSortOrderKey = 'animal_archive_sort_order';
+
+  static const String _boxArchiveSortOrderKey = 'box_archive_sort_order';
 
   ThemeMode _themeMode = ThemeMode.system;
   AppAccent _accent = AppAccent.green;
@@ -26,6 +30,10 @@ class AppSettingsController extends ChangeNotifier {
   bool _animalCategoryViewEnabled = false;
   bool _bigPictureModeEnabled = false;
   BoxSortOrder _boxSortOrder = BoxSortOrder.labelAscending;
+  ArchiveSortOrder _animalArchiveSortOrder =
+      ArchiveSortOrder.archivedNewestFirst;
+
+  ArchiveSortOrder _boxArchiveSortOrder = ArchiveSortOrder.archivedNewestFirst;
 
   ThemeMode get themeMode => _themeMode;
   AppAccent get accent => _accent;
@@ -35,6 +43,9 @@ class AppSettingsController extends ChangeNotifier {
   bool get animalCategoryViewEnabled => _animalCategoryViewEnabled;
   bool get bigPictureModeEnabled => _bigPictureModeEnabled;
   BoxSortOrder get boxSortOrder => _boxSortOrder;
+  ArchiveSortOrder get animalArchiveSortOrder => _animalArchiveSortOrder;
+
+  ArchiveSortOrder get boxArchiveSortOrder => _boxArchiveSortOrder;
 
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
@@ -76,6 +87,14 @@ class AppSettingsController extends ChangeNotifier {
         storedBoxSortOrder == 'createdNewestFirst') {
       await preferences.setString(_boxSortOrderKey, _boxSortOrder.name);
     }
+
+    _animalArchiveSortOrder = _parseArchiveSortOrder(
+      preferences.getString(_animalArchiveSortOrderKey),
+    );
+
+    _boxArchiveSortOrder = _parseArchiveSortOrder(
+      preferences.getString(_boxArchiveSortOrderKey),
+    );
 
     notifyListeners();
   }
@@ -165,6 +184,39 @@ class AppSettingsController extends ChangeNotifier {
     if (enableCategoryView) {
       await preferences.setBool(_animalCategoryViewEnabledKey, true);
     }
+  }
+
+  Future<void> setAnimalArchiveSortOrder(
+    ArchiveSortOrder archiveSortOrder,
+  ) async {
+    if (_animalArchiveSortOrder == archiveSortOrder) {
+      return;
+    }
+
+    _animalArchiveSortOrder = archiveSortOrder;
+
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+
+    await preferences.setString(
+      _animalArchiveSortOrderKey,
+      archiveSortOrder.name,
+    );
+  }
+
+  Future<void> setBoxArchiveSortOrder(ArchiveSortOrder archiveSortOrder) async {
+    if (_boxArchiveSortOrder == archiveSortOrder) {
+      return;
+    }
+
+    _boxArchiveSortOrder = archiveSortOrder;
+
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+
+    await preferences.setString(_boxArchiveSortOrderKey, archiveSortOrder.name);
   }
 
   Future<void> setAnimalCategoryViewEnabled(bool enabled) async {
@@ -271,6 +323,20 @@ class AppSettingsController extends ChangeNotifier {
     }
 
     return AnimalSortOrder.createdOldestFirst;
+  }
+
+  ArchiveSortOrder _parseArchiveSortOrder(String? value) {
+    if (value == null) {
+      return ArchiveSortOrder.archivedNewestFirst;
+    }
+
+    for (final order in ArchiveSortOrder.values) {
+      if (order.name == value) {
+        return order;
+      }
+    }
+
+    return ArchiveSortOrder.archivedNewestFirst;
   }
 
   Future<void> replaceSettings({

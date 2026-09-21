@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
@@ -13,6 +14,8 @@ import 'package:terramanager/features/animals/presentation/pages/animal_detail_p
 import 'package:terramanager/features/animals/presentation/pages/animal_history_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
+import 'package:terramanager/features/settings/app_settings_controller.dart';
+import 'package:terramanager/features/settings/archive_sort_order.dart';
 
 void main() {
   late AppDatabase database;
@@ -20,6 +23,8 @@ void main() {
   late BoxRepository boxRepository;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
+
     database = AppDatabase.test(NativeDatabase.memory());
 
     animalRepository = AnimalRepository(database);
@@ -73,6 +78,25 @@ void main() {
     );
 
     await tester.pumpAndSettle();
+  }
+
+  Future<AppSettingsController> pumpHistoryWithSettings(
+    WidgetTester tester,
+  ) async {
+    final settings = AppSettingsController();
+
+    await settings.load();
+
+    await tester.pumpWidget(
+      AppSettingsScope(
+        controller: settings,
+        child: MaterialApp(home: AnimalHistoryPage(database: database)),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    return settings;
   }
 
   testWidgets('animal overview opens empty history', (tester) async {
@@ -406,5 +430,144 @@ void main() {
     expect(find.text('Delete Me'), findsNothing);
 
     expect(find.text('No archived animals'), findsOneWidget);
+  });
+
+  testWidgets('sorts archived animals alphabetically '
+      'ascending and descending', (tester) async {
+    final boxId = await createBox(
+      'TM:BOX:56565656-aaaa-4565-8565-565656565656',
+    );
+
+    final tenId = await createAnimal(boxId: boxId, commonName: 'Animal 10');
+
+    final twoId = await createAnimal(boxId: boxId, commonName: 'Animal 2');
+
+    final oneId = await createAnimal(boxId: boxId, commonName: 'Animal 1');
+
+    await animalRepository.archiveAnimal(
+      animalId: tenId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    await animalRepository.archiveAnimal(
+      animalId: twoId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 2),
+    );
+
+    await animalRepository.archiveAnimal(
+      animalId: oneId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 3),
+    );
+
+    final settings = await pumpHistoryWithSettings(tester);
+
+    expect(
+      settings.animalArchiveSortOrder,
+      ArchiveSortOrder.archivedNewestFirst,
+    );
+
+    await tester.tap(find.byKey(const Key('animal-archive-sort-button')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('animal-archive-sort-option-name')));
+
+    await tester.pumpAndSettle();
+
+    expect(settings.animalArchiveSortOrder, ArchiveSortOrder.nameAscending);
+
+    expect(
+      tester
+          .getTopLeft(
+            find.byKey(
+              Key(
+                'archived-animal-list-item-'
+                '$oneId',
+              ),
+            ),
+          )
+          .dy,
+      lessThan(
+        tester
+            .getTopLeft(
+              find.byKey(
+                Key(
+                  'archived-animal-list-item-'
+                  '$twoId',
+                ),
+              ),
+            )
+            .dy,
+      ),
+    );
+
+    expect(
+      tester
+          .getTopLeft(
+            find.byKey(
+              Key(
+                'archived-animal-list-item-'
+                '$twoId',
+              ),
+            ),
+          )
+          .dy,
+      lessThan(
+        tester
+            .getTopLeft(
+              find.byKey(
+                Key(
+                  'archived-animal-list-item-'
+                  '$tenId',
+                ),
+              ),
+            )
+            .dy,
+      ),
+    );
+
+    final preferences = await SharedPreferences.getInstance();
+
+    expect(preferences.getString('animal_archive_sort_order'), 'nameAscending');
+
+    await tester.tap(find.byKey(const Key('animal-archive-sort-button')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('animal-archive-sort-option-name')));
+
+    await tester.pumpAndSettle();
+
+    expect(settings.animalArchiveSortOrder, ArchiveSortOrder.nameDescending);
+
+    expect(
+      tester
+          .getTopLeft(
+            find.byKey(
+              Key(
+                'archived-animal-list-item-'
+                '$tenId',
+              ),
+            ),
+          )
+          .dy,
+      lessThan(
+        tester
+            .getTopLeft(
+              find.byKey(
+                Key(
+                  'archived-animal-list-item-'
+                  '$twoId',
+                ),
+              ),
+            )
+            .dy,
+      ),
+    );
+
+    settings.dispose();
   });
 }

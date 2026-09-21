@@ -20,6 +20,7 @@ import 'box_detail_page.dart';
 import 'box_edit_page.dart';
 import 'box_scanner_page.dart';
 import 'new_box_page.dart';
+import 'box_history_page.dart';
 
 enum _BoxOverviewAction { rename, edit, duplicate, archive }
 
@@ -27,14 +28,12 @@ class BoxesPage extends StatefulWidget {
   final AppDatabase database;
   final VoidCallback? onFeedingChanged;
   final VoidCallback? onAnimalsChanged;
-  final bool showArchived;
 
   const BoxesPage({
     super.key,
     required this.database,
     this.onFeedingChanged,
     this.onAnimalsChanged,
-    this.showArchived = false,
   });
 
   @override
@@ -64,11 +63,7 @@ class _BoxesPageState extends State<BoxesPage> {
   void _loadBoxes() {
     _pictureFutures.clear();
 
-    final repository = BoxRepository(widget.database);
-
-    _boxesFuture = widget.showArchived
-        ? repository.getArchivedBoxes()
-        : repository.getActiveBoxes();
+    _boxesFuture = BoxRepository(widget.database).getActiveBoxes();
   }
 
   double _currentScrollOffset() {
@@ -283,11 +278,6 @@ class _BoxesPageState extends State<BoxesPage> {
         return;
       }
 
-      if (widget.showArchived && Navigator.of(context).canPop()) {
-        Navigator.of(context).pop(true);
-        return;
-      }
-
       await _reloadBoxesPreservingScroll(_currentScrollOffset());
 
       if (mounted) {
@@ -388,18 +378,18 @@ class _BoxesPageState extends State<BoxesPage> {
 
     await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
-        builder: (_) => BoxesPage(
+        builder: (_) => BoxHistoryPage(
           database: widget.database,
-          onFeedingChanged: widget.onFeedingChanged,
           onAnimalsChanged: widget.onAnimalsChanged,
-          showArchived: true,
         ),
       ),
     );
 
-    if (mounted) {
-      await _reloadBoxesPreservingScroll(previousOffset);
+    if (!mounted) {
+      return;
     }
+
+    await _reloadBoxesPreservingScroll(previousOffset);
   }
 
   Future<void> _openFeedingMode() {
@@ -417,29 +407,26 @@ class _BoxesPageState extends State<BoxesPage> {
     BuildContext context,
   ) {
     return [
-      if (!widget.showArchived) ...[
-        _boxMenuItem(
-          action: _BoxOverviewAction.rename,
-          icon: Icons.drive_file_rename_outline,
-          label: context.l10n.renameBox,
-        ),
-        _boxMenuItem(
-          action: _BoxOverviewAction.edit,
-          icon: Icons.edit_outlined,
-          label: context.l10n.editBox,
-        ),
-      ],
+      _boxMenuItem(
+        action: _BoxOverviewAction.rename,
+        icon: Icons.drive_file_rename_outline,
+        label: context.l10n.renameBox,
+      ),
+      _boxMenuItem(
+        action: _BoxOverviewAction.edit,
+        icon: Icons.edit_outlined,
+        label: context.l10n.editBox,
+      ),
       _boxMenuItem(
         action: _BoxOverviewAction.duplicate,
         icon: Icons.copy_outlined,
         label: context.l10n.duplicateBox,
       ),
-      if (!widget.showArchived)
-        _boxMenuItem(
-          action: _BoxOverviewAction.archive,
-          icon: Icons.archive_outlined,
-          label: context.l10n.archiveBox,
-        ),
+      _boxMenuItem(
+        action: _BoxOverviewAction.archive,
+        icon: Icons.archive_outlined,
+        label: context.l10n.archiveBox,
+      ),
     ];
   }
 
@@ -639,11 +626,7 @@ class _BoxesPageState extends State<BoxesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.showArchived
-              ? context.l10n.archivedBoxes
-              : context.l10n.navigationBoxes,
-        ),
+        title: Text(context.l10n.navigationBoxes),
         actions: [
           PopupMenuButton<BoxSortCriterion>(
             key: const Key('box-sort-button'),
@@ -675,26 +658,24 @@ class _BoxesPageState extends State<BoxesPage> {
               }).toList();
             },
           ),
-          if (!widget.showArchived) ...[
-            IconButton(
-              key: const Key('box-archive-button'),
-              onPressed: _openArchive,
-              icon: const Icon(Icons.inventory_2_outlined),
-              tooltip: context.l10n.archivedBoxes,
-            ),
-            IconButton(
-              key: const Key('scan-box-button'),
-              onPressed: _openScannerPage,
-              icon: const Icon(Icons.qr_code_scanner),
-              tooltip: context.l10n.scanBoxTitle,
-            ),
-            IconButton(
-              key: const Key('feeding-mode-button'),
-              onPressed: _openFeedingMode,
-              icon: const Icon(Icons.restaurant_menu),
-              tooltip: context.l10n.feedingModeTitle,
-            ),
-          ],
+          IconButton(
+            key: const Key('box-archive-button'),
+            onPressed: _openArchive,
+            icon: const Icon(Icons.inventory_2_outlined),
+            tooltip: context.l10n.archivedBoxes,
+          ),
+          IconButton(
+            key: const Key('scan-box-button'),
+            onPressed: _openScannerPage,
+            icon: const Icon(Icons.qr_code_scanner),
+            tooltip: context.l10n.scanBoxTitle,
+          ),
+          IconButton(
+            key: const Key('feeding-mode-button'),
+            onPressed: _openFeedingMode,
+            icon: const Icon(Icons.restaurant_menu),
+            tooltip: context.l10n.feedingModeTitle,
+          ),
         ],
       ),
       body: FutureBuilder<List<Box>>(
@@ -714,13 +695,7 @@ class _BoxesPageState extends State<BoxesPage> {
           );
 
           if (boxes.isEmpty) {
-            return Center(
-              child: Text(
-                widget.showArchived
-                    ? context.l10n.noArchivedBoxes
-                    : context.l10n.noBoxesAvailable,
-              ),
-            );
+            return Center(child: Text(context.l10n.noBoxesAvailable));
           }
 
           if (bigPictureModeEnabled) {
@@ -785,15 +760,13 @@ class _BoxesPageState extends State<BoxesPage> {
           );
         },
       ),
-      floatingActionButton: widget.showArchived
-          ? null
-          : FloatingActionButton(
-              heroTag: 'boxes-add-fab',
-              key: const Key('add-box-button'),
-              onPressed: _openNewBoxPage,
-              tooltip: context.l10n.addBox,
-              child: const Icon(Icons.add),
-            ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'boxes-add-fab',
+        key: const Key('add-box-button'),
+        onPressed: _openNewBoxPage,
+        tooltip: context.l10n.addBox,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

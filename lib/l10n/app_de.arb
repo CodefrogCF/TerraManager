@@ -635,5 +635,8 @@
   "sheddingDateTimeInFuture": "Datum und Uhrzeit der Häutung dürfen nicht in der Zukunft liegen.",
   "sheddingNotes": "Notizen",
   "latestShedding": "Letzte Häutung",
-  "noSheddingEventsAvailable": "Noch keine Häutungen erfasst."
+  "noSheddingEventsAvailable": "Noch keine Häutungen erfasst.",
+  "sortArchivedAnimals": "Archivierte Tiere sortieren",
+  "sortArchivedBoxes": "Archivierte Boxen sortieren",
+  "archiveSortNameCriterion": "Name"
 }

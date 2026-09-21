@@ -11,6 +11,7 @@ import '../features/settings/app_language.dart';
 import '../features/settings/animal_name_order.dart';
 import '../features/settings/animal_sort_order.dart';
 import '../features/settings/box_sort_order.dart';
+import '../features/settings/archive_sort_order.dart';
 import 'generated/app_localizations.dart';
 
 extension AppLocalizationsLabels on AppLocalizations {
@@ -243,6 +244,32 @@ extension AppLocalizationsLabels on AppLocalizations {
       AnimalSortOrder.ageYoungestFirst => sortDirectionYoungestFirst,
       AnimalSortOrder.categoryAscending => sortDirectionAscending,
       AnimalSortOrder.categoryDescending => sortDirectionDescending,
+    };
+
+    return sortCriterionWithDirection(criterionLabel, directionLabel);
+  }
+
+  String archiveSortCriterionMenuLabel(
+    ArchiveSortCriterion criterion, {
+    required ArchiveSortOrder? activeOrder,
+  }) {
+    final criterionLabel = switch (criterion) {
+      ArchiveSortCriterion.archivedAt => archiveDate,
+      ArchiveSortCriterion.name => archiveSortNameCriterion,
+    };
+
+    if (activeOrder == null) {
+      return criterionLabel;
+    }
+
+    final directionLabel = switch (activeOrder) {
+      ArchiveSortOrder.archivedNewestFirst => sortDirectionNewestFirst,
+
+      ArchiveSortOrder.archivedOldestFirst => sortDirectionOldestFirst,
+
+      ArchiveSortOrder.nameAscending => sortDirectionAscending,
+
+      ArchiveSortOrder.nameDescending => sortDirectionDescending,
     };
 
     return sortCriterionWithDirection(criterionLabel, directionLabel);

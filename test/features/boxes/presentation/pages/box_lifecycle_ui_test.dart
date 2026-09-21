@@ -219,7 +219,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Archived Boxes'), findsOneWidget);
       expect(find.byKey(const Key('add-box-button')), findsNothing);
-      await tester.tap(find.byKey(Key('box-list-item-$id')));
+      await tester.tap(find.byKey(Key('archived-box-list-item-$id')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('edit-box-button')), findsNothing);
       expect(find.byKey(const Key('box-archived-status')), findsOneWidget);

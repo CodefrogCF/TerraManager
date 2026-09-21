@@ -779,5 +779,8 @@
   "sheddingDateTimeInFuture": "The shedding date and time cannot be in the future.",
   "sheddingNotes": "Notes",
   "latestShedding": "Latest shedding",
-  "noSheddingEventsAvailable": "No shedding entries available."
+  "noSheddingEventsAvailable": "No shedding entries available.",
+  "sortArchivedAnimals": "Sort archived animals",
+  "sortArchivedBoxes": "Sort archived Boxes",
+  "archiveSortNameCriterion": "Name"
 }

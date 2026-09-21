@@ -13,8 +13,8 @@ import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/new_animal_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
-import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/domain/detail_navigation_context.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_history_page.dart';
 
 const _transparentPixelPng =
     'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+'
@@ -407,14 +407,14 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(home: BoxesPage(database: database, showArchived: true)),
+        MaterialApp(home: BoxHistoryPage(database: database)),
       );
 
       await tester.pumpAndSettle();
 
       expect(find.text('Box 1'), findsOneWidget);
 
-      await tester.tap(find.byKey(Key('box-list-item-${box.id}')));
+      await tester.tap(find.byKey(Key('archived-box-list-item-${box.id}')));
 
       await tester.pumpAndSettle();
 

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,6 +27,8 @@ void main() {
   late AppSettingsController settings;
 
   setUp(() async {
+    drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+
     SharedPreferences.setMockInitialValues({});
 
     source = AppDatabase.test(NativeDatabase.memory());
@@ -38,6 +40,8 @@ void main() {
   });
 
   tearDown(() async {
+    drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = false;
+
     settings.dispose();
 
     await source.close();
@@ -231,8 +235,8 @@ void main() {
         source.animals,
       )..where((animal) => animal.id.equals(animalId))).write(
         AnimalsCompanion(
-          sheddingNotes: const Value('  Legacy shedding note  '),
-          updatedAt: Value(legacyUpdatedAt),
+          sheddingNotes: const drift.Value('  Legacy shedding note  '),
+          updatedAt: drift.Value(legacyUpdatedAt),
         ),
       );
 

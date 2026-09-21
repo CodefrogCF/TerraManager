@@ -13,8 +13,9 @@ import 'package:terramanager/core/database/repositories/feeding_repository.dart'
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_history_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
-import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
+import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_history_page.dart';
 
 void main() {
   late AppDatabase database;
@@ -59,7 +60,6 @@ void main() {
 
   Future<void> pumpBoxes(
     WidgetTester tester, {
-    bool showArchived = false,
     Locale locale = const Locale('en'),
   }) async {
     await tester.pumpWidget(
@@ -67,9 +67,26 @@ void main() {
         locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: BoxesPage(database: database, showArchived: showArchived),
+        home: BoxesPage(database: database),
       ),
     );
+
+    await tester.pumpAndSettle();
+  }
+
+  Future<void> pumpBoxHistory(
+    WidgetTester tester, {
+    Locale locale = const Locale('en'),
+  }) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: BoxHistoryPage(database: database),
+      ),
+    );
+
     await tester.pumpAndSettle();
   }
 
@@ -374,8 +391,10 @@ void main() {
       archivedAt: DateTime(2026, 9, 14),
     );
 
-    await pumpBoxes(tester, showArchived: true);
-    await tester.tap(find.byKey(Key('box-context-menu-button-$boxId')));
+    await pumpBoxHistory(tester);
+    await tester.tap(
+      find.byKey(Key('archived-box-context-menu-button-$boxId')),
+    );
     await tester.pumpAndSettle();
     expect(find.text('Duplicate Box'), findsOneWidget);
     expect(find.text('Rename Box'), findsNothing);

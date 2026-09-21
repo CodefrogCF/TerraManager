@@ -24,6 +24,7 @@ import '../../../media/presentation/pages/picture_gallery_page.dart';
 import '../animal_display_names.dart';
 import '../widgets/animal_picture.dart';
 import '../shedding_entry_dialog.dart';
+import '../animal_restore_dialog.dart';
 import 'shedding_history_page.dart';
 import 'animal_edit_page.dart';
 import 'animal_weight_history_page.dart';
@@ -333,7 +334,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
     final selectedBoxId = await showDialog<int>(
       context: context,
-      builder: (_) => _RestoreAnimalDialog(boxes: boxes),
+      builder: (_) => RestoreAnimalDialog(boxes: boxes),
     );
 
     if (selectedBoxId == null || !mounted) {
@@ -1173,68 +1174,6 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     return value == value.roundToDouble()
         ? value.toInt().toString()
         : value.toString();
-  }
-}
-
-class _RestoreAnimalDialog extends StatefulWidget {
-  final List<Box> boxes;
-
-  const _RestoreAnimalDialog({required this.boxes});
-
-  @override
-  State<_RestoreAnimalDialog> createState() => _RestoreAnimalDialogState();
-}
-
-class _RestoreAnimalDialogState extends State<_RestoreAnimalDialog> {
-  int? _boxId;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      key: const Key('restore-animal-dialog'),
-      title: Text(context.l10n.restoreAnimal),
-      content: DropdownButtonFormField<int>(
-        key: const Key('restore-box-field'),
-        initialValue: _boxId,
-        isExpanded: true,
-        decoration: InputDecoration(labelText: context.l10n.assignToBox),
-        items: widget.boxes
-            .map(
-              (box) => DropdownMenuItem<int>(
-                value: box.id,
-                child: Text(
-                  context.l10n.boxLabel(box.id),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            )
-            .toList(),
-        onChanged: (value) {
-          setState(() {
-            _boxId = value;
-          });
-        },
-      ),
-      actions: [
-        TextButton(
-          key: const Key('cancel-restore-animal-button'),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text(context.l10n.cancel),
-        ),
-        FilledButton(
-          key: const Key('confirm-restore-animal-button'),
-          onPressed: _boxId == null
-              ? null
-              : () {
-                  Navigator.of(context).pop(_boxId);
-                },
-          child: Text(context.l10n.restore),
-        ),
-      ],
-    );
   }
 }
 

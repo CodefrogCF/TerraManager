@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/core/database/enums/box_archive_reason.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
@@ -292,6 +293,175 @@ void main() {
     expect(navigationContext.recordIds, [newestId, middleId, oldestId]);
     expect(navigationContext.currentRecordId, middleId);
     expect(navigationContext.currentIndex, 1);
+  });
+
+  testWidgets('archived Animal context menu exposes Restore and Duplicate', (
+    tester,
+  ) async {
+    final boxId = await createBox(
+      'TM:BOX:78787878-aaaa-4787-8787-787878787878',
+    );
+
+    final animalId = await createAnimal(
+      boxId: boxId,
+      commonName: 'Menu Animal',
+    );
+
+    await animalRepository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnimalHistoryPage(database: database)),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(Key('archived-animal-context-menu-button-$animalId')),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(Key('archived-animal-restore-action-$animalId')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(Key('archived-animal-duplicate-action-$animalId')),
+      findsOneWidget,
+    );
+
+    expect(find.text('Restore Animal'), findsOneWidget);
+    expect(find.text('Duplicate Animal'), findsOneWidget);
+  });
+
+  testWidgets('restores Animal directly from archive context menu', (
+    tester,
+  ) async {
+    final originalBoxId = await createBox(
+      'TM:BOX:89898989-aaaa-4898-8898-898989898989',
+    );
+
+    final targetBoxId = await createBox(
+      'TM:BOX:90909090-aaaa-4909-8909-909090909090',
+    );
+
+    final animalId = await createAnimal(
+      boxId: originalBoxId,
+      commonName: 'Context Restore Animal',
+    );
+
+    await animalRepository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.rehomed,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnimalHistoryPage(database: database)),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(Key('archived-animal-context-menu-button-$animalId')),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(Key('archived-animal-restore-action-$animalId')),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('restore-animal-dialog')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('restore-box-field')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Box $targetBoxId').last);
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('confirm-restore-animal-button')));
+
+    await tester.pumpAndSettle();
+
+    final animal = await animalRepository.getAnimalById(animalId);
+
+    expect(animal, isNotNull);
+    expect(animal!.boxId, targetBoxId);
+    expect(animal.archiveReason, isNull);
+    expect(animal.archivedAt, isNull);
+    expect(animal.archiveNotes, isNull);
+
+    expect(
+      find.byKey(Key('archived-animal-list-item-$animalId')),
+      findsNothing,
+    );
+
+    expect(find.byKey(const Key('animal-history-empty-state')), findsOneWidget);
+
+    expect(find.text('Animal restored'), findsOneWidget);
+  });
+
+  testWidgets('Animal archive Restore handles missing active Boxes', (
+    tester,
+  ) async {
+    final boxId = await createBox(
+      'TM:BOX:91919191-aaaa-4919-8919-919191919191',
+    );
+
+    final animalId = await createAnimal(
+      boxId: boxId,
+      commonName: 'No Restore Box Animal',
+    );
+
+    await animalRepository.archiveAnimal(
+      animalId: animalId,
+      reason: AnimalArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    await BoxRepository(database).archiveBox(
+      boxId: boxId,
+      reason: BoxArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 2),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(home: AnimalHistoryPage(database: database)),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(Key('archived-animal-context-menu-button-$animalId')),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byKey(Key('archived-animal-restore-action-$animalId')),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('restore-animal-no-boxes-dialog')),
+      findsOneWidget,
+    );
+
+    expect(
+      find.byKey(Key('archived-animal-list-item-$animalId')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('restored animal leaves history and returns to active overview', (

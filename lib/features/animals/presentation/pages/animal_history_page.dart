@@ -4,6 +4,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/presentation/widgets/overview_context_menu.dart';
 import '../../../../core/sorting/archive_sorting.dart';
@@ -14,9 +15,10 @@ import '../../../settings/app_settings_controller.dart';
 import '../../../settings/archive_sort_order.dart';
 import '../animal_display_names.dart';
 import '../animal_quick_action_dialogs.dart';
+import '../animal_restore_dialog.dart';
 import 'animal_detail_page.dart';
 
-enum _ArchivedAnimalAction { duplicate }
+enum _ArchivedAnimalAction { restore, duplicate }
 
 class AnimalHistoryPage extends StatefulWidget {
   final AppDatabase database;
@@ -75,6 +77,83 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
     }
 
     setState(_loadAnimals);
+  }
+
+  Future<void> _restoreAnimal(Animal animal) async {
+    List<Box> boxes;
+
+    try {
+      boxes = await BoxRepository(widget.database).getActiveBoxes();
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToLoadBoxes);
+      }
+
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    if (boxes.isEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            key: const Key('restore-animal-no-boxes-dialog'),
+            title: Text(context.l10n.noBoxesAvailableTitle),
+            content: Text(context.l10n.createBoxBeforeRestore),
+            actions: [
+              TextButton(
+                key: const Key('close-no-boxes-dialog-button'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(context.l10n.ok),
+              ),
+            ],
+          );
+        },
+      );
+
+      return;
+    }
+
+    final selectedBoxId = await showDialog<int>(
+      context: context,
+      builder: (_) => RestoreAnimalDialog(boxes: boxes),
+    );
+
+    if (!mounted || selectedBoxId == null) {
+      return;
+    }
+
+    try {
+      final restored = await AnimalRepository(widget.database)
+          .restoreAnimal(animalId: animal.id, boxId: selectedBoxId);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (!restored) {
+        _showMessage(context.l10n.failedToRestoreAnimal);
+        return;
+      }
+
+      setState(_loadAnimals);
+
+      _showMessage(context.l10n.animalRestored);
+    } on BoxAssignmentException {
+      if (mounted) {
+        _showMessage(context.l10n.boxUnavailableForAssignment);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToRestoreAnimal);
+      }
+    }
   }
 
   Future<void> _duplicateAnimal(Animal animal) async {
@@ -252,11 +331,34 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
                   '${animal.id}',
                 ),
                 tooltip: context.l10n.animalActions(displayNames.primary),
-                onSelected: (_) {
-                  _duplicateAnimal(animal);
+                onSelected: (action) {
+                  switch (action) {
+                    case _ArchivedAnimalAction.restore:
+                      _restoreAnimal(animal);
+                    case _ArchivedAnimalAction.duplicate:
+                      _duplicateAnimal(animal);
+                  }
                 },
                 itemBuilder: (context) => [
                   PopupMenuItem<_ArchivedAnimalAction>(
+                    key: Key(
+                      'archived-animal-restore-action-'
+                      '${animal.id}',
+                    ),
+                    value: _ArchivedAnimalAction.restore,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.restore, size: 20),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(context.l10n.restoreAnimal)),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<_ArchivedAnimalAction>(
+                    key: Key(
+                      'archived-animal-duplicate-action-'
+                      '${animal.id}',
+                    ),
                     value: _ArchivedAnimalAction.duplicate,
                     child: Row(
                       children: [

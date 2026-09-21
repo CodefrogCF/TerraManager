@@ -12,9 +12,10 @@ import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../settings/app_settings_controller.dart';
 import '../../../settings/archive_sort_order.dart';
 import '../box_quick_action_dialogs.dart';
+import '../box_lifecycle_dialogs.dart';
 import 'box_detail_page.dart';
 
-enum _ArchivedBoxAction { duplicate }
+enum _ArchivedBoxAction { restore, duplicate }
 
 class BoxHistoryPage extends StatefulWidget {
   final AppDatabase database;
@@ -93,6 +94,38 @@ class _BoxHistoryPageState extends State<BoxHistoryPage> {
     }
 
     setState(_loadBoxes);
+  }
+
+  Future<void> _restoreBox(Box box) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const RestoreBoxDialog(),
+    );
+
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    try {
+      final restored = await BoxRepository(widget.database).restoreBox(box.id);
+
+      if (!mounted) {
+        return;
+      }
+
+      if (!restored) {
+        _showMessage(context.l10n.failedToRestoreBox);
+        return;
+      }
+
+      setState(_loadBoxes);
+
+      _showMessage(context.l10n.boxRestored);
+    } catch (_) {
+      if (mounted) {
+        _showMessage(context.l10n.failedToRestoreBox);
+      }
+    }
   }
 
   Future<void> _duplicateBox(Box box) async {
@@ -231,11 +264,34 @@ class _BoxHistoryPageState extends State<BoxHistoryPage> {
                   '${box.id}',
                 ),
                 tooltip: context.l10n.boxActions(displayName),
-                onSelected: (_) {
-                  _duplicateBox(box);
+                onSelected: (action) {
+                  switch (action) {
+                    case _ArchivedBoxAction.restore:
+                      _restoreBox(box);
+                    case _ArchivedBoxAction.duplicate:
+                      _duplicateBox(box);
+                  }
                 },
                 itemBuilder: (context) => [
                   PopupMenuItem<_ArchivedBoxAction>(
+                    key: Key(
+                      'archived-box-restore-action-'
+                      '${box.id}',
+                    ),
+                    value: _ArchivedBoxAction.restore,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.restore, size: 20),
+                        const SizedBox(width: 8),
+                        Flexible(child: Text(context.l10n.restoreBox)),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<_ArchivedBoxAction>(
+                    key: Key(
+                      'archived-box-duplicate-action-'
+                      '${box.id}',
+                    ),
                     value: _ArchivedBoxAction.duplicate,
                     child: Row(
                       children: [

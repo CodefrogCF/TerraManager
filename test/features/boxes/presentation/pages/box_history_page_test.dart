@@ -166,6 +166,75 @@ void main() {
     settings.dispose();
   });
 
+  testWidgets('archived Box context menu exposes Restore and Duplicate', (
+    tester,
+  ) async {
+    final id = await createArchivedBox(
+      name: 'Menu Box',
+      reason: BoxArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    final settings = await pumpHistory(tester);
+
+    await tester.tap(find.byKey(Key('archived-box-context-menu-button-$id')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(Key('archived-box-restore-action-$id')), findsOneWidget);
+
+    expect(
+      find.byKey(Key('archived-box-duplicate-action-$id')),
+      findsOneWidget,
+    );
+
+    expect(find.text('Restore Box'), findsOneWidget);
+    expect(find.text('Duplicate Box'), findsOneWidget);
+
+    settings.dispose();
+  });
+
+  testWidgets('restores Box directly from archive context menu', (
+    tester,
+  ) async {
+    final id = await createArchivedBox(
+      name: 'Restore Box',
+      reason: BoxArchiveReason.replaced,
+      archivedAt: DateTime(2026, 9, 1),
+    );
+
+    final settings = await pumpHistory(tester);
+
+    await tester.tap(find.byKey(Key('archived-box-context-menu-button-$id')));
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(Key('archived-box-restore-action-$id')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('restore-box-dialog')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('confirm-restore-box-button')));
+
+    await tester.pumpAndSettle();
+
+    final box = await repository.getBoxById(id);
+
+    expect(box, isNotNull);
+    expect(box!.archiveReason, isNull);
+    expect(box.archivedAt, isNull);
+    expect(box.archiveNotes, isNull);
+
+    expect(find.byKey(Key('archived-box-list-item-$id')), findsNothing);
+
+    expect(find.byKey(const Key('box-history-empty-state')), findsOneWidget);
+
+    expect(find.text('Box restored'), findsOneWidget);
+
+    settings.dispose();
+  });
+
   testWidgets('sorts archived Boxes alphabetically '
       'ascending and descending', (tester) async {
     final tenId = await createArchivedBox(

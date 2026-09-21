@@ -263,6 +263,7 @@ void main() {
       animalSortOrder: AnimalSortOrder.latestFeedingNewestFirst,
       animalCategoryViewEnabled: true,
       boxSortOrder: BoxSortOrder.labelDescending,
+      nextFeedingSummaryEnabled: false,
     );
 
     expect(controller.themeMode, ThemeMode.dark);

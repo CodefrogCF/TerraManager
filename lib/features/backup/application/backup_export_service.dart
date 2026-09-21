@@ -44,6 +44,7 @@ class BackupExportService {
     AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
     AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
     bool animalCategoryViewEnabled = false,
+    bool nextFeedingSummaryEnabled = false,
     bool bigPictureModeEnabled = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
     DateTime? createdAt,
@@ -201,6 +202,7 @@ class BackupExportService {
       animalNameOrder: animalNameOrder,
       animalSortOrder: animalSortOrder,
       animalCategoryViewEnabled: animalCategoryViewEnabled,
+      nextFeedingSummaryEnabled: nextFeedingSummaryEnabled,
       bigPictureModeEnabled: bigPictureModeEnabled,
       boxSortOrder: boxSortOrder,
     );

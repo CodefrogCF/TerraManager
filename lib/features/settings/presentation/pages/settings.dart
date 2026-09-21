@@ -177,6 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
         animalSortOrder: settings.animalSortOrder,
         boxSortOrder: settings.boxSortOrder,
         animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
+        nextFeedingSummaryEnabled: settings.nextFeedingSummaryEnabled,
         bigPictureModeEnabled: settings.bigPictureModeEnabled,
       );
 
@@ -824,6 +825,19 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
 
           const SizedBox(height: 32),
+
+          SwitchListTile(
+            key: const Key('next-feeding-summary-switch'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(context.l10n.nextFeedingSummary),
+            subtitle: Text(context.l10n.nextFeedingSummaryDescription),
+            value: settings.nextFeedingSummaryEnabled,
+            onChanged: _operationBusy
+                ? null
+                : settings.setNextFeedingSummaryEnabled,
+          ),
+
+          const SizedBox(height: 16),
 
           SwitchListTile(
             key: const Key('big-picture-mode-switch'),

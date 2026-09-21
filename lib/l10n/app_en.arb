@@ -788,5 +788,19 @@
   "showWeightOnAnimalDetail": "Show weight on Animal Detail",
   "showWeightOnAnimalDetailDescription": "Show weight information and weight actions on the Animal Detail page.",
   "showSheddingOnAnimalDetail": "Show shedding on Animal Detail",
-  "showSheddingOnAnimalDetailDescription": "Show shedding information and shedding actions on the Animal Detail page."
+  "showSheddingOnAnimalDetailDescription": "Show shedding information and shedding actions on the Animal Detail page.",
+  "nextFeedingSummary": "Show next feeding",
+  "nextFeedingSummaryDescription": "Show the next upcoming feeding on the Animal Overview before an Animal becomes due.",
+  "nextFeeding": "Next feeding",
+  "nextFeedingSummaryForAnimal": "{animal}: {dateTime}",
+  "@nextFeedingSummaryForAnimal": {
+    "placeholders": {
+      "animal": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  }
 }

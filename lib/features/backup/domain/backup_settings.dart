@@ -5,6 +5,7 @@ class BackupSettings {
   final String animalNameOrder;
   final String animalSortOrder;
   final bool animalCategoryViewEnabled;
+  final bool nextFeedingSummaryEnabled;
   final bool bigPictureModeEnabled;
   final String boxSortOrder;
 
@@ -15,6 +16,7 @@ class BackupSettings {
     this.animalNameOrder = 'commonNameFirst',
     this.animalSortOrder = 'createdOldestFirst',
     this.animalCategoryViewEnabled = false,
+    this.nextFeedingSummaryEnabled = false,
     this.bigPictureModeEnabled = false,
     this.boxSortOrder = 'labelAscending',
   });
@@ -27,6 +29,7 @@ class BackupSettings {
       'animalNameOrder': animalNameOrder,
       'animalSortOrder': animalSortOrder,
       'animalCategoryViewEnabled': animalCategoryViewEnabled,
+      'nextFeedingSummaryEnabled': nextFeedingSummaryEnabled,
       'bigPictureModeEnabled': bigPictureModeEnabled,
       'boxSortOrder': boxSortOrder,
     };
@@ -46,6 +49,8 @@ class BackupSettings {
             'categoryAscending',
             'categoryDescending',
           }.contains(json['animalSortOrder']),
+      nextFeedingSummaryEnabled:
+          json['nextFeedingSummaryEnabled'] as bool? ?? false,
       bigPictureModeEnabled: json['bigPictureModeEnabled'] as bool? ?? false,
       boxSortOrder: json['boxSortOrder'] as String? ?? 'labelAscending',
     );

@@ -175,6 +175,7 @@ void main() {
       themeMode: ThemeMode.system,
       accent: AppAccent.green,
       animalSortOrder: AnimalSortOrder.categoryDescending,
+      nextFeedingSummaryEnabled: false,
     );
 
     expect(encoded.animalSortOrder, 'displayNameDescending');

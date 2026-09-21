@@ -100,18 +100,24 @@ class _AnimalsPageState extends State<AnimalsPage> {
       now: widget.reminderNow,
     );
 
-    final dueReminders = reminderService
-        .calculateReminderStates(
-          animals: animals,
-          latestFeedingTimes: latestFeedingTimes,
-        )
+    final reminderStates = reminderService.calculateReminderStates(
+      animals: animals,
+      latestFeedingTimes: latestFeedingTimes,
+    );
+
+    final dueReminders = reminderStates
         .where((state) => state.isDue)
         .toList(growable: false);
+
+    final nextUpcomingReminder = reminderService.nextUpcomingReminderState(
+      reminderStates,
+    );
 
     return _AnimalsOverviewData(
       animals: animals,
       latestFeedingTimes: latestFeedingTimes,
       dueReminders: dueReminders,
+      nextUpcomingReminder: nextUpcomingReminder,
     );
   }
 
@@ -506,6 +512,61 @@ class _AnimalsPageState extends State<AnimalsPage> {
     );
   }
 
+  Widget _buildNextFeedingSummary(
+    BuildContext context,
+    FeedingReminderState reminder,
+    List<Animal> animals,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final displayNames = AnimalDisplayNames.fromContext(
+      context,
+      commonName: reminder.animal.commonName,
+      latinName: reminder.animal.latinName,
+    );
+
+    return Card(
+      key: const Key('next-feeding-summary'),
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      child: InkWell(
+        key: const Key('next-feeding-summary-tap-target'),
+        onTap: () {
+          _openAnimalDetail(reminder.animal, animals);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.schedule_outlined, color: colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.l10n.nextFeeding,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.l10n.nextFeedingSummaryForAnimal(
+                        displayNames.primary,
+                        _formatDateTime(reminder.dueAt),
+                      ),
+                      key: const Key('next-feeding-summary-text'),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _openAnimalHistory() async {
     final previousOffset = _scrollController.hasClients
         ? _scrollController.offset
@@ -840,6 +901,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     required List<Animal> animals,
     required List<AnimalCategoryOverviewGroup>? categoryGroups,
     required List<FeedingReminderState> dueReminders,
+    required FeedingReminderState? nextUpcomingReminder,
     required Map<int, FeedingReminderState> dueRemindersByAnimalId,
   }) {
     return LayoutBuilder(
@@ -852,6 +914,18 @@ class _AnimalsPageState extends State<AnimalsPage> {
           slivers.add(
             SliverToBoxAdapter(
               child: _buildReminderSummary(context, dueReminders, animals),
+            ),
+          );
+        }
+
+        if (nextUpcomingReminder != null) {
+          slivers.add(
+            SliverToBoxAdapter(
+              child: _buildNextFeedingSummary(
+                context,
+                nextUpcomingReminder,
+                animals,
+              ),
             ),
           );
         }
@@ -949,9 +1023,15 @@ class _AnimalsPageState extends State<AnimalsPage> {
     required List<Animal> animals,
     required List<AnimalCategoryOverviewGroup>? categoryGroups,
     required List<FeedingReminderState> dueReminders,
+    required FeedingReminderState? nextUpcomingReminder,
     required Map<int, FeedingReminderState> dueRemindersByAnimalId,
   }) {
-    final hasReminderSummary = dueReminders.isNotEmpty;
+    final hasDueReminderSummary = dueReminders.isNotEmpty;
+
+    final hasNextFeedingSummary = nextUpcomingReminder != null;
+
+    final summaryCount =
+        (hasDueReminderSummary ? 1 : 0) + (hasNextFeedingSummary ? 1 : 0);
 
     final overviewEntries = categoryGroups == null
         ? animals.map(_AnimalOverviewListEntry.animal).toList(growable: false)
@@ -960,13 +1040,29 @@ class _AnimalsPageState extends State<AnimalsPage> {
     return ListView.builder(
       key: const PageStorageKey<String>('animals-overview-list'),
       controller: _scrollController,
-      itemCount: overviewEntries.length + (hasReminderSummary ? 1 : 0),
+      itemCount: overviewEntries.length + summaryCount,
       itemBuilder: (context, index) {
-        if (hasReminderSummary && index == 0) {
-          return _buildReminderSummary(context, dueReminders, animals);
+        var entryIndex = index;
+
+        if (hasDueReminderSummary) {
+          if (entryIndex == 0) {
+            return _buildReminderSummary(context, dueReminders, animals);
+          }
+
+          entryIndex--;
         }
 
-        final entryIndex = hasReminderSummary ? index - 1 : index;
+        if (hasNextFeedingSummary) {
+          if (entryIndex == 0) {
+            return _buildNextFeedingSummary(
+              context,
+              nextUpcomingReminder,
+              animals,
+            );
+          }
+
+          entryIndex--;
+        }
 
         final entry = overviewEntries[entryIndex];
 
@@ -1012,6 +1108,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
         settings?.animalNameOrder ?? AnimalNameOrder.commonNameFirst;
 
     final bigPictureModeEnabled = settings?.bigPictureModeEnabled ?? false;
+
+    final nextFeedingSummaryEnabled =
+        settings?.nextFeedingSummaryEnabled ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -1113,6 +1212,10 @@ class _AnimalsPageState extends State<AnimalsPage> {
           final dueReminders =
               data?.dueReminders ?? const <FeedingReminderState>[];
 
+          final nextUpcomingReminder = nextFeedingSummaryEnabled
+              ? data?.nextUpcomingReminder
+              : null;
+
           if (animals.isEmpty) {
             return Center(child: Text(context.l10n.noAnimalsAvailable));
           }
@@ -1127,6 +1230,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
               animals: animals,
               categoryGroups: categoryGroups,
               dueReminders: dueReminders,
+              nextUpcomingReminder: nextUpcomingReminder,
               dueRemindersByAnimalId: dueRemindersByAnimalId,
             );
           }
@@ -1136,6 +1240,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
             animals: animals,
             categoryGroups: categoryGroups,
             dueReminders: dueReminders,
+            nextUpcomingReminder: nextUpcomingReminder,
             dueRemindersByAnimalId: dueRemindersByAnimalId,
           );
         },
@@ -1172,11 +1277,13 @@ class _AnimalsOverviewData {
   final List<Animal> animals;
   final Map<int, DateTime> latestFeedingTimes;
   final List<FeedingReminderState> dueReminders;
+  final FeedingReminderState? nextUpcomingReminder;
 
   const _AnimalsOverviewData({
     required this.animals,
     required this.latestFeedingTimes,
     required this.dueReminders,
+    required this.nextUpcomingReminder,
   });
 }
 

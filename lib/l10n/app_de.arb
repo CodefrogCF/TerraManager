@@ -644,5 +644,19 @@
   "showWeightOnAnimalDetail": "Gewicht in Tierdetails anzeigen",
   "showWeightOnAnimalDetailDescription": "Gewichtsinformationen und Gewichtsaktionen in den Tierdetails anzeigen.",
   "showSheddingOnAnimalDetail": "Häutung in Tierdetails anzeigen",
-  "showSheddingOnAnimalDetailDescription": "Häutungsinformationen und Häutungsaktionen in den Tierdetails anzeigen."
+  "showSheddingOnAnimalDetailDescription": "Häutungsinformationen und Häutungsaktionen in den Tierdetails anzeigen.",
+  "nextFeedingSummary": "Nächste Fütterung anzeigen",
+  "nextFeedingSummaryDescription": "Zeigt die nächste bevorstehende Fütterung in der Tierübersicht an, bevor ein Tier fällig wird.",
+  "nextFeeding": "Nächste Fütterung",
+  "nextFeedingSummaryForAnimal": "{animal}: {dateTime}",
+  "@nextFeedingSummaryForAnimal": {
+    "placeholders": {
+      "animal": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
+    }
+  }
 }

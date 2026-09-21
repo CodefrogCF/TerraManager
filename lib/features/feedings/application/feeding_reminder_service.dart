@@ -70,6 +70,30 @@ class FeedingReminderService {
     );
   }
 
+  Future<FeedingReminderState?> getNextUpcomingReminderState() async {
+    final states = await getReminderStates();
+
+    for (final state in states) {
+      if (!state.isDue) {
+        return state;
+      }
+    }
+
+    return null;
+  }
+
+  FeedingReminderState? nextUpcomingReminderState(
+    Iterable<FeedingReminderState> states,
+  ) {
+    for (final state in states) {
+      if (!state.isDue) {
+        return state;
+      }
+    }
+
+    return null;
+  }
+
   Future<FeedingReminderState?> getReminderStateForAnimal(int animalId) async {
     final animal = await _animalRepository.getAnimalById(animalId);
 

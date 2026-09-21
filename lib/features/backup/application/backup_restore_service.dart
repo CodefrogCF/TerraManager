@@ -51,6 +51,9 @@ class BackupRestoreService {
     final previousAnimalCategoryViewEnabled =
         settingsController.animalCategoryViewEnabled;
 
+    final previousNextFeedingSummaryEnabled =
+        settingsController.nextFeedingSummaryEnabled;
+
     final previousBigPictureModeEnabled =
         settingsController.bigPictureModeEnabled;
 
@@ -78,6 +81,9 @@ class BackupRestoreService {
 
     final restoredAnimalCategoryViewEnabled =
         backup.settings.animalCategoryViewEnabled;
+
+    final restoredNextFeedingSummaryEnabled =
+        backup.settings.nextFeedingSummaryEnabled;
 
     final restoredBigPictureModeEnabled = backup.settings.bigPictureModeEnabled;
 
@@ -108,6 +114,7 @@ class BackupRestoreService {
           animalNameOrder: previousAnimalNameOrder,
           animalSortOrder: previousAnimalSortOrder,
           animalCategoryViewEnabled: previousAnimalCategoryViewEnabled,
+          nextFeedingSummaryEnabled: previousNextFeedingSummaryEnabled,
           bigPictureModeEnabled: previousBigPictureModeEnabled,
           boxSortOrder: previousBoxSortOrder,
         );
@@ -140,6 +147,7 @@ class BackupRestoreService {
         animalNameOrder: restoredAnimalNameOrder,
         animalSortOrder: restoredAnimalSortOrder,
         animalCategoryViewEnabled: restoredAnimalCategoryViewEnabled,
+        nextFeedingSummaryEnabled: restoredNextFeedingSummaryEnabled,
         bigPictureModeEnabled: restoredBigPictureModeEnabled,
         boxSortOrder: restoredBoxSortOrder,
       );
@@ -164,6 +172,7 @@ class BackupRestoreService {
           animalNameOrder: previousAnimalNameOrder,
           animalSortOrder: previousAnimalSortOrder,
           animalCategoryViewEnabled: previousAnimalCategoryViewEnabled,
+          nextFeedingSummaryEnabled: previousNextFeedingSummaryEnabled,
           bigPictureModeEnabled: previousBigPictureModeEnabled,
           boxSortOrder: previousBoxSortOrder,
         );

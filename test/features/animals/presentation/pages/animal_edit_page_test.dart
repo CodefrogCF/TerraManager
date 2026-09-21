@@ -46,6 +46,7 @@ void main() {
       latinName: 'Pantherophis guttatus',
       sex: sex,
       birthDate: DateTime(2024, 5, 10),
+      birthDateAccuracy: BirthDateAccuracy.yearKnown,
       tempMin: 24,
       tempMax: 28,
       humidityMin: 40,
@@ -891,5 +892,108 @@ void main() {
     expect(history, hasLength(1));
     expect(history.single.id, eventId);
     expect(history.single.notes, 'Existing shed');
+  });
+
+  testWidgets('shows birth date clear action only when a date is set', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPage(tester, animalId: animalId);
+
+    final clearButton = find.byKey(const Key('clear-birth-date-button'));
+
+    expect(clearButton, findsOneWidget);
+
+    await tester.ensureVisible(clearButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(clearButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('clear-birth-date-button')), findsNothing);
+
+    expect(find.text('Not specified'), findsOneWidget);
+  });
+
+  testWidgets('clearing birth date also clears birth date accuracy', (
+    tester,
+  ) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPage(tester, animalId: animalId);
+
+    final accuracyBefore = tester.widget<DropdownButton<BirthDateAccuracy?>>(
+      find.descendant(
+        of: find.byKey(const Key('birth-date-accuracy-field')),
+        matching: find.byType(DropdownButton<BirthDateAccuracy?>),
+      ),
+    );
+
+    expect(accuracyBefore.value, BirthDateAccuracy.yearKnown);
+
+    final clearButton = find.byKey(const Key('clear-birth-date-button'));
+
+    await tester.ensureVisible(clearButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(clearButton);
+    await tester.pumpAndSettle();
+
+    final accuracyAfter = tester.widget<DropdownButton<BirthDateAccuracy?>>(
+      find.descendant(
+        of: find.byKey(const Key('birth-date-accuracy-field')),
+        matching: find.byType(DropdownButton<BirthDateAccuracy?>),
+      ),
+    );
+
+    expect(accuracyAfter.value, isNull);
+    expect(accuracyAfter.onChanged, isNull);
+
+    expect(find.text('Not specified'), findsOneWidget);
+  });
+
+  testWidgets('persists cleared birth date and accuracy', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPageWithNavigation(tester, animalId: animalId);
+
+    final clearButton = find.byKey(const Key('clear-birth-date-button'));
+
+    await tester.ensureVisible(clearButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(clearButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Not specified'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('save-animal-button')));
+
+    await tester.pumpAndSettle();
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+
+    expect(animal, isNotNull);
+    expect(animal!.birthDate, isNull);
+    expect(animal.birthDateAccuracy, isNull);
+  });
+
+  testWidgets('existing birth date can still be replaced', (tester) async {
+    final animalId = await createTestAnimal();
+
+    await pumpPage(tester, animalId: animalId);
+
+    expect(find.text('10.05.2024'), findsOneWidget);
+
+    final birthDateButton = find.byKey(const Key('birth-date-button'));
+
+    await tester.ensureVisible(birthDateButton);
+    await tester.pumpAndSettle();
+
+    await tester.tap(birthDateButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(DatePickerDialog), findsOneWidget);
   });
 }

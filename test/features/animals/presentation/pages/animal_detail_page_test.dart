@@ -13,6 +13,7 @@ import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.d
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
 
 void main() {
   late AppDatabase database;
@@ -953,5 +954,64 @@ void main() {
 
     expect(restoredAnimal, isNotNull);
     expect(restoredAnimal!.boxId, secondBoxId);
+  });
+
+  testWidgets('does not show birth date after it was cleared', (tester) async {
+    await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'clear-birth-date-box'));
+
+    final repository = AnimalRepository(database);
+
+    final animalId = await repository.createAnimal(
+      boxId: 1,
+      commonName: 'No Birthday Snake',
+      latinName: 'Pantherophis guttatus',
+      birthDate: DateTime(2024, 5, 10),
+      birthDateAccuracy: BirthDateAccuracy.yearKnown,
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await repository.updateAnimal(
+      animalId: animalId,
+      boxId: 1,
+      commonName: 'No Birthday Snake',
+      latinName: 'Pantherophis guttatus',
+      category: AnimalCategory.other,
+      subcategory: null,
+      sex: Sex.unknown,
+      birthDate: null,
+      birthDateAccuracy: null,
+      tempMin: 24,
+      tempMax: 28,
+      nighttimeTemperatureMin: null,
+      nighttimeTemperatureMax: null,
+      humidityMin: 40,
+      humidityMax: 60,
+      originHabitat: null,
+      weight: null,
+      weightGrams: null,
+      sheddingNotes: null,
+      restOrDormancyPeriods: null,
+      pictureMediaId: null,
+      picturePath: null,
+      notes: null,
+      feedingReminderIntervalDays: null,
+      feedingReminderBaseline: null,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('10.05.2024'), findsNothing);
+    expect(find.text('Year known'), findsNothing);
   });
 }

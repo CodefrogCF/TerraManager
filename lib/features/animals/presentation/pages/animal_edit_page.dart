@@ -774,10 +774,23 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                       ? context.l10n.notSpecified
                       : _formatDate(_birthDate!),
                 ),
-                trailing: IconButton(
-                  key: const Key('birth-date-button'),
-                  icon: const Icon(Icons.calendar_today),
-                  onPressed: _actionInProgress ? null : _selectBirthDate,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_birthDate != null)
+                      IconButton(
+                        key: const Key('clear-birth-date-button'),
+                        tooltip: context.l10n.clearBirthDate,
+                        icon: const Icon(Icons.clear),
+                        onPressed: _actionInProgress ? null : _clearBirthDate,
+                      ),
+                    IconButton(
+                      key: const Key('birth-date-button'),
+                      tooltip: context.l10n.selectBirthDate,
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: _actionInProgress ? null : _selectBirthDate,
+                    ),
+                  ],
                 ),
               ),
               birthDateAccuracyField:
@@ -801,7 +814,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
                         ),
                       ),
                     ],
-                    onChanged: _actionInProgress
+                    onChanged: _actionInProgress || _birthDate == null
                         ? null
                         : (value) {
                             setState(() {
@@ -926,6 +939,18 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         _hasUnsavedChanges = true;
       });
     }
+  }
+
+  void _clearBirthDate() {
+    if (_birthDate == null || _actionInProgress) {
+      return;
+    }
+
+    setState(() {
+      _birthDate = null;
+      _birthDateAccuracy = null;
+      _hasUnsavedChanges = true;
+    });
   }
 
   String _formatDate(DateTime date) {

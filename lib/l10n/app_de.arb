@@ -638,5 +638,7 @@
   "noSheddingEventsAvailable": "Noch keine Häutungen erfasst.",
   "sortArchivedAnimals": "Archivierte Tiere sortieren",
   "sortArchivedBoxes": "Archivierte Boxen sortieren",
-  "archiveSortNameCriterion": "Name"
+  "archiveSortNameCriterion": "Name",
+  "clearBirthDate": "Geburtsdatum entfernen",
+  "selectBirthDate": "Geburtsdatum auswählen"
 }

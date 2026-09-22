@@ -1169,6 +1169,10 @@ void main() {
 
     expect(accepted, isTrue);
 
+    final scannerContext = tester.element(find.byType(BoxScannerPage));
+
+    Navigator.of(scannerContext).pop(true);
+
     await tester.pumpAndSettle();
 
     final movedAnimal = await AnimalRepository(database)
@@ -1177,16 +1181,13 @@ void main() {
     expect(movedAnimal, isNotNull);
     expect(movedAnimal!.boxId, targetBoxId);
 
-    // Ordinary Animal data remains unchanged.
     expect(movedAnimal.commonName, sourceAnimal!.commonName);
     expect(movedAnimal.latinName, sourceAnimal.latinName);
     expect(movedAnimal.notes, sourceAnimal.notes);
 
-    // Edit page and scanner have closed after success.
     expect(find.byType(AnimalEditPage), findsNothing);
     expect(find.byType(BoxScannerPage), findsNothing);
 
-    // Back on the parent route from pumpPageWithNavigation().
     expect(find.text('Open Edit'), findsOneWidget);
   });
 

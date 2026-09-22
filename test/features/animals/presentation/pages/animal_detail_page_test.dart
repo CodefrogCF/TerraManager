@@ -4,17 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
-import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
-import 'package:terramanager/core/database/enums/sex.dart';
+import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/shedding_repository.dart';
-import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
-import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
-import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
-import 'package:terramanager/l10n/generated/app_localizations.dart';
-import 'package:terramanager/core/database/enums/animal_category.dart';
 import 'package:terramanager/core/database/repositories/animal_weight_repository.dart';
+import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
+import 'package:terramanager/core/database/enums/animal_category.dart';
+import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
+import 'package:terramanager/core/database/enums/sex.dart';
+import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
+import 'package:terramanager/features/animals/presentation/pages/animal_edit_page.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_scanner_page.dart';
+import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
   late AppDatabase database;
@@ -141,14 +144,16 @@ void main() {
     expect(find.text('Nachttemperatur (°C)'), findsNothing);
   });
 
-  testWidgets('shows legacy missing sex as Unknown', (tester) async {
+  testWidgets('hides sex row when sex is unknown', (tester) async {
     final boxId = await database
         .into(database.boxes)
         .insert(BoxesCompanion.insert(qrId: 'test-box-001'));
+
     final animalId = await AnimalRepository(database).createAnimal(
       boxId: boxId,
       commonName: 'Unknown Snake',
       latinName: 'Serpentes',
+      sex: Sex.unknown,
       tempMin: 24,
       tempMax: 28,
       humidityMin: 40,
@@ -160,12 +165,47 @@ void main() {
         home: AnimalDetailPage(database: database, animalId: animalId),
       ),
     );
+
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Sex'), 200);
+    expect(find.byKey(const Key('animal-sex-detail')), findsNothing);
+  });
+
+  testWidgets('shows sex row when sex is known', (tester) async {
+    final boxId = await database
+        .into(database.boxes)
+        .insert(BoxesCompanion.insert(qrId: 'known-sex-box'));
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Female Snake',
+      latinName: 'Serpentes',
+      sex: Sex.female,
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
     await tester.pumpAndSettle();
-    expect(find.text('Sex'), findsOneWidget);
-    expect(find.text('Unknown'), findsOneWidget);
+
+    final sexRow = find.byKey(const Key('animal-sex-detail'));
+
+    await tester.scrollUntilVisible(sexRow, 200);
+    await tester.pumpAndSettle();
+
+    expect(sexRow, findsOneWidget);
+
+    expect(
+      find.descendant(of: sexRow, matching: find.text('Female')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('shows not found state for unknown animal', (tester) async {
@@ -1093,5 +1133,103 @@ void main() {
 
     expect(history, hasLength(1));
     expect(history.single.notes, 'Stored shedding event');
+  });
+
+  testWidgets('Rehouse returns to Animal Detail and shows new Box', (
+    tester,
+  ) async {
+    final sourceBoxId = await BoxRepository(database).createBox(
+      'TM:BOX:11111111-1111-4111-8111-111111111111',
+      name: 'Old Home',
+    );
+
+    final targetBoxId = await BoxRepository(database).createBox(
+      'TM:BOX:22222222-2222-4222-8222-222222222222',
+      name: 'New Home',
+    );
+
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: sourceBoxId,
+      commonName: 'Rehouse Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+
+    final targetBox = (await BoxRepository(database).getBoxById(targetBoxId))!;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AnimalDetailPage(database: database, animalId: animalId),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AnimalDetailPage), findsOneWidget);
+
+    expect(find.text('Old Home · Box $sourceBoxId'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('edit-animal-button')));
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AnimalEditPage), findsOneWidget);
+
+    final scanButton = find.byKey(const Key('rehouse-scan-button'));
+
+    await tester.ensureVisible(scanButton);
+    await tester.tap(scanButton);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BoxScannerPage), findsOneWidget);
+
+    final scanner = tester.widget<BoxScannerPage>(find.byType(BoxScannerPage));
+
+    final callbackFuture = scanner.onBoxScanned!(targetBox);
+
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const Key('rehouse-confirmation-dialog')),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byKey(const Key('rehouse-confirm-button')));
+
+    await tester.pumpAndSettle();
+
+    final accepted = await callbackFuture;
+
+    expect(accepted, isTrue);
+
+    // Emulate BoxScannerPage accepting the callback result.
+    final scannerContext = tester.element(find.byType(BoxScannerPage));
+
+    Navigator.of(scannerContext).pop(true);
+
+    await tester.pumpAndSettle();
+
+    // We must be back on exactly this Animal's detail route.
+    expect(find.byType(AnimalDetailPage), findsOneWidget);
+
+    expect(find.byType(AnimalEditPage), findsNothing);
+
+    expect(find.byType(BoxScannerPage), findsNothing);
+
+    final detailPage = tester.widget<AnimalDetailPage>(
+      find.byType(AnimalDetailPage),
+    );
+
+    expect(detailPage.animalId, animalId);
+
+    // Detail reload must immediately show the new Box.
+    expect(find.text('New Home · Box $targetBoxId'), findsOneWidget);
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+
+    expect(animal!.boxId, targetBoxId);
   });
 }

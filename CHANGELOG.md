@@ -4,6 +4,8 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [1.10.4] - 2026-09-22
+
 ## [1.10.3] - 2026-09-21
 
 ## [1.10.2] - 2026-09-21

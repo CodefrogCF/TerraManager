@@ -220,8 +220,6 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
       _hasUnsavedChanges = false;
 
-      Navigator.of(context).pop(true);
-
       return true;
     } on BoxAssignmentException {
       if (!mounted) {

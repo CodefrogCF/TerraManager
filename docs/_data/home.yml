@@ -32,25 +32,25 @@ de:
     eyebrow: Für eine Sammlung, die mitwächst
     heading: Weniger Listen. Mehr Überblick.
     body: Von der ersten Box bis zur umfangreichen Sammlung bleiben Tierdaten, Fütterungen und Medien schnell erreichbar. Klare Abläufe helfen im Alltag, ohne die Datenhoheit abzugeben.
-    features:
-      - icon: enclosure
-        title: Boxen im Blick
-        body: Verwalte Maße, Notizen, Temperaturzonen, Bilder und den Lebenszyklus jeder Box. QR-Codes führen direkt zum passenden Eintrag.
-      - icon: animal
-        title: Tierprofile mit Geschichte
-        body: Erfasse Taxonomie, Temperaturen und Haltungsinformationen sowie geordnete Bilder-, Fütterungs-, Gewichts- und Häutungsverläufe.
-      - icon: feeding
-        title: Fütterungen zur richtigen Zeit
-        body: Dokumentiere Fütterungen, aktiviere Erinnerungen, behalte fällige und bevorstehende Termine im Blick und aktualisiere mehrere Tiere über den QR-Fütterungsmodus.
-      - icon: backup
-        title: Portable Backups
-        body: Sichere Boxen, Tiere, Fütterungen, Einstellungen und Bilder in einer portablen Datei und stelle sie kontrolliert wieder her.
-      - icon: qr
-        title: QR-Codes für deine Boxen
-        body: Öffne Boxen, dokumentiere Gruppenfütterungen, setze Tiere um und exportiere ausgewählte Codes als PNG-Dateien, ZIP-Archiv oder druckfertige A4-PDF-Seiten.
-      - icon: gallery
-        title: Lokale Bildergalerien
-        body: Bewahre mehrere Bilder pro Tier und Box auf, lege das Hauptbild fest und öffne Details in der Vollbildansicht.
+  features:
+    - icon: enclosure
+      title: Boxen im Blick
+      body: Verwalte Maße, Notizen, Temperaturzonen, Bilder und den Lebenszyklus jeder Box. QR-Codes führen direkt zum passenden Eintrag.
+    - icon: animal
+      title: Tierprofile mit Geschichte
+      body: Erfasse Taxonomie, Temperaturen und Haltungsinformationen sowie geordnete Bilder-, Fütterungs-, Gewichts- und Häutungsverläufe.
+    - icon: feeding
+      title: Fütterungen zur richtigen Zeit
+      body: Dokumentiere Fütterungen, aktiviere Erinnerungen, behalte fällige und bevorstehende Termine im Blick und aktualisiere mehrere Tiere über den QR-Fütterungsmodus.
+    - icon: backup
+      title: Portable Backups
+      body: Sichere Boxen, Tiere, Fütterungen, Einstellungen und Bilder in einer portablen Datei und stelle sie kontrolliert wieder her.
+    - icon: qr
+      title: QR-Codes für deine Boxen
+      body: Öffne Boxen, dokumentiere Gruppenfütterungen, setze Tiere um und exportiere ausgewählte Codes als PNG-Dateien, ZIP-Archiv oder druckfertige A4-PDF-Seiten.
+    - icon: gallery
+      title: Lokale Bildergalerien
+      body: Bewahre mehrere Bilder pro Tier und Box auf, lege das Hauptbild fest und öffne Details in der Vollbildansicht.
   privacy:
     eyebrow: Datenschutz ist die Grundlage
     heading: Lokal gespeichert. Unter deiner Kontrolle.

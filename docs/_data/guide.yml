@@ -304,7 +304,7 @@ en:
           heading: Choose the overview presentation
           body_html: Enable <strong>Big Picture Mode</strong> when pictures should be the main focus of the enclosure and animal overviews. The setting also applies when animals are grouped by category and is restored through portable backups.
           images:
-            - file: animals-overview.webp                     // TODO: Add a screenshot of the Big Picture Mode setting
+            - file: animals-overview.webp                     #! TODO: Add a screenshot of the Big Picture Mode setting
               alt: Animal overview using large pictures
               caption: Optional Big Picture Mode
         - number: "4"
@@ -357,7 +357,7 @@ en:
           heading: Record shedding history
           body_html: Add timestamped shedding events from Animal details or Edit Animal. The history is ordered from newest to oldest, and every entry can have its own optional note. Existing entries can be corrected or permanently deleted after confirmation.
           images:
-            - file: animal-details.webp                     // TODO: Add a screenshot of the shedding history
+            - file: animal-details.webp                     #! TODO: Add a screenshot of the shedding history
               alt: Animal details with shedding actions
               caption: Timestamped shedding history
         - number: "9"

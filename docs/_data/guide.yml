@@ -47,165 +47,166 @@ de:
         target: backup
         title: Daten sichern
         body: Backup und Wiederherstellung
-    sections:
-      - id: start
-        number: "01"
-        eyebrow: Bestand anlegen
-        heading: Boxen und Tiere bilden die Grundlage
-        lead: Lege zuerst den realen Behälter als Box an. Danach erfasst du das Tier und weist ihm die passende Box zu.
-        heading_image:
-          file: box_detail.webp
-          alt: Detailansicht einer Box
-          caption: Boxdetailansicht
-        steps:
-          - number: "1"
-            heading: Box anlegen
-            body_html: Öffne <strong>Boxen</strong> und tippe auf <strong>+</strong>. Hinterlege einen Namen, Abmessungen, optional ein Bild und weitere Informationen. Nach dem Speichern erhält die Box automatisch eine eindeutige QR-Kennung.
-            note_html: "Tipp: Ein aussagekräftiges Bild erleichtert später die visuelle Zuordnung – besonders bei größeren Beständen."
-            images:
-              - file: boxes-overview.webp
-                alt: Boxübersicht mit mehreren Behältern
-                caption: Boxübersicht
-              - file: box-create.webp
-                alt: Maske zum Erstellen einer neuen Box
-                caption: Neue Box erstellen
-          - number: "2"
-            reverse: true
-            heading: Tier erfassen und zuweisen
-            body_html: Unter <strong>Tiere</strong> legst du den Tierdatensatz an und weist ihn einer aktiven Box zu. Zu den optionalen Angaben gehören Taxonomie, ein bekanntes Geschlecht, Geburtsinformationen, Tag- und Nachttemperaturen, Luftfeuchtigkeit, Herkunft, Gewicht, Ruhezeiten und Notizen.<br><br>Gewicht und Häutung können in den Tierdetails getrennt ein- oder ausgeblendet werden, ohne die zugehörigen Verläufe zu löschen. Ein vorhandenes Geburtsdatum lässt sich zusammen mit seiner Genauigkeitsangabe entfernen.
-            images:
-              - file: animal-edit.webp
-                alt: Bearbeitungsansicht eines Tieres
-                caption: Tier bearbeiten
-              - file: animal-details.webp
-                alt: Detailansicht eines Tieres
-                caption: Tierdetails
-          - number: "3"
-            heading: Darstellung der Übersichten wählen
-            body_html: Aktiviere den <strong>Großbildmodus</strong>, wenn Bilder in der Box- und Tierübersicht stärker im Mittelpunkt stehen sollen. Die Einstellung gilt auch für die nach Kategorien gruppierte Tieransicht und wird in portablen Backups gesichert.
-            images:
-              - file: animals-overview.webp
-                alt: Tierübersicht im Großbildmodus
-                caption: Optionaler Großbildmodus
-          - number: "4"
-            heading: Bilder fortlaufend ergänzen
-            body_html: Neben dem Hauptbild kannst du weitere Aufnahmen in der Galerie speichern. Ein Bild lässt sich jederzeit als primäres Bild auswählen, ohne die übrigen Aufnahmen zu entfernen.
-            images:
-              - file: gallery.webp
-                alt: Bildergalerie eines Tieres
-                caption: Bildergalerie
-      - id: qr
-        number: "02"
-        eyebrow: QR-Codes
-        heading: Physische Box und Datensatz direkt verbinden
-        lead: Jede Box besitzt einen eindeutigen QR-Code. Gedruckt am Behälter führt er beim Scannen direkt zum passenden Workflow.
-        tone: soft
-        steps:
-          - number: "5"
-            heading: Codes als PDF exportieren
-            body_html: Unter <strong>Einstellungen</strong> kannst du aktive Boxen auswählen und ihre QR-Codes gesammelt als druckfertige A4-PDF speichern. Die physische Größe der Codes lässt sich dabei festlegen.
-            images:
-              - file: qr-pdf-export.webp
-                alt: Dialog zum PDF-Export von Box-QR-Codes
-                caption: QR-Codes gesammelt als PDF exportieren
-          - number: "6"
-            reverse: true
-            heading: Anbringen und scannen
-            body_html: Bringe den Ausdruck am realen Terrarium oder Behälter an. Der integrierte Scanner löst den Code lokal auf. Derselbe Scanner kann eine Box öffnen, den Fütterungsmodus starten oder beim Bearbeiten eines Tieres eine aktive Zielbox auswählen. Der Umsetzmodus verlangt eine Bestätigung und lehnt unbekannte, archivierte oder bereits zugewiesene Boxen ab.
-            wide_images: true
-            images:
-              - file: qr-on-enclosure.webp
-                alt: QR-Code an einem Terrarium
-                caption: QR-Code am Behälter
-              - file: qr-scanner.webp
-                alt: QR-Scanner in TerraManager
-                caption: Integrierter Scanner
-      - id: feeding
-        number: "03"
-        eyebrow: Fütterungen
-        heading: Direkt dokumentieren – einzeln oder per Box-Scan
-        lead: Fütterungen werden mit Zeitpunkt sowie Futter beziehungsweise Menge gespeichert und bleiben chronologisch nachvollziehbar.
-        steps:
-          - number: "7"
-            heading: Fütterungshistorie
-            body_html: Die Historie zeigt bisherige Fütterungen eines Tieres. Vorhandene Einträge können korrigiert oder bei Fehleingaben gelöscht werden.
-            images:
-              - file: feeding-history.webp
-                alt: Fütterungshistorie eines Tieres
-                caption: Chronologische Fütterungshistorie
-          - number: "8"
-            reverse: true
-            heading: Schnelle Fütterung per Box-Scan
-            body_html: Scanne zuerst die Box. TerraManager zeigt anschließend die darin aktiven Tiere. Wähle ein oder mehrere tatsächlich gefütterte Tiere aus und speichere die Fütterung gemeinsam. Für jedes ausgewählte Tier entsteht ein eigener Eintrag.
-            note_html: <strong>Falsche Box gescannt?</strong> „Andere Box scannen“ führt zurück zum Scanner und dient zur Korrektur des versehentlichen Scans.
-            images:
-              - file: quick-feeding.webp
-                alt: Schnelle Fütterung nach einem Box-Scan
-                caption: Mehrere Tiere einer Box auswählen
-          - number: "9"
-            heading: Häutungen dokumentieren
-            body_html: Füge Häutungsereignisse mit Datum und Uhrzeit über die Tierdetails oder beim Bearbeiten eines Tieres hinzu. Die Häutungshistorie ist vom neuesten zum ältesten Eintrag geordnet. Jeder Eintrag kann eine eigene optionale Notiz enthalten und später korrigiert oder nach Bestätigung dauerhaft gelöscht werden.
-            images:
-              - file: animal-details.webp
-                alt: Tierdetails mit Aktionen für Häutungen
-                caption: Zeitlich geordnete Häutungshistorie
-      - id: reminders
-        number: "04"
-        eyebrow: Erinnerungen
-        heading: Individuelle Fütterungsrhythmen im Blick behalten
-        lead: Für jedes Tier kann ein eigenes Fütterungsintervall in Tagen aktiviert werden.
-        tone: soft
-        steps:
-          - number: "10"
-            heading: Intervall festlegen
-            body_html: Öffne das Erinnerungssymbol in den Tierdetails, aktiviere die Fütterungserinnerung und gib eine positive Anzahl ganzer Tage als Intervall an.
-            images:
-              - file: feeding-reminder-settings.webp
-                alt: Einstellungen für eine Fütterungserinnerung
-                caption: Individuelles Erinnerungsintervall
-          - number: "11"
-            reverse: true
-            heading: Fällige und bevorstehende Fütterungen erkennen
-            body_html: Erreicht oder überschreitet ein Tier den errechneten Termin, erscheint es als <strong>Fällig</strong>. Der Tiereintrag in der Hauptnavigation und die Tierübersicht weisen auf aktive Fälligkeiten hin. Eine optionale Einstellung kann zusätzlich die nächste bevorstehende Fütterung anzeigen, solange sie noch nicht fällig ist.
-            images:
-              - file: feeding-reminders-due.webp
-                alt: Tierübersicht mit mehreren fälligen Fütterungen
-                caption: Fällige Fütterungen zentral im Blick
-      - id: archive
-        number: "05"
-        eyebrow: Historie
-        heading: Archivieren statt Informationen verlieren
-        lead: Nicht mehr aktive Tiere und Boxen können aus dem aktiven Bestand entfernt werden, ohne ihre bisherigen Daten zu löschen.
-        steps:
-          - number: "12"
-            heading: Archivinformationen erhalten und wiederherstellen
-            body_html: Beim Archivieren können Grund, Datum und eine optionale Notiz hinterlegt werden. Tierhistorie und archivierte Boxen lassen sich in beiden Richtungen nach Archivdatum oder angezeigtem Namen sortieren. Über das Kontextmenü können archivierte Einträge direkt wiederhergestellt oder dupliziert werden.
-            note_html: „Dauerhaft löschen“ entfernt den Datensatz endgültig. Wenn historische Informationen weiterhin wichtig sind, ist die Archivierung die sicherere Wahl.
-            images:
-              - file: animal-history.webp
-                alt: Tierhistorie mit archivierten Tieren
-                caption: Sortierte Tierhistorie
-              - file: archived-boxes.webp
-                alt: Übersicht der archivierten Boxen
-                caption: Archivierte Boxen
-              - file: archive-details.webp
-                alt: Archivinformationen mit Wiederherstellungsaktion
-                caption: Archivdetails und Wiederherstellung
-      - id: backup
-        number: "06"
-        eyebrow: Datensicherung
-        heading: Regelmäßig sichern und kontrolliert wiederherstellen
-        lead: Mit wachsendem Bestand enthalten Backups Stammdaten, Bildergalerien, Fütterungen, Gewichts- und Häutungsverläufe, tierbezogene Anzeigeeinstellungen sowie portable Einstellungen für die Übersichten.
-        tone: dark
-        steps:
-          - number: "13"
-            heading: Safety Backup bei Wiederherstellung
-            body_html: Vor einer Wiederherstellung ist standardmäßig ein zusätzliches Safety Backup des aktuellen Zustands vorgesehen. Der Schutz ist als Opt-out ausgeführt und kann bewusst deaktiviert werden.
-            note_html: Solange das Safety Backup aktiviert bleibt, ist vor jeder Wiederherstellung keine separate manuelle Zwischensicherung erforderlich.
-            images:
-              - file: restore-safety-backup.webp
-                alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
-                caption: Safety Backup vor der Wiederherstellung
+  sections:
+    - id: start
+      number: "01"
+      eyebrow: Bestand anlegen
+      heading: Boxen und Tiere bilden die Grundlage
+      lead: Lege zuerst den realen Behälter als Box an. Danach erfasst du das Tier und weist ihm die passende Box zu.
+      heading_image:
+        file: box_detail.webp
+        alt: Detailansicht einer Box
+        caption: Boxdetailansicht
+      steps:
+        - number: "1"
+          heading: Box anlegen
+          body_html: Öffne <strong>Boxen</strong> und tippe auf <strong>+</strong>. Hinterlege einen Namen, Abmessungen, optional ein Bild und weitere Informationen. Nach dem Speichern erhält die Box automatisch eine eindeutige QR-Kennung.
+          note_html: "Tipp: Ein aussagekräftiges Bild erleichtert später die visuelle Zuordnung – besonders bei größeren Beständen."
+          images:
+            - file: boxes-overview.webp
+              alt: Boxübersicht mit mehreren Behältern
+              caption: Boxübersicht
+            - file: box-create.webp
+              alt: Maske zum Erstellen einer neuen Box
+              caption: Neue Box erstellen
+        - number: "2"
+          reverse: true
+          heading: Tier erfassen und zuweisen
+          body_html: Unter <strong>Tiere</strong> legst du den Tierdatensatz an und weist ihn einer aktiven Box zu. Zu den optionalen Angaben gehören Taxonomie, ein bekanntes Geschlecht, Geburtsinformationen, Tag- und Nachttemperaturen, Luftfeuchtigkeit, Herkunft, Gewicht, Ruhezeiten und Notizen.<br><br>Gewicht und Häutung können in den Tierdetails getrennt ein- oder ausgeblendet werden, ohne die zugehörigen Verläufe zu löschen. Ein vorhandenes Geburtsdatum lässt sich zusammen mit seiner Genauigkeitsangabe entfernen.
+          images:
+            - file: animal-edit.webp
+              alt: Bearbeitungsansicht eines Tieres
+              caption: Tier bearbeiten
+            - file: animal-details.webp
+              alt: Detailansicht eines Tieres
+              caption: Tierdetails
+        - number: "3"
+          heading: Darstellung der Übersichten wählen
+          body_html: Aktiviere den <strong>Großbildmodus</strong>, wenn Bilder in der Box- und Tierübersicht stärker im Mittelpunkt stehen sollen. Die Einstellung gilt auch für die nach Kategorien gruppierte Tieransicht und wird in portablen Backups gesichert.
+          images:
+            - file: animals-overview.webp
+              alt: Tierübersicht im Großbildmodus
+              caption: Optionaler Großbildmodus
+        - number: "4"
+          reverse: true
+          heading: Bilder fortlaufend ergänzen
+          body_html: Neben dem Hauptbild kannst du weitere Aufnahmen in der Galerie speichern. Ein Bild lässt sich jederzeit als primäres Bild auswählen, ohne die übrigen Aufnahmen zu entfernen.
+          images:
+            - file: gallery.webp
+              alt: Bildergalerie eines Tieres
+              caption: Bildergalerie
+    - id: qr
+      number: "02"
+      eyebrow: QR-Codes
+      heading: Physische Box und Datensatz direkt verbinden
+      lead: Jede Box besitzt einen eindeutigen QR-Code. Gedruckt am Behälter führt er beim Scannen direkt zum passenden Workflow.
+      tone: soft
+      steps:
+        - number: "5"
+          heading: Codes als PDF exportieren
+          body_html: Unter <strong>Einstellungen</strong> kannst du aktive Boxen auswählen und ihre QR-Codes gesammelt als druckfertige A4-PDF speichern. Die physische Größe der Codes lässt sich dabei festlegen.
+          images:
+            - file: qr-pdf-export.webp
+              alt: Dialog zum PDF-Export von Box-QR-Codes
+              caption: QR-Codes gesammelt als PDF exportieren
+        - number: "6"
+          reverse: true
+          heading: Anbringen und scannen
+          body_html: Bringe den Ausdruck am realen Terrarium oder Behälter an. Der integrierte Scanner löst den Code lokal auf. Derselbe Scanner kann eine Box öffnen, den Fütterungsmodus starten oder beim Bearbeiten eines Tieres eine aktive Zielbox auswählen. Der Umsetzmodus verlangt eine Bestätigung und lehnt unbekannte, archivierte oder bereits zugewiesene Boxen ab.
+          wide_images: true
+          images:
+            - file: qr-on-enclosure.webp
+              alt: QR-Code an einem Terrarium
+              caption: QR-Code am Behälter
+            - file: qr-scanner.webp
+              alt: QR-Scanner in TerraManager
+              caption: Integrierter Scanner
+    - id: feeding
+      number: "03"
+      eyebrow: Fütterungen
+      heading: Direkt dokumentieren – einzeln oder per Box-Scan
+      lead: Fütterungen werden mit Zeitpunkt sowie Futter beziehungsweise Menge gespeichert und bleiben chronologisch nachvollziehbar.
+      steps:
+        - number: "7"
+          heading: Fütterungshistorie
+          body_html: Die Historie zeigt bisherige Fütterungen eines Tieres. Vorhandene Einträge können korrigiert oder bei Fehleingaben gelöscht werden.
+          images:
+            - file: feeding-history.webp
+              alt: Fütterungshistorie eines Tieres
+              caption: Chronologische Fütterungshistorie
+        - number: "8"
+          reverse: true
+          heading: Schnelle Fütterung per Box-Scan
+          body_html: Scanne zuerst die Box. TerraManager zeigt anschließend die darin aktiven Tiere. Wähle ein oder mehrere tatsächlich gefütterte Tiere aus und speichere die Fütterung gemeinsam. Für jedes ausgewählte Tier entsteht ein eigener Eintrag.
+          note_html: <strong>Falsche Box gescannt?</strong> „Andere Box scannen“ führt zurück zum Scanner und dient zur Korrektur des versehentlichen Scans.
+          images:
+            - file: quick-feeding.webp
+              alt: Schnelle Fütterung nach einem Box-Scan
+              caption: Mehrere Tiere einer Box auswählen
+        - number: "9"
+          heading: Häutungen dokumentieren
+          body_html: Füge Häutungsereignisse mit Datum und Uhrzeit über die Tierdetails oder beim Bearbeiten eines Tieres hinzu. Die Häutungshistorie ist vom neuesten zum ältesten Eintrag geordnet. Jeder Eintrag kann eine eigene optionale Notiz enthalten und später korrigiert oder nach Bestätigung dauerhaft gelöscht werden.
+          images:
+            - file: animal-details.webp
+              alt: Tierdetails mit Aktionen für Häutungen
+              caption: Zeitlich geordnete Häutungshistorie
+    - id: reminders
+      number: "04"
+      eyebrow: Erinnerungen
+      heading: Individuelle Fütterungsrhythmen im Blick behalten
+      lead: Für jedes Tier kann ein eigenes Fütterungsintervall in Tagen aktiviert werden.
+      tone: soft
+      steps:
+        - number: "10"
+          heading: Intervall festlegen
+          body_html: Öffne das Erinnerungssymbol in den Tierdetails, aktiviere die Fütterungserinnerung und gib eine positive Anzahl ganzer Tage als Intervall an.
+          images:
+            - file: feeding-reminder-settings.webp
+              alt: Einstellungen für eine Fütterungserinnerung
+              caption: Individuelles Erinnerungsintervall
+        - number: "11"
+          reverse: true
+          heading: Fällige und bevorstehende Fütterungen erkennen
+          body_html: Erreicht oder überschreitet ein Tier den errechneten Termin, erscheint es als <strong>Fällig</strong>. Der Tiereintrag in der Hauptnavigation und die Tierübersicht weisen auf aktive Fälligkeiten hin. Eine optionale Einstellung kann zusätzlich die nächste bevorstehende Fütterung anzeigen, solange sie noch nicht fällig ist.
+          images:
+            - file: feeding-reminders-due.webp
+              alt: Tierübersicht mit mehreren fälligen Fütterungen
+              caption: Fällige Fütterungen zentral im Blick
+    - id: archive
+      number: "05"
+      eyebrow: Historie
+      heading: Archivieren statt Informationen verlieren
+      lead: Nicht mehr aktive Tiere und Boxen können aus dem aktiven Bestand entfernt werden, ohne ihre bisherigen Daten zu löschen.
+      steps:
+        - number: "12"
+          heading: Archivinformationen erhalten und wiederherstellen
+          body_html: Beim Archivieren können Grund, Datum und eine optionale Notiz hinterlegt werden. Tierhistorie und archivierte Boxen lassen sich in beiden Richtungen nach Archivdatum oder angezeigtem Namen sortieren. Über das Kontextmenü können archivierte Einträge direkt wiederhergestellt oder dupliziert werden.
+          note_html: „Dauerhaft löschen“ entfernt den Datensatz endgültig. Wenn historische Informationen weiterhin wichtig sind, ist die Archivierung die sicherere Wahl.
+          images:
+            - file: animal-history.webp
+              alt: Tierhistorie mit archivierten Tieren
+              caption: Sortierte Tierhistorie
+            - file: archived-boxes.webp
+              alt: Übersicht der archivierten Boxen
+              caption: Archivierte Boxen
+            - file: archive-details.webp
+              alt: Archivinformationen mit Wiederherstellungsaktion
+              caption: Archivdetails und Wiederherstellung
+    - id: backup
+      number: "06"
+      eyebrow: Datensicherung
+      heading: Regelmäßig sichern und kontrolliert wiederherstellen
+      lead: Mit wachsendem Bestand enthalten Backups Stammdaten, Bildergalerien, Fütterungen, Gewichts- und Häutungsverläufe, tierbezogene Anzeigeeinstellungen sowie portable Einstellungen für die Übersichten.
+      tone: dark
+      steps:
+        - number: "13"
+          heading: Safety Backup bei Wiederherstellung
+          body_html: Vor einer Wiederherstellung ist standardmäßig ein zusätzliches Safety Backup des aktuellen Zustands vorgesehen. Der Schutz ist als Opt-out ausgeführt und kann bewusst deaktiviert werden.
+          note_html: Solange das Safety Backup aktiviert bleibt, ist vor jeder Wiederherstellung keine separate manuelle Zwischensicherung erforderlich.
+          images:
+            - file: restore-safety-backup.webp
+              alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
+              caption: Safety Backup vor der Wiederherstellung
   finish:
     heading: Das war der Kernworkflow
     body: "Im Alltag reduziert sich TerraManager damit auf wenige wiederkehrende Schritte: Box identifizieren, Versorgung dokumentieren, Fälligkeiten prüfen und den gewachsenen Datenbestand regelmäßig sichern."
@@ -308,6 +309,7 @@ en:
               alt: Animal overview using large pictures
               caption: Optional Big Picture Mode
         - number: "4"
+          reverse: true
           heading: Keep adding pictures
           body_html: In addition to the primary picture, you can store more pictures in the gallery. Any picture can later be selected as the primary image without deleting the others.
           images:
@@ -354,6 +356,7 @@ en:
               alt: Animal feeding history
               caption: Chronological feeding history
         - number: "8"
+          reverse: true
           heading: Record shedding history
           body_html: Add timestamped shedding events from Animal details or Edit Animal. The history is ordered from newest to oldest, and every entry can have its own optional note. Existing entries can be corrected or permanently deleted after confirmation.
           images:
@@ -361,7 +364,6 @@ en:
               alt: Animal details with shedding actions
               caption: Timestamped shedding history
         - number: "9"
-          reverse: true
           heading: Quick feeding by enclosure scan
           body_html: Scan the enclosure first. TerraManager then shows the active animals assigned to it. Select one or more animals that were actually fed and save the feeding together. A separate feeding entry is created for each selected animal.
           note_html: <strong>Scanned the wrong enclosure?</strong> “Scan another enclosure” returns to the scanner so you can correct the accidental scan.
@@ -405,10 +407,10 @@ en:
             - file: animal-history.webp
               alt: Animal History with archived animals
               caption: Sorted Animal History
-            - file: archived-boxes.webp
-              alt: Enclosure History with archived enclosures
-              caption: Enclosure History
-            - file: archive-details.webp
+            #- file: archived-boxes.webp
+            #  alt: Enclosure History with archived enclosures
+            #  caption: Enclosure History
+            #- file: archive-details.webp
               alt: Archive information with restore action
               caption: Archive details and restore
     - id: backup

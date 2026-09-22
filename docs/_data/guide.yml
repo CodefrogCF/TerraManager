@@ -84,7 +84,7 @@ de:
           heading: Darstellung der Übersichten wählen
           body_html: Aktiviere den <strong>Großbildmodus</strong>, wenn Bilder in der Box- und Tierübersicht stärker im Mittelpunkt stehen sollen. Die Einstellung gilt auch für die nach Kategorien gruppierte Tieransicht und wird in portablen Backups gesichert.
           images:
-            - file: animals-overview.webp #! TODO: Add a screenshot of the big picture mode
+            - file: big-picture-mode.webp
               alt: Tierübersicht im Großbildmodus
               caption: Optionaler Großbildmodus
         - number: "4"
@@ -147,7 +147,7 @@ de:
           heading: Häutungen dokumentieren
           body_html: Füge Häutungsereignisse mit Datum und Uhrzeit über die Tierdetails oder beim Bearbeiten eines Tieres hinzu. Die Häutungshistorie ist vom neuesten zum ältesten Eintrag geordnet. Jeder Eintrag kann eine eigene optionale Notiz enthalten und später korrigiert oder nach Bestätigung dauerhaft gelöscht werden.
           images:
-            - file: animal-details.webp #! TODO: Add a screenshot of the shedding history
+            - file: shedding-history.webp
               alt: Tierdetails mit Aktionen für Häutungen
               caption: Zeitlich geordnete Häutungshistorie
     - id: reminders
@@ -305,7 +305,7 @@ en:
           heading: Choose the overview presentation
           body_html: Enable <strong>Big Picture Mode</strong> when pictures should be the main focus of the enclosure and animal overviews. The setting also applies when animals are grouped by category and is restored through portable backups.
           images:
-            - file: animals-overview.webp                     #! TODO: Add a screenshot of the Big Picture Mode setting
+            - file: big-picture-mode-en.webp
               alt: Animal overview using large pictures
               caption: Optional Big Picture Mode
         - number: "4"
@@ -360,7 +360,7 @@ en:
           heading: Record shedding history
           body_html: Add timestamped shedding events from Animal details or Edit Animal. The history is ordered from newest to oldest, and every entry can have its own optional note. Existing entries can be corrected or permanently deleted after confirmation.
           images:
-            - file: animal-details.webp                     #! TODO: Add a screenshot of the shedding history
+            - file: shedding-history-en.webp
               alt: Animal details with shedding actions
               caption: Timestamped shedding history
         - number: "9"

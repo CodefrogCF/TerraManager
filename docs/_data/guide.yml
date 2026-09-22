@@ -84,7 +84,7 @@ de:
           heading: Darstellung der Übersichten wählen
           body_html: Aktiviere den <strong>Großbildmodus</strong>, wenn Bilder in der Box- und Tierübersicht stärker im Mittelpunkt stehen sollen. Die Einstellung gilt auch für die nach Kategorien gruppierte Tieransicht und wird in portablen Backups gesichert.
           images:
-            - file: animals-overview.webp
+            - file: animals-overview.webp #! TODO: Add a screenshot of the big picture mode
               alt: Tierübersicht im Großbildmodus
               caption: Optionaler Großbildmodus
         - number: "4"
@@ -147,7 +147,7 @@ de:
           heading: Häutungen dokumentieren
           body_html: Füge Häutungsereignisse mit Datum und Uhrzeit über die Tierdetails oder beim Bearbeiten eines Tieres hinzu. Die Häutungshistorie ist vom neuesten zum ältesten Eintrag geordnet. Jeder Eintrag kann eine eigene optionale Notiz enthalten und später korrigiert oder nach Bestätigung dauerhaft gelöscht werden.
           images:
-            - file: animal-details.webp
+            - file: animal-details.webp #! TODO: Add a screenshot of the shedding history
               alt: Tierdetails mit Aktionen für Häutungen
               caption: Zeitlich geordnete Häutungshistorie
     - id: reminders
@@ -186,9 +186,9 @@ de:
             - file: animal-history.webp
               alt: Tierhistorie mit archivierten Tieren
               caption: Sortierte Tierhistorie
-            - file: archived-boxes.webp
-              alt: Übersicht der archivierten Boxen
-              caption: Archivierte Boxen
+            #- file: archived-boxes.webp
+            #  alt: Übersicht der archivierten Boxen
+            #  caption: Archivierte Boxen
             - file: archive-details.webp
               alt: Archivinformationen mit Wiederherstellungsaktion
               caption: Archivdetails und Wiederherstellung

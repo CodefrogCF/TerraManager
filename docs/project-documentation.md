@@ -28,7 +28,7 @@ Public project information:
 
 ## Project Status
 
-Current application version: **v1.10.1+75**.
+Current application version: **v1.10.4+78**.
 
 Validated release platforms:
 
@@ -39,7 +39,7 @@ iOS support remains planned but has not yet been validated.
 
 The current technical compatibility baseline is:
 
-- Database Schema Version 15
+- Database Schema Version 16
 - Portable Backup Format Version 2
 - permanent Android application ID `com.codefrog.terramanager`
 
@@ -55,9 +55,13 @@ Published changes are recorded in the
 
 ## Current Capabilities
 
-TerraManager provides local-first management for Boxes, Animals, feeding
-records, reminders, pictures, QR workflows, lifecycle history and portable
-backups.
+TerraManager provides local-first management for Boxes, Animals, feeding,
+weight and shedding histories, reminders, picture galleries, QR workflows,
+lifecycle archives and portable backups. The current overview workflows include
+optional large-picture presentation, while the archive workflows provide
+sorting, restoration and duplication for both Animals and Boxes. QR scanning
+supports Box lookup, grouped feeding and confirmed Animal reassignment without
+sending collection data to a remote service.
 
 The public homepage and user guides describe the current user-facing workflows:
 
@@ -152,7 +156,8 @@ compatibility.
 
 ## QR Architecture
 
-QR functionality is separated into reusable components.
+QR functionality is separated into reusable generation, export, validation and
+resolution components.
 
 ```text
 Box.qrId
@@ -162,9 +167,9 @@ Box.qrId
     ├── QrExporter
     │       │
     │       ▼
-    │    PNG bytes
+    │    PNG / ZIP / PDF bytes
     │       │
-    │       └── QrStorage
+    │       └── Platform save workflow
     │
     └── QR Scanner
             │
@@ -173,11 +178,19 @@ Box.qrId
             │
             ▼
        BoxRepository
+            │
+            ├── Open Box details
+            ├── Start Feeding Mode
+            └── Resolve an active destination for Rehouse Mode
 ```
 
-The QR image itself is not stored in the database.
-
-It is generated from the permanent qrId when needed.
+The QR image itself is not stored in the database. It is generated from the
+permanent qrId when needed.
+A Rehouse scan resolves the identifier locally and accepts only an existing
+active Box. The application asks for confirmation before the repository moves
+the active Animal. Unknown, archived and current Box identifiers are rejected.
+The reassignment is transactional and does not require a new permission or
+network connection.
 
 ## Technology Stack
 

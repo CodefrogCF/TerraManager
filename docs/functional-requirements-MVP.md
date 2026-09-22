@@ -55,6 +55,12 @@ The application must allow the user to:
 - identify a Box by QR code
 - preserve Box Overview scroll position after returning from related detail workflows
 - swipe between Box details using the ordering of the Box Overview
+- provide an optional Big Picture Mode in the Box Overview
+- persist Big Picture Mode between application restarts
+- show archived Boxes in a dedicated Box History view
+- sort Box History by archive date and displayed name in both directions
+- persist the selected Box History order locally
+- open Restore and Duplicate actions from an archived Box context menu
 
 The permanent QR identifier must remain unchanged when associated application
 data changes.
@@ -119,10 +125,10 @@ The application must allow the user to:
 - store preferred temperature values
 - store preferred humidity values
 - store optional birth information
-- store and display Male, Female or Unknown sex information
-- display legacy Animals without a stored sex value as Unknown
-- present sex and birth-date-accuracy choices as localized user-facing labels
-  without raw enum values
+- store Male, Female, Other or Unknown sex information
+- display explicit stored sex values as localized user-facing labels
+- omit the Sex row from Animal details when sex is absent or Unknown
+- preserve compatibility with legacy Animals without a stored sex value
 - archive an Animal without losing its data
 - select an archive reason and archive date
 - store an optional archive note
@@ -143,6 +149,26 @@ The application must allow the user to:
 - duplicate active or archived Animals into a selected active Box
 - assign every duplicate a new database ID and independent picture media
 - omit lifecycle metadata and FeedingEvents from Animal duplicates
+- provide an optional Big Picture Mode in flat and category-grouped Animal
+  Overview modes
+- persist Big Picture Mode between application restarts
+- show a due-feeding indicator on the primary Animals navigation item
+- optionally show the next upcoming, not-yet-due feeding in the Animal Overview
+- keep due reminders independent from the optional next-feeding summary
+- allow an existing birth date to be cleared
+- clear birth-date accuracy when the birth date is cleared
+- configure whether Weight information and actions are shown on Animal details
+- configure whether Shedding information and actions are shown on Animal
+  details
+- retain Weight and Shedding data when either detail section is hidden
+- sort Animal History by archive date and displayed name in both directions
+- persist the selected Animal History order locally
+- restore or duplicate an archived Animal from its context menu
+- reassign an active Animal by scanning the QR code of an active destination
+  Box from Edit Animal
+- require confirmation before QR-based reassignment
+- reject unknown, archived and current destination Boxes
+- perform QR-based reassignment atomically
 
 ## Legal Documents
 
@@ -302,6 +328,15 @@ Reminder presentation must be available in English and German, must not open a
 blocking dialog automatically and must not request system-notification
 permissions.
 
+When the optional next-feeding summary is enabled, the Animal Overview must
+show the earliest upcoming reminder that is still in the future. The summary
+must not replace, hide or delay active due reminders. Selecting the summary
+must open the corresponding Animal workflow.
+
+The primary Animals navigation item must indicate when at least one active
+Animal has a due feeding. The indicator is derived from the existing reminder
+calculation and must not require a system notification permission.
+
 ## QR Codes
 
 The application must allow the user to:
@@ -326,6 +361,10 @@ The application must allow the user to:
 - resolve a Feeding Mode scan to the Box's currently assigned active Animals
 - report invalid QR codes
 - report valid but unknown TerraManager QR identifiers
+- reuse the Box scanner from Edit Animal to select an active Rehouse destination
+- ask for confirmation before moving the Animal
+- reject the Animal's current Box, archived Boxes and unknown identifiers
+- preserve the current assignment when the operation fails or is cancelled
 
 The QR code must contain only the stable Box identifier.
 
@@ -364,6 +403,9 @@ The application must allow the user to:
   information
 - read the bundled Privacy Policy and complete application License offline
 - start individual, ZIP and A4 PDF Box QR export workflows
+- enable or disable Big Picture Mode
+- enable or disable the optional next-feeding summary
+- persist both settings between application restarts
 
 Appearance, language and overview-order settings must be included in portable
 TerraManager backups.
@@ -456,6 +498,13 @@ The application must allow the user to:
 - restore older backups without reminder fields with reminders disabled
 - restore older backups without Animal taxonomy as Other with no subcategory
 - reject unsupported or incompatible Animal taxonomy values before replacement
+- export and restore complete Animal shedding history
+- restore older Animal records without shedding history as an empty history
+- export and restore per-Animal Weight and Shedding detail visibility
+- restore missing detail-visibility fields as enabled
+- export and restore Big Picture Mode
+- export and restore the optional next-feeding-summary setting
+- restore missing Big Picture Mode and next-feeding-summary settings as disabled
 
 Backup Format Version 2 must support archives containing legacy PNG/JPEG media,
 normalized WebP media or both at the same time. Export and restore must preserve

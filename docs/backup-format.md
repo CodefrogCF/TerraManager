@@ -491,6 +491,9 @@ originHabitat
 weight
 weightHistory
 sheddingNotes
+sheddingHistory
+showWeightOnDetail
+showSheddingOnDetail
 restOrDormancyPeriods
 temperatureZones
 pictureMediaPath
@@ -535,7 +538,19 @@ Example active Animal:
       "measuredAt": "2026-09-08T12:00:00.000"
     }
   ],
-  "sheddingNotes": "Complete sheds",
+  "sheddingHistory": [
+    {
+      "id": 12,
+      "shedAt": "2026-09-18T18:30:00.000",
+      "notes": "Complete shed",
+      "createdAt": "2026-09-18T18:35:00.000",
+      "updatedAt": "2026-09-18T18:35:00.000"
+    }
+  ],
+  
+  "sheddingNotes": null,
+  "showWeightOnDetail": true,
+  "showSheddingOnDetail": true,
   "restOrDormancyPeriods": "Less active in winter",
   "temperatureZones": null,
   "pictureMediaPath": "media/animals/10.jpg",
@@ -585,6 +600,9 @@ Example archived Animal:
   "weight": null,
   "weightHistory": [],
   "sheddingNotes": null,
+  "sheddingHistory": [],
+  "showWeightOnDetail": true,
+  "showSheddingOnDetail": true,
   "restOrDormancyPeriods": null,
   "temperatureZones": null,
   "pictureMediaPath": null,
@@ -643,6 +661,55 @@ an unambiguous positive gram string such as `140 g` into one timestamped entry;
 ambiguous free-form text remains in the legacy field until it is replaced.
 Archiving retains the full list, and current duplication creates one new
 measurement rather than copying historical entries.
+
+### Shedding-History Fields
+
+TerraManager v1.10.0 adds a `sheddingHistory` list without changing Backup
+Format Version 2.
+
+Each entry contains:
+
+```text
+id
+shedAt
+notes
+createdAt
+updatedAt
+```
+
+`id` is a unique positive integer. `shedAt`, `createdAt` and `updatedAt` are ISO
+8601 timestamps. `notes` is either a string or `null`.
+
+A missing `sheddingHistory` field restores as an empty list. Archiving an Animal
+retains every shedding event. Permanently deleting the Animal removes its
+associated shedding history through the database relationship.
+
+Restore validates event IDs, timestamps, field types and Animal ownership.
+Duplicate event IDs, invalid timestamps and non-string notes are invalid
+application data.
+
+The legacy nullable `sheddingNotes` key remains accepted for compatibility.
+When no timestamped history is available, a compatible non-empty legacy value
+can be migrated to one event using the Animal's existing update timestamp. New
+exports, Animal creation and duplication do not create new free-form shedding
+notes.
+
+### Animal Detail-Visibility Fields
+
+TerraManager v1.10.2 adds two optional Boolean fields to Animal backup records:
+
+```text
+showWeightOnDetail
+showSheddingOnDetail
+```
+
+Current exports always write both fields. A missing field in an older Version 1
+or Version 2 backup restores as `true`, preserving the detail presentation used
+before these preferences existed.
+
+A present non-Boolean value is invalid application data. The values affect only
+Animal-detail presentation. They do not remove Weight or Shedding history from
+the backup.
 
 ### Animal Taxonomy Fields
 
@@ -1029,15 +1096,34 @@ TerraManager v1.9.1 adds another optional field:
 animalCategoryViewEnabled
 ```
 
+TerraManager v1.10.0 adds the optional field:
+
+```text
+bigPictureModeEnabled
+```
+
+TerraManager v1.10.2 adds the optional field:
+
+```text
+nextFeedingSummaryEnabled
+```
+
 These additive fields remain part of Backup Format Version 2. Older Version 1
 and Version 2 backups without these optional settings remain compatible.
-Missing `language` uses the System language, while missing `animalNameOrder`
-uses common name first, missing `boxSortOrder` uses ascending Box number and
-missing `animalSortOrder` uses oldest-created Animal first. A missing
-`animalCategoryViewEnabled` value uses the flat view unless the backup contains
-a legacy Category sort value.
+Missing values use the following defaults:
 
-Example:
+```text
+language = system
+animalNameOrder = commonNameFirst
+boxSortOrder = labelAscending
+animalSortOrder = createdOldestFirst
+animalCategoryViewEnabled = false
+bigPictureModeEnabled = false
+nextFeedingSummaryEnabled = false
+```
+
+A legacy Category sort value enables category grouping while it is migrated to
+the corresponding displayed-name order.
 
 ```json
 {
@@ -1047,6 +1133,8 @@ Example:
   "animalNameOrder": "latinNameFirst",
   "animalSortOrder": "latestFeedingOldestFirst",
   "animalCategoryViewEnabled": true,
+  "bigPictureModeEnabled": true,
+  "nextFeedingSummaryEnabled": true,
   "boxSortOrder": "labelDescending"
 }
 ```
@@ -1162,6 +1250,38 @@ which enables the grouped view during migration. A present non-Boolean value is
 invalid. The setting affects presentation only and does not change stored
 Animal taxonomy or Backup Format Version 2.
 
+## Big Picture Mode Setting
+
+The optional Boolean `bigPictureModeEnabled` field controls the large-picture
+presentation used by Box and Animal overviews. It applies to flat and
+category-grouped Animal views.
+
+If the field is absent, restore uses `false`. A present non-Boolean value is
+invalid. The setting affects presentation only and does not change stored
+pictures, picture associations, taxonomy or overview ordering.
+
+## Next Feeding Summary Setting
+
+The optional Boolean `nextFeedingSummaryEnabled` field controls whether the
+Animal Overview displays the next upcoming feeding for an active Animal with an
+enabled reminder.
+
+If the field is absent, restore uses `false`. A present non-Boolean value is
+invalid. The setting does not change reminder configuration, calculated due
+timestamps or FeedingEvents.
+
+Due reminders remain visible according to their existing rules regardless of
+this optional summary setting.
+
+## Device-Local Archive Sort Settings
+
+Animal History and Box History sort preferences are stored locally as
+presentation preferences. They are not included in Portable Backup Format
+Version 2.
+
+Restoring a backup therefore does not overwrite the archive order selected on
+the current installation.
+
 ## Stable Box Sort-Order Values
 
 The optional Box sort-order field defines:
@@ -1206,6 +1326,12 @@ Validation includes at least:
 - valid lifecycle combinations
 - valid Animal category and subcategory combinations
 - referenced media files exist
+- valid `sheddingHistory` lists and event ownership
+- unique SheddingEvent IDs
+- valid SheddingEvent timestamps and optional notes
+- Boolean Animal detail-visibility fields when present
+- Boolean Big Picture Mode setting when present
+- Boolean next-feeding-summary setting when present
 
 Validation must complete successfully before existing TerraManager data is
 modified.
@@ -1572,7 +1698,14 @@ data.json
 
 settings.json
 ├── themeMode
-└── accent
+├── accent
+├── language (optional; exported by TerraManager 0.10.0 and later)
+├── animalNameOrder (optional; exported by TerraManager 0.11.0 and later)
+├── animalSortOrder (optional; exported by TerraManager 0.13.4 and later)
+├── animalCategoryViewEnabled (optional; exported by TerraManager v1.9.1 and later)
+├── bigPictureModeEnabled (optional; exported by TerraManager v1.10.0 and later)
+├── nextFeedingSummaryEnabled (optional; exported by TerraManager v1.10.2 and later)
+└── boxSortOrder (optional; exported by TerraManager 0.13.3 and later)
 
 media/
 └── animals/
@@ -1655,6 +1788,10 @@ Version 2 preserves:
   portable media references
 - appearance settings and optional language, Animal name-order, Animal
   sort-order and Box sort-order settings
+- timestamped Animal shedding history with legacy free-form note compatibility
+- per-Animal Weight and Shedding detail-visibility preferences
+- optional Big Picture Mode
+- optional next-feeding summary
 
 Version 2 excludes:
 
@@ -1698,3 +1835,13 @@ Version 2.
 
 Applications that support only Version 1 must reject Version 2 backups rather
 than silently restore them while discarding Version 2 Box data.
+
+Backups created before TerraManager v1.10.0 do not contain
+`bigPictureModeEnabled` or `sheddingHistory`. Missing Big Picture Mode uses
+`false`, and missing shedding history restores as an empty list before any
+compatible legacy shedding-note migration is applied.
+
+Backups created before TerraManager v1.10.2 do not contain
+`showWeightOnDetail`, `showSheddingOnDetail` or
+`nextFeedingSummaryEnabled`. Missing detail-visibility fields restore as
+`true`, while the missing next-feeding-summary setting restores as `false`.

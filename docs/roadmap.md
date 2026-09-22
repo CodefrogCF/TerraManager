@@ -4,11 +4,11 @@
 
 Latest completed release milestone:
 
-**v1.7.2 – Media Galleries**
+**v1.10.4 – Animal Detail & Rehouse Fixes**
 
 Current application version and build:
 
-**v1.7.2+66**
+**v1.10.4+78**
 
 Completed development areas:
 
@@ -124,6 +124,16 @@ Completed development areas:
 - linked assigned-Box labels on Animal details
 - alphabetical Box sorting with unnamed Boxes last in both directions
 - persistent Box volume sorting with incomplete dimensions last
+- optional Big Picture Mode for Box and Animal overviews
+- primary-navigation due-feeding indication
+- timestamped Animal shedding history
+- symmetric Animal and Box archive history workflows
+- persistent archive sorting
+- direct archive Restore and Duplicate actions
+- per-Animal Weight and Shedding detail visibility
+- optional next-feeding summary
+- QR-based Animal Rehouse Mode
+- local transactional Animal reassignment
 
 v0.7.1 implementation and release validation are complete.
 
@@ -275,6 +285,8 @@ dividers. Backup Format Version 2 and device permissions remain unchanged.
 
 ## v0.1.0 – Foundation
 
+Status: **Completed**
+
 ### Database
 
 - [x] Define box data model
@@ -295,6 +307,8 @@ dividers. Backup Format Version 2 and device permissions remain unchanged.
 
 ## v0.2.0 – User Interface
 
+Status: **Completed**
+
 - [x] Basic application navigation
 - [x] Box overview
 - [x] Box detail screen
@@ -311,6 +325,8 @@ dividers. Backup Format Version 2 and device permissions remain unchanged.
 
 ## v0.3.0 – QR Code
 
+Status: **Completed**
+
 - [x] Generate unique QR IDs
 - [x] Generate QR codes
 - [x] Export QR codes as PNG
@@ -324,6 +340,8 @@ dividers. Backup Format Version 2 and device permissions remain unchanged.
 ---
 
 ## v0.4.0 – Platform Support
+
+Status: **Completed**
 
 ### Android
 
@@ -369,6 +387,8 @@ iOS validation is currently deferred because no macOS development environment or
 ---
 
 ## v0.5.0 – Usability & Settings
+
+Status: **Completed**
 
 ### Box Detail Improvements
 
@@ -424,6 +444,8 @@ iOS validation is currently deferred because no macOS development environment or
 
 ## v0.6.0 – Backup & Restore
 
+Status: **Completed**
+
 ### Backup Format
 
 - [x] Define versioned `.tmbackup` format
@@ -473,6 +495,8 @@ iOS validation is currently deferred because no macOS development environment or
 
 ## v0.7.0 – Editing & Overview
 
+Status: **Completed**
+
 ### Boxes
 
 - [x] Add optional width
@@ -508,6 +532,8 @@ iOS validation is currently deferred because no macOS development environment or
 
 ## v0.7.1 – Maintenance
 
+Status: **Completed**
+
 ### Overview
 
 - [x] Preserve Box Overview scroll position after detail navigation
@@ -521,6 +547,8 @@ iOS validation is currently deferred because no macOS development environment or
 ---
 
 ## v0.8.0 – Contextual Navigation
+
+Status: **Completed**
 
 ### Detail Navigation
 
@@ -547,6 +575,8 @@ iOS validation is currently deferred because no macOS development environment or
 ---
 
 ## v0.9.0 – Feeding Workflow & Media
+
+Status: **Completed**
 
 ### Media
 
@@ -581,6 +611,8 @@ iOS validation is currently deferred because no macOS development environment or
 
 ## v0.10.0 – Localization
 
+Status: **Completed**
+
 ### Localization Infrastructure
 
 - [x] Configure Flutter localization generation
@@ -610,6 +642,8 @@ iOS validation is currently deferred because no macOS development environment or
 ---
 
 ## v0.11.0 – Personalization & Capture
+
+Status: **Completed**
 
 ### Preferred Animal Name
 
@@ -648,6 +682,8 @@ iOS validation is currently deferred because no macOS development environment or
 ---
 
 ## v0.12.0 – Media Optimization
+
+Status: **Completed**
 
 ### Picture Cropping — Issue #80
 
@@ -694,6 +730,8 @@ roughly one sixth of its previous size.
 
 ## v0.13.0 – Feeding Reminders
 
+Status: **Completed**
+
 ### Per-Animal Configuration — Issue #74
 
 - [x] Store an optional reminder interval in whole days
@@ -739,6 +777,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v0.14.0 – Pre-1.0 UX Polish
+
+Status: **Completed**
 
 ### Animal Form Labels — Issue #81
 
@@ -791,6 +831,8 @@ roughly one sixth of its previous size.
 
 ## v0.14.1 – Post-release Fixes
 
+Status: **Completed**
+
 ### Feeding Reminder Reference
 
 - [x] Use the latest FeedingEvent whenever feeding history exists
@@ -822,6 +864,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v1.0.0 – MVP Release
+
+Status: **Completed**
 
 ### Application Identity and Platform Metadata — Issue #89
 
@@ -880,6 +924,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v1.1.0 – Detail & Workflow Polish
+
+Status: **Completed**
 
 ### Assigned Animal Thumbnails — Issue #94
 
@@ -983,6 +1029,8 @@ roughly one sixth of its previous size.
 
 ## v1.1.1 – Optional Box Names
 
+Status: **Completed**
+
 ### Tester Feedback Update
 
 - [x] Set development version to `1.1.1+51`
@@ -994,12 +1042,14 @@ roughly one sixth of its previous size.
 - [x] Place unnamed Boxes after named Boxes in both name orders
 - [x] Preserve names through backward-compatible Backup Format Version 2
 - [x] Add migration, repository, backup, settings and widget coverage
-- [ ] Complete automated regression
-- [ ] Complete Android and Web manual validation
+- [x] Complete automated regression
+- [x] Complete Android and Web manual validation
 
 ---
 
 ## v1.2.0 – Box Lifecycle & History
+
+Status: **Completed**
 
 ### Box Lifecycle Persistence — Issue #102
 
@@ -1039,6 +1089,8 @@ roughly one sixth of its previous size.
 
 ## v1.3.0 – Primary Page Navigation
 
+Status: **Completed**
+
 ### Swipe between Primary Pages — Issue #106
 
 - [x] Keep Box Overview, Animal Overview and Settings in one shared shell
@@ -1070,6 +1122,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v1.4.0 – Animal Profiles and Input Quality
+
+Status: **Completed**
 
 ### Display Box names in Animal forms — Issue #108
 
@@ -1135,6 +1189,8 @@ roughly one sixth of its previous size.
 
 ## v1.5.0 – Overview Quick Actions
 
+Status: **Completed**
+
 ### Animal and Box context menus — Issue #114
 
 - [x] Open overview actions by long press on touch devices
@@ -1169,6 +1225,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v1.6.0 – Batch QR Export
+
+Status: **Completed**
 
 ### Save selected Box QR codes — Issue #116
 
@@ -1205,6 +1263,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v1.6.1 – UX Consistency & Localization
+
+Status: **Completed**
 
 ### Archived Animal thumbnails — Issue #122
 
@@ -1264,6 +1324,8 @@ roughly one sixth of its previous size.
 
 ## v1.7.0 – Animal Taxonomy & Category Views
 
+Status: **Completed**
+
 ### Persistent Animal taxonomy — Issue #127
 
 - [x] Require a primary category in New Animal and Edit Animal
@@ -1309,6 +1371,8 @@ roughly one sixth of its previous size.
 
 ## v1.7.1 – Enclosure Notes & Migration
 
+Status: **Completed**
+
 ### Box-owned temperature-zone notes
 
 - [x] Move the optional temperature-zone note from Animal UI to Box UI
@@ -1344,6 +1408,8 @@ roughly one sixth of its previous size.
 
 ## v1.7.2 – Media Galleries
 
+Status: **Completed**
+
 ### Animal and Box picture histories — Issue #78
 
 - [x] Store ordered media associations for Animals and Boxes
@@ -1373,6 +1439,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v1.8.0 – Animal Details, Sorting & Environmental Data
+
+Status: **Completed**
 
 ### Grouped taxonomy labels — Issue #129
 
@@ -1425,6 +1493,8 @@ roughly one sixth of its previous size.
 ---
 
 ## v1.9.0 – Animal Input & History
+
+Status: **Completed**
 
 ### Paired environmental inputs — Issues #136 and #137
 
@@ -1485,6 +1555,8 @@ roughly one sixth of its previous size.
 
 ## v1.9.1 – Overview & Edit Box Refinements
 
+Status: **Completed**
+
 ### Independent Animal category view — Issue #142
 
 - [x] Remove Category from the Animal Overview sort menu
@@ -1524,27 +1596,99 @@ roughly one sixth of its previous size.
 
 ## v1.10.0 — Animal Workflow & History Polish
 
-### Animal shedding history — Issue #146
+Status: **Completed**
 
-- [x] Replace the free-form shedding note with timestamped `SheddingEvents`
-- [x] Store an event timestamp and optional notes
-- [x] Add shedding events from Animal details
-- [x] Add shedding events from Edit Animal
-- [x] Provide reverse-chronological shedding history
-- [x] Edit existing shedding events
-- [x] Delete shedding events after confirmation
+- [x] Add optional Big Picture Mode to Box and Animal overviews
+- [x] Support Big Picture Mode in flat and category-grouped Animal views
+- [x] Persist Big Picture Mode locally and through portable backups
+- [x] Add a due-feeding indicator to the primary Animals navigation item
+- [x] Make the first Latest Feeding sort selection use the oldest-first
+      direction
+- [x] Replace free-form shedding notes with timestamped shedding events
+- [x] Add quick shedding entry from Animal details and Edit Animal
+- [x] Add reverse-chronological shedding history
+- [x] Allow shedding events to be created, edited and deleted
 - [x] Preserve shedding history while Animals are archived
-- [x] Preserve shedding history through Backup Format Version 2
-- [x] Restore legacy backups containing only `sheddingNotes`
-- [x] Migrate existing database `sheddingNotes` without discarding data
-- [x] Stop New Animal and duplication from creating legacy shedding notes
+- [x] Migrate compatible legacy shedding notes deterministically
+- [x] Export and restore shedding history through Backup Format Version 2
 - [x] Advance to Database Schema Version 15
-- [x] Add repository, migration, backup and widget regression coverage
-- [x] Keep Android and Web behavior platform-neutral
+- [x] Preserve Android and Web compatibility
+- [x] Introduce no new device permission
+
+---
+
+## v1.10.1 — Symmetric Archive History
+
+Status: **Completed**
+
+- [x] Add a dedicated Box History page
+- [x] Align Box History presentation with Animal History
+- [x] Show archived Box thumbnails, labels and archive information
+- [x] Sort Animal and Box archives by archive date in both directions
+- [x] Sort Animal and Box archives by displayed name in both directions
+- [x] Persist archive sorting locally
+- [x] Expose Box duplication from archived entries
+- [x] Consolidate project and release documentation
+- [x] Keep archive sorting outside portable backup data
+- [x] Preserve Database Schema Version 15 and Backup Format Version 2
+
+---
+
+## v1.10.2 — Archive Actions & Animal Detail Preferences
+
+Status: **Completed**
+
+- [x] Add Restore to archived Animal context menus
+- [x] Select an active destination Box while restoring an Animal
+- [x] Add Restore to archived Box context menus
+- [x] Allow an existing Animal birth date to be cleared
+- [x] Clear birth-date accuracy together with the birth date
+- [x] Add per-Animal Weight visibility for Animal details
+- [x] Add per-Animal Shedding visibility for Animal details
+- [x] Default both visibility settings to enabled
+- [x] Add an optional next-feeding summary to the Animal Overview
+- [x] Preserve existing due-reminder behavior
+- [x] Advance to Database Schema Version 16
+- [x] Add the new Animal fields and setting to Backup Format Version 2
+- [x] Preserve compatibility with older databases and backups
+- [x] Introduce no new device permission
+
+---
+
+## v1.10.3 — QR Rehouse Mode
+
+Status: **Completed**
+
+- [x] Add a QR scanner action to Edit Animal
+- [x] Reuse the existing local Box scanner
+- [x] Resolve scanned Box identifiers locally
+- [x] Accept only active destination Boxes
+- [x] Reject unknown, archived and current Box identifiers
+- [x] Ask for confirmation before reassignment
+- [x] Move the active Animal through one atomic repository operation
+- [x] Preserve the previous assignment when validation or persistence fails
+- [x] Close the scanner and Edit Animal after successful reassignment
+- [x] Reuse the existing camera permission
+- [x] Preserve Database Schema Version 16 and Backup Format Version 2
+
+---
+
+## v1.10.4 — Animal Detail & Rehouse Fixes
+
+Status: **Completed**
+
+- [x] Hide the Sex row when the value is absent or Unknown
+- [x] Continue to display explicit localized sex values
+- [x] Prevent duplicate navigation pops after QR reassignment
+- [x] Close the scanner and Edit Animal exactly once after success
+- [x] Preserve Database Schema Version 16 and Backup Format Version 2
+- [x] Introduce no new device permission
 
 ---
 
 ## Website 1.0 – Homepage, Downloads & Guides
+
+Status: **Completed**
 
 ### TerraManager project homepage — Issue #119
 

@@ -244,6 +244,32 @@ Build Web Application:
 flutter build web
 ```
 
+## Current Regression Coverage
+
+Changes to current Animal and archive workflows should preserve tests for:
+
+- Version 14 to Version 15 migration and deterministic conversion of compatible
+  legacy shedding notes
+- shedding-history ordering, creation, editing, deletion, archiving and backup
+  round trips
+- Version 15 to Version 16 migration with both Animal detail sections enabled
+- per-Animal Weight and Shedding visibility persistence and backup defaults
+- birth-date removal together with birth-date-accuracy cleanup
+- Big Picture Mode in Box, flat Animal and grouped Animal overviews
+- Big Picture Mode persistence and portable backup restore
+- next-feeding-summary calculation, persistence and backup compatibility
+- unchanged due-reminder calculation and primary-navigation indication
+- Animal and Box archive sorting and local preference persistence
+- direct Restore and Duplicate archive actions
+- QR Rehouse validation for active, archived, unknown and current Boxes
+- atomic Animal reassignment and rollback on failure
+- successful Rehouse navigation without duplicate route removal
+- omission of unset or Unknown sex information from Animal details
+
+Documentation tests must verify stable public links and required semantic
+content. They must not require one exact application version or build number,
+because release identifiers change independently from the documented contract.
+
 ## Recommended Validation Before Closing an Issue
 
 Run:

@@ -1674,3 +1674,131 @@ paths allow each page to load directly without client-side routing.
   destinations
 - published content changes only after the repository owner deploys the
   updated `docs/` source through GitHub Pages
+
+---
+
+## ADR-027: Store Animal shedding history as owned event records
+
+**Status:** Accepted
+
+**Date:** 2026-09-22
+
+### Context
+
+A single free-form shedding note cannot represent multiple shedding dates,
+corrections or event-specific notes. It also cannot provide deterministic
+chronological history or support editing and deletion of individual records.
+
+Existing installations and portable backups may still contain a non-empty
+`Animal.sheddingNotes` value. Replacing that value without a migration would
+discard user data.
+
+### Decision
+
+Schema Version 15 introduces `SheddingEvents` as Animal-owned records. Every
+event stores its own shedding timestamp, optional note and creation and update
+timestamps.
+
+Shedding history is ordered by shedding timestamp descending and event ID
+descending. Archiving an Animal retains all events. Permanently deleting the
+Animal removes its events through the database relationship.
+
+During migration, every compatible non-empty legacy shedding note creates one
+event using the Animal's existing `updatedAt` timestamp. The legacy value is
+then cleared but its database and backup field remains accepted for
+compatibility.
+
+Portable Backup Format Version 2 adds `sheddingHistory` without changing the
+format version. Older backups without the list restore an empty history and can
+still migrate a compatible legacy note.
+
+### Consequences
+
+- Animals can have a complete, editable shedding timeline
+- individual records can be corrected or deleted without replacing unrelated
+  history
+- archived Animals retain their shedding history
+- legacy notes are preserved deterministically
+- Backup Format Version 2 remains backward compatible
+- Schema Version 15 requires explicit migration and regression coverage
+
+---
+
+## ADR-028: Store Animal detail visibility per record
+
+**Status:** Accepted
+
+**Date:** 2026-09-22
+
+### Context
+
+Weight and shedding information is useful for many Animals but can add
+unnecessary controls and empty sections for Animals where those records are not
+relevant. A global setting cannot represent different needs within the same
+collection.
+
+Hiding a section must not delete its history or change backup ownership.
+
+### Decision
+
+Schema Version 16 stores `showWeightOnDetail` and
+`showSheddingOnDetail` on every Animal. Both required Boolean columns default to
+`true`.
+
+The fields control only Animal-detail presentation and related quick actions.
+Weight and shedding history remain stored and continue to be exported even when
+their detail section is hidden.
+
+Portable Backup Format Version 2 stores both values additively. Older databases
+and backups default both values to `true`.
+
+### Consequences
+
+- detail pages can match the needs of each Animal
+- existing Animals retain their previous visible sections
+- hiding a section never deletes history
+- the preferences follow the Animal through backup and restore
+- Schema Version 16 requires a data-preserving migration
+- no new permission or external service is required
+
+---
+
+## ADR-029: Reuse local Box QR resolution for transactional Animal reassignment
+
+**Status:** Accepted
+
+**Date:** 2026-09-22
+
+### Context
+
+Selecting a destination Box from a long dropdown becomes inconvenient in larger
+collections. Existing physical Box QR codes already provide stable identifiers,
+and TerraManager already has local scanning and validation infrastructure.
+
+Reassignment must not leave an Animal without a valid Box or move it to an
+archived, unknown or unchanged destination.
+
+### Decision
+
+Edit Animal reuses the existing Box scanner with a workflow-specific callback.
+The scanner resolves the permanent Box identifier through the local repository.
+
+Rehouse Mode accepts only an existing active destination Box that differs from
+the Animal's current Box. The application asks for confirmation before calling
+one atomic repository operation. That operation validates the active Animal and
+active destination again before updating `boxId` and `updatedAt`.
+
+After a successful move, the scanner returns success and Edit Animal closes
+once. Cancellation or failure leaves the existing assignment unchanged.
+
+The workflow reuses the existing camera permission and requires no additional
+storage, media, network or background capability.
+
+### Consequences
+
+- physical Box labels can be used for fast reassignment
+- all validation remains local
+- invalid or partial moves cannot be persisted
+- the scanner remains reusable across Box lookup, Feeding Mode and Rehouse Mode
+- no database schema or backup format change is required
+- navigation behavior requires regression coverage

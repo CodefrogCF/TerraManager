@@ -171,20 +171,24 @@ void main() {
       final dataModel = read('docs/data-model.md');
       final backupFormat = read('docs/backup-format.md');
 
-      expect(
-        dataModel,
-        contains('current Drift database schema version is **15**'),
-      );
-      expect(dataModel, contains('### Schema Version 15'));
-      expect(dataModel, contains('SheddingEvents'));
+      expect(dataModel, contains('# Data Model'));
+      expect(dataModel, contains('## Entity Relationships'));
+      expect(dataModel, contains('## Schema Version'));
       expect(dataModel, contains('Animal'));
       expect(dataModel, contains('Box'));
       expect(dataModel, contains('FeedingEvent'));
+      expect(dataModel, contains('SheddingEvent'));
+      expect(dataModel, contains('showWeightOnDetail'));
+      expect(dataModel, contains('showSheddingOnDetail'));
 
+      expect(backupFormat, contains('# TerraManager Backup Format'));
       expect(backupFormat, contains('Backup Format Version 2'));
       expect(backupFormat, contains('portable backup'));
       expect(backupFormat, contains('settings.json'));
       expect(backupFormat, contains('manifest.json'));
+      expect(backupFormat, contains('sheddingHistory'));
+      expect(backupFormat, contains('bigPictureModeEnabled'));
+      expect(backupFormat, contains('nextFeedingSummaryEnabled'));
     },
   );
 

@@ -22,17 +22,21 @@ Public project information:
 
 Latest published application version: **v1.10.4+78**.
 
-- Animal category grouping is controlled independently beside the sort menu;
-- creation time, displayed name, age and latest feeding work in flat and
-  category-grouped views;
-- legacy Category sort preferences migrate safely to the grouped view;
-- Edit Box places the immutable QR identifier below Notes and above the bottom
-  Save and Archive actions;
-- Animal shedding documentation now uses timestamped history instead of the
-  legacy free-form shedding-note field;
-- Database Schema Version 15 and Portable Backup Format Version 2 remain
-  current and backward compatible;
-- no new device permission is required.
+- Box and Animal overviews provide an optional persistent Big Picture Mode;
+- Animal and Box archives provide matching history views, thumbnails,
+  persistent sorting and direct Restore and Duplicate actions;
+- Animal care records include timestamped weight, feeding and shedding
+  histories;
+- Animal details can optionally hide Weight and Shedding sections for each
+  Animal;
+- the Animal Overview can optionally show the next upcoming feeding in addition
+  to existing due reminders;
+- Edit Animal supports local QR-based reassignment to an active Box;
+- Animal details omit unset or Unknown sex information;
+- Database Schema Version 16 and Portable Backup Format Version 2 are current
+  and backward compatible;
+- the current workflows remain local-first and require no new device
+  permission.
 
 Android and Web are the validated platforms. iOS remains planned and has not
 been validated. The complete version history is maintained in

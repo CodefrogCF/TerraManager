@@ -2,13 +2,14 @@
 
 TerraManager uses a relational database implemented with Drift and SQLite.
 
-The current Drift database schema version is **15**.
+The current Drift database schema version is **16**.
 
 The current database model consists of:
 
 - Boxes
 - Animals
 - AnimalWeightEntries
+- SheddingEvents
 - FeedingEvents
 - MediaAssets
 - AnimalPictureAssociations
@@ -27,6 +28,8 @@ Box
                    │
                    ├──── 1:n ──── AnimalWeightEntry
                    │
+                   ├──── 1:n ──── SheddingEvent
+                   │
                    ├──── 1:n ──── FeedingEvent
                    │
                    └──── 1:n ──── AnimalPictureAssociation ──── 1:1 ──── MediaAsset
@@ -35,12 +38,13 @@ Archived Animal
  │
  ├── boxId = null
  ├──── 1:n ──── AnimalWeightEntry
+ ├──── 1:n ──── SheddingEvent
  ├──── 1:n ──── FeedingEvent
  └──── 1:n ──── AnimalPictureAssociation ──── 1:1 ──── MediaAsset
 ```
 
-An Animal remains the owner of its weight history, feeding history and picture
-gallery while archived.
+An Animal remains the owner of its weight history, shedding history, feeding
+history and picture gallery while archived.
 
 `Box.pictureMediaId` and `Animal.pictureMediaId` identify the primary detail
 image within the corresponding gallery. They can be `null` while historical
@@ -180,6 +184,8 @@ Animal
 ├── archiveNotes
 ├── feedingReminderIntervalDays
 ├── feedingReminderBaseline
+├── showWeightOnDetail
+├── showSheddingOnDetail
 ├── createdAt
 └── updatedAt
 ```
@@ -217,6 +223,11 @@ Animal
 - archiveNotes – optional archive notes
 - feedingReminderIntervalDays – optional positive whole-day feeding interval
 - feedingReminderBaseline – fallback timestamp used when no FeedingEvent exists
+- showWeightOnDetail – required Boolean controlling whether weight information
+  and weight actions are shown on Animal details; defaults to `true`
+- showSheddingOnDetail – required Boolean controlling whether shedding
+  information and shedding actions are shown on Animal details; defaults to
+  `true`
 - createdAt – creation timestamp
 - updatedAt – modification timestamp
 
@@ -681,7 +692,7 @@ reloads.
 
 ## Schema Version
 
-The current Drift database schema version is 15.
+The current Drift database schema version is 16.
 
 ### Schema Version 1
 
@@ -925,3 +936,29 @@ for compatibility with older databases and backups.
 
 All existing Animal, Box, feeding, weight, gallery, taxonomy and lifecycle data
 is preserved.
+
+### Schema Version 16
+
+Schema Version 16 adds two required Boolean presentation fields to `Animals`:
+
+```text
+showWeightOnDetail
+showSheddingOnDetail
+```
+
+Both columns use a database default of `true`.
+
+The Version 15 to Version 16 migration adds both columns without replacing or
+rewriting existing Animal records. Existing Animals therefore keep the detail
+sections that were visible before the setting was introduced.
+
+These fields control only the presentation of Weight and Shedding information
+and actions on Animal details. They do not remove history data, change Animal
+ownership, alter lifecycle state or affect repository relationships.
+
+Editing unrelated Animal fields preserves both values. Archiving, restoring and
+duplicating an Animal retain the intended current visibility state according to
+their respective repository workflows.
+
+Portable backups store both fields additively in Backup Format Version 2.
+Backups created before Schema Version 16 restore both fields as `true`.

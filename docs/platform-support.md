@@ -167,6 +167,27 @@ Validated functionality includes:
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility
 - English and German reminder configuration and presentation
+- optional Big Picture Mode in Box, flat Animal and grouped Animal overviews
+- local Big Picture Mode persistence and portable backup restore
+- due-feeding indication on the primary Animals navigation item
+- optional next-upcoming-feeding summary with unchanged due-reminder behavior
+- timestamped Animal shedding history with create, edit and confirmed delete
+  actions
+- Schema Version 14 to Version 15 migration with deterministic legacy
+  shedding-note conversion
+- symmetric Animal History and Box History presentation
+- archive sorting by date and displayed name in both directions
+- persistent local archive sorting
+- direct Restore and Duplicate actions from archive context menus
+- removal of an existing birth date together with its accuracy
+- per-Animal Weight and Shedding detail visibility
+- Schema Version 15 to Version 16 migration with enabled visibility defaults
+- portable backup round trips for shedding history, detail visibility, Big
+  Picture Mode and the next-feeding summary
+- local QR Rehouse Mode from Edit Animal
+- active destination validation and atomic Animal reassignment
+- rejection of unknown, archived and current destination Boxes
+- Animal details that omit unset or Unknown sex information
 
 QR images saved on Android are stored through the platform media/gallery system
 so they remain accessible to the user outside the application.
@@ -174,6 +195,11 @@ so they remain accessible to the user outside the application.
 QR ZIP archives and A4 PDF sheets are generated completely on-device and use
 the operating-system save dialog. This does not require unrestricted storage,
 media-library or network access.
+
+QR Rehouse Mode reuses the existing scanner and camera permission. Box
+resolution, destination validation and Animal reassignment remain local. The
+workflow requires no additional storage, media-library, network, notification
+or background permission.
 
 TerraManager backup files use the Android system file selection interface.
 The user can therefore choose an accessible destination such as Downloads,
@@ -296,9 +322,34 @@ Validated functionality includes:
 - archived-Animal reminder suppression with retained configuration
 - schema Version 4 to Version 5 migration and reminder backup compatibility
 - English and German reminder configuration and presentation
+- optional Big Picture Mode in Box, flat Animal and grouped Animal overviews
+- local Big Picture Mode persistence and portable backup restore
+- due-feeding indication on the primary Animals navigation item
+- optional next-upcoming-feeding summary with unchanged due-reminder behavior
+- timestamped Animal shedding history with create, edit and confirmed delete
+  actions
+- Schema Version 14 to Version 15 migration with deterministic legacy
+  shedding-note conversion
+- symmetric Animal History and Box History presentation
+- archive sorting by date and displayed name in both directions
+- persistent local archive sorting
+- direct Restore and Duplicate actions from archive context menus
+- removal of an existing birth date together with its accuracy
+- per-Animal Weight and Shedding detail visibility
+- Schema Version 15 to Version 16 migration with enabled visibility defaults
+- portable backup round trips for shedding history, detail visibility, Big
+  Picture Mode and the next-feeding summary
+- local QR Rehouse Mode from Edit Animal
+- active destination validation and atomic Animal reassignment
+- rejection of unknown, archived and current destination Boxes
+- Animal details that omit unset or Unknown sex information
 
 WebP optimization for new and replaced pictures uses browser Canvas encoding
 and has been validated as part of the v0.12.0 Web regression.
+
+QR Rehouse Mode uses the same browser camera access as the existing Box and
+Feeding Mode scanners. It introduces no additional browser permission and sends
+no QR identifier or Animal data to a remote service.
 
 ## Web Database
 
@@ -376,6 +427,15 @@ Web backup     → Web restore
 Android backup → Web restore
 Web backup     → Android restore
 ```
+
+Current Version 2 backups also preserve timestamped shedding history,
+per-Animal Weight and Shedding detail visibility, category-view presentation,
+Big Picture Mode and the optional next-feeding summary.
+
+Missing visibility fields from older backups default to enabled. Missing Big
+Picture Mode and next-feeding-summary settings default to disabled. Animal and
+Box archive sort preferences remain local to the current installation and are
+not replaced during restore.
 
 ## Known Web Limitations
 

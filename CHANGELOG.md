@@ -6,16 +6,148 @@ The project uses semantic versioning.
 
 ## [1.10.4] - 2026-09-22
 
+### Changed
+
+- omit the Sex row from Animal details when no sex is stored or the stored value
+  is `unknown`
+- keep explicit Male, Female and Other values visible with their localized labels
+
+### Fixed
+
+- close the QR scanner and Edit Animal exactly once after a successful Rehouse
+  operation
+- prevent the Rehouse callback from popping an additional navigation route
+
+### Testing
+
+- cover Animal-detail sex visibility for unset, Unknown and explicit values
+- cover successful QR Rehouse navigation without duplicate route removal
+
+Database Schema Version 16 and Portable Backup Format Version 2 remain current.
+The release introduces no new device permission.
+
 ## [1.10.3] - 2026-09-21
+
+### Added
+
+- add QR-based Rehouse Mode to Edit Animal
+- allow an active destination Box to be selected with the existing QR scanner
+- show an explicit confirmation before assigning the Animal to the scanned Box
+
+### Changed
+
+- make the Box scanner reusable through a resolved-Box callback and
+  workflow-specific title
+- perform Animal reassignment through one atomic repository operation
+- close Edit Animal after a successful reassignment so the previous Box
+  assignment cannot remain visible
+
+### Validation
+
+- accept only an existing active destination Box
+- reject unknown, archived and current Box identifiers
+- reject reassignment when the Animal is no longer active
+- keep the existing Animal assignment unchanged when validation or persistence
+  fails
+
+### Privacy
+
+- process QR identifiers and Box resolution locally
+- reuse the existing camera permission and scanner implementation
+- require no additional storage, media, network or background permission
+
+### Testing
+
+- cover valid reassignment, same-Box rejection, archived and unknown Boxes,
+  inactive Animals and transactional failure
+- cover confirmation, cancellation and successful scanner navigation
+
+Database Schema Version 16 and Portable Backup Format Version 2 remain
+unchanged.
 
 ## [1.10.2] - 2026-09-21
 
+### Added
+
+- add Restore actions to archived Animal and Box context menus
+- allow an archived Animal to be restored directly after selecting an active
+  Box
+- allow an archived Box to be restored directly after confirmation
+- add per-Animal controls for showing or hiding Weight and Shedding information
+  on Animal details
+- add an optional next-feeding summary to the Animal Overview
+
+### Changed
+
+- allow an existing Animal birth date to be cleared
+- clear birth-date accuracy when the associated birth date is removed
+- keep due feeding reminders unchanged while optionally showing the next
+  upcoming, not-yet-due feeding
+- persist `showWeightOnDetail` and `showSheddingOnDetail` on every Animal
+- include the Animal detail-visibility fields and the next-feeding-summary
+  setting in Portable Backup Format Version 2
+- advance the local database to Schema Version 16
+
+### Compatibility
+
+- default both Animal detail-visibility fields to `true` for existing databases
+  and older backups
+- default `nextFeedingSummaryEnabled` to `false` when it is absent from an older
+  backup
+- retain Backup Format Version 2 because all new backup fields are additive
+
+### Testing
+
+- cover direct archive Restore actions for Animals and Boxes
+- cover birth-date removal and associated accuracy cleanup
+- cover Schema Version 15 to Version 16 migration
+- cover detail-visibility persistence, backup export and restore
+- cover next-feeding calculation, presentation, persistence and backup
+  compatibility
+
+Database Schema Version 16 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
 ## [1.10.1] - 2026-09-21
+
+### Added
+
+- add a dedicated Box History page aligned with Animal History
+- add archive sorting by newest or oldest archive date
+- add archive sorting by ascending or descending displayed name
+- add persistent local sort preferences for Animal History and Box History
+- show Box thumbnails, labels and archive information in Box History
+- expose the existing Duplicate action from archived Box entries
+
+### Changed
+
+- align Animal and Box archive presentation and interaction patterns
+- keep archive sort preferences local to the current installation
+- consolidate project and release documentation around authoritative shared
+  documents and one release checklist
+
+### Compatibility
+
+- archive sort preferences affect presentation only
+- archive sort preferences are not part of portable backup data
+- no database schema or portable backup format change is required
+
+### Testing
+
+- cover all archive sort directions and deterministic missing-value placement
+- cover local archive sort persistence
+- cover Box History thumbnails, details and Duplicate actions
+
+Database Schema Version 15 and Portable Backup Format Version 2 remain
+unchanged.
 
 ## [1.10.0] - 2026-09-20
 
 ### Added
 
+- add an optional Big Picture Mode for Box and Animal overviews
+- support Big Picture Mode in flat and category-grouped Animal views
+- add a due-feeding indicator to the primary Animals navigation item
 - replace the legacy free-form Animal shedding note with timestamped shedding
   history containing an optional note per event
 - add quick shedding entry and shedding-history access to Animal details and
@@ -25,6 +157,10 @@ The project uses semantic versioning.
 
 ### Changed
 
+- make the first Latest Feeding sort selection show the oldest latest feeding
+  first
+- persist Big Picture Mode between application restarts
+- include `bigPictureModeEnabled` in Portable Backup Format Version 2
 - migrate every non-empty legacy `Animal.sheddingNotes` value to one
   `SheddingEvent` using the Animal's existing `updatedAt` timestamp, then clear
   the legacy field
@@ -37,11 +173,25 @@ The project uses semantic versioning.
 - advance the local database to Schema Version 15 with the `SheddingEvents`
   table
 
+### Compatibility
+
+- default `bigPictureModeEnabled` to `false` when it is absent from an older
+  backup
+- restore older Animal records without `sheddingHistory` as an empty history
+- continue to accept compatible legacy `sheddingNotes` values during migration
+  and restore
+- retain Backup Format Version 2 because the new data is additive
+
 ### Testing
 
-- cover shedding-history repository ordering, creation, editing and deletion,
-  direct v14 to v15 migration, legacy-note conversion, backup export and restore,
-  archived Animals, Animal details and Edit Animal workflows
+- cover Big Picture Mode in Box, flat Animal and grouped Animal overviews
+- cover Big Picture Mode persistence and backup round trips
+- cover the primary-navigation due indicator
+- cover the initial Latest Feeding sort direction
+- cover shedding-history repository ordering, creation, editing and deletion
+- cover direct Version 14 to Version 15 migration and legacy-note conversion
+- cover shedding-history backup export and restore
+- verify that archived Animals retain their shedding history
 - verify that New Animal and duplication no longer create or copy legacy
   shedding-note values
 

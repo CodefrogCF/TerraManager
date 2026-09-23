@@ -1,44 +1,80 @@
 # Shared Care API
 
-This document describes the server foundation for Issue #157. The API is not
-the shared Web client or the final account system. Issue #158 replaces its
-temporary bearer credential with local caregiver accounts and browser sessions.
-Never embed the temporary credential in a Web build.
+This document describes the server-owned care API from Issue #157 and local
+caregiver authentication from Issue #158. The shared Web client and container
+deployment remain separate work.
 
 ## Data ownership
 
-The server opens one SQLite database file on persistent local storage. It runs
-the existing Drift migrations before accepting requests. The server alone
-holds the database connection; API clients cannot request the SQLite file or
-execute SQL. Existing standalone Android and Web modes keep their local
-database behavior.
+The server opens one collection SQLite database file on persistent local
+storage. It runs the existing Drift migrations before accepting requests. A
+separate SQLite file holds local accounts and sessions. The server alone holds
+both database connections; API clients cannot request either file or execute
+SQL. Existing standalone Android and Web modes keep their local database
+behavior.
 
-Media assets remain in the SQLite `MediaAssets` table. Keep the database file
-and its WAL files in persistent storage, not in a disposable container layer.
-Do not place the live SQLite file on a network share.
+Media assets remain in the SQLite `MediaAssets` table. Local accounts and
+sessions live in a separate `accounts.sqlite` database beside the collection
+database by default. Keep both files and their WAL files in persistent storage,
+not in a disposable container layer. Do not place live SQLite files on a
+network share. The portable collection backup does not include accounts.
 
 ## Starting the API
 
-Run `dart run bin/shared_server.dart` with:
+Set `TM_DATABASE_PATH` to the absolute collection database path. From an
+interactive terminal, run `dart run bin/create_admin.dart` once. It prompts for
+an administrator username and a password of at least 12 characters without
+echoing the password or accepting it on the command line. Startup refuses to
+serve a collection until this administrator exists; there is no default login.
+
+Then run `dart run bin/shared_server.dart` with:
 
 | Variable | Required | Meaning |
 | --- | --- | --- |
 | `TM_DATABASE_PATH` | yes | Absolute path of the server-owned SQLite file |
-| `TM_API_TOKEN` | yes | Random secret of at least 32 characters; temporary until Issue #158 |
+| `TM_PUBLIC_ORIGIN` | yes | Exact browser origin, for example `https://terramanager.example` |
+| `TM_AUTH_DATABASE_PATH` | no | Account database; defaults to `accounts.sqlite` beside the collection file |
 | `TM_BIND_ADDRESS` | no | Listener address; defaults to `127.0.0.1` |
 | `TM_PORT` | no | Listener port; defaults to `8080` |
 
-The default loopback binding avoids exposing the temporary credential on the
-LAN. A deployment serving other devices must place the API behind HTTPS and
-must not expose an unencrypted token-bearing listener. The server does not
-contact any external service.
+The default loopback binding keeps the API private until an HTTPS reverse
+proxy is configured. Non-local `TM_PUBLIC_ORIGIN` values must use HTTPS. The
+server does not contact any external identity, analytics or tracking service.
+Account credentials and session cookies must never traverse an unencrypted LAN
+connection. Server file permissions should limit access to both databases.
 
-All API paths use the `/api/v1` prefix and require
-`Authorization: Bearer <token>`. Requests and responses containing records
-use JSON. Dates in write requests must use ISO-8601 with `Z` or a numeric
-time-zone offset. Server responses use UTC ISO-8601 timestamps. There are no
-cross-origin access headers; the later shared Web application should use the
-same origin.
+All API paths use the `/api/v1` prefix. Collection and media paths require an
+active local account session. Login sets a host-only `Secure`, `HttpOnly`,
+`SameSite=Strict` cookie. Session tokens are random, stored only as SHA-256
+digests on the server, expire after 12 hours and are revoked on logout or
+account changes. The login response and `GET /auth/session` provide a
+session-specific CSRF token; send it in `X-CSRF-Token` on every POST, PUT, PATCH
+and DELETE. Cross-origin writes are rejected. No CORS access is granted.
+
+Requests and responses containing records use JSON. Dates in write requests
+must use ISO-8601 with `Z` or a numeric time-zone offset. Server responses use
+UTC ISO-8601 timestamps. A client should clear its local login state on
+`401 unauthorized`, show the denied operation on `403 forbidden` or `403 csrf_failed`,
+and redirect to login after expiry. The browser client is Issue #160.
+
+## Local accounts
+
+| Route | Access | Purpose |
+| --- | --- | --- |
+| `POST /auth/login` | public | Log in with local username and password; returns user, CSRF token and expiry |
+| `GET /auth/session` | signed in | Recover current user, CSRF token and expiry after a reload |
+| `POST /auth/logout` | signed in, CSRF | Revoke the current session |
+| `GET /admin/accounts` | administrator | List local accounts without password hashes |
+| `POST /admin/accounts` | administrator, CSRF | Add an administrator or caregiver |
+| `PATCH /admin/accounts/{id}` | administrator, CSRF | Change role, reset password or activate/deactivate; revokes that user's sessions |
+
+Usernames use 3–64 lower-case ASCII letters, digits, dots, underscores or
+dashes. Passwords are individually salted and hashed with Argon2id (19 MiB,
+two iterations, one lane). No plaintext password is written to either SQLite
+file. The final active administrator cannot be demoted or deactivated.
+Caregivers may read and edit collection and care records, including media, but
+cannot manage accounts. Full collection backup restore is not implemented in
+this API yet; its future route must be administrator-only.
 
 ## Operations
 
@@ -75,13 +111,13 @@ Errors have the stable shape
 | HTTP status | Code | Meaning |
 | --- | --- | --- |
 | 400 | `invalid_json`, `invalid_data` | Malformed or rejected input |
-| 401 | `unauthorized` | Missing or invalid temporary credential |
+| 401 | `unauthorized`, `invalid_credentials` | Missing/expired session or invalid login |
+| 403 | `forbidden`, `csrf_failed` | Role, origin or CSRF token denied the request |
 | 404 | `not_found` | Unknown route or record |
 | 409 | `conflict` | Lifecycle or relationship rule prevents the change |
 | 413 | `too_large` | Request exceeds the body limit |
 | 415 | `unsupported_media_type` | Write request is not JSON |
+| 429 | `rate_limited` | Too many failed login attempts in five minutes |
 | 500 | `internal_error` | Unexpected server failure; details are not returned |
 
-The temporary credential has no per-person identity or roles. Account
-creation, secure browser sessions, access roles and logout belong to Issue
-#158. Backup import and the complete shared Web workflow are later work.
+Backup import and the complete shared Web workflow are later work.

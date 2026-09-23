@@ -13,6 +13,13 @@ import '../drift/app_database/generated/schema_v15.dart' as v15;
 
 const _token = 'a-local-test-token-that-is-long-enough';
 
+class _TestBearerAuthenticator implements CareAuthenticator {
+  @override
+  Future<bool> isAuthenticated(HttpRequest request) async =>
+      request.headers.value(HttpHeaders.authorizationHeader) ==
+      'Bearer $_token';
+}
+
 class _HttpResult {
   final int status;
   final Map<String, dynamic>? json;
@@ -107,7 +114,7 @@ void main() {
     database = await openServerDatabase(file);
     server = await CareApi(
       database: database,
-      authenticator: StaticBearerAuthenticator(_token),
+      authenticator: _TestBearerAuthenticator(),
     ).serve();
     clientA = HttpClient();
     clientB = HttpClient();
@@ -181,7 +188,7 @@ void main() {
     database = await openServerDatabase(file);
     server = await CareApi(
       database: database,
-      authenticator: StaticBearerAuthenticator(_token),
+      authenticator: _TestBearerAuthenticator(),
     ).serve();
     final persisted = await _call(
       clientB,
@@ -546,7 +553,7 @@ void main() {
       database = await openServerDatabase(olderFile);
       server = await CareApi(
         database: database,
-        authenticator: StaticBearerAuthenticator(_token),
+        authenticator: _TestBearerAuthenticator(),
       ).serve();
       final rows = await database.select(database.animals).get();
       expect(rows, hasLength(1));

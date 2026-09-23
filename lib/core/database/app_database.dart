@@ -1,5 +1,8 @@
 import 'package:drift/drift.dart';
-import 'package:drift_flutter/drift_flutter.dart';
+
+import 'app_database_connection_stub.dart'
+    if (dart.library.ui) 'app_database_connection_flutter.dart'
+    as platform_connection;
 
 import 'converters/birth_date_accuracy_converter.dart';
 import 'converters/animal_category_converter.dart';
@@ -44,16 +47,7 @@ part 'app_database.g.dart';
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
-    : super(
-        executor ??
-            driftDatabase(
-              name: 'terramanager',
-              web: DriftWebOptions(
-                sqlite3Wasm: Uri.parse('sqlite3.wasm'),
-                driftWorker: Uri.parse('drift_worker.dart.js'),
-              ),
-            ),
-      );
+    : super(executor ?? platform_connection.openDatabase());
 
   AppDatabase.test(super.executor);
 

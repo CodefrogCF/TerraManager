@@ -1807,7 +1807,7 @@ storage, media, network or background capability.
 
 ## ADR-030: Keep shared collection data on a self-hosted server
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Date:** 2026-09-23
 

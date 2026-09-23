@@ -48,6 +48,7 @@ For authoritative details see:
 - [Platform support](platform-support.md)
 - [Data model](data-model.md)
 - [Backup format](backup-format.md)
+- [Shared Care API foundation (under development)](shared-care-api.md)
 - [Installation and updates](installation-and-updates.md)
 
 Published changes are recorded in the

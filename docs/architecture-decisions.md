@@ -1802,3 +1802,57 @@ storage, media, network or background capability.
 - the scanner remains reusable across Box lookup, Feeding Mode and Rehouse Mode
 - no database schema or backup format change is required
 - navigation behavior requires regression coverage
+
+---
+
+## ADR-030: Keep shared collection data on a self-hosted server
+
+**Status:** Proposed
+
+**Date:** 2026-09-23
+
+### Context
+
+The existing Android and Web modes store collection data locally. Serving the
+current Web build from a Raspberry Pi would still create a separate database in
+each browser and would not give multiple caregivers one shared collection.
+
+Shared mode needs one authoritative collection without changing how the
+standalone modes work. It must not create divergent edits when the server is
+unavailable.
+
+### Decision
+
+A self-hosted Dart server provides the shared Web application and a same-origin
+HTTP API. The server owns one SQLite collection per installation, including
+Boxes, Animals, care history, QR identifiers and media. It validates and
+authorizes all collection changes before writing them.
+
+Shared-mode browsers access collection data only through the API. They do not
+initialize a local collection database or queue offline edits. If the server is
+unavailable, the application displays a connection error.
+
+Appearance, language, sorting and other presentation preferences remain local
+to each browser. Existing Android and Web standalone modes continue to use
+their local databases.
+
+An administrator can explicitly import an existing `.tmbackup` into the server
+collection. This does not establish synchronization with the original
+standalone installation. Imported presentation settings do not become shared
+preferences for every user.
+
+The server and Web application operate within the local network without an
+external service. HTTPS, authentication and concurrent-edit handling are
+defined in the implementation work.
+
+### Consequences
+
+- caregivers using the same server work with one authoritative collection
+- standalone Android and Web data remain local and independent
+- the UI needs a data-access boundary for local and HTTP-backed modes
+- collection validation, media persistence and backups move to the server in
+  shared mode
+- browser preferences remain personal and may differ between devices
+- server outages prevent edits instead of creating divergent local changes
+- migration from standalone mode requires an explicit backup import
+- browser-based shared mode requires no new Android app permission

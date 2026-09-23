@@ -1,3 +1,7 @@
+{
+    default_sni {$TM_HOST}
+}
+
 https://{$TM_HOST} {
     tls /certs/server.crt /certs/server.key
     header X-Content-Type-Options nosniff

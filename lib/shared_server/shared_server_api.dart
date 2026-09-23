@@ -13,6 +13,7 @@ import 'session_authenticator.dart';
 
 /// Authenticated entry point for both account management and the care API.
 class SharedServerApi {
+  final AppDatabase _database;
   final AccountStore accounts;
   final SessionAuthenticator sessions;
   final CareApi _care;
@@ -22,7 +23,8 @@ class SharedServerApi {
     required AppDatabase database,
     required this.accounts,
     required Uri publicUrl,
-  }) : sessions = SessionAuthenticator(accounts, publicUrl),
+  }) : _database = database,
+       sessions = SessionAuthenticator(accounts, publicUrl),
        _care = CareApi(
          database: database,
          authenticator: SessionAuthenticator(accounts, publicUrl),
@@ -44,6 +46,15 @@ class SharedServerApi {
 
   Future<void> handle(HttpRequest request) async {
     final path = request.uri.path;
+    if (path == '/api/v1/health' && request.method == 'GET') {
+      try {
+        await _database.customSelect('SELECT 1').get();
+        await _send(request.response, 200, {'status': 'ok'});
+      } catch (_) {
+        await _send(request.response, 503, {'status': 'unavailable'});
+      }
+      return;
+    }
     if (!path.startsWith('/api/v1/auth/') &&
         !path.startsWith('/api/v1/admin/')) {
       await _care.handle(request);

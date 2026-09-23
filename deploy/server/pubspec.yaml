@@ -1,0 +1,13 @@
+name: terramanager
+description: Pure Dart dependencies for the self-hosted TerraManager server.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  crypto: 3.0.7
+  cryptography: 2.9.0
+  drift: 2.34.3
+  sqlite3: 3.5.1
+  uuid: 4.6.0

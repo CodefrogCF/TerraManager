@@ -84,6 +84,11 @@ void main() {
           publicUrl: Uri.parse('http://127.0.0.1'),
         ).serve();
 
+        final health = await _call(client, server, 'GET', '/api/v1/health');
+        expect(health.status, 200);
+        expect(health.body, {'status': 'ok'});
+        expect(health.cookie, isNull);
+
         expect(
           (await _call(client, server, 'GET', '/api/v1/boxes')).status,
           401,

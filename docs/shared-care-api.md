@@ -1,8 +1,9 @@
 # Shared Care API
 
 This document describes the server-owned care API from Issue #157 and local
-caregiver authentication from Issue #158. The shared Web client and container
-deployment remain separate work.
+caregiver authentication from Issue #158. The ARM64 container layout and LAN
+HTTPS deployment are described in [Shared Care deployment](shared-care-deployment.md).
+The API-backed shared Web client remains Issue #160.
 
 ## Data ownership
 
@@ -43,7 +44,9 @@ server does not contact any external identity, analytics or tracking service.
 Account credentials and session cookies must never traverse an unencrypted LAN
 connection. Server file permissions should limit access to both databases.
 
-All API paths use the `/api/v1` prefix. Collection and media paths require an
+All API paths use the `/api/v1` prefix. `GET /api/v1/health` is an unauthenticated
+readiness check that tests the database connection and returns only `status`.
+Collection and media paths require an
 active local account session. Login sets a host-only `Secure`, `HttpOnly`,
 `SameSite=Strict` cookie. Session tokens are random, stored only as SHA-256
 digests on the server, expire after 12 hours and are revoked on logout or

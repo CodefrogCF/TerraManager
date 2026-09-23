@@ -1,0 +1,16 @@
+https://{$TM_HOST} {
+    tls /certs/server.crt /certs/server.key
+    header X-Content-Type-Options nosniff
+    header Referrer-Policy no-referrer
+
+    handle /api/* {
+        reverse_proxy server:8080 {
+            health_uri /api/v1/health
+        }
+    }
+
+    handle {
+        root * /srv/web
+        file_server
+    }
+}

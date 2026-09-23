@@ -3,6 +3,10 @@
 This guide covers the currently validated TerraManager platforms: Android and
 Web. iOS, macOS, Linux and Windows are not current supported release targets.
 
+The experimental Raspberry Pi server stack has separate
+[Shared Care deployment instructions](shared-care-deployment.md). Its browser
+client is still being developed; the existing Web release remains standalone.
+
 ## Obtain a trusted release
 
 Use the TerraManager GitHub Releases page linked from the repository. Each

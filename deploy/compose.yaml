@@ -1,0 +1,42 @@
+services:
+  server:
+    image: terramanager-server:${TM_STACK_VERSION}
+    build:
+      context: ..
+      dockerfile: deploy/server.Dockerfile
+    platform: linux/arm64
+    restart: unless-stopped
+    environment:
+      TM_DATABASE_PATH: /data/collection.sqlite
+      TM_AUTH_DATABASE_PATH: /data/accounts.sqlite
+      TM_PUBLIC_ORIGIN: https://${TM_HOST}
+      TM_BIND_ADDRESS: 0.0.0.0
+      TM_PORT: '8080'
+    volumes:
+      - ./data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: [CMD, dart, /opt/healthcheck.dart]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  web:
+    image: terramanager-web:${TM_STACK_VERSION}
+    build:
+      context: ..
+      dockerfile: deploy/web.Dockerfile
+    platform: linux/arm64
+    restart: unless-stopped
+    depends_on:
+      server:
+        condition: service_healthy
+    environment:
+      TM_HOST: ${TM_HOST}
+    ports:
+      - ${TM_LAN_BIND_IP}:443:443
+    volumes:
+      - ./certs:/certs:ro

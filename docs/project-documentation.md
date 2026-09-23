@@ -49,6 +49,7 @@ For authoritative details see:
 - [Data model](data-model.md)
 - [Backup format](backup-format.md)
 - [Shared Care API and local accounts (under development)](shared-care-api.md)
+- [Shared Care Raspberry Pi deployment (under development)](shared-care-deployment.md)
 - [Installation and updates](installation-and-updates.md)
 
 Published changes are recorded in the

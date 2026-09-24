@@ -63,7 +63,8 @@ TerraManager does not contain advertising.
     await tester.pumpAndSettle();
 
     expect(find.text('TerraManager Datenschutzerklärung'), findsOneWidget);
-    expect(find.textContaining('15. September 2026'), findsOneWidget);
+    expect(find.textContaining('Gültig ab:'), findsOneWidget);
+    expect(find.textContaining('Shared-Care-Webmodus'), findsWidgets);
     expect(find.textContaining('Entwickler: Codefrog'), findsOneWidget);
     expect(find.byKey(const Key('privacy-policy-content')), findsOneWidget);
   });

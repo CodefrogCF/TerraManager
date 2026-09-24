@@ -5,13 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../shared_client/shared_text.dart';
 
+const _browserChannel = MethodChannel('com.codefrog.terramanager/browser');
+
 /// Opens the shared collection in the system browser. The Android app does
 /// not make a network request and keeps its local collection independent.
 class SharedCareBrowserLink extends StatelessWidget {
   const SharedCareBrowserLink({super.key});
 
   static const _preferenceKey = 'shared_care_browser_origin';
-  static const _channel = MethodChannel('com.codefrog.terramanager/browser');
 
   Future<void> _open(BuildContext context) async {
     final preferences = await SharedPreferences.getInstance();
@@ -25,7 +26,9 @@ class SharedCareBrowserLink extends StatelessWidget {
       );
       if (origin == null || !context.mounted) return;
       await preferences.setString(_preferenceKey, origin);
-      await _channel.invokeMethod<void>('openExternalUrl', {'url': origin});
+      await _browserChannel.invokeMethod<void>('openExternalUrl', {
+        'url': origin,
+      });
     } on PlatformException {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -64,6 +67,79 @@ class SharedCareBrowserLink extends StatelessWidget {
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () => _open(context),
+    );
+  }
+}
+
+/// Opens the public project pages without adding a network permission to the
+/// standalone Android app. Android owns the fixed destination URLs.
+class ProjectWebLinks extends StatelessWidget {
+  const ProjectWebLinks({super.key});
+
+  Future<void> _open(BuildContext context, String page) async {
+    try {
+      await _browserChannel.invokeMethod<void>('openProjectPage', {
+        'page': page,
+      });
+    } on PlatformException {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              sharedText(
+                context,
+                'No browser could open this page.',
+                'Die Seite konnte nicht im Browser geöffnet werden.',
+              ),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      return const SizedBox.shrink();
+    }
+    final language = Localizations.localeOf(context).languageCode == 'de'
+        ? 'de'
+        : 'en';
+    return Column(
+      children: [
+        ListTile(
+          key: const Key('project-website-link'),
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.language),
+          title: Text(sharedText(context, 'Website', 'Website')),
+          subtitle: Text(
+            sharedText(
+              context,
+              'Downloads and project information',
+              'Downloads und Projektinformationen',
+            ),
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _open(context, 'website-$language'),
+        ),
+        const Divider(),
+        ListTile(
+          key: const Key('project-guide-link'),
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.menu_book_outlined),
+          title: Text(sharedText(context, 'User guide', 'Anleitung')),
+          subtitle: Text(
+            sharedText(
+              context,
+              'Standalone and shared-care instructions',
+              'Anleitungen für Einzel- und gemeinsame Nutzung',
+            ),
+          ),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => _open(context, 'guide-$language'),
+        ),
+      ],
     );
   }
 }
@@ -117,8 +193,8 @@ class _SharedServerUrlDialogState extends State<_SharedServerUrlDialog> {
         Text(
           sharedText(
             context,
-            'The shared collection opens in your browser. The local app collection stays separate.',
-            'Die gemeinsame Sammlung öffnet sich im Browser. Die lokale App-Sammlung bleibt getrennt.',
+            'The shared collection opens in your browser. Your local app collection stays separate and is not synchronized automatically.',
+            'Die gemeinsame Sammlung öffnet sich im Browser. Deine lokale App-Sammlung bleibt getrennt und wird nicht automatisch synchronisiert.',
           ),
         ),
         const SizedBox(height: 12),

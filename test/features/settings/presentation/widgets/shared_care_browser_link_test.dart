@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terramanager/features/settings/presentation/widgets/shared_care_browser_link.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -59,6 +60,42 @@ void main() {
         preferences.getString('shared_care_browser_origin'),
         'https://192.168.1.117',
       );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  testWidgets('opens the website and guide for the selected language', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    try {
+      final openedPages = <String>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            expect(call.method, 'openProjectPage');
+            openedPages.add((call.arguments as Map)['page'] as String);
+            return null;
+          });
+
+      Future<void> openLinks(Locale locale) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const Scaffold(body: ProjectWebLinks()),
+          ),
+        );
+        await tester.tap(find.byKey(const Key('project-website-link')));
+        await tester.pump();
+        await tester.tap(find.byKey(const Key('project-guide-link')));
+        await tester.pump();
+      }
+
+      await openLinks(const Locale('en'));
+      await openLinks(const Locale('de'));
+      expect(openedPages, ['website-en', 'guide-en', 'website-de', 'guide-de']);
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }

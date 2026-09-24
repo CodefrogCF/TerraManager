@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -1036,17 +1037,38 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ],
 
-          const SizedBox(height: 40),
-          const Divider(),
-          const SizedBox(height: 24),
+          if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+            const SizedBox(height: 40),
+            const Divider(),
+            const SizedBox(height: 24),
 
-          Text(
-            sharedText(context, 'Shared care', 'Gemeinsame Betreuung'),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 8),
-          const SharedCareBrowserLink(),
-          const SizedBox(height: 32),
+            Text(
+              sharedText(context, 'Shared care', 'Gemeinsame Betreuung'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              sharedText(
+                context,
+                'Work with other caregivers in one server collection. The local app collection stays on this device and does not sync automatically.',
+                'Arbeite mit anderen Betreuungspersonen in einer Serversammlung. Die lokale App-Sammlung bleibt auf diesem Gerät und wird nicht automatisch synchronisiert.',
+              ),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+            const SharedCareBrowserLink(),
+            const SizedBox(height: 32),
+            const Divider(),
+            const SizedBox(height: 24),
+            Text(
+              sharedText(context, 'Website and guide', 'Website und Anleitung'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            const ProjectWebLinks(),
+            const SizedBox(height: 32),
+          ],
+
           const Divider(),
           const SizedBox(height: 24),
 

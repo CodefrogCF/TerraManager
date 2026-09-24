@@ -66,9 +66,9 @@ void main() {
     expect(find.byKey(const Key('add-box-button')), findsOneWidget);
     expect(find.byKey(const Key('shared-box-scan-button')), findsOneWidget);
     expect(
-      tester.widget<IconButton>(
-        find.byKey(const Key('shared-box-scan-button')),
-      ).onPressed,
+      tester
+          .widget<IconButton>(find.byKey(const Key('shared-box-scan-button')))
+          .onPressed,
       isNotNull,
     );
 

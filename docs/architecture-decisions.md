@@ -1856,3 +1856,44 @@ defined in the implementation work.
 - server outages prevent edits instead of creating divergent local changes
 - migration from standalone mode requires an explicit backup import
 - browser-based shared mode requires no new Android app permission
+
+---
+
+## ADR-031: Decode Shared Care Box QR codes in the browser without a public CDN
+
+**Status:** Accepted
+
+**Date:** 2026-09-24
+
+### Context
+
+Shared Care needs physical Box lookup from a caregiver's phone. Its API
+already resolves a permanent Box QR identifier, but the browser must decode
+the camera image first. The Web scanner package's automatic fallback can
+download a decoder from a public CDN when native recognition is unavailable.
+That would make camera scanning depend on a service outside the operator's LAN.
+
+### Decision
+
+The separate Shared Care Web entry point selects the browser's native
+`BarcodeDetector` reader. It does not activate the package's CDN fallback.
+The Box overview opens the scanner only on user request. The client validates
+the decoded TerraManager Box identifier locally, then sends only that
+identifier to the authenticated, same-origin `GET /boxes/qr/{qrId}` endpoint.
+The server resolves the current Box and its lifecycle status. Camera frames
+are never uploaded.
+
+Browsers without native QR recognition, including current Firefox, show a
+camera/reader-unavailable message. Other Shared Care features remain usable.
+Remote LAN clients require trusted HTTPS for browser camera access. The
+standalone Android scanner and its existing permission model are unchanged.
+
+### Consequences
+
+- Box QR lookup works without an external decoder or cloud account on a
+  supported browser
+- a valid QR identifier is visible to the operator's server, but camera
+  images stay on the scanning device
+- browser support must be checked on the actual caregiver phones
+- Firefox users can still manage records but cannot use this native scanner
+- no Android release build or additional Android permission is required

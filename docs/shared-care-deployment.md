@@ -1,6 +1,6 @@
 # Shared Care deployment on Raspberry Pi
 
-This is the Issue #159 deployment layout for a 64-bit Raspberry Pi OS host.
+This is the Shared Care deployment layout for a 64-bit Raspberry Pi OS host.
 The server and HTTPS gateway run as ARM64 containers. The server owns one
 collection SQLite database and one account/session SQLite database. Media is
 stored in the collection database, so both files must be kept together.
@@ -31,6 +31,17 @@ certificate chain to `deploy/certs/server.crt` and its key to
 `deploy/certs/server.key` on the Pi. The gateway reads these files from a
 read-only bind mount. It does not request public certificates. Never place
 private keys, passwords or database files in Git or a container image.
+
+On each client, import the public CA certificate as a trusted certificate
+authority for websites. On Android, use the device's certificate-installation
+settings; Brave uses the browser/device trust configuration. On Firefox
+desktop, import the CA under certificate authorities and enable website
+trust. Verify that the browser reports a valid certificate for the exact
+`TM_HOST` address, issued by the installed CA, with no manual security
+exception. A saved exception for an old server certificate is not a substitute
+for trusting the CA; remove it before retesting. Never import or copy the CA
+private key to a caregiver device. Browser menus vary by version, so use the
+browser's current certificate instructions when locating these settings.
 
 From the repository root on the Pi:
 
@@ -154,12 +165,64 @@ controls. Browser-only overview preferences have their own section. Server
 status, administrator backups, caregiver accounts and sign-out are grouped in
 the **Shared server** section, so it is clear which actions affect everyone.
 
-The browser still has some intentional shared-mode differences. QR camera
-scanning, Feeding Mode scanning, latest-Feeding sorting and bulk QR export are
-not offered by this shared interface. Administrators can export and restore
+The active Box overview offers **Scan Box**. On a supported mobile browser,
+opening it asks for browser camera permission, recognizes the printed Box QR
+code on the device and sends only its validated identifier to the same-origin
+care API. It opens the active Box detail page. Unknown or archived Boxes are
+rejected with an explanation. Camera frames are not uploaded. Shared mode
+forces the browser's native `BarcodeDetector` reader; it does not load a
+scanner library from a public CDN. A browser without that native reader,
+including current Firefox, cannot use this scanner. Other collection actions
+remain available there. Use a supported Chromium-based mobile browser for the
+QR acceptance check.
+
+The browser still has some intentional shared-mode differences. Feeding Mode
+scanning, latest-Feeding sorting and bulk QR export are not offered by this
+shared interface. Administrators can export and restore
 portable collection backups in Shared Settings. Host-volume backups remain the
 recovery path for both collection and account databases. Do not use the standalone Web application's
 local database as a shared-care substitute.
+
+### Complete field validation
+
+Perform these checks with disposable records on the Pi before putting a new
+deployment into routine use. Record the source revision, browser versions and
+results in the operator's deployment log; automated tests cannot prove that a
+particular phone, camera and certificate work together.
+
+1. On two signed-in devices, create and edit a Box and Animal, record a grouped
+   Feeding, edit a Feeding history entry, add an Animal weight/shedding entry
+   and upload a Box and Animal picture. Confirm each change and image appears
+   on the other device after its next visible refresh (normally within 15
+   seconds). Check thumbnails and full-size picture retrieval.
+2. On the mobile device, open `https://<TM_HOST>/` with the local CA trusted by
+   that browser. Open **Scan Box**, grant camera access, scan a real printed
+   label and confirm that the matching Box details open. An invalid or unknown
+   code must not open another record. Check that the browser's network panel
+   shows no request to a public decoder CDN. An ordinary
+   `http://<LAN-IP>/` page is not an authenticated or camera-capable Shared
+   Care setup.
+3. Perform the connection-loss and simultaneous-edit checks above. Also
+   verify that a signed-out or expired session cannot read Boxes, Animals or
+   media, and that a caregiver cannot create accounts or restore backups.
+4. As an administrator, download a portable `.tmbackup` with pictures and
+   history. Validate and restore it **in a separate disposable installation**,
+   then compare record counts, history and picture bytes. Never test restore
+   by replacing the only live collection. Restart the disposable server and
+   verify that its restored records still exist.
+5. Stop the production server, take and verify a host-volume archive using the
+   procedure below, then start it again. Confirm records and pictures still
+   appear after the restart. For a full disaster-recovery test, restore the
+   archive to an isolated host or directory and verify both collection and
+   account login there. Do not run two server processes against one volume.
+6. Disable WAN access while keeping the LAN active. Repeat login, Box lookup,
+   QR scanning and picture retrieval. No external account, analytics,
+   tracking, cloud or scanner CDN must be required for routine operation.
+
+The operator has already confirmed cross-device Box creation and visible
+Feeding updates on the Pi. Those observations do not establish the remaining
+camera, backup-restore, restart or permission checks; complete them on the
+actual deployment before marking all Issue #163 acceptance criteria verified.
 
 ## Persistence and backups
 
@@ -201,6 +264,11 @@ the Pi from oversized uploads.
 Keep downloaded archives in protected storage because portable backups are not
 encrypted. For an installation with larger archives, use a separately planned
 migration rather than bypassing the limit.
+
+The portable export is a collection transfer, not a server disaster-recovery
+backup: it omits caregiver accounts, password hashes and sessions. Conversely,
+the stopped-server `data/` archive contains both SQLite databases and their
+security-sensitive contents. Keep both types of backup under operator control.
 
 ## Update and rollback
 

@@ -15,6 +15,11 @@ The separate Shared Care Web entry point uses the self-hosted LAN API and
 server-owned database. Its automated client and server tests do not replace
 deployment and multi-browser validation on the target Pi; follow the
 [Shared Care deployment guide](shared-care-deployment.md) for those checks.
+The operator has confirmed sign-in and shared Box/Feeding updates between a
+mobile browser and a laptop on the Pi. Camera scanning, full care workflows,
+backup restore and restart recovery still require the field checks in that
+guide. Shared Care is a separate browser mode, not a network-enabled Android
+release; Android retains its standalone database and permissions.
 
 ## Permanent Application Identity
 
@@ -483,6 +488,14 @@ localhost
 ```
 
 Behavior may vary between browsers and devices.
+
+The Shared Care scanner requires trusted HTTPS on the LAN and a browser with
+the native `BarcodeDetector` API. It scans Box labels locally and sends only
+the validated QR identifier to the operator's server for lookup. It does not
+load a decoder from an external CDN. Browsers without the native reader can
+still use Shared Care record and history pages but cannot scan Box labels.
+The Android app's external-browser link does not add Android network or camera
+permissions beyond the standalone app's existing permissions.
 
 Camera-based picture capture also depends on browser and device support. When
 the browser does not expose it through the image picker, TerraManager disables

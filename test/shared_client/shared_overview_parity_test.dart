@@ -64,6 +64,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('box-sort-button')), findsOneWidget);
     expect(find.byKey(const Key('add-box-button')), findsOneWidget);
+    expect(find.byKey(const Key('shared-box-scan-button')), findsOneWidget);
+    expect(
+      tester.widget<IconButton>(
+        find.byKey(const Key('shared-box-scan-button')),
+      ).onPressed,
+      isNotNull,
+    );
 
     await tester.tap(find.byKey(const Key('box-sort-button')));
     await tester.pumpAndSettle();
@@ -95,6 +102,7 @@ void main() {
     await tester.tap(find.byKey(const Key('box-archive-button')));
     await tester.pumpAndSettle();
     expect(find.text('Renamed'), findsOneWidget);
+    expect(find.byKey(const Key('shared-box-scan-button')), findsNothing);
   });
 }
 

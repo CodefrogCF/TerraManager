@@ -15,6 +15,7 @@ import '../features/backup/infrastructure/backup_file_service.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
+import 'shared_box_scanner_page.dart';
 import 'shared_detail_pages.dart';
 import 'shared_forms.dart';
 import 'shared_history_page.dart';
@@ -359,6 +360,27 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                 ),
             ],
           ),
+          if (!_archived)
+            IconButton(
+              key: const Key('shared-box-scan-button'),
+              tooltip: context.l10n.scanBoxTitle,
+              onPressed: widget.connected && widget.api.connected
+                  ? () async {
+                      await Navigator.of(context).push<void>(
+                        MaterialPageRoute(
+                          builder: (_) => SharedBoxScannerPage(
+                            api: widget.api,
+                            boxes: widget.boxes,
+                            animals: widget.animals,
+                            change: widget.change,
+                          ),
+                        ),
+                      );
+                      if (mounted) await widget.onReload();
+                    }
+                  : null,
+              icon: const Icon(Icons.qr_code_scanner),
+            ),
           if (!_archived)
             IconButton(
               key: const Key('box-archive-button'),

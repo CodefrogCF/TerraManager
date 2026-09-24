@@ -99,6 +99,10 @@ or sessions.
 | Portable backup | Administrator-only `GET /admin/backups` downloads a `.tmbackup`; `POST /admin/backups/restore` replaces the collection after confirmation |
 
 Creation of a Box generates its permanent QR identifier on the server.
+The Shared Care browser scanner decodes a printed Box code locally and sends
+only its validated identifier to `GET /boxes/qr/{qrId}` over the same HTTPS
+origin. The server returns the current Box or `404`; the client refuses to
+open archived Boxes from the scanner. Camera frames are not an API payload.
 Animal creation and replacement require `boxId`, `commonName`,
 `latinName`, `tempMin`, `tempMax`, `humidityMin`, and `humidityMax`.
 Animal `PUT` is a full replacement of editable fields and also requires

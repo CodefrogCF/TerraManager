@@ -1064,6 +1064,17 @@ caregiver's browser preferences. Importing such an archive into a standalone
 installation preserves that installation's personal preferences. Older archives
 without `scope` retain their established personal-settings behavior.
 
+Shared Care administrators export this archive through Shared Settings. A
+restore replaces the server collection only after validating the archive and
+checking a safety token against concurrent changes; the account database is
+not replaced. The archive includes collection picture media but excludes
+server accounts, password hashes, sessions and local browser preferences.
+For server disaster recovery, the operator must separately back up both
+SQLite databases in `deploy/data/` while the server is stopped. Neither the
+portable archive nor the host-volume archive is encrypted by TerraManager.
+See [Shared Care deployment](shared-care-deployment.md) for an isolated restore
+test and the update/rollback procedure.
+
 The required settings fields in Backup Format Versions 1 and 2 are:
 
 ```text

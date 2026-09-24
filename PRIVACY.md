@@ -1,9 +1,13 @@
 # TerraManager Privacy Policy
 
-**Effective date:** September 15, 2026
+**Effective date:** September 24, 2026
 **Application:** TerraManager
 **Developer:** Codefrog
 **Privacy and support contact:** See the TerraManager project repository for the current contact and support channels.
+
+This policy covers both standalone Android/Web use and the optional,
+operator-hosted Shared Care Web mode. The developer does not operate the
+Shared Care server. Its operator controls access, storage and backups.
 
 ## 1. Overview
 
@@ -13,7 +17,7 @@ Privacy is a core design principle of TerraManager.
 
 The current version does not provide or require:
 
-* a TerraManager user account;
+* a developer-operated TerraManager user account;
 * a user profile;
 * a TerraManager-operated backend;
 * mandatory cloud storage or synchronization;
@@ -62,7 +66,7 @@ As a result, the Android production application cannot use ordinary network conn
 
 TerraManager does not require an Internet connection for its normal collection-management functionality.
 
-### Web
+### Standalone Web
 
 When TerraManager is used as a Web application, application data is stored locally within the active browser environment where supported.
 
@@ -74,11 +78,24 @@ The website or hosting provider used to deliver the TerraManager Web application
 
 Such hosting-level processing is separate from TerraManager's collection-management functionality and is subject to the privacy terms of the respective hosting provider.
 
+### Shared Care Web
+
+When a collection operator deploys Shared Care on a Raspberry Pi or another
+LAN host, the browser signs in to that operator's server over HTTPS. Box,
+Animal, feeding, history and picture data is sent to and stored in the
+operator-owned SQLite database. Local account names, password hashes and
+sessions are stored in a separate server database. Each browser stores its
+own appearance, language and sorting preferences; it does not hold a separate
+Shared Care collection database. The operator is responsible for account
+access, host security, certificate trust, retention and backups. The Android
+app remains standalone; its Settings link opens Shared Care in a browser and
+does not synchronize its local database.
+
 ## 4. Data collection and sharing
 
-TerraManager does not operate a server or backend that receives users' animal or collection data.
+The developer does not operate a server or backend that receives users' animal or collection data. An optional Shared Care server is operated by the collection owner.
 
-Animal, Box, FeedingEvent, picture and application-setting data is processed locally by TerraManager.
+In standalone modes, Animal, Box, FeedingEvent, picture and application-setting data is processed locally by TerraManager. In Shared Care, collection changes and media are sent to the operator's LAN server; browser presentation preferences remain local.
 
 TerraManager does not:
 
@@ -89,7 +106,7 @@ TerraManager does not:
 * share collection data with advertisers;
 * operate behavioural analytics based on collection data.
 
-Data may leave TerraManager only when the user explicitly initiates an action that transfers or exports data.
+In standalone modes, data leaves the local application only when the user explicitly initiates a transfer or export. In Shared Care, normal record and picture operations also transfer data between the browser and the operator's server.
 
 Examples include:
 
@@ -107,11 +124,17 @@ TerraManager does not control third-party applications or services selected by t
 
 ## 5. Backups
 
-TerraManager allows users to create backups of their locally stored application data.
+TerraManager allows users to create backups of standalone local data or, as a Shared Care administrator, of the operator-hosted collection.
 
 Backups are created only as a result of a user-initiated action.
 
 TerraManager does not automatically upload backups to a TerraManager server or cloud service.
+
+In Shared Care, administrators can explicitly download or restore a portable
+collection backup. The operator should also back up the server volume to
+protect both the collection and account databases. Portable backups exclude
+accounts, sessions and personal browser preferences. Neither type of backup
+is encrypted by TerraManager; the operator controls its storage and access.
 
 The user chooses where an exported backup is stored or transferred.
 
@@ -131,10 +154,13 @@ A backup may contain collection information stored in TerraManager and should th
 TerraManager allows pictures and local picture histories to be associated with
 Animal and Box records.
 
-Pictures selected or created for use with TerraManager are processed for use within the application and stored as part of the user's locally managed TerraManager data.
+In standalone mode, pictures selected or created for TerraManager are processed and stored as part of the user's locally managed data.
 
 TerraManager does not automatically upload Animal or Box pictures to a
 TerraManager server.
+
+In Shared Care, pictures selected for a record are uploaded to the operator's
+LAN server as part of that user-initiated record action.
 
 If the user exports, shares or backs up data containing pictures, those files may be processed by the destination selected by the user.
 
@@ -156,6 +182,14 @@ require TerraManager to request an additional broad storage, media or network
 permission.
 
 TerraManager does not transmit camera images or decoded TerraManager QR contents to a TerraManager-operated server.
+
+In Shared Care, the browser recognizes Box QR codes locally. For a valid
+TerraManager Box code, it sends only the decoded QR identifier to the
+operator's same-origin server to find the Box. Camera frames are not uploaded.
+The Shared Care scanner uses the browser's built-in QR reader and does not
+download a decoder from a public CDN. Browser camera permission is requested
+only when the scanner is opened. An HTTPS origin trusted by the device is
+required for camera access on another LAN device.
 
 Camera access is requested only when functionality requiring the camera is used or when the operating system requires permission for that functionality.
 
@@ -226,15 +260,15 @@ TerraManager can display feeding-related reminder information within the applica
 
 The current version does not require Android system-notification permission for this functionality.
 
-Feeding reminder calculations are based on locally stored TerraManager data and are processed locally.
+In standalone mode, feeding reminder calculations use local data. In Shared Care, the browser calculates reminders from records returned by the operator's server.
 
-## 12. No account or registration
+## 12. Accounts and registration
 
-TerraManager does not require users to register an account.
+Standalone TerraManager does not require users to register an account.
 
-There is no TerraManager username, password or online user profile required to use the application.
+Standalone use requires no TerraManager username, password or online user profile. Shared Care requires a local account created by the server operator.
 
-Because TerraManager does not operate a user-account backend, there is no TerraManager account database containing users' animal collections.
+The developer does not operate a user-account backend. Shared Care uses local accounts on the operator's server; its account database is separate from the collection database.
 
 ## 13. No advertising
 
@@ -255,6 +289,10 @@ The Android production release does not request Internet access.
 ## 15. Data retention
 
 Locally stored TerraManager data remains on the user's device or within the relevant browser environment until it is removed by the user, by the operating system, by the browser or through application-management actions.
+
+Shared Care collection data remains on the operator's server until it is
+changed, deleted or restored by authorized users, or removed by the operator.
+Clearing one browser's site data does not erase the server collection.
 
 Depending on the platform, data may be removed by actions such as:
 
@@ -277,6 +315,10 @@ The transfer is initiated and controlled by the user.
 
 TerraManager does not operate an intermediary synchronization server for this process.
 
+Shared Care is a separate, operator-hosted mode in which signed-in browsers
+use one server database. It does not synchronize with a standalone Android or
+Web collection; moving data between modes requires an explicit backup import.
+
 The user is responsible for selecting an appropriate and secure method for transferring the backup file between devices.
 
 ## 17. Personal information entered by users
@@ -287,7 +329,7 @@ However, free-text fields such as Animal and Box notes may technically allow a u
 
 Users should avoid entering personal or sensitive information that is unnecessary for managing their collection.
 
-Any such information entered voluntarily is treated in the same way as other TerraManager data and remains part of the locally stored application data unless the user deliberately exports or transfers it.
+Any such information entered voluntarily is treated like other collection data: it remains local in standalone mode and is stored on the operator's server in Shared Care.
 
 ## 18. Third-party software
 
@@ -327,7 +369,7 @@ Their handling of files or other information is governed by their own privacy po
 
 ## 20. Security
 
-TerraManager is designed around local data storage, which limits automatic exposure of collection data to remote services.
+Standalone TerraManager is designed around local data storage. Shared Care keeps the collection on the operator's LAN server and requires the operator to protect that host, its HTTPS keys and backups.
 
 However, local storage does not remove all security risks.
 

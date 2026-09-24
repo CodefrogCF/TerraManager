@@ -54,9 +54,9 @@ de:
   privacy:
     eyebrow: Datenschutz ist die Grundlage
     heading: Lokal gespeichert. Unter deiner Kontrolle.
-    body: TerraManager benötigt kein Benutzerkonto und überträgt deine Sammlungsdaten nicht an einen TerraManager-Server. Die Website verwendet keine Tracker, Cookies, externen Skripte oder Webfonts.
+    body: Die eigenständige Android- und Webanwendung benötigt kein Benutzerkonto. Der optionale Shared-Care-Modus speichert die gemeinsame Sammlung auf deinem eigenen Server im lokalen Netz. Der Entwickler betreibt keinen Sammlungsserver. Diese Website verwendet keine Tracker, Cookies, externen Skripte oder Webfonts.
     points:
-      - Datenbank und Einstellungen bleiben lokal auf dem verwendeten Gerät oder im aktiven Browserprofil.
+      - Im eigenständigen Modus bleiben Datenbank und Einstellungen auf deinem Gerät oder im aktiven Browserprofil; Shared Care speichert die Sammlung auf deinem Server.
       - Kamera, Bild- und Dateiauswahl werden nur nach einer von dir gestarteten Aktion verwendet.
       - Backups und exportierte Dateien bestimmst, speicherst und überträgst du selbst.
     policy: Datenschutzerklärung lesen
@@ -158,9 +158,9 @@ en:
   privacy:
     eyebrow: Privacy by foundation
     heading: Stored locally. Controlled by you.
-    body: TerraManager requires no user account and sends no collection data to a TerraManager server. This website uses no trackers, cookies, external scripts or web fonts.
+    body: Standalone Android and Web use requires no account. Optional Shared Care stores the shared collection on your own LAN server. The developer does not operate a collection server. This website uses no trackers, cookies, external scripts or web fonts.
     points:
-      - The database and settings stay on the device or in the active browser profile.
+      - In standalone mode, the database and settings stay on your device or in the active browser profile; Shared Care keeps the collection on your server.
       - Camera, image and file pickers are used only after an action you start.
       - You decide where backups and exported files are stored and transferred.
     policy: Read the Privacy Policy

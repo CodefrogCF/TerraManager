@@ -140,15 +140,24 @@ edit while disconnected. Appearance, language and sorting preferences remain
 local to each browser. The Android app can open this mode in an external
 browser; its local collection remains independent.
 
+Shared Care's active Box overview can scan a physical Box label in a browser
+with native QR recognition. The camera image stays on the device; only a
+validated Box QR identifier is sent to the operator's API. The scanner does
+not fetch an external decoder. Trusted HTTPS is required on other LAN devices.
+The [deployment guide](shared-care-deployment.md) lists the full two-device,
+scanning and recovery checks still needed for a new installation.
+
 Administrators can download the complete shared collection as a portable
 `.tmbackup` and restore a compatible archive after saving a current safety
 copy and confirming replacement. Shared archives leave caregiver accounts and
 personal browser preferences outside the portable collection. A host-volume
 backup is still needed to protect server accounts and sessions.
 
-There is no cloud synchronization.
+There is no developer-operated cloud synchronization.
 
-This means that data stored on one device is not automatically available on another device.
+In standalone mode, data stored on one device is not automatically available
+on another. Shared Care browsers signed in to the same self-hosted server see
+the same collection after refresh.
 
 Portable `.tmbackup` files can be used to manually transfer TerraManager data
 between supported devices and platforms.

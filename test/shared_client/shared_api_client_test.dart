@@ -91,6 +91,29 @@ void main() {
     client.close();
   });
 
+  test('Box QR lookup stays on the authenticated server origin', () async {
+    const qrId = 'TM:BOX:12345678-1234-4123-8123-123456789abc';
+    late http.Request lookup;
+    final backend = MockClient((request) async {
+      lookup = request;
+      return http.Response(
+        jsonEncode({
+          'box': {'id': 7, 'qrId': qrId, 'status': 'active'},
+        }),
+        200,
+      );
+    });
+    final client = SharedApiClient(Uri.parse(origin), backend);
+
+    final box = await client.boxByQrId(qrId);
+
+    expect(box['id'], 7);
+    expect(lookup.method, 'GET');
+    expect(lookup.url.origin, origin);
+    expect(lookup.url.pathSegments, ['api', 'v1', 'boxes', 'qr', qrId]);
+    client.close();
+  });
+
   test(
     'edits send the opened revision and feeding sends its request key',
     () async {

@@ -112,7 +112,7 @@ de:
         - number: "6"
           reverse: true
           heading: Anbringen und scannen
-          body_html: Bringe den Ausdruck am realen Terrarium oder Behälter an. Der integrierte Scanner löst den Code lokal auf. Derselbe Scanner kann eine Box öffnen, den Fütterungsmodus starten oder beim Bearbeiten eines Tieres eine aktive Zielbox auswählen. Der Umsetzmodus verlangt eine Bestätigung und lehnt unbekannte, archivierte oder bereits zugewiesene Boxen ab.
+          body_html: Bringe den Ausdruck am realen Terrarium oder Behälter an. Im eigenständigen Modus löst der integrierte Scanner den Code lokal auf. Derselbe Scanner kann eine Box öffnen, den Fütterungsmodus starten oder beim Bearbeiten eines Tieres eine aktive Zielbox auswählen. Der Umsetzmodus verlangt eine Bestätigung und lehnt unbekannte, archivierte oder bereits zugewiesene Boxen ab. Im optionalen Shared-Care-Webmodus öffnet der Box-Scan die gemeinsame Boxdetailseite; dafür sind vertrauenswürdiges HTTPS und die integrierte QR-Erkennung eines unterstützten Browsers nötig. Nur die QR-Kennung wird an den eigenen Server übertragen.
           wide_images: true
           images:
             - file: qr-on-enclosure.webp
@@ -202,7 +202,7 @@ de:
         - number: "13"
           heading: Safety Backup bei Wiederherstellung
           body_html: Vor einer Wiederherstellung ist standardmäßig ein zusätzliches Safety Backup des aktuellen Zustands vorgesehen. Der Schutz ist als Opt-out ausgeführt und kann bewusst deaktiviert werden.
-          note_html: Solange das Safety Backup aktiviert bleibt, ist vor jeder Wiederherstellung keine separate manuelle Zwischensicherung erforderlich.
+          note_html: Im eigenständigen Modus ist bei aktiviertem Safety Backup keine separate manuelle Zwischensicherung vor jeder Wiederherstellung nötig. Bei Shared Care sollten Administratoren vor einer Wiederherstellung eine aktuelle portable Sicherung herunterladen; für die vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden.
           images:
             - file: restore-safety-backup.webp
               alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
@@ -333,7 +333,7 @@ en:
         - number: "6"
           reverse: true
           heading: Attach and scan
-          body_html: Attach the printed code to the actual terrarium or enclosure. TerraManager’s integrated scanner resolves the code locally. The same scanner can open an enclosure, start Feeding Mode or select an active destination enclosure from Edit Animal. Rehouse Mode asks for confirmation and rejects unknown, archived and current enclosures.
+          body_html: Attach the printed code to the actual terrarium or enclosure. In standalone mode, TerraManager’s integrated scanner resolves the code locally. The same scanner can open an enclosure, start Feeding Mode or select an active destination enclosure from Edit Animal. Rehouse Mode asks for confirmation and rejects unknown, archived and current enclosures. In optional Shared Care Web mode, a Box scan opens the shared Box details; it requires trusted HTTPS and a supported browser’s built-in QR reader. Only the QR identifier is sent to your own server.
           wide_images: true
           images:
             - file: qr-on-enclosure.webp
@@ -410,7 +410,7 @@ en:
             #- file: archived-boxes.webp
             #  alt: Enclosure History with archived enclosures
             #  caption: Enclosure History
-            #- file: archive-details.webp
+            - file: archive-details.webp
               alt: Archive information with restore action
               caption: Archive details and restore
     - id: backup
@@ -423,7 +423,7 @@ en:
         - number: "13"
           heading: Safety backup before restore
           body_html: Before restoring a backup, TerraManager offers an additional safety backup of the current state by default. This protection is opt-out and can be deliberately disabled.
-          note_html: As long as the safety backup remains enabled, you do not need to create an extra manual backup before every restore.
+          note_html: In standalone mode, the enabled safety backup removes the need for a separate manual backup before every restore. In Shared Care, administrators should download a current portable backup before restoring; full server recovery also requires a backup of both databases in the server data directory.
           images:
             - file: restore-safety-backup.webp
               alt: Restore dialog with safety backup enabled

@@ -89,6 +89,11 @@ class SharedApiClient extends ChangeNotifier {
   Future<Map<String, dynamic>> box(int id) async =>
       _object(await _request('GET', '/api/v1/boxes/$id'), 'box');
 
+  Future<Map<String, dynamic>> boxByQrId(String qrId) async => _object(
+    await _request('GET', '/api/v1/boxes/qr/${Uri.encodeComponent(qrId)}'),
+    'box',
+  );
+
   Future<Map<String, dynamic>> animal(int id) async =>
       _object(await _request('GET', '/api/v1/animals/$id'), 'animal');
 

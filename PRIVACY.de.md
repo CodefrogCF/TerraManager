@@ -1,9 +1,14 @@
 # TerraManager Datenschutzerklärung
 
-**Gültig ab:** 15. September 2026
+**Gültig ab:** 24. September 2026
 **Anwendung:** TerraManager
 **Entwickler:** Codefrog
 **Datenschutz- und Supportkontakt:** Die aktuellen Kontakt- und Supportmöglichkeiten sind im TerraManager-Projektrepository aufgeführt.
+
+Diese Erklärung gilt für die eigenständige Android-/Webnutzung und den
+optionalen, selbst betriebenen Shared-Care-Webmodus. Der Entwickler betreibt
+den Shared-Care-Server nicht. Dessen Betreiber verwaltet Zugänge, Speicherung
+und Sicherungen.
 
 ## 1. Überblick
 
@@ -13,7 +18,7 @@ Datenschutz ist ein zentraler Gestaltungsgrundsatz von TerraManager.
 
 Die aktuelle Version stellt Folgendes weder bereit noch setzt sie es voraus:
 
-* ein TerraManager-Benutzerkonto;
+* ein vom Entwickler betriebenes TerraManager-Benutzerkonto;
 * ein Benutzerprofil;
 * ein von TerraManager betriebenes Backend;
 * verpflichtenden Cloudspeicher oder eine verpflichtende Synchronisierung;
@@ -62,7 +67,7 @@ Dadurch kann die Android-Produktionsanwendung keine üblichen Netzwerkverbindung
 
 TerraManager benötigt für seine üblichen Funktionen zur Sammlungsverwaltung keine Internetverbindung.
 
-### Web
+### Eigenständige Webanwendung
 
 Bei Verwendung als Webanwendung werden Anwendungsdaten, soweit unterstützt, lokal in der aktiven Browserumgebung gespeichert.
 
@@ -74,11 +79,25 @@ Die Website oder der Hostinganbieter, über die beziehungsweise den die TerraMan
 
 Diese Verarbeitung auf Hostingebene ist von der Sammlungsverwaltung durch TerraManager getrennt und unterliegt den Datenschutzbestimmungen des jeweiligen Hostinganbieters.
 
+### Shared-Care-Webmodus
+
+Wenn eine Betreiberin oder ein Betreiber Shared Care auf einem Raspberry Pi
+oder einem anderen Gerät im lokalen Netz bereitstellt, meldet sich der Browser
+über HTTPS an diesem Server an. Daten zu Boxen, Tieren, Fütterungen, Verläufen
+und Bildern werden an die SQLite-Datenbank des Betreibers übertragen und dort
+gespeichert. Lokale Kontonamen, Passwort-Hashes und Sitzungen liegen in einer
+separaten Serverdatenbank. Jeder Browser speichert eigene Einstellungen für
+Darstellung, Sprache und Sortierung, aber keine eigene Shared-Care-Sammlungsdatenbank.
+Der Betreiber ist für Kontozugänge, Serversicherheit, Zertifikatsvertrauen,
+Speicherdauer und Sicherungen verantwortlich. Die Android-App bleibt
+eigenständig: Ihr Link in den Einstellungen öffnet Shared Care im Browser,
+ohne die lokale Datenbank zu synchronisieren.
+
 ## 4. Datenerhebung und Weitergabe
 
-TerraManager betreibt keinen Server und kein Backend, das Tier- oder Sammlungsdaten von Benutzerinnen und Benutzern empfängt.
+Der Entwickler betreibt keinen Server und kein Backend, das Tier- oder Sammlungsdaten von Benutzerinnen und Benutzern empfängt. Ein optionaler Shared-Care-Server wird vom Sammlungsbetreiber bereitgestellt.
 
-Daten zu Tieren, Boxen, FeedingEvents, Bildern und Anwendungseinstellungen werden lokal durch TerraManager verarbeitet.
+In den eigenständigen Modi verarbeitet TerraManager Daten zu Tieren, Boxen, FeedingEvents, Bildern und Einstellungen lokal. Im Shared-Care-Modus werden Sammlungsänderungen und Medien an den lokalen Server des Betreibers übertragen; persönliche Darstellungseinstellungen bleiben im Browser.
 
 TerraManager:
 
@@ -89,7 +108,7 @@ TerraManager:
 * gibt keine Sammlungsdaten an Werbetreibende weiter;
 * betreibt keine Verhaltensanalyse auf Grundlage von Sammlungsdaten.
 
-Daten können TerraManager nur verlassen, wenn die Benutzerin oder der Benutzer ausdrücklich eine Übertragung oder einen Export auslöst.
+In den eigenständigen Modi verlassen Daten die lokale Anwendung nur nach einer ausdrücklich ausgelösten Übertragung oder einem Export. Im Shared-Care-Modus übertragen normale Datensatz- und Bildaktionen Daten zwischen Browser und Betreiber-Server.
 
 Beispiele hierfür sind:
 
@@ -107,11 +126,18 @@ TerraManager kontrolliert keine von der Benutzerin oder dem Benutzer ausgewählt
 
 ## 5. Sicherungen
 
-TerraManager ermöglicht das Erstellen von Sicherungen der lokal gespeicherten Anwendungsdaten.
+TerraManager ermöglicht Sicherungen der eigenständig gespeicherten lokalen Daten oder, für Shared-Care-Administratoren, der vom Betreiber gehosteten Sammlung.
 
 Sicherungen werden nur infolge einer von der Benutzerin oder dem Benutzer ausgelösten Aktion erstellt.
 
 TerraManager lädt Sicherungen nicht automatisch auf einen TerraManager-Server oder in einen Clouddienst hoch.
+
+Im Shared-Care-Modus können Administratoren eine portable Sammlungssicherung
+ausdrücklich herunterladen oder wiederherstellen. Der Betreiber sollte
+zusätzlich das Serververzeichnis sichern, damit Sammlung und Kontodatenbanken
+geschützt sind. Portable Sicherungen enthalten keine Konten, Sitzungen oder
+persönlichen Browsereinstellungen. TerraManager verschlüsselt keine dieser
+Sicherungen; der Betreiber schützt Speicherort und Zugriff.
 
 Die Benutzerin oder der Benutzer wählt aus, wo eine exportierte Sicherung gespeichert oder wohin sie übertragen wird.
 
@@ -128,10 +154,13 @@ Eine Sicherung kann in TerraManager gespeicherte Sammlungsinformationen enthalte
 TerraManager ermöglicht es, Tier- und Boxdatensätzen Bilder und lokale
 Bildhistorien zuzuordnen.
 
-Für TerraManager ausgewählte oder erstellte Bilder werden zur Verwendung in der Anwendung verarbeitet und als Teil der lokal verwalteten TerraManager-Daten gespeichert.
+Im eigenständigen Modus werden für TerraManager ausgewählte oder erstellte Bilder verarbeitet und als Teil der lokal verwalteten Daten gespeichert.
 
 TerraManager lädt Tier- oder Boxbilder nicht automatisch auf einen
 TerraManager-Server hoch.
+
+Im Shared-Care-Modus werden für Datensätze ausgewählte Bilder im Rahmen der
+ausgelösten Aktion an den lokalen Server des Betreibers übertragen.
 
 Wenn Daten mit Bildern exportiert, freigegeben oder gesichert werden, können diese Dateien durch das von der Benutzerin oder dem Benutzer ausgewählte Ziel verarbeitet werden.
 
@@ -148,6 +177,15 @@ Einzelne QR-Bilder, ZIP-Archive und A4-PDF-Bögen werden vollständig auf dem En
 ZIP- und PDF-Exporte werden erst gespeichert, nachdem die Benutzerin oder der Benutzer über den Speicherdialog des Betriebssystems ein Ziel ausgewählt hat. Dieser benutzergesteuerte Dateizugriff erfordert keine zusätzliche weitreichende Speicher-, Medien- oder Netzwerkberechtigung für TerraManager.
 
 TerraManager überträgt weder Kamerabilder noch decodierte TerraManager-QR-Inhalte an einen von TerraManager betriebenen Server.
+
+Im Shared-Care-Modus erkennt der Browser Box-QR-Codes lokal. Bei einem gültigen
+TerraManager-Boxcode sendet er nur die decodierte QR-Kennung an den Server
+desselben Betreibers, um die Box zu finden. Kamerabilder werden nicht
+hochgeladen. Der Scanner verwendet die integrierte QR-Erkennung des Browsers
+und lädt keinen Decoder von einem öffentlichen CDN. Die Kameraberechtigung
+fragt der Browser erst beim Öffnen des Scanners an. Für den Kamerazugriff
+auf anderen Geräten im lokalen Netz ist eine vertrauenswürdige HTTPS-Adresse
+erforderlich.
 
 Kamerazugriff wird nur angefordert, wenn eine kamerabasierte Funktion verwendet wird oder das Betriebssystem die Berechtigung für diese Funktion verlangt.
 
@@ -220,15 +258,15 @@ TerraManager kann fütterungsbezogene Erinnerungsinformationen innerhalb der Anw
 
 Die aktuelle Version benötigt für diese Funktion keine Android-Systemberechtigung für Benachrichtigungen.
 
-Fütterungserinnerungen werden anhand lokal gespeicherter TerraManager-Daten berechnet und lokal verarbeitet.
+Im eigenständigen Modus werden Fütterungserinnerungen anhand lokaler Daten berechnet. Im Shared-Care-Modus berechnet der Browser sie aus Datensätzen, die der Betreiber-Server zurückgibt.
 
-## 12. Kein Konto und keine Registrierung
+## 12. Konten und Registrierung
 
-TerraManager verlangt keine Registrierung eines Benutzerkontos.
+Die eigenständige TerraManager-Anwendung verlangt keine Registrierung eines Benutzerkontos.
 
-Für die Nutzung der Anwendung sind kein TerraManager-Benutzername, kein Passwort und kein Online-Benutzerprofil erforderlich.
+Für die eigenständige Nutzung sind kein TerraManager-Benutzername, kein Passwort und kein Online-Benutzerprofil erforderlich. Shared Care verlangt ein lokales Konto, das der Serverbetreiber anlegt.
 
-Da TerraManager kein Backend für Benutzerkonten betreibt, gibt es keine TerraManager-Kontodatenbank mit den Tiersammlungen der Benutzerinnen und Benutzer.
+Der Entwickler betreibt kein Backend für Benutzerkonten. Shared Care verwendet lokale Konten auf dem Server des Betreibers; dessen Kontodatenbank ist von der Sammlungsdatenbank getrennt.
 
 ## 13. Keine Werbung
 
@@ -249,6 +287,11 @@ Die Android-Produktionsversion fordert keinen Internetzugriff an.
 ## 15. Speicherdauer
 
 Lokal gespeicherte TerraManager-Daten verbleiben auf dem Endgerät oder in der jeweiligen Browserumgebung, bis sie durch die Benutzerin oder den Benutzer, das Betriebssystem, den Browser oder durch Maßnahmen der Anwendungsverwaltung entfernt werden.
+
+Shared-Care-Sammlungsdaten verbleiben auf dem Server des Betreibers, bis sie
+durch Berechtigte geändert, gelöscht oder wiederhergestellt oder durch den
+Betreiber entfernt werden. Das Löschen von Daten eines einzelnen Browsers
+löscht die gemeinsame Serversammlung nicht.
 
 Abhängig von der Plattform können Daten beispielsweise durch folgende Aktionen entfernt werden:
 
@@ -271,6 +314,11 @@ Die Übertragung wird durch die Benutzerin oder den Benutzer ausgelöst und gest
 
 TerraManager betreibt für diesen Vorgang keinen zwischengeschalteten Synchronisierungsserver.
 
+Shared Care ist ein eigener, vom Betreiber bereitgestellter Modus, in dem
+angemeldete Browser eine gemeinsame Serverdatenbank verwenden. Er
+synchronisiert sich nicht mit eigenständigen Android- oder Websammlungen;
+für die Übernahme ist ein ausdrücklicher Backup-Import nötig.
+
 Die Benutzerin oder der Benutzer ist dafür verantwortlich, eine geeignete und sichere Methode zur Übertragung der Sicherungsdatei zwischen Geräten auszuwählen.
 
 ## 17. Von Benutzerinnen und Benutzern eingegebene persönliche Informationen
@@ -281,7 +329,7 @@ Freitextfelder wie Tier- und Boxnotizen ermöglichen technisch jedoch die Eingab
 
 Benutzerinnen und Benutzer sollten keine persönlichen oder sensiblen Informationen eingeben, die für die Verwaltung ihrer Sammlung nicht erforderlich sind.
 
-Freiwillig eingegebene Informationen werden wie andere TerraManager-Daten behandelt und bleiben Teil der lokal gespeicherten Anwendungsdaten, sofern die Benutzerin oder der Benutzer sie nicht absichtlich exportiert oder überträgt.
+Freiwillig eingegebene Informationen werden wie andere Sammlungsdaten behandelt: Im eigenständigen Modus bleiben sie lokal, im Shared-Care-Modus liegen sie auf dem Server des Betreibers.
 
 ## 18. Software Dritter
 
@@ -321,7 +369,7 @@ Ihre Verarbeitung von Dateien oder anderen Informationen richtet sich nach ihren
 
 ## 20. Sicherheit
 
-TerraManager ist auf lokale Datenspeicherung ausgerichtet. Dadurch wird die automatische Offenlegung von Sammlungsdaten gegenüber entfernten Diensten begrenzt.
+Die eigenständige Anwendung speichert Daten lokal. Shared Care hält die Sammlung auf dem Server des Betreibers im lokalen Netz; dieser muss Host, HTTPS-Schlüssel und Sicherungen schützen.
 
 Lokale Speicherung beseitigt jedoch nicht alle Sicherheitsrisiken.
 

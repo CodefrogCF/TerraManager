@@ -387,6 +387,7 @@ class SharedServerApi {
         );
       }
       final mediaCount = await _backups.restore(validated);
+      _care.clearRequestCache();
       _safetyGrants.clear();
       await _send(request.response, 200, {
         'restored': true,

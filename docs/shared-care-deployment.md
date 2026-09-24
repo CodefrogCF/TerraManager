@@ -131,6 +131,14 @@ for care work:
    Local browser storage may contain personal presentation preferences. The
    standalone Web application uses its own local collection at its separate
    origin and must not be mistaken for the shared client.
+5. Open the same Box or Animal edit form in both browsers. Save a change in
+   the first browser, then try to save the older form in the second. The second
+   save must be rejected. Go back, review the refreshed record, and open a new
+   edit form before applying the intended change.
+6. Create one Feeding entry and check both browsers' histories. Repeated
+   submission of the same request must not create a second event. Archive an
+   Animal while another browser shows its detail page; the changed lifecycle
+   state should appear on that page after its next visible refresh.
 
 The shared browser overview follows the standalone Box and Animal navigation:
 natural Box sorting, Animal created/name/age sorting, category grouping,

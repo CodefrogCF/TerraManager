@@ -64,7 +64,8 @@ class SharedCareHome extends StatefulWidget {
   State<SharedCareHome> createState() => _SharedCareHomeState();
 }
 
-class _SharedCareHomeState extends State<SharedCareHome> {
+class _SharedCareHomeState extends State<SharedCareHome>
+    with WidgetsBindingObserver {
   Timer? _refreshTimer;
   SharedSession? _session;
   List<Map<String, dynamic>> _boxes = const [];
@@ -75,22 +76,35 @@ class _SharedCareHomeState extends State<SharedCareHome> {
   bool _refreshing = false;
   int _refreshVersion = 0;
   int _page = 0;
+  bool _foreground = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     unawaited(_bootstrap());
     widget.api.addListener(_onApiChanged);
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (_session != null && !_busy) unawaited(_refresh(quiet: true));
+      if (_foreground && _session != null && !_busy) {
+        unawaited(_refresh(quiet: true));
+      }
     });
   }
 
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     widget.api.removeListener(_onApiChanged);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _foreground = state == AppLifecycleState.resumed;
+    if (_foreground && _session != null && !_busy) {
+      unawaited(_refresh(quiet: true));
+    }
   }
 
   void _onApiChanged() {
@@ -216,7 +230,7 @@ class _SharedCareHomeState extends State<SharedCareHome> {
       if (!mounted) return false;
       setState(() {
         _error = error;
-        _connected = error is! SharedApiException;
+        _connected = widget.api.connected;
         _busy = false;
         if (widget.api.session == null) _session = null;
       });
@@ -263,6 +277,7 @@ class _SharedCareHomeState extends State<SharedCareHome> {
       }
       if (Localizations.localeOf(context).languageCode == 'de') {
         return switch (error.code) {
+          'stale_record' => 'Der Datensatz wurde geändert. Bitte neu laden und den neuen Stand prüfen.',
           'conflict' => 'Die Änderung widerspricht dem aktuellen Serverstand. Bitte neu laden.',
           'invalid_data' =>
             'Die eingegebenen Daten wurden vom Server abgelehnt.',

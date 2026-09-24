@@ -207,6 +207,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
         ),
       ),
     );
+    if (mounted) await widget.onReload();
   }
 
   Future<void> _boxAction(_BoxAction action, Map<String, dynamic> box) async {
@@ -221,7 +222,9 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
         );
         if (name == null) return;
         final saved = await widget.change(() async {
-          await widget.api.updateBox(id, {'name': name});
+          await widget.api.updateBox(id, {
+            'name': name,
+          }, box['revision'] as String);
         });
         if (!saved && mounted) _showChangeFailure(context);
       case _BoxAction.edit:
@@ -237,6 +240,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
               ),
             ),
           );
+          if (mounted) await widget.onReload();
         } catch (_) {
           if (mounted) _showChangeFailure(context);
         }
@@ -487,6 +491,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         ),
       ),
     );
+    if (mounted) await widget.onReload();
   }
 
   Future<void> _animalAction(
@@ -520,7 +525,11 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
           // PUT accepts a complete Animal command. Preserve every editable
           // field while changing only the common name.
           final current = await widget.api.animal(id);
-          await widget.api.updateAnimal(id, _animalUpdateValues(current, name));
+          await widget.api.updateAnimal(
+            id,
+            _animalUpdateValues(current, name),
+            current['revision'] as String,
+          );
         });
         if (!saved && mounted) _showChangeFailure(context);
       case _AnimalAction.edit:
@@ -537,6 +546,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
               ),
             ),
           );
+          if (mounted) await widget.onReload();
         } catch (_) {
           if (mounted) _showChangeFailure(context);
         }

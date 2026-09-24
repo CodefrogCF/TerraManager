@@ -59,9 +59,11 @@ Requests and responses containing records use JSON. Dates in write requests
 must use ISO-8601 with `Z` or a numeric time-zone offset. Server responses use
 UTC ISO-8601 timestamps. A client should clear its local login state on
 `401 unauthorized`, show the denied operation on `403 forbidden` or `403 csrf_failed`,
-and redirect to login after expiry. The browser client polls the collection
-periodically and offers a manual reload after connection failures. It does not
-queue edits while disconnected.
+and redirect to login after expiry. The browser client refreshes visible
+overviews and details every 15 seconds, refreshes immediately after a save or
+when the browser returns to the foreground, and offers a manual reload after
+connection failures. Hidden browser tabs do not poll. It does not queue edits while
+disconnected.
 
 ## Local accounts
 
@@ -104,6 +106,21 @@ Animal `PUT` is a full replacement of editable fields and also requires
 `PATCH` changes only supplied fields. Clients cannot assign record IDs,
 status, QR identifiers or archive timestamps through ordinary edit requests.
 
+Every Box and Animal response includes an opaque `revision`. A Box `PATCH` or
+Animal `PUT` must include the `expectedRevision` from the record the editor
+opened. The server compares it inside the write transaction. If another
+caregiver changed the record, it returns `409 stale_record` and writes nothing;
+the client must reload and review the latest record before another attempt.
+Revisions cover record data rather than relying on the timestamp precision of
+SQLite. New records do not need an expected revision.
+
+`POST /feedings` requires a UUID `Idempotency-Key` header. Repeating the same
+request with the same key during the server process lifetime returns its first
+result without adding more events; reusing a key with different data returns
+`409 idempotency_conflict`. The server retains successful keys for 24 hours.
+The browser generates one key for each new feeding submission. If a connection
+fails after submitting, check the server history before creating a new entry.
+
 The API applies the existing environmental, taxonomy, Box-assignment and
 lifecycle rules on the server. Grouped feeding and Animal reassignment run
 inside database transactions. Only archived Boxes and Animals can be
@@ -123,6 +140,8 @@ Errors have the stable shape
 | 403 | `forbidden`, `csrf_failed` | Role, origin or CSRF token denied the request |
 | 404 | `not_found` | Unknown route or record |
 | 409 | `conflict` | Lifecycle or relationship rule prevents the change |
+| 409 | `stale_record` | Record changed since the editor opened; reload and review it |
+| 409 | `idempotency_conflict` | A feeding request key was reused with different data |
 | 413 | `too_large` | Request exceeds the body limit |
 | 415 | `unsupported_media_type` | Write request is not JSON |
 | 429 | `rate_limited` | Too many failed login attempts in five minutes |

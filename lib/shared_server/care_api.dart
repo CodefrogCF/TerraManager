@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show Value;
+import 'package:crypto/crypto.dart';
 import 'package:sqlite3/sqlite3.dart' show SqlError, SqliteException;
 
 import '../core/database/app_database.dart';
@@ -29,8 +30,21 @@ typedef _Payload = Map<String, dynamic>;
 class CareApi {
   final AppDatabase database;
   final CareAuthenticator authenticator;
+  final Map<String, _IdempotentReply> _feedingRequests = {};
 
   CareApi({required this.database, required this.authenticator});
+
+  void clearRequestCache() => _feedingRequests.clear();
+
+  static void _requireRevision(Map<String, dynamic>? current, String expected) {
+    if (current == null || current['revision'] != expected) {
+      throw const ApiProblem(
+        409,
+        'stale_record',
+        'This record changed. Reload it and review the new data before saving.',
+      );
+    }
+  }
 
   Future<HttpServer> serve({InternetAddress? address, int port = 0}) async {
     final server = await HttpServer.bind(
@@ -187,6 +201,7 @@ class CareApi {
       }
       final input = await _body(request);
       input.allow(const {
+        'expectedRevision',
         'name',
         'widthCm',
         'heightCm',
@@ -195,37 +210,45 @@ class CareApi {
         'notes',
         'pictureMediaId',
       });
-      if (input.values.isEmpty) {
+      final expectedRevision = input.string('expectedRevision', maxLength: 64);
+      if (input.values.length == 1) {
         return _error(400, 'invalid_data', 'No fields to update.');
       }
       final mediaId = input.nullableInteger('pictureMediaId');
       if (input.values.containsKey('pictureMediaId')) {
         await _requireMedia(mediaId);
       }
-      final updated = await boxes.updateBox(
-        boxId: id,
-        name: input.values.containsKey('name')
-            ? Value(input.nullableString('name', maxLength: 200))
-            : const Value.absent(),
-        widthCm: input.values.containsKey('widthCm')
-            ? Value(_positiveOptional(input, 'widthCm'))
-            : const Value.absent(),
-        heightCm: input.values.containsKey('heightCm')
-            ? Value(_positiveOptional(input, 'heightCm'))
-            : const Value.absent(),
-        depthCm: input.values.containsKey('depthCm')
-            ? Value(_positiveOptional(input, 'depthCm'))
-            : const Value.absent(),
-        temperatureZones: input.values.containsKey('temperatureZones')
-            ? Value(input.nullableString('temperatureZones'))
-            : const Value.absent(),
-        notes: input.values.containsKey('notes')
-            ? Value(input.nullableString('notes'))
-            : const Value.absent(),
-        pictureMediaId: input.values.containsKey('pictureMediaId')
-            ? Value(mediaId)
-            : const Value.absent(),
-      );
+      final updated = await database.transaction(() async {
+        final current = await boxes.getBoxById(id);
+        _requireRevision(
+          current == null ? null : boxJson(current),
+          expectedRevision,
+        );
+        return boxes.updateBox(
+          boxId: id,
+          name: input.values.containsKey('name')
+              ? Value(input.nullableString('name', maxLength: 200))
+              : const Value.absent(),
+          widthCm: input.values.containsKey('widthCm')
+              ? Value(_positiveOptional(input, 'widthCm'))
+              : const Value.absent(),
+          heightCm: input.values.containsKey('heightCm')
+              ? Value(_positiveOptional(input, 'heightCm'))
+              : const Value.absent(),
+          depthCm: input.values.containsKey('depthCm')
+              ? Value(_positiveOptional(input, 'depthCm'))
+              : const Value.absent(),
+          temperatureZones: input.values.containsKey('temperatureZones')
+              ? Value(input.nullableString('temperatureZones'))
+              : const Value.absent(),
+          notes: input.values.containsKey('notes')
+              ? Value(input.nullableString('notes'))
+              : const Value.absent(),
+          pictureMediaId: input.values.containsKey('pictureMediaId')
+              ? Value(mediaId)
+              : const Value.absent(),
+        );
+      });
       return updated
           ? _Reply(200, {'box': boxJson((await boxes.getBoxById(id))!)})
           : _error(409, 'conflict', 'Box could not be updated.');
@@ -333,35 +356,45 @@ class CareApi {
       if (existing.status != AnimalStatus.active) {
         return _error(409, 'conflict', 'Only active Animals can be edited.');
       }
-      final data = AnimalCommand.fromInput(await _body(request));
+      final input = await _body(request);
+      final expectedRevision = input.string('expectedRevision', maxLength: 64);
+      input.values.remove('expectedRevision');
+      final data = AnimalCommand.fromInput(input);
       await _requireMedia(data.pictureMediaId);
-      final updated = await animals.updateAnimal(
-        animalId: id,
-        boxId: data.boxId,
-        commonName: data.commonName,
-        latinName: data.latinName,
-        category: data.category,
-        subcategory: data.subcategory,
-        sex: data.sex,
-        birthDate: data.birthDate,
-        birthDateAccuracy: data.birthDateAccuracy,
-        tempMin: data.tempMin,
-        tempMax: data.tempMax,
-        nighttimeTemperatureMin: data.nighttimeTemperatureMin,
-        nighttimeTemperatureMax: data.nighttimeTemperatureMax,
-        humidityMin: data.humidityMin,
-        humidityMax: data.humidityMax,
-        originHabitat: data.originHabitat,
-        restOrDormancyPeriods: data.restOrDormancyPeriods,
-        notes: data.notes,
-        pictureMediaId: data.pictureMediaId,
-        feedingReminderIntervalDays: data.feedingReminderIntervalDays,
-        feedingReminderBaseline: data.feedingReminderBaseline,
-        weightGrams: data.weightGrams,
-        weightMeasuredAt: data.weightMeasuredAt,
-        showWeightOnDetail: data.showWeightOnDetail,
-        showSheddingOnDetail: data.showSheddingOnDetail,
-      );
+      final updated = await database.transaction(() async {
+        final current = await animals.getAnimalById(id);
+        _requireRevision(
+          current == null ? null : animalJson(current),
+          expectedRevision,
+        );
+        return animals.updateAnimal(
+          animalId: id,
+          boxId: data.boxId,
+          commonName: data.commonName,
+          latinName: data.latinName,
+          category: data.category,
+          subcategory: data.subcategory,
+          sex: data.sex,
+          birthDate: data.birthDate,
+          birthDateAccuracy: data.birthDateAccuracy,
+          tempMin: data.tempMin,
+          tempMax: data.tempMax,
+          nighttimeTemperatureMin: data.nighttimeTemperatureMin,
+          nighttimeTemperatureMax: data.nighttimeTemperatureMax,
+          humidityMin: data.humidityMin,
+          humidityMax: data.humidityMax,
+          originHabitat: data.originHabitat,
+          restOrDormancyPeriods: data.restOrDormancyPeriods,
+          notes: data.notes,
+          pictureMediaId: data.pictureMediaId,
+          feedingReminderIntervalDays: data.feedingReminderIntervalDays,
+          feedingReminderBaseline: data.feedingReminderBaseline,
+          weightGrams: data.weightGrams,
+          weightMeasuredAt: data.weightMeasuredAt,
+          showWeightOnDetail: data.showWeightOnDetail,
+          showSheddingOnDetail: data.showSheddingOnDetail,
+        );
+      });
       return updated
           ? _Reply(200, {
               'animal': animalJson((await animals.getAnimalById(id))!),
@@ -574,24 +607,35 @@ class CareApi {
     if (path.length == 1 && method == 'POST') {
       final input = await _body(request);
       input.allow(const {'animalIds', 'fedAt', 'notes'});
+      final requestId = request.headers.value('Idempotency-Key');
+      if (requestId == null ||
+          !RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(requestId)) {
+        return _error(
+          400,
+          'invalid_data',
+          'A UUID Idempotency-Key header is required.',
+        );
+      }
       final animalIds = input.integerList('animalIds');
       final fedAt = input.dateTime('fedAt');
       final notes = input.nullableString('notes');
-      final ids = await database.transaction(() async {
-        for (final animalId in animalIds) {
-          await _requireActiveAnimal(animalId);
-        }
-        return feedings.addFeedings(
-          animalIds: animalIds,
-          fedAt: fedAt,
-          notes: notes,
-        );
-      });
-      return _Reply(201, {
-        'feedings': [
-          for (final id in ids)
-            feedingJson((await feedings.getFeedingById(id))!),
-        ],
+      return _idempotentFeeding(requestId, input.values, () async {
+        final ids = await database.transaction(() async {
+          for (final animalId in animalIds) {
+            await _requireActiveAnimal(animalId);
+          }
+          return feedings.addFeedings(
+            animalIds: animalIds,
+            fedAt: fedAt,
+            notes: notes,
+          );
+        });
+        return _Reply(201, {
+          'feedings': [
+            for (final id in ids)
+              feedingJson((await feedings.getFeedingById(id))!),
+          ],
+        });
       });
     }
     if (path.length != 2) {
@@ -624,6 +668,42 @@ class CareApi {
           : _error(409, 'conflict', 'Feeding could not be deleted.');
     }
     return _error(404, 'not_found', 'Unknown Feeding operation.');
+  }
+
+  Future<_Reply> _idempotentFeeding(
+    String key,
+    Map<String, dynamic> payload,
+    Future<_Reply> Function() operation,
+  ) async {
+    final now = DateTime.now();
+    _feedingRequests.removeWhere(
+      (_, entry) => now.difference(entry.createdAt) > const Duration(hours: 24),
+    );
+    final fingerprint = sha256
+        .convert(utf8.encode(jsonEncode(payload)))
+        .toString();
+    final existing = _feedingRequests[key];
+    if (existing != null) {
+      if (existing.fingerprint != fingerprint) {
+        return _error(
+          409,
+          'idempotency_conflict',
+          'Request key was reused with different data.',
+        );
+      }
+      return existing.result;
+    }
+    if (_feedingRequests.length >= 10000) {
+      return _error(429, 'rate_limited', 'Too many recent feeding requests.');
+    }
+    final result = operation();
+    _feedingRequests[key] = _IdempotentReply(now, fingerprint, result);
+    try {
+      return await result;
+    } catch (_) {
+      _feedingRequests.remove(key);
+      rethrow;
+    }
   }
 
   Future<_Reply> _weights(
@@ -924,6 +1004,14 @@ class _Reply {
   const _Reply(this.status, this.body) : bytes = null, mimeType = null;
 
   const _Reply.bytes(this.status, this.bytes, this.mimeType) : body = null;
+}
+
+class _IdempotentReply {
+  final DateTime createdAt;
+  final String fingerprint;
+  final Future<_Reply> result;
+
+  const _IdempotentReply(this.createdAt, this.fingerprint, this.result);
 }
 
 typedef _ImageUpload = ({String fileName, String mimeType, Uint8List bytes});

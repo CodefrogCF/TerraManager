@@ -1,9 +1,13 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
 import '../core/database/app_database.dart';
 import '../core/database/repositories/picture_gallery_repository.dart';
 
 String? _date(DateTime? value) => value?.toUtc().toIso8601String();
 
-Map<String, dynamic> boxJson(Box box) => {
+Map<String, dynamic> boxJson(Box box) => _withRevision({
   'id': box.id,
   'qrId': box.qrId,
   'status': box.status.name,
@@ -19,9 +23,9 @@ Map<String, dynamic> boxJson(Box box) => {
   'pictureMediaId': box.pictureMediaId,
   'createdAt': _date(box.createdAt),
   'updatedAt': _date(box.updatedAt),
-};
+});
 
-Map<String, dynamic> animalJson(Animal animal) => {
+Map<String, dynamic> animalJson(Animal animal) => _withRevision({
   'id': animal.id,
   'boxId': animal.boxId,
   'status': animal.status.name,
@@ -56,6 +60,13 @@ Map<String, dynamic> animalJson(Animal animal) => {
   'showSheddingOnDetail': animal.showSheddingOnDetail,
   'createdAt': _date(animal.createdAt),
   'updatedAt': _date(animal.updatedAt),
+});
+
+Map<String, dynamic> _withRevision(Map<String, dynamic> values) => {
+  ...values,
+  // The token covers all fields that an edit form may replace. SQLite DateTime
+  // columns may have second precision, so updatedAt alone is insufficient.
+  'revision': sha256.convert(utf8.encode(jsonEncode(values))).toString(),
 };
 
 Map<String, dynamic> feedingJson(FeedingEvent event) => {

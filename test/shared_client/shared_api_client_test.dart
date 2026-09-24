@@ -78,7 +78,7 @@ void main() {
     await client.login('hagen', 'secret password');
 
     await expectLater(
-      client.updateBox(3, {'name': 'Changed'}),
+      client.updateBox(3, {'name': 'Changed'}, 'initial-revision'),
       throwsA(
         isA<SharedApiException>().having(
           (error) => error.status,
@@ -90,6 +90,55 @@ void main() {
     expect(client.connected, isTrue);
     client.close();
   });
+
+  test(
+    'edits send the opened revision and feeding sends its request key',
+    () async {
+      final requests = <http.Request>[];
+      final backend = MockClient((request) async {
+        requests.add(request);
+        if (request.url.path == '/api/v1/auth/login') {
+          return http.Response(jsonEncode(session), 200);
+        }
+        if (request.url.path == '/api/v1/boxes/3') {
+          return http.Response(
+            jsonEncode({
+              'box': {'id': 3, 'name': 'Changed'},
+            }),
+            200,
+          );
+        }
+        if (request.url.path == '/api/v1/feedings') {
+          return http.Response(
+            jsonEncode({
+              'feedings': [
+                {'id': 9, 'animalId': 7},
+              ],
+            }),
+            201,
+          );
+        }
+        return http.Response('{}', 404);
+      });
+      final client = SharedApiClient(Uri.parse(origin), backend);
+      await client.login('hagen', 'secret password');
+      await client.updateBox(3, {'name': 'Changed'}, 'opened-revision');
+      await client.createFeeding(
+        7,
+        DateTime.utc(2026, 9, 23),
+        null,
+        requestId: 'b73f3a4c-2c33-4786-9db8-39c70650a133',
+      );
+      final edit = requests.firstWhere((request) => request.method == 'PATCH');
+      expect(jsonDecode(edit.body)['expectedRevision'], 'opened-revision');
+      final feeding = requests.last;
+      expect(
+        feeding.headers['Idempotency-Key'],
+        'b73f3a4c-2c33-4786-9db8-39c70650a133',
+      );
+      client.close();
+    },
+  );
 
   test(
     'connection loss blocks success and a later request reconnects',

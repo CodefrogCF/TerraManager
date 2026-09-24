@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
 /// The shared client deliberately holds no collection data on disk.
 class SharedApiClient extends ChangeNotifier {
@@ -17,6 +18,7 @@ class SharedApiClient extends ChangeNotifier {
   final http.Client _client;
   SharedSession? _session;
   bool _connected = false;
+  Object? lastFailure;
 
   SharedSession? get session => _session;
   bool get connected => _connected;
@@ -96,8 +98,13 @@ class SharedApiClient extends ChangeNotifier {
   Future<Map<String, dynamic>> updateBox(
     int id,
     Map<String, dynamic> values,
+    String expectedRevision,
   ) async => _object(
-    await _request('PATCH', '/api/v1/boxes/$id', body: values),
+    await _request(
+      'PATCH',
+      '/api/v1/boxes/$id',
+      body: {...values, 'expectedRevision': expectedRevision},
+    ),
     'box',
   );
 
@@ -143,8 +150,13 @@ class SharedApiClient extends ChangeNotifier {
   Future<Map<String, dynamic>> updateAnimal(
     int id,
     Map<String, dynamic> values,
+    String expectedRevision,
   ) async => _object(
-    await _request('PUT', '/api/v1/animals/$id', body: values),
+    await _request(
+      'PUT',
+      '/api/v1/animals/$id',
+      body: {...values, 'expectedRevision': expectedRevision},
+    ),
     'animal',
   );
 
@@ -196,8 +208,9 @@ class SharedApiClient extends ChangeNotifier {
   Future<Map<String, dynamic>> createFeeding(
     int animalId,
     DateTime fedAt,
-    String? notes,
-  ) async => _list(
+    String? notes, {
+    String? requestId,
+  }) async => _list(
     await _request(
       'POST',
       '/api/v1/feedings',
@@ -206,6 +219,7 @@ class SharedApiClient extends ChangeNotifier {
         'fedAt': fedAt.toUtc().toIso8601String(),
         'notes': notes,
       },
+      extraHeaders: {'Idempotency-Key': requestId ?? const Uuid().v4()},
     ),
     'feedings',
   ).single;
@@ -459,8 +473,11 @@ class SharedApiClient extends ChangeNotifier {
     String path, {
     Map<String, dynamic>? body,
     bool requiresSession = true,
+    Map<String, String> extraHeaders = const {},
   }) async {
     final headers = <String, String>{'Accept': 'application/json'};
+    headers.addAll(extraHeaders);
+    if (!{'GET', 'HEAD'}.contains(method)) lastFailure = null;
     if (body != null) headers['Content-Type'] = 'application/json';
     if (requiresSession && !{'GET', 'HEAD'}.contains(method)) {
       final csrfToken = _session?.csrfToken;
@@ -481,7 +498,8 @@ class SharedApiClient extends ChangeNotifier {
           .timeout(const Duration(seconds: 15));
     } catch (_) {
       _setConnected(false);
-      throw const SharedConnectionException();
+      lastFailure = const SharedConnectionException();
+      throw lastFailure!;
     }
     _setConnected(true);
 
@@ -491,17 +509,19 @@ class SharedApiClient extends ChangeNotifier {
       if (decoded is! Map<String, dynamic>) throw const FormatException();
       json = decoded;
     } catch (_) {
-      throw SharedApiException(
+      final failure = SharedApiException(
         response.statusCode,
         'invalid_response',
         'The server returned an invalid response.',
       );
+      lastFailure = failure;
+      throw failure;
     }
 
     if (response.statusCode == 401 && requiresSession) _session = null;
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final error = json['error'];
-      throw SharedApiException(
+      final failure = SharedApiException(
         response.statusCode,
         error is Map && error['code'] is String
             ? error['code'] as String
@@ -510,6 +530,8 @@ class SharedApiClient extends ChangeNotifier {
             ? error['message'] as String
             : 'The request failed.',
       );
+      lastFailure = failure;
+      throw failure;
     }
     return json;
   }

@@ -16,8 +16,13 @@ void main() {
     tester,
   ) async {
     final boxes = <Map<String, dynamic>>[
-      {'id': 1, 'name': 'Terrarium 10', 'status': 'active'},
-      {'id': 2, 'name': 'Terrarium 2', 'status': 'active'},
+      {
+        'id': 1,
+        'name': 'Terrarium 10',
+        'status': 'active',
+        'revision': 'rev-1',
+      },
+      {'id': 2, 'name': 'Terrarium 2', 'status': 'active', 'revision': 'rev-1'},
     ];
     var writes = 0;
     var archives = 0;
@@ -33,8 +38,12 @@ void main() {
           if (request.method == 'PATCH') {
             writes++;
             final payload = jsonDecode(request.body) as Map<String, dynamic>;
-            expect(payload, {'name': 'Renamed'});
-            boxes[0] = {...boxes[0], 'name': payload['name']};
+            expect(payload, {'name': 'Renamed', 'expectedRevision': 'rev-1'});
+            boxes[0] = {
+              ...boxes[0],
+              'name': payload['name'],
+              'revision': 'rev-2',
+            };
             return http.Response(jsonEncode({'box': boxes[0]}), 200);
           }
         case '/api/v1/boxes/1/archive':

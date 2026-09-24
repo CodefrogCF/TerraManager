@@ -80,6 +80,55 @@ void main() {
       expect(addButton.onPressed, isNull);
     },
   );
+
+  testWidgets('visible overview refreshes and pauses in the background', (
+    tester,
+  ) async {
+    var boxName = 'First name';
+    var reads = 0;
+    final backend = MockClient((request) async {
+      if (request.url.path == '/api/v1/auth/session') {
+        return http.Response(jsonEncode(_session), 200);
+      }
+      if (request.url.path == '/api/v1/boxes') {
+        reads++;
+        return http.Response(
+          jsonEncode({
+            'boxes': [
+              {'id': 1, 'name': boxName, 'status': 'active'},
+            ],
+          }),
+          200,
+        );
+      }
+      if (request.url.path == '/api/v1/animals') {
+        return http.Response(jsonEncode({'animals': []}), 200);
+      }
+      return http.Response('{}', 404);
+    });
+    await tester.pumpWidget(
+      SharedCareApp(
+        api: SharedApiClient(Uri.parse('https://192.168.1.117'), backend),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('First name'), findsOneWidget);
+
+    boxName = 'Second name';
+    await tester.pump(const Duration(seconds: 15));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Second name'), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    final pausedReads = reads;
+    boxName = 'Third name';
+    await tester.pump(const Duration(seconds: 16));
+    await tester.pumpAndSettle();
+    expect(reads, pausedReads);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Third name'), findsOneWidget);
+  });
 }
 
 const _session = {

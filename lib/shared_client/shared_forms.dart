@@ -29,12 +29,15 @@ class SharedBoxForm extends StatefulWidget {
 class _SharedBoxFormState extends State<SharedBoxForm> {
   final _form = GlobalKey<FormState>();
   late final Map<String, TextEditingController> _fields;
+  Map<String, dynamic>? _initial;
   bool _saving = false;
+  bool _stale = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    _initial = widget.initial;
     _fields = {
       for (final key in [
         'name',
@@ -98,10 +101,14 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
       'notes': _text('notes'),
     };
     final saved = await widget.change(() async {
-      if (widget.initial == null) {
+      if (_initial == null) {
         await widget.api.createBox(values);
       } else {
-        await widget.api.updateBox(recordId(widget.initial!), values);
+        await widget.api.updateBox(
+          recordId(_initial!),
+          values,
+          _initial!['revision'] as String,
+        );
       }
     });
     if (!mounted) return;
@@ -110,12 +117,52 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
     } else {
       setState(() {
         _saving = false;
-        _error = sharedText(
-          context,
-          'The result is uncertain. Reload and check the server data.',
-          'Das Ergebnis ist unklar. Neu laden und Serverdaten prüfen.',
-        );
+        _stale =
+            widget.api.lastFailure is SharedApiException &&
+            (widget.api.lastFailure as SharedApiException).code ==
+                'stale_record';
+        _error = _stale
+            ? sharedText(
+                context,
+                'This Box changed on the server. Reload and review the new values before saving.',
+                'Diese Box wurde auf dem Server geändert. Lade die neuen Werte und prüfe sie vor dem Speichern.',
+              )
+            : sharedText(
+                context,
+                'The result is uncertain. Reload and check the server data.',
+                'Das Ergebnis ist unklar. Neu laden und Serverdaten prüfen.',
+              );
       });
+    }
+  }
+
+  Future<void> _reloadLatest() async {
+    if (_initial == null || !widget.api.connected) return;
+    try {
+      final latest = await widget.api.box(recordId(_initial!));
+      if (!mounted) return;
+      if (latest['status'] != 'active') {
+        Navigator.of(context).pop(false);
+        return;
+      }
+      setState(() {
+        _initial = latest;
+        for (final entry in _fields.entries) {
+          entry.value.text = latest[entry.key]?.toString() ?? '';
+        }
+        _stale = false;
+        _error = null;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error = sharedText(
+            context,
+            'Could not reload the Box.',
+            'Die Box konnte nicht neu geladen werden.',
+          ),
+        );
+      }
     }
   }
 
@@ -180,10 +227,24 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
                 _error!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
+            if (_stale)
+              TextButton.icon(
+                onPressed: widget.api.connected ? _reloadLatest : null,
+                icon: const Icon(Icons.refresh),
+                label: Text(
+                  sharedText(
+                    context,
+                    'Reload and review',
+                    'Neu laden und prüfen',
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
             FilledButton(
               key: const Key('shared-save-box'),
-              onPressed: widget.api.connected && !_saving ? _save : null,
+              onPressed: widget.api.connected && !_saving && !_stale
+                  ? _save
+                  : null,
               child: Text(sharedText(context, 'Save', 'Speichern')),
             ),
           ],
@@ -213,6 +274,8 @@ class SharedAnimalForm extends StatefulWidget {
 class _SharedAnimalFormState extends State<SharedAnimalForm> {
   final _form = GlobalKey<FormState>();
   late final Map<String, TextEditingController> _fields;
+  Map<String, dynamic>? _initial;
+  late List<Map<String, dynamic>> _boxes;
   int? _boxId;
   AnimalCategory _category = AnimalCategory.other;
   AnimalSubcategory? _subcategory;
@@ -220,13 +283,16 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   DateTime? _birthDate;
   String? _birthAccuracy;
   bool _saving = false;
+  bool _stale = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
+    _initial = widget.initial;
+    _boxes = widget.boxes;
     final initial = widget.initial;
-    final activeBoxes = widget.boxes.where((box) => box['status'] == 'active');
+    final activeBoxes = _boxes.where((box) => box['status'] == 'active');
     _boxId =
         initial?['boxId'] as int? ??
         (activeBoxes.isEmpty ? null : recordId(activeBoxes.first));
@@ -335,19 +401,23 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       'originHabitat': _text('originHabitat'),
       'restOrDormancyPeriods': _text('restOrDormancyPeriods'),
       'notes': _text('notes'),
-      'pictureMediaId': widget.initial?['pictureMediaId'],
+      'pictureMediaId': _initial?['pictureMediaId'],
       'feedingReminderIntervalDays': int.tryParse(
         _text('feedingReminderIntervalDays') ?? '',
       ),
-      'feedingReminderBaseline': widget.initial?['feedingReminderBaseline'],
-      'showWeightOnDetail': widget.initial?['showWeightOnDetail'] ?? true,
-      'showSheddingOnDetail': widget.initial?['showSheddingOnDetail'] ?? true,
+      'feedingReminderBaseline': _initial?['feedingReminderBaseline'],
+      'showWeightOnDetail': _initial?['showWeightOnDetail'] ?? true,
+      'showSheddingOnDetail': _initial?['showSheddingOnDetail'] ?? true,
     };
     final saved = await widget.change(() async {
-      if (widget.initial == null) {
+      if (_initial == null) {
         await widget.api.createAnimal(values);
       } else {
-        await widget.api.updateAnimal(recordId(widget.initial!), values);
+        await widget.api.updateAnimal(
+          recordId(_initial!),
+          values,
+          _initial!['revision'] as String,
+        );
       }
     });
     if (!mounted) return;
@@ -356,12 +426,69 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     } else {
       setState(() {
         _saving = false;
-        _error = sharedText(
-          context,
-          'The result is uncertain. Reload and check the server data.',
-          'Das Ergebnis ist unklar. Neu laden und Serverdaten prüfen.',
-        );
+        _stale =
+            widget.api.lastFailure is SharedApiException &&
+            (widget.api.lastFailure as SharedApiException).code ==
+                'stale_record';
+        _error = _stale
+            ? sharedText(
+                context,
+                'This Animal changed on the server. Reload and review the new values before saving.',
+                'Dieses Tier wurde auf dem Server geändert. Lade die neuen Werte und prüfe sie vor dem Speichern.',
+              )
+            : sharedText(
+                context,
+                'The result is uncertain. Reload and check the server data.',
+                'Das Ergebnis ist unklar. Neu laden und Serverdaten prüfen.',
+              );
       });
+    }
+  }
+
+  Future<void> _reloadLatest() async {
+    if (_initial == null || !widget.api.connected) return;
+    try {
+      final latest = await widget.api.animal(recordId(_initial!));
+      final boxes = await widget.api.boxes();
+      if (!mounted) return;
+      if (latest['status'] != 'active') {
+        Navigator.of(context).pop(false);
+        return;
+      }
+      setState(() {
+        _initial = latest;
+        _boxes = boxes;
+        _boxId = latest['boxId'] as int?;
+        _category = AnimalCategory.values.firstWhere(
+          (value) => value.name == latest['category'],
+          orElse: () => AnimalCategory.other,
+        );
+        _subcategory = null;
+        for (final value in AnimalSubcategory.values) {
+          if (value.name == latest['subcategory']) _subcategory = value;
+        }
+        _sex = null;
+        for (final value in Sex.values) {
+          if (value.name == latest['sex']) _sex = value;
+        }
+        _birthDate = DateTime.tryParse(latest['birthDate'] as String? ?? '');
+        _birthAccuracy = latest['birthDateAccuracy'] as String?;
+        for (final entry in _fields.entries) {
+          entry.value.text = latest[entry.key]?.toString() ?? '';
+        }
+        _stale = false;
+        _error = null;
+      });
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _error = sharedText(
+            context,
+            'Could not reload the Animal.',
+            'Das Tier konnte nicht neu geladen werden.',
+          ),
+        );
+      }
     }
   }
 
@@ -409,7 +536,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                 labelText: sharedText(context, 'Box', 'Box'),
               ),
               items: [
-                for (final box in widget.boxes.where(
+                for (final box in _boxes.where(
                   (box) => box['status'] == 'active',
                 ))
                   DropdownMenuItem(
@@ -599,10 +726,24 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                 _error!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
+            if (_stale)
+              TextButton.icon(
+                onPressed: widget.api.connected ? _reloadLatest : null,
+                icon: const Icon(Icons.refresh),
+                label: Text(
+                  sharedText(
+                    context,
+                    'Reload and review',
+                    'Neu laden und prüfen',
+                  ),
+                ),
+              ),
             const SizedBox(height: 20),
             FilledButton(
               key: const Key('shared-save-animal'),
-              onPressed: widget.api.connected && !_saving ? _save : null,
+              onPressed: widget.api.connected && !_saving && !_stale
+                  ? _save
+                  : null,
               child: Text(context.l10n.save),
             ),
           ],

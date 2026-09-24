@@ -35,6 +35,7 @@ Future<_HttpResult> _call(
   String path, {
   Map<String, dynamic>? body,
   bool authorized = true,
+  String? idempotencyKey,
 }) async {
   final request = await client.openUrl(
     method,
@@ -42,6 +43,13 @@ Future<_HttpResult> _call(
   );
   if (authorized) {
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_token');
+  }
+  if (method == 'POST' && path == '/api/v1/feedings') {
+    request.headers.set(
+      'Idempotency-Key',
+      idempotencyKey ??
+          '00000000-0000-4000-8000-${(_requestNumber++).toString().padLeft(12, '0')}',
+    );
   }
   if (body != null) {
     request.headers.contentType = ContentType.json;
@@ -58,6 +66,8 @@ Future<_HttpResult> _call(
       : null;
   return _HttpResult(response.statusCode, json, bytes);
 }
+
+int _requestNumber = 1;
 
 Future<int> _createBox(
   HttpClient client,
@@ -435,7 +445,11 @@ void main() {
       server,
       'PATCH',
       '/api/v1/boxes/$boxId',
-      body: {'name': 'Renamed', 'widthCm': 40},
+      body: {
+        'name': 'Renamed',
+        'widthCm': 40,
+        'expectedRevision': (original.json!['box'] as Map)['revision'],
+      },
     );
     expect(editBox.status, 200);
     expect((editBox.json!['box'] as Map)['qrId'], qrId);
@@ -449,12 +463,19 @@ void main() {
     expect(forgedQr.status, 400);
 
     final animalId = await _createAnimal(clientA, server, boxId);
+    final initialAnimal = await _call(
+      clientA,
+      server,
+      'GET',
+      '/api/v1/animals/$animalId',
+    );
     final invalid = await _call(
       clientA,
       server,
       'PUT',
       '/api/v1/animals/$animalId',
       body: {
+        'expectedRevision': (initialAnimal.json!['animal'] as Map)['revision'],
         'boxId': boxId,
         'commonName': 'Changed',
         'latinName': 'Example species',
@@ -527,6 +548,141 @@ void main() {
     );
     expect(removedShedding.status, 200);
   });
+
+  test('two caregivers cannot overwrite an older Box or Animal form', () async {
+    final boxId = await _createBox(clientA, server, 'Original');
+    final first = await _call(clientA, server, 'GET', '/api/v1/boxes/$boxId');
+    final oldRevision = (first.json!['box'] as Map)['revision'] as String;
+    final changed = await _call(
+      clientA,
+      server,
+      'PATCH',
+      '/api/v1/boxes/$boxId',
+      body: {'name': 'First edit', 'expectedRevision': oldRevision},
+    );
+    expect(changed.status, 200);
+    final stale = await _call(
+      clientB,
+      server,
+      'PATCH',
+      '/api/v1/boxes/$boxId',
+      body: {'name': 'Second edit', 'expectedRevision': oldRevision},
+    );
+    expect(stale.status, 409);
+    expect((stale.json!['error'] as Map)['code'], 'stale_record');
+    final current = await _call(clientB, server, 'GET', '/api/v1/boxes/$boxId');
+    expect((current.json!['box'] as Map)['name'], 'First edit');
+
+    final animalId = await _createAnimal(clientA, server, boxId);
+    final before = await _call(
+      clientB,
+      server,
+      'GET',
+      '/api/v1/animals/$animalId',
+    );
+    final animalRevision =
+        (before.json!['animal'] as Map)['revision'] as String;
+    final edit = await _call(
+      clientA,
+      server,
+      'PUT',
+      '/api/v1/animals/$animalId',
+      body: {
+        'boxId': boxId,
+        'commonName': 'Changed by A',
+        'latinName': 'Example species',
+        'category': 'other',
+        'tempMin': 22,
+        'tempMax': 28,
+        'humidityMin': 40,
+        'humidityMax': 60,
+        'showWeightOnDetail': true,
+        'showSheddingOnDetail': true,
+        'expectedRevision': animalRevision,
+      },
+    );
+    expect(edit.status, 200, reason: edit.json.toString());
+    final staleAnimal = await _call(
+      clientB,
+      server,
+      'PUT',
+      '/api/v1/animals/$animalId',
+      body: {
+        'boxId': boxId,
+        'commonName': 'Changed by B',
+        'latinName': 'Example species',
+        'category': 'other',
+        'tempMin': 22,
+        'tempMax': 28,
+        'humidityMin': 40,
+        'humidityMax': 60,
+        'showWeightOnDetail': true,
+        'showSheddingOnDetail': true,
+        'expectedRevision': animalRevision,
+      },
+    );
+    expect(staleAnimal.status, 409);
+    expect((staleAnimal.json!['error'] as Map)['code'], 'stale_record');
+    final latest = await _call(
+      clientB,
+      server,
+      'GET',
+      '/api/v1/animals/$animalId',
+    );
+    expect((latest.json!['animal'] as Map)['commonName'], 'Changed by A');
+  });
+
+  test(
+    'repeated grouped feeding request returns the first result once',
+    () async {
+      final boxId = await _createBox(clientA, server, 'Feeding');
+      final animalA = await _createAnimal(clientA, server, boxId, name: 'A');
+      final animalB = await _createAnimal(clientA, server, boxId, name: 'B');
+      const key = 'b73f3a4c-2c33-4786-9db8-39c70650a133';
+      final body = {
+        'animalIds': [animalA, animalB],
+        'fedAt': '2026-09-23T10:00:00Z',
+        'notes': 'Shared meal',
+      };
+      final responses = await Future.wait([
+        _call(
+          clientA,
+          server,
+          'POST',
+          '/api/v1/feedings',
+          body: body,
+          idempotencyKey: key,
+        ),
+        _call(
+          clientB,
+          server,
+          'POST',
+          '/api/v1/feedings',
+          body: body,
+          idempotencyKey: key,
+        ),
+      ]);
+      expect(responses.map((result) => result.status), everyElement(201));
+      expect(responses[0].json, responses[1].json);
+      final history = await _call(
+        clientA,
+        server,
+        'GET',
+        '/api/v1/animals/$animalA/feedings',
+      );
+      expect(history.json!['feedings'], hasLength(1));
+      final reused = await _call(
+        clientB,
+        server,
+        'POST',
+        '/api/v1/feedings',
+        body: {...body, 'notes': 'Different'},
+        idempotencyKey: key,
+      );
+      expect(reused.status, 409);
+      expect((reused.json!['error'] as Map)['code'], 'idempotency_conflict');
+    },
+  );
 
   test(
     'opening an existing server file migrates without losing data',

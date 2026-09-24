@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -29,22 +31,71 @@ class SharedBoxDetailPage extends StatefulWidget {
   State<SharedBoxDetailPage> createState() => _SharedBoxDetailPageState();
 }
 
-class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
+class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
+    with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _record;
+  late List<Map<String, dynamic>> _animals;
+  Timer? _timer;
+  bool _foreground = true;
+  bool _polling = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _animals = widget.animals;
     _record = widget.api.box(widget.id);
+    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
+      unawaited(_refreshVisible());
+    });
   }
 
-  void _reload() => setState(() => _record = widget.api.box(widget.id));
+  @override
+  void dispose() {
+    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _foreground = state == AppLifecycleState.resumed;
+    if (_foreground) unawaited(_refreshVisible());
+  }
+
+  Future<void> _refreshVisible() async {
+    if (!mounted ||
+        !_foreground ||
+        _polling ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    _polling = true;
+    try {
+      final box = await widget.api.box(widget.id);
+      final animals = await widget.api.animals();
+      if (mounted && _foreground && ModalRoute.of(context)?.isCurrent == true) {
+        setState(() {
+          _record = Future.value(box);
+          _animals = animals;
+        });
+      }
+    } catch (_) {
+      // Keep the last readable record; the page's manual reload reports errors.
+    } finally {
+      _polling = false;
+    }
+  }
+
+  void _reload() => setState(() {
+    _record = widget.api.box(widget.id);
+  });
 
   Future<void> _openEdit() async {
     try {
       final box = await _record;
       if (!mounted || box['status'] != 'active') return;
-      final saved = await Navigator.of(context).push<bool>(
+      await Navigator.of(context).push<bool>(
         MaterialPageRoute(
           builder: (_) => SharedBoxForm(
             api: widget.api,
@@ -53,7 +104,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
           ),
         ),
       );
-      if (saved == true && mounted) _reload();
+      if (mounted) _reload();
     } catch (_) {
       if (mounted) _showFailure(context);
     }
@@ -101,7 +152,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
         }
         final box = snapshot.data!;
         final active = box['status'] == 'active';
-        final animals = widget.animals
+        final animals = _animals
             .where((animal) => animal['boxId'] == widget.id)
             .toList();
         return ListenableBuilder(
@@ -280,15 +331,64 @@ class SharedAnimalDetailPage extends StatefulWidget {
   State<SharedAnimalDetailPage> createState() => _SharedAnimalDetailPageState();
 }
 
-class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
+class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
+    with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _record;
   late Future<List<Map<String, dynamic>>> _feedings;
+  late List<Map<String, dynamic>> _boxes;
+  Timer? _timer;
+  bool _foreground = true;
+  bool _polling = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _boxes = widget.boxes;
     _record = widget.api.animal(widget.id);
     _feedings = widget.api.feedings(widget.id);
+    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
+      unawaited(_refreshVisible());
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _foreground = state == AppLifecycleState.resumed;
+    if (_foreground) unawaited(_refreshVisible());
+  }
+
+  Future<void> _refreshVisible() async {
+    if (!mounted ||
+        !_foreground ||
+        _polling ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
+    _polling = true;
+    try {
+      final animal = await widget.api.animal(widget.id);
+      final feedings = await widget.api.feedings(widget.id);
+      final boxes = await widget.api.boxes();
+      if (mounted && _foreground && ModalRoute.of(context)?.isCurrent == true) {
+        setState(() {
+          _record = Future.value(animal);
+          _feedings = Future.value(feedings);
+          _boxes = boxes;
+        });
+      }
+    } catch (_) {
+      // Keep the last readable record; the page's manual reload reports errors.
+    } finally {
+      _polling = false;
+    }
   }
 
   void _reload() => setState(() {
@@ -414,7 +514,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
     try {
       final animal = await _record;
       if (!mounted || animal['status'] != 'active') return;
-      final saved = await Navigator.of(context).push<bool>(
+      await Navigator.of(context).push<bool>(
         MaterialPageRoute(
           builder: (_) => SharedAnimalForm(
             api: widget.api,
@@ -424,7 +524,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
           ),
         ),
       );
-      if (saved == true && mounted) _reload();
+      if (mounted) _reload();
     } catch (_) {
       if (mounted) _showFailure(context);
     }
@@ -474,7 +574,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
         if (snapshot.hasError) return _LoadFailure(onRetry: _reload);
         final animal = snapshot.data!;
         final active = animal['status'] == 'active';
-        final box = widget.boxes
+        final box = _boxes
             .where((entry) => entry['id'] == animal['boxId'])
             .firstOrNull;
         return ListenableBuilder(
@@ -750,12 +850,12 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   @override
   void initState() {
     super.initState();
-    _reload();
+    _pictures = widget.api.pictures(widget.kind, widget.recordId);
   }
 
-  void _reload() => setState(
-    () => _pictures = widget.api.pictures(widget.kind, widget.recordId),
-  );
+  void _reload() => setState(() {
+    _pictures = widget.api.pictures(widget.kind, widget.recordId);
+  });
 
   Future<void> _add() async {
     try {

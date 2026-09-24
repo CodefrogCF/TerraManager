@@ -906,6 +906,7 @@ class SharedSettingsPage extends StatelessWidget {
     required this.actionsEnabled,
     required this.onLogout,
     required this.onRestored,
+    this.onBackupBusyChanged,
   });
 
   final SharedApiClient api;
@@ -915,6 +916,7 @@ class SharedSettingsPage extends StatelessWidget {
   final bool actionsEnabled;
   final Future<void> Function() onLogout;
   final Future<void> Function() onRestored;
+  final ValueChanged<bool>? onBackupBusyChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -1188,6 +1190,7 @@ class SharedSettingsPage extends StatelessWidget {
             api: api,
             connected: actionsEnabled,
             onRestored: onRestored,
+            onBackupBusyChanged: onBackupBusyChanged,
           ),
           const SizedBox(height: 24),
           const Divider(),
@@ -1216,11 +1219,13 @@ class SharedBackupSection extends StatefulWidget {
     required this.api,
     required this.connected,
     required this.onRestored,
+    this.onBackupBusyChanged,
   });
 
   final SharedApiClient api;
   final bool connected;
   final Future<void> Function() onRestored;
+  final ValueChanged<bool>? onBackupBusyChanged;
 
   @override
   State<SharedBackupSection> createState() => _SharedBackupSectionState();
@@ -1237,6 +1242,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
   Future<void> _export() async {
     if (_busy || !widget.connected) return;
     setState(() => _busy = true);
+    widget.onBackupBusyChanged?.call(true);
     try {
       final backup = await widget.api.exportBackup();
       final saved = await FileSaver.instance.saveAs(
@@ -1269,6 +1275,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       if (mounted) _message(error.toString());
     } finally {
       if (mounted) setState(() => _busy = false);
+      widget.onBackupBusyChanged?.call(false);
     }
   }
 
@@ -1286,6 +1293,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       return;
     }
     setState(() => _busy = true);
+    widget.onBackupBusyChanged?.call(true);
     try {
       final picked = await BackupFileService().pickBackup();
       if (picked == null || !mounted) return;
@@ -1359,10 +1367,21 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
           ),
         );
       }
+    } on SharedConnectionException {
+      if (mounted) {
+        _message(
+          sharedText(
+            context,
+            'No restore confirmation was received. The server may still be restoring. Wait, reload, and check the collection before trying again.',
+            'Keine Bestätigung für die Wiederherstellung erhalten. Der Server arbeitet möglicherweise noch. Warte, lade neu und prüfe die Sammlung, bevor du es erneut versuchst.',
+          ),
+        );
+      }
     } catch (error) {
       if (mounted) _message(error.toString());
     } finally {
       if (mounted) setState(() => _busy = false);
+      widget.onBackupBusyChanged?.call(false);
     }
   }
 

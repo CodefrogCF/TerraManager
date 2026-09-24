@@ -74,6 +74,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
   bool _busy = true;
   bool _connected = false;
   bool _refreshing = false;
+  bool _backupBusy = false;
   int _refreshVersion = 0;
   int _page = 0;
   bool _foreground = true;
@@ -85,7 +86,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
     unawaited(_bootstrap());
     widget.api.addListener(_onApiChanged);
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (_foreground && _session != null && !_busy) {
+      if (_foreground && _session != null && !_busy && !_backupBusy) {
         unawaited(_refresh(quiet: true));
       }
     });
@@ -102,12 +103,23 @@ class _SharedCareHomeState extends State<SharedCareHome>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _foreground = state == AppLifecycleState.resumed;
-    if (_foreground && _session != null && !_busy) {
+    if (_foreground && _session != null && !_busy && !_backupBusy) {
       unawaited(_refresh(quiet: true));
     }
   }
 
   void _onApiChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onBackupBusyChanged(bool busy) {
+    if (_backupBusy == busy) return;
+    _backupBusy = busy;
+    if (busy) {
+      // Ignore a refresh that began before the exclusive backup operation.
+      _refreshVersion++;
+      _refreshing = false;
+    }
     if (mounted) setState(() {});
   }
 
@@ -177,7 +189,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
 
   Future<void> _refresh({bool quiet = false}) async {
     if (_session == null) return;
-    if (quiet && _refreshing) return;
+    if (quiet && (_refreshing || _backupBusy)) return;
     final version = ++_refreshVersion;
     _refreshing = true;
     if (!quiet && mounted) {
@@ -308,7 +320,8 @@ class _SharedCareHomeState extends State<SharedCareHome>
       );
     }
 
-    final canChange = _connected && widget.api.connected && !_busy;
+    final canChange =
+        _connected && widget.api.connected && !_busy && !_backupBusy;
     final content = switch (_page) {
       0 => SharedBoxesPage(
         api: widget.api,
@@ -334,6 +347,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
         actionsEnabled: canChange,
         onLogout: _logout,
         onRestored: _refresh,
+        onBackupBusyChanged: _onBackupBusyChanged,
       ),
     };
 

@@ -261,6 +261,14 @@ transaction ends; reload other open browsers afterwards. The browser and
 server process these archives in memory and leave no temporary backup files
 on the Pi. The 256 MiB compressed and 512 MiB expanded import limits protect
 the Pi from oversized uploads.
+
+On a Pi, restoring a larger archive can take several minutes. Keep the browser
+page open. Other signed-in browsers may temporarily receive HTTP 503 while the
+restore holds the collection. If the importing browser does not receive a
+completion response, do not immediately retry: wait for the server to become
+available, reload, and inspect the record counts and pictures first. A lost
+response does not prove that the database transaction failed.
+
 Keep downloaded archives in protected storage because portable backups are not
 encrypted. For an installation with larger archives, use a separately planned
 migration rather than bypassing the limit.

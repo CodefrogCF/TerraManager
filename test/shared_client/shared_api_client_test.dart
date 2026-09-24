@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -261,4 +263,47 @@ void main() {
       }
     },
   );
+
+  testWidgets('restore waits beyond two minutes for a slow server', (
+    tester,
+  ) async {
+    final restoreResponse = Completer<http.Response>();
+    final backend = MockClient((request) async {
+      if (request.url.path == '/api/v1/auth/login') {
+        return http.Response(jsonEncode(session), 200);
+      }
+      if (request.url.path == '/api/v1/admin/backups/restore') {
+        return restoreResponse.future;
+      }
+      return http.Response('{}', 404);
+    });
+    final client = SharedApiClient(Uri.parse(origin), backend);
+    addTearDown(client.close);
+    await client.login('hagen', 'secret password');
+
+    var completed = false;
+    Object? failure;
+    unawaited(
+      client
+          .restoreBackup(Uint8List.fromList([80, 75, 3, 4]), 'safety-token')
+          .then((_) {
+            completed = true;
+          })
+          .catchError((Object error) {
+            failure = error;
+          }),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(minutes: 2, seconds: 5));
+    expect(completed, isFalse);
+    expect(failure, isNull);
+
+    restoreResponse.complete(
+      http.Response(jsonEncode({'restored': true}), 200),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(completed, isTrue);
+    expect(failure, isNull);
+  });
 }

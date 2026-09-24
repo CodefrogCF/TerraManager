@@ -410,6 +410,7 @@ class SharedApiClient extends ChangeNotifier {
       'POST',
       '/api/v1/admin/backups/restore',
       bytes: bytes,
+      timeout: const Duration(minutes: 10),
       extraHeaders: {
         'X-Safety-Token': safetyToken,
         'X-Restore-Confirmation': 'replace-shared-collection',
@@ -421,6 +422,7 @@ class SharedApiClient extends ChangeNotifier {
     String method,
     String path, {
     Uint8List? bytes,
+    Duration timeout = const Duration(minutes: 2),
     Map<String, String> extraHeaders = const {},
   }) async {
     final headers = <String, String>{...extraHeaders};
@@ -440,7 +442,7 @@ class SharedApiClient extends ChangeNotifier {
       response = await _client
           .send(request)
           .then(http.Response.fromStream)
-          .timeout(const Duration(minutes: 2));
+          .timeout(timeout);
     } catch (_) {
       _setConnected(false);
       throw const SharedConnectionException();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -128,6 +129,67 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pumpAndSettle();
     expect(find.textContaining('Third name'), findsOneWidget);
+  });
+
+  testWidgets('backup download pauses overview polling until it finishes', (
+    tester,
+  ) async {
+    var boxReads = 0;
+    final backupResponse = Completer<http.Response>();
+    final backend = MockClient((request) async {
+      switch (request.url.path) {
+        case '/api/v1/auth/session':
+          return http.Response(jsonEncode(_session), 200);
+        case '/api/v1/boxes':
+          boxReads++;
+          return http.Response(jsonEncode({'boxes': []}), 200);
+        case '/api/v1/animals':
+          return http.Response(jsonEncode({'animals': []}), 200);
+        case '/api/v1/admin/accounts':
+          return http.Response(jsonEncode({'accounts': []}), 200);
+        case '/api/v1/admin/backups':
+          return backupResponse.future;
+        default:
+          return http.Response('{}', 404);
+      }
+    });
+
+    await tester.pumpWidget(
+      SharedCareApp(
+        api: SharedApiClient(Uri.parse('https://192.168.1.117'), backend),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(boxReads, 1);
+
+    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('shared-create-backup-button')),
+      300,
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -250));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shared-create-backup-button')));
+    await tester.pump();
+
+    final readsBeforeWait = boxReads;
+    await tester.pump(const Duration(seconds: 16));
+    expect(boxReads, readsBeforeWait);
+    expect(find.byKey(const Key('shared-error')), findsNothing);
+
+    backupResponse.complete(
+      http.Response(
+        jsonEncode({
+          'error': {'code': 'test_error', 'message': 'Test complete.'},
+        }),
+        500,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 16));
+    await tester.pumpAndSettle();
+    expect(boxReads, greaterThan(readsBeforeWait));
   });
 }
 

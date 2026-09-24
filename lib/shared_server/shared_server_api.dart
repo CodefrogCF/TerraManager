@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:sqlite3/sqlite3.dart';
 
 import '../core/database/app_database.dart';
+import '../features/backup/application/backup_validation_exception.dart';
 import 'account_store.dart';
 import 'api_input.dart';
 import 'care_api.dart';
+import 'collection_operation_gate.dart';
 import 'session_authenticator.dart';
+import 'shared_portable_backups.dart';
 
 /// Authenticated entry point for both account management and the care API.
 class SharedServerApi {
@@ -17,6 +21,9 @@ class SharedServerApi {
   final AccountStore accounts;
   final SessionAuthenticator sessions;
   final CareApi _care;
+  final SharedPortableBackups _backups;
+  final CollectionOperationGate _gate = CollectionOperationGate();
+  final Map<String, _SafetyGrant> _safetyGrants = {};
   final Map<String, List<DateTime>> _failedLogins = {};
 
   SharedServerApi({
@@ -28,7 +35,8 @@ class SharedServerApi {
        _care = CareApi(
          database: database,
          authenticator: SessionAuthenticator(accounts, publicUrl),
-       );
+       ),
+       _backups = SharedPortableBackups(database);
 
   Future<HttpServer> serve({InternetAddress? address, int port = 0}) async {
     if (!accounts.hasAccounts) {
@@ -57,7 +65,7 @@ class SharedServerApi {
     }
     if (!path.startsWith('/api/v1/auth/') &&
         !path.startsWith('/api/v1/admin/')) {
-      await _care.handle(request);
+      await _collection(request);
       return;
     }
     try {
@@ -98,13 +106,17 @@ class SharedServerApi {
             'Administrator access required.',
           );
         }
-        await _admin(request);
+        await _admin(request, current);
         return;
       }
       throw const ApiProblem(404, 'not_found', 'Unknown API path.');
     } on ApiProblem catch (error) {
       await _send(request.response, error.status, {
         'error': {'code': error.code, 'message': error.message},
+      });
+    } on BackupValidationException catch (error) {
+      await _send(request.response, 400, {
+        'error': {'code': 'invalid_backup', 'message': error.message},
       });
     } on FormatException catch (error) {
       await _send(request.response, 400, {
@@ -137,6 +149,52 @@ class SharedServerApi {
         },
       });
     }
+  }
+
+  Future<void> _collection(HttpRequest request) async {
+    final mutation = !{'GET', 'HEAD', 'OPTIONS'}.contains(request.method);
+    if (mutation) {
+      final current = sessions.session(request);
+      if (current == null) {
+        await _care.handle(request);
+        return;
+      }
+      try {
+        sessions.checkMutation(request, current);
+      } on ApiProblem {
+        await _care.handle(request);
+        return;
+      }
+      if (!_gate.enterMutation()) {
+        await _send(request.response, 503, {
+          'error': {
+            'code': 'restore_in_progress',
+            'message': 'The shared collection is temporarily unavailable.',
+          },
+        });
+        return;
+      }
+      try {
+        await _care.handle(request);
+      } finally {
+        _gate.leaveMutation();
+      }
+      return;
+    }
+    if (_gate.exclusive) {
+      if (sessions.session(request) == null) {
+        await _care.handle(request);
+        return;
+      }
+      await _send(request.response, 503, {
+        'error': {
+          'code': 'restore_in_progress',
+          'message': 'The shared collection is temporarily unavailable.',
+        },
+      });
+      return;
+    }
+    await _care.handle(request);
   }
 
   Future<void> _login(HttpRequest request) async {
@@ -178,8 +236,19 @@ class SharedServerApi {
     });
   }
 
-  Future<void> _admin(HttpRequest request) async {
+  Future<void> _admin(HttpRequest request, CareSession current) async {
     final parts = request.uri.pathSegments;
+    if (parts.length == 4 && parts[3] == 'backups' && request.method == 'GET') {
+      await _exportBackup(request, current);
+      return;
+    }
+    if (parts.length == 5 &&
+        parts[3] == 'backups' &&
+        parts[4] == 'restore' &&
+        request.method == 'POST') {
+      await _restoreBackup(request, current);
+      return;
+    }
     if (parts.length == 4 && parts[3] == 'accounts') {
       if (request.method == 'GET') {
         await _send(request.response, 200, {
@@ -241,6 +310,119 @@ class SharedServerApi {
     );
   }
 
+  Future<void> _exportBackup(HttpRequest request, CareSession current) async {
+    if (!await _gate.enterExclusive()) {
+      throw const ApiProblem(
+        503,
+        'restore_in_progress',
+        'The shared collection is temporarily unavailable.',
+      );
+    }
+    try {
+      final exported = await _backups.export();
+      final random = Random.secure();
+      final token = base64UrlEncode(
+        List<int>.generate(32, (_) => random.nextInt(256)),
+      );
+      final now = DateTime.now().toUtc();
+      _safetyGrants.removeWhere((_, grant) => now.isAfter(grant.expiresAt));
+      _safetyGrants[current.token] = _SafetyGrant(
+        token,
+        _gate.generation,
+        now.add(const Duration(minutes: 30)),
+      );
+      final response = request.response;
+      response.statusCode = 200;
+      response.headers.contentType = ContentType.parse(
+        'application/vnd.terramanager.backup+zip',
+      );
+      response.headers.set(HttpHeaders.cacheControlHeader, 'no-store');
+      response.headers.set('X-Content-Type-Options', 'nosniff');
+      response.headers.set('X-Safety-Token', token);
+      response.headers.set(
+        'Content-Disposition',
+        'attachment; filename="${exported.fileName}"',
+      );
+      response.add(exported.bytes);
+      await response.close();
+    } finally {
+      _gate.leaveExclusive();
+    }
+  }
+
+  Future<void> _restoreBackup(HttpRequest request, CareSession current) async {
+    if (request.headers.value('X-Restore-Confirmation') !=
+        'replace-shared-collection') {
+      throw const ApiProblem(
+        400,
+        'confirmation_required',
+        'Explicit restore confirmation is required.',
+      );
+    }
+    final grant = _safetyGrants[current.token];
+    if (grant == null ||
+        grant.token != request.headers.value('X-Safety-Token') ||
+        DateTime.now().toUtc().isAfter(grant.expiresAt)) {
+      throw const ApiProblem(
+        409,
+        'safety_backup_required',
+        'Download a current safety backup before restoring.',
+      );
+    }
+    final bytes = await _backupBody(request);
+    final validated = _backups.validate(bytes);
+    if (!await _gate.enterExclusive()) {
+      throw const ApiProblem(
+        503,
+        'restore_in_progress',
+        'The shared collection is temporarily unavailable.',
+      );
+    }
+    try {
+      if (grant.generation != _gate.generation) {
+        throw const ApiProblem(
+          409,
+          'safety_backup_stale',
+          'The collection changed. Download a new safety backup.',
+        );
+      }
+      final mediaCount = await _backups.restore(validated);
+      _safetyGrants.clear();
+      await _send(request.response, 200, {
+        'restored': true,
+        'boxes': validated.boxCount,
+        'animals': validated.animalCount,
+        'feedings': validated.feedingEventCount,
+        'media': mediaCount,
+      });
+    } finally {
+      _gate.leaveExclusive();
+    }
+  }
+
+  static Future<Uint8List> _backupBody(HttpRequest request) async {
+    if (request.headers.contentType?.mimeType !=
+        'application/vnd.terramanager.backup+zip') {
+      throw const ApiProblem(
+        415,
+        'unsupported_media_type',
+        'Expected a TerraManager backup archive.',
+      );
+    }
+    const maxBytes = 256 * 1024 * 1024;
+    if (request.contentLength > maxBytes) {
+      throw const ApiProblem(413, 'too_large', 'Backup exceeds 256 MiB.');
+    }
+    final builder = BytesBuilder(copy: false);
+    await for (final chunk in request) {
+      builder.add(chunk);
+      if (builder.length > maxBytes) {
+        throw const ApiProblem(413, 'too_large', 'Backup exceeds 256 MiB.');
+      }
+    }
+    return builder.takeBytes();
+  }
+
   static CareRole _role(String value) {
     if (value == CareRole.administrator.name) return CareRole.administrator;
     if (value == CareRole.caregiver.name) return CareRole.caregiver;
@@ -289,4 +471,12 @@ class SharedServerApi {
     response.write(jsonEncode(body));
     await response.close();
   }
+}
+
+class _SafetyGrant {
+  const _SafetyGrant(this.token, this.generation, this.expiresAt);
+
+  final String token;
+  final int generation;
+  final DateTime expiresAt;
 }

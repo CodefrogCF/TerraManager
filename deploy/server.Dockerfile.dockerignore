@@ -9,6 +9,10 @@
 lib/core/database/app_database_connection_flutter.dart
 !lib/core/qr/
 !lib/core/qr/qr_id_generator.dart
+!lib/core/qr/qr_validator.dart
+!lib/features/
+!lib/features/backup/
+!lib/features/backup/**
 !lib/shared_server/
 !lib/shared_server/**
 !deploy/

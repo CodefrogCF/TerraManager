@@ -11,7 +11,6 @@ import '../domain/backup_enum_codec.dart';
 import '../domain/backup_format.dart';
 import '../domain/backup_manifest.dart';
 import '../domain/backup_settings.dart';
-import 'backup_settings_codec.dart';
 import 'backup_validation_exception.dart';
 import 'validated_backup.dart';
 
@@ -19,9 +18,12 @@ typedef BackupQrIdValidator = bool Function(String qrId);
 
 class BackupValidationService {
   final BackupQrIdValidator qrIdValidator;
+  final int? maxExpandedBytes;
 
-  BackupValidationService({BackupQrIdValidator? qrIdValidator})
-    : qrIdValidator = qrIdValidator ?? isValidBoxQrId;
+  BackupValidationService({
+    BackupQrIdValidator? qrIdValidator,
+    this.maxExpandedBytes,
+  }) : qrIdValidator = qrIdValidator ?? isValidBoxQrId;
 
   ValidatedBackup validate(Uint8List bytes) {
     if (bytes.isEmpty) {
@@ -34,7 +36,48 @@ class BackupValidationService {
     final Archive archive;
 
     try {
+      // Inspect the central directory before ZipDecoder can expand symlinks
+      // or deduplicate names. Shared restores accept archives from browsers.
+      final directory = ZipDirectory()..read(InputMemoryStream(bytes));
+      final seen = <String>{};
+      var remaining = maxExpandedBytes;
+      for (final header in directory.fileHeaders) {
+        final name = header.filename;
+        final portablePath = name.endsWith('/')
+            ? name.substring(0, name.length - 1)
+            : name;
+        if (!_isSafeArchivePath(portablePath)) {
+          throw BackupValidationException(
+            code: BackupValidationErrorCode.unsafeArchivePath,
+            message: 'Backup contains an unsafe archive path: $name',
+          );
+        }
+        if (!seen.add(name)) {
+          throw BackupValidationException(
+            code: BackupValidationErrorCode.duplicateArchiveEntry,
+            message: 'Backup contains duplicate archive entry: $name',
+          );
+        }
+        if (((header.externalFileAttributes >> 16) & 0xf000) == 0xa000) {
+          throw const BackupValidationException(
+            code: BackupValidationErrorCode.invalidArchive,
+            message: 'Backup contains a symbolic link.',
+          );
+        }
+        if (remaining != null) {
+          if (header.uncompressedSize < 0 ||
+              header.uncompressedSize > remaining) {
+            throw const BackupValidationException(
+              code: BackupValidationErrorCode.invalidArchive,
+              message: 'Expanded backup is too large.',
+            );
+          }
+          remaining -= header.uncompressedSize;
+        }
+      }
       archive = ZipDecoder().decodeBytes(bytes, verify: true);
+    } on BackupValidationException {
+      rethrow;
     } catch (error) {
       throw BackupValidationException(
         code: BackupValidationErrorCode.invalidArchive,
@@ -215,23 +258,46 @@ class BackupValidationService {
   }
 
   void _validateSettings(BackupSettings settings) {
-    try {
-      BackupSettingsCodec.decodeThemeMode(settings.themeMode);
-
-      BackupSettingsCodec.decodeAccent(settings.accent);
-
-      BackupSettingsCodec.decodeLanguage(settings.language);
-
-      BackupSettingsCodec.decodeAnimalNameOrder(settings.animalNameOrder);
-
-      BackupSettingsCodec.decodeAnimalSortOrder(settings.animalSortOrder);
-
-      BackupSettingsCodec.decodeBoxSortOrder(settings.boxSortOrder);
-    } on FormatException catch (error) {
-      throw BackupValidationException(
+    if (!const {'personal', 'collectionOnly'}.contains(settings.scope) ||
+        !const {'system', 'light', 'dark'}.contains(settings.themeMode) ||
+        !const {
+          'green',
+          'blue',
+          'teal',
+          'orange',
+          'purple',
+          'red',
+        }.contains(settings.accent) ||
+        !const {'system', 'english', 'german'}.contains(settings.language) ||
+        !const {
+          'commonNameFirst',
+          'latinNameFirst',
+        }.contains(settings.animalNameOrder) ||
+        !const {
+          'createdOldestFirst',
+          'createdNewestFirst',
+          'displayNameAscending',
+          'displayNameDescending',
+          'ageOldestFirst',
+          'ageYoungestFirst',
+          'latestFeedingNewestFirst',
+          'latestFeedingOldestFirst',
+          'categoryAscending',
+          'categoryDescending',
+        }.contains(settings.animalSortOrder) ||
+        !const {
+          'labelAscending',
+          'labelDescending',
+          'createdOldestFirst',
+          'createdNewestFirst',
+          'nameAscending',
+          'nameDescending',
+          'volumeAscending',
+          'volumeDescending',
+        }.contains(settings.boxSortOrder)) {
+      throw const BackupValidationException(
         code: BackupValidationErrorCode.invalidSettings,
         message: 'Backup contains unsupported application settings.',
-        cause: error,
       );
     }
   }

@@ -79,8 +79,9 @@ dashes. Passwords are individually salted and hashed with Argon2id (19 MiB,
 two iterations, one lane). No plaintext password is written to either SQLite
 file. The final active administrator cannot be demoted or deactivated.
 Caregivers may read and edit collection and care records, including media, but
-cannot manage accounts. Full collection backup restore is not implemented in
-this API yet; its future route must be administrator-only.
+cannot manage accounts or portable backups. Administrator backup export and
+full restore include collection records and picture galleries, but not accounts
+or sessions.
 
 ## Operations
 
@@ -93,6 +94,7 @@ this API yet; its future route must be administrator-only.
 | Shedding | `GET/POST /animals/{id}/shedding`, `PUT/DELETE /animals/{id}/shedding/{eventId}` |
 | Picture galleries | `GET/POST /boxes/{id}/pictures` and `/animals/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
 | Media | `POST /media` with `fileName`, `mimeType` and `dataBase64`; `GET /media/{id}` returns image bytes |
+| Portable backup | Administrator-only `GET /admin/backups` downloads a `.tmbackup`; `POST /admin/backups/restore` replaces the collection after confirmation |
 
 Creation of a Box generates its permanent QR identifier on the server.
 Animal creation and replacement require `boxId`, `commonName`,
@@ -126,7 +128,33 @@ Errors have the stable shape
 | 429 | `rate_limited` | Too many failed login attempts in five minutes |
 | 500 | `internal_error` | Unexpected server failure; details are not returned |
 
-Portable backup import for the server-owned collection remains future work.
-The shared Flutter Web client uses this API for Box, Animal, archive, care,
-picture and account workflows; its deployment is described in
+## Portable backup and restore
+
+`GET /admin/backups` returns the standard Backup Format 2 archive with
+`application/vnd.terramanager.backup+zip`. The browser saves it to an
+administrator-chosen location. Its `settings.json` has `scope: collectionOnly`
+and neutral required settings values; no caregiver's browser preferences are
+included. Restoring this archive in a standalone installation leaves that
+installation's personal preferences intact. Existing compatible `.tmbackup`
+archives can initialize an empty shared collection or replace a populated one.
+
+The response also issues a short-lived, session-bound safety token. The admin
+interface enables restore only after this current collection archive has been
+saved. The restore request sends the selected archive as the binary request
+body, the normal CSRF token, the safety token, and
+`X-Restore-Confirmation: replace-shared-collection`. The server validates the
+archive again and refuses the restore if the shared collection changed after
+the safety download. Export and restore temporarily block new collection
+edits; restore uses one database transaction, so a failed replacement leaves
+the previous collection intact. The token expires after 30 minutes and is
+cleared after a successful restore. Restore requests above 256 MiB compressed
+or 512 MiB expanded are refused before media extraction; larger collections
+require a separate migration procedure.
+
+The server keeps no uploaded archive or unencrypted temporary backup file.
+Protect downloaded `.tmbackup` files: they contain records, notes and pictures
+without encryption. The separate account database is not exported or replaced,
+so caregiver logins remain in place. The shared Flutter Web client uses this API
+for Box, Animal, archive, care, picture, backup and account workflows; its
+deployment is described in
 [Shared Care deployment](shared-care-deployment.md).

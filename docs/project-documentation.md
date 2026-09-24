@@ -140,6 +140,12 @@ edit while disconnected. Appearance, language and sorting preferences remain
 local to each browser. The Android app can open this mode in an external
 browser; its local collection remains independent.
 
+Administrators can download the complete shared collection as a portable
+`.tmbackup` and restore a compatible archive after saving a current safety
+copy and confirming replacement. Shared archives leave caregiver accounts and
+personal browser preferences outside the portable collection. A host-volume
+backup is still needed to protect server accounts and sessions.
+
 There is no cloud synchronization.
 
 This means that data stored on one device is not automatically available on another device.

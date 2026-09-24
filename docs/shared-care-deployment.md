@@ -141,10 +141,16 @@ open a new Feeding entry directly. Animal details show the primary picture,
 gallery, latest Feeding and an active Feeding reminder. Presentation choices
 remain per browser; collection records stay server-owned.
 
+Shared Settings follows the standalone page's appearance and language
+controls. Browser-only overview preferences have their own section. Server
+status, administrator backups, caregiver accounts and sign-out are grouped in
+the **Shared server** section, so it is clear which actions affect everyone.
+
 The browser still has some intentional shared-mode differences. QR camera
-scanning, Feeding Mode scanning, latest-Feeding sorting, bulk QR export and
-portable backup controls are not offered by this shared interface. Server data is backed up from the
-host volume as described below. Do not use the standalone Web application's
+scanning, Feeding Mode scanning, latest-Feeding sorting and bulk QR export are
+not offered by this shared interface. Administrators can export and restore
+portable collection backups in Shared Settings. Host-volume backups remain the
+recovery path for both collection and account databases. Do not use the standalone Web application's
 local database as a shared-care substitute.
 
 ## Persistence and backups
@@ -161,7 +167,8 @@ directory. From `deploy/`:
 
 ```sh
 docker compose stop server
-tar -czf backups/terramanager-$(date +%Y%m%d-%H%M%S).tar.gz data
+sudo tar --acls --xattrs --numeric-owner \
+  -czf backups/terramanager-$(date +%Y%m%d-%H%M%S).tar.gz data
 docker compose start server
 docker compose ps
 ```
@@ -171,6 +178,21 @@ database without stopping the server can omit writes still in SQLite's WAL.
 Protect the archives like the original database: they contain pictures,
 animal records, account hashes and active sessions. Verify a backup by
 restoring it to an isolated test installation, not over the running server.
+
+The administrator's **Save shared backup** action instead downloads a portable
+`.tmbackup` containing all shared Boxes, Animals, histories and picture media.
+It excludes `accounts.sqlite`, sessions and personal browser preferences. To
+restore, save a fresh safety copy first, select a compatible backup, inspect
+its record counts and confirm replacement. The server rejects an outdated
+safety copy after another caregiver changes the collection. A failed import
+does not replace existing data. Restore blocks collection edits until its
+transaction ends; reload other open browsers afterwards. The browser and
+server process these archives in memory and leave no temporary backup files
+on the Pi. The 256 MiB compressed and 512 MiB expanded import limits protect
+the Pi from oversized uploads.
+Keep downloaded archives in protected storage because portable backups are not
+encrypted. For an installation with larger archives, use a separately planned
+migration rather than bypassing the limit.
 
 ## Update and rollback
 

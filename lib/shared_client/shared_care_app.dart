@@ -315,8 +315,10 @@ class _SharedCareHomeState extends State<SharedCareHome> {
         api: widget.api,
         username: _session!.username,
         role: _session!.role,
-        connected: canChange,
+        connected: _connected && widget.api.connected,
+        actionsEnabled: canChange,
         onLogout: _logout,
+        onRestored: _refresh,
       ),
     };
 

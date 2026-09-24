@@ -1196,4 +1196,18 @@ void main() {
       ),
     );
   });
+
+  test('rejects an archive above the expanded size limit', () {
+    final bytes = createArchive();
+    expect(
+      () => BackupValidationService(maxExpandedBytes: 100).validate(bytes),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidArchive,
+        ),
+      ),
+    );
+  });
 }

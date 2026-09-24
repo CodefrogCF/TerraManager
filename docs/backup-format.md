@@ -1057,7 +1057,12 @@ Excluding generated QR images:
 
 ## settings.json
 
-`settings.json` contains portable application preferences.
+`settings.json` contains portable application preferences. Archives exported
+from the shared server include the optional `scope: collectionOnly` value and
+neutral required settings fields. They contain the shared collection, not any
+caregiver's browser preferences. Importing such an archive into a standalone
+installation preserves that installation's personal preferences. Older archives
+without `scope` retain their established personal-settings behavior.
 
 The required settings fields in Backup Format Versions 1 and 2 are:
 

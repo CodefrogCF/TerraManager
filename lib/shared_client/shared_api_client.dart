@@ -369,6 +369,91 @@ class SharedApiClient extends ChangeNotifier {
 
   Uri mediaUrl(int mediaId) => _url('/api/v1/media/$mediaId');
 
+  Future<SharedBackupFile> exportBackup() async {
+    final response = await _binaryRequest('GET', '/api/v1/admin/backups');
+    final token = response.headers['x-safety-token'];
+    if (token == null || token.isEmpty) {
+      throw const SharedApiException(
+        200,
+        'invalid_response',
+        'The safety backup token is missing.',
+      );
+    }
+    final disposition = response.headers['content-disposition'] ?? '';
+    final fileName =
+        RegExp(r'filename="([^"]+)"').firstMatch(disposition)?.group(1) ??
+        'TerraManager_Shared_Backup.tmbackup';
+    return SharedBackupFile(response.bodyBytes, fileName, token);
+  }
+
+  Future<void> restoreBackup(Uint8List bytes, String safetyToken) async {
+    await _binaryRequest(
+      'POST',
+      '/api/v1/admin/backups/restore',
+      bytes: bytes,
+      extraHeaders: {
+        'X-Safety-Token': safetyToken,
+        'X-Restore-Confirmation': 'replace-shared-collection',
+      },
+    );
+  }
+
+  Future<http.Response> _binaryRequest(
+    String method,
+    String path, {
+    Uint8List? bytes,
+    Map<String, String> extraHeaders = const {},
+  }) async {
+    final headers = <String, String>{...extraHeaders};
+    if (bytes != null) {
+      headers['Content-Type'] = 'application/vnd.terramanager.backup+zip';
+      final token = _session?.csrfToken;
+      if (token == null) {
+        throw const SharedApiException(401, 'unauthorized', 'Sign in first.');
+      }
+      headers['X-CSRF-Token'] = token;
+    }
+    late final http.Response response;
+    try {
+      final request = http.Request(method, _url(path));
+      request.headers.addAll(headers);
+      if (bytes != null) request.bodyBytes = bytes;
+      response = await _client
+          .send(request)
+          .then(http.Response.fromStream)
+          .timeout(const Duration(minutes: 2));
+    } catch (_) {
+      _setConnected(false);
+      throw const SharedConnectionException();
+    }
+    _setConnected(true);
+    if (response.statusCode == 401) _session = null;
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      try {
+        final payload = jsonDecode(response.body);
+        final error = payload is Map ? payload['error'] : null;
+        throw SharedApiException(
+          response.statusCode,
+          error is Map && error['code'] is String
+              ? error['code'] as String
+              : 'request_failed',
+          error is Map && error['message'] is String
+              ? error['message'] as String
+              : 'The request failed.',
+        );
+      } on SharedApiException {
+        rethrow;
+      } catch (_) {
+        throw SharedApiException(
+          response.statusCode,
+          'request_failed',
+          'The request failed.',
+        );
+      }
+    }
+    return response;
+  }
+
   Future<Map<String, dynamic>> _request(
     String method,
     String path, {
@@ -491,6 +576,14 @@ class SharedSession {
       csrfToken: csrf,
     );
   }
+}
+
+class SharedBackupFile {
+  const SharedBackupFile(this.bytes, this.fileName, this.safetyToken);
+
+  final Uint8List bytes;
+  final String fileName;
+  final String safetyToken;
 }
 
 class SharedApiException implements Exception {

@@ -1,4 +1,7 @@
 class BackupSettings {
+  /// `collectionOnly` marks server exports: importing them must not replace
+  /// preferences belonging to the person using the receiving device.
+  final String scope;
   final String themeMode;
   final String accent;
   final String language;
@@ -10,6 +13,7 @@ class BackupSettings {
   final String boxSortOrder;
 
   const BackupSettings({
+    this.scope = 'personal',
     required this.themeMode,
     required this.accent,
     this.language = 'system',
@@ -23,6 +27,7 @@ class BackupSettings {
 
   Map<String, dynamic> toJson() {
     return {
+      'scope': scope,
       'themeMode': themeMode,
       'accent': accent,
       'language': language,
@@ -37,6 +42,7 @@ class BackupSettings {
 
   factory BackupSettings.fromJson(Map<String, dynamic> json) {
     return BackupSettings(
+      scope: json['scope'] as String? ?? 'personal',
       themeMode: json['themeMode'] as String,
       accent: json['accent'] as String,
       language: json['language'] as String? ?? 'system',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_saver/file_saver.dart';
 
 import '../core/database/enums/animal_category.dart';
 import '../core/presentation/widgets/overview_context_menu.dart';
@@ -9,6 +10,8 @@ import '../features/settings/app_accent.dart';
 import '../features/settings/app_language.dart';
 import '../features/settings/app_settings_controller.dart';
 import '../features/settings/box_sort_order.dart';
+import '../features/backup/application/backup_validation_service.dart';
+import '../features/backup/infrastructure/backup_file_service.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
@@ -868,14 +871,18 @@ class SharedSettingsPage extends StatelessWidget {
     required this.username,
     required this.role,
     required this.connected,
+    required this.actionsEnabled,
     required this.onLogout,
+    required this.onRestored,
   });
 
   final SharedApiClient api;
   final String username;
   final String role;
   final bool connected;
+  final bool actionsEnabled;
   final Future<void> Function() onLogout;
+  final Future<void> Function() onRestored;
 
   @override
   Widget build(BuildContext context) {
@@ -883,77 +890,158 @@ class SharedSettingsPage extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        ListTile(
-          leading: const Icon(Icons.dns_outlined),
-          title: Text(
-            sharedText(context, 'Shared server', 'Gemeinsamer Server'),
-          ),
-          subtitle: Text(
-            '${Uri.base.origin} · $username · ${connected ? sharedText(context, 'Connected', 'Verbunden') : sharedText(context, 'Offline', 'Offline')}',
+        Text(
+          context.l10n.appearance,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 24),
+        Text(
+          context.l10n.theme,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<ThemeMode>(
+            key: const Key('shared-theme-mode-selector'),
+            segments: [
+              for (final value in ThemeMode.values)
+                ButtonSegment<ThemeMode>(
+                  value: value,
+                  icon: Icon(switch (value) {
+                    ThemeMode.system => Icons.settings_brightness,
+                    ThemeMode.light => Icons.light_mode,
+                    ThemeMode.dark => Icons.dark_mode,
+                  }),
+                  label: Text(context.l10n.themeModeLabel(value)),
+                ),
+            ],
+            selected: {settings.themeMode},
+            onSelectionChanged: (selection) =>
+                settings.setThemeMode(selection.first),
           ),
         ),
+        const SizedBox(height: 32),
+        Text(
+          context.l10n.accentColor,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 12),
+        InputDecorator(
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<AppAccent>(
+              key: const Key('shared-accent-color-selector'),
+              value: settings.accent,
+              isExpanded: true,
+              borderRadius: BorderRadius.circular(12),
+              items: [
+                for (final accent in AppAccent.values)
+                  DropdownMenuItem<AppAccent>(
+                    value: accent,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: accent.color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(context.l10n.appAccentLabel(accent)),
+                      ],
+                    ),
+                  ),
+              ],
+              onChanged: (accent) {
+                if (accent != null) settings.setAccent(accent);
+              },
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          context.l10n.animalNameOrder,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          context.l10n.animalNameOrderDescription,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<AnimalNameOrder>(
+            key: const Key('shared-animal-name-order-selector'),
+            showSelectedIcon: false,
+            segments: [
+              for (final order in AnimalNameOrder.values)
+                ButtonSegment<AnimalNameOrder>(
+                  value: order,
+                  label: Text(context.l10n.animalNameOrderLabel(order)),
+                ),
+            ],
+            selected: {settings.animalNameOrder},
+            onSelectionChanged: (selection) =>
+                settings.setAnimalNameOrder(selection.first),
+          ),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          context.l10n.language,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<AppLanguage>(
+            key: const Key('shared-language-selector'),
+            segments: [
+              for (final value in AppLanguage.values)
+                ButtonSegment<AppLanguage>(
+                  value: value,
+                  label: Text(context.l10n.appLanguageLabel(value)),
+                ),
+            ],
+            selected: {settings.language},
+            onSelectionChanged: (selection) =>
+                settings.setLanguage(selection.first),
+          ),
+        ),
+        const SizedBox(height: 32),
+        Text(
+          context.l10n.changesSavedAutomatically,
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+        const SizedBox(height: 40),
         const Divider(),
-        if (role == 'administrator') ...[
-          SharedAccountsSection(api: api),
-          const Divider(),
-        ],
-        DropdownButtonFormField<AppLanguage>(
-          initialValue: settings.language,
-          decoration: InputDecoration(
-            labelText: sharedText(context, 'Language', 'Sprache'),
-          ),
-          items: [
-            for (final value in AppLanguage.values)
-              DropdownMenuItem(
-                value: value,
-                child: Text(switch (value) {
-                  AppLanguage.system => sharedText(context, 'System', 'System'),
-                  AppLanguage.english => 'English',
-                  AppLanguage.german => 'Deutsch',
-                }),
-              ),
-          ],
-          onChanged: (value) {
-            if (value != null) settings.setLanguage(value);
-          },
+        const SizedBox(height: 24),
+        Text(
+          sharedText(context, 'Overviews', 'Übersichten'),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<ThemeMode>(
-          initialValue: settings.themeMode,
-          decoration: InputDecoration(
-            labelText: sharedText(context, 'Appearance', 'Darstellung'),
+        const SizedBox(height: 8),
+        Text(
+          sharedText(
+            context,
+            'These display preferences are saved in this browser.',
+            'Diese Anzeigeeinstellungen werden in diesem Browser gespeichert.',
           ),
-          items: [
-            for (final value in ThemeMode.values)
-              DropdownMenuItem(
-                value: value,
-                child: Text(switch (value) {
-                  ThemeMode.system => sharedText(context, 'System', 'System'),
-                  ThemeMode.light => sharedText(context, 'Light', 'Hell'),
-                  ThemeMode.dark => sharedText(context, 'Dark', 'Dunkel'),
-                }),
-              ),
-          ],
-          onChanged: (value) {
-            if (value != null) settings.setThemeMode(value);
-          },
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<AppAccent>(
-          initialValue: settings.accent,
-          decoration: InputDecoration(
-            labelText: sharedText(context, 'Accent color', 'Akzentfarbe'),
-          ),
-          items: [
-            for (final value in AppAccent.values)
-              DropdownMenuItem(value: value, child: Text(value.name)),
-          ],
-          onChanged: (value) {
-            if (value != null) settings.setAccent(value);
-          },
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         DropdownButtonFormField<BoxSortOrder>(
+          key: const Key('shared-box-sort-selector'),
+          isExpanded: true,
           initialValue: settings.boxSortOrder,
           decoration: InputDecoration(
             labelText: sharedText(context, 'Box sorting', 'Box-Sortierung'),
@@ -971,6 +1059,8 @@ class SharedSettingsPage extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         DropdownButtonFormField<AnimalSortOrder>(
+          key: const Key('shared-animal-sort-selector'),
+          isExpanded: true,
           initialValue:
               const [
                 AnimalSortOrder.createdOldestFirst,
@@ -1003,28 +1093,9 @@ class SharedSettingsPage extends StatelessWidget {
             if (value != null) settings.setAnimalSortOrder(value);
           },
         ),
-        const SizedBox(height: 16),
-        DropdownButtonFormField<AnimalNameOrder>(
-          initialValue: settings.animalNameOrder,
-          decoration: InputDecoration(
-            labelText: sharedText(
-              context,
-              'Animal name order',
-              'Reihenfolge der Tiernamen',
-            ),
-          ),
-          items: [
-            for (final value in AnimalNameOrder.values)
-              DropdownMenuItem(
-                value: value,
-                child: Text(context.l10n.animalNameOrderLabel(value)),
-              ),
-          ],
-          onChanged: (value) {
-            if (value != null) settings.setAnimalNameOrder(value);
-          },
-        ),
         SwitchListTile(
+          key: const Key('shared-category-view-switch'),
+          contentPadding: EdgeInsets.zero,
           title: Text(
             sharedText(
               context,
@@ -1035,15 +1106,287 @@ class SharedSettingsPage extends StatelessWidget {
           value: settings.animalCategoryViewEnabled,
           onChanged: settings.setAnimalCategoryViewEnabled,
         ),
+        const SizedBox(height: 40),
+        const Divider(),
+        const SizedBox(height: 24),
+        Text(
+          sharedText(context, 'Shared server', 'Gemeinsamer Server'),
+          key: const Key('shared-server-section-heading'),
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          sharedText(
+            context,
+            'Collection data is stored on the server. The settings above belong to this browser.',
+            'Sammlungsdaten liegen auf dem Server. Die Einstellungen darüber gelten nur für diesen Browser.',
+          ),
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 16),
+        ListTile(
+          key: const Key('shared-server-status'),
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(
+            connected ? Icons.dns_outlined : Icons.cloud_off_outlined,
+          ),
+          title: Text(api.origin.origin),
+          subtitle: Text(
+            '$username · ${role == 'administrator' ? sharedText(context, 'Administrator', 'Administrator') : sharedText(context, 'Caregiver', 'Betreuung')} · ${connected ? sharedText(context, 'Connected', 'Verbunden') : sharedText(context, 'Offline', 'Offline')}',
+          ),
+        ),
+        if (role == 'administrator') ...[
+          const SizedBox(height: 24),
+          Text(
+            context.l10n.backupAndRestore,
+            key: const Key('shared-backup-section-heading'),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            sharedText(
+              context,
+              'Only administrators can export or replace the shared collection.',
+              'Nur Administratoren können die gemeinsame Sammlung sichern oder ersetzen.',
+            ),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          SharedBackupSection(
+            api: api,
+            connected: actionsEnabled,
+            onRestored: onRestored,
+          ),
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 24),
+          SharedAccountsSection(api: api),
+        ],
+        const SizedBox(height: 24),
         const Divider(),
         ListTile(
+          key: const Key('shared-sign-out-button'),
+          contentPadding: EdgeInsets.zero,
           leading: const Icon(Icons.logout),
           title: Text(sharedText(context, 'Sign out', 'Abmelden')),
+          trailing: const Icon(Icons.chevron_right),
           onTap: onLogout,
         ),
+        const SizedBox(height: 32),
       ],
     );
   }
+}
+
+class SharedBackupSection extends StatefulWidget {
+  const SharedBackupSection({
+    super.key,
+    required this.api,
+    required this.connected,
+    required this.onRestored,
+  });
+
+  final SharedApiClient api;
+  final bool connected;
+  final Future<void> Function() onRestored;
+
+  @override
+  State<SharedBackupSection> createState() => _SharedBackupSectionState();
+}
+
+class _SharedBackupSectionState extends State<SharedBackupSection> {
+  bool _busy = false;
+  String? _safetyToken;
+
+  void _message(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
+
+  Future<void> _export() async {
+    if (_busy || !widget.connected) return;
+    setState(() => _busy = true);
+    try {
+      final backup = await widget.api.exportBackup();
+      final saved = await FileSaver.instance.saveAs(
+        name: backup.fileName,
+        bytes: backup.bytes,
+        includeExtension: false,
+        mimeType: MimeType.custom,
+        customMimeType: 'application/vnd.terramanager.backup+zip',
+      );
+      if (!mounted) return;
+      if (saved == null) {
+        _message(
+          sharedText(
+            context,
+            'Backup save cancelled.',
+            'Sicherung wurde nicht gespeichert.',
+          ),
+        );
+        return;
+      }
+      setState(() => _safetyToken = backup.safetyToken);
+      _message(
+        sharedText(
+          context,
+          'Shared collection saved. This copy can protect you before a restore.',
+          'Gemeinsame Daten gespeichert. Diese Kopie schützt vor einer Wiederherstellung.',
+        ),
+      );
+    } catch (error) {
+      if (mounted) _message(error.toString());
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _restore() async {
+    if (_busy || !widget.connected) return;
+    final token = _safetyToken;
+    if (token == null) {
+      _message(
+        sharedText(
+          context,
+          'Save a current safety backup first.',
+          'Speichere zuerst eine aktuelle Sicherheitskopie.',
+        ),
+      );
+      return;
+    }
+    setState(() => _busy = true);
+    try {
+      final picked = await BackupFileService().pickBackup();
+      if (picked == null || !mounted) return;
+      if (picked.bytes.length > 256 * 1024 * 1024) {
+        _message(
+          sharedText(
+            context,
+            'This backup exceeds the 256 MiB import limit.',
+            'Diese Sicherung überschreitet die Importgrenze von 256 MiB.',
+          ),
+        );
+        return;
+      }
+      final validated = BackupValidationService(
+        maxExpandedBytes: 512 * 1024 * 1024,
+      ).validate(picked.bytes);
+      if (!mounted) return;
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(
+            sharedText(
+              dialogContext,
+              'Replace the shared collection?',
+              'Gemeinsame Daten ersetzen?',
+            ),
+          ),
+          content: Text(
+            sharedText(
+              dialogContext,
+              'The selected backup contains ${validated.boxCount} Boxes and '
+                  '${validated.animalCount} Animals. All current shared records '
+                  'and pictures will be replaced. Browser preferences and '
+                  'caregiver accounts remain unchanged.',
+              'Die Sicherung enthält ${validated.boxCount} Boxen und '
+                  '${validated.animalCount} Tiere. Alle aktuellen gemeinsamen '
+                  'Einträge und Bilder werden ersetzt. Browser-Einstellungen '
+                  'und Betreuungskonten bleiben unverändert.',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(sharedText(dialogContext, 'Cancel', 'Abbrechen')),
+            ),
+            FilledButton(
+              key: const Key('shared-confirm-restore'),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(
+                sharedText(
+                  dialogContext,
+                  'Replace shared data',
+                  'Gemeinsame Daten ersetzen',
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+      await widget.api.restoreBackup(picked.bytes, token);
+      if (!mounted) return;
+      setState(() => _safetyToken = null);
+      await widget.onRestored();
+      if (mounted) {
+        _message(
+          sharedText(
+            context,
+            'Shared collection restored.',
+            'Gemeinsame Daten wiederhergestellt.',
+          ),
+        );
+      }
+    } catch (error) {
+      if (mounted) _message(error.toString());
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      ListTile(
+        key: const Key('shared-create-backup-button'),
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.download_outlined),
+        title: Text(
+          sharedText(
+            context,
+            'Save shared backup',
+            'Gemeinsame Sicherung speichern',
+          ),
+        ),
+        subtitle: Text(
+          sharedText(
+            context,
+            'Exports all shared records and pictures. Personal browser settings and caregiver accounts are excluded.',
+            'Exportiert alle gemeinsamen Einträge und Bilder. Persönliche Browser-Einstellungen und Betreuungskonten sind ausgenommen.',
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: _busy || !widget.connected ? null : _export,
+      ),
+      const Divider(),
+      ListTile(
+        key: const Key('shared-restore-backup-button'),
+        contentPadding: EdgeInsets.zero,
+        leading: const Icon(Icons.restore_outlined),
+        title: Text(
+          sharedText(
+            context,
+            'Restore shared backup',
+            'Gemeinsame Sicherung wiederherstellen',
+          ),
+        ),
+        subtitle: Text(
+          sharedText(
+            context,
+            'First save a current safety backup, then select a compatible .tmbackup file.',
+            'Zuerst eine aktuelle Sicherheitskopie speichern, dann eine kompatible .tmbackup-Datei wählen.',
+          ),
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: _busy || !widget.connected ? null : _restore,
+      ),
+      if (_busy) ...[
+        const SizedBox(height: 16),
+        const LinearProgressIndicator(key: Key('shared-backup-progress')),
+      ],
+    ],
+  );
 }
 
 class SharedAccountsSection extends StatefulWidget {
@@ -1065,7 +1408,12 @@ class _SharedAccountsSectionState extends State<SharedAccountsSection> {
     _reload();
   }
 
-  void _reload() => setState(() => _accounts = widget.api.accounts());
+  void _reload() {
+    final accounts = widget.api.accounts();
+    setState(() {
+      _accounts = accounts;
+    });
+  }
 
   Future<void> _add() async {
     final input = await showDialog<(String, String, String)>(

@@ -8,6 +8,8 @@ RUN dart pub get --enforce-lockfile
 COPY bin/create_admin.dart bin/shared_server.dart bin/
 COPY lib/core/database/ lib/core/database/
 COPY lib/core/qr/qr_id_generator.dart lib/core/qr/qr_id_generator.dart
+COPY lib/core/qr/qr_validator.dart lib/core/qr/qr_validator.dart
+COPY lib/features/backup/ lib/features/backup/
 COPY lib/shared_server/ lib/shared_server/
 RUN dart build cli --target=bin/shared_server.dart --output=/out/server \
     && dart build cli --target=bin/create_admin.dart --output=/out/admin

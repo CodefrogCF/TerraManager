@@ -7,6 +7,7 @@ import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
+import '../../../../shared_client/shared_text.dart';
 import '../../../backup/application/backup_export_service.dart';
 import '../../../backup/application/backup_restore_service.dart';
 import '../../../backup/application/backup_validation_exception.dart';
@@ -25,6 +26,7 @@ import '../../infrastructure/box_qr_document_storage_service.dart';
 import '../box_qr_selection_dialog.dart';
 import 'license_page.dart';
 import 'privacy_policy_page.dart';
+import '../widgets/shared_care_browser_link.dart';
 
 typedef AppVersionLoader = Future<String> Function();
 typedef AppInformationLoader = Future<AppInformation> Function();
@@ -1035,6 +1037,16 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
 
           const SizedBox(height: 40),
+          const Divider(),
+          const SizedBox(height: 24),
+
+          Text(
+            sharedText(context, 'Shared care', 'Gemeinsame Betreuung'),
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          const SharedCareBrowserLink(),
+          const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: 24),
 

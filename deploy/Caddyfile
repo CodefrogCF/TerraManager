@@ -6,6 +6,7 @@ https://{$TM_HOST} {
     tls /certs/server.crt /certs/server.key
     header X-Content-Type-Options nosniff
     header Referrer-Policy no-referrer
+    header Cache-Control no-store
 
     handle /api/* {
         reverse_proxy server:8080 {

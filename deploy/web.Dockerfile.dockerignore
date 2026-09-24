@@ -1,5 +1,5 @@
 **
 !deploy/
 !deploy/Caddyfile
-!deploy/landing/
-!deploy/landing/index.html
+!deploy/web-dist/
+!deploy/web-dist/**

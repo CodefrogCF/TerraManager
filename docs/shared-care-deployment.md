@@ -5,12 +5,13 @@ The server and HTTPS gateway run as ARM64 containers. The server owns one
 collection SQLite database and one account/session SQLite database. Media is
 stored in the collection database, so both files must be kept together.
 
-**Current scope:** The HTTPS gateway currently serves a readiness page. The
-existing Flutter Web application still uses a browser-local database; it is
-not a shared client. Issue #160 will replace the readiness page with the
-API-backed Web interface. Do not direct caregivers to the standalone Web app
-and expect their changes to be shared. The deployment cannot meet the shared
-browser workflow acceptance criteria until #160 is integrated and tested.
+**Shared Web mode:** The gateway serves the Flutter application compiled from
+`lib/main_shared.dart`. This entry point does not create `AppDatabase` or a
+browser collection database. It signs in through the same-origin API, reloads
+the server collection and keeps appearance preferences in each browser. The
+normal `lib/main.dart` entry point remains the standalone, browser-local mode.
+Opening a standalone Web build at another URL will not connect it to this
+server.
 
 ## Host and network preparation
 
@@ -48,6 +49,37 @@ certificate and key in `certs/` and make the key readable only by the host
 administrator. These paths are ignored by Git. The database directory must
 remain owned by numeric user 10001, which runs the server container.
 
+Build the shared Flutter Web files on your development machine with its Flutter
+SDK, then copy only the compiled `build/web` contents to
+`deploy/web-dist/` on the Pi. Do not copy `.env`, the CA private key, signing
+keys or local database files with them. The following example builds on the
+development machine and transfers one archive:
+
+```sh
+flutter pub get
+flutter build web --target lib/main_shared.dart --no-web-resources-cdn
+tar -C build/web -czf terramanager-shared-web.tar.gz .
+scp terramanager-shared-web.tar.gz <pi-user>@<pi-host>:~/TerraManager/deploy/
+```
+
+On the Pi, unpack it beside the Compose file:
+
+```sh
+cd ~/TerraManager/deploy
+mkdir -p web-dist
+tar -xzf terramanager-shared-web.tar.gz -C web-dist
+test -f web-dist/index.html
+test -f web-dist/assets/fonts/fallback/Roboto-Regular.ttf
+```
+
+The `--no-web-resources-cdn` flag bundles the Roboto text font locally. Without
+it the shared interface may render without text on a LAN without public font
+access. The image build refuses to proceed without `web-dist/index.html` and
+the bundled Roboto font. Generated
+Web files are ignored by Git; rebuild and transfer them for each source update.
+The Web output is static and contains no server credentials or collection
+data. Its rendering files are served from the Pi, not a third-party CDN.
+
 Check the interpolated configuration before the first start:
 
 ```sh
@@ -66,14 +98,54 @@ operation does not. The server has no published port. Only the gateway binds
 `TM_LAN_BIND_IP:443` and forwards `/api/*` inside the Compose network.
 
 Open `https://<TM_HOST>/` from a second LAN device. It should show the
-readiness page without a browser certificate warning after the local CA is
-trusted. `https://<TM_HOST>/api/v1/health` should return `{"status":"ok"}`;
+shared sign-in page without a browser certificate warning after the local CA
+is trusted. `https://<TM_HOST>/api/v1/health` should return `{"status":"ok"}`;
 it contains no collection or account data. An unauthenticated request to
 `/api/v1/boxes` should return `401`. Login and all record access use the
-HTTPS origin. The present readiness page does not yet provide a login form;
-the shared browser client is Issue #160. To inspect API operations, see
+HTTPS origin. Sign in on two browsers, create a Box in one and reload the
+other; both should show the same server record. Archive and restore a test
+record, then disconnect one browser from the LAN: it should show a connection
+error and refuse edits until it can reload. To inspect API operations, see
 [Shared Care API](shared-care-api.md). Test again with WAN access disabled
-while keeping the LAN active to verify offline operation.
+while keeping the LAN active to verify that the installation uses no cloud
+service. The Android app's Settings link opens this URL in the external
+browser; it does not connect the app's local database to the server.
+
+## Shared Web acceptance checks
+
+Use disposable records on two signed-in browsers before relying on shared mode
+for care work:
+
+1. Create a Box on one device. Confirm that it appears on the other after the
+   automatic refresh (normally within 15 seconds), without a browser reload.
+2. Open a Box edit form, interrupt that device's LAN connection, and try to
+   save once. The form must remain open and show that the outcome is uncertain;
+   the application must not announce a successful save. After a failed request,
+   further saves remain disabled until the server can be reached again.
+3. Restore the connection and use **Reload**. Confirm that the current Box and
+   Animal lists come from the server, including a change made in the other
+   browser while the first was disconnected. Check the record before retrying
+   a failed save: the server may have committed it before its reply was lost.
+4. In the browser's developer tools, inspect storage for the shared HTTPS
+   origin. There must be no TerraManager collection database in IndexedDB.
+   Local browser storage may contain personal presentation preferences. The
+   standalone Web application uses its own local collection at its separate
+   origin and must not be mistaken for the shared client.
+
+The shared browser overview follows the standalone Box and Animal navigation:
+natural Box sorting, Animal created/name/age sorting, category grouping,
+archive views, thumbnails, add
+buttons and long-press/right-click action menus. Box and Animal rename, edit,
+duplicate and archive actions use the care API. The Animal action menu can
+open a new Feeding entry directly. Animal details show the primary picture,
+gallery, latest Feeding and an active Feeding reminder. Presentation choices
+remain per browser; collection records stay server-owned.
+
+The browser still has some intentional shared-mode differences. QR camera
+scanning, Feeding Mode scanning, latest-Feeding sorting, bulk QR export and
+portable backup controls are not offered by this shared interface. Server data is backed up from the
+host volume as described below. Do not use the standalone Web application's
+local database as a shared-care substitute.
 
 ## Persistence and backups
 
@@ -103,8 +175,9 @@ restoring it to an isolated test installation, not over the running server.
 ## Update and rollback
 
 Before updating, keep the old image tags available and make a stopped-server
-volume backup. Then fetch the desired source revision, choose a new
-`TM_STACK_VERSION` in `.env`, and run:
+volume backup. Then fetch the desired source revision, rebuild and transfer
+the matching shared Web output, choose a new `TM_STACK_VERSION` in `.env`,
+and run:
 
 ```sh
 docker compose config

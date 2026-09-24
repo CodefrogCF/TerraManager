@@ -48,8 +48,8 @@ For authoritative details see:
 - [Platform support](platform-support.md)
 - [Data model](data-model.md)
 - [Backup format](backup-format.md)
-- [Shared Care API and local accounts (under development)](shared-care-api.md)
-- [Shared Care Raspberry Pi deployment (under development)](shared-care-deployment.md)
+- [Shared Care API and local accounts](shared-care-api.md)
+- [Shared Care Raspberry Pi deployment](shared-care-deployment.md)
 - [Installation and updates](installation-and-updates.md)
 
 Published changes are recorded in the
@@ -117,7 +117,8 @@ TerraManager is designed as a local-first application.
 
 Core functionality does not require an internet connection.
 
-Application data is stored locally on the current device or browser profile.
+In standalone mode, application data is stored locally on the current device
+or browser profile.
 
 ```text
 UI
@@ -132,7 +133,14 @@ Drift
 Local Database
 ```
 
-There is currently no cloud synchronization.
+The optional Shared Care Web mode uses a separate Flutter entry point. It
+authenticates against a self-hosted LAN server, which alone owns the SQLite
+collection. Shared-mode browsers hold no local collection database and cannot
+edit while disconnected. Appearance, language and sorting preferences remain
+local to each browser. The Android app can open this mode in an external
+browser; its local collection remains independent.
+
+There is no cloud synchronization.
 
 This means that data stored on one device is not automatically available on another device.
 

@@ -1,0 +1,163 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../shared_client/shared_text.dart';
+
+/// Opens the shared collection in the system browser. The Android app does
+/// not make a network request and keeps its local collection independent.
+class SharedCareBrowserLink extends StatelessWidget {
+  const SharedCareBrowserLink({super.key});
+
+  static const _preferenceKey = 'shared_care_browser_origin';
+  static const _channel = MethodChannel('com.codefrog.terramanager/browser');
+
+  Future<void> _open(BuildContext context) async {
+    final preferences = await SharedPreferences.getInstance();
+    if (!context.mounted) return;
+    try {
+      final origin = await showDialog<String>(
+        context: context,
+        builder: (_) => _SharedServerUrlDialog(
+          initial: preferences.getString(_preferenceKey) ?? '',
+        ),
+      );
+      if (origin == null || !context.mounted) return;
+      await preferences.setString(_preferenceKey, origin);
+      await _channel.invokeMethod<void>('openExternalUrl', {'url': origin});
+    } on PlatformException {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              sharedText(
+                context,
+                'No browser could open the server address.',
+                'Die Serveradresse konnte nicht im Browser geöffnet werden.',
+              ),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
+      return const SizedBox.shrink();
+    }
+    return ListTile(
+      key: const Key('shared-care-browser-link'),
+      contentPadding: EdgeInsets.zero,
+      leading: const Icon(Icons.open_in_browser),
+      title: Text(
+        sharedText(context, 'Open shared server', 'Gemeinsamen Server öffnen'),
+      ),
+      subtitle: Text(
+        sharedText(
+          context,
+          'Use the server collection in your browser',
+          'Serversammlung im Browser verwenden',
+        ),
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _open(context),
+    );
+  }
+}
+
+class _SharedServerUrlDialog extends StatefulWidget {
+  const _SharedServerUrlDialog({required this.initial});
+  final String initial;
+
+  @override
+  State<_SharedServerUrlDialog> createState() => _SharedServerUrlDialogState();
+}
+
+class _SharedServerUrlDialogState extends State<_SharedServerUrlDialog> {
+  late final TextEditingController _controller;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initial);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  String? _validOrigin(String raw) {
+    final uri = Uri.tryParse(raw.trim());
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host.isEmpty ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasQuery ||
+        uri.hasFragment ||
+        (uri.path.isNotEmpty && uri.path != '/')) {
+      return null;
+    }
+    return uri.origin;
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(
+      sharedText(context, 'Open shared server', 'Gemeinsamen Server öffnen'),
+    ),
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          sharedText(
+            context,
+            'The shared collection opens in your browser. The local app collection stays separate.',
+            'Die gemeinsame Sammlung öffnet sich im Browser. Die lokale App-Sammlung bleibt getrennt.',
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          key: const Key('shared-server-url'),
+          controller: _controller,
+          keyboardType: TextInputType.url,
+          autocorrect: false,
+          decoration: InputDecoration(
+            labelText: 'HTTPS URL',
+            hintText: 'https://192.168.1.117',
+            errorText: _error,
+          ),
+        ),
+      ],
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: Text(sharedText(context, 'Cancel', 'Abbrechen')),
+      ),
+      FilledButton(
+        key: const Key('open-shared-server'),
+        onPressed: () {
+          final value = _validOrigin(_controller.text);
+          if (value == null) {
+            setState(
+              () => _error = sharedText(
+                context,
+                'Enter the server HTTPS address without a path.',
+                'HTTPS-Adresse des Servers ohne Pfad eingeben.',
+              ),
+            );
+            return;
+          }
+          Navigator.of(context).pop(value);
+        },
+        child: Text(sharedText(context, 'Open', 'Öffnen')),
+      ),
+    ],
+  );
+}

@@ -3,7 +3,7 @@
 This document describes the server-owned care API from Issue #157 and local
 caregiver authentication from Issue #158. The ARM64 container layout and LAN
 HTTPS deployment are described in [Shared Care deployment](shared-care-deployment.md).
-The API-backed shared Web client remains Issue #160.
+The API-backed Flutter Web client is `lib/main_shared.dart` (Issue #160).
 
 ## Data ownership
 
@@ -12,7 +12,8 @@ storage. It runs the existing Drift migrations before accepting requests. A
 separate SQLite file holds local accounts and sessions. The server alone holds
 both database connections; API clients cannot request either file or execute
 SQL. Existing standalone Android and Web modes keep their local database
-behavior.
+behavior. Shared-mode browsers use this API only; their presentation
+preferences remain local.
 
 Media assets remain in the SQLite `MediaAssets` table. Local accounts and
 sessions live in a separate `accounts.sqlite` database beside the collection
@@ -58,7 +59,9 @@ Requests and responses containing records use JSON. Dates in write requests
 must use ISO-8601 with `Z` or a numeric time-zone offset. Server responses use
 UTC ISO-8601 timestamps. A client should clear its local login state on
 `401 unauthorized`, show the denied operation on `403 forbidden` or `403 csrf_failed`,
-and redirect to login after expiry. The browser client is Issue #160.
+and redirect to login after expiry. The browser client polls the collection
+periodically and offers a manual reload after connection failures. It does not
+queue edits while disconnected.
 
 ## Local accounts
 
@@ -123,4 +126,7 @@ Errors have the stable shape
 | 429 | `rate_limited` | Too many failed login attempts in five minutes |
 | 500 | `internal_error` | Unexpected server failure; details are not returned |
 
-Backup import and the complete shared Web workflow are later work.
+Portable backup import for the server-owned collection remains future work.
+The shared Flutter Web client uses this API for Box, Animal, archive, care,
+picture and account workflows; its deployment is described in
+[Shared Care deployment](shared-care-deployment.md).

@@ -33,6 +33,8 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/deploy/web-dist/*
+!/deploy/web-dist/.gitkeep
 /lib/l10n/generated/
 
 # Generated Drift Web worker output. The worker is compiled before Web builds.

@@ -58,6 +58,13 @@ TerraManager currently provides:
 - portable local backups and restore
 - English and German interfaces
 - Android and Web support
+- optional self-hosted Shared Care Web mode with one server-owned collection
+
+The standalone Android and Web applications keep their own local collections.
+For multiple caregivers on one LAN, the separately built
+[Shared Care Web mode](docs/shared-care-deployment.md) uses the Pi server
+instead. The Android Settings link opens that mode in the external browser
+without giving the Android app network access.
 
 For user workflows see the
 [visual guide](https://codefrogcf.github.io/TerraManager/guide/).

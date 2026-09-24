@@ -10,6 +10,12 @@ This document describes the current platform validation status of TerraManager.
 | Web | Validated |
 | iOS | Planned / not validated |
 
+The validated Web entry point is the standalone, browser-local application.
+The separate Shared Care Web entry point uses the self-hosted LAN API and
+server-owned database. Its automated client and server tests do not replace
+deployment and multi-browser validation on the target Pi; follow the
+[Shared Care deployment guide](shared-care-deployment.md) for those checks.
+
 ## Permanent Application Identity
 
 Development build `0.14.2+34` adopts `com.codefrog.terramanager` as the

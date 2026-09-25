@@ -138,6 +138,69 @@ void main() {
     await directory.delete(recursive: true);
   });
 
+  test(
+    'Animal overview returns latest Feeding in one collection response',
+    () async {
+      final boxId = await _createBox(clientA, server, 'Terrarium');
+      final fedAnimal = await _createAnimal(
+        clientA,
+        server,
+        boxId,
+        name: 'Fed',
+      );
+      final unfedAnimal = await _createAnimal(
+        clientA,
+        server,
+        boxId,
+        name: 'Never',
+      );
+      final before = await _call(clientB, server, 'GET', '/api/v1/animals');
+      final beforeAnimals = (before.json!['animals'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(
+        beforeAnimals.singleWhere(
+          (animal) => animal['id'] == fedAnimal,
+        )['latestFeedingAt'],
+        isNull,
+      );
+      expect(
+        beforeAnimals.singleWhere(
+          (animal) => animal['id'] == unfedAnimal,
+        )['latestFeedingAt'],
+        isNull,
+      );
+
+      final fedAt = DateTime.utc(2026, 9, 25, 10);
+      final added = await _call(
+        clientA,
+        server,
+        'POST',
+        '/api/v1/feedings',
+        body: {
+          'animalIds': [fedAnimal],
+          'fedAt': fedAt.toIso8601String(),
+          'notes': null,
+        },
+      );
+      expect(added.status, 201, reason: added.json.toString());
+      final after = await _call(clientB, server, 'GET', '/api/v1/animals');
+      final afterAnimals = (after.json!['animals'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(
+        afterAnimals.singleWhere(
+          (animal) => animal['id'] == fedAnimal,
+        )['latestFeedingAt'],
+        fedAt.toIso8601String(),
+      );
+      expect(
+        afterAnimals.singleWhere(
+          (animal) => animal['id'] == unfedAnimal,
+        )['latestFeedingAt'],
+        isNull,
+      );
+    },
+  );
+
   test('requires authentication and never serves the database file', () async {
     final denied = await _call(
       clientA,

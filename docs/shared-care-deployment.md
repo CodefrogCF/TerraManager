@@ -155,16 +155,19 @@ for care work:
    state should appear on that page after its next visible refresh.
 
 The shared browser overview follows the standalone Box and Animal navigation:
-natural Box sorting, Animal created/name/age sorting, category grouping,
-archive views, thumbnails, add
-buttons and long-press/right-click action menus. Box and Animal rename, edit,
+natural Box sorting, Animal created/name/age/latest-Feeding sorting, category
+grouping, archive views, optional Big Picture cards, thumbnails, add buttons
+and long-press/right-click action menus. Box and Animal rename, edit,
 duplicate and archive actions use the care API. The Animal action menu can
 open a new Feeding entry directly. Animal details show the primary picture,
-gallery, latest Feeding and an active Feeding reminder. Presentation choices
+gallery, latest Feeding and an active Feeding reminder, plus weight and
+shedding summaries when enabled for that Animal. Box details show assigned
+Animal thumbnails; archived details retain reason, date and notes. Presentation choices
 remain per browser; collection records stay server-owned.
 
 Shared Settings follows the standalone page's appearance and language
-controls. Browser-only overview preferences have their own section. Server
+controls. Sorting, category grouping and Big Picture Mode are changed directly
+on the relevant overview; these choices remain local to the browser. Server
 status, administrator backups, caregiver accounts and sign-out are grouped in
 the **Shared server** section, so it is clear which actions affect everyone.
 
@@ -205,10 +208,9 @@ by another caregiver updates the view on the next foreground refresh. These
 are in-app reminders only: Shared Care does not request browser notification
 permission, schedule background work, or send push notifications.
 
-The browser still has some intentional shared-mode differences. Latest-Feeding
-sorting and bulk QR export are not offered by this shared interface.
-Administrators can export and restore
-portable collection backups in Shared Settings. Host-volume backups remain the
+The browser still has some intentional shared-mode differences. Bulk QR export
+is not yet offered by this shared interface. Administrators can export and
+restore portable collection backups in Shared Settings. Host-volume backups remain the
 recovery path for both collection and account databases. Do not use the standalone Web application's
 local database as a shared-care substitute.
 

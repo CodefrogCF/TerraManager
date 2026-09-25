@@ -2,8 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
+import '../core/database/enums/birth_date_accuracy.dart';
+import '../features/settings/animal_name_order.dart';
+import '../features/settings/app_settings_controller.dart';
 import '../l10n/app_localizations_context.dart';
+import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
 import 'shared_collection_pages.dart';
 import 'shared_feeding_reminder_page.dart';
@@ -92,6 +97,15 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
     _record = widget.api.box(widget.id);
   });
 
+  String? _dateTimeLabel(String? source) {
+    final date = DateTime.tryParse(source ?? '');
+    if (date == null) return null;
+    final local = date.toLocal();
+    final material = MaterialLocalizations.of(context);
+    return '${material.formatMediumDate(local)} '
+        '${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
+  }
+
   Future<void> _openEdit() async {
     try {
       final box = await _record;
@@ -178,11 +192,61 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 8),
+              if (!active) ...[
+                Text(
+                  context.l10n.archived,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                _DetailRow(
+                  label: context.l10n.reason,
+                  value: box['archiveReason'] == null
+                      ? context.l10n.notSpecified
+                      : sharedArchiveReasonLabel(
+                          context,
+                          box['archiveReason'] as String,
+                          box: true,
+                        ),
+                ),
+                _DetailRow(
+                  label: context.l10n.archiveDate,
+                  value:
+                      _dateTimeLabel(box['archivedAt'] as String?) ??
+                      context.l10n.notSpecified,
+                ),
+                _DetailRow(
+                  label: context.l10n.archiveNote,
+                  value: box['archiveNotes'] as String?,
+                ),
+                const SizedBox(height: 16),
+              ],
+              Text(
+                context.l10n.dimensions,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              _DetailRow(
+                label: context.l10n.width,
+                value: box['widthCm'] == null ? null : '${box['widthCm']} cm',
+              ),
+              _DetailRow(
+                label: context.l10n.height,
+                value: box['heightCm'] == null ? null : '${box['heightCm']} cm',
+              ),
+              _DetailRow(
+                label: context.l10n.depth,
+                value: box['depthCm'] == null ? null : '${box['depthCm']} cm',
+              ),
               _DetailRow(label: 'QR ID', value: box['qrId']?.toString()),
               _DetailRow(
-                label: sharedText(context, 'Dimensions', 'Maße'),
-                value:
-                    '${[box['widthCm'], box['heightCm'], box['depthCm']].map((value) => value?.toString() ?? '–').join(' × ')} cm',
+                label: context.l10n.boxId,
+                value: widget.id.toString(),
+              ),
+              _DetailRow(
+                label: context.l10n.created,
+                value: _dateTimeLabel(box['createdAt'] as String?),
+              ),
+              _DetailRow(
+                label: context.l10n.updated,
+                value: _dateTimeLabel(box['updatedAt'] as String?),
               ),
               _DetailRow(
                 label: sharedText(
@@ -196,34 +260,46 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
                 label: sharedText(context, 'Notes', 'Notizen'),
                 value: box['notes'] as String?,
               ),
-              if (!active)
-                _DetailRow(
-                  label: sharedText(context, 'Archive reason', 'Archivgrund'),
-                  value: box['archiveReason'] == null
-                      ? null
-                      : sharedArchiveReasonLabel(
-                          context,
-                          box['archiveReason'] as String,
-                          box: true,
-                        ),
-                ),
               const Divider(),
               Text(
                 sharedText(context, 'Animals', 'Tiere'),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               for (final animal in animals)
-                ListTile(
-                  title: Text(animalLabel(animal)),
-                  subtitle: Text(animal['status']?.toString() ?? ''),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => SharedAnimalDetailPage(
-                        api: widget.api,
-                        id: recordId(animal),
-                        boxes: widget.boxes,
-                        connected: widget.connected,
-                        change: widget.change,
+                Card(
+                  child: ListTile(
+                    key: Key('assigned-animal-${recordId(animal)}'),
+                    leading: SharedThumbnail(
+                      key: Key('assigned-animal-thumbnail-${recordId(animal)}'),
+                      api: widget.api,
+                      mediaId: animal['pictureMediaId'] as int?,
+                      fallback: Icons.emoji_nature_outlined,
+                    ),
+                    title: Text(
+                      animalLabel(
+                        animal,
+                        order: AppSettingsScope.of(context).animalNameOrder,
+                      ),
+                    ),
+                    subtitle: Text(
+                      (AppSettingsScope.of(context).animalNameOrder ==
+                                      AnimalNameOrder.commonNameFirst
+                                  ? animal['latinName']
+                                  : animal['commonName'])
+                              ?.toString()
+                              .trim() ??
+                          '',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => SharedAnimalDetailPage(
+                          api: widget.api,
+                          id: recordId(animal),
+                          boxes: widget.boxes,
+                          connected: widget.connected,
+                          change: widget.change,
+                        ),
                       ),
                     ),
                   ),
@@ -336,6 +412,8 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     with WidgetsBindingObserver {
   late Future<Map<String, dynamic>> _record;
   late Future<List<Map<String, dynamic>>> _feedings;
+  late Future<List<Map<String, dynamic>>?> _weights;
+  late Future<List<Map<String, dynamic>>?> _shedding;
   late List<Map<String, dynamic>> _boxes;
   Timer? _timer;
   bool _foreground = true;
@@ -348,6 +426,8 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     _boxes = widget.boxes;
     _record = widget.api.animal(widget.id);
     _feedings = widget.api.feedings(widget.id);
+    _weights = _optionalHistory(() => widget.api.weights(widget.id));
+    _shedding = _optionalHistory(() => widget.api.shedding(widget.id));
     _timer = Timer.periodic(const Duration(seconds: 15), (_) {
       unawaited(_refreshVisible());
     });
@@ -377,11 +457,19 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     try {
       final animal = await widget.api.animal(widget.id);
       final feedings = await widget.api.feedings(widget.id);
+      final weights = await _optionalHistory(
+        () => widget.api.weights(widget.id),
+      );
+      final shedding = await _optionalHistory(
+        () => widget.api.shedding(widget.id),
+      );
       final boxes = await widget.api.boxes();
       if (mounted && _foreground && ModalRoute.of(context)?.isCurrent == true) {
         setState(() {
           _record = Future.value(animal);
           _feedings = Future.value(feedings);
+          _weights = Future.value(weights);
+          _shedding = Future.value(shedding);
           _boxes = boxes;
         });
       }
@@ -395,7 +483,19 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
   void _reload() => setState(() {
     _record = widget.api.animal(widget.id);
     _feedings = widget.api.feedings(widget.id);
+    _weights = _optionalHistory(() => widget.api.weights(widget.id));
+    _shedding = _optionalHistory(() => widget.api.shedding(widget.id));
   });
+
+  Future<List<Map<String, dynamic>>?> _optionalHistory(
+    Future<List<Map<String, dynamic>>> Function() load,
+  ) async {
+    try {
+      return await load();
+    } catch (_) {
+      return null;
+    }
+  }
 
   DateTime? _latestFeeding(List<Map<String, dynamic>> entries) {
     DateTime? latest;
@@ -414,6 +514,143 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     return '${material.formatMediumDate(local)} '
         '${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
   }
+
+  String? _dateOnlyLabel(String? source) {
+    final date = DateTime.tryParse(source ?? '');
+    return date == null
+        ? null
+        : MaterialLocalizations.of(context).formatMediumDate(date.toLocal());
+  }
+
+  String _temperatureNumber(Object? value) => NumberFormat(
+    '0.0',
+    Localizations.localeOf(context).toLanguageTag(),
+  ).format((value as num).toDouble());
+
+  String? _temperatureRange(Object? minimum, Object? maximum) {
+    if (minimum == null && maximum == null) return null;
+    if (minimum != null && maximum != null) {
+      return context.l10n.temperatureRange(
+        _temperatureNumber(minimum),
+        _temperatureNumber(maximum),
+      );
+    }
+    return '${_temperatureNumber(minimum ?? maximum)} °C';
+  }
+
+  Widget _weightSection(Map<String, dynamic> animal, bool active) =>
+      FutureBuilder<List<Map<String, dynamic>>?>(
+        future: _weights,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const SizedBox.shrink();
+          }
+          final weights = [...snapshot.data!]
+            ..sort(
+              (a, b) => (b['measuredAt'] as String? ?? '').compareTo(
+                a['measuredAt'] as String? ?? '',
+              ),
+            );
+          final latest = weights.firstOrNull;
+          final grams = latest?['weightGrams'] as num?;
+          final legacy = (animal['weight'] as String?)?.trim();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (grams != null)
+                _DetailRow(
+                  key: const Key('shared-weight-detail'),
+                  label: context.l10n.weight,
+                  value: context.l10n.weightMeasurement(
+                    NumberFormat(
+                      '0.##',
+                      Localizations.localeOf(context).toLanguageTag(),
+                    ).format(grams),
+                  ),
+                )
+              else if (legacy != null && legacy.isNotEmpty)
+                _DetailRow(label: context.l10n.weight, value: legacy),
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: active && widget.api.connected
+                        ? () => _openHistory(
+                            SharedHistoryKind.weights,
+                            active: true,
+                            createOnOpen: true,
+                          )
+                        : null,
+                    icon: const Icon(Icons.add),
+                    label: Text(context.l10n.addWeightMeasurement),
+                  ),
+                  TextButton.icon(
+                    onPressed: () =>
+                        _openHistory(SharedHistoryKind.weights, active: active),
+                    icon: const Icon(Icons.history),
+                    label: Text(context.l10n.weightHistory),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
+
+  Widget _sheddingSection(bool active) =>
+      FutureBuilder<List<Map<String, dynamic>>?>(
+        future: _shedding,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const SizedBox.shrink();
+          }
+          final entries = [...snapshot.data!]
+            ..sort(
+              (a, b) => (b['shedAt'] as String? ?? '').compareTo(
+                a['shedAt'] as String? ?? '',
+              ),
+            );
+          final latest = DateTime.tryParse(
+            entries.firstOrNull?['shedAt'] as String? ?? '',
+          );
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _DetailRow(
+                key: const Key('shared-shedding-detail'),
+                label: context.l10n.latestShedding,
+                value: latest == null
+                    ? context.l10n.noSheddingEventsAvailable
+                    : _dateLabel(context, latest),
+              ),
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: active && widget.api.connected
+                        ? () => _openHistory(
+                            SharedHistoryKind.shedding,
+                            active: true,
+                            createOnOpen: true,
+                          )
+                        : null,
+                    icon: const Icon(Icons.add),
+                    label: Text(context.l10n.addSheddingEvent),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _openHistory(
+                      SharedHistoryKind.shedding,
+                      active: active,
+                    ),
+                    icon: const Icon(Icons.history),
+                    label: Text(context.l10n.sheddingHistory),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
 
   Widget _feedingInformation(Map<String, dynamic> animal, {required bool due}) {
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -482,14 +719,23 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
   }
 
   Future<void> _openFeedingHistory(bool active) async {
+    await _openHistory(SharedHistoryKind.feedings, active: active);
+  }
+
+  Future<void> _openHistory(
+    SharedHistoryKind kind, {
+    required bool active,
+    bool createOnOpen = false,
+  }) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (_) => SharedHistoryPage(
           api: widget.api,
           animalId: widget.id,
-          kind: SharedHistoryKind.feedings,
+          kind: kind,
           active: active,
           change: widget.change,
+          createOnOpen: createOnOpen,
         ),
       ),
     );
@@ -575,6 +821,11 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
+                        tooltip: context.l10n.feedingHistory,
+                        onPressed: () => _openFeedingHistory(true),
+                        icon: const Icon(Icons.restaurant_outlined),
+                      ),
+                      IconButton(
                         key: const Key('shared-feeding-reminder-settings'),
                         tooltip: context.l10n.feedingReminder,
                         onPressed: widget.api.connected
@@ -626,20 +877,35 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
               ),
               const SizedBox(height: 12),
               Text(
-                animalLabel(animal),
-                textAlign: TextAlign.center,
+                animalLabel(
+                  animal,
+                  order: AppSettingsScope.of(context).animalNameOrder,
+                ),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              if ((animal['latinName'] as String?)?.isNotEmpty ?? false)
+              if (((AppSettingsScope.of(context).animalNameOrder ==
+                                  AnimalNameOrder.commonNameFirst
+                              ? animal['latinName']
+                              : animal['commonName'])
+                          as String?)
+                      ?.trim()
+                      .isNotEmpty ==
+                  true)
                 Text(
-                  animal['latinName'] as String,
-                  textAlign: TextAlign.center,
+                  (AppSettingsScope.of(context).animalNameOrder ==
+                              AnimalNameOrder.commonNameFirst
+                          ? animal['latinName']
+                          : animal['commonName'])
+                      as String,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               const SizedBox(height: 8),
               _feedingInformation(animal, due: false),
               _DetailRow(
                 label: sharedText(context, 'Status', 'Status'),
-                value: animal['status'] as String?,
+                value: active
+                    ? sharedText(context, 'Active', 'Aktiv')
+                    : sharedText(context, 'Archived', 'Archiviert'),
               ),
               _DetailRow(
                 label: sharedText(context, 'Box', 'Box'),
@@ -664,29 +930,57 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                 label: sharedText(context, 'Sex', 'Geschlecht'),
                 value: sharedSexLabel(context, animal['sex'] as String?),
               ),
-              _DetailRow(
-                label: sharedText(
-                  context,
-                  'Day temperature',
-                  'Tagestemperatur',
+              if (DateTime.tryParse(animal['birthDate'] as String? ?? '')
+                  case final birthDate?)
+                _DetailRow(
+                  label: context.l10n.birthDateLowercase,
+                  value: MaterialLocalizations.of(context)
+                      .formatMediumDate(birthDate.toLocal()),
                 ),
-                value: '${animal['tempMin']}–${animal['tempMax']} °C',
+              if (BirthDateAccuracy.values
+                      .where(
+                        (value) => value.name == animal['birthDateAccuracy'],
+                      )
+                      .firstOrNull
+                  case final accuracy?)
+                _DetailRow(
+                  label: context.l10n.birthDateAccuracyLowercase,
+                  value: context.l10n.birthAccuracyLabel(accuracy),
+                ),
+              _DetailRow(
+                key: const Key('daytime-temperature-detail'),
+                label: context.l10n.daytimeTemperature,
+                value: _temperatureRange(animal['tempMin'], animal['tempMax']),
               ),
               if (animal['nighttimeTemperatureMin'] != null ||
-                  animal['nighttimeTemperatureMax'] != null)
+                  animal['nighttimeTemperatureMax'] != null ||
+                  animal['nighttimeTemperature'] != null)
                 _DetailRow(
                   label: sharedText(
                     context,
                     'Night temperature',
                     'Nachttemperatur',
                   ),
-                  value:
-                      '${animal['nighttimeTemperatureMin']}–${animal['nighttimeTemperatureMax']} °C',
+                  key: const Key('nighttime-temperature-detail'),
+                  value: _temperatureRange(
+                    animal['nighttimeTemperatureMin'] ??
+                        animal['nighttimeTemperature'],
+                    animal['nighttimeTemperatureMax'] ??
+                        animal['nighttimeTemperature'],
+                  ),
                 ),
               _DetailRow(
                 label: sharedText(context, 'Humidity', 'Feuchtigkeit'),
-                value: '${animal['humidityMin']}–${animal['humidityMax']} %',
+                value:
+                    animal['humidityMin'] == null &&
+                        animal['humidityMax'] == null
+                    ? null
+                    : '${animal['humidityMin'] ?? '–'}–${animal['humidityMax'] ?? '–'} %',
               ),
+              if (animal['showWeightOnDetail'] != false)
+                _weightSection(animal, active),
+              if (animal['showSheddingOnDetail'] != false)
+                _sheddingSection(active),
               _DetailRow(
                 label: sharedText(
                   context,
@@ -714,47 +1008,16 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                           box: false,
                         ),
                 ),
-              const Divider(),
-              for (final item in [
-                (
-                  SharedHistoryKind.feedings,
-                  Icons.restaurant,
-                  'Feeding history',
-                  'Fütterungsverlauf',
+              if (!active)
+                _DetailRow(
+                  label: context.l10n.archiveDateLowercase,
+                  value: _dateOnlyLabel(animal['archivedAt'] as String?),
                 ),
-                (
-                  SharedHistoryKind.weights,
-                  Icons.monitor_weight_outlined,
-                  'Weight history',
-                  'Gewichtsverlauf',
+              if (!active)
+                _DetailRow(
+                  label: context.l10n.archiveNote,
+                  value: animal['archiveNotes'] as String?,
                 ),
-                (
-                  SharedHistoryKind.shedding,
-                  Icons.auto_awesome,
-                  'Shedding history',
-                  'Häutungsverlauf',
-                ),
-              ])
-                if ((item.$1 != SharedHistoryKind.weights ||
-                        animal['showWeightOnDetail'] != false) &&
-                    (item.$1 != SharedHistoryKind.shedding ||
-                        animal['showSheddingOnDetail'] != false))
-                  ListTile(
-                    leading: Icon(item.$2),
-                    title: Text(sharedText(context, item.$3, item.$4)),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => SharedHistoryPage(
-                          api: widget.api,
-                          animalId: widget.id,
-                          kind: item.$1,
-                          active: active,
-                          change: widget.change,
-                        ),
-                      ),
-                    ),
-                  ),
               const Divider(),
               if (active) ...[
                 OutlinedButton.icon(
@@ -1102,7 +1365,12 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
 }
 
 class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value, this.onTap});
+  const _DetailRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.onTap,
+  });
   final String label;
   final String? value;
   final VoidCallback? onTap;

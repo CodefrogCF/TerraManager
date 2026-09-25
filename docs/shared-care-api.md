@@ -55,7 +55,11 @@ account changes. The login response and `GET /auth/session` provide a
 session-specific CSRF token; send it in `X-CSRF-Token` on every POST, PUT, PATCH
 and DELETE. Cross-origin writes are rejected. No CORS access is granted.
 
-Requests and responses containing records use JSON. Dates in write requests
+Requests and responses containing records use JSON. The Animal list includes
+`latestFeedingAt` as a nullable UTC timestamp calculated for the whole list in
+one database query. This read-only overview field is not part of the Animal
+revision token and updates after a Feeding is added, edited or deleted.
+Dates in write requests
 must use ISO-8601 with `Z` or a numeric time-zone offset. Server responses use
 UTC ISO-8601 timestamps. A client should clear its local login state on
 `401 unauthorized`, show the denied operation on `403 forbidden` or `403 csrf_failed`,

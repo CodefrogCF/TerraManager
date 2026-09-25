@@ -304,8 +304,17 @@ class CareApi {
   ) async {
     final animals = AnimalRepository(database);
     if (path.length == 1 && method == 'GET') {
+      final records = await animals.getAllAnimals();
+      final latest = await FeedingRepository(database)
+          .getLatestFeedingTimes(records.map((animal) => animal.id));
       return _Reply(200, {
-        'animals': (await animals.getAllAnimals()).map(animalJson).toList(),
+        'animals': [
+          for (final animal in records)
+            {
+              ...animalJson(animal),
+              'latestFeedingAt': latest[animal.id]?.toUtc().toIso8601String(),
+            },
+        ],
       });
     }
     if (path.length == 1 && method == 'POST') {

@@ -152,6 +152,32 @@ void main() {
     expect(find.text('Most Overdue'), findsOneWidget);
   });
 
+  testWidgets('due feeding group collapses and expands without losing count', (
+    tester,
+  ) async {
+    final now = DateTime(2026, 9, 20, 12);
+    final animalId = await createAnimal(
+      commonName: 'Due Animal',
+      intervalDays: 2,
+      baseline: DateTime(2026, 9, 15, 12),
+    );
+    await pumpOverview(tester, now: now);
+
+    final group = find.byKey(const Key('feeding-reminder-summary-toggle'));
+    final entry = find.byKey(Key('feeding-reminder-summary-item-$animalId'));
+    expect(group, findsOneWidget);
+    expect(entry, findsOneWidget);
+
+    await tester.tap(find.text('Feeding reminders'));
+    await tester.pumpAndSettle();
+    expect(find.text('1 Animal is due for feeding'), findsOneWidget);
+    expect(entry.hitTestable(), findsNothing);
+
+    await tester.tap(find.text('Feeding reminders'));
+    await tester.pumpAndSettle();
+    expect(entry, findsOneWidget);
+  });
+
   testWidgets('omits a reminder card while feeding is not due', (tester) async {
     final animalId = await createAnimal(
       commonName: 'Scheduled Animal',

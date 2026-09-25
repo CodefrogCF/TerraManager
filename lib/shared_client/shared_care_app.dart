@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../core/presentation/widgets/constrained_page_width.dart';
 import '../core/theme/app_theme.dart';
 import '../features/settings/app_language.dart';
 import '../features/settings/app_settings_controller.dart';
@@ -49,7 +50,10 @@ class _SharedCareAppState extends State<SharedCareApp> {
         theme: AppTheme.lightTheme(seedColor: _settings.accent.color),
         darkTheme: AppTheme.darkTheme(seedColor: _settings.accent.color),
         themeMode: _settings.themeMode,
-        home: SharedCareHome(api: widget.api),
+        home: ConstrainedPageWidth(
+          maxWidth: 960,
+          child: SharedCareHome(api: widget.api),
+        ),
       ),
     ),
   );

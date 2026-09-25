@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_saver/file_saver.dart';
 
 import '../core/database/enums/animal_category.dart';
+import '../core/presentation/widgets/constrained_page_width.dart';
 import '../core/presentation/widgets/overview_context_menu.dart';
 import '../core/sorting/natural_string_comparator.dart';
 import '../features/settings/animal_sort_order.dart';
@@ -859,6 +860,7 @@ class SharedAnimalsPage extends StatefulWidget {
 
 class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   bool _archived = false;
+  bool _dueRemindersExpanded = true;
 
   String _reminderDate(DateTime date) {
     final local = date.toLocal();
@@ -866,6 +868,38 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     return '${material.formatMediumDate(local)} '
         '${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
   }
+
+  Widget _dueReminderSummary(
+    List<({Map<String, dynamic> animal, DateTime dueAt})> reminders,
+    AnimalNameOrder nameOrder,
+  ) => Card(
+    key: const Key('shared-feeding-reminder-summary'),
+    margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+    color: Theme.of(context).colorScheme.errorContainer,
+    child: ExpansionTile(
+      key: const Key('shared-feeding-reminder-summary-toggle'),
+      initiallyExpanded: _dueRemindersExpanded,
+      onExpansionChanged: (expanded) =>
+          setState(() => _dueRemindersExpanded = expanded),
+      leading: const Icon(Icons.notification_important_outlined),
+      title: Text(context.l10n.feedingReminders),
+      subtitle: Text(context.l10n.animalsDueForFeeding(reminders.length)),
+      children: [
+        for (final reminder in reminders)
+          ListTile(
+            key: Key(
+              'shared-feeding-reminder-due-${recordId(reminder.animal)}',
+            ),
+            leading: const Icon(Icons.restaurant_outlined),
+            title: Text(animalLabel(reminder.animal, order: nameOrder)),
+            subtitle: Text(
+              context.l10n.feedingDueSince(_reminderDate(reminder.dueAt)),
+            ),
+            onTap: () => _openAnimal(reminder.animal),
+          ),
+      ],
+    ),
+  );
 
   Future<void> _openAnimal(Map<String, dynamic> animal) async {
     final settings = AppSettingsScope.of(context);
@@ -1187,33 +1221,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
             child: Column(
               children: [
                 if (dueReminders.isNotEmpty)
-                  Card(
-                    key: const Key('shared-feeding-reminder-summary'),
-                    color: Theme.of(context).colorScheme.errorContainer,
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.notification_important_outlined,
-                      ),
-                      title: Text(context.l10n.feedingReminders),
-                      subtitle: Text(
-                        context.l10n.animalsDueForFeeding(dueReminders.length),
-                      ),
-                    ),
-                  ),
-                for (final reminder in dueReminders)
-                  ListTile(
-                    key: Key(
-                      'shared-feeding-reminder-due-${recordId(reminder.animal)}',
-                    ),
-                    leading: const Icon(Icons.restaurant_outlined),
-                    title: Text(animalLabel(reminder.animal, order: nameOrder)),
-                    subtitle: Text(
-                      context.l10n.feedingDueSince(
-                        _reminderDate(reminder.dueAt),
-                      ),
-                    ),
-                    onTap: () => _openAnimal(reminder.animal),
-                  ),
+                  _dueReminderSummary(dueReminders, nameOrder),
                 if (nextReminder != null)
                   Card(
                     key: const Key('shared-next-feeding-summary'),
@@ -1323,8 +1331,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         .where((entry) => entry.dueAt.isAfter(now))
         .firstOrNull;
     final reminderRowCount =
-        (dueReminders.isEmpty ? 0 : dueReminders.length + 1) +
-        (nextReminder == null ? 0 : 1);
+        (dueReminders.isEmpty ? 0 : 1) + (nextReminder == null ? 0 : 1);
     return Scaffold(
       appBar: AppBar(
         leading: _archived
@@ -1470,41 +1477,12 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                 var rowIndex = index;
                 if (dueReminders.isNotEmpty) {
                   if (rowIndex == 0) {
-                    return Card(
-                      key: const Key('shared-feeding-reminder-summary'),
-                      margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-                      color: Theme.of(context).colorScheme.errorContainer,
-                      child: ListTile(
-                        leading: const Icon(
-                          Icons.notification_important_outlined,
-                        ),
-                        title: Text(context.l10n.feedingReminders),
-                        subtitle: Text(
-                          context.l10n.animalsDueForFeeding(
-                            dueReminders.length,
-                          ),
-                        ),
-                      ),
+                    return _dueReminderSummary(
+                      dueReminders,
+                      settings.animalNameOrder,
                     );
                   }
                   rowIndex--;
-                  if (rowIndex < dueReminders.length) {
-                    final reminder = dueReminders[rowIndex];
-                    final id = recordId(reminder.animal);
-                    return ListTile(
-                      key: Key('shared-feeding-reminder-due-$id'),
-                      leading: const Icon(Icons.restaurant_outlined),
-                      title: Text(animalLabel(reminder.animal)),
-                      subtitle: Text(
-                        context.l10n.feedingDueSince(
-                          _reminderDate(reminder.dueAt),
-                        ),
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _openAnimal(reminder.animal),
-                    );
-                  }
-                  rowIndex -= dueReminders.length;
                 }
                 if (nextReminder != null) {
                   if (rowIndex == 0) {
@@ -1654,214 +1632,217 @@ class SharedSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.of(context);
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        Text(
-          context.l10n.appearance,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 24),
-        Text(
-          context.l10n.theme,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: SegmentedButton<ThemeMode>(
-            key: const Key('shared-theme-mode-selector'),
-            segments: [
-              for (final value in ThemeMode.values)
-                ButtonSegment<ThemeMode>(
-                  value: value,
-                  icon: Icon(switch (value) {
-                    ThemeMode.system => Icons.settings_brightness,
-                    ThemeMode.light => Icons.light_mode,
-                    ThemeMode.dark => Icons.dark_mode,
-                  }),
-                  label: Text(context.l10n.themeModeLabel(value)),
-                ),
-            ],
-            selected: {settings.themeMode},
-            onSelectionChanged: (selection) =>
-                settings.setThemeMode(selection.first),
+    return ConstrainedPageWidth(
+      maxWidth: 760,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            context.l10n.appearance,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-        ),
-        const SizedBox(height: 32),
-        Text(
-          context.l10n.accentColor,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
-        InputDecorator(
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<AppAccent>(
-              key: const Key('shared-accent-color-selector'),
-              value: settings.accent,
-              isExpanded: true,
-              borderRadius: BorderRadius.circular(12),
-              items: [
-                for (final accent in AppAccent.values)
-                  DropdownMenuItem<AppAccent>(
-                    value: accent,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: accent.color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(context.l10n.appAccentLabel(accent)),
-                      ],
-                    ),
-                  ),
-              ],
-              onChanged: (accent) {
-                if (accent != null) settings.setAccent(accent);
-              },
-            ),
-          ),
-        ),
-        const SizedBox(height: 32),
-        Text(
-          context.l10n.animalNameOrder,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          context.l10n.animalNameOrderDescription,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: SegmentedButton<AnimalNameOrder>(
-            key: const Key('shared-animal-name-order-selector'),
-            showSelectedIcon: false,
-            segments: [
-              for (final order in AnimalNameOrder.values)
-                ButtonSegment<AnimalNameOrder>(
-                  value: order,
-                  label: Text(context.l10n.animalNameOrderLabel(order)),
-                ),
-            ],
-            selected: {settings.animalNameOrder},
-            onSelectionChanged: (selection) =>
-                settings.setAnimalNameOrder(selection.first),
-          ),
-        ),
-        const SizedBox(height: 32),
-        Text(
-          context.l10n.language,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: SegmentedButton<AppLanguage>(
-            key: const Key('shared-language-selector'),
-            segments: [
-              for (final value in AppLanguage.values)
-                ButtonSegment<AppLanguage>(
-                  value: value,
-                  label: Text(context.l10n.appLanguageLabel(value)),
-                ),
-            ],
-            selected: {settings.language},
-            onSelectionChanged: (selection) =>
-                settings.setLanguage(selection.first),
-          ),
-        ),
-        const SizedBox(height: 32),
-        Text(
-          context.l10n.changesSavedAutomatically,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        const SizedBox(height: 40),
-        const Divider(),
-        const SizedBox(height: 24),
-        SharedBoxQrExportSection(api: api, enabled: actionsEnabled),
-        const SizedBox(height: 24),
-        const Divider(),
-        const SizedBox(height: 24),
-        Text(
-          sharedText(context, 'Shared server', 'Gemeinsamer Server'),
-          key: const Key('shared-server-section-heading'),
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          sharedText(
-            context,
-            'Collection data is stored on the server. The settings above belong to this browser.',
-            'Sammlungsdaten liegen auf dem Server. Die Einstellungen darüber gelten nur für diesen Browser.',
-          ),
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 16),
-        ListTile(
-          key: const Key('shared-server-status'),
-          contentPadding: EdgeInsets.zero,
-          leading: Icon(
-            connected ? Icons.dns_outlined : Icons.cloud_off_outlined,
-          ),
-          title: Text(api.origin.origin),
-          subtitle: Text(
-            '$username · ${role == 'administrator' ? sharedText(context, 'Administrator', 'Administrator') : sharedText(context, 'Caregiver', 'Betreuung')} · ${connected ? sharedText(context, 'Connected', 'Verbunden') : sharedText(context, 'Offline', 'Offline')}',
-          ),
-        ),
-        if (role == 'administrator') ...[
           const SizedBox(height: 24),
           Text(
-            context.l10n.backupAndRestore,
-            key: const Key('shared-backup-section-heading'),
+            context.l10n.theme,
             style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<ThemeMode>(
+              key: const Key('shared-theme-mode-selector'),
+              segments: [
+                for (final value in ThemeMode.values)
+                  ButtonSegment<ThemeMode>(
+                    value: value,
+                    icon: Icon(switch (value) {
+                      ThemeMode.system => Icons.settings_brightness,
+                      ThemeMode.light => Icons.light_mode,
+                      ThemeMode.dark => Icons.dark_mode,
+                    }),
+                    label: Text(context.l10n.themeModeLabel(value)),
+                  ),
+              ],
+              selected: {settings.themeMode},
+              onSelectionChanged: (selection) =>
+                  settings.setThemeMode(selection.first),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            context.l10n.accentColor,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          InputDecorator(
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<AppAccent>(
+                key: const Key('shared-accent-color-selector'),
+                value: settings.accent,
+                isExpanded: true,
+                borderRadius: BorderRadius.circular(12),
+                items: [
+                  for (final accent in AppAccent.values)
+                    DropdownMenuItem<AppAccent>(
+                      value: accent,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: accent.color,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(context.l10n.appAccentLabel(accent)),
+                        ],
+                      ),
+                    ),
+                ],
+                onChanged: (accent) {
+                  if (accent != null) settings.setAccent(accent);
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            context.l10n.animalNameOrder,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            context.l10n.animalNameOrderDescription,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<AnimalNameOrder>(
+              key: const Key('shared-animal-name-order-selector'),
+              showSelectedIcon: false,
+              segments: [
+                for (final order in AnimalNameOrder.values)
+                  ButtonSegment<AnimalNameOrder>(
+                    value: order,
+                    label: Text(context.l10n.animalNameOrderLabel(order)),
+                  ),
+              ],
+              selected: {settings.animalNameOrder},
+              onSelectionChanged: (selection) =>
+                  settings.setAnimalNameOrder(selection.first),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            context.l10n.language,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<AppLanguage>(
+              key: const Key('shared-language-selector'),
+              segments: [
+                for (final value in AppLanguage.values)
+                  ButtonSegment<AppLanguage>(
+                    value: value,
+                    label: Text(context.l10n.appLanguageLabel(value)),
+                  ),
+              ],
+              selected: {settings.language},
+              onSelectionChanged: (selection) =>
+                  settings.setLanguage(selection.first),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            context.l10n.changesSavedAutomatically,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 40),
+          const Divider(),
+          const SizedBox(height: 24),
+          SharedBoxQrExportSection(api: api, enabled: actionsEnabled),
+          const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 24),
+          Text(
+            sharedText(context, 'Shared server', 'Gemeinsamer Server'),
+            key: const Key('shared-server-section-heading'),
+            style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
             sharedText(
               context,
-              'Only administrators can export or replace the shared collection.',
-              'Nur Administratoren können die gemeinsame Sammlung sichern oder ersetzen.',
+              'Collection data is stored on the server. The settings above belong to this browser.',
+              'Sammlungsdaten liegen auf dem Server. Die Einstellungen darüber gelten nur für diesen Browser.',
             ),
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          SharedBackupSection(
-            api: api,
-            connected: actionsEnabled,
-            onRestored: onRestored,
-            onBackupBusyChanged: onBackupBusyChanged,
+          ListTile(
+            key: const Key('shared-server-status'),
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(
+              connected ? Icons.dns_outlined : Icons.cloud_off_outlined,
+            ),
+            title: Text(api.origin.origin),
+            subtitle: Text(
+              '$username · ${role == 'administrator' ? sharedText(context, 'Administrator', 'Administrator') : sharedText(context, 'Caregiver', 'Betreuung')} · ${connected ? sharedText(context, 'Connected', 'Verbunden') : sharedText(context, 'Offline', 'Offline')}',
+            ),
           ),
+          if (role == 'administrator') ...[
+            const SizedBox(height: 24),
+            Text(
+              context.l10n.backupAndRestore,
+              key: const Key('shared-backup-section-heading'),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              sharedText(
+                context,
+                'Only administrators can export or replace the shared collection.',
+                'Nur Administratoren können die gemeinsame Sammlung sichern oder ersetzen.',
+              ),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            SharedBackupSection(
+              api: api,
+              connected: actionsEnabled,
+              onRestored: onRestored,
+              onBackupBusyChanged: onBackupBusyChanged,
+            ),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 24),
+            SharedAccountsSection(api: api),
+          ],
           const SizedBox(height: 24),
           const Divider(),
-          const SizedBox(height: 24),
-          SharedAccountsSection(api: api),
+          ListTile(
+            key: const Key('shared-sign-out-button'),
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.logout),
+            title: Text(sharedText(context, 'Sign out', 'Abmelden')),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: onLogout,
+          ),
+          const SizedBox(height: 32),
         ],
-        const SizedBox(height: 24),
-        const Divider(),
-        ListTile(
-          key: const Key('shared-sign-out-button'),
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.logout),
-          title: Text(sharedText(context, 'Sign out', 'Abmelden')),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: onLogout,
-        ),
-        const SizedBox(height: 32),
-      ],
+      ),
     );
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'core/database/app_database.dart';
 import 'core/theme/app_theme.dart';
-import 'features/navigation/presentation/pages/app_shell.dart';
+import 'features/onboarding/presentation/standalone_tutorial_gate.dart';
 import 'features/settings/app_language.dart';
 import 'features/settings/app_settings_controller.dart';
 import 'l10n/app_localizations_context.dart';
@@ -52,7 +52,7 @@ class _TerraManagerAppState extends State<TerraManagerApp> {
             theme: AppTheme.lightTheme(seedColor: accentColor),
             darkTheme: AppTheme.darkTheme(seedColor: accentColor),
             themeMode: _settingsController.themeMode,
-            home: AppShell(database: widget.database),
+            home: StandaloneTutorialGate(database: widget.database),
           );
         },
       ),

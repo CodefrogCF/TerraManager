@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
@@ -55,6 +56,7 @@ class SettingsPage extends StatefulWidget {
   final AppInformationLoader? appInformationLoader;
 
   final VoidCallback? onRestoreCompleted;
+  final VoidCallback? onReplayTutorial;
 
   const SettingsPage({
     super.key,
@@ -70,6 +72,7 @@ class SettingsPage extends StatefulWidget {
     this.appVersionLoader,
     this.appInformationLoader,
     this.onRestoreCompleted,
+    this.onReplayTutorial,
   });
 
   @override
@@ -726,410 +729,441 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.navigationSettings)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            context.l10n.appearance,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 24),
-
-          Text(
-            context.l10n.theme,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<ThemeMode>(
-              key: const Key('theme-mode-selector'),
-              segments: [
-                ButtonSegment<ThemeMode>(
-                  value: ThemeMode.system,
-                  icon: const Icon(Icons.settings_brightness),
-                  label: Text(context.l10n.themeModeLabel(ThemeMode.system)),
-                ),
-                ButtonSegment<ThemeMode>(
-                  value: ThemeMode.light,
-                  icon: const Icon(Icons.light_mode),
-                  label: Text(context.l10n.themeModeLabel(ThemeMode.light)),
-                ),
-                ButtonSegment<ThemeMode>(
-                  value: ThemeMode.dark,
-                  icon: const Icon(Icons.dark_mode),
-                  label: Text(context.l10n.themeModeLabel(ThemeMode.dark)),
-                ),
-              ],
-              selected: {settings.themeMode},
-              onSelectionChanged: _operationBusy
-                  ? null
-                  : (selection) {
-                      settings.setThemeMode(selection.first);
-                    },
+      body: ConstrainedPageWidth(
+        maxWidth: 760,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Text(
+              context.l10n.appearance,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          ),
+            const SizedBox(height: 24),
 
-          const SizedBox(height: 32),
-
-          Text(
-            context.l10n.accentColor,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-
-          InputDecorator(
-            decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 4,
-              ),
-              enabled: !_operationBusy,
+            Text(
+              context.l10n.theme,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<AppAccent>(
-                key: const Key('accent-color-selector'),
-                value: settings.accent,
-                isExpanded: true,
-                borderRadius: BorderRadius.circular(12),
-                items: AppAccent.values.map((accent) {
-                  return DropdownMenuItem<AppAccent>(
-                    value: accent,
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            color: accent.color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(context.l10n.appAccentLabel(accent)),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: _operationBusy
+            const SizedBox(height: 8),
+
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<ThemeMode>(
+                key: const Key('theme-mode-selector'),
+                segments: [
+                  ButtonSegment<ThemeMode>(
+                    value: ThemeMode.system,
+                    icon: const Icon(Icons.settings_brightness),
+                    label: Text(context.l10n.themeModeLabel(ThemeMode.system)),
+                  ),
+                  ButtonSegment<ThemeMode>(
+                    value: ThemeMode.light,
+                    icon: const Icon(Icons.light_mode),
+                    label: Text(context.l10n.themeModeLabel(ThemeMode.light)),
+                  ),
+                  ButtonSegment<ThemeMode>(
+                    value: ThemeMode.dark,
+                    icon: const Icon(Icons.dark_mode),
+                    label: Text(context.l10n.themeModeLabel(ThemeMode.dark)),
+                  ),
+                ],
+                selected: {settings.themeMode},
+                onSelectionChanged: _operationBusy
                     ? null
-                    : (accent) {
-                        if (accent != null) {
-                          settings.setAccent(accent);
-                        }
+                    : (selection) {
+                        settings.setThemeMode(selection.first);
                       },
               ),
             ),
-          ),
 
-          const SizedBox(height: 32),
+            const SizedBox(height: 32),
 
-          SwitchListTile(
-            key: const Key('next-feeding-summary-switch'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.l10n.nextFeedingSummary),
-            subtitle: Text(context.l10n.nextFeedingSummaryDescription),
-            value: settings.nextFeedingSummaryEnabled,
-            onChanged: _operationBusy
-                ? null
-                : settings.setNextFeedingSummaryEnabled,
-          ),
-
-          const SizedBox(height: 16),
-
-          SwitchListTile(
-            key: const Key('big-picture-mode-switch'),
-            contentPadding: EdgeInsets.zero,
-            title: Text(context.l10n.bigPictureMode),
-            subtitle: Text(context.l10n.bigPictureModeDescription),
-            value: settings.bigPictureModeEnabled,
-            onChanged: _operationBusy
-                ? null
-                : settings.setBigPictureModeEnabled,
-          ),
-
-          const SizedBox(height: 32),
-
-          Text(
-            context.l10n.animalNameOrder,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-
-          Text(
-            context.l10n.animalNameOrderDescription,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 8),
-
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<AnimalNameOrder>(
-              key: const Key('animal-name-order-selector'),
-              showSelectedIcon: false,
-              segments: AnimalNameOrder.values.map((order) {
-                return ButtonSegment<AnimalNameOrder>(
-                  value: order,
-                  label: Text(context.l10n.animalNameOrderLabel(order)),
-                );
-              }).toList(),
-              selected: {settings.animalNameOrder},
-              onSelectionChanged: _operationBusy
-                  ? null
-                  : (selection) {
-                      settings.setAnimalNameOrder(selection.first);
-                    },
+            Text(
+              context.l10n.accentColor,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          ),
+            const SizedBox(height: 12),
 
-          const SizedBox(height: 32),
-
-          Text(
-            context.l10n.language,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<AppLanguage>(
-              key: const Key('language-selector'),
-              segments: AppLanguage.values.map((language) {
-                return ButtonSegment<AppLanguage>(
-                  value: language,
-                  label: Text(context.l10n.appLanguageLabel(language)),
-                );
-              }).toList(),
-              selected: {settings.language},
-              onSelectionChanged: _operationBusy
-                  ? null
-                  : (selection) {
-                      settings.setLanguage(selection.first);
-                    },
-            ),
-          ),
-
-          const SizedBox(height: 32),
-
-          Text(
-            context.l10n.changesSavedAutomatically,
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-
-          const SizedBox(height: 40),
-
-          const Divider(),
-          const SizedBox(height: 24),
-
-          Text(
-            context.l10n.boxQrCodes,
-            key: const Key('box-qr-codes-section-heading'),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            context.l10n.boxQrCodesSectionDescription,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-
-          const SizedBox(height: 16),
-
-          ListTile(
-            key: const Key('save-box-qr-codes-button'),
-            enabled: !_operationBusy,
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.qr_code_2_outlined),
-            title: Text(context.l10n.saveBoxQrCodes),
-            subtitle: Text(context.l10n.saveBoxQrCodesDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _operationBusy ? null : _saveBoxQrCodes,
-          ),
-
-          const Divider(key: Key('box-qr-individual-zip-divider')),
-
-          ListTile(
-            key: const Key('save-box-qr-codes-zip-button'),
-            enabled: !_operationBusy,
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.folder_zip_outlined),
-            title: Text(context.l10n.saveBoxQrCodesAsZip),
-            subtitle: Text(context.l10n.saveBoxQrCodesAsZipDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _operationBusy ? null : _saveBoxQrCodesAsZip,
-          ),
-
-          const Divider(key: Key('box-qr-zip-pdf-divider')),
-
-          ListTile(
-            key: const Key('save-box-qr-codes-pdf-button'),
-            enabled: !_operationBusy,
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.picture_as_pdf_outlined),
-            title: Text(context.l10n.saveBoxQrCodesAsPdf),
-            subtitle: Text(context.l10n.saveBoxQrCodesAsPdfDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _operationBusy ? null : _saveBoxQrCodesAsPdf,
-          ),
-
-          if (_qrExportProgressVisible) ...[
-            const SizedBox(height: 16),
-            const Center(
-              child: CircularProgressIndicator(
-                key: Key('box-qr-export-progress'),
+            InputDecorator(
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                enabled: !_operationBusy,
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<AppAccent>(
+                  key: const Key('accent-color-selector'),
+                  value: settings.accent,
+                  isExpanded: true,
+                  borderRadius: BorderRadius.circular(12),
+                  items: AppAccent.values.map((accent) {
+                    return DropdownMenuItem<AppAccent>(
+                      value: accent,
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: accent.color,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.outline,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(context.l10n.appAccentLabel(accent)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: _operationBusy
+                      ? null
+                      : (accent) {
+                          if (accent != null) {
+                            settings.setAccent(accent);
+                          }
+                        },
+                ),
               ),
             ),
-          ],
 
-          const SizedBox(height: 40),
-          const Divider(),
-          const SizedBox(height: 24),
+            const SizedBox(height: 32),
 
-          Text(
-            context.l10n.backupAndRestore,
-            key: const Key('backup-section-heading'),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-
-          const SizedBox(height: 8),
-
-          Text(
-            context.l10n.backupSectionDescription,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-
-          const SizedBox(height: 24),
-
-          ListTile(
-            key: const Key('create-backup-button'),
-            enabled: !_operationBusy,
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.download_outlined),
-            title: Text(context.l10n.createBackup),
-            subtitle: Text(context.l10n.createBackupDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _operationBusy ? null : _createBackup,
-          ),
-
-          const Divider(),
-
-          ListTile(
-            key: const Key('restore-backup-button'),
-            enabled: !_operationBusy,
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.restore_outlined),
-            title: Text(context.l10n.restoreBackup),
-            subtitle: Text(context.l10n.restoreBackupDescription),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _operationBusy ? null : _restoreBackup,
-          ),
-
-          if (_backupProgressVisible) ...[
-            const SizedBox(height: 24),
-            const Center(
-              child: CircularProgressIndicator(key: Key('backup-progress')),
+            SwitchListTile(
+              key: const Key('next-feeding-summary-switch'),
+              contentPadding: EdgeInsets.zero,
+              title: Text(context.l10n.nextFeedingSummary),
+              subtitle: Text(context.l10n.nextFeedingSummaryDescription),
+              value: settings.nextFeedingSummaryEnabled,
+              onChanged: _operationBusy
+                  ? null
+                  : settings.setNextFeedingSummaryEnabled,
             ),
-          ],
 
-          if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+            const SizedBox(height: 16),
+
+            SwitchListTile(
+              key: const Key('big-picture-mode-switch'),
+              contentPadding: EdgeInsets.zero,
+              title: Text(context.l10n.bigPictureMode),
+              subtitle: Text(context.l10n.bigPictureModeDescription),
+              value: settings.bigPictureModeEnabled,
+              onChanged: _operationBusy
+                  ? null
+                  : settings.setBigPictureModeEnabled,
+            ),
+
+            const SizedBox(height: 32),
+
+            Text(
+              context.l10n.animalNameOrder,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+
+            Text(
+              context.l10n.animalNameOrderDescription,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 8),
+
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<AnimalNameOrder>(
+                key: const Key('animal-name-order-selector'),
+                showSelectedIcon: false,
+                segments: AnimalNameOrder.values.map((order) {
+                  return ButtonSegment<AnimalNameOrder>(
+                    value: order,
+                    label: Text(context.l10n.animalNameOrderLabel(order)),
+                  );
+                }).toList(),
+                selected: {settings.animalNameOrder},
+                onSelectionChanged: _operationBusy
+                    ? null
+                    : (selection) {
+                        settings.setAnimalNameOrder(selection.first);
+                      },
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            Text(
+              context.l10n.language,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<AppLanguage>(
+                key: const Key('language-selector'),
+                segments: AppLanguage.values.map((language) {
+                  return ButtonSegment<AppLanguage>(
+                    value: language,
+                    label: Text(context.l10n.appLanguageLabel(language)),
+                  );
+                }).toList(),
+                selected: {settings.language},
+                onSelectionChanged: _operationBusy
+                    ? null
+                    : (selection) {
+                        settings.setLanguage(selection.first);
+                      },
+              ),
+            ),
+
+            const SizedBox(height: 32),
+
+            Text(
+              context.l10n.changesSavedAutomatically,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+
+            const SizedBox(height: 40),
+
+            const Divider(),
+            const SizedBox(height: 24),
+
+            Text(
+              context.l10n.boxQrCodes,
+              key: const Key('box-qr-codes-section-heading'),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              context.l10n.boxQrCodesSectionDescription,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+
+            const SizedBox(height: 16),
+
+            ListTile(
+              key: const Key('save-box-qr-codes-button'),
+              enabled: !_operationBusy,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.qr_code_2_outlined),
+              title: Text(context.l10n.saveBoxQrCodes),
+              subtitle: Text(context.l10n.saveBoxQrCodesDescription),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _operationBusy ? null : _saveBoxQrCodes,
+            ),
+
+            const Divider(key: Key('box-qr-individual-zip-divider')),
+
+            ListTile(
+              key: const Key('save-box-qr-codes-zip-button'),
+              enabled: !_operationBusy,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.folder_zip_outlined),
+              title: Text(context.l10n.saveBoxQrCodesAsZip),
+              subtitle: Text(context.l10n.saveBoxQrCodesAsZipDescription),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _operationBusy ? null : _saveBoxQrCodesAsZip,
+            ),
+
+            const Divider(key: Key('box-qr-zip-pdf-divider')),
+
+            ListTile(
+              key: const Key('save-box-qr-codes-pdf-button'),
+              enabled: !_operationBusy,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.picture_as_pdf_outlined),
+              title: Text(context.l10n.saveBoxQrCodesAsPdf),
+              subtitle: Text(context.l10n.saveBoxQrCodesAsPdfDescription),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _operationBusy ? null : _saveBoxQrCodesAsPdf,
+            ),
+
+            if (_qrExportProgressVisible) ...[
+              const SizedBox(height: 16),
+              const Center(
+                child: CircularProgressIndicator(
+                  key: Key('box-qr-export-progress'),
+                ),
+              ),
+            ],
+
             const SizedBox(height: 40),
             const Divider(),
             const SizedBox(height: 24),
 
             Text(
-              sharedText(context, 'Shared care', 'Gemeinsame Betreuung'),
+              context.l10n.backupAndRestore,
+              key: const Key('backup-section-heading'),
               style: Theme.of(context).textTheme.titleLarge,
             ),
+
             const SizedBox(height: 8),
+
             Text(
-              sharedText(
-                context,
-                'Work with other caregivers in one server collection. The local app collection stays on this device and does not sync automatically.',
-                'Arbeite mit anderen Betreuungspersonen in einer Serversammlung. Die lokale App-Sammlung bleibt auf diesem Gerät und wird nicht automatisch synchronisiert.',
-              ),
+              context.l10n.backupSectionDescription,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: 8),
-            const SharedCareBrowserLink(),
-            const SizedBox(height: 32),
+
+            const SizedBox(height: 24),
+
+            ListTile(
+              key: const Key('create-backup-button'),
+              enabled: !_operationBusy,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.download_outlined),
+              title: Text(context.l10n.createBackup),
+              subtitle: Text(context.l10n.createBackupDescription),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _operationBusy ? null : _createBackup,
+            ),
+
+            const Divider(),
+
+            ListTile(
+              key: const Key('restore-backup-button'),
+              enabled: !_operationBusy,
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.restore_outlined),
+              title: Text(context.l10n.restoreBackup),
+              subtitle: Text(context.l10n.restoreBackupDescription),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _operationBusy ? null : _restoreBackup,
+            ),
+
+            if (_backupProgressVisible) ...[
+              const SizedBox(height: 24),
+              const Center(
+                child: CircularProgressIndicator(key: Key('backup-progress')),
+              ),
+            ],
+
+            if (widget.onReplayTutorial != null) ...[
+              const SizedBox(height: 24),
+              const Divider(),
+              const SizedBox(height: 24),
+              Text(
+                sharedText(context, 'Getting started', 'Erste Schritte'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              ListTile(
+                key: const Key('replay-tutorial-button'),
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.school_outlined),
+                title: Text(
+                  sharedText(
+                    context,
+                    'Show introduction again',
+                    'Einführung erneut anzeigen',
+                  ),
+                ),
+                onTap: widget.onReplayTutorial,
+              ),
+            ],
+
+            if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+              const SizedBox(height: 40),
+              const Divider(),
+              const SizedBox(height: 24),
+
+              Text(
+                sharedText(context, 'Shared care', 'Gemeinsame Betreuung'),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                sharedText(
+                  context,
+                  'Work with other caregivers in one server collection. The local app collection stays on this device and does not sync automatically.',
+                  'Arbeite mit anderen Betreuungspersonen in einer Serversammlung. Die lokale App-Sammlung bleibt auf diesem Gerät und wird nicht automatisch synchronisiert.',
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 8),
+              const SharedCareBrowserLink(),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 24),
+              Text(
+                sharedText(
+                  context,
+                  'Website and guide',
+                  'Website und Anleitung',
+                ),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              const ProjectWebLinks(),
+              const SizedBox(height: 32),
+            ],
+
             const Divider(),
             const SizedBox(height: 24),
+
             Text(
-              sharedText(context, 'Website and guide', 'Website und Anleitung'),
+              context.l10n.legalAndPrivacy,
+              key: const Key('legal-section-heading'),
               style: Theme.of(context).textTheme.titleLarge,
             ),
+
             const SizedBox(height: 8),
-            const ProjectWebLinks(),
+
+            ListTile(
+              key: const Key('privacy-policy-tile'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: Text(context.l10n.privacyPolicyTitle),
+              subtitle: Text(context.l10n.privacyPolicySubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => PrivacyPolicyPage(
+                      title: context.l10n.privacyPolicyTitle,
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            const Divider(),
+
+            ListTile(
+              key: const Key('license-tile'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.balance_outlined),
+              title: Text(context.l10n.licenseTitle),
+              subtitle: Text(context.l10n.licenseSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) =>
+                        AppLicensePage(title: context.l10n.licenseTitle),
+                  ),
+                );
+              },
+            ),
+
+            const Divider(),
+
+            ListTile(
+              key: const Key('about-terramanager-tile'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.info_outline),
+              title: Text(context.l10n.aboutTerraManager),
+              subtitle: Text(context.l10n.aboutTerraManagerSubtitle),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: _showAboutTerraManager,
+            ),
+
             const SizedBox(height: 32),
           ],
-
-          const Divider(),
-          const SizedBox(height: 24),
-
-          Text(
-            context.l10n.legalAndPrivacy,
-            key: const Key('legal-section-heading'),
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-
-          const SizedBox(height: 8),
-
-          ListTile(
-            key: const Key('privacy-policy-tile'),
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.privacy_tip_outlined),
-            title: Text(context.l10n.privacyPolicyTitle),
-            subtitle: Text(context.l10n.privacyPolicySubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) =>
-                      PrivacyPolicyPage(title: context.l10n.privacyPolicyTitle),
-                ),
-              );
-            },
-          ),
-
-          const Divider(),
-
-          ListTile(
-            key: const Key('license-tile'),
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.balance_outlined),
-            title: Text(context.l10n.licenseTitle),
-            subtitle: Text(context.l10n.licenseSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) =>
-                      AppLicensePage(title: context.l10n.licenseTitle),
-                ),
-              );
-            },
-          ),
-
-          const Divider(),
-
-          ListTile(
-            key: const Key('about-terramanager-tile'),
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.info_outline),
-            title: Text(context.l10n.aboutTerraManager),
-            subtitle: Text(context.l10n.aboutTerraManagerSubtitle),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: _showAboutTerraManager,
-          ),
-
-          const SizedBox(height: 32),
-        ],
+        ),
       ),
     );
   }

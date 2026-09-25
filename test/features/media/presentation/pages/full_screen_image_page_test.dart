@@ -99,6 +99,24 @@ void main() {
     expect(image.fit, BoxFit.contain);
   });
 
+  testWidgets('network viewer uses the authenticated same-origin image URL', (
+    tester,
+  ) async {
+    final url = Uri.parse('https://192.168.1.117/api/v1/media/42');
+    await tester.pumpWidget(
+      MaterialApp(
+        home: FullScreenImagePage.network(imageUrl: url, title: 'Box picture'),
+      ),
+    );
+    await tester.pump();
+    final image = tester.widget<Image>(
+      find.byKey(const Key('full-screen-image')),
+    );
+    expect(image.image, isA<NetworkImage>());
+    expect((image.image as NetworkImage).url, url.toString());
+    expect(find.byKey(const Key('full-screen-image-viewer')), findsOneWidget);
+  });
+
   testWidgets('normalized WebP renders in overview, detail and full screen', (
     tester,
   ) async {

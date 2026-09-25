@@ -8,14 +8,20 @@ class FullScreenImagePage extends StatelessWidget {
   static const double minimumScale = 1;
   static const double maximumScale = 5;
 
-  final Uint8List imageBytes;
+  final ImageProvider<Object> imageProvider;
   final String title;
 
-  const FullScreenImagePage({
+  FullScreenImagePage({
     super.key,
-    required this.imageBytes,
+    required Uint8List imageBytes,
     required this.title,
-  });
+  }) : imageProvider = MemoryImage(imageBytes);
+
+  FullScreenImagePage.network({
+    super.key,
+    required Uri imageUrl,
+    required this.title,
+  }) : imageProvider = NetworkImage(imageUrl.toString());
 
   static Future<void> open(
     BuildContext context, {
@@ -30,6 +36,18 @@ class FullScreenImagePage extends StatelessWidget {
       ),
     );
   }
+
+  static Future<void> openNetwork(
+    BuildContext context, {
+    required Uri imageUrl,
+    required String title,
+  }) => Navigator.of(context).push<void>(
+    MaterialPageRoute<void>(
+      fullscreenDialog: true,
+      builder: (_) =>
+          FullScreenImagePage.network(imageUrl: imageUrl, title: title),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +80,17 @@ class FullScreenImagePage extends StatelessWidget {
               child: SizedBox(
                 width: constraints.maxWidth,
                 height: constraints.maxHeight,
-                child: Image.memory(
-                  imageBytes,
+                child: Image(
+                  image: imageProvider,
                   key: const Key('full-screen-image'),
                   fit: BoxFit.contain,
                   semanticLabel: title,
+                  errorBuilder: (_, _, _) => const Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
             );

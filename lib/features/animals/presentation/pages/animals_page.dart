@@ -48,6 +48,7 @@ class AnimalsPage extends StatefulWidget {
 
 class _AnimalsPageState extends State<AnimalsPage> {
   late Future<_AnimalsOverviewData> _overviewFuture;
+  bool _dueRemindersExpanded = true;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -447,40 +448,26 @@ class _AnimalsPageState extends State<AnimalsPage> {
       key: const Key('feeding-reminder-summary'),
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       color: colorScheme.errorContainer,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ExpansionTile(
+        key: const Key('feeding-reminder-summary-toggle'),
+        initiallyExpanded: _dueRemindersExpanded,
+        onExpansionChanged: (expanded) =>
+            setState(() => _dueRemindersExpanded = expanded),
+        leading: Icon(
+          Icons.notification_important_outlined,
+          color: colorScheme.onErrorContainer,
+        ),
+        title: Text(
+          context.l10n.feedingReminders,
+          style: Theme.of(context).textTheme.titleMedium
+              ?.copyWith(color: colorScheme.onErrorContainer),
+        ),
+        subtitle: Text(
+          context.l10n.animalsDueForFeeding(reminders.length),
+          key: const Key('feeding-reminder-summary-count'),
+          style: TextStyle(color: colorScheme.onErrorContainer),
+        ),
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.notification_important_outlined,
-                  color: colorScheme.onErrorContainer,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.l10n.feedingReminders,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(color: colorScheme.onErrorContainer),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        context.l10n.animalsDueForFeeding(reminders.length),
-                        key: const Key('feeding-reminder-summary-count'),
-                        style: TextStyle(color: colorScheme.onErrorContainer),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
           for (final reminder in reminders) ...[
             Divider(
               height: 1,

@@ -66,12 +66,17 @@ class AnimalPicture extends StatelessWidget {
               title: context.l10n.animalPicture,
             );
           },
-          child: SizedBox(
-            width: double.infinity,
-            height: height,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.memory(imageBytes, fit: BoxFit.cover),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: SizedBox(
+                width: double.infinity,
+                height: height,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(imageBytes, fit: BoxFit.cover),
+                ),
+              ),
             ),
           ),
         ),

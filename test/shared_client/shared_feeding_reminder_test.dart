@@ -107,6 +107,23 @@ void main() {
       find.byKey(const Key('shared-next-feeding-summary')),
       findsOneWidget,
     );
+    final group = find.byKey(
+      const Key('shared-feeding-reminder-summary-toggle'),
+    );
+    expect(group, findsOneWidget);
+    await tester.tap(find.text('Feeding reminders'));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('shared-feeding-reminder-due-7')).hitTestable(),
+      findsNothing,
+    );
+    expect(find.text('1 Animal is due for feeding'), findsOneWidget);
+    await tester.tap(find.text('Feeding reminders'));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('shared-feeding-reminder-due-7')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('reminder settings save only the reminder with a revision', (

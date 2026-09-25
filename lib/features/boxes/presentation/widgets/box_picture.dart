@@ -38,20 +38,25 @@ class BoxPicture extends StatelessWidget {
               title: context.l10n.boxPicture,
             );
           },
-          child: SizedBox(
-            width: double.infinity,
-            height: height,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.memory(
-                pictureBytes!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return _buildPlaceholder(
-                    context,
-                    text: context.l10n.imageUnavailable,
-                  );
-                },
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: SizedBox(
+                width: double.infinity,
+                height: height,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.memory(
+                    pictureBytes!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return _buildPlaceholder(
+                        context,
+                        text: context.l10n.imageUnavailable,
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),

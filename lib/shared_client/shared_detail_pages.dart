@@ -8,6 +8,7 @@ import '../core/database/enums/birth_date_accuracy.dart';
 import '../features/settings/animal_name_order.dart';
 import '../features/settings/animal_sort_order.dart';
 import '../features/settings/app_settings_controller.dart';
+import '../features/media/presentation/pages/full_screen_image_page.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
@@ -1620,6 +1621,16 @@ class SharedPictureGallery extends StatefulWidget {
 class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   late Future<List<Map<String, dynamic>>> _pictures;
 
+  void _openPicture(Map<String, dynamic> picture) {
+    FullScreenImagePage.openNetwork(
+      context,
+      imageUrl: widget.api.mediaUrl(picture['mediaId'] as int),
+      title: widget.kind == 'boxes'
+          ? context.l10n.boxPicture
+          : context.l10n.animalPicture,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1715,127 +1726,183 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
               .where((picture) => picture['isPrimary'] == true)
               .firstOrNull ??
           pictures.firstOrNull;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: SizedBox(
-              width: double.infinity,
-              height: 220,
-              child: primary == null
-                  ? ColoredBox(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
-                      child: Center(
-                        child: Icon(
-                          widget.kind == 'boxes'
-                              ? Icons.inventory_2_outlined
-                              : Icons.emoji_nature_outlined,
-                          size: 72,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    )
-                  : Image.network(
-                      widget.api.mediaUrl(primary['mediaId'] as int).toString(),
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Center(
-                        child: Icon(
-                          Icons.broken_image_outlined,
-                          size: 72,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ExpansionTile(
-            leading: const Icon(Icons.photo_library_outlined),
-            title: Text(context.l10n.pictureGallery),
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (pictures.isNotEmpty)
-                SizedBox(
-                  height: 150,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      for (final picture in pictures)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: Stack(
-                            children: [
-                              Image.network(
-                                widget.api
-                                    .mediaUrl(picture['mediaId'] as int)
-                                    .toString(),
-                                height: 150,
-                                width: 150,
-                                fit: BoxFit.cover,
-                              ),
-                              if (picture['isPrimary'] == true)
-                                const Positioned(
-                                  top: 4,
-                                  left: 4,
-                                  child: Icon(Icons.star, color: Colors.amber),
-                                ),
-                              if (widget.active)
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: PopupMenuButton<String>(
-                                    enabled: widget.api.connected,
-                                    onSelected: (action) =>
-                                        _pictureAction(picture, action),
-                                    itemBuilder: (context) => [
-                                      if (picture['isPrimary'] != true)
-                                        PopupMenuItem(
-                                          value: 'primary',
-                                          child: Text(
-                                            sharedText(
-                                              context,
-                                              'Set as primary',
-                                              'Als Hauptbild setzen',
-                                            ),
-                                          ),
-                                        ),
-                                      PopupMenuItem(
-                                        value: 'delete',
-                                        child: Text(
-                                          sharedText(
-                                            context,
-                                            'Delete picture',
-                                            'Bild löschen',
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+              Semantics(
+                button: primary != null,
+                label: primary == null
+                    ? null
+                    : widget.kind == 'boxes'
+                    ? context.l10n.openBoxPicture
+                    : context.l10n.openAnimalPicture,
+                child: MouseRegion(
+                  cursor: primary == null
+                      ? MouseCursor.defer
+                      : SystemMouseCursors.click,
+                  child: GestureDetector(
+                    key: const Key('shared-open-primary-picture'),
+                    onTap: primary == null ? null : () => _openPicture(primary),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 220,
+                        child: primary == null
+                            ? ColoredBox(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
+                                child: Center(
+                                  child: Icon(
+                                    widget.kind == 'boxes'
+                                        ? Icons.inventory_2_outlined
+                                        : Icons.emoji_nature_outlined,
+                                    size: 72,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                   ),
                                 ),
-                            ],
-                          ),
-                        ),
-                    ],
+                              )
+                            : Image.network(
+                                widget.api
+                                    .mediaUrl(primary['mediaId'] as int)
+                                    .toString(),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, _, _) => Center(
+                                  child: Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 72,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
                   ),
                 ),
-              if (pictures.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(context.l10n.noPictures),
+              ),
+              const SizedBox(height: 8),
+              ExpansionTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: Text(context.l10n.pictureGallery),
+                children: [
+                  if (pictures.isNotEmpty)
+                    SizedBox(
+                      height: 150,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          for (final picture in pictures)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Stack(
+                                children: [
+                                  Semantics(
+                                    button: true,
+                                    label: widget.kind == 'boxes'
+                                        ? context.l10n.openBoxPicture
+                                        : context.l10n.openAnimalPicture,
+                                    child: MouseRegion(
+                                      cursor: SystemMouseCursors.click,
+                                      child: GestureDetector(
+                                        key: Key(
+                                          'shared-open-gallery-picture-${picture['mediaId']}',
+                                        ),
+                                        onTap: () => _openPicture(picture),
+                                        child: Image.network(
+                                          widget.api
+                                              .mediaUrl(
+                                                picture['mediaId'] as int,
+                                              )
+                                              .toString(),
+                                          height: 150,
+                                          width: 150,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, _, _) =>
+                                              const SizedBox(
+                                                height: 150,
+                                                width: 150,
+                                                child: Icon(
+                                                  Icons.broken_image_outlined,
+                                                ),
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (picture['isPrimary'] == true)
+                                    const Positioned(
+                                      top: 4,
+                                      left: 4,
+                                      child: Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                      ),
+                                    ),
+                                  if (widget.active)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: PopupMenuButton<String>(
+                                        enabled: widget.api.connected,
+                                        onSelected: (action) =>
+                                            _pictureAction(picture, action),
+                                        itemBuilder: (context) => [
+                                          if (picture['isPrimary'] != true)
+                                            PopupMenuItem(
+                                              value: 'primary',
+                                              child: Text(
+                                                sharedText(
+                                                  context,
+                                                  'Set as primary',
+                                                  'Als Hauptbild setzen',
+                                                ),
+                                              ),
+                                            ),
+                                          PopupMenuItem(
+                                            value: 'delete',
+                                            child: Text(
+                                              sharedText(
+                                                context,
+                                                'Delete picture',
+                                                'Bild löschen',
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  if (pictures.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(context.l10n.noPictures),
+                    ),
+                ],
+              ),
+              if (widget.active)
+                TextButton.icon(
+                  onPressed: widget.api.connected ? _add : null,
+                  icon: const Icon(Icons.add_photo_alternate_outlined),
+                  label: Text(
+                    sharedText(context, 'Add picture', 'Bild hinzufügen'),
+                  ),
                 ),
             ],
           ),
-          if (widget.active)
-            TextButton.icon(
-              onPressed: widget.api.connected ? _add : null,
-              icon: const Icon(Icons.add_photo_alternate_outlined),
-              label: Text(
-                sharedText(context, 'Add picture', 'Bild hinzufügen'),
-              ),
-            ),
-        ],
+        ),
       );
     },
   );

@@ -15,6 +15,7 @@ import '../features/backup/infrastructure/backup_file_service.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
+import 'shared_box_qr_export.dart';
 import 'shared_box_scanner_page.dart';
 import 'shared_detail_pages.dart';
 import 'shared_detail_navigation.dart';
@@ -224,9 +225,17 @@ List<Object> sharedAnimalOverviewRows(
   return rows;
 }
 
-enum _BoxAction { rename, edit, duplicate, archive }
+enum _BoxAction { details, rename, edit, duplicate, archive, restore }
 
-enum _AnimalAction { feeding, rename, edit, archive, duplicate }
+enum _AnimalAction {
+  details,
+  feeding,
+  rename,
+  edit,
+  archive,
+  duplicate,
+  restore,
+}
 
 PopupMenuItem<T> _menuItem<T>(T value, IconData icon, String label) =>
     PopupMenuItem<T>(
@@ -246,7 +255,7 @@ String? _boxDimensions(Map<String, dynamic> box) {
   return '${values.map((value) => value?.toString() ?? '–').join(' × ')} cm';
 }
 
-Map<String, dynamic> _animalUpdateValues(
+Map<String, dynamic> sharedAnimalUpdateValues(
   Map<String, dynamic> animal,
   String commonName,
 ) => {
@@ -277,7 +286,7 @@ Map<String, dynamic> _animalUpdateValues(
   'commonName': commonName,
 };
 
-Future<String?> _askName(
+Future<String?> askSharedName(
   BuildContext context, {
   required String title,
   required String initial,
@@ -430,11 +439,17 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
   }
 
   Future<void> _boxAction(_BoxAction action, Map<String, dynamic> box) async {
+    if (action == _BoxAction.details) {
+      await _openBox(box);
+      return;
+    }
     if (!widget.connected || !widget.api.connected) return;
     final id = recordId(box);
     switch (action) {
+      case _BoxAction.details:
+        return;
       case _BoxAction.rename:
-        final name = await _askName(
+        final name = await askSharedName(
           context,
           title: context.l10n.renameBox,
           initial: (box['name'] as String?) ?? '',
@@ -464,7 +479,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
           if (mounted) _showChangeFailure(context);
         }
       case _BoxAction.duplicate:
-        final name = await _askName(
+        final name = await askSharedName(
           context,
           title: context.l10n.duplicateBox,
           initial: (box['name'] as String?) ?? '',
@@ -484,10 +499,20 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
           await widget.api.archiveBox(id, choice.$1, choice.$2);
         });
         if (!saved && mounted) _showChangeFailure(context);
+      case _BoxAction.restore:
+        final saved = await widget.change(() async {
+          await widget.api.restoreBox(id);
+        });
+        if (!saved && mounted) _showChangeFailure(context);
     }
   }
 
   List<PopupMenuEntry<_BoxAction>> _boxMenu(BuildContext context) => [
+    _menuItem(
+      _BoxAction.details,
+      Icons.open_in_new_outlined,
+      sharedText(context, 'Open details', 'Details öffnen'),
+    ),
     _menuItem(
       _BoxAction.rename,
       Icons.drive_file_rename_outline,
@@ -503,6 +528,19 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
       _BoxAction.archive,
       Icons.archive_outlined,
       context.l10n.archiveBox,
+    ),
+  ];
+
+  List<PopupMenuEntry<_BoxAction>> _archivedBoxMenu(BuildContext context) => [
+    _menuItem(
+      _BoxAction.details,
+      Icons.open_in_new_outlined,
+      sharedText(context, 'Open details', 'Details öffnen'),
+    ),
+    _menuItem(
+      _BoxAction.restore,
+      Icons.unarchive_outlined,
+      context.l10n.restoreBox,
     ),
   ];
 
@@ -564,13 +602,12 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
         ),
       ),
     );
-    if (archived) return card(const Icon(Icons.chevron_right));
     return OverviewContextMenu<_BoxAction>(
       key: Key('box-context-menu-region-$id'),
       menuButtonKey: Key('box-context-menu-button-$id'),
       tooltip: context.l10n.boxActions(hasName ? name : 'Box $id'),
       onSelected: (action) => _boxAction(action, box),
-      itemBuilder: _boxMenu,
+      itemBuilder: archived ? _archivedBoxMenu : _boxMenu,
       builder: (context, button) => card(button),
     );
   }
@@ -782,13 +819,12 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                   trailing: menuButton,
                   onTap: () => _openBox(box),
                 );
-                if (_archived) return tile(const Icon(Icons.chevron_right));
                 return OverviewContextMenu<_BoxAction>(
                   key: Key('box-context-menu-region-$id'),
                   menuButtonKey: Key('box-context-menu-button-$id'),
                   tooltip: context.l10n.boxActions(hasName ? name : 'Box $id'),
                   onSelected: (action) => _boxAction(action, box),
-                  itemBuilder: _boxMenu,
+                  itemBuilder: _archived ? _archivedBoxMenu : _boxMenu,
                   builder: (context, button) => tile(button),
                 );
               },
@@ -871,9 +907,15 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     _AnimalAction action,
     Map<String, dynamic> animal,
   ) async {
+    if (action == _AnimalAction.details) {
+      await _openAnimal(animal);
+      return;
+    }
     if (!widget.connected || !widget.api.connected) return;
     final id = recordId(animal);
     switch (action) {
+      case _AnimalAction.details:
+        return;
       case _AnimalAction.feeding:
         await Navigator.of(context).push<void>(
           MaterialPageRoute(
@@ -888,7 +930,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
           ),
         );
       case _AnimalAction.rename:
-        final name = await _askName(
+        final name = await askSharedName(
           context,
           title: context.l10n.renameAnimal,
           initial: (animal['commonName'] as String?) ?? '',
@@ -900,7 +942,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
           final current = await widget.api.animal(id);
           await widget.api.updateAnimal(
             id,
-            _animalUpdateValues(current, name),
+            sharedAnimalUpdateValues(current, name),
             current['revision'] as String,
           );
         });
@@ -936,7 +978,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
       case _AnimalAction.duplicate:
         final destination = await selectActiveBox(context, widget.boxes);
         if (destination == null || !mounted) return;
-        final name = await _askName(
+        final name = await askSharedName(
           context,
           title: context.l10n.duplicateAnimal,
           initial: (animal['commonName'] as String?) ?? '',
@@ -946,10 +988,22 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
           await widget.api.duplicateAnimal(id, destination, name);
         });
         if (!saved && mounted) _showChangeFailure(context);
+      case _AnimalAction.restore:
+        final destination = await selectActiveBox(context, widget.boxes);
+        if (destination == null || !mounted) return;
+        final saved = await widget.change(() async {
+          await widget.api.restoreAnimal(id, destination);
+        });
+        if (!saved && mounted) _showChangeFailure(context);
     }
   }
 
   List<PopupMenuEntry<_AnimalAction>> _animalMenu(BuildContext context) => [
+    _menuItem(
+      _AnimalAction.details,
+      Icons.open_in_new_outlined,
+      sharedText(context, 'Open details', 'Details öffnen'),
+    ),
     _menuItem(
       _AnimalAction.feeding,
       Icons.restaurant_outlined,
@@ -970,6 +1024,21 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
       _AnimalAction.duplicate,
       Icons.copy_outlined,
       context.l10n.duplicateAnimal,
+    ),
+  ];
+
+  List<PopupMenuEntry<_AnimalAction>> _archivedAnimalMenu(
+    BuildContext context,
+  ) => [
+    _menuItem(
+      _AnimalAction.details,
+      Icons.open_in_new_outlined,
+      sharedText(context, 'Open details', 'Details öffnen'),
+    ),
+    _menuItem(
+      _AnimalAction.restore,
+      Icons.unarchive_outlined,
+      context.l10n.restoreAnimal,
     ),
   ];
 
@@ -1082,13 +1151,12 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         ),
       ),
     );
-    if (archived) return card(const Icon(Icons.chevron_right));
     return OverviewContextMenu<_AnimalAction>(
       key: Key('animal-context-menu-region-$id'),
       menuButtonKey: Key('animal-context-menu-button-$id'),
       tooltip: context.l10n.animalActions(primary),
       onSelected: (action) => _animalAction(action, animal),
-      itemBuilder: _animalMenu,
+      itemBuilder: archived ? _archivedAnimalMenu : _animalMenu,
       builder: (context, button) => card(button),
     );
   }
@@ -1502,13 +1570,12 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                   trailing: menuButton,
                   onTap: () => _openAnimal(animal),
                 );
-                if (_archived) return tile(const Icon(Icons.chevron_right));
                 return OverviewContextMenu<_AnimalAction>(
                   key: Key('animal-context-menu-region-$id'),
                   menuButtonKey: Key('animal-context-menu-button-$id'),
                   tooltip: context.l10n.animalActions(primary),
                   onSelected: (action) => _animalAction(action, animal),
-                  itemBuilder: _animalMenu,
+                  itemBuilder: _archived ? _archivedAnimalMenu : _animalMenu,
                   builder: (context, button) => tile(button),
                 );
               },
@@ -1723,6 +1790,10 @@ class SharedSettingsPage extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(height: 40),
+        const Divider(),
+        const SizedBox(height: 24),
+        SharedBoxQrExportSection(api: api, enabled: actionsEnabled),
+        const SizedBox(height: 24),
         const Divider(),
         const SizedBox(height: 24),
         Text(

@@ -24,6 +24,14 @@ installations and updates. Shared Care is a separate browser mode, not a
 network-enabled Android release; Android retains its standalone database and
 permissions.
 
+The Shared Care interface includes Box and Animal context actions in flat and
+Big Picture overviews, archived-record restore, in-app Feeding reminders with
+an Animals navigation badge, and browser downloads of selected Box QR codes
+as PNG images, ZIP or printable A4 PDF. These client features use server-owned
+records and the existing HTTPS care API. Their automated coverage does not
+constitute manual validation on every browser; repeat the field checklist
+after deploying a new client build.
+
 ## Permanent Application Identity
 
 Development build `0.14.2+34` adopts `com.codefrog.terramanager` as the

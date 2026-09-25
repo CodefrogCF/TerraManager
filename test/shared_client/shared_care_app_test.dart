@@ -14,6 +14,27 @@ void main() {
 
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
+  test('Animal navigation marks only due reminders for active Animals', () {
+    final now = DateTime.utc(2026, 9, 25, 12);
+    final animals = [
+      {'id': 1, 'status': 'active'},
+      {'id': 2, 'status': 'archived'},
+    ];
+    expect(
+      hasDueSharedFeedings(animals, [
+        {'animalId': 1, 'dueAt': '2026-09-26T12:00:00Z'},
+        {'animalId': 2, 'dueAt': '2026-09-24T12:00:00Z'},
+      ], now: now),
+      isFalse,
+    );
+    expect(
+      hasDueSharedFeedings(animals, [
+        {'animalId': 1, 'dueAt': '2026-09-25T12:00:00Z'},
+      ], now: now),
+      isTrue,
+    );
+  });
+
   testWidgets(
     'sign-in loads the shared collection and disconnect blocks edits',
     (tester) async {

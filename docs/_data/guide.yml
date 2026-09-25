@@ -223,6 +223,10 @@ de:
         body: Unter Einstellungen → Gemeinsame Betreuung öffnest du die HTTPS-Adresse im externen Browser. Die Daten der lokalen App werden weder automatisch übertragen noch mit der Serversammlung synchronisiert.
       - title: Zusammen arbeiten
         body: Melde dich im Browser an. Änderungen werden auf anderen angemeldeten Geräten sichtbar; gleichzeitig bearbeitete Datensätze überschreiben sich nicht unbemerkt. Box-QR-Scans benötigen vertrauenswürdiges HTTPS und einen unterstützten mobilen Browser.
+      - title: Schnellaktionen und Erinnerungen nutzen
+        body: Öffne das Kontextmenü einer Box oder eines Tieres durch langen Druck oder Rechtsklick. Aktive Einträge lassen sich umbenennen, bearbeiten, duplizieren und archivieren; beim Tier kannst du direkt eine Fütterung beginnen. Archivierte Einträge lassen sich über das Menü wiederherstellen. Endgültiges Löschen findest du nur in den archivierten Details. Ein Ausrufezeichen am Tiere-Symbol zeigt eine fällige Fütterung an.
+      - title: Box-QR-Codes exportieren
+        body: Unter Einstellungen → Box-QR-Codes kannst du ausgewählte aktive und archivierte Boxen als einzelne PNG-Dateien, ZIP oder A4-PDF speichern. Vor jedem Export öffnet sich eine Checkliste; beim PDF stellst du die Codegröße zwischen 6 und 20 mm ein. Die Dateien werden direkt im Browser erzeugt.
     note: Die portable Shared-Care-Sicherung enthält die Sammlung, aber keine Serverkonten. Für eine vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden. Der native Android-Modus bleibt eigenständig und benötigt keine zusätzlichen Netzwerkberechtigungen.
     setup: Einrichtung und Betrieb des eigenen Servers
   finish:
@@ -462,6 +466,10 @@ en:
         body: In Settings → Shared care, open the HTTPS address in an external browser. The local app data is neither transferred nor synchronized with the server collection automatically.
       - title: Work together
         body: Sign in through the browser. Changes become visible on other signed-in devices, and simultaneous edits cannot silently overwrite one another. Box QR scanning requires trusted HTTPS and a supported mobile browser.
+      - title: Use quick actions and reminders
+        body: Long-press or right-click a Box or Animal to open its context menu. Active records can be renamed, edited, duplicated and archived; Animals can start a Feeding directly. Archived records can be restored from the menu. Permanent deletion is available only in archived details. An exclamation mark on the Animals tab shows a due Feeding.
+      - title: Export Box QR codes
+        body: In Settings → Box QR codes, select active and archived Boxes to save individual PNG files, a ZIP or an A4 PDF. A checklist opens before every export; the PDF offers a 6–20 mm code-size slider. Files are generated directly in the browser.
     note: A portable Shared Care backup contains the collection but not server accounts. Full server recovery also requires a backup of both databases in the server data directory. Native Android mode stays standalone and needs no additional network permission.
     setup: Set up and operate your own server
   finish:

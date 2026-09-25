@@ -119,14 +119,12 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
     required double qrSizeMm,
   }) {
     final uniqueBoxes = <int, Box>{for (final box in boxes) box.id: box}.values;
-    final maximumLabelLength = math.max(8, (qrSizeMm * 1.3).floor());
-
     return uniqueBoxes
         .map(
           (box) => BoxQrPdfItem(
             boxId: box.id,
             qrPayload: box.qrId,
-            label: _boxLabel(box, maximumLabelLength),
+            label: boxQrPdfLabel(box.id, box.name, qrSizeMm),
           ),
         )
         .toList(growable: false);
@@ -136,12 +134,24 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
   Future<Uint8List> exportPdf(
     Iterable<Box> boxes, {
     required double qrSizeMm,
+  }) => exportItems(createItems(boxes, qrSizeMm: qrSizeMm), qrSizeMm: qrSizeMm);
+
+  /// The same A4 layout can render server-owned Box data without a local DB.
+  Future<Uint8List> exportItems(
+    Iterable<BoxQrPdfItem> selectedItems, {
+    required double qrSizeMm,
   }) async {
     final layout = BoxQrPdfLayout(qrSizeMm);
-    final items = createItems(boxes, qrSizeMm: qrSizeMm);
+    final items = <int, BoxQrPdfItem>{
+      for (final item in selectedItems) item.boxId: item,
+    }.values.toList(growable: false);
 
     if (items.isEmpty) {
-      throw ArgumentError.value(boxes, 'boxes', 'Select at least one Box.');
+      throw ArgumentError.value(
+        selectedItems,
+        'selectedItems',
+        'Select at least one Box.',
+      );
     }
 
     final fontData = await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
@@ -232,24 +242,25 @@ class BoxQrPdfExportService implements BoxQrPdfExporter {
       ),
     );
   }
+}
 
-  String _boxLabel(Box box, int maximumLength) {
-    final boxNumber = '#${box.id}';
-    final name = box.name?.trim();
+String boxQrPdfLabel(int boxId, String? boxName, double qrSizeMm) {
+  final maximumLength = math.max(8, (qrSizeMm * 1.3).floor());
+  final boxNumber = '#$boxId';
+  final name = boxName?.trim();
 
-    if (name == null || name.isEmpty) {
-      return 'Box ${box.id}';
-    }
-
-    final suffix = ' · $boxNumber';
-    final availableNameLength = maximumLength - suffix.length;
-    if (availableNameLength < 4) {
-      return boxNumber;
-    }
-
-    final shortName = name.length <= availableNameLength
-        ? name
-        : '${name.substring(0, availableNameLength - 3)}...';
-    return '$shortName$suffix';
+  if (name == null || name.isEmpty) {
+    return 'Box $boxId';
   }
+
+  final suffix = ' · $boxNumber';
+  final availableNameLength = maximumLength - suffix.length;
+  if (availableNameLength < 4) {
+    return boxNumber;
+  }
+
+  final shortName = name.length <= availableNameLength
+      ? name
+      : '${name.substring(0, availableNameLength - 3)}...';
+  return '$shortName$suffix';
 }

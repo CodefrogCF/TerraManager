@@ -64,6 +64,23 @@ class SharedCareHome extends StatefulWidget {
   State<SharedCareHome> createState() => _SharedCareHomeState();
 }
 
+bool hasDueSharedFeedings(
+  Iterable<Map<String, dynamic>> animals,
+  Iterable<Map<String, dynamic>> reminders, {
+  DateTime? now,
+}) {
+  final activeIds = {
+    for (final animal in animals)
+      if (animal['status'] == 'active') animal['id'],
+  };
+  final current = now ?? DateTime.now();
+  return reminders.any((reminder) {
+    if (!activeIds.contains(reminder['animalId'])) return false;
+    final dueAt = DateTime.tryParse(reminder['dueAt'] as String? ?? '');
+    return dueAt != null && !dueAt.isAfter(current);
+  });
+}
+
 class _SharedCareHomeState extends State<SharedCareHome>
     with WidgetsBindingObserver {
   Timer? _refreshTimer;
@@ -79,6 +96,17 @@ class _SharedCareHomeState extends State<SharedCareHome>
   int _refreshVersion = 0;
   int _page = 0;
   bool _foreground = true;
+
+  Widget _animalsNavigationIcon({required bool selected}) => Badge(
+    key: Key(
+      selected
+          ? 'animals-feeding-due-badge-selected'
+          : 'animals-feeding-due-badge',
+    ),
+    isLabelVisible: _connected && hasDueSharedFeedings(_animals, _reminders),
+    label: const Text('!'),
+    child: Icon(selected ? Icons.pets : Icons.pets_outlined),
+  );
 
   @override
   void initState() {
@@ -397,8 +425,8 @@ class _SharedCareHomeState extends State<SharedCareHome>
             label: context.l10n.navigationBoxes,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.pets_outlined),
-            selectedIcon: const Icon(Icons.pets),
+            icon: _animalsNavigationIcon(selected: false),
+            selectedIcon: _animalsNavigationIcon(selected: true),
             label: context.l10n.navigationAnimals,
           ),
           NavigationDestination(

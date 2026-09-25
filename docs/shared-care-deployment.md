@@ -157,13 +157,16 @@ for care work:
 The shared browser overview follows the standalone Box and Animal navigation:
 natural Box sorting, Animal created/name/age/latest-Feeding sorting, category
 grouping, archive views, optional Big Picture cards, thumbnails, add buttons
-and long-press/right-click action menus. Box and Animal rename, edit,
-duplicate and archive actions use the care API. The Animal action menu can
-open a new Feeding entry directly. Animal details show the primary picture,
-gallery, latest Feeding and an active Feeding reminder, plus weight and
+and long-press/right-click action menus. Active Box and Animal menus offer
+details, rename, edit, duplicate and archive; active Animal menus can also
+start a Feeding entry. Archived entries offer details and restore in list and
+Big Picture views. Permanent deletion stays at the bottom of archived details
+with confirmation. Changes use the care API and require an active session;
+concurrent edits must be reloaded and reviewed. Animal details show the primary
+picture, gallery, latest Feeding and an active Feeding reminder, plus weight and
 shedding summaries when enabled for that Animal. Box details show assigned
-Animal thumbnails; archived details retain reason, date and notes. Presentation choices
-remain per browser; collection records stay server-owned.
+Animal thumbnails; archived details retain reason, date and notes. Presentation
+choices remain per browser; collection records stay server-owned.
 
 Box and Animal details retain the order and active/archive scope of the
 overview from which they were opened. Use the previous/next buttons (also
@@ -179,6 +182,13 @@ controls. Sorting, category grouping and Big Picture Mode are changed directly
 on the relevant overview; these choices remain local to the browser. Server
 status, administrator backups, caregiver accounts and sign-out are grouped in
 the **Shared server** section, so it is clear which actions affect everyone.
+
+The **Box QR codes** section offers individual PNG downloads, one ZIP archive,
+and a printable A4 PDF. Each action opens the same checklist of active and
+archived Boxes; all are selected initially. The PDF dialog also offers a
+6–20 mm size slider. Files are generated in the browser from the permanent QR
+identifiers supplied by the care API and saved through the browser download
+dialog. No QR payload is sent to an external service.
 
 The active Box overview offers **Scan Box**. On a supported mobile browser,
 opening it asks for browser camera permission, recognizes the printed Box QR
@@ -213,15 +223,15 @@ a reminder records the current time as its baseline; later Feedings become
 the reference for the next due date. The active Animal overview shows due
 Animals and the next upcoming Feeding, with links to their details. The
 server calculates these dates from its shared records, so a Feeding entered
-by another caregiver updates the view on the next foreground refresh. These
+by another caregiver updates the view on the next foreground refresh. Due
+Feedings also mark the Animals navigation icon with an exclamation mark. These
 are in-app reminders only: Shared Care does not request browser notification
 permission, schedule background work, or send push notifications.
 
-The browser still has some intentional shared-mode differences. Bulk QR export
-is not yet offered by this shared interface. Administrators can export and
-restore portable collection backups in Shared Settings. Host-volume backups remain the
-recovery path for both collection and account databases. Do not use the standalone Web application's
-local database as a shared-care substitute.
+Administrators can export and restore portable collection backups in Shared
+Settings. Host-volume backups remain the recovery path for both collection and
+account databases. Do not use the standalone Web application's local database
+as a shared-care substitute.
 
 ### Complete field validation
 
@@ -245,17 +255,24 @@ particular phone, camera and certificate work together.
 3. Perform the connection-loss and simultaneous-edit checks above. Also
    verify that a signed-out or expired session cannot read Boxes, Animals or
    media, and that a caregiver cannot create accounts or restore backups.
-4. As an administrator, download a portable `.tmbackup` with pictures and
+   In flat and Big Picture overviews, check active right-click/long-press
+   actions and archived details/restore actions. Confirm that delete appears
+   only on archived detail pages and a due Feeding marks the Animals tab.
+4. Export selected active and archived Box QR codes as PNG images, a ZIP and
+   an A4 PDF. Deselect one Box each time and check that its code is absent.
+   Check the PDF size slider at 6 mm and 20 mm, scan a printed result, and
+   cancel a browser download to verify no false success message appears.
+5. As an administrator, download a portable `.tmbackup` with pictures and
    history. Validate and restore it **in a separate disposable installation**,
    then compare record counts, history and picture bytes. Never test restore
    by replacing the only live collection. Restart the disposable server and
    verify that its restored records still exist.
-5. Stop the production server, take and verify a host-volume archive using the
+6. Stop the production server, take and verify a host-volume archive using the
    procedure below, then start it again. Confirm records and pictures still
    appear after the restart. For a full disaster-recovery test, restore the
    archive to an isolated host or directory and verify both collection and
    account login there. Do not run two server processes against one volume.
-6. Disable WAN access while keeping the LAN active. Repeat login, Box lookup,
+7. Disable WAN access while keeping the LAN active. Repeat login, Box lookup,
    QR scanning and picture retrieval. No external account, analytics,
    tracking, cloud or scanner CDN must be required for routine operation.
 

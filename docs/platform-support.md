@@ -15,11 +15,14 @@ The separate Shared Care Web entry point uses the self-hosted LAN API and
 server-owned database. Its automated client and server tests do not replace
 deployment and multi-browser validation on the target Pi; follow the
 [Shared Care deployment guide](shared-care-deployment.md) for those checks.
-The operator has confirmed sign-in and shared Box/Feeding updates between a
-mobile browser and a laptop on the Pi. Camera scanning, full care workflows,
-backup restore and restart recovery still require the field checks in that
-guide. Shared Care is a separate browser mode, not a network-enabled Android
-release; Android retains its standalone database and permissions.
+On one Raspberry Pi installation, the operator has confirmed shared Box and
+Feeding updates between mobile and laptop browsers, a Box QR scan over trusted
+HTTPS, stale-edit conflict handling and portable backup restore in a separate
+test stack. These observations validate that installation's tested workflows;
+the complete field checklist in the deployment guide still applies to new
+installations and updates. Shared Care is a separate browser mode, not a
+network-enabled Android release; Android retains its standalone database and
+permissions.
 
 ## Permanent Application Identity
 

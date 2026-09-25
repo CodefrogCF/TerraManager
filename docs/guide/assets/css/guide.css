@@ -167,6 +167,15 @@
   background: #f1f7f2;
 }
 
+.shared-care-grid .feature-card {
+  min-height: 0;
+}
+
+.shared-care-note {
+  margin: 28px 0;
+  max-width: 780px;
+}
+
 .dark-note {
   border-color: var(--lime);
   background: rgba(255,255,255,.07);

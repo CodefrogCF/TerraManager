@@ -2,9 +2,11 @@
 {% if page.lang == 'de' %}
   {% assign alternate_path = '/en/' %}
   {% assign privacy_path = '/privacy/de/' %}
+  {% assign guide_path = '/guide/' %}
 {% else %}
   {% assign alternate_path = '/' %}
   {% assign privacy_path = '/privacy/' %}
+  {% assign guide_path = '/guide/en/' %}
 {% endif %}
 <!doctype html>
 <html lang="{{ page.lang }}">
@@ -154,6 +156,7 @@
             <div class="button-row">
               <a class="button button-light" href="{{ privacy_path | relative_url }}">{{ t.privacy.policy }}</a>
               <a class="text-link light-link" href="{{ '/license/' | relative_url }}">{{ t.privacy.license }} <span aria-hidden="true">→</span></a>
+              <a class="text-link light-link" href="{{ guide_path | relative_url }}#shared-care">{{ t.privacy.shared_guide }} <span aria-hidden="true">→</span></a>
             </div>
           </div>
           <ul class="privacy-points">

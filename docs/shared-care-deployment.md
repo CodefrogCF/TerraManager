@@ -119,8 +119,11 @@ record, then disconnect one browser from the LAN: it should show a connection
 error and refuse edits until it can reload. To inspect API operations, see
 [Shared Care API](shared-care-api.md). Test again with WAN access disabled
 while keeping the LAN active to verify that the installation uses no cloud
-service. The Android app's Settings link opens this URL in the external
-browser; it does not connect the app's local database to the server.
+service. The Android app's Shared care Settings link opens this URL in the
+external browser; it does not connect the app's local database to the server
+or synchronize the two collections. The same Settings section links to the
+project website and language-matched user guide for an explanation of both
+modes. These browser links require no additional Android app permission.
 
 ## Shared Web acceptance checks
 
@@ -219,10 +222,13 @@ particular phone, camera and certificate work together.
    QR scanning and picture retrieval. No external account, analytics,
    tracking, cloud or scanner CDN must be required for routine operation.
 
-The operator has already confirmed cross-device Box creation and visible
-Feeding updates on the Pi. Those observations do not establish the remaining
-camera, backup-restore, restart or permission checks; complete them on the
-actual deployment before marking all Issue #163 acceptance criteria verified.
+Field testing on one Pi installation has confirmed cross-device Box creation
+and Feeding updates, Box QR scanning on a mobile browser over trusted HTTPS,
+stale-edit rejection and portable backup restore in a separate disposable
+stack. Both mobile and laptop browsers completed a restore in that test stack.
+These observations apply to that installation; repeat the full checklist for
+each new deployment and material update, including picture and history
+comparison, access-control checks and stopped-volume disaster recovery.
 
 ## Persistence and backups
 
@@ -268,6 +274,15 @@ restore holds the collection. If the importing browser does not receive a
 completion response, do not immediately retry: wait for the server to become
 available, reload, and inspect the record counts and pictures first. A lost
 response does not prove that the database transaction failed.
+
+If only one client uploads slowly or times out, compare a disposable same-size
+upload from that client with another device before changing server limits. In
+field testing, a Windows laptop using a Hyper-V network bridge uploaded very
+slowly with IPv4 Large Send Offload enabled on its virtual adapter; a phone on
+the same LAN was fast. Disabling that offload setting restored laptop upload
+speed and browser backup restore completed. Diagnose the affected client's
+network configuration before repeating a restore; a timeout alone does not
+identify a server or backup-format problem.
 
 Keep downloaded archives in protected storage because portable backups are not
 encrypted. For an installation with larger archives, use a separately planned

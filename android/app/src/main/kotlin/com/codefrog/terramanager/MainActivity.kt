@@ -14,22 +14,41 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "com.codefrog.terramanager/browser",
         ).setMethodCallHandler { call, result ->
-            if (call.method != "openExternalUrl") {
-                result.notImplemented()
-                return@setMethodCallHandler
-            }
-            val raw = call.argument<String>("url")
-            val uri = raw?.let(Uri::parse)
-            if (uri == null ||
-                uri.scheme != "https" ||
-                uri.host.isNullOrBlank() ||
-                !uri.path.isNullOrEmpty() && uri.path != "/" ||
-                !uri.query.isNullOrEmpty() ||
-                !uri.fragment.isNullOrEmpty() ||
-                !uri.userInfo.isNullOrEmpty()
-            ) {
-                result.error("invalid_url", "An HTTPS server origin is required.", null)
-                return@setMethodCallHandler
+            val uri = when (call.method) {
+                "openExternalUrl" -> {
+                    val raw = call.argument<String>("url")
+                    val candidate = raw?.let(Uri::parse)
+                    if (candidate == null ||
+                        candidate.scheme != "https" ||
+                        candidate.host.isNullOrBlank() ||
+                        !candidate.path.isNullOrEmpty() && candidate.path != "/" ||
+                        !candidate.query.isNullOrEmpty() ||
+                        !candidate.fragment.isNullOrEmpty() ||
+                        !candidate.userInfo.isNullOrEmpty()
+                    ) {
+                        result.error("invalid_url", "An HTTPS server origin is required.", null)
+                        return@setMethodCallHandler
+                    }
+                    candidate
+                }
+                "openProjectPage" -> {
+                    val url = when (call.argument<String>("page")) {
+                        "website-de" -> "https://codefrogcf.github.io/TerraManager/"
+                        "website-en" -> "https://codefrogcf.github.io/TerraManager/en/"
+                        "guide-de" -> "https://codefrogcf.github.io/TerraManager/guide/"
+                        "guide-en" -> "https://codefrogcf.github.io/TerraManager/guide/en/"
+                        else -> null
+                    }
+                    if (url == null) {
+                        result.error("invalid_page", "Unknown project page.", null)
+                        return@setMethodCallHandler
+                    }
+                    Uri.parse(url)
+                }
+                else -> {
+                    result.notImplemented()
+                    return@setMethodCallHandler
+                }
             }
             try {
                 val intent = Intent(Intent.ACTION_VIEW, uri)

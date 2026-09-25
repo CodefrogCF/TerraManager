@@ -61,6 +61,7 @@ de:
       - Backups und exportierte Dateien bestimmst, speicherst und überträgst du selbst.
     policy: Datenschutzerklärung lesen
     license: GPL-3.0-or-later-Lizenz lesen
+    shared_guide: So funktioniert gemeinsame Betreuung
   download:
     eyebrow: Loslegen
     heading: TerraManager herunterladen
@@ -165,6 +166,7 @@ en:
       - You decide where backups and exported files are stored and transferred.
     policy: Read the Privacy Policy
     license: Read the GPL-3.0-or-later license
+    shared_guide: How shared care works
   download:
     eyebrow: Get started
     heading: Download TerraManager

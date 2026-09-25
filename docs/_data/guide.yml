@@ -9,6 +9,7 @@ de:
     qr: QR & Scanner
     feeding: Fütterungen
     backup: Backup
+    shared: Gemeinsam betreuen
   language_label: Sprache wechseln
   language_name: English
   home_label: Startseite
@@ -47,6 +48,10 @@ de:
         target: backup
         title: Daten sichern
         body: Backup und Wiederherstellung
+      - number: "07"
+        target: shared-care
+        title: Gemeinsam betreuen
+        body: Eine Sammlung im eigenen Netzwerk
   sections:
     - id: start
       number: "01"
@@ -207,6 +212,19 @@ de:
             - file: restore-safety-backup.webp
               alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
               caption: Safety Backup vor der Wiederherstellung
+  shared_care:
+    eyebrow: Optionale gemeinsame Nutzung
+    heading: Eine Sammlung auf deinem eigenen Server
+    lead: Im Shared-Care-Webmodus greifen mehrere Betreuungspersonen über ihren Browser auf dieselbe Sammlung zu. Ein eigener Server im lokalen Netzwerk speichert Boxen, Tiere, Fütterungen, Verläufe und Bilder. Die eigenständige Android- und Webanwendung bleibt davon getrennt.
+    items:
+      - title: Server und Zugang einrichten
+        body: Der Betreiber richtet TerraManager auf einem eigenen Raspberry Pi oder vergleichbaren Server ein, legt lokale Konten an und stellt eine vertrauenswürdige HTTPS-Adresse bereit. Für die tägliche Nutzung ist kein Cloud-Dienst oder Entwicklerkonto erforderlich.
+      - title: Aus der Android-App öffnen
+        body: Unter Einstellungen → Gemeinsame Betreuung öffnest du die HTTPS-Adresse im externen Browser. Die Daten der lokalen App werden weder automatisch übertragen noch mit der Serversammlung synchronisiert.
+      - title: Zusammen arbeiten
+        body: Melde dich im Browser an. Änderungen werden auf anderen angemeldeten Geräten sichtbar; gleichzeitig bearbeitete Datensätze überschreiben sich nicht unbemerkt. Box-QR-Scans benötigen vertrauenswürdiges HTTPS und einen unterstützten mobilen Browser.
+    note: Die portable Shared-Care-Sicherung enthält die Sammlung, aber keine Serverkonten. Für eine vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden. Der native Android-Modus bleibt eigenständig und benötigt keine zusätzlichen Netzwerkberechtigungen.
+    setup: Einrichtung und Betrieb des eigenen Servers
   finish:
     heading: Das war der Kernworkflow
     body: "Im Alltag reduziert sich TerraManager damit auf wenige wiederkehrende Schritte: Box identifizieren, Versorgung dokumentieren, Fälligkeiten prüfen und den gewachsenen Datenbestand regelmäßig sichern."
@@ -230,6 +248,7 @@ en:
     qr: QR & Scanner
     feeding: Feedings
     backup: Backup
+    shared: Shared care
   language_label: Change language
   language_name: Deutsch
   home_label: Home
@@ -268,6 +287,10 @@ en:
         target: backup
         title: Back up your data
         body: Backup and restore
+      - number: "07"
+        target: shared-care
+        title: Shared care
+        body: One collection on your own LAN
   sections:
     - id: start
       number: "01"
@@ -428,6 +451,19 @@ en:
             - file: restore-safety-backup.webp
               alt: Restore dialog with safety backup enabled
               caption: Safety backup before restore
+  shared_care:
+    eyebrow: Optional shared use
+    heading: One collection on your own server
+    lead: Shared Care Web mode lets several caregivers use the same collection through their browsers. Your own server on the local network stores Boxes, Animals, feedings, histories and pictures. The standalone Android and Web applications remain separate.
+    items:
+      - title: Set up the server and access
+        body: The operator installs TerraManager on a Raspberry Pi or comparable server, creates local accounts and provides a trusted HTTPS address. Daily use requires no cloud service or developer account.
+      - title: Open it from the Android app
+        body: In Settings → Shared care, open the HTTPS address in an external browser. The local app data is neither transferred nor synchronized with the server collection automatically.
+      - title: Work together
+        body: Sign in through the browser. Changes become visible on other signed-in devices, and simultaneous edits cannot silently overwrite one another. Box QR scanning requires trusted HTTPS and a supported mobile browser.
+    note: A portable Shared Care backup contains the collection but not server accounts. Full server recovery also requires a backup of both databases in the server data directory. Native Android mode stays standalone and needs no additional network permission.
+    setup: Set up and operate your own server
   finish:
     heading: That is the core workflow
     body: "For daily use, TerraManager comes down to a few recurring actions: identify the enclosure, record care, check due feedings and regularly back up the growing collection data."

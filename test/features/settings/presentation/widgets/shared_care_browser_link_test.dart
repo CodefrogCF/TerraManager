@@ -100,4 +100,29 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     }
   });
+
+  testWidgets('explains why project links need an updated Android build', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    try {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            throw MissingPluginException();
+          });
+
+      await tester.pumpWidget(
+        const MaterialApp(home: Scaffold(body: ProjectWebLinks())),
+      );
+      await tester.tap(find.byKey(const Key('project-website-link')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Install the updated app to open project links.'),
+        findsOneWidget,
+      );
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
 }

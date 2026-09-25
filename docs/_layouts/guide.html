@@ -42,6 +42,7 @@
             <li><a href="#qr">{{ t.nav.qr }}</a></li>
             <li><a href="#feeding">{{ t.nav.feeding }}</a></li>
             <li><a href="#backup">{{ t.nav.backup }}</a></li>
+            <li><a href="#shared-care">{{ t.nav.shared }}</a></li>
           </ul>
         </nav>
         <a class="language-link" href="{{ alternate_path | relative_url }}" lang="{% if page.lang == 'de' %}en{% else %}de{% endif %}" aria-label="{{ t.language_label }}: {{ t.language_name }}">
@@ -132,6 +133,26 @@
           </div>
         </section>
       {% endfor %}
+
+      <section class="guide-section guide-section-soft" id="shared-care" aria-labelledby="shared-care-heading">
+        <div class="shell">
+          <div class="guide-section-heading">
+            <p class="eyebrow">{{ t.shared_care.eyebrow }}</p>
+            <h2 id="shared-care-heading">{{ t.shared_care.heading }}</h2>
+            <p>{{ t.shared_care.lead }}</p>
+          </div>
+          <div class="feature-grid shared-care-grid">
+            {% for item in t.shared_care.items %}
+              <article class="feature-card">
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.body }}</p>
+              </article>
+            {% endfor %}
+          </div>
+          <p class="guide-note shared-care-note">{{ t.shared_care.note }}</p>
+          <a class="button button-primary" href="{{ '/shared-care-deployment.html' | relative_url }}">{{ t.shared_care.setup }}</a>
+        </div>
+      </section>
 
       <section class="guide-finish">
         <div class="shell support-card">

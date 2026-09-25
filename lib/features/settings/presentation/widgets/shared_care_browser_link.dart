@@ -81,6 +81,20 @@ class ProjectWebLinks extends StatelessWidget {
       await _browserChannel.invokeMethod<void>('openProjectPage', {
         'page': page,
       });
+    } on MissingPluginException {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              sharedText(
+                context,
+                'Install the updated app to open project links.',
+                'Installiere die aktualisierte App, um Projektlinks zu öffnen.',
+              ),
+            ),
+          ),
+        );
+      }
     } on PlatformException {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

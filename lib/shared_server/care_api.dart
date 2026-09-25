@@ -403,11 +403,22 @@ class CareApi {
     }
     if (path.length == 3 && path[2] == 'move' && method == 'POST') {
       final input = await _body(request);
-      input.allow(const {'boxId'});
-      final moved = await animals.moveAnimalToBox(
-        animalId: id,
-        boxId: input.integer('boxId'),
+      input.allow(const {'boxId', 'expectedRevision'});
+      final boxId = input.integer('boxId');
+      final expectedRevision = input.nullableString(
+        'expectedRevision',
+        maxLength: 64,
       );
+      final moved = await database.transaction(() async {
+        if (expectedRevision != null) {
+          final current = await animals.getAnimalById(id);
+          _requireRevision(
+            current == null ? null : animalJson(current),
+            expectedRevision,
+          );
+        }
+        return animals.moveAnimalToBox(animalId: id, boxId: boxId);
+      });
       return moved
           ? _Reply(200, {
               'animal': animalJson((await animals.getAnimalById(id))!),
@@ -606,7 +617,7 @@ class CareApi {
     final feedings = FeedingRepository(database);
     if (path.length == 1 && method == 'POST') {
       final input = await _body(request);
-      input.allow(const {'animalIds', 'fedAt', 'notes'});
+      input.allow(const {'animalIds', 'fedAt', 'notes', 'boxId'});
       final requestId = request.headers.value('Idempotency-Key');
       if (requestId == null ||
           !RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(requestId)) {
@@ -619,10 +630,28 @@ class CareApi {
       final animalIds = input.integerList('animalIds');
       final fedAt = input.dateTime('fedAt');
       final notes = input.nullableString('notes');
+      final boxId = input.nullableInteger('boxId');
       return _idempotentFeeding(requestId, input.values, () async {
         final ids = await database.transaction(() async {
+          if (boxId != null) {
+            final box = await BoxRepository(database).getBoxById(boxId);
+            if (box == null || box.status != BoxStatus.active) {
+              throw const ApiProblem(409, 'conflict', 'Box is not active.');
+            }
+          }
           for (final animalId in animalIds) {
             await _requireActiveAnimal(animalId);
+            if (boxId != null) {
+              final animal = await AnimalRepository(database)
+                  .getAnimalById(animalId);
+              if (animal?.boxId != boxId) {
+                throw ApiProblem(
+                  409,
+                  'conflict',
+                  'Animal $animalId is no longer assigned to Box $boxId.',
+                );
+              }
+            }
           }
           return feedings.addFeedings(
             animalIds: animalIds,

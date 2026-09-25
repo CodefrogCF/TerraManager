@@ -166,6 +166,77 @@ void main() {
   );
 
   test(
+    'Box-scoped grouped Feeding uses one request and its retry key',
+    () async {
+      http.Request? feedingRequest;
+      final backend = MockClient((request) async {
+        if (request.url.path == '/api/v1/auth/login') {
+          return http.Response(jsonEncode(session), 200);
+        }
+        feedingRequest = request;
+        return http.Response(
+          jsonEncode({
+            'feedings': [
+              {'id': 1, 'animalId': 7},
+              {'id': 2, 'animalId': 8},
+            ],
+          }),
+          201,
+        );
+      });
+      final client = SharedApiClient(Uri.parse(origin), backend);
+      await client.login('hagen', 'secret password');
+      final saved = await client.createFeedings(
+        animalIds: [7, 8],
+        boxId: 3,
+        fedAt: DateTime.utc(2026, 9, 23),
+        notes: 'Shared meal',
+        requestId: 'b73f3a4c-2c33-4786-9db8-39c70650a133',
+      );
+      expect(saved, hasLength(2));
+      expect(feedingRequest!.url.path, '/api/v1/feedings');
+      expect(
+        feedingRequest!.headers['Idempotency-Key'],
+        'b73f3a4c-2c33-4786-9db8-39c70650a133',
+      );
+      expect(jsonDecode(feedingRequest!.body), {
+        'animalIds': [7, 8],
+        'fedAt': '2026-09-23T00:00:00.000Z',
+        'notes': 'Shared meal',
+        'boxId': 3,
+      });
+      client.close();
+    },
+  );
+
+  test('QR reassignment sends only destination and opened revision', () async {
+    http.Request? moveRequest;
+    final backend = MockClient((request) async {
+      if (request.url.path == '/api/v1/auth/login') {
+        return http.Response(jsonEncode(session), 200);
+      }
+      moveRequest = request;
+      return http.Response(
+        jsonEncode({
+          'animal': {'id': 9, 'boxId': 4, 'status': 'active'},
+        }),
+        200,
+      );
+    });
+    final client = SharedApiClient(Uri.parse(origin), backend);
+    await client.login('hagen', 'secret password');
+    final moved = await client.rehouseAnimal(9, 4, 'opened-revision');
+    expect(moved['boxId'], 4);
+    expect(moveRequest!.method, 'POST');
+    expect(moveRequest!.url.path, '/api/v1/animals/9/move');
+    expect(jsonDecode(moveRequest!.body), {
+      'boxId': 4,
+      'expectedRevision': 'opened-revision',
+    });
+    client.close();
+  });
+
+  test(
     'connection loss blocks success and a later request reconnects',
     () async {
       var offline = false;

@@ -91,7 +91,7 @@ or sessions.
 | --- | --- |
 | Boxes | `GET/POST /boxes`, `GET/PATCH/DELETE /boxes/{id}`, `POST /boxes/{id}/duplicate`, `POST /boxes/{id}/archive`, `POST /boxes/{id}/restore`, `GET /boxes/qr/{qrId}` |
 | Animals | `GET/POST /animals`, `GET/PUT/DELETE /animals/{id}`, `POST /animals/{id}/duplicate`, `POST /animals/{id}/move`, `POST /animals/{id}/archive`, `POST /animals/{id}/restore` |
-| Feeding | `POST /feedings` with a nonempty `animalIds` list, `GET/PUT/DELETE /feedings/{id}`, `GET /animals/{id}/feedings` |
+| Feeding | `POST /feedings` with a nonempty `animalIds` list and optional `boxId` for Box-scoped Feeding Mode, `GET/PUT/DELETE /feedings/{id}`, `GET /animals/{id}/feedings` |
 | Weight | `GET/POST /animals/{id}/weights`, `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`, `PUT/DELETE /animals/{id}/shedding/{eventId}` |
 | Picture galleries | `GET/POST /boxes/{id}/pictures` and `/animals/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
@@ -118,12 +118,23 @@ the client must reload and review the latest record before another attempt.
 Revisions cover record data rather than relying on the timestamp precision of
 SQLite. New records do not need an expected revision.
 
+`POST /animals/{id}/move` accepts the destination `boxId` and an optional
+`expectedRevision`. Shared Care's QR Rehouse flow always sends the revision
+from the opened Animal. The server compares it in the same transaction as the
+move, then rechecks that the Animal and destination Box are active and that the
+destination differs from the current Box. A stale revision returns
+`409 stale_record`; no assignment changes.
+
 `POST /feedings` requires a UUID `Idempotency-Key` header. Repeating the same
 request with the same key during the server process lifetime returns its first
 result without adding more events; reusing a key with different data returns
 `409 idempotency_conflict`. The server retains successful keys for 24 hours.
-The browser generates one key for each new feeding submission. If a connection
-fails after submitting, check the server history before creating a new entry.
+The browser generates one key for each new feeding submission and reuses it
+when retrying the unchanged request. If `boxId` is supplied, the server also
+requires that Box to be active and every selected Animal to be active and still
+assigned to it inside the write transaction. A changed assignment rejects the
+entire group. If a connection fails after submitting, check the server history
+before creating a new entry.
 
 The API applies the existing environmental, taxonomy, Box-assignment and
 lifecycle rules on the server. Grouped feeding and Animal reassignment run

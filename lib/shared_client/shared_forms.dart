@@ -8,6 +8,7 @@ import '../features/animals/presentation/widgets/animal_range_fields.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
+import 'shared_box_scanner_page.dart';
 import 'shared_collection_pages.dart';
 import 'shared_text.dart';
 
@@ -351,6 +352,151 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     return value == null ? null : double.tryParse(value.replaceAll(',', '.'));
   }
 
+  bool get _hasUnsavedEdits {
+    final initial = _initial;
+    if (initial == null) return false;
+    if (_boxId != initial['boxId'] ||
+        _category.name != initial['category'] ||
+        _subcategory?.name != initial['subcategory'] ||
+        _sex?.name != initial['sex'] ||
+        _birthAccuracy != initial['birthDateAccuracy']) {
+      return true;
+    }
+    final initialBirthDate = DateTime.tryParse(
+      initial['birthDate'] as String? ?? '',
+    );
+    if (initialBirthDate?.toUtc().toIso8601String() !=
+        _birthDate?.toUtc().toIso8601String()) {
+      return true;
+    }
+    for (final entry in _fields.entries) {
+      final original = initial[entry.key]?.toString().trim();
+      if (_text(entry.key) !=
+          (original == null || original.isEmpty ? null : original)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<void> _openRehouseScanner() async {
+    if (_initial == null || _saving || _stale || !widget.api.connected) {
+      return;
+    }
+    if (_hasUnsavedEdits) {
+      final discard = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(
+            sharedText(context, 'Unsaved changes', 'Ungespeicherte Änderungen'),
+          ),
+          content: Text(
+            sharedText(
+              context,
+              'QR reassignment will not save the other edits in this form. Discard them and continue?',
+              'Beim Umsetzen per QR werden die anderen Änderungen in diesem Formular nicht gespeichert. Verwerfen und fortfahren?',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(context.l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(sharedText(context, 'Continue', 'Fortfahren')),
+            ),
+          ],
+        ),
+      );
+      if (discard != true || !mounted) return;
+    }
+    final moved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => SharedBoxScannerPage(
+          api: widget.api,
+          boxes: _boxes,
+          animals: const [],
+          change: widget.change,
+          title: context.l10n.rehouseMode,
+          onBoxResolved: _rehouseToBox,
+        ),
+      ),
+    );
+    if (moved == true && mounted) Navigator.of(context).pop(true);
+  }
+
+  Future<bool?> _rehouseToBox(
+    BuildContext scannerContext,
+    Map<String, dynamic> box,
+  ) async {
+    final initial = _initial;
+    if (initial == null || !mounted) return false;
+    final boxId = box['id'] as int;
+    if (boxId == initial['boxId']) {
+      ScaffoldMessenger.of(
+        scannerContext,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.animalAlreadyInBox)));
+      return false;
+    }
+    final confirmed = await showDialog<bool>(
+      context: scannerContext,
+      builder: (dialogContext) => AlertDialog(
+        key: const Key('shared-rehouse-confirmation'),
+        title: Text(context.l10n.rehouseAnimalTitle),
+        content: Text(
+          context.l10n.rehouseAnimalConfirmation(
+            initial['commonName'] as String,
+            boxLabel(box),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(context.l10n.cancel),
+          ),
+          FilledButton(
+            key: const Key('shared-rehouse-confirm'),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(context.l10n.rehouseAnimalAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return false;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    final saved = await widget.change(() async {
+      await widget.api.rehouseAnimal(
+        recordId(initial),
+        boxId,
+        initial['revision'] as String,
+      );
+    });
+    if (!mounted || !scannerContext.mounted) return false;
+    if (saved) {
+      Navigator.of(scannerContext).pop(true);
+      return true;
+    }
+    setState(() {
+      _saving = false;
+      _stale =
+          widget.api.lastFailure is SharedApiException &&
+          (widget.api.lastFailure as SharedApiException).code == 'stale_record';
+      _error = _stale
+          ? sharedText(
+              context,
+              'This Animal changed on the server. Reload and review it before moving.',
+              'Dieses Tier wurde auf dem Server geändert. Lade den neuen Stand und prüfe ihn vor dem Umsetzen.',
+            )
+          : context.l10n.failedToRehouseAnimal;
+    });
+    Navigator.of(scannerContext).pop(false);
+    return false;
+  }
+
   Future<void> _save() async {
     if (_saving || !widget.api.connected || !_form.currentState!.validate()) {
       return;
@@ -530,21 +676,41 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                   ? sharedText(context, 'Required', 'Pflichtfeld')
                   : null,
             ),
-            DropdownButtonFormField<int>(
-              initialValue: _boxId,
-              decoration: InputDecoration(
-                labelText: sharedText(context, 'Box', 'Box'),
-              ),
-              items: [
-                for (final box in _boxes.where(
-                  (box) => box['status'] == 'active',
-                ))
-                  DropdownMenuItem(
-                    value: recordId(box),
-                    child: Text(boxLabel(box)),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    key: ValueKey('shared-animal-box-$_boxId'),
+                    initialValue: _boxId,
+                    decoration: InputDecoration(
+                      labelText: sharedText(context, 'Box', 'Box'),
+                    ),
+                    items: [
+                      for (final box in _boxes.where(
+                        (box) => box['status'] == 'active',
+                      ))
+                        DropdownMenuItem(
+                          value: recordId(box),
+                          child: Text(boxLabel(box)),
+                        ),
+                    ],
+                    onChanged: _saving
+                        ? null
+                        : (value) => setState(() => _boxId = value),
                   ),
+                ),
+                if (_initial != null) ...[
+                  const SizedBox(width: 8),
+                  IconButton.filledTonal(
+                    key: const Key('shared-rehouse-scan-button'),
+                    tooltip: context.l10n.scanNewBox,
+                    onPressed: widget.api.connected && !_saving && !_stale
+                        ? _openRehouseScanner
+                        : null,
+                    icon: const Icon(Icons.qr_code_scanner),
+                  ),
+                ],
               ],
-              onChanged: (value) => setState(() => _boxId = value),
             ),
             DropdownButtonFormField<AnimalCategory>(
               initialValue: _category,

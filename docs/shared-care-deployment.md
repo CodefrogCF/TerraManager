@@ -179,9 +179,25 @@ including current Firefox, cannot use this scanner. Other collection actions
 remain available there. Use a supported Chromium-based mobile browser for the
 QR acceptance check.
 
-The browser still has some intentional shared-mode differences. Feeding Mode
-scanning, latest-Feeding sorting and bulk QR export are not offered by this
-shared interface. Administrators can export and restore
+The same overview also offers **Feeding Mode**. Scan a Box QR label, select the
+active Animals in that Box, choose the Feeding date and optional notes, and
+save the group in one server transaction. The scanner is ready for another Box
+after saving. On a browser without native QR recognition, including Firefox,
+use **Choose Box** in Feeding Mode instead of the camera. The server rejects
+the whole group if the Box is archived or an Animal is no longer assigned to
+that Box. A failed response may leave the save outcome uncertain: check the
+Feeding history before starting a new submission.
+
+**Edit Animal** also offers a QR button beside the Box selector. It scans a
+different active Box and asks for confirmation before moving the Animal. If
+the form has unsaved edits, the user must explicitly discard them before
+scanning; the move changes only the Box assignment. A concurrent edit causes
+the move to fail with a reload-and-review message. The ordinary Box selector
+remains available when camera scanning is unsupported.
+
+The browser still has some intentional shared-mode differences. Latest-Feeding
+sorting and bulk QR export are not offered by this shared interface.
+Administrators can export and restore
 portable collection backups in Shared Settings. Host-volume backups remain the
 recovery path for both collection and account databases. Do not use the standalone Web application's
 local database as a shared-care substitute.

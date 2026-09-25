@@ -266,6 +266,110 @@ void main() {
     expect(created.json!['feedings'], hasLength(2));
   });
 
+  test('Box-scoped Feeding rejects changed assignments atomically', () async {
+    final firstBox = await _createBox(clientA, server, 'First Box');
+    final secondBox = await _createBox(clientA, server, 'Second Box');
+    final firstAnimal = await _createAnimal(clientA, server, firstBox);
+    final movedAnimal = await _createAnimal(clientA, server, firstBox);
+
+    final moved = await _call(
+      clientB,
+      server,
+      'POST',
+      '/api/v1/animals/$movedAnimal/move',
+      body: {'boxId': secondBox},
+    );
+    expect(moved.status, 200);
+
+    final rejected = await _call(
+      clientA,
+      server,
+      'POST',
+      '/api/v1/feedings',
+      body: {
+        'boxId': firstBox,
+        'animalIds': [firstAnimal, movedAnimal],
+        'fedAt': '2026-09-23T10:00:00Z',
+      },
+    );
+    expect(rejected.status, 409);
+    expect(
+      (await _call(
+        clientA,
+        server,
+        'GET',
+        '/api/v1/animals/$firstAnimal/feedings',
+      )).json!['feedings'],
+      isEmpty,
+    );
+    expect(
+      (await _call(
+        clientA,
+        server,
+        'GET',
+        '/api/v1/animals/$movedAnimal/feedings',
+      )).json!['feedings'],
+      isEmpty,
+    );
+
+    final accepted = await _call(
+      clientA,
+      server,
+      'POST',
+      '/api/v1/feedings',
+      body: {
+        'boxId': firstBox,
+        'animalIds': [firstAnimal],
+        'fedAt': '2026-09-23T10:00:00Z',
+      },
+    );
+    expect(accepted.status, 201);
+    expect(accepted.json!['feedings'], hasLength(1));
+  });
+
+  test(
+    'QR reassignment rejects an opened Animal revision that became stale',
+    () async {
+      final firstBox = await _createBox(clientA, server, 'First Box');
+      final secondBox = await _createBox(clientA, server, 'Second Box');
+      final animalId = await _createAnimal(clientA, server, firstBox);
+      final opened = await _call(
+        clientA,
+        server,
+        'GET',
+        '/api/v1/animals/$animalId',
+      );
+      final oldRevision = (opened.json!['animal'] as Map)['revision'];
+
+      final firstMove = await _call(
+        clientB,
+        server,
+        'POST',
+        '/api/v1/animals/$animalId/move',
+        body: {'boxId': secondBox, 'expectedRevision': oldRevision},
+      );
+      expect(firstMove.status, 200);
+
+      final staleMove = await _call(
+        clientA,
+        server,
+        'POST',
+        '/api/v1/animals/$animalId/move',
+        body: {'boxId': firstBox, 'expectedRevision': oldRevision},
+      );
+      expect(staleMove.status, 409);
+      expect((staleMove.json!['error'] as Map)['code'], 'stale_record');
+
+      final current = await _call(
+        clientA,
+        server,
+        'GET',
+        '/api/v1/animals/$animalId',
+      );
+      expect((current.json!['animal'] as Map)['boxId'], secondBox);
+    },
+  );
+
   test('lifecycle and reassignment rules are enforced by the server', () async {
     final firstBox = await _createBox(clientA, server, 'First');
     final secondBox = await _createBox(clientA, server, 'Second');

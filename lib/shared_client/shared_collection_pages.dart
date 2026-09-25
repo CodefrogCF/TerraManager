@@ -17,6 +17,7 @@ import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
 import 'shared_box_scanner_page.dart';
 import 'shared_detail_pages.dart';
+import 'shared_feeding_box_page.dart';
 import 'shared_forms.dart';
 import 'shared_history_page.dart';
 import 'shared_text.dart';
@@ -195,6 +196,33 @@ class SharedBoxesPage extends StatefulWidget {
 class _SharedBoxesPageState extends State<SharedBoxesPage> {
   bool _archived = false;
 
+  Future<void> _openFeedingMode() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => SharedBoxScannerPage(
+          api: widget.api,
+          boxes: widget.boxes,
+          animals: widget.animals,
+          change: widget.change,
+          title: context.l10n.feedingModeTitle,
+          allowBoxSelection: true,
+          onBoxResolved: (scannerContext, box) =>
+              Navigator.of(scannerContext).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => SharedFeedingBoxPage(
+                    api: widget.api,
+                    box: box,
+                    change: widget.change,
+                    onReload: widget.onReload,
+                  ),
+                ),
+              ),
+        ),
+      ),
+    );
+    if (mounted) await widget.onReload();
+  }
+
   Future<void> _openBox(Map<String, dynamic> box) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
@@ -360,6 +388,15 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                 ),
             ],
           ),
+          if (!_archived)
+            IconButton(
+              key: const Key('shared-feeding-mode-button'),
+              tooltip: context.l10n.feedingModeTitle,
+              onPressed: widget.connected && widget.api.connected
+                  ? _openFeedingMode
+                  : null,
+              icon: const Icon(Icons.restaurant),
+            ),
           if (!_archived)
             IconButton(
               key: const Key('shared-box-scan-button'),

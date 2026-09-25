@@ -142,4 +142,55 @@ void main() {
     expect(find.byType(SharedBoxScannerPage), findsOneWidget);
     api.close();
   });
+
+  testWidgets('Feeding Mode can choose a Box without camera scanning', (
+    tester,
+  ) async {
+    final api = SharedApiClient(
+      Uri.parse('https://192.168.1.117'),
+      MockClient(
+        (request) async => http.Response(
+          jsonEncode({
+            'boxes': [
+              {'id': 7, 'name': 'Main Box', 'status': 'active'},
+              {'id': 8, 'name': 'Old Box', 'status': 'archived'},
+            ],
+          }),
+          200,
+        ),
+      ),
+    );
+    int? chosenId;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SharedBoxScannerPage(
+          api: api,
+          boxes: const [],
+          animals: const [],
+          change: (operation) async {
+            await operation();
+            return true;
+          },
+          allowBoxSelection: true,
+          onBoxResolved: (_, box) async {
+            chosenId = box['id'] as int;
+            return false;
+          },
+          stopScanner: () async {},
+          startScanner: () async {},
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('shared-scanner-choose-box')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.byKey(const Key('shared-scanner-box-7')), findsOneWidget);
+    expect(find.byKey(const Key('shared-scanner-box-8')), findsNothing);
+    await tester.tap(find.byKey(const Key('shared-scanner-box-7')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(chosenId, 7);
+    api.close();
+  });
 }

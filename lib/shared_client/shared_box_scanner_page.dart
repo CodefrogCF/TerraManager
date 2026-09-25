@@ -17,6 +17,9 @@ class SharedBoxScannerPage extends StatefulWidget {
     required this.boxes,
     required this.animals,
     required this.change,
+    this.onBoxResolved,
+    this.allowBoxSelection = false,
+    this.title,
     this.onHandlerReady,
     this.stopScanner,
     this.startScanner,
@@ -26,6 +29,10 @@ class SharedBoxScannerPage extends StatefulWidget {
   final List<Map<String, dynamic>> boxes;
   final List<Map<String, dynamic>> animals;
   final SharedChange change;
+  final Future<bool?> Function(BuildContext context, Map<String, dynamic> box)?
+  onBoxResolved;
+  final bool allowBoxSelection;
+  final String? title;
 
   final void Function(Future<void> Function(String value) handler)?
   onHandlerReady;
@@ -58,6 +65,37 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
   Future<void> _startScanner() =>
       widget.startScanner?.call() ?? _controller.start();
 
+  Future<void> _openBox(Map<String, dynamic> box) async {
+    await _stopScanner();
+    if (!mounted) return;
+    try {
+      final onBoxResolved = widget.onBoxResolved;
+      if (onBoxResolved != null) {
+        final saved = await onBoxResolved(context, box);
+        if (saved == true && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.feedingEventsSaved)),
+          );
+        }
+      } else {
+        await Navigator.of(context).push<void>(
+          MaterialPageRoute(
+            builder: (_) => SharedBoxDetailPage(
+              api: widget.api,
+              id: box['id'] as int,
+              boxes: widget.boxes,
+              animals: widget.animals,
+              connected: widget.api.connected,
+              change: widget.change,
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) await _startScanner();
+    }
+  }
+
   Future<void> _handleQrValue(String value) async {
     if (_processing || !mounted) return;
     final qrId = value.trim();
@@ -83,22 +121,7 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
         return;
       }
 
-      await _stopScanner();
-      if (!mounted) return;
-      await Navigator.of(context).push<void>(
-        MaterialPageRoute(
-          builder: (_) => SharedBoxDetailPage(
-            api: widget.api,
-            id: box['id'] as int,
-            boxes: widget.boxes,
-            animals: widget.animals,
-            connected: widget.api.connected,
-            change: widget.change,
-          ),
-        ),
-      );
-      if (!mounted) return;
-      await _startScanner();
+      await _openBox(box);
     } on SharedApiException catch (error) {
       if (!mounted) return;
       setState(() {
@@ -109,6 +132,54 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _error = context.l10n.failedToScanQrCode);
+    } finally {
+      if (mounted) setState(() => _processing = false);
+    }
+  }
+
+  Future<void> _chooseBox() async {
+    if (_processing || !mounted) return;
+    setState(() {
+      _processing = true;
+      _error = null;
+    });
+    try {
+      final boxes = (await widget.api.boxes())
+          .where((box) => box['status'] == 'active' && box['id'] is int)
+          .toList();
+      if (!mounted) return;
+      final selected = await showDialog<Map<String, dynamic>>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text(sharedText(context, 'Choose Box', 'Box auswählen')),
+          content: SizedBox(
+            width: 420,
+            height: 320,
+            child: boxes.isEmpty
+                ? Center(child: Text(context.l10n.noBoxesAvailable))
+                : ListView.builder(
+                    itemCount: boxes.length,
+                    itemBuilder: (_, index) => ListTile(
+                      key: Key('shared-scanner-box-${boxes[index]['id']}'),
+                      title: Text(boxLabel(boxes[index])),
+                      onTap: () =>
+                          Navigator.of(dialogContext).pop(boxes[index]),
+                    ),
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(sharedText(context, 'Cancel', 'Abbrechen')),
+            ),
+          ],
+        ),
+      );
+      if (selected != null && mounted) await _openBox(selected);
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = context.l10n.failedToScanQrCode);
+      }
     } finally {
       if (mounted) setState(() => _processing = false);
     }
@@ -129,7 +200,7 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(context.l10n.scanBoxTitle)),
+    appBar: AppBar(title: Text(widget.title ?? context.l10n.scanBoxTitle)),
     body: Column(
       children: [
         Expanded(
@@ -146,8 +217,12 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
                     child: Text(
                       sharedText(
                         context,
-                        'Camera or browser QR recognition is unavailable. Allow camera access in a supported browser.',
-                        'Kamera oder QR-Erkennung des Browsers nicht verfügbar. Erlaube den Kamerazugriff in einem unterstützten Browser.',
+                        widget.allowBoxSelection
+                            ? 'Camera or QR recognition is unavailable. Choose a Box below.'
+                            : 'Camera or browser QR recognition is unavailable. Allow camera access in a supported browser.',
+                        widget.allowBoxSelection
+                            ? 'Kamera oder QR-Erkennung nicht verfügbar. Wähle unten eine Box aus.'
+                            : 'Kamera oder QR-Erkennung des Browsers nicht verfügbar. Erlaube den Kamerazugriff in einem unterstützten Browser.',
                       ),
                       key: const Key('shared-scanner-camera-error'),
                       textAlign: TextAlign.center,
@@ -179,6 +254,16 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
             ],
           ),
         ),
+        if (widget.allowBoxSelection)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: OutlinedButton.icon(
+              key: const Key('shared-scanner-choose-box'),
+              onPressed: _processing ? null : _chooseBox,
+              icon: const Icon(Icons.list),
+              label: Text(sharedText(context, 'Choose Box', 'Box auswählen')),
+            ),
+          ),
         if (_error != null)
           Padding(
             padding: const EdgeInsets.all(16),

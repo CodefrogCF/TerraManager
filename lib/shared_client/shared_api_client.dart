@@ -165,6 +165,19 @@ class SharedApiClient extends ChangeNotifier {
     'animal',
   );
 
+  Future<Map<String, dynamic>> rehouseAnimal(
+    int id,
+    int boxId,
+    String expectedRevision,
+  ) async => _object(
+    await _request(
+      'POST',
+      '/api/v1/animals/$id/move',
+      body: {'boxId': boxId, 'expectedRevision': expectedRevision},
+    ),
+    'animal',
+  );
+
   Future<Map<String, dynamic>> archiveAnimal(
     int id,
     String reason,
@@ -215,19 +228,38 @@ class SharedApiClient extends ChangeNotifier {
     DateTime fedAt,
     String? notes, {
     String? requestId,
-  }) async => _list(
-    await _request(
-      'POST',
-      '/api/v1/feedings',
-      body: {
-        'animalIds': [animalId],
-        'fedAt': fedAt.toUtc().toIso8601String(),
-        'notes': notes,
-      },
-      extraHeaders: {'Idempotency-Key': requestId ?? const Uuid().v4()},
-    ),
-    'feedings',
-  ).single;
+  }) async => (await createFeedings(
+    animalIds: [animalId],
+    fedAt: fedAt,
+    notes: notes,
+    requestId: requestId,
+  )).single;
+
+  Future<List<Map<String, dynamic>>> createFeedings({
+    required List<int> animalIds,
+    required DateTime fedAt,
+    required String? notes,
+    int? boxId,
+    String? requestId,
+  }) async {
+    final body = <String, dynamic>{
+      'animalIds': animalIds,
+      'fedAt': fedAt.toUtc().toIso8601String(),
+      'notes': notes,
+    };
+    if (boxId != null) {
+      body['boxId'] = boxId;
+    }
+    return _list(
+      await _request(
+        'POST',
+        '/api/v1/feedings',
+        body: body,
+        extraHeaders: {'Idempotency-Key': requestId ?? const Uuid().v4()},
+      ),
+      'feedings',
+    );
+  }
 
   Future<List<Map<String, dynamic>>> weights(int animalId) async => _list(
     await _request('GET', '/api/v1/animals/$animalId/weights'),

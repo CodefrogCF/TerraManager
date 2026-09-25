@@ -90,8 +90,9 @@ or sessions.
 | Resource | Routes |
 | --- | --- |
 | Boxes | `GET/POST /boxes`, `GET/PATCH/DELETE /boxes/{id}`, `POST /boxes/{id}/duplicate`, `POST /boxes/{id}/archive`, `POST /boxes/{id}/restore`, `GET /boxes/qr/{qrId}` |
-| Animals | `GET/POST /animals`, `GET/PUT/DELETE /animals/{id}`, `POST /animals/{id}/duplicate`, `POST /animals/{id}/move`, `POST /animals/{id}/archive`, `POST /animals/{id}/restore` |
+| Animals | `GET/POST /animals`, `GET/PUT/DELETE /animals/{id}`, `PUT /animals/{id}/feeding-reminder`, `POST /animals/{id}/duplicate`, `POST /animals/{id}/move`, `POST /animals/{id}/archive`, `POST /animals/{id}/restore` |
 | Feeding | `POST /feedings` with a nonempty `animalIds` list and optional `boxId` for Box-scoped Feeding Mode, `GET/PUT/DELETE /feedings/{id}`, `GET /animals/{id}/feedings` |
+| Feeding reminders | `GET /reminders` returns configured active Animals with `animalId`, `dueAt` and optional `latestFeedingAt` |
 | Weight | `GET/POST /animals/{id}/weights`, `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`, `PUT/DELETE /animals/{id}/shedding/{eventId}` |
 | Picture galleries | `GET/POST /boxes/{id}/pictures` and `/animals/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
@@ -124,6 +125,15 @@ from the opened Animal. The server compares it in the same transaction as the
 move, then rechecks that the Animal and destination Box are active and that the
 destination differs from the current Box. A stale revision returns
 `409 stale_record`; no assignment changes.
+
+`PUT /animals/{id}/feeding-reminder` updates only the reminder configuration.
+It requires `expectedRevision`; `intervalDays` and `baseline` must either
+both be set or both be `null`. The interval must be a positive integer and the
+baseline an ISO-8601 timestamp with an offset. The server rejects archived
+Animals and stale revisions. `GET /reminders` uses the same database-backed
+reminder calculation as the standalone app: the latest Feeding supersedes the
+baseline, and the next due time is that timestamp plus the interval. The
+response contains no browser-specific preferences or notification state.
 
 `POST /feedings` requires a UUID `Idempotency-Key` header. Repeating the same
 request with the same key during the server process lifetime returns its first

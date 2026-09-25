@@ -86,6 +86,9 @@ class SharedApiClient extends ChangeNotifier {
   Future<List<Map<String, dynamic>>> animals() async =>
       _list(await _request('GET', '/api/v1/animals'), 'animals');
 
+  Future<List<Map<String, dynamic>>> reminders() async =>
+      _list(await _request('GET', '/api/v1/reminders'), 'reminders');
+
   Future<Map<String, dynamic>> box(int id) async =>
       _object(await _request('GET', '/api/v1/boxes/$id'), 'box');
 
@@ -174,6 +177,24 @@ class SharedApiClient extends ChangeNotifier {
       'POST',
       '/api/v1/animals/$id/move',
       body: {'boxId': boxId, 'expectedRevision': expectedRevision},
+    ),
+    'animal',
+  );
+
+  Future<Map<String, dynamic>> updateFeedingReminder(
+    int animalId, {
+    required String expectedRevision,
+    required int? intervalDays,
+    required DateTime? baseline,
+  }) async => _object(
+    await _request(
+      'PUT',
+      '/api/v1/animals/$animalId/feeding-reminder',
+      body: {
+        'expectedRevision': expectedRevision,
+        'intervalDays': intervalDays,
+        'baseline': baseline?.toUtc().toIso8601String(),
+      },
     ),
     'animal',
   );

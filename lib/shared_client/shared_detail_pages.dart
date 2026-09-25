@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../l10n/app_localizations_context.dart';
 import 'shared_api_client.dart';
 import 'shared_collection_pages.dart';
+import 'shared_feeding_reminder_page.dart';
 import 'shared_forms.dart';
 import 'shared_history_page.dart';
 import 'shared_text.dart';
@@ -407,8 +408,12 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     return latest;
   }
 
-  String _dateLabel(BuildContext context, DateTime date) =>
-      MaterialLocalizations.of(context).formatMediumDate(date.toLocal());
+  String _dateLabel(BuildContext context, DateTime date) {
+    final local = date.toLocal();
+    final material = MaterialLocalizations.of(context);
+    return '${material.formatMediumDate(local)} '
+        '${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
+  }
 
   Widget _feedingInformation(Map<String, dynamic> animal, {required bool due}) {
     return FutureBuilder<List<Map<String, dynamic>>>(
@@ -439,13 +444,15 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
             return const SizedBox.shrink();
           }
           return Card(
+            key: const Key('shared-feeding-reminder-status'),
             color: Theme.of(context).colorScheme.errorContainer,
             child: ListTile(
               leading: const Icon(Icons.notification_important_outlined),
-              title: Text(
-                sharedText(context, 'Feeding is due', 'Fütterung ist fällig'),
+              title: Text(context.l10n.feedingDue),
+              subtitle: Text(
+                context.l10n.feedingDueSince(_dateLabel(context, next)),
               ),
-              subtitle: Text(_dateLabel(context, next)),
+              onTap: () => _openFeedingHistory(true),
             ),
           );
         }
@@ -530,6 +537,19 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     }
   }
 
+  Future<void> _openReminderSettings() async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => SharedFeedingReminderPage(
+          api: widget.api,
+          animalId: widget.id,
+          change: widget.change,
+        ),
+      ),
+    );
+    if (mounted) _reload();
+  }
+
   Future<bool> _change(Future<void> Function() action) async {
     final saved = await widget.change(action);
     if (!mounted) return false;
@@ -551,14 +571,27 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
           builder: (context, snapshot) => snapshot.data?['status'] == 'active'
               ? ListenableBuilder(
                   listenable: widget.api,
-                  builder: (context, _) => IconButton(
-                    tooltip: sharedText(
-                      context,
-                      'Edit Animal',
-                      'Tier bearbeiten',
-                    ),
-                    onPressed: widget.api.connected ? _openEdit : null,
-                    icon: const Icon(Icons.edit_outlined),
+                  builder: (context, _) => Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        key: const Key('shared-feeding-reminder-settings'),
+                        tooltip: context.l10n.feedingReminder,
+                        onPressed: widget.api.connected
+                            ? _openReminderSettings
+                            : null,
+                        icon: const Icon(Icons.notifications_outlined),
+                      ),
+                      IconButton(
+                        tooltip: sharedText(
+                          context,
+                          'Edit Animal',
+                          'Tier bearbeiten',
+                        ),
+                        onPressed: widget.api.connected ? _openEdit : null,
+                        icon: const Icon(Icons.edit_outlined),
+                      ),
+                    ],
                   ),
                 )
               : const SizedBox.shrink(),

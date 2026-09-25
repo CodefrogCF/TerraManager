@@ -42,6 +42,8 @@ void main() {
           );
         case '/api/v1/animals':
           return http.Response(jsonEncode({'animals': []}), 200);
+        case '/api/v1/reminders':
+          return http.Response(jsonEncode({'reminders': []}), 200);
         case '/api/v1/boxes/1':
           if (request.method == 'PATCH') {
             final input = jsonDecode(request.body) as Map<String, dynamic>;

@@ -70,6 +70,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
   SharedSession? _session;
   List<Map<String, dynamic>> _boxes = const [];
   List<Map<String, dynamic>> _animals = const [];
+  List<Map<String, dynamic>> _reminders = const [];
   Object? _error;
   bool _busy = true;
   bool _connected = false;
@@ -175,6 +176,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
         _session = null;
         _boxes = const [];
         _animals = const [];
+        _reminders = const [];
         _connected = false;
         _busy = false;
       });
@@ -202,11 +204,13 @@ class _SharedCareHomeState extends State<SharedCareHome>
       final results = await Future.wait([
         widget.api.boxes(),
         widget.api.animals(),
+        widget.api.reminders(),
       ]);
       if (!mounted || version != _refreshVersion) return;
       setState(() {
         _boxes = results[0];
         _animals = results[1];
+        _reminders = results[2];
         _busy = false;
         _connected = true;
         _error = null;
@@ -335,6 +339,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
         api: widget.api,
         boxes: _boxes,
         animals: _animals,
+        reminders: _reminders,
         connected: canChange,
         change: _change,
         onReload: _refresh,

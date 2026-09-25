@@ -195,6 +195,16 @@ scanning; the move changes only the Box assignment. A concurrent edit causes
 the move to fail with a reload-and-review message. The ordinary Box selector
 remains available when camera scanning is unsupported.
 
+Feeding reminders can be enabled while creating or editing an Animal, or
+changed independently from the reminder button on its detail page. Enabling
+a reminder records the current time as its baseline; later Feedings become
+the reference for the next due date. The active Animal overview shows due
+Animals and the next upcoming Feeding, with links to their details. The
+server calculates these dates from its shared records, so a Feeding entered
+by another caregiver updates the view on the next foreground refresh. These
+are in-app reminders only: Shared Care does not request browser notification
+permission, schedule background work, or send push notifications.
+
 The browser still has some intentional shared-mode differences. Latest-Feeding
 sorting and bulk QR export are not offered by this shared interface.
 Administrators can export and restore

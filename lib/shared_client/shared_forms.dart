@@ -5,6 +5,7 @@ import '../core/database/enums/birth_date_accuracy.dart';
 import '../core/database/enums/sex.dart';
 import '../core/database/validation/animal_environmental_limits.dart';
 import '../features/animals/presentation/widgets/animal_range_fields.dart';
+import '../features/feedings/presentation/widgets/feeding_reminder_form_fields.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
@@ -283,6 +284,8 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   Sex? _sex;
   DateTime? _birthDate;
   String? _birthAccuracy;
+  bool _reminderEnabled = false;
+  DateTime? _reminderBaseline;
   bool _saving = false;
   bool _stale = false;
   String? _error;
@@ -309,6 +312,12 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     }
     _birthDate = DateTime.tryParse(initial?['birthDate'] as String? ?? '');
     _birthAccuracy = initial?['birthDateAccuracy'] as String?;
+    _reminderBaseline = DateTime.tryParse(
+      initial?['feedingReminderBaseline'] as String? ?? '',
+    );
+    _reminderEnabled =
+        initial?['feedingReminderIntervalDays'] is int &&
+        _reminderBaseline != null;
     _fields = {
       for (final key in [
         'commonName',
@@ -360,6 +369,16 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         _subcategory?.name != initial['subcategory'] ||
         _sex?.name != initial['sex'] ||
         _birthAccuracy != initial['birthDateAccuracy']) {
+      return true;
+    }
+    final originalBaseline = DateTime.tryParse(
+      initial['feedingReminderBaseline'] as String? ?? '',
+    );
+    if (_reminderEnabled !=
+            (initial['feedingReminderIntervalDays'] is int &&
+                originalBaseline != null) ||
+        _reminderBaseline?.toUtc().toIso8601String() !=
+            originalBaseline?.toUtc().toIso8601String()) {
       return true;
     }
     final initialBirthDate = DateTime.tryParse(
@@ -548,10 +567,12 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       'restOrDormancyPeriods': _text('restOrDormancyPeriods'),
       'notes': _text('notes'),
       'pictureMediaId': _initial?['pictureMediaId'],
-      'feedingReminderIntervalDays': int.tryParse(
-        _text('feedingReminderIntervalDays') ?? '',
-      ),
-      'feedingReminderBaseline': _initial?['feedingReminderBaseline'],
+      'feedingReminderIntervalDays': _reminderEnabled
+          ? int.parse(_text('feedingReminderIntervalDays')!)
+          : null,
+      'feedingReminderBaseline': _reminderEnabled
+          ? _reminderBaseline?.toUtc().toIso8601String()
+          : null,
       'showWeightOnDetail': _initial?['showWeightOnDetail'] ?? true,
       'showSheddingOnDetail': _initial?['showSheddingOnDetail'] ?? true,
     };
@@ -619,6 +640,12 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         }
         _birthDate = DateTime.tryParse(latest['birthDate'] as String? ?? '');
         _birthAccuracy = latest['birthDateAccuracy'] as String?;
+        _reminderBaseline = DateTime.tryParse(
+          latest['feedingReminderBaseline'] as String? ?? '',
+        );
+        _reminderEnabled =
+            latest['feedingReminderIntervalDays'] is int &&
+            _reminderBaseline != null;
         for (final entry in _fields.entries) {
           entry.value.text = latest[entry.key]?.toString() ?? '';
         }
@@ -874,16 +901,15 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                       labelText: sharedText(context, entry.$2, entry.$3),
                     ),
                   ),
-                TextFormField(
-                  controller: _fields['feedingReminderIntervalDays'],
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: sharedText(
-                      context,
-                      'Feeding interval (days)',
-                      'Fütterungsintervall (Tage)',
-                    ),
-                  ),
+                FeedingReminderFormFields(
+                  reminderEnabled: _reminderEnabled,
+                  controlsEnabled: !_saving,
+                  intervalDaysController:
+                      _fields['feedingReminderIntervalDays']!,
+                  onReminderEnabledChanged: (enabled) => setState(() {
+                    _reminderEnabled = enabled;
+                    _reminderBaseline = enabled ? DateTime.now() : null;
+                  }),
                 ),
               ],
             ),

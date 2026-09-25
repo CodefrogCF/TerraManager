@@ -328,6 +328,100 @@ void main() {
   });
 
   test(
+    'shared reminders follow server feeding history and reject stale edits',
+    () async {
+      final boxId = await _createBox(clientA, server, 'Care Box');
+      final animalId = await _createAnimal(clientA, server, boxId);
+      final before = await _call(
+        clientA,
+        server,
+        'GET',
+        '/api/v1/animals/$animalId',
+      );
+      final revision = (before.json!['animal'] as Map)['revision'] as String;
+      final baseline = DateTime.now().toUtc().subtract(const Duration(days: 5));
+      final enabled = await _call(
+        clientA,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          'expectedRevision': revision,
+          'intervalDays': 3,
+          'baseline': baseline.toIso8601String(),
+        },
+      );
+      expect(enabled.status, 200, reason: enabled.json.toString());
+
+      final due = await _call(clientB, server, 'GET', '/api/v1/reminders');
+      expect(due.status, 200);
+      final reminder = (due.json!['reminders'] as List).single as Map;
+      expect(reminder['animalId'], animalId);
+      expect(reminder['latestFeedingAt'], isNull);
+      expect(
+        DateTime.parse(reminder['dueAt'] as String).isBefore(DateTime.now()),
+        isTrue,
+      );
+
+      final fedAt = DateTime.now().toUtc();
+      final feeding = await _call(
+        clientB,
+        server,
+        'POST',
+        '/api/v1/feedings',
+        body: {
+          'animalIds': [animalId],
+          'fedAt': fedAt.toIso8601String(),
+        },
+      );
+      expect(feeding.status, 201);
+      final upcoming = await _call(clientA, server, 'GET', '/api/v1/reminders');
+      final next = (upcoming.json!['reminders'] as List).single as Map;
+      expect(
+        DateTime.parse(next['dueAt'] as String).isAfter(DateTime.now()),
+        isTrue,
+      );
+      expect(next['latestFeedingAt'], isNotNull);
+
+      final stale = await _call(
+        clientB,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          'expectedRevision': revision,
+          'intervalDays': null,
+          'baseline': null,
+        },
+      );
+      expect(stale.status, 409);
+      expect((stale.json!['error'] as Map)['code'], 'stale_record');
+
+      final disabled = await _call(
+        clientB,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          'expectedRevision': (enabled.json!['animal'] as Map)['revision'],
+          'intervalDays': null,
+          'baseline': null,
+        },
+      );
+      expect(disabled.status, 200);
+      expect(
+        (await _call(
+          clientA,
+          server,
+          'GET',
+          '/api/v1/reminders',
+        )).json!['reminders'],
+        isEmpty,
+      );
+    },
+  );
+
+  test(
     'QR reassignment rejects an opened Animal revision that became stale',
     () async {
       final firstBox = await _createBox(clientA, server, 'First Box');

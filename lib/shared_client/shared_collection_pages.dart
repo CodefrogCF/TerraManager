@@ -519,6 +519,7 @@ class SharedAnimalsPage extends StatefulWidget {
     required this.api,
     required this.boxes,
     required this.animals,
+    this.reminders = const [],
     required this.connected,
     required this.change,
     required this.onReload,
@@ -527,6 +528,7 @@ class SharedAnimalsPage extends StatefulWidget {
   final SharedApiClient api;
   final List<Map<String, dynamic>> boxes;
   final List<Map<String, dynamic>> animals;
+  final List<Map<String, dynamic>> reminders;
   final bool connected;
   final SharedChange change;
   final Future<void> Function() onReload;
@@ -537,6 +539,13 @@ class SharedAnimalsPage extends StatefulWidget {
 
 class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   bool _archived = false;
+
+  String _reminderDate(DateTime date) {
+    final local = date.toLocal();
+    final material = MaterialLocalizations.of(context);
+    return '${material.formatMediumDate(local)} '
+        '${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
+  }
 
   Future<void> _openAnimal(Map<String, dynamic> animal) async {
     await Navigator.of(context).push<void>(
@@ -723,6 +732,29 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     } else {
       rows.addAll(values);
     }
+    final reminderEntries = <({Map<String, dynamic> animal, DateTime dueAt})>[];
+    if (!_archived) {
+      for (final reminder in widget.reminders) {
+        final animal = values
+            .where((entry) => entry['id'] == reminder['animalId'])
+            .firstOrNull;
+        final dueAt = DateTime.tryParse(reminder['dueAt'] as String? ?? '');
+        if (animal != null && dueAt != null) {
+          reminderEntries.add((animal: animal, dueAt: dueAt));
+        }
+      }
+      reminderEntries.sort((a, b) => a.dueAt.compareTo(b.dueAt));
+    }
+    final now = DateTime.now();
+    final dueReminders = reminderEntries
+        .where((entry) => !entry.dueAt.isAfter(now))
+        .toList();
+    final nextReminder = reminderEntries
+        .where((entry) => entry.dueAt.isAfter(now))
+        .firstOrNull;
+    final reminderRowCount =
+        (dueReminders.isEmpty ? 0 : dueReminders.length + 1) +
+        (nextReminder == null ? 0 : 1);
     return Scaffold(
       appBar: AppBar(
         leading: _archived
@@ -836,9 +868,69 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                     ? 'shared-animals-archive'
                     : 'shared-animals-overview',
               ),
-              itemCount: rows.length,
+              itemCount: reminderRowCount + rows.length,
               itemBuilder: (context, index) {
-                final row = rows[index];
+                var rowIndex = index;
+                if (dueReminders.isNotEmpty) {
+                  if (rowIndex == 0) {
+                    return Card(
+                      key: const Key('shared-feeding-reminder-summary'),
+                      margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      child: ListTile(
+                        leading: const Icon(
+                          Icons.notification_important_outlined,
+                        ),
+                        title: Text(context.l10n.feedingReminders),
+                        subtitle: Text(
+                          context.l10n.animalsDueForFeeding(
+                            dueReminders.length,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  rowIndex--;
+                  if (rowIndex < dueReminders.length) {
+                    final reminder = dueReminders[rowIndex];
+                    final id = recordId(reminder.animal);
+                    return ListTile(
+                      key: Key('shared-feeding-reminder-due-$id'),
+                      leading: const Icon(Icons.restaurant_outlined),
+                      title: Text(animalLabel(reminder.animal)),
+                      subtitle: Text(
+                        context.l10n.feedingDueSince(
+                          _reminderDate(reminder.dueAt),
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _openAnimal(reminder.animal),
+                    );
+                  }
+                  rowIndex -= dueReminders.length;
+                }
+                if (nextReminder != null) {
+                  if (rowIndex == 0) {
+                    return Card(
+                      key: const Key('shared-next-feeding-summary'),
+                      margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                      child: ListTile(
+                        leading: const Icon(Icons.schedule_outlined),
+                        title: Text(context.l10n.nextFeeding),
+                        subtitle: Text(
+                          context.l10n.nextFeedingSummaryForAnimal(
+                            animalLabel(nextReminder.animal),
+                            _reminderDate(nextReminder.dueAt),
+                          ),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _openAnimal(nextReminder.animal),
+                      ),
+                    );
+                  }
+                  rowIndex--;
+                }
+                final row = rows[rowIndex];
                 if (row is String) {
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),

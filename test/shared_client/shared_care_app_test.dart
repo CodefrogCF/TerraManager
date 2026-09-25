@@ -51,6 +51,9 @@ void main() {
         if (request.url.path == '/api/v1/animals') {
           return http.Response(jsonEncode({'animals': []}), 200);
         }
+        if (request.url.path == '/api/v1/reminders') {
+          return http.Response(jsonEncode({'reminders': []}), 200);
+        }
         return http.Response('{}', 404);
       });
 
@@ -105,6 +108,9 @@ void main() {
       if (request.url.path == '/api/v1/animals') {
         return http.Response(jsonEncode({'animals': []}), 200);
       }
+      if (request.url.path == '/api/v1/reminders') {
+        return http.Response(jsonEncode({'reminders': []}), 200);
+      }
       return http.Response('{}', 404);
     });
     await tester.pumpWidget(
@@ -145,6 +151,8 @@ void main() {
           return http.Response(jsonEncode({'boxes': []}), 200);
         case '/api/v1/animals':
           return http.Response(jsonEncode({'animals': []}), 200);
+        case '/api/v1/reminders':
+          return http.Response(jsonEncode({'reminders': []}), 200);
         case '/api/v1/admin/accounts':
           return http.Response(jsonEncode({'accounts': []}), 200);
         case '/api/v1/admin/backups':

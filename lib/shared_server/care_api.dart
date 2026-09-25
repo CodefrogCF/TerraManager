@@ -20,6 +20,7 @@ import '../core/database/repositories/feeding_repository.dart';
 import '../core/database/repositories/media_repository.dart';
 import '../core/database/repositories/picture_gallery_repository.dart';
 import '../core/database/repositories/shedding_repository.dart';
+import '../features/feedings/application/feeding_reminder_service.dart';
 import 'animal_command.dart';
 import 'api_input.dart';
 import 'api_models.dart';
@@ -126,6 +127,21 @@ class CareApi {
     if (path[0] == 'boxes') return _boxes(path, method, request);
     if (path[0] == 'animals') return _animals(path, method, request);
     if (path[0] == 'feedings') return _feedings(path, method, request);
+    if (path[0] == 'reminders' && path.length == 1 && method == 'GET') {
+      final states = await FeedingReminderService(database).getReminderStates();
+      return _Reply(200, {
+        'reminders': [
+          for (final state in states)
+            {
+              'animalId': state.animalId,
+              'dueAt': state.dueAt.toUtc().toIso8601String(),
+              'latestFeedingAt': state.latestFeedingAt
+                  ?.toUtc()
+                  .toIso8601String(),
+            },
+        ],
+      });
+    }
     if (path[0] == 'media') return _media(path, method, request);
     return _error(404, 'not_found', 'Unknown API path.');
   }
@@ -400,6 +416,37 @@ class CareApi {
               'animal': animalJson((await animals.getAnimalById(id))!),
             })
           : _error(409, 'conflict', 'Animal could not be updated.');
+    }
+    if (path.length == 3 && path[2] == 'feeding-reminder' && method == 'PUT') {
+      final input = await _body(request);
+      input.allow(const {'expectedRevision', 'intervalDays', 'baseline'});
+      final expectedRevision = input.string('expectedRevision', maxLength: 64);
+      final intervalDays = input.nullableInteger('intervalDays');
+      final baseline = input.nullableDateTime('baseline');
+      if ((intervalDays == null) != (baseline == null)) {
+        throw const ApiProblem(
+          400,
+          'invalid_data',
+          'Reminder interval and baseline must both be set or both be null.',
+        );
+      }
+      final updated = await database.transaction(() async {
+        final current = await animals.getAnimalById(id);
+        _requireRevision(
+          current == null ? null : animalJson(current),
+          expectedRevision,
+        );
+        return animals.updateFeedingReminder(
+          animalId: id,
+          intervalDays: intervalDays,
+          baseline: baseline,
+        );
+      });
+      return updated
+          ? _Reply(200, {
+              'animal': animalJson((await animals.getAnimalById(id))!),
+            })
+          : _error(409, 'conflict', 'Only active Animals can be edited.');
     }
     if (path.length == 3 && path[2] == 'move' && method == 'POST') {
       final input = await _body(request);

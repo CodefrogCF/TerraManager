@@ -6,9 +6,8 @@ Latest completed release milestone:
 
 **v1.10.4 – Animal Detail & Rehouse Fixes**
 
-Current application version and build:
-
-**v1.10.4+78**
+The current development version is maintained in `pubspec.yaml`; published
+versions are listed in GitHub Releases and `CHANGELOG.md`.
 
 Completed development areas:
 
@@ -1717,6 +1716,26 @@ Status: **Completed**
 
 ---
 
+## Shared Care LAN mode — Issues #156–#171
+
+Status: **Implemented; operator field checks passed on one Raspberry Pi**
+
+- [x] Keep the standalone Android and Web collections separate from shared data
+- [x] Store the shared collection and local caregiver accounts on a self-hosted
+  server with an authenticated care API and trusted LAN HTTPS
+- [x] Provide a browser interface with Box, Animal, history, media, backup,
+  QR Feeding and QR Rehouse workflows
+- [x] Match overview sorting, Big Picture, context actions, detail navigation
+  and in-app Feeding reminders, including the Animals navigation indicator
+- [x] Export selected active and archived Box QR codes as PNG, ZIP and A4 PDF
+- [x] Document the user workflow and Raspberry Pi deployment
+
+The deployment checklist remains necessary for each new installation and
+material update; this is not cloud sync or direct synchronization with the
+standalone Android collection.
+
+---
+
 ## Future Development
 
 Possible later development areas include:
@@ -1727,8 +1746,8 @@ Possible later development areas include:
 - automatic backups
 - scheduled backups
 - cloud synchronization
-- user accounts
-- multi-device synchronization
+- optional remotely hosted accounts beyond the self-hosted LAN server
+- direct device-to-device synchronization with the standalone collections
 - health and event tracking
 - breeding records
 - enclosure maintenance history

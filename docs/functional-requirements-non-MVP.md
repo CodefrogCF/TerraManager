@@ -19,13 +19,16 @@ The following functionality is outside the current TerraManager MVP scope.
 
 ## Synchronization
 
-- user accounts
+- developer-hosted accounts
 - cloud synchronization
-- multi-device synchronization
-- shared terrarium data between users
+- direct synchronization between standalone device collections
 
 Manual transfer of a complete TerraManager state through `.tmbackup` files is
 supported, but this is not synchronization.
+
+The optional Shared Care LAN mode is already implemented: several browser
+clients use one server-owned collection and local caregiver accounts. It does
+not synchronize the separate standalone Android or Web databases.
 
 A restore replaces the current local state instead of merging concurrent data
 from multiple devices.

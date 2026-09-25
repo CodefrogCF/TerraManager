@@ -264,7 +264,7 @@ TerraManager can display feeding-related reminder information within the applica
 
 The current version does not require Android system-notification permission for this functionality.
 
-In standalone mode, feeding reminder calculations use local data. In Shared Care, the browser calculates reminders from records returned by the operator's server.
+In standalone mode, feeding reminder calculations use local data. In Shared Care, the operator's server calculates reminder dates from the shared records; the browser displays those dates and marks reminders that are due.
 
 ## 12. Accounts and registration
 

@@ -28,7 +28,8 @@ Public project information:
 
 ## Project Status
 
-Current application version: **v1.10.4+78**.
+The development version is maintained in `pubspec.yaml`; published versions
+are listed in GitHub Releases and `CHANGELOG.md`.
 
 Validated release platforms:
 

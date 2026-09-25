@@ -276,13 +276,15 @@ particular phone, camera and certificate work together.
    QR scanning and picture retrieval. No external account, analytics,
    tracking, cloud or scanner CDN must be required for routine operation.
 
-Field testing on one Pi installation has confirmed cross-device Box creation
-and Feeding updates, Box QR scanning on a mobile browser over trusted HTTPS,
-stale-edit rejection and portable backup restore in a separate disposable
-stack. Both mobile and laptop browsers completed a restore in that test stack.
-These observations apply to that installation; repeat the full checklist for
-each new deployment and material update, including picture and history
-comparison, access-control checks and stopped-volume disaster recovery.
+The operator has reported successful practical checks of the current Shared
+Care interface on a Raspberry Pi with mobile and laptop browsers. Earlier
+checks confirmed cross-device Box creation and Feeding updates, mobile Box QR
+scanning over trusted HTTPS, stale-edit rejection, and portable backup restore
+in a separate disposable stack from both browsers. The latest checks also
+covered the context and detail actions, reminder indicator, and Box QR export
+workflows. These observations apply to that installation; repeat the full
+checklist for each new deployment and material update, including picture and
+history comparison, access-control checks and stopped-volume disaster recovery.
 
 ## Persistence and backups
 

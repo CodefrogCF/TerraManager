@@ -81,6 +81,9 @@ de:
       - title: Visueller Benutzer-Guide
         body: Boxen und Tiere anlegen, QR-Codes nutzen, Fütterungen dokumentieren, Erinnerungen verwalten und Daten sichern.
         url: /guide/
+      - title: Gemeinsame Betreuung
+        body: Eine Sammlung auf dem eigenen LAN-Server nutzen, QR-Codes scannen, Fütterungen gemeinsam dokumentieren und Server-Backups verstehen.
+        url: /guide/#shared-care
 #      - title: Installation und Updates
 #        body: Vertrauenswürdige Builds, Android-Signatur und sichere Aktualisierung.
 #        url: /installation-and-updates.html
@@ -186,6 +189,9 @@ en:
       - title: Visual user guide
         body: Add enclosures and animals, use QR codes, record feedings, manage reminders and back up your data.
         url: /guide/en/
+      - title: Shared care
+        body: Use one collection on your own LAN server, scan Box QR codes, record feedings together and understand server backups.
+        url: /guide/en/#shared-care
 #      - title: Installation and updates
 #        body: Trusted builds, Android signing and safe updates.
 #        url: /installation-and-updates.html

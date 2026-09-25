@@ -15,6 +15,9 @@ The end-user documentation consists of:
 
 The visual guides and manuals must describe the same current workflows but do
 not need to duplicate each other word for word.
+The localized guide entry pages are `guide/index.md` and `guide/en/index.md`;
+both use `_layouts/guide.html` and `_data/guide.yml`. Do not add a second
+`guide/index.html` with the same output path.
 
 ### Installation and updates
 

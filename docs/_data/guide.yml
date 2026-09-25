@@ -108,8 +108,8 @@ de:
       tone: soft
       steps:
         - number: "5"
-          heading: Codes als PDF exportieren
-          body_html: Unter <strong>Einstellungen</strong> kannst du aktive Boxen auswählen und ihre QR-Codes gesammelt als druckfertige A4-PDF speichern. Die physische Größe der Codes lässt sich dabei festlegen.
+          heading: Box-QR-Codes exportieren
+          body_html: Unter <strong>Einstellungen → Box-QR-Codes</strong> wählst du aktive oder archivierte Boxen aus und speicherst ihre QR-Codes als einzelne PNG-Dateien, ZIP-Archiv oder druckfertiges A4-PDF. Vor jedem Export kannst du Boxen abwählen; für das PDF legst du die Codegröße zwischen 6 und 20 mm fest.
           images:
             - file: qr-pdf-export.webp
               alt: Dialog zum PDF-Export von Box-QR-Codes
@@ -222,7 +222,7 @@ de:
       - title: Aus der Android-App öffnen
         body: Unter Einstellungen → Gemeinsame Betreuung öffnest du die HTTPS-Adresse im externen Browser. Die Daten der lokalen App werden weder automatisch übertragen noch mit der Serversammlung synchronisiert.
       - title: Zusammen arbeiten
-        body: Melde dich im Browser an. Änderungen werden auf anderen angemeldeten Geräten sichtbar; gleichzeitig bearbeitete Datensätze überschreiben sich nicht unbemerkt. Box-QR-Scans benötigen vertrauenswürdiges HTTPS und einen unterstützten mobilen Browser.
+        body: Melde dich im Browser an. Änderungen werden auf anderen angemeldeten Geräten sichtbar; gleichzeitig bearbeitete Datensätze überschreiben sich nicht unbemerkt. Box-QR-Scans benötigen vertrauenswürdiges HTTPS und einen unterstützten mobilen Browser. Im QR-Fütterungsmodus kannst du ohne Scanner eine Box auswählen; zum QR-Umsetzen bleibt die normale Boxauswahl im Bearbeitungsformular verfügbar.
       - title: Schnellaktionen und Erinnerungen nutzen
         body: Öffne das Kontextmenü einer Box oder eines Tieres durch langen Druck oder Rechtsklick. Aktive Einträge lassen sich umbenennen, bearbeiten, duplizieren und archivieren; beim Tier kannst du direkt eine Fütterung beginnen. Archivierte Einträge lassen sich über das Menü wiederherstellen. Endgültiges Löschen findest du nur in den archivierten Details. Ein Ausrufezeichen am Tiere-Symbol zeigt eine fällige Fütterung an.
       - title: Box-QR-Codes exportieren
@@ -351,8 +351,8 @@ en:
       tone: soft
       steps:
         - number: "5"
-          heading: Export codes as PDF
-          body_html: Under <strong>Settings</strong>, select active enclosures and export their QR codes together as a print-ready A4 PDF. You can choose the physical QR-code size before creating the document.
+          heading: Export Box QR codes
+          body_html: Under <strong>Settings → Box QR codes</strong>, select active or archived Boxes and save their QR codes as individual PNG files, a ZIP archive or a print-ready A4 PDF. You can deselect Boxes before each export and choose a 6–20 mm code size for the PDF.
           images:
             - file: qr-pdf-export.webp
               alt: Dialog for exporting enclosure QR codes to PDF
@@ -465,7 +465,7 @@ en:
       - title: Open it from the Android app
         body: In Settings → Shared care, open the HTTPS address in an external browser. The local app data is neither transferred nor synchronized with the server collection automatically.
       - title: Work together
-        body: Sign in through the browser. Changes become visible on other signed-in devices, and simultaneous edits cannot silently overwrite one another. Box QR scanning requires trusted HTTPS and a supported mobile browser.
+        body: Sign in through the browser. Changes become visible on other signed-in devices, and simultaneous edits cannot silently overwrite one another. Box QR scanning requires trusted HTTPS and a supported mobile browser. Feeding Mode offers Choose Box when scanning is unavailable; Edit Animal retains the ordinary Box selector for reassignment.
       - title: Use quick actions and reminders
         body: Long-press or right-click a Box or Animal to open its context menu. Active records can be renamed, edited, duplicated and archived; Animals can start a Feeding directly. Archived records can be restored from the menu. Permanent deletion is available only in archived details. An exclamation mark on the Animals tab shows a due Feeding.
       - title: Export Box QR codes

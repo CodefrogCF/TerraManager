@@ -20,7 +20,8 @@ Public project information:
 
 ## Project Status
 
-Latest published application version: **v1.10.4+78**.
+Published application versions and downloads are listed in
+[GitHub Releases](https://github.com/CodefrogCF/TerraManager/releases).
 
 - Box and Animal overviews provide an optional persistent Big Picture Mode;
 - Animal and Box archives provide matching history views, thumbnails,

@@ -18,8 +18,10 @@ deployment and multi-browser validation on the target Pi; follow the
 On one Raspberry Pi installation, the operator has confirmed shared Box and
 Feeding updates between mobile and laptop browsers, a Box QR scan over trusted
 HTTPS, stale-edit conflict handling and portable backup restore in a separate
-test stack. These observations validate that installation's tested workflows;
-the complete field checklist in the deployment guide still applies to new
+test stack. The operator has also reported successful practical checks of the
+current parity update, including context actions, the due-Feeding indicator
+and Box QR exports. These observations apply to that installation; the
+complete field checklist in the deployment guide still applies to new
 installations and updates. Shared Care is a separate browser mode, not a
 network-enabled Android release; Android retains its standalone database and
 permissions.

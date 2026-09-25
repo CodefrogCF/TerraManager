@@ -17,6 +17,7 @@ import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
 import 'shared_box_scanner_page.dart';
 import 'shared_detail_pages.dart';
+import 'shared_detail_navigation.dart';
 import 'shared_feeding_box_page.dart';
 import 'shared_forms.dart';
 import 'shared_history_page.dart';
@@ -112,6 +113,115 @@ List<Map<String, dynamic>> sortSharedAnimalsForOverview(
     }
   });
   return values;
+}
+
+List<Map<String, dynamic>> sortSharedBoxesForOverview(
+  Iterable<Map<String, dynamic>> boxes,
+  BoxSortOrder order,
+) {
+  final values = boxes.toList();
+  values.sort((a, b) {
+    final aId = recordId(a);
+    final bId = recordId(b);
+    if (order == BoxSortOrder.labelAscending) return aId.compareTo(bId);
+    if (order == BoxSortOrder.labelDescending) return bId.compareTo(aId);
+    if (order == BoxSortOrder.nameAscending ||
+        order == BoxSortOrder.nameDescending) {
+      final aName = ((a['name'] as String?) ?? '').trim();
+      final bName = ((b['name'] as String?) ?? '').trim();
+      if (aName.isEmpty && bName.isNotEmpty) return 1;
+      if (bName.isEmpty && aName.isNotEmpty) return -1;
+      final result = compareNaturalStrings(aName, bName);
+      if (result == 0) return aId.compareTo(bId);
+      return order == BoxSortOrder.nameDescending ? -result : result;
+    }
+    double? volume(Map<String, dynamic> box) {
+      final width = box['widthCm'] as num?;
+      final height = box['heightCm'] as num?;
+      final depth = box['depthCm'] as num?;
+      if (width == null || height == null || depth == null) return null;
+      return width.toDouble() * height.toDouble() * depth.toDouble();
+    }
+
+    final aVolume = volume(a);
+    final bVolume = volume(b);
+    if (aVolume == null || bVolume == null) {
+      if (aVolume == null && bVolume == null) return aId.compareTo(bId);
+      return aVolume == null ? 1 : -1;
+    }
+    final result = aVolume.compareTo(bVolume);
+    if (result == 0) return aId.compareTo(bId);
+    return order == BoxSortOrder.volumeDescending ? -result : result;
+  });
+  return values;
+}
+
+List<Object> sharedAnimalOverviewRows(
+  BuildContext context,
+  List<Map<String, dynamic>> sortedAnimals, {
+  required bool groupCategories,
+}) {
+  if (!groupCategories) return List<Object>.of(sortedAnimals);
+  final rows = <Object>[];
+  for (final category in AnimalCategory.values) {
+    final categoryAnimals = sortedAnimals.where((animal) {
+      final known = AnimalCategory.values.any(
+        (value) => value.name == animal['category'],
+      );
+      return known
+          ? animal['category'] == category.name
+          : category == AnimalCategory.other;
+    }).toList();
+    if (categoryAnimals.isEmpty) continue;
+    rows.add(context.l10n.animalCategoryPluralLabel(category));
+    final named =
+        category.subcategories
+            .where((subcategory) => subcategory != AnimalSubcategory.other)
+            .where(
+              (subcategory) => categoryAnimals.any(
+                (animal) => animal['subcategory'] == subcategory.name,
+              ),
+            )
+            .toList()
+          ..sort(
+            (a, b) => compareNaturalStrings(
+              context.l10n.animalSubcategoryPluralLabel(a),
+              context.l10n.animalSubcategoryPluralLabel(b),
+            ),
+          );
+    final hasSubcategory = categoryAnimals.any(
+      (animal) => category.subcategories.any(
+        (subcategory) => subcategory.name == animal['subcategory'],
+      ),
+    );
+    if (!hasSubcategory) {
+      rows.addAll(categoryAnimals);
+      continue;
+    }
+    for (final subcategory in [
+      ...named,
+      if (category.subcategories.contains(AnimalSubcategory.other) &&
+          categoryAnimals.any(
+            (animal) => animal['subcategory'] == AnimalSubcategory.other.name,
+          ))
+        AnimalSubcategory.other,
+    ]) {
+      rows.add(context.l10n.animalSubcategoryPluralLabel(subcategory));
+      rows.addAll(
+        categoryAnimals.where(
+          (animal) => animal['subcategory'] == subcategory.name,
+        ),
+      );
+    }
+    rows.addAll(
+      categoryAnimals.where(
+        (animal) => !category.subcategories.any(
+          (subcategory) => subcategory.name == animal['subcategory'],
+        ),
+      ),
+    );
+  }
+  return rows;
 }
 
 enum _BoxAction { rename, edit, duplicate, archive }
@@ -293,6 +403,11 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
   }
 
   Future<void> _openBox(Map<String, dynamic> box) async {
+    final settings = AppSettingsScope.of(context);
+    final order = sortSharedBoxesForOverview(
+      widget.boxes.where((item) => (item['status'] == 'archived') == _archived),
+      settings.boxSortOrder,
+    );
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (_) => SharedBoxDetailPage(
@@ -302,6 +417,12 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
           animals: widget.animals,
           connected: widget.connected,
           change: widget.change,
+          navigationContext: SharedDetailNavigationContext.boxes(
+            recordIds: order.map(recordId),
+            currentRecordId: recordId(box),
+            archived: _archived,
+            sortOrder: settings.boxSortOrder,
+          ),
         ),
       ),
     );
@@ -457,43 +578,10 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.of(context);
-    final values = widget.boxes
-        .where((box) => (box['status'] == 'archived') == _archived)
-        .toList();
-    values.sort((a, b) {
-      final order = settings.boxSortOrder;
-      final aId = recordId(a);
-      final bId = recordId(b);
-      if (order == BoxSortOrder.labelAscending) return aId.compareTo(bId);
-      if (order == BoxSortOrder.labelDescending) return bId.compareTo(aId);
-      if (order == BoxSortOrder.nameAscending ||
-          order == BoxSortOrder.nameDescending) {
-        final aName = ((a['name'] as String?) ?? '').trim();
-        final bName = ((b['name'] as String?) ?? '').trim();
-        if (aName.isEmpty && bName.isNotEmpty) return 1;
-        if (bName.isEmpty && aName.isNotEmpty) return -1;
-        final result = compareNaturalStrings(aName, bName);
-        if (result == 0) return aId.compareTo(bId);
-        return order == BoxSortOrder.nameDescending ? -result : result;
-      }
-      double? volume(Map<String, dynamic> box) {
-        final width = box['widthCm'] as num?;
-        final height = box['heightCm'] as num?;
-        final depth = box['depthCm'] as num?;
-        if (width == null || height == null || depth == null) return null;
-        return width.toDouble() * height.toDouble() * depth.toDouble();
-      }
-
-      final aVolume = volume(a);
-      final bVolume = volume(b);
-      if (aVolume == null || bVolume == null) {
-        if (aVolume == null && bVolume == null) return aId.compareTo(bId);
-        return aVolume == null ? 1 : -1;
-      }
-      final result = aVolume.compareTo(bVolume);
-      if (result == 0) return aId.compareTo(bId);
-      return order == BoxSortOrder.volumeDescending ? -result : result;
-    });
+    final values = sortSharedBoxesForOverview(
+      widget.boxes.where((box) => (box['status'] == 'archived') == _archived),
+      settings.boxSortOrder,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -744,6 +832,19 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   }
 
   Future<void> _openAnimal(Map<String, dynamic> animal) async {
+    final settings = AppSettingsScope.of(context);
+    final values = sortSharedAnimalsForOverview(
+      widget.animals.where(
+        (item) => (item['status'] == 'archived') == _archived,
+      ),
+      order: settings.animalSortOrder,
+      nameOrder: settings.animalNameOrder,
+    );
+    final rows = sharedAnimalOverviewRows(
+      context,
+      values,
+      groupCategories: settings.animalCategoryViewEnabled,
+    );
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (_) => SharedAnimalDetailPage(
@@ -752,6 +853,14 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
           boxes: widget.boxes,
           connected: widget.connected,
           change: widget.change,
+          navigationContext: SharedDetailNavigationContext.animals(
+            recordIds: rows.whereType<Map<String, dynamic>>().map(recordId),
+            currentRecordId: recordId(animal),
+            archived: _archived,
+            sortOrder: settings.animalSortOrder,
+            nameOrder: settings.animalNameOrder,
+            groupCategories: settings.animalCategoryViewEnabled,
+          ),
         ),
       ),
     );
@@ -1120,70 +1229,11 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
       order: settings.animalSortOrder,
       nameOrder: settings.animalNameOrder,
     );
-    final rows = <Object>[];
-    if (settings.animalCategoryViewEnabled) {
-      for (final category in AnimalCategory.values) {
-        final categoryAnimals = values.where((animal) {
-          final known = AnimalCategory.values.any(
-            (value) => value.name == animal['category'],
-          );
-          return known
-              ? animal['category'] == category.name
-              : category == AnimalCategory.other;
-        }).toList();
-        if (categoryAnimals.isEmpty) continue;
-        rows.add(context.l10n.animalCategoryPluralLabel(category));
-        final named =
-            category.subcategories
-                .where((subcategory) => subcategory != AnimalSubcategory.other)
-                .where(
-                  (subcategory) => categoryAnimals.any(
-                    (animal) => animal['subcategory'] == subcategory.name,
-                  ),
-                )
-                .toList()
-              ..sort(
-                (a, b) => compareNaturalStrings(
-                  context.l10n.animalSubcategoryPluralLabel(a),
-                  context.l10n.animalSubcategoryPluralLabel(b),
-                ),
-              );
-        final hasSubcategory = categoryAnimals.any(
-          (animal) => category.subcategories.any(
-            (subcategory) => subcategory.name == animal['subcategory'],
-          ),
-        );
-        if (!hasSubcategory) {
-          rows.addAll(categoryAnimals);
-          continue;
-        }
-        for (final subcategory in [
-          ...named,
-          if (category.subcategories.contains(AnimalSubcategory.other) &&
-              categoryAnimals.any(
-                (animal) =>
-                    animal['subcategory'] == AnimalSubcategory.other.name,
-              ))
-            AnimalSubcategory.other,
-        ]) {
-          rows.add(context.l10n.animalSubcategoryPluralLabel(subcategory));
-          rows.addAll(
-            categoryAnimals.where(
-              (animal) => animal['subcategory'] == subcategory.name,
-            ),
-          );
-        }
-        rows.addAll(
-          categoryAnimals.where(
-            (animal) => !category.subcategories.any(
-              (subcategory) => subcategory.name == animal['subcategory'],
-            ),
-          ),
-        );
-      }
-    } else {
-      rows.addAll(values);
-    }
+    final rows = sharedAnimalOverviewRows(
+      context,
+      values,
+      groupCategories: settings.animalCategoryViewEnabled,
+    );
     final reminderEntries = <({Map<String, dynamic> animal, DateTime dueAt})>[];
     if (!_archived) {
       for (final reminder in widget.reminders) {

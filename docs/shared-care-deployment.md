@@ -165,6 +165,15 @@ shedding summaries when enabled for that Animal. Box details show assigned
 Animal thumbnails; archived details retain reason, date and notes. Presentation choices
 remain per browser; collection records stay server-owned.
 
+Box and Animal details retain the order and active/archive scope of the
+overview from which they were opened. Use the previous/next buttons (also
+available to keyboard and screen-reader users) or swipe horizontally outside
+the picture gallery to move between records. Animals opened from a Box stay
+within that Box. The browser checks the server's current collection before a
+move, so records archived, moved or deleted on another device are skipped or
+the detail returns to its overview. A local archive or restore ends the old
+navigation context; reopen the matching overview to continue there.
+
 Shared Settings follows the standalone page's appearance and language
 controls. Sorting, category grouping and Big Picture Mode are changed directly
 on the relevant overview; these choices remain local to the browser. Server

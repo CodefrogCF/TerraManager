@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
 import 'package:terramanager/shared_client/shared_api_client.dart';
@@ -48,6 +50,84 @@ Future<SharedApiClient> _client(
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets(
+    'reminder expansion survives scrolling and overview view changes',
+    (tester) async {
+      final settings = AppSettingsController();
+      final api = SharedApiClient(
+        Uri.parse('https://192.168.1.117'),
+        MockClient((_) async => http.Response('{}', 404)),
+      );
+      addTearDown(settings.dispose);
+      addTearDown(api.close);
+      final animals = [
+        for (var id = 1; id <= 30; id++)
+          {
+            ..._animal,
+            'id': id,
+            'commonName': 'Animal $id',
+            'latinName': 'Species $id',
+          },
+      ];
+      await tester.pumpWidget(
+        AppSettingsScope(
+          controller: settings,
+          child: MaterialApp(
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            home: SharedAnimalsPage(
+              api: api,
+              boxes: const [],
+              animals: animals,
+              reminders: [
+                {'animalId': 1, 'dueAt': '2020-01-01T12:00:00Z'},
+              ],
+              connected: true,
+              change: (_) async => true,
+              onReload: () async {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Feeding reminders'));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView).first, const Offset(0, -1500));
+      await tester.pumpAndSettle();
+      await settings.setBigPictureModeEnabled(true);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await settings.setBigPictureModeEnabled(false);
+      await settings.setAnimalNameOrder(AnimalNameOrder.latinNameFirst);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final scrollable = find
+          .descendant(
+            of: find.byType(ListView).first,
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      tester.state<ScrollableState>(scrollable).position.jumpTo(0);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('1 Animal is due for feeding'), findsOneWidget);
+      expect(
+        find.byKey(const Key('shared-feeding-reminder-due-1')).hitTestable(),
+        findsNothing,
+      );
+      await tester.tap(find.text('Feeding reminders'));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('shared-feeding-reminder-due-1')).hitTestable(),
+        findsOneWidget,
+      );
+      expect(find.text('Species 1'), findsWidgets);
+    },
+  );
+
   testWidgets('shared overview shows due and next server reminders', (
     tester,
   ) async {
@@ -108,7 +188,7 @@ void main() {
       findsOneWidget,
     );
     final group = find.byKey(
-      const Key('shared-feeding-reminder-summary-toggle'),
+      const PageStorageKey<String>('shared-feeding-reminder-summary-toggle'),
     );
     expect(group, findsOneWidget);
     await tester.tap(find.text('Feeding reminders'));

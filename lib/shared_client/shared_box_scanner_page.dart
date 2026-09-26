@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -6,6 +8,9 @@ import '../l10n/app_localizations_context.dart';
 import 'shared_api_client.dart';
 import 'shared_collection_pages.dart';
 import 'shared_detail_pages.dart';
+import 'scanner_camera_cleanup_stub.dart'
+    if (dart.library.js_interop) 'scanner_camera_cleanup_web.dart'
+    as camera_cleanup;
 import 'shared_text.dart';
 
 /// Scans a Box label locally and resolves only its identifier through the
@@ -49,6 +54,7 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
     formats: const [BarcodeFormat.qrCode],
   );
   bool _processing = false;
+  bool _closing = false;
   String? _error;
 
   @override
@@ -59,15 +65,21 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
     });
   }
 
-  Future<void> _stopScanner() =>
-      widget.stopScanner?.call() ?? _controller.stop();
+  Future<void> _stopScanner() async {
+    // mobile_scanner's polling web reader drops its MediaStream reference but
+    // does not stop the tracks. Release them while its video is still mounted.
+    camera_cleanup.stopScannerCameraTracks();
+    await (widget.stopScanner?.call() ?? _controller.stop());
+  }
 
-  Future<void> _startScanner() =>
-      widget.startScanner?.call() ?? _controller.start();
+  Future<void> _startScanner() async {
+    if (_closing || !mounted) return;
+    await (widget.startScanner?.call() ?? _controller.start());
+  }
 
   Future<void> _openBox(Map<String, dynamic> box) async {
     await _stopScanner();
-    if (!mounted) return;
+    if (!mounted || _closing) return;
     try {
       final onBoxResolved = widget.onBoxResolved;
       if (onBoxResolved != null) {
@@ -92,12 +104,12 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
         );
       }
     } finally {
-      if (mounted) await _startScanner();
+      if (mounted && !_closing) await _startScanner();
     }
   }
 
   Future<void> _handleQrValue(String value) async {
-    if (_processing || !mounted) return;
+    if (_processing || !mounted || _closing) return;
     final qrId = value.trim();
     if (!isValidBoxQrId(qrId)) {
       setState(() => _error = context.l10n.invalidTerraManagerQrCode);
@@ -111,7 +123,7 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
 
     try {
       final box = await widget.api.boxByQrId(qrId);
-      if (!mounted) return;
+      if (!mounted || _closing) return;
       if (box['status'] == 'archived') {
         setState(() => _error = context.l10n.archivedBoxScanned);
         return;
@@ -138,7 +150,7 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
   }
 
   Future<void> _chooseBox() async {
-    if (_processing || !mounted) return;
+    if (_processing || !mounted || _closing) return;
     setState(() {
       _processing = true;
       _error = null;
@@ -147,7 +159,7 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
       final boxes = (await widget.api.boxes())
           .where((box) => box['status'] == 'active' && box['id'] is int)
           .toList();
-      if (!mounted) return;
+      if (!mounted || _closing) return;
       final selected = await showDialog<Map<String, dynamic>>(
         context: context,
         builder: (dialogContext) => AlertDialog(
@@ -186,7 +198,7 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
   }
 
   void _onDetect(BarcodeCapture capture) {
-    if (_processing || capture.barcodes.isEmpty) return;
+    if (_processing || _closing || capture.barcodes.isEmpty) return;
     final value = capture.barcodes.first.rawValue;
     if (value == null || value.trim().isEmpty) return;
     _handleQrValue(value);
@@ -194,87 +206,96 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _closing = true;
+    camera_cleanup.stopScannerCameraTracks();
+    unawaited(_controller.dispose());
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(widget.title ?? context.l10n.scanBoxTitle)),
-    body: Column(
-      children: [
-        Expanded(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              MobileScanner(
-                key: const Key('shared-box-qr-scanner'),
-                controller: _controller,
-                onDetect: _onDetect,
-                errorBuilder: (context, error) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      sharedText(
-                        context,
-                        widget.allowBoxSelection
-                            ? 'Camera or QR recognition is unavailable. Choose a Box below.'
-                            : 'Camera or browser QR recognition is unavailable. Allow camera access in a supported browser.',
-                        widget.allowBoxSelection
-                            ? 'Kamera oder QR-Erkennung nicht verfügbar. Wähle unten eine Box aus.'
-                            : 'Kamera oder QR-Erkennung des Browsers nicht verfügbar. Erlaube den Kamerazugriff in einem unterstützten Browser.',
-                      ),
-                      key: const Key('shared-scanner-camera-error'),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+  Widget build(BuildContext context) => PopScope(
+    onPopInvokedWithResult: (didPop, _) {
+      if (!didPop || _closing) return;
+      _closing = true;
+      unawaited(_stopScanner());
+    },
+    child: Scaffold(
+      appBar: AppBar(title: Text(widget.title ?? context.l10n.scanBoxTitle)),
+      body: Column(
+        children: [
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                MobileScanner(
+                  key: const Key('shared-box-qr-scanner'),
+                  controller: _controller,
+                  onDetect: _onDetect,
+                  errorBuilder: (context, error) => Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        sharedText(
+                          context,
+                          widget.allowBoxSelection
+                              ? 'Camera or QR recognition is unavailable. Choose a Box below.'
+                              : 'Camera or browser QR recognition is unavailable. Allow camera access in a supported browser.',
+                          widget.allowBoxSelection
+                              ? 'Kamera oder QR-Erkennung nicht verfügbar. Wähle unten eine Box aus.'
+                              : 'Kamera oder QR-Erkennung des Browsers nicht verfügbar. Erlaube den Kamerazugriff in einem unterstützten Browser.',
+                        ),
+                        key: const Key('shared-scanner-camera-error'),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              IgnorePointer(
-                child: Center(
-                  child: Container(
-                    width: 260,
-                    height: 260,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white, width: 3),
-                      borderRadius: BorderRadius.circular(16),
+                IgnorePointer(
+                  child: Center(
+                    child: Container(
+                      width: 260,
+                      height: 260,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white, width: 3),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              if (_processing)
-                const Center(
-                  child: CircularProgressIndicator(
-                    key: Key('shared-scanner-progress'),
+                if (_processing)
+                  const Center(
+                    child: CircularProgressIndicator(
+                      key: Key('shared-scanner-progress'),
+                    ),
                   ),
-                ),
-            ],
-          ),
-        ),
-        if (widget.allowBoxSelection)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: OutlinedButton.icon(
-              key: const Key('shared-scanner-choose-box'),
-              onPressed: _processing ? null : _chooseBox,
-              icon: const Icon(Icons.list),
-              label: Text(sharedText(context, 'Choose Box', 'Box auswählen')),
+              ],
             ),
           ),
-        if (_error != null)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              _error!,
-              key: const Key('shared-scanner-error'),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+          if (widget.allowBoxSelection)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: OutlinedButton.icon(
+                key: const Key('shared-scanner-choose-box'),
+                onPressed: _processing ? null : _chooseBox,
+                icon: const Icon(Icons.list),
+                label: Text(sharedText(context, 'Choose Box', 'Box auswählen')),
+              ),
             ),
-          ),
-      ],
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                _error!,
+                key: const Key('shared-scanner-error'),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+        ],
+      ),
     ),
   );
 }

@@ -17,9 +17,7 @@ void main() {
   late AppDatabase database;
 
   setUp(() {
-    SharedPreferences.setMockInitialValues({
-      'standalone_tutorial_seen': true,
-    });
+    SharedPreferences.setMockInitialValues({'standalone_tutorial_seen': true});
     database = AppDatabase.test(NativeDatabase.memory());
   });
 

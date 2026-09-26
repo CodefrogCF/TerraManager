@@ -260,44 +260,6 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
     }
   }
 
-  Future<void> _rename() async {
-    try {
-      final box = await _record;
-      if (!mounted || box['status'] != 'active') return;
-      final name = await askSharedName(
-        context,
-        title: context.l10n.renameBox,
-        initial: box['name'] as String? ?? '',
-      );
-      if (name == null || !mounted) return;
-      await _change(() async {
-        await widget.api.updateBox(_id, {
-          'name': name,
-        }, box['revision'] as String);
-      });
-    } catch (_) {
-      if (mounted) _showFailure(context);
-    }
-  }
-
-  Future<void> _duplicate() async {
-    try {
-      final box = await _record;
-      if (!mounted || box['status'] != 'active') return;
-      final name = await askSharedName(
-        context,
-        title: context.l10n.duplicateBox,
-        initial: box['name'] as String? ?? '',
-      );
-      if (name == null || !mounted) return;
-      await _change(() async {
-        await widget.api.duplicateBox(_id, name);
-      });
-    } catch (_) {
-      if (mounted) _showFailure(context);
-    }
-  }
-
   Future<bool> _change(
     Future<void> Function() action, {
     bool clearNavigation = false,
@@ -530,11 +492,6 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
                   ),
                 const Divider(),
                 if (active) ...[
-                  TextButton.icon(
-                    onPressed: widget.api.connected ? _rename : null,
-                    icon: const Icon(Icons.drive_file_rename_outline),
-                    label: Text(context.l10n.renameBox),
-                  ),
                   OutlinedButton.icon(
                     onPressed: widget.api.connected
                         ? () async {
@@ -560,13 +517,6 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
                     icon: const Icon(Icons.archive_outlined),
                     label: Text(
                       sharedText(context, 'Archive Box', 'Box archivieren'),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: widget.api.connected ? _duplicate : null,
-                    icon: const Icon(Icons.copy_outlined),
-                    label: Text(
-                      sharedText(context, 'Duplicate Box', 'Box duplizieren'),
                     ),
                   ),
                 ] else ...[
@@ -1181,50 +1131,6 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     }
   }
 
-  Future<void> _rename() async {
-    try {
-      final animal = await _record;
-      if (!mounted || animal['status'] != 'active') return;
-      final name = await askSharedName(
-        context,
-        title: context.l10n.renameAnimal,
-        initial: animal['commonName'] as String? ?? '',
-      );
-      if (name == null || !mounted) return;
-      await _change(() async {
-        await widget.api.updateAnimal(
-          _id,
-          sharedAnimalUpdateValues(animal, name),
-          animal['revision'] as String,
-        );
-      });
-    } catch (_) {
-      if (mounted) _showFailure(context);
-    }
-  }
-
-  Future<void> _duplicate() async {
-    try {
-      final animal = await _record;
-      if (!mounted || animal['status'] != 'active') return;
-      final boxes = await widget.api.boxes();
-      if (!mounted) return;
-      final destination = await selectActiveBox(context, boxes);
-      if (destination == null || !mounted) return;
-      final name = await askSharedName(
-        context,
-        title: context.l10n.duplicateAnimal,
-        initial: animal['commonName'] as String? ?? '',
-      );
-      if (name == null || !mounted) return;
-      await _change(() async {
-        await widget.api.duplicateAnimal(_id, destination, name);
-      });
-    } catch (_) {
-      if (mounted) _showFailure(context);
-    }
-  }
-
   Future<bool> _change(
     Future<void> Function() action, {
     bool clearNavigation = false,
@@ -1497,11 +1403,6 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                     icon: const Icon(Icons.restaurant_outlined),
                     label: Text(context.l10n.createFeeding),
                   ),
-                  TextButton.icon(
-                    onPressed: widget.api.connected ? _rename : null,
-                    icon: const Icon(Icons.drive_file_rename_outline),
-                    label: Text(context.l10n.renameAnimal),
-                  ),
                   OutlinedButton.icon(
                     onPressed: widget.api.connected
                         ? () async {
@@ -1528,17 +1429,6 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                     icon: const Icon(Icons.archive_outlined),
                     label: Text(
                       sharedText(context, 'Archive Animal', 'Tier archivieren'),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: widget.api.connected ? _duplicate : null,
-                    icon: const Icon(Icons.copy_outlined),
-                    label: Text(
-                      sharedText(
-                        context,
-                        'Duplicate Animal',
-                        'Tier duplizieren',
-                      ),
                     ),
                   ),
                 ] else ...[

@@ -877,7 +877,11 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
     color: Theme.of(context).colorScheme.errorContainer,
     child: ExpansionTile(
-      key: const Key('shared-feeding-reminder-summary-toggle'),
+      // Keep ExpansionTile's Boolean PageStorage value separate from the
+      // overview scroll offset, which is stored as a number.
+      key: const PageStorageKey<String>(
+        'shared-feeding-reminder-summary-toggle',
+      ),
       initiallyExpanded: _dueRemindersExpanded,
       onExpansionChanged: (expanded) =>
           setState(() => _dueRemindersExpanded = expanded),

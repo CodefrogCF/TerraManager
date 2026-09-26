@@ -11,6 +11,107 @@ import 'package:terramanager/shared_client/shared_detail_pages.dart';
 void main() {
   const qrId = 'TM:BOX:12345678-1234-4123-8123-123456789abc';
 
+  testWidgets('leaving QR mode stops the scanner without restarting it', (
+    tester,
+  ) async {
+    var stops = 0;
+    var starts = 0;
+    final api = SharedApiClient(
+      Uri.parse('https://192.168.1.117'),
+      MockClient((_) async => http.Response('{}', 404)),
+    );
+    addTearDown(api.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => Navigator.of(context).push<void>(
+                MaterialPageRoute(
+                  builder: (_) => SharedBoxScannerPage(
+                    api: api,
+                    boxes: const [],
+                    animals: const [],
+                    change: (_) async => true,
+                    stopScanner: () async => stops++,
+                    startScanner: () async => starts++,
+                  ),
+                ),
+              ),
+              child: const Text('Scan'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Scan'));
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SharedBoxScannerPage), findsNothing);
+    expect(stops, 1);
+    expect(starts, 0);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a completed QR workflow cannot restart a closing scanner', (
+    tester,
+  ) async {
+    var stops = 0;
+    var starts = 0;
+    final api = SharedApiClient(
+      Uri.parse('https://192.168.1.117'),
+      MockClient(
+        (_) async => http.Response(
+          jsonEncode({
+            'box': {'id': 7, 'status': 'active'},
+          }),
+          200,
+        ),
+      ),
+    );
+    addTearDown(api.close);
+    late Future<void> Function(String) scan;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () => Navigator.of(context).push<void>(
+                MaterialPageRoute(
+                  builder: (_) => SharedBoxScannerPage(
+                    api: api,
+                    boxes: const [],
+                    animals: const [],
+                    change: (_) async => true,
+                    onHandlerReady: (handler) => scan = handler,
+                    stopScanner: () async => stops++,
+                    startScanner: () async => starts++,
+                    onBoxResolved: (context, _) async {
+                      Navigator.of(context).pop();
+                      return false;
+                    },
+                  ),
+                ),
+              ),
+              child: const Text('Scan'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Scan'));
+    await tester.pumpAndSettle();
+    await scan(qrId);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SharedBoxScannerPage), findsNothing);
+    expect(stops, greaterThanOrEqualTo(1));
+    expect(starts, 0);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('invalid QR never reaches the server', (tester) async {
     var requests = 0;
     final api = SharedApiClient(

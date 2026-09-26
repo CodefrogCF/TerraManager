@@ -3,19 +3,20 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/presentation/widgets/responsive_picture_frame.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../media/presentation/pages/full_screen_image_page.dart';
 
 class AnimalPicture extends StatelessWidget {
   final String? picturePath;
   final Uint8List? pictureBytes;
-  final double height;
+  final double? height;
 
   const AnimalPicture({
     super.key,
     this.picturePath,
     this.pictureBytes,
-    this.height = 220,
+    this.height,
   });
 
   @override
@@ -32,7 +33,7 @@ class AnimalPicture extends StatelessWidget {
       future: XFile(picturePath!).readAsBytes(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return SizedBox(
+          return ResponsivePictureFrame(
             height: height,
             child: const Center(child: CircularProgressIndicator()),
           );
@@ -66,17 +67,11 @@ class AnimalPicture extends StatelessWidget {
               title: context.l10n.animalPicture,
             );
           },
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 760),
-              child: SizedBox(
-                width: double.infinity,
-                height: height,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.memory(imageBytes, fit: BoxFit.cover),
-                ),
-              ),
+          child: ResponsivePictureFrame(
+            height: height,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(imageBytes, fit: BoxFit.cover),
             ),
           ),
         ),
@@ -85,8 +80,7 @@ class AnimalPicture extends StatelessWidget {
   }
 
   Widget _buildPlaceholder(BuildContext context, {String? text}) {
-    return SizedBox(
-      width: double.infinity,
+    return ResponsivePictureFrame(
       height: height,
       child: Card(
         child: Center(

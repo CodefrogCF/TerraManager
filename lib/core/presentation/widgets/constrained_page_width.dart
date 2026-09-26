@@ -13,11 +13,14 @@ class ConstrainedPageWidth extends StatelessWidget {
   final double maxWidth;
 
   @override
-  Widget build(BuildContext context) => Align(
-    alignment: Alignment.topCenter,
-    child: ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      child: SizedBox.expand(child: child),
+  Widget build(BuildContext context) => Material(
+    color: Theme.of(context).scaffoldBackgroundColor,
+    child: Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: SizedBox.expand(child: child),
+      ),
     ),
   );
 }

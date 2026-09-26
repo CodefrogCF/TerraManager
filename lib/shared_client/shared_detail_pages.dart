@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../core/presentation/widgets/responsive_picture_frame.dart';
+import '../core/presentation/widgets/constrained_page_width.dart';
 import '../core/database/enums/birth_date_accuracy.dart';
 import '../features/settings/animal_name_order.dart';
 import '../features/settings/animal_sort_order.dart';
@@ -276,293 +278,310 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text('Box $_id'),
-      actions: [
-        FutureBuilder<Map<String, dynamic>>(
-          future: _record,
-          builder: (context, snapshot) => snapshot.data?['status'] == 'active'
-              ? ListenableBuilder(
-                  listenable: widget.api,
-                  builder: (context, _) => IconButton(
-                    tooltip: sharedText(context, 'Edit Box', 'Box bearbeiten'),
-                    onPressed: widget.api.connected ? _openEdit : null,
-                    icon: const Icon(Icons.edit_outlined),
-                  ),
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
-      bottom: _navigationContext == null
-          ? null
-          : PreferredSize(
-              preferredSize: const Size.fromHeight(48),
-              child: SharedDetailNavigationBar(
-                contextData: _navigationContext!,
-                busy: _switching,
-                onPrevious: () => _switchAdjacent(next: false),
-                onNext: () => _switchAdjacent(next: true),
+  Widget build(BuildContext context) => ConstrainedPageWidth(
+    child: Scaffold(
+      appBar: AppBar(
+        title: Text('Box $_id'),
+        actions: [
+          FutureBuilder<Map<String, dynamic>>(
+            future: _record,
+            builder: (context, snapshot) => snapshot.data?['status'] == 'active'
+                ? ListenableBuilder(
+                    listenable: widget.api,
+                    builder: (context, _) => IconButton(
+                      tooltip: sharedText(
+                        context,
+                        'Edit Box',
+                        'Box bearbeiten',
+                      ),
+                      onPressed: widget.api.connected ? _openEdit : null,
+                      icon: const Icon(Icons.edit_outlined),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+        bottom: _navigationContext == null
+            ? null
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(48),
+                child: SharedDetailNavigationBar(
+                  contextData: _navigationContext!,
+                  busy: _switching,
+                  onPrevious: () => _switchAdjacent(next: false),
+                  onNext: () => _switchAdjacent(next: true),
+                ),
               ),
-            ),
-    ),
-    body: SharedDetailSwipeRegion(
-      enabled: _navigationContext != null && !_switching,
-      onPrevious: () => _switchAdjacent(next: false),
-      onNext: () => _switchAdjacent(next: true),
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: _record,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return _LoadFailure(onRetry: _reload);
-          }
-          final box = snapshot.data!;
-          final active = box['status'] == 'active';
-          final assignedAnimals = _animals.where(
-            (animal) =>
-                animal['boxId'] == _id && animal['status'] != 'archived',
-          );
-          final nameOrder = assignedAnimals.isEmpty
-              ? AnimalNameOrder.commonNameFirst
-              : AppSettingsScope.of(context).animalNameOrder;
-          final animals = sortSharedAnimalsForOverview(
-            assignedAnimals,
-            order: AnimalSortOrder.displayNameAscending,
-            nameOrder: nameOrder,
-          );
-          return ListenableBuilder(
-            listenable: widget.api,
-            builder: (context, _) => ListView(
-              key: ValueKey<String>('shared-box-detail-list-$_id'),
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (_switching) const LinearProgressIndicator(),
-                if (_navigationError != null)
-                  Text(
-                    _navigationError!,
-                    key: const Key('shared-detail-navigation-error'),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onHorizontalDragUpdate: (_) {},
-                  child: SharedPictureGallery(
-                    key: ValueKey<String>('shared-box-gallery-$_id'),
-                    api: widget.api,
-                    kind: 'boxes',
-                    recordId: _id,
-                    active: active,
-                    change: _change,
-                    onChanged: _reload,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  ((box['name'] as String?)?.trim().isNotEmpty ?? false)
-                      ? (box['name'] as String).trim()
-                      : 'Box $_id',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                if (!active) ...[
-                  Text(
-                    context.l10n.archived,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  _DetailRow(
-                    label: context.l10n.reason,
-                    value: box['archiveReason'] == null
-                        ? context.l10n.notSpecified
-                        : sharedArchiveReasonLabel(
-                            context,
-                            box['archiveReason'] as String,
-                            box: true,
-                          ),
-                  ),
-                  _DetailRow(
-                    label: context.l10n.archiveDate,
-                    value:
-                        _dateTimeLabel(box['archivedAt'] as String?) ??
-                        context.l10n.notSpecified,
-                  ),
-                  _DetailRow(
-                    label: context.l10n.archiveNote,
-                    value: box['archiveNotes'] as String?,
-                  ),
-                  const SizedBox(height: 16),
-                ],
-                Text(
-                  context.l10n.dimensions,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                _DetailRow(
-                  label: context.l10n.width,
-                  value: box['widthCm'] == null ? null : '${box['widthCm']} cm',
-                ),
-                _DetailRow(
-                  label: context.l10n.height,
-                  value: box['heightCm'] == null
-                      ? null
-                      : '${box['heightCm']} cm',
-                ),
-                _DetailRow(
-                  label: context.l10n.depth,
-                  value: box['depthCm'] == null ? null : '${box['depthCm']} cm',
-                ),
-                _DetailRow(label: 'QR ID', value: box['qrId']?.toString()),
-                _DetailRow(label: context.l10n.boxId, value: _id.toString()),
-                _DetailRow(
-                  label: context.l10n.created,
-                  value: _dateTimeLabel(box['createdAt'] as String?),
-                ),
-                _DetailRow(
-                  label: context.l10n.updated,
-                  value: _dateTimeLabel(box['updatedAt'] as String?),
-                ),
-                _DetailRow(
-                  label: sharedText(
-                    context,
-                    'Temperature zones',
-                    'Temperaturzonen',
-                  ),
-                  value: box['temperatureZones'] as String?,
-                ),
-                _DetailRow(
-                  label: sharedText(context, 'Notes', 'Notizen'),
-                  value: box['notes'] as String?,
-                ),
-                const Divider(),
-                Text(
-                  sharedText(context, 'Animals', 'Tiere'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                for (final animal in animals)
-                  Card(
-                    child: ListTile(
-                      key: Key('assigned-animal-${recordId(animal)}'),
-                      leading: SharedThumbnail(
-                        key: Key(
-                          'assigned-animal-thumbnail-${recordId(animal)}',
+      ),
+      body: ConstrainedPageWidth(
+        maxWidth: 760,
+        child: SharedDetailSwipeRegion(
+          enabled: _navigationContext != null && !_switching,
+          onPrevious: () => _switchAdjacent(next: false),
+          onNext: () => _switchAdjacent(next: true),
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: _record,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return _LoadFailure(onRetry: _reload);
+              }
+              final box = snapshot.data!;
+              final active = box['status'] == 'active';
+              final assignedAnimals = _animals.where(
+                (animal) =>
+                    animal['boxId'] == _id && animal['status'] != 'archived',
+              );
+              final nameOrder = assignedAnimals.isEmpty
+                  ? AnimalNameOrder.commonNameFirst
+                  : AppSettingsScope.of(context).animalNameOrder;
+              final animals = sortSharedAnimalsForOverview(
+                assignedAnimals,
+                order: AnimalSortOrder.displayNameAscending,
+                nameOrder: nameOrder,
+              );
+              return ListenableBuilder(
+                listenable: widget.api,
+                builder: (context, _) => ListView(
+                  key: ValueKey<String>('shared-box-detail-list-$_id'),
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (_switching) const LinearProgressIndicator(),
+                    if (_navigationError != null)
+                      Text(
+                        _navigationError!,
+                        key: const Key('shared-detail-navigation-error'),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
                         ),
+                      ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onHorizontalDragUpdate: (_) {},
+                      child: SharedPictureGallery(
+                        key: ValueKey<String>('shared-box-gallery-$_id'),
                         api: widget.api,
-                        mediaId: animal['pictureMediaId'] as int?,
-                        fallback: Icons.emoji_nature_outlined,
+                        kind: 'boxes',
+                        recordId: _id,
+                        active: active,
+                        change: _change,
+                        onChanged: _reload,
                       ),
-                      title: Text(
-                        animalLabel(
-                          animal,
-                          order: AppSettingsScope.of(context).animalNameOrder,
-                        ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      ((box['name'] as String?)?.trim().isNotEmpty ?? false)
+                          ? (box['name'] as String).trim()
+                          : 'Box $_id',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 8),
+                    if (!active) ...[
+                      Text(
+                        context.l10n.archived,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      subtitle: Text(
-                        (AppSettingsScope.of(context).animalNameOrder ==
-                                        AnimalNameOrder.commonNameFirst
-                                    ? animal['latinName']
-                                    : animal['commonName'])
-                                ?.toString()
-                                .trim() ??
-                            '',
+                      _DetailRow(
+                        label: context.l10n.reason,
+                        value: box['archiveReason'] == null
+                            ? context.l10n.notSpecified
+                            : sharedArchiveReasonLabel(
+                                context,
+                                box['archiveReason'] as String,
+                                box: true,
+                              ),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => SharedAnimalDetailPage(
+                      _DetailRow(
+                        label: context.l10n.archiveDate,
+                        value:
+                            _dateTimeLabel(box['archivedAt'] as String?) ??
+                            context.l10n.notSpecified,
+                      ),
+                      _DetailRow(
+                        label: context.l10n.archiveNote,
+                        value: box['archiveNotes'] as String?,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    Text(
+                      context.l10n.dimensions,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    _DetailRow(
+                      label: context.l10n.width,
+                      value: box['widthCm'] == null
+                          ? null
+                          : '${box['widthCm']} cm',
+                    ),
+                    _DetailRow(
+                      label: context.l10n.height,
+                      value: box['heightCm'] == null
+                          ? null
+                          : '${box['heightCm']} cm',
+                    ),
+                    _DetailRow(
+                      label: context.l10n.depth,
+                      value: box['depthCm'] == null
+                          ? null
+                          : '${box['depthCm']} cm',
+                    ),
+                    _DetailRow(label: 'QR ID', value: box['qrId']?.toString()),
+                    _DetailRow(
+                      label: context.l10n.boxId,
+                      value: _id.toString(),
+                    ),
+                    _DetailRow(
+                      label: context.l10n.created,
+                      value: _dateTimeLabel(box['createdAt'] as String?),
+                    ),
+                    _DetailRow(
+                      label: context.l10n.updated,
+                      value: _dateTimeLabel(box['updatedAt'] as String?),
+                    ),
+                    _DetailRow(
+                      label: sharedText(
+                        context,
+                        'Temperature zones',
+                        'Temperaturzonen',
+                      ),
+                      value: box['temperatureZones'] as String?,
+                    ),
+                    _DetailRow(
+                      label: sharedText(context, 'Notes', 'Notizen'),
+                      value: box['notes'] as String?,
+                    ),
+                    const Divider(),
+                    Text(
+                      sharedText(context, 'Animals', 'Tiere'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    for (final animal in animals)
+                      Card(
+                        child: ListTile(
+                          key: Key('assigned-animal-${recordId(animal)}'),
+                          leading: SharedThumbnail(
+                            key: Key(
+                              'assigned-animal-thumbnail-${recordId(animal)}',
+                            ),
                             api: widget.api,
-                            id: recordId(animal),
-                            boxes: widget.boxes,
-                            connected: widget.connected,
-                            change: widget.change,
-                            navigationContext:
-                                SharedDetailNavigationContext.boxAnimals(
-                                  recordIds: animals.map(recordId),
-                                  currentRecordId: recordId(animal),
-                                  boxId: _id,
-                                  nameOrder: nameOrder,
-                                ),
+                            mediaId: animal['pictureMediaId'] as int?,
+                            fallback: Icons.emoji_nature_outlined,
+                          ),
+                          title: Text(
+                            animalLabel(
+                              animal,
+                              order: AppSettingsScope.of(context)
+                                  .animalNameOrder,
+                            ),
+                          ),
+                          subtitle: Text(
+                            (AppSettingsScope.of(context).animalNameOrder ==
+                                            AnimalNameOrder.commonNameFirst
+                                        ? animal['latinName']
+                                        : animal['commonName'])
+                                    ?.toString()
+                                    .trim() ??
+                                '',
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => SharedAnimalDetailPage(
+                                api: widget.api,
+                                id: recordId(animal),
+                                boxes: widget.boxes,
+                                connected: widget.connected,
+                                change: widget.change,
+                                navigationContext:
+                                    SharedDetailNavigationContext.boxAnimals(
+                                      recordIds: animals.map(recordId),
+                                      currentRecordId: recordId(animal),
+                                      boxId: _id,
+                                      nameOrder: nameOrder,
+                                    ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                const Divider(),
-                if (active) ...[
-                  OutlinedButton.icon(
-                    onPressed: widget.api.connected
-                        ? () async {
-                            final choice = await showArchiveDialog(
-                              context,
-                              reasons: const [
-                                'sold',
-                                'replaced',
-                                'damaged',
-                                'other',
-                              ],
-                            );
-                            if (choice == null) return;
-                            await _change(() async {
-                              await widget.api.archiveBox(
-                                _id,
-                                choice.$1,
-                                choice.$2,
-                              );
-                            }, clearNavigation: true);
-                          }
-                        : null,
-                    icon: const Icon(Icons.archive_outlined),
-                    label: Text(
-                      sharedText(context, 'Archive Box', 'Box archivieren'),
-                    ),
-                  ),
-                ] else ...[
-                  FilledButton.tonalIcon(
-                    onPressed: widget.api.connected
-                        ? () => _change(() async {
-                            await widget.api.restoreBox(_id);
-                          }, clearNavigation: true)
-                        : null,
-                    icon: const Icon(Icons.unarchive_outlined),
-                    label: Text(
-                      sharedText(
-                        context,
-                        'Restore Box',
-                        'Box wiederherstellen',
+                    const Divider(),
+                    if (active) ...[
+                      OutlinedButton.icon(
+                        onPressed: widget.api.connected
+                            ? () async {
+                                final choice = await showArchiveDialog(
+                                  context,
+                                  reasons: const [
+                                    'sold',
+                                    'replaced',
+                                    'damaged',
+                                    'other',
+                                  ],
+                                );
+                                if (choice == null) return;
+                                await _change(() async {
+                                  await widget.api.archiveBox(
+                                    _id,
+                                    choice.$1,
+                                    choice.$2,
+                                  );
+                                }, clearNavigation: true);
+                              }
+                            : null,
+                        icon: const Icon(Icons.archive_outlined),
+                        label: Text(
+                          sharedText(context, 'Archive Box', 'Box archivieren'),
+                        ),
                       ),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: widget.api.connected
-                        ? () async {
-                            if (!await confirmPermanentDeletion(context)) {
-                              return;
-                            }
-                            final done = await _change(() async {
-                              await widget.api.deleteBox(_id);
-                            });
-                            if (done && context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          }
-                        : null,
-                    icon: const Icon(Icons.delete_forever_outlined),
-                    label: Text(
-                      sharedText(
-                        context,
-                        'Delete permanently',
-                        'Endgültig löschen',
+                    ] else ...[
+                      FilledButton.tonalIcon(
+                        onPressed: widget.api.connected
+                            ? () => _change(() async {
+                                await widget.api.restoreBox(_id);
+                              }, clearNavigation: true)
+                            : null,
+                        icon: const Icon(Icons.unarchive_outlined),
+                        label: Text(
+                          sharedText(
+                            context,
+                            'Restore Box',
+                            'Box wiederherstellen',
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          );
-        },
+                      TextButton.icon(
+                        onPressed: widget.api.connected
+                            ? () async {
+                                if (!await confirmPermanentDeletion(context)) {
+                                  return;
+                                }
+                                final done = await _change(() async {
+                                  await widget.api.deleteBox(_id);
+                                });
+                                if (done && context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                              }
+                            : null,
+                        icon: const Icon(Icons.delete_forever_outlined),
+                        label: Text(
+                          sharedText(
+                            context,
+                            'Delete permanently',
+                            'Endgültig löschen',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ),
     ),
   );
@@ -1147,341 +1166,366 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(sharedText(context, 'Animal details', 'Tierdetails')),
-      actions: [
-        FutureBuilder<Map<String, dynamic>>(
-          future: _record,
-          builder: (context, snapshot) => snapshot.data?['status'] == 'active'
-              ? ListenableBuilder(
-                  listenable: widget.api,
-                  builder: (context, _) => Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        tooltip: context.l10n.feedingHistory,
-                        onPressed: () => _openFeedingHistory(true),
-                        icon: const Icon(Icons.restaurant_outlined),
-                      ),
-                      IconButton(
-                        key: const Key('shared-feeding-reminder-settings'),
-                        tooltip: context.l10n.feedingReminder,
-                        onPressed: widget.api.connected
-                            ? _openReminderSettings
-                            : null,
-                        icon: const Icon(Icons.notifications_outlined),
-                      ),
-                      IconButton(
-                        tooltip: sharedText(
-                          context,
-                          'Edit Animal',
-                          'Tier bearbeiten',
+  Widget build(BuildContext context) => ConstrainedPageWidth(
+    child: Scaffold(
+      appBar: AppBar(
+        title: Text(sharedText(context, 'Animal details', 'Tierdetails')),
+        actions: [
+          FutureBuilder<Map<String, dynamic>>(
+            future: _record,
+            builder: (context, snapshot) => snapshot.data?['status'] == 'active'
+                ? ListenableBuilder(
+                    listenable: widget.api,
+                    builder: (context, _) => Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: context.l10n.feedingHistory,
+                          onPressed: () => _openFeedingHistory(true),
+                          icon: const Icon(Icons.restaurant_outlined),
                         ),
-                        onPressed: widget.api.connected ? _openEdit : null,
-                        icon: const Icon(Icons.edit_outlined),
-                      ),
-                    ],
-                  ),
-                )
-              : const SizedBox.shrink(),
-        ),
-      ],
-      bottom: _navigationContext == null
-          ? null
-          : PreferredSize(
-              preferredSize: const Size.fromHeight(48),
-              child: SharedDetailNavigationBar(
-                contextData: _navigationContext!,
-                busy: _switching,
-                onPrevious: () => _switchAdjacent(next: false),
-                onNext: () => _switchAdjacent(next: true),
-              ),
-            ),
-    ),
-    body: SharedDetailSwipeRegion(
-      enabled: _navigationContext != null && !_switching,
-      onPrevious: () => _switchAdjacent(next: false),
-      onNext: () => _switchAdjacent(next: true),
-      child: FutureBuilder<Map<String, dynamic>>(
-        future: _record,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) return _LoadFailure(onRetry: _reload);
-          final animal = snapshot.data!;
-          final active = animal['status'] == 'active';
-          final box = _boxes
-              .where((entry) => entry['id'] == animal['boxId'])
-              .firstOrNull;
-          return ListenableBuilder(
-            listenable: widget.api,
-            builder: (context, _) => ListView(
-              key: ValueKey<String>('shared-animal-detail-list-$_id'),
-              padding: const EdgeInsets.all(16),
-              children: [
-                if (_switching) const LinearProgressIndicator(),
-                if (_navigationError != null)
-                  Text(
-                    _navigationError!,
-                    key: const Key('shared-detail-navigation-error'),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                        IconButton(
+                          key: const Key('shared-feeding-reminder-settings'),
+                          tooltip: context.l10n.feedingReminder,
+                          onPressed: widget.api.connected
+                              ? _openReminderSettings
+                              : null,
+                          icon: const Icon(Icons.notifications_outlined),
+                        ),
+                        IconButton(
+                          tooltip: sharedText(
+                            context,
+                            'Edit Animal',
+                            'Tier bearbeiten',
+                          ),
+                          onPressed: widget.api.connected ? _openEdit : null,
+                          icon: const Icon(Icons.edit_outlined),
+                        ),
+                      ],
                     ),
-                  ),
-                _feedingInformation(animal, due: true),
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onHorizontalDragUpdate: (_) {},
-                  child: SharedPictureGallery(
-                    key: ValueKey<String>('shared-animal-gallery-$_id'),
-                    api: widget.api,
-                    kind: 'animals',
-                    recordId: _id,
-                    active: active,
-                    change: _change,
-                    onChanged: _reload,
-                  ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ],
+        bottom: _navigationContext == null
+            ? null
+            : PreferredSize(
+                preferredSize: const Size.fromHeight(48),
+                child: SharedDetailNavigationBar(
+                  contextData: _navigationContext!,
+                  busy: _switching,
+                  onPrevious: () => _switchAdjacent(next: false),
+                  onNext: () => _switchAdjacent(next: true),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  animalLabel(
-                    animal,
-                    order: AppSettingsScope.of(context).animalNameOrder,
-                  ),
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                if (((AppSettingsScope.of(context).animalNameOrder ==
+              ),
+      ),
+      body: ConstrainedPageWidth(
+        maxWidth: 760,
+        child: SharedDetailSwipeRegion(
+          enabled: _navigationContext != null && !_switching,
+          onPrevious: () => _switchAdjacent(next: false),
+          onNext: () => _switchAdjacent(next: true),
+          child: FutureBuilder<Map<String, dynamic>>(
+            future: _record,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState != ConnectionState.done) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) return _LoadFailure(onRetry: _reload);
+              final animal = snapshot.data!;
+              final active = animal['status'] == 'active';
+              final box = _boxes
+                  .where((entry) => entry['id'] == animal['boxId'])
+                  .firstOrNull;
+              return ListenableBuilder(
+                listenable: widget.api,
+                builder: (context, _) => ListView(
+                  key: ValueKey<String>('shared-animal-detail-list-$_id'),
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (_switching) const LinearProgressIndicator(),
+                    if (_navigationError != null)
+                      Text(
+                        _navigationError!,
+                        key: const Key('shared-detail-navigation-error'),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    _feedingInformation(animal, due: true),
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onHorizontalDragUpdate: (_) {},
+                      child: SharedPictureGallery(
+                        key: ValueKey<String>('shared-animal-gallery-$_id'),
+                        api: widget.api,
+                        kind: 'animals',
+                        recordId: _id,
+                        active: active,
+                        change: _change,
+                        onChanged: _reload,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      animalLabel(
+                        animal,
+                        order: AppSettingsScope.of(context).animalNameOrder,
+                      ),
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    if (((AppSettingsScope.of(context).animalNameOrder ==
+                                        AnimalNameOrder.commonNameFirst
+                                    ? animal['latinName']
+                                    : animal['commonName'])
+                                as String?)
+                            ?.trim()
+                            .isNotEmpty ==
+                        true)
+                      Text(
+                        (AppSettingsScope.of(context).animalNameOrder ==
                                     AnimalNameOrder.commonNameFirst
                                 ? animal['latinName']
                                 : animal['commonName'])
-                            as String?)
-                        ?.trim()
-                        .isNotEmpty ==
-                    true)
-                  Text(
-                    (AppSettingsScope.of(context).animalNameOrder ==
-                                AnimalNameOrder.commonNameFirst
-                            ? animal['latinName']
-                            : animal['commonName'])
-                        as String,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                const SizedBox(height: 8),
-                _feedingInformation(animal, due: false),
-                _DetailRow(
-                  label: sharedText(context, 'Status', 'Status'),
-                  value: active
-                      ? sharedText(context, 'Active', 'Aktiv')
-                      : sharedText(context, 'Archived', 'Archiviert'),
-                ),
-                _DetailRow(
-                  label: sharedText(context, 'Box', 'Box'),
-                  value: box == null ? null : boxLabel(box),
-                  onTap: box == null ? null : () => _openBox(recordId(box)),
-                ),
-                _DetailRow(
-                  label: sharedText(context, 'Category', 'Kategorie'),
-                  value: sharedCategoryLabel(
-                    context,
-                    animal['category'] as String?,
-                  ),
-                ),
-                _DetailRow(
-                  label: sharedText(context, 'Subcategory', 'Unterkategorie'),
-                  value: sharedSubcategoryLabel(
-                    context,
-                    animal['subcategory'] as String?,
-                  ),
-                ),
-                _DetailRow(
-                  label: sharedText(context, 'Sex', 'Geschlecht'),
-                  value: sharedSexLabel(context, animal['sex'] as String?),
-                ),
-                if (DateTime.tryParse(animal['birthDate'] as String? ?? '')
-                    case final birthDate?)
-                  _DetailRow(
-                    label: context.l10n.birthDateLowercase,
-                    value: MaterialLocalizations.of(context)
-                        .formatMediumDate(birthDate.toLocal()),
-                  ),
-                if (BirthDateAccuracy.values
-                        .where(
-                          (value) => value.name == animal['birthDateAccuracy'],
-                        )
-                        .firstOrNull
-                    case final accuracy?)
-                  _DetailRow(
-                    label: context.l10n.birthDateAccuracyLowercase,
-                    value: context.l10n.birthAccuracyLabel(accuracy),
-                  ),
-                _DetailRow(
-                  key: const Key('daytime-temperature-detail'),
-                  label: context.l10n.daytimeTemperature,
-                  value: _temperatureRange(
-                    animal['tempMin'],
-                    animal['tempMax'],
-                  ),
-                ),
-                if (animal['nighttimeTemperatureMin'] != null ||
-                    animal['nighttimeTemperatureMax'] != null ||
-                    animal['nighttimeTemperature'] != null)
-                  _DetailRow(
-                    label: sharedText(
-                      context,
-                      'Night temperature',
-                      'Nachttemperatur',
+                            as String,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    const SizedBox(height: 8),
+                    _feedingInformation(animal, due: false),
+                    _DetailRow(
+                      label: sharedText(context, 'Status', 'Status'),
+                      value: active
+                          ? sharedText(context, 'Active', 'Aktiv')
+                          : sharedText(context, 'Archived', 'Archiviert'),
                     ),
-                    key: const Key('nighttime-temperature-detail'),
-                    value: _temperatureRange(
-                      animal['nighttimeTemperatureMin'] ??
-                          animal['nighttimeTemperature'],
-                      animal['nighttimeTemperatureMax'] ??
-                          animal['nighttimeTemperature'],
+                    _DetailRow(
+                      label: sharedText(context, 'Box', 'Box'),
+                      value: box == null ? null : boxLabel(box),
+                      onTap: box == null ? null : () => _openBox(recordId(box)),
                     ),
-                  ),
-                _DetailRow(
-                  label: sharedText(context, 'Humidity', 'Feuchtigkeit'),
-                  value:
-                      animal['humidityMin'] == null &&
-                          animal['humidityMax'] == null
-                      ? null
-                      : '${animal['humidityMin'] ?? '–'}–${animal['humidityMax'] ?? '–'} %',
-                ),
-                if (animal['showWeightOnDetail'] != false)
-                  _weightSection(animal, active),
-                if (animal['showSheddingOnDetail'] != false)
-                  _sheddingSection(active),
-                _DetailRow(
-                  label: sharedText(
-                    context,
-                    'Origin / habitat',
-                    'Herkunft / Lebensraum',
-                  ),
-                  value: animal['originHabitat'] as String?,
-                ),
-                _DetailRow(
-                  label: sharedText(context, 'Rest / dormancy', 'Ruhezeiten'),
-                  value: animal['restOrDormancyPeriods'] as String?,
-                ),
-                _DetailRow(
-                  label: sharedText(context, 'Notes', 'Notizen'),
-                  value: animal['notes'] as String?,
-                ),
-                if (!active)
-                  _DetailRow(
-                    label: sharedText(context, 'Archive reason', 'Archivgrund'),
-                    value: animal['archiveReason'] == null
-                        ? null
-                        : sharedArchiveReasonLabel(
+                    _DetailRow(
+                      label: sharedText(context, 'Category', 'Kategorie'),
+                      value: sharedCategoryLabel(
+                        context,
+                        animal['category'] as String?,
+                      ),
+                    ),
+                    _DetailRow(
+                      label: sharedText(
+                        context,
+                        'Subcategory',
+                        'Unterkategorie',
+                      ),
+                      value: sharedSubcategoryLabel(
+                        context,
+                        animal['subcategory'] as String?,
+                      ),
+                    ),
+                    _DetailRow(
+                      label: sharedText(context, 'Sex', 'Geschlecht'),
+                      value: sharedSexLabel(context, animal['sex'] as String?),
+                    ),
+                    if (DateTime.tryParse(animal['birthDate'] as String? ?? '')
+                        case final birthDate?)
+                      _DetailRow(
+                        label: context.l10n.birthDateLowercase,
+                        value: MaterialLocalizations.of(context)
+                            .formatMediumDate(birthDate.toLocal()),
+                      ),
+                    if (BirthDateAccuracy.values
+                            .where(
+                              (value) =>
+                                  value.name == animal['birthDateAccuracy'],
+                            )
+                            .firstOrNull
+                        case final accuracy?)
+                      _DetailRow(
+                        label: context.l10n.birthDateAccuracyLowercase,
+                        value: context.l10n.birthAccuracyLabel(accuracy),
+                      ),
+                    _DetailRow(
+                      key: const Key('daytime-temperature-detail'),
+                      label: context.l10n.daytimeTemperature,
+                      value: _temperatureRange(
+                        animal['tempMin'],
+                        animal['tempMax'],
+                      ),
+                    ),
+                    if (animal['nighttimeTemperatureMin'] != null ||
+                        animal['nighttimeTemperatureMax'] != null ||
+                        animal['nighttimeTemperature'] != null)
+                      _DetailRow(
+                        label: sharedText(
+                          context,
+                          'Night temperature',
+                          'Nachttemperatur',
+                        ),
+                        key: const Key('nighttime-temperature-detail'),
+                        value: _temperatureRange(
+                          animal['nighttimeTemperatureMin'] ??
+                              animal['nighttimeTemperature'],
+                          animal['nighttimeTemperatureMax'] ??
+                              animal['nighttimeTemperature'],
+                        ),
+                      ),
+                    _DetailRow(
+                      label: sharedText(context, 'Humidity', 'Feuchtigkeit'),
+                      value:
+                          animal['humidityMin'] == null &&
+                              animal['humidityMax'] == null
+                          ? null
+                          : '${animal['humidityMin'] ?? '–'}–${animal['humidityMax'] ?? '–'} %',
+                    ),
+                    if (animal['showWeightOnDetail'] != false)
+                      _weightSection(animal, active),
+                    if (animal['showSheddingOnDetail'] != false)
+                      _sheddingSection(active),
+                    _DetailRow(
+                      label: sharedText(
+                        context,
+                        'Origin / habitat',
+                        'Herkunft / Lebensraum',
+                      ),
+                      value: animal['originHabitat'] as String?,
+                    ),
+                    _DetailRow(
+                      label: sharedText(
+                        context,
+                        'Rest / dormancy',
+                        'Ruhezeiten',
+                      ),
+                      value: animal['restOrDormancyPeriods'] as String?,
+                    ),
+                    _DetailRow(
+                      label: sharedText(context, 'Notes', 'Notizen'),
+                      value: animal['notes'] as String?,
+                    ),
+                    if (!active)
+                      _DetailRow(
+                        label: sharedText(
+                          context,
+                          'Archive reason',
+                          'Archivgrund',
+                        ),
+                        value: animal['archiveReason'] == null
+                            ? null
+                            : sharedArchiveReasonLabel(
+                                context,
+                                animal['archiveReason'] as String,
+                                box: false,
+                              ),
+                      ),
+                    if (!active)
+                      _DetailRow(
+                        label: context.l10n.archiveDateLowercase,
+                        value: _dateOnlyLabel(animal['archivedAt'] as String?),
+                      ),
+                    if (!active)
+                      _DetailRow(
+                        label: context.l10n.archiveNote,
+                        value: animal['archiveNotes'] as String?,
+                      ),
+                    const Divider(),
+                    if (active) ...[
+                      OutlinedButton.icon(
+                        onPressed: widget.api.connected
+                            ? () => _openHistory(
+                                SharedHistoryKind.feedings,
+                                active: true,
+                                createOnOpen: true,
+                              )
+                            : null,
+                        icon: const Icon(Icons.restaurant_outlined),
+                        label: Text(context.l10n.createFeeding),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: widget.api.connected
+                            ? () async {
+                                final choice = await showArchiveDialog(
+                                  context,
+                                  reasons: const [
+                                    'sold',
+                                    'traded',
+                                    'deceased',
+                                    'rehomed',
+                                    'other',
+                                  ],
+                                );
+                                if (choice == null) return;
+                                await _change(() async {
+                                  await widget.api.archiveAnimal(
+                                    _id,
+                                    choice.$1,
+                                    choice.$2,
+                                  );
+                                }, clearNavigation: true);
+                              }
+                            : null,
+                        icon: const Icon(Icons.archive_outlined),
+                        label: Text(
+                          sharedText(
                             context,
-                            animal['archiveReason'] as String,
-                            box: false,
+                            'Archive Animal',
+                            'Tier archivieren',
                           ),
-                  ),
-                if (!active)
-                  _DetailRow(
-                    label: context.l10n.archiveDateLowercase,
-                    value: _dateOnlyLabel(animal['archivedAt'] as String?),
-                  ),
-                if (!active)
-                  _DetailRow(
-                    label: context.l10n.archiveNote,
-                    value: animal['archiveNotes'] as String?,
-                  ),
-                const Divider(),
-                if (active) ...[
-                  OutlinedButton.icon(
-                    onPressed: widget.api.connected
-                        ? () => _openHistory(
-                            SharedHistoryKind.feedings,
-                            active: true,
-                            createOnOpen: true,
-                          )
-                        : null,
-                    icon: const Icon(Icons.restaurant_outlined),
-                    label: Text(context.l10n.createFeeding),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: widget.api.connected
-                        ? () async {
-                            final choice = await showArchiveDialog(
-                              context,
-                              reasons: const [
-                                'sold',
-                                'traded',
-                                'deceased',
-                                'rehomed',
-                                'other',
-                              ],
-                            );
-                            if (choice == null) return;
-                            await _change(() async {
-                              await widget.api.archiveAnimal(
-                                _id,
-                                choice.$1,
-                                choice.$2,
-                              );
-                            }, clearNavigation: true);
-                          }
-                        : null,
-                    icon: const Icon(Icons.archive_outlined),
-                    label: Text(
-                      sharedText(context, 'Archive Animal', 'Tier archivieren'),
-                    ),
-                  ),
-                ] else ...[
-                  FilledButton.tonalIcon(
-                    onPressed: widget.api.connected
-                        ? () async {
-                            final destination = await selectActiveBox(
-                              context,
-                              widget.boxes,
-                            );
-                            if (destination == null) return;
-                            await _change(() async {
-                              await widget.api.restoreAnimal(_id, destination);
-                            }, clearNavigation: true);
-                          }
-                        : null,
-                    icon: const Icon(Icons.unarchive_outlined),
-                    label: Text(
-                      sharedText(
-                        context,
-                        'Restore Animal',
-                        'Tier wiederherstellen',
+                        ),
                       ),
-                    ),
-                  ),
-                  TextButton.icon(
-                    onPressed: widget.api.connected
-                        ? () async {
-                            if (!await confirmPermanentDeletion(context)) {
-                              return;
-                            }
-                            final done = await _change(() async {
-                              await widget.api.deleteAnimal(_id);
-                            });
-                            if (done && context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          }
-                        : null,
-                    icon: const Icon(Icons.delete_forever_outlined),
-                    label: Text(
-                      sharedText(
-                        context,
-                        'Delete permanently',
-                        'Endgültig löschen',
+                    ] else ...[
+                      FilledButton.tonalIcon(
+                        onPressed: widget.api.connected
+                            ? () async {
+                                final destination = await selectActiveBox(
+                                  context,
+                                  widget.boxes,
+                                );
+                                if (destination == null) return;
+                                await _change(() async {
+                                  await widget.api.restoreAnimal(
+                                    _id,
+                                    destination,
+                                  );
+                                }, clearNavigation: true);
+                              }
+                            : null,
+                        icon: const Icon(Icons.unarchive_outlined),
+                        label: Text(
+                          sharedText(
+                            context,
+                            'Restore Animal',
+                            'Tier wiederherstellen',
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          );
-        },
+                      TextButton.icon(
+                        onPressed: widget.api.connected
+                            ? () async {
+                                if (!await confirmPermanentDeletion(context)) {
+                                  return;
+                                }
+                                final done = await _change(() async {
+                                  await widget.api.deleteAnimal(_id);
+                                });
+                                if (done && context.mounted) {
+                                  Navigator.of(context).pop();
+                                }
+                              }
+                            : null,
+                        icon: const Icon(Icons.delete_forever_outlined),
+                        label: Text(
+                          sharedText(
+                            context,
+                            'Delete permanently',
+                            'Endgültig löschen',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
       ),
     ),
   );
@@ -1638,9 +1682,7 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
                     onTap: primary == null ? null : () => _openPicture(primary),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 220,
+                      child: ResponsivePictureFrame(
                         child: primary == null
                             ? ColoredBox(
                                 color: Theme.of(context)

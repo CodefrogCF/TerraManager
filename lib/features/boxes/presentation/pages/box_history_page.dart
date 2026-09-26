@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
@@ -175,194 +176,199 @@ class _BoxHistoryPageState extends State<BoxHistoryPage> {
     final sortOrder =
         settings?.boxArchiveSortOrder ?? ArchiveSortOrder.archivedNewestFirst;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.archivedBoxes),
-        actions: [
-          PopupMenuButton<ArchiveSortCriterion>(
-            key: const Key('box-archive-sort-button'),
-            initialValue: sortOrder.criterion,
-            onSelected: (criterion) {
-              final selectedOrder = criterion == sortOrder.criterion
-                  ? sortOrder.reversed
-                  : criterion.defaultOrder;
+    return ConstrainedPageWidth(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.archivedBoxes),
+          actions: [
+            PopupMenuButton<ArchiveSortCriterion>(
+              key: const Key('box-archive-sort-button'),
+              initialValue: sortOrder.criterion,
+              onSelected: (criterion) {
+                final selectedOrder = criterion == sortOrder.criterion
+                    ? sortOrder.reversed
+                    : criterion.defaultOrder;
 
-              settings?.setBoxArchiveSortOrder(selectedOrder);
-            },
-            icon: const Icon(Icons.sort),
-            tooltip: context.l10n.sortArchivedBoxes,
-            itemBuilder: (context) {
-              return ArchiveSortCriterion.values.map((criterion) {
-                final isActive = criterion == sortOrder.criterion;
+                settings?.setBoxArchiveSortOrder(selectedOrder);
+              },
+              icon: const Icon(Icons.sort),
+              tooltip: context.l10n.sortArchivedBoxes,
+              itemBuilder: (context) {
+                return ArchiveSortCriterion.values.map((criterion) {
+                  final isActive = criterion == sortOrder.criterion;
 
-                return CheckedPopupMenuItem<ArchiveSortCriterion>(
-                  key: Key(
-                    'box-archive-sort-option-'
-                    '${criterion.name}',
-                  ),
-                  value: criterion,
-                  checked: isActive,
-                  child: Text(
-                    context.l10n.archiveSortCriterionMenuLabel(
-                      criterion,
-                      activeOrder: isActive ? sortOrder : null,
+                  return CheckedPopupMenuItem<ArchiveSortCriterion>(
+                    key: Key(
+                      'box-archive-sort-option-'
+                      '${criterion.name}',
                     ),
-                  ),
+                    value: criterion,
+                    checked: isActive,
+                    child: Text(
+                      context.l10n.archiveSortCriterionMenuLabel(
+                        criterion,
+                        activeOrder: isActive ? sortOrder : null,
+                      ),
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+        ),
+        body: ConstrainedPageWidth(
+          maxWidth: 760,
+          child: FutureBuilder<List<Box>>(
+            future: _boxesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(child: Text(context.l10n.failedToLoadBoxes));
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final rawBoxes = snapshot.data ?? const <Box>[];
+
+              final boxes = sortArchivedRecords<Box>(
+                rawBoxes,
+                sortOrder: sortOrder,
+                archivedAt: (box) => box.archivedAt,
+                displayName: (box) => _displayName(context, box),
+                id: (box) => box.id,
+              );
+
+              if (boxes.isEmpty) {
+                return Center(
+                  key: const Key('box-history-empty-state'),
+                  child: Text(context.l10n.noArchivedBoxes),
                 );
-              }).toList();
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<Box>>(
-        future: _boxesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text(context.l10n.failedToLoadBoxes));
-          }
+              }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              return ListView.builder(
+                key: const Key('box-history-list'),
+                itemCount: boxes.length,
+                itemBuilder: (context, index) {
+                  final box = boxes[index];
 
-          final rawBoxes = snapshot.data ?? const <Box>[];
+                  final boxName = _boxName(box);
 
-          final boxes = sortArchivedRecords<Box>(
-            rawBoxes,
-            sortOrder: sortOrder,
-            archivedAt: (box) => box.archivedAt,
-            displayName: (box) => _displayName(context, box),
-            id: (box) => box.id,
-          );
+                  final boxLabel = context.l10n.boxLabel(box.id);
 
-          if (boxes.isEmpty) {
-            return Center(
-              key: const Key('box-history-empty-state'),
-              child: Text(context.l10n.noArchivedBoxes),
-            );
-          }
+                  final displayName = boxName ?? boxLabel;
 
-          return ListView.builder(
-            key: const Key('box-history-list'),
-            itemCount: boxes.length,
-            itemBuilder: (context, index) {
-              final box = boxes[index];
-
-              final boxName = _boxName(box);
-
-              final boxLabel = context.l10n.boxLabel(box.id);
-
-              final displayName = boxName ?? boxLabel;
-
-              return OverviewContextMenu<_ArchivedBoxAction>(
-                key: Key(
-                  'archived-box-context-menu-region-'
-                  '${box.id}',
-                ),
-                menuButtonKey: Key(
-                  'archived-box-context-menu-button-'
-                  '${box.id}',
-                ),
-                tooltip: context.l10n.boxActions(displayName),
-                onSelected: (action) {
-                  switch (action) {
-                    case _ArchivedBoxAction.restore:
-                      _restoreBox(box);
-                    case _ArchivedBoxAction.duplicate:
-                      _duplicateBox(box);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<_ArchivedBoxAction>(
+                  return OverviewContextMenu<_ArchivedBoxAction>(
                     key: Key(
-                      'archived-box-restore-action-'
+                      'archived-box-context-menu-region-'
                       '${box.id}',
                     ),
-                    value: _ArchivedBoxAction.restore,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.restore, size: 20),
-                        const SizedBox(width: 8),
-                        Flexible(child: Text(context.l10n.restoreBox)),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<_ArchivedBoxAction>(
-                    key: Key(
-                      'archived-box-duplicate-action-'
+                    menuButtonKey: Key(
+                      'archived-box-context-menu-button-'
                       '${box.id}',
                     ),
-                    value: _ArchivedBoxAction.duplicate,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.copy_outlined, size: 20),
-                        const SizedBox(width: 8),
-                        Flexible(child: Text(context.l10n.duplicateBox)),
-                      ],
-                    ),
-                  ),
-                ],
-                builder: (context, menuButton) => ListTile(
-                  key: Key(
-                    'archived-box-list-item-'
-                    '${box.id}',
-                  ),
-                  leading: FutureBuilder<MediaAsset?>(
-                    future: _pictureFutureFor(box.pictureMediaId),
-                    builder: (context, pictureSnapshot) {
-                      return MediaThumbnail(
-                        key: Key(
-                          'archived-box-thumbnail-'
-                          '${box.id}',
-                        ),
-                        pictureBytes: pictureSnapshot.data?.data,
-                        fallbackIcon: Icons.inventory_2_outlined,
-                      );
+                    tooltip: context.l10n.boxActions(displayName),
+                    onSelected: (action) {
+                      switch (action) {
+                        case _ArchivedBoxAction.restore:
+                          _restoreBox(box);
+                        case _ArchivedBoxAction.duplicate:
+                          _duplicateBox(box);
+                      }
                     },
-                  ),
-                  title: Text(
-                    displayName,
-                    key: boxName == null
-                        ? Key(
-                            'archived-box-label-'
-                            '${box.id}',
-                          )
-                        : Key(
-                            'archived-box-name-'
-                            '${box.id}',
-                          ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (boxName != null)
-                        Text(
-                          boxLabel,
-                          key: Key(
-                            'archived-box-label-'
-                            '${box.id}',
-                          ),
-                        ),
-                      if (boxName != null) const SizedBox(height: 4),
-                      Text(
-                        _archiveSummary(context, box),
+                    itemBuilder: (context) => [
+                      PopupMenuItem<_ArchivedBoxAction>(
                         key: Key(
-                          'archived-box-summary-'
+                          'archived-box-restore-action-'
                           '${box.id}',
+                        ),
+                        value: _ArchivedBoxAction.restore,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.restore, size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(context.l10n.restoreBox)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<_ArchivedBoxAction>(
+                        key: Key(
+                          'archived-box-duplicate-action-'
+                          '${box.id}',
+                        ),
+                        value: _ArchivedBoxAction.duplicate,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.copy_outlined, size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(context.l10n.duplicateBox)),
+                          ],
                         ),
                       ),
                     ],
-                  ),
-                  isThreeLine: boxName != null,
-                  trailing: menuButton,
-                  onTap: () {
-                    _openBoxDetail(box, boxes);
-                  },
-                ),
+                    builder: (context, menuButton) => ListTile(
+                      key: Key(
+                        'archived-box-list-item-'
+                        '${box.id}',
+                      ),
+                      leading: FutureBuilder<MediaAsset?>(
+                        future: _pictureFutureFor(box.pictureMediaId),
+                        builder: (context, pictureSnapshot) {
+                          return MediaThumbnail(
+                            key: Key(
+                              'archived-box-thumbnail-'
+                              '${box.id}',
+                            ),
+                            pictureBytes: pictureSnapshot.data?.data,
+                            fallbackIcon: Icons.inventory_2_outlined,
+                          );
+                        },
+                      ),
+                      title: Text(
+                        displayName,
+                        key: boxName == null
+                            ? Key(
+                                'archived-box-label-'
+                                '${box.id}',
+                              )
+                            : Key(
+                                'archived-box-name-'
+                                '${box.id}',
+                              ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (boxName != null)
+                            Text(
+                              boxLabel,
+                              key: Key(
+                                'archived-box-label-'
+                                '${box.id}',
+                              ),
+                            ),
+                          if (boxName != null) const SizedBox(height: 4),
+                          Text(
+                            _archiveSummary(context, box),
+                            key: Key(
+                              'archived-box-summary-'
+                              '${box.id}',
+                            ),
+                          ),
+                        ],
+                      ),
+                      isThreeLine: boxName != null,
+                      trailing: menuButton,
+                      onTap: () {
+                        _openBoxDetail(box, boxes);
+                      },
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+        ),
       ),
     );
   }

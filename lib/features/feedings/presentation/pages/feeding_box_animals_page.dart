@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../widgets/quick_feeding_form.dart';
@@ -22,32 +23,37 @@ class FeedingBoxAnimalsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final boxLabel = context.l10n.boxLabel(box.id);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          context.l10n.feedingBoxTitle(boxLabel),
-          key: const Key('feeding-box-title'),
+    return ConstrainedPageWidth(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            context.l10n.feedingBoxTitle(boxLabel),
+            key: const Key('feeding-box-title'),
+          ),
+        ),
+        body: ConstrainedPageWidth(
+          maxWidth: 760,
+          child: animals.isEmpty
+              ? _EmptyAnimalList(
+                  boxLabel: boxLabel,
+                  onScanDifferentBox: () {
+                    Navigator.of(context).pop(false);
+                  },
+                )
+              : QuickFeedingForm(
+                  database: database,
+                  boxLabel: boxLabel,
+                  animals: animals,
+                  initialFedAt: initialFedAt,
+                  onSaved: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  onCancel: () {
+                    Navigator.of(context).pop(false);
+                  },
+                ),
         ),
       ),
-      body: animals.isEmpty
-          ? _EmptyAnimalList(
-              boxLabel: boxLabel,
-              onScanDifferentBox: () {
-                Navigator.of(context).pop(false);
-              },
-            )
-          : QuickFeedingForm(
-              database: database,
-              boxLabel: boxLabel,
-              animals: animals,
-              initialFedAt: initialFedAt,
-              onSaved: () {
-                Navigator.of(context).pop(true);
-              },
-              onCancel: () {
-                Navigator.of(context).pop(false);
-              },
-            ),
     );
   }
 }

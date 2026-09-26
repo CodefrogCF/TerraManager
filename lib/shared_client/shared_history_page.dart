@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/presentation/widgets/constrained_page_width.dart';
 import 'shared_api_client.dart';
 import 'shared_collection_pages.dart';
 import 'shared_text.dart';
@@ -182,83 +183,98 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(_title(context))),
-    floatingActionButton: widget.active
-        ? ListenableBuilder(
-            listenable: widget.api,
-            builder: (context, _) => FloatingActionButton(
-              onPressed: widget.api.connected ? () => _edit() : null,
-              child: const Icon(Icons.add),
-            ),
-          )
-        : null,
-    body: FutureBuilder<List<Map<String, dynamic>>>(
-      future: _entries,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(
-            child: TextButton(
-              onPressed: _reload,
-              child: Text(sharedText(context, 'Retry', 'Erneut versuchen')),
-            ),
-          );
-        }
-        final values = snapshot.data!;
-        if (values.isEmpty) {
-          return Center(
-            child: Text(sharedText(context, 'No entries', 'Keine Einträge')),
-          );
-        }
-        return ListenableBuilder(
-          listenable: widget.api,
-          builder: (context, _) => ListView.builder(
-            itemCount: values.length,
-            itemBuilder: (context, index) {
-              final entry = values[index];
-              final rawDate = entry[_dateKey()] as String?;
-              final date = DateTime.tryParse(rawDate ?? '')?.toLocal();
-              final formatted = date == null
-                  ? '–'
-                  : '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} '
-                        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-              final amount = entry['weightGrams'];
-              return ListTile(
-                title: Text(
-                  amount == null ? formatted : '$formatted · $amount g',
+  Widget build(BuildContext context) => ConstrainedPageWidth(
+    child: Scaffold(
+      appBar: AppBar(title: Text(_title(context))),
+      floatingActionButton: widget.active
+          ? ListenableBuilder(
+              listenable: widget.api,
+              builder: (context, _) => FloatingActionButton(
+                onPressed: widget.api.connected ? () => _edit() : null,
+                child: const Icon(Icons.add),
+              ),
+            )
+          : null,
+      body: ConstrainedPageWidth(
+        maxWidth: 760,
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _entries,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(
+                child: TextButton(
+                  onPressed: _reload,
+                  child: Text(sharedText(context, 'Retry', 'Erneut versuchen')),
                 ),
-                subtitle: entry['notes'] == null
-                    ? null
-                    : Text(entry['notes'] as String),
-                trailing: widget.active
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            tooltip: sharedText(context, 'Edit', 'Bearbeiten'),
-                            onPressed: widget.api.connected
-                                ? () => _edit(entry)
-                                : null,
-                            icon: const Icon(Icons.edit_outlined),
-                          ),
-                          IconButton(
-                            tooltip: sharedText(context, 'Delete', 'Löschen'),
-                            onPressed: widget.api.connected
-                                ? () => _delete(entry)
-                                : null,
-                            icon: const Icon(Icons.delete_outline),
-                          ),
-                        ],
-                      )
-                    : null,
               );
-            },
-          ),
-        );
-      },
+            }
+            final values = snapshot.data!;
+            if (values.isEmpty) {
+              return Center(
+                child: Text(
+                  sharedText(context, 'No entries', 'Keine Einträge'),
+                ),
+              );
+            }
+            return ListenableBuilder(
+              listenable: widget.api,
+              builder: (context, _) => ListView.builder(
+                itemCount: values.length,
+                itemBuilder: (context, index) {
+                  final entry = values[index];
+                  final rawDate = entry[_dateKey()] as String?;
+                  final date = DateTime.tryParse(rawDate ?? '')?.toLocal();
+                  final formatted = date == null
+                      ? '–'
+                      : '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} '
+                            '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+                  final amount = entry['weightGrams'];
+                  return ListTile(
+                    title: Text(
+                      amount == null ? formatted : '$formatted · $amount g',
+                    ),
+                    subtitle: entry['notes'] == null
+                        ? null
+                        : Text(entry['notes'] as String),
+                    trailing: widget.active
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                tooltip: sharedText(
+                                  context,
+                                  'Edit',
+                                  'Bearbeiten',
+                                ),
+                                onPressed: widget.api.connected
+                                    ? () => _edit(entry)
+                                    : null,
+                                icon: const Icon(Icons.edit_outlined),
+                              ),
+                              IconButton(
+                                tooltip: sharedText(
+                                  context,
+                                  'Delete',
+                                  'Löschen',
+                                ),
+                                onPressed: widget.api.connected
+                                    ? () => _delete(entry)
+                                    : null,
+                                icon: const Icon(Icons.delete_outline),
+                              ),
+                            ],
+                          )
+                        : null,
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ),
     ),
   );
 }

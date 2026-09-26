@@ -330,13 +330,27 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byKey(const Key('assigned-animal-1')));
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('assigned-animal-1')),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.byKey(const Key('assigned-animal-1')));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('First'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('First'), findsWidgets);
     expect(find.text('1 / 2'), findsOneWidget);
     await tester.tap(find.byKey(const Key('shared-detail-next')));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Second'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Second'), findsWidgets);
     expect(find.text('2 / 2'), findsOneWidget);
     expect(find.text('Other'), findsNothing);
@@ -397,8 +411,18 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('shared-detail-next')));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('First'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('First'), findsWidgets);
     expect(find.text('1 / 1'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('shared-detail-navigation-error')),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(
       find.byKey(const Key('shared-detail-navigation-error')),
       findsOneWidget,
@@ -472,6 +496,11 @@ void main() {
     );
     await tester.tap(find.text('Open detail'));
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('First'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('First'), findsWidgets);
     archived = true;
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);

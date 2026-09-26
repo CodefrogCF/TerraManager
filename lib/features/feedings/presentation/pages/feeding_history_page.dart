@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
@@ -162,110 +163,117 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.feedingHistory)),
-      body: Column(
-        children: [
-          if (_deleteError != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Text(
-                _deleteError!,
-                key: const Key('feeding-delete-error'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            ),
-          Expanded(
-            child: FutureBuilder<List<FeedingEvent>>(
-              future: _feedingsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(context.l10n.failedToLoadFeedingHistory),
-                  );
-                }
+    return ConstrainedPageWidth(
+      child: Scaffold(
+        appBar: AppBar(title: Text(context.l10n.feedingHistory)),
+        body: ConstrainedPageWidth(
+          maxWidth: 760,
+          child: Column(
+            children: [
+              if (_deleteError != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Text(
+                    _deleteError!,
+                    key: const Key('feeding-delete-error'),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: FutureBuilder<List<FeedingEvent>>(
+                  future: _feedingsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(context.l10n.failedToLoadFeedingHistory),
+                      );
+                    }
 
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                final feedings = snapshot.data ?? [];
+                    final feedings = snapshot.data ?? [];
 
-                if (feedings.isEmpty) {
-                  return Center(
-                    child: Text(context.l10n.noFeedingEventsAvailable),
-                  );
-                }
+                    if (feedings.isEmpty) {
+                      return Center(
+                        child: Text(context.l10n.noFeedingEventsAvailable),
+                      );
+                    }
 
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: feedings.length,
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final feeding = feedings[index];
+                    return ListView.separated(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: feedings.length,
+                      separatorBuilder: (context, index) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final feeding = feedings[index];
 
-                    final deleting = _deletingFeedingId == feeding.id;
+                        final deleting = _deletingFeedingId == feeding.id;
 
-                    return ListTile(
-                      key: Key('feeding-item-${feeding.id}'),
-                      leading: const Icon(Icons.restaurant),
-                      title: Text(_formatDateTime(feeding.fedAt)),
-                      subtitle:
-                          feeding.notes != null &&
-                              feeding.notes!.trim().isNotEmpty
-                          ? Text(feeding.notes!)
-                          : null,
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            key: Key('edit-feeding-button-${feeding.id}'),
-                            onPressed: _deletingFeedingId != null
-                                ? null
-                                : () {
-                                    _editFeeding(feeding);
-                                  },
-                            icon: const Icon(Icons.edit_outlined),
-                            tooltip: context.l10n.editFeeding,
+                        return ListTile(
+                          key: Key('feeding-item-${feeding.id}'),
+                          leading: const Icon(Icons.restaurant),
+                          title: Text(_formatDateTime(feeding.fedAt)),
+                          subtitle:
+                              feeding.notes != null &&
+                                  feeding.notes!.trim().isNotEmpty
+                              ? Text(feeding.notes!)
+                              : null,
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                key: Key('edit-feeding-button-${feeding.id}'),
+                                onPressed: _deletingFeedingId != null
+                                    ? null
+                                    : () {
+                                        _editFeeding(feeding);
+                                      },
+                                icon: const Icon(Icons.edit_outlined),
+                                tooltip: context.l10n.editFeeding,
+                              ),
+                              IconButton(
+                                key: Key('delete-feeding-button-${feeding.id}'),
+                                onPressed: _deletingFeedingId != null
+                                    ? null
+                                    : () {
+                                        _deleteFeeding(feeding);
+                                      },
+                                icon: deleting
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.delete_outline),
+                                tooltip: context.l10n.deleteFeeding,
+                              ),
+                            ],
                           ),
-                          IconButton(
-                            key: Key('delete-feeding-button-${feeding.id}'),
-                            onPressed: _deletingFeedingId != null
-                                ? null
-                                : () {
-                                    _deleteFeeding(feeding);
-                                  },
-                            icon: deleting
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                : const Icon(Icons.delete_outline),
-                            tooltip: context.l10n.deleteFeeding,
-                          ),
-                        ],
-                      ),
-                      onTap: _deletingFeedingId != null
-                          ? null
-                          : () {
-                              _editFeeding(feeding);
-                            },
+                          onTap: _deletingFeedingId != null
+                              ? null
+                              : () {
+                                  _editFeeding(feeding);
+                                },
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        key: const Key('add-feeding-button'),
-        onPressed: _deletingFeedingId == null ? _addFeeding : null,
-        tooltip: context.l10n.addFeeding,
-        child: const Icon(Icons.add),
+        ),
+        floatingActionButton: FloatingActionButton(
+          key: const Key('add-feeding-button'),
+          onPressed: _deletingFeedingId == null ? _addFeeding : null,
+          tooltip: context.l10n.addFeeding,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

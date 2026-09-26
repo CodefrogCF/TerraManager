@@ -12,6 +12,10 @@ void main() {
   testWidgets('shared primary picture opens the same zoomable viewer', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(1920, 1080);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
     final api = SharedApiClient(
       Uri.parse('https://192.168.1.117'),
       MockClient(
@@ -49,6 +53,10 @@ void main() {
     await tester.tap(find.byKey(const Key('shared-open-primary-picture')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('full-screen-image-page')), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const Key('full-screen-image-page'))).width,
+      1920,
+    );
     final image = tester.widget<Image>(
       find.byKey(const Key('full-screen-image')),
     );

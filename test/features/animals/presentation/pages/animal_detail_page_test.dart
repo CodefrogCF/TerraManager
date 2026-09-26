@@ -690,6 +690,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('animal-box-detail')),
+      200,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Rainforest · Box $boxId'), findsOneWidget);
     await tester.tap(find.byKey(const Key('animal-box-detail')));
     await tester.pumpAndSettle();
@@ -724,6 +729,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('animal-box-detail')),
+      200,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Box $boxId'), findsOneWidget);
   });
 
@@ -1170,6 +1180,11 @@ void main() {
 
     expect(find.byType(AnimalDetailPage), findsOneWidget);
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('animal-box-detail')),
+      200,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Old Home · Box $sourceBoxId'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('edit-animal-button')));
@@ -1226,6 +1241,11 @@ void main() {
     expect(detailPage.animalId, animalId);
 
     // Detail reload must immediately show the new Box.
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('animal-box-detail')),
+      200,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('New Home · Box $targetBoxId'), findsOneWidget);
 
     final animal = await AnimalRepository(database).getAnimalById(animalId);

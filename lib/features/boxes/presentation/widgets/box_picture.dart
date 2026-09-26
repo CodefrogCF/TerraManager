@@ -2,20 +2,16 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/responsive_picture_frame.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../media/presentation/pages/full_screen_image_page.dart';
 
 class BoxPicture extends StatelessWidget {
   final Uint8List? pictureBytes;
-  final double height;
+  final double? height;
   final String? emptyText;
 
-  const BoxPicture({
-    super.key,
-    this.pictureBytes,
-    this.height = 220,
-    this.emptyText,
-  });
+  const BoxPicture({super.key, this.pictureBytes, this.height, this.emptyText});
 
   @override
   Widget build(BuildContext context) {
@@ -38,25 +34,19 @@ class BoxPicture extends StatelessWidget {
               title: context.l10n.boxPicture,
             );
           },
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 760),
-              child: SizedBox(
-                width: double.infinity,
-                height: height,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.memory(
-                    pictureBytes!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildPlaceholder(
-                        context,
-                        text: context.l10n.imageUnavailable,
-                      );
-                    },
-                  ),
-                ),
+          child: ResponsivePictureFrame(
+            height: height,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.memory(
+                pictureBytes!,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildPlaceholder(
+                    context,
+                    text: context.l10n.imageUnavailable,
+                  );
+                },
               ),
             ),
           ),
@@ -66,8 +56,7 @@ class BoxPicture extends StatelessWidget {
   }
 
   Widget _buildPlaceholder(BuildContext context, {String? text}) {
-    return SizedBox(
-      width: double.infinity,
+    return ResponsivePictureFrame(
       height: height,
       child: Card(
         child: Center(

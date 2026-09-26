@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/shedding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
@@ -135,88 +136,97 @@ class _SheddingHistoryPageState extends State<SheddingHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.sheddingHistory)),
-      body: FutureBuilder<List<SheddingEvent>>(
-        future: _entriesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(context.l10n.failedToLoadSheddingHistory),
-            );
-          }
+    return ConstrainedPageWidth(
+      child: Scaffold(
+        appBar: AppBar(title: Text(context.l10n.sheddingHistory)),
+        body: ConstrainedPageWidth(
+          maxWidth: 760,
+          child: FutureBuilder<List<SheddingEvent>>(
+            future: _entriesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(context.l10n.failedToLoadSheddingHistory),
+                );
+              }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          final entries = snapshot.data ?? const <SheddingEvent>[];
+              final entries = snapshot.data ?? const <SheddingEvent>[];
 
-          if (entries.isEmpty) {
-            return Center(
-              child: Text(
-                context.l10n.noSheddingHistory,
-                key: const Key('shedding-history-empty'),
-              ),
-            );
-          }
+              if (entries.isEmpty) {
+                return Center(
+                  child: Text(
+                    context.l10n.noSheddingHistory,
+                    key: const Key('shedding-history-empty'),
+                  ),
+                );
+              }
 
-          return ListView.separated(
-            key: const Key('shedding-history-list'),
-            padding: const EdgeInsets.all(16),
-            itemCount: entries.length,
-            separatorBuilder: (_, _) => const Divider(),
-            itemBuilder: (context, index) {
-              final entry = entries[index];
+              return ListView.separated(
+                key: const Key('shedding-history-list'),
+                padding: const EdgeInsets.all(16),
+                itemCount: entries.length,
+                separatorBuilder: (_, _) => const Divider(),
+                itemBuilder: (context, index) {
+                  final entry = entries[index];
 
-              final deleting = _deletingEntryId == entry.id;
+                  final deleting = _deletingEntryId == entry.id;
 
-              final notes = entry.notes?.trim();
+                  final notes = entry.notes?.trim();
 
-              return ListTile(
-                key: Key('shedding-entry-${entry.id}'),
-                leading: const Icon(Icons.autorenew),
-                title: Text(_formatDateTime(context, entry.shedAt)),
-                subtitle: notes == null || notes.isEmpty ? null : Text(notes),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      key: Key('edit-shedding-button-${entry.id}'),
-                      onPressed: _deletingEntryId == null
-                          ? () => _editEntry(entry)
-                          : null,
-                      tooltip: context.l10n.editSheddingEvent,
-                      icon: const Icon(Icons.edit_outlined),
+                  return ListTile(
+                    key: Key('shedding-entry-${entry.id}'),
+                    leading: const Icon(Icons.autorenew),
+                    title: Text(_formatDateTime(context, entry.shedAt)),
+                    subtitle: notes == null || notes.isEmpty
+                        ? null
+                        : Text(notes),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          key: Key('edit-shedding-button-${entry.id}'),
+                          onPressed: _deletingEntryId == null
+                              ? () => _editEntry(entry)
+                              : null,
+                          tooltip: context.l10n.editSheddingEvent,
+                          icon: const Icon(Icons.edit_outlined),
+                        ),
+                        IconButton(
+                          key: Key('delete-shedding-button-${entry.id}'),
+                          onPressed: _deletingEntryId == null
+                              ? () => _deleteEntry(entry)
+                              : null,
+                          tooltip: context.l10n.deleteSheddingEvent,
+                          icon: deleting
+                              ? const SizedBox.square(
+                                  dimension: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.delete_outline),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      key: Key('delete-shedding-button-${entry.id}'),
-                      onPressed: _deletingEntryId == null
-                          ? () => _deleteEntry(entry)
-                          : null,
-                      tooltip: context.l10n.deleteSheddingEvent,
-                      icon: deleting
-                          ? const SizedBox.square(
-                              dimension: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.delete_outline),
-                    ),
-                  ],
-                ),
-                onTap: _deletingEntryId == null
-                    ? () => _editEntry(entry)
-                    : null,
+                    onTap: _deletingEntryId == null
+                        ? () => _editEntry(entry)
+                        : null,
+                  );
+                },
               );
             },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        key: const Key('add-shedding-button'),
-        onPressed: _addEntry,
-        tooltip: context.l10n.addSheddingEvent,
-        child: const Icon(Icons.add),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          key: const Key('add-shedding-button'),
+          onPressed: _addEntry,
+          tooltip: context.l10n.addSheddingEvent,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

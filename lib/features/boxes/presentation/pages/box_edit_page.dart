@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/box_status.dart';
 import '../../../../core/database/repositories/box_lifecycle_exception.dart';
@@ -449,39 +450,41 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
         await _handleBack();
       },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: BackButton(
-            key: const Key('back-button'),
-            onPressed: _handleBack,
-          ),
-          title: Text(
-            _box == null
-                ? context.l10n.editBox
-                : context.l10n.editBoxLabel(context.l10n.boxLabel(_box!.id)),
-          ),
-          actions: [
-            IconButton(
-              key: const Key('save-box-button'),
-              onPressed:
-                  _box == null ||
-                      _saving ||
-                      _managementFlowActive ||
-                      _processingPicture
-                  ? null
-                  : _save,
-              icon: _saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save),
-              tooltip: context.l10n.save,
+      child: ConstrainedPageWidth(
+        child: Scaffold(
+          appBar: AppBar(
+            leading: BackButton(
+              key: const Key('back-button'),
+              onPressed: _handleBack,
             ),
-          ],
+            title: Text(
+              _box == null
+                  ? context.l10n.editBox
+                  : context.l10n.editBoxLabel(context.l10n.boxLabel(_box!.id)),
+            ),
+            actions: [
+              IconButton(
+                key: const Key('save-box-button'),
+                onPressed:
+                    _box == null ||
+                        _saving ||
+                        _managementFlowActive ||
+                        _processingPicture
+                    ? null
+                    : _save,
+                icon: _saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.save),
+                tooltip: context.l10n.save,
+              ),
+            ],
+          ),
+          body: ConstrainedPageWidth(maxWidth: 760, child: _buildBody()),
         ),
-        body: _buildBody(),
       ),
     );
   }

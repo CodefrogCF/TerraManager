@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/birth_date_accuracy.dart';
 import '../../../../core/database/enums/animal_category.dart';
@@ -299,22 +300,24 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.newAnimal),
-        actions: [
-          IconButton(
-            key: const Key('save-animal-button'),
-            onPressed:
-                _saving || _processingPicture || _loading || _boxes.isEmpty
-                ? null
-                : _save,
-            icon: const Icon(Icons.save),
-            tooltip: context.l10n.saveAnimal,
-          ),
-        ],
+    return ConstrainedPageWidth(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.newAnimal),
+          actions: [
+            IconButton(
+              key: const Key('save-animal-button'),
+              onPressed:
+                  _saving || _processingPicture || _loading || _boxes.isEmpty
+                  ? null
+                  : _save,
+              icon: const Icon(Icons.save),
+              tooltip: context.l10n.saveAnimal,
+            ),
+          ],
+        ),
+        body: ConstrainedPageWidth(maxWidth: 760, child: _buildBody()),
       ),
-      body: _buildBody(),
     );
   }
 

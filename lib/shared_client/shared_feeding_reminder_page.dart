@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/presentation/widgets/constrained_page_width.dart';
 import '../features/animals/presentation/animal_display_names.dart';
 import '../features/feedings/presentation/widgets/feeding_reminder_form_fields.dart';
 import '../l10n/app_localizations_context.dart';
@@ -163,83 +164,88 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
     onPopInvokedWithResult: (didPop, result) async {
       if (!didPop) await _back();
     },
-    child: Scaffold(
-      key: const Key('shared-feeding-reminder-page'),
-      appBar: AppBar(
-        leading: BackButton(onPressed: _back),
-        title: Text(context.l10n.feedingReminder),
-        actions: [
-          IconButton(
-            key: const Key('shared-feeding-reminder-save-action'),
-            onPressed: _saving || _loading || _animal == null || _stale
-                ? null
-                : _save,
-            tooltip: context.l10n.save,
-            icon: const Icon(Icons.save),
-          ),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _animal == null
-          ? Center(child: Text(_error ?? context.l10n.animalNotFound))
-          : Form(
-              key: _form,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Text(
-                    AnimalDisplayNames.fromContext(
-                      context,
-                      commonName: _animal!['commonName'] as String? ?? '',
-                      latinName: _animal!['latinName'] as String? ?? '',
-                    ).primary,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 24),
-                  if (_error != null) ...[
-                    Text(
-                      _error!,
-                      key: const Key('shared-feeding-reminder-error'),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+    child: ConstrainedPageWidth(
+      child: Scaffold(
+        key: const Key('shared-feeding-reminder-page'),
+        appBar: AppBar(
+          leading: BackButton(onPressed: _back),
+          title: Text(context.l10n.feedingReminder),
+          actions: [
+            IconButton(
+              key: const Key('shared-feeding-reminder-save-action'),
+              onPressed: _saving || _loading || _animal == null || _stale
+                  ? null
+                  : _save,
+              tooltip: context.l10n.save,
+              icon: const Icon(Icons.save),
+            ),
+          ],
+        ),
+        body: ConstrainedPageWidth(
+          maxWidth: 760,
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _animal == null
+              ? Center(child: Text(_error ?? context.l10n.animalNotFound))
+              : Form(
+                  key: _form,
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      Text(
+                        AnimalDisplayNames.fromContext(
+                          context,
+                          commonName: _animal!['commonName'] as String? ?? '',
+                          latinName: _animal!['latinName'] as String? ?? '',
+                        ).primary,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                    ),
-                    if (_stale)
-                      TextButton.icon(
-                        onPressed: widget.api.connected ? _load : null,
-                        icon: const Icon(Icons.refresh),
-                        label: Text(
-                          sharedText(
-                            context,
-                            'Reload and review',
-                            'Neu laden und prüfen',
+                      const SizedBox(height: 24),
+                      if (_error != null) ...[
+                        Text(
+                          _error!,
+                          key: const Key('shared-feeding-reminder-error'),
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
                           ),
                         ),
+                        if (_stale)
+                          TextButton.icon(
+                            onPressed: widget.api.connected ? _load : null,
+                            icon: const Icon(Icons.refresh),
+                            label: Text(
+                              sharedText(
+                                context,
+                                'Reload and review',
+                                'Neu laden und prüfen',
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                      ],
+                      FeedingReminderFormFields(
+                        reminderEnabled: _enabled,
+                        controlsEnabled: !_saving && !_stale,
+                        intervalDaysController: _interval,
+                        onReminderEnabledChanged: (enabled) => setState(() {
+                          _enabled = enabled;
+                          _baseline = enabled ? DateTime.now() : null;
+                          _dirty = true;
+                        }),
+                        onIntervalChanged: (_) => setState(() => _dirty = true),
                       ),
-                    const SizedBox(height: 16),
-                  ],
-                  FeedingReminderFormFields(
-                    reminderEnabled: _enabled,
-                    controlsEnabled: !_saving && !_stale,
-                    intervalDaysController: _interval,
-                    onReminderEnabledChanged: (enabled) => setState(() {
-                      _enabled = enabled;
-                      _baseline = enabled ? DateTime.now() : null;
-                      _dirty = true;
-                    }),
-                    onIntervalChanged: (_) => setState(() => _dirty = true),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        key: const Key('shared-feeding-reminder-save'),
+                        onPressed: _saving || _stale ? null : _save,
+                        icon: const Icon(Icons.save),
+                        label: Text(context.l10n.save),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  FilledButton.icon(
-                    key: const Key('shared-feeding-reminder-save'),
-                    onPressed: _saving || _stale ? null : _save,
-                    icon: const Icon(Icons.save),
-                    label: Text(context.l10n.save),
-                  ),
-                ],
-              ),
-            ),
+                ),
+        ),
+      ),
     ),
   );
 }

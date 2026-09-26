@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
@@ -218,24 +219,28 @@ class _FeedingReminderSettingsPageState
           await _handleBack();
         }
       },
-      child: Scaffold(
-        key: const Key('feeding-reminder-settings-page'),
-        appBar: AppBar(
-          leading: BackButton(
-            key: const Key('back-feeding-reminder-button'),
-            onPressed: _handleBack,
-          ),
-          title: Text(context.l10n.feedingReminder),
-          actions: [
-            IconButton(
-              key: const Key('save-feeding-reminder-button'),
-              onPressed: _loading || _saving || _animal == null ? null : _save,
-              icon: const Icon(Icons.save),
-              tooltip: context.l10n.save,
+      child: ConstrainedPageWidth(
+        child: Scaffold(
+          key: const Key('feeding-reminder-settings-page'),
+          appBar: AppBar(
+            leading: BackButton(
+              key: const Key('back-feeding-reminder-button'),
+              onPressed: _handleBack,
             ),
-          ],
+            title: Text(context.l10n.feedingReminder),
+            actions: [
+              IconButton(
+                key: const Key('save-feeding-reminder-button'),
+                onPressed: _loading || _saving || _animal == null
+                    ? null
+                    : _save,
+                icon: const Icon(Icons.save),
+                tooltip: context.l10n.save,
+              ),
+            ],
+          ),
+          body: ConstrainedPageWidth(maxWidth: 760, child: _buildBody()),
         ),
-        body: _buildBody(),
       ),
     );
   }

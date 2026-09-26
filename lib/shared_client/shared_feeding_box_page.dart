@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/presentation/widgets/constrained_page_width.dart';
 import '../core/sorting/natural_string_comparator.dart';
 import '../features/animals/presentation/animal_display_names.dart';
 import '../l10n/app_localizations_context.dart';
@@ -200,164 +201,174 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
     final allSelected =
         _animals.isNotEmpty && _selectedIds.length == _animals.length;
     final label = boxLabel(widget.box);
-    return Scaffold(
-      appBar: AppBar(title: Text(context.l10n.feedingBoxTitle(label))),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      if (_error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Text(
-                            _error!,
-                            key: const Key('shared-feeding-error'),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
+    return ConstrainedPageWidth(
+      child: Scaffold(
+        appBar: AppBar(title: Text(context.l10n.feedingBoxTitle(label))),
+        body: ConstrainedPageWidth(
+          maxWidth: 760,
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          if (_error != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: Text(
+                                _error!,
+                                key: const Key('shared-feeding-error'),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      if (_animals.isEmpty && _error == null)
-                        Text(
-                          context.l10n.noActiveAnimalsAssigned(label),
-                          key: const Key('shared-feeding-empty'),
-                        )
-                      else if (_animals.isNotEmpty) ...[
-                        Text(
-                          context.l10n.activeAnimalsAssignedToBox(
-                            _animals.length,
-                            label,
-                          ),
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            key: const Key('shared-feeding-toggle-all'),
-                            onPressed: _saving
-                                ? null
-                                : () => setState(() {
-                                    _selectedIds = allSelected
-                                        ? {}
-                                        : _animals
-                                              .map(
-                                                (animal) => animal['id'] as int,
-                                              )
-                                              .toSet();
-                                    _error = null;
-                                  }),
-                            child: Text(
-                              allSelected
-                                  ? context.l10n.deselectAll
-                                  : context.l10n.selectAll,
+                          if (_animals.isEmpty && _error == null)
+                            Text(
+                              context.l10n.noActiveAnimalsAssigned(label),
+                              key: const Key('shared-feeding-empty'),
+                            )
+                          else if (_animals.isNotEmpty) ...[
+                            Text(
+                              context.l10n.activeAnimalsAssignedToBox(
+                                _animals.length,
+                                label,
+                              ),
+                              style: Theme.of(context).textTheme.titleMedium,
                             ),
-                          ),
-                        ),
-                        for (final animal in _animals)
-                          Builder(
-                            builder: (context) {
-                              final names = AnimalDisplayNames.fromContext(
-                                context,
-                                commonName:
-                                    (animal['commonName'] as String?) ?? '',
-                                latinName:
-                                    (animal['latinName'] as String?) ?? '',
-                              );
-                              final id = animal['id'] as int;
-                              return CheckboxListTile(
-                                key: Key('shared-feeding-animal-$id'),
-                                value: _selectedIds.contains(id),
-                                onChanged: _saving
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                key: const Key('shared-feeding-toggle-all'),
+                                onPressed: _saving
                                     ? null
-                                    : (selected) => setState(() {
-                                        if (selected == true) {
-                                          _selectedIds.add(id);
-                                        } else {
-                                          _selectedIds.remove(id);
-                                        }
+                                    : () => setState(() {
+                                        _selectedIds = allSelected
+                                            ? {}
+                                            : _animals
+                                                  .map(
+                                                    (animal) =>
+                                                        animal['id'] as int,
+                                                  )
+                                                  .toSet();
                                         _error = null;
                                       }),
-                                controlAffinity:
-                                    ListTileControlAffinity.leading,
-                                title: Text(names.primary),
-                                subtitle: Text(names.secondary),
-                              );
-                            },
-                          ),
-                        const Divider(height: 32),
-                        ListTile(
-                          key: const Key('shared-feeding-date-time'),
-                          title: Text(context.l10n.dateAndTime),
-                          subtitle: Text(
-                            '${MaterialLocalizations.of(context).formatMediumDate(_fedAt)} '
-                            '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(_fedAt))}',
-                          ),
-                          trailing: IconButton(
-                            onPressed: _saving ? null : _selectDateTime,
-                            icon: const Icon(Icons.calendar_today),
-                          ),
-                        ),
-                        TextField(
-                          key: const Key('shared-feeding-notes'),
-                          controller: _notesController,
-                          enabled: !_saving,
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            labelText: context.l10n.notes,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (_animals.isNotEmpty)
-                          FilledButton.icon(
-                            key: const Key('shared-feeding-save'),
-                            onPressed: _saving || _selectedIds.isEmpty
-                                ? null
-                                : _save,
-                            icon: const Icon(Icons.restaurant),
-                            label: Text(
-                              _selectedIds.isEmpty
-                                  ? context.l10n.selectAnimal
-                                  : context.l10n.saveFeedings(
-                                      _selectedIds.length,
-                                    ),
+                                child: Text(
+                                  allSelected
+                                      ? context.l10n.deselectAll
+                                      : context.l10n.selectAll,
+                                ),
+                              ),
                             ),
-                          ),
-                        const SizedBox(height: 8),
-                        OutlinedButton.icon(
-                          key: const Key('shared-feeding-next-box'),
-                          onPressed: _saving
-                              ? null
-                              : () => Navigator.of(context).pop(false),
-                          icon: const Icon(Icons.qr_code_scanner),
-                          label: Text(context.l10n.scanDifferentBox),
-                        ),
-                        if (_error != null && _animals.isEmpty)
-                          TextButton(
-                            onPressed: _loadAnimals,
-                            child: Text(
-                              sharedText(context, 'Retry', 'Erneut versuchen'),
+                            for (final animal in _animals)
+                              Builder(
+                                builder: (context) {
+                                  final names = AnimalDisplayNames.fromContext(
+                                    context,
+                                    commonName:
+                                        (animal['commonName'] as String?) ?? '',
+                                    latinName:
+                                        (animal['latinName'] as String?) ?? '',
+                                  );
+                                  final id = animal['id'] as int;
+                                  return CheckboxListTile(
+                                    key: Key('shared-feeding-animal-$id'),
+                                    value: _selectedIds.contains(id),
+                                    onChanged: _saving
+                                        ? null
+                                        : (selected) => setState(() {
+                                            if (selected == true) {
+                                              _selectedIds.add(id);
+                                            } else {
+                                              _selectedIds.remove(id);
+                                            }
+                                            _error = null;
+                                          }),
+                                    controlAffinity:
+                                        ListTileControlAffinity.leading,
+                                    title: Text(names.primary),
+                                    subtitle: Text(names.secondary),
+                                  );
+                                },
+                              ),
+                            const Divider(height: 32),
+                            ListTile(
+                              key: const Key('shared-feeding-date-time'),
+                              title: Text(context.l10n.dateAndTime),
+                              subtitle: Text(
+                                '${MaterialLocalizations.of(context).formatMediumDate(_fedAt)} '
+                                '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(_fedAt))}',
+                              ),
+                              trailing: IconButton(
+                                onPressed: _saving ? null : _selectDateTime,
+                                icon: const Icon(Icons.calendar_today),
+                              ),
                             ),
-                          ),
-                      ],
+                            TextField(
+                              key: const Key('shared-feeding-notes'),
+                              controller: _notesController,
+                              enabled: !_saving,
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                labelText: context.l10n.notes,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
-                  ),
+                    SafeArea(
+                      top: false,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (_animals.isNotEmpty)
+                              FilledButton.icon(
+                                key: const Key('shared-feeding-save'),
+                                onPressed: _saving || _selectedIds.isEmpty
+                                    ? null
+                                    : _save,
+                                icon: const Icon(Icons.restaurant),
+                                label: Text(
+                                  _selectedIds.isEmpty
+                                      ? context.l10n.selectAnimal
+                                      : context.l10n.saveFeedings(
+                                          _selectedIds.length,
+                                        ),
+                                ),
+                              ),
+                            const SizedBox(height: 8),
+                            OutlinedButton.icon(
+                              key: const Key('shared-feeding-next-box'),
+                              onPressed: _saving
+                                  ? null
+                                  : () => Navigator.of(context).pop(false),
+                              icon: const Icon(Icons.qr_code_scanner),
+                              label: Text(context.l10n.scanDifferentBox),
+                            ),
+                            if (_error != null && _animals.isEmpty)
+                              TextButton(
+                                onPressed: _loadAnimals,
+                                child: Text(
+                                  sharedText(
+                                    context,
+                                    'Retry',
+                                    'Erneut versuchen',
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+        ),
+      ),
     );
   }
 }

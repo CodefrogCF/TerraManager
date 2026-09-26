@@ -95,7 +95,7 @@ de:
         - number: "4"
           reverse: true
           heading: Bilder fortlaufend ergänzen
-          body_html: Neben dem Hauptbild kannst du weitere Aufnahmen in der Galerie speichern. Ein Bild lässt sich jederzeit als primäres Bild auswählen, ohne die übrigen Aufnahmen zu entfernen. Tippe auf das Hauptbild oder ein Galeriebild, um es in der Vollbildansicht zu vergrößern. Auf breiten Bildschirmen bleiben Übersichten, Einstellungen und Detailbilder auf gut lesbare Breiten begrenzt.
+          body_html: Neben dem Hauptbild kannst du weitere Aufnahmen in der Galerie speichern. Ein Bild lässt sich jederzeit als primäres Bild auswählen, ohne die übrigen Aufnahmen zu entfernen. Tippe auf das Hauptbild oder ein Galeriebild, um es in der Vollbildansicht zu vergrößern. Auf breiten Bildschirmen bleiben Übersichten, Einstellungen sowie Detail-, Bearbeitungs- und Verlaufsseiten auf gut lesbare Breiten begrenzt. Die Seitenränder folgen dem gewählten Theme. Detailbilder erhalten bei breiten Ansichten mehr Höhe; die Vollbildansicht nutzt weiterhin den gesamten Bildschirm.
           images:
             - file: gallery.webp
               alt: Bildergalerie eines Tieres
@@ -340,7 +340,7 @@ en:
         - number: "4"
           reverse: true
           heading: Keep adding pictures
-          body_html: In addition to the primary picture, you can store more pictures in the gallery. Any picture can later be selected as the primary image without deleting the others. Tap the primary or a gallery picture to zoom it in the full-screen viewer. On wide screens, overviews, settings and detail pictures stay at comfortable reading widths.
+          body_html: In addition to the primary picture, you can store more pictures in the gallery. Any picture can later be selected as the primary image without deleting the others. Tap the primary or a gallery picture to zoom it in the full-screen viewer. On wide screens, overviews, settings, detail pages, editing forms and history pages stay at comfortable reading widths. The side margins follow the selected theme. Detail pictures gain more height in wide layouts; the full-screen viewer still uses the entire window.
           images:
             - file: gallery.webp
               alt: Animal picture gallery

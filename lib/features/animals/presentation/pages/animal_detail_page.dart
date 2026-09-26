@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/presentation/widgets/responsive_picture_frame.dart';
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/enums/animal_status.dart';
 import '../../../../core/database/enums/sex.dart';
@@ -722,51 +724,58 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       builder: (context, snapshot) {
         final animal = snapshot.data;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(context.l10n.animalDetails),
-            actions: [
-              if (animal != null)
-                IconButton(
-                  key: const Key('feeding-history-button'),
-                  onPressed: _openFeedingHistory,
-                  icon: const Icon(Icons.restaurant),
-                  tooltip: context.l10n.feedingHistory,
-                ),
-              if (animal != null && animal.status == AnimalStatus.active)
-                IconButton(
-                  key: const Key('feeding-reminder-button'),
-                  onPressed: _lifecycleActionInProgress
-                      ? null
-                      : _openFeedingReminderSettings,
-                  icon: const Icon(Icons.notifications_outlined),
-                  tooltip: context.l10n.feedingReminder,
-                ),
-              if (animal != null && animal.status == AnimalStatus.active)
-                IconButton(
-                  key: const Key('edit-animal-button'),
-                  onPressed: _lifecycleActionInProgress ? null : _openEditPage,
-                  icon: const Icon(Icons.edit),
-                  tooltip: context.l10n.editAnimal,
-                ),
-            ],
-          ),
-          body: GestureDetector(
-            key: const Key('animal-detail-swipe-area'),
-            behavior: HitTestBehavior.translucent,
-            onHorizontalDragStart: _navigationContext == null
-                ? null
-                : _handleHorizontalDragStart,
-            onHorizontalDragUpdate: _navigationContext == null
-                ? null
-                : _handleHorizontalDragUpdate,
-            onHorizontalDragEnd: _navigationContext == null
-                ? null
-                : _handleHorizontalDragEnd,
-            onHorizontalDragCancel: _navigationContext == null
-                ? null
-                : _handleHorizontalDragCancel,
-            child: _buildBody(context, snapshot),
+        return ConstrainedPageWidth(
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(context.l10n.animalDetails),
+              actions: [
+                if (animal != null)
+                  IconButton(
+                    key: const Key('feeding-history-button'),
+                    onPressed: _openFeedingHistory,
+                    icon: const Icon(Icons.restaurant),
+                    tooltip: context.l10n.feedingHistory,
+                  ),
+                if (animal != null && animal.status == AnimalStatus.active)
+                  IconButton(
+                    key: const Key('feeding-reminder-button'),
+                    onPressed: _lifecycleActionInProgress
+                        ? null
+                        : _openFeedingReminderSettings,
+                    icon: const Icon(Icons.notifications_outlined),
+                    tooltip: context.l10n.feedingReminder,
+                  ),
+                if (animal != null && animal.status == AnimalStatus.active)
+                  IconButton(
+                    key: const Key('edit-animal-button'),
+                    onPressed: _lifecycleActionInProgress
+                        ? null
+                        : _openEditPage,
+                    icon: const Icon(Icons.edit),
+                    tooltip: context.l10n.editAnimal,
+                  ),
+              ],
+            ),
+            body: ConstrainedPageWidth(
+              maxWidth: 760,
+              child: GestureDetector(
+                key: const Key('animal-detail-swipe-area'),
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragStart: _navigationContext == null
+                    ? null
+                    : _handleHorizontalDragStart,
+                onHorizontalDragUpdate: _navigationContext == null
+                    ? null
+                    : _handleHorizontalDragUpdate,
+                onHorizontalDragEnd: _navigationContext == null
+                    ? null
+                    : _handleHorizontalDragEnd,
+                onHorizontalDragCancel: _navigationContext == null
+                    ? null
+                    : _handleHorizontalDragCancel,
+                child: _buildBody(context, snapshot),
+              ),
+            ),
           ),
         );
       },
@@ -819,8 +828,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
           builder: (context, pictureSnapshot) {
             if (animal.pictureMediaId != null &&
                 pictureSnapshot.connectionState == ConnectionState.waiting) {
-              return const SizedBox(
-                height: 220,
+              return const ResponsivePictureFrame(
                 child: Center(child: CircularProgressIndicator()),
               );
             }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
@@ -236,182 +237,189 @@ class _AnimalHistoryPageState extends State<AnimalHistoryPage> {
         settings?.animalArchiveSortOrder ??
         ArchiveSortOrder.archivedNewestFirst;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.animalHistory),
-        actions: [
-          PopupMenuButton<ArchiveSortCriterion>(
-            key: const Key('animal-archive-sort-button'),
-            initialValue: sortOrder.criterion,
-            onSelected: (criterion) {
-              final selectedOrder = criterion == sortOrder.criterion
-                  ? sortOrder.reversed
-                  : criterion.defaultOrder;
+    return ConstrainedPageWidth(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.animalHistory),
+          actions: [
+            PopupMenuButton<ArchiveSortCriterion>(
+              key: const Key('animal-archive-sort-button'),
+              initialValue: sortOrder.criterion,
+              onSelected: (criterion) {
+                final selectedOrder = criterion == sortOrder.criterion
+                    ? sortOrder.reversed
+                    : criterion.defaultOrder;
 
-              settings?.setAnimalArchiveSortOrder(selectedOrder);
-            },
-            icon: const Icon(Icons.sort),
-            tooltip: context.l10n.sortArchivedAnimals,
-            itemBuilder: (context) {
-              return ArchiveSortCriterion.values.map((criterion) {
-                final isActive = criterion == sortOrder.criterion;
+                settings?.setAnimalArchiveSortOrder(selectedOrder);
+              },
+              icon: const Icon(Icons.sort),
+              tooltip: context.l10n.sortArchivedAnimals,
+              itemBuilder: (context) {
+                return ArchiveSortCriterion.values.map((criterion) {
+                  final isActive = criterion == sortOrder.criterion;
 
-                return CheckedPopupMenuItem<ArchiveSortCriterion>(
-                  key: Key(
-                    'animal-archive-sort-option-'
-                    '${criterion.name}',
-                  ),
-                  value: criterion,
-                  checked: isActive,
-                  child: Text(
-                    context.l10n.archiveSortCriterionMenuLabel(
-                      criterion,
-                      activeOrder: isActive ? sortOrder : null,
+                  return CheckedPopupMenuItem<ArchiveSortCriterion>(
+                    key: Key(
+                      'animal-archive-sort-option-'
+                      '${criterion.name}',
                     ),
-                  ),
+                    value: criterion,
+                    checked: isActive,
+                    child: Text(
+                      context.l10n.archiveSortCriterionMenuLabel(
+                        criterion,
+                        activeOrder: isActive ? sortOrder : null,
+                      ),
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+        ),
+        body: ConstrainedPageWidth(
+          maxWidth: 760,
+          child: FutureBuilder<List<Animal>>(
+            future: _animalsFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(context.l10n.failedToLoadAnimalHistory),
                 );
-              }).toList();
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<Animal>>(
-        future: _animalsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text(context.l10n.failedToLoadAnimalHistory));
-          }
+              }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          final rawAnimals = snapshot.data ?? const <Animal>[];
+              final rawAnimals = snapshot.data ?? const <Animal>[];
 
-          final animals = sortArchivedRecords<Animal>(
-            rawAnimals,
-            sortOrder: sortOrder,
-            archivedAt: (animal) => animal.archivedAt,
-            displayName: (animal) {
-              return AnimalDisplayNames.fromContext(
-                context,
-                commonName: animal.commonName,
-                latinName: animal.latinName,
-              ).primary;
-            },
-            id: (animal) => animal.id,
-          );
-
-          if (animals.isEmpty) {
-            return Center(
-              key: const Key('animal-history-empty-state'),
-              child: Text(context.l10n.noArchivedAnimals),
-            );
-          }
-
-          return ListView.builder(
-            key: const Key('animal-history-list'),
-            itemCount: animals.length,
-            itemBuilder: (context, index) {
-              final animal = animals[index];
-
-              final displayNames = AnimalDisplayNames.fromContext(
-                context,
-                commonName: animal.commonName,
-                latinName: animal.latinName,
+              final animals = sortArchivedRecords<Animal>(
+                rawAnimals,
+                sortOrder: sortOrder,
+                archivedAt: (animal) => animal.archivedAt,
+                displayName: (animal) {
+                  return AnimalDisplayNames.fromContext(
+                    context,
+                    commonName: animal.commonName,
+                    latinName: animal.latinName,
+                  ).primary;
+                },
+                id: (animal) => animal.id,
               );
 
-              return OverviewContextMenu<_ArchivedAnimalAction>(
-                key: Key(
-                  'archived-animal-context-menu-region-'
-                  '${animal.id}',
-                ),
-                menuButtonKey: Key(
-                  'archived-animal-context-menu-button-'
-                  '${animal.id}',
-                ),
-                tooltip: context.l10n.animalActions(displayNames.primary),
-                onSelected: (action) {
-                  switch (action) {
-                    case _ArchivedAnimalAction.restore:
-                      _restoreAnimal(animal);
-                    case _ArchivedAnimalAction.duplicate:
-                      _duplicateAnimal(animal);
-                  }
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem<_ArchivedAnimalAction>(
+              if (animals.isEmpty) {
+                return Center(
+                  key: const Key('animal-history-empty-state'),
+                  child: Text(context.l10n.noArchivedAnimals),
+                );
+              }
+
+              return ListView.builder(
+                key: const Key('animal-history-list'),
+                itemCount: animals.length,
+                itemBuilder: (context, index) {
+                  final animal = animals[index];
+
+                  final displayNames = AnimalDisplayNames.fromContext(
+                    context,
+                    commonName: animal.commonName,
+                    latinName: animal.latinName,
+                  );
+
+                  return OverviewContextMenu<_ArchivedAnimalAction>(
                     key: Key(
-                      'archived-animal-restore-action-'
+                      'archived-animal-context-menu-region-'
                       '${animal.id}',
                     ),
-                    value: _ArchivedAnimalAction.restore,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.restore, size: 20),
-                        const SizedBox(width: 8),
-                        Flexible(child: Text(context.l10n.restoreAnimal)),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<_ArchivedAnimalAction>(
-                    key: Key(
-                      'archived-animal-duplicate-action-'
+                    menuButtonKey: Key(
+                      'archived-animal-context-menu-button-'
                       '${animal.id}',
                     ),
-                    value: _ArchivedAnimalAction.duplicate,
-                    child: Row(
-                      children: [
-                        const Icon(Icons.copy_outlined, size: 20),
-                        const SizedBox(width: 8),
-                        Flexible(child: Text(context.l10n.duplicateAnimal)),
-                      ],
-                    ),
-                  ),
-                ],
-                builder: (context, menuButton) => ListTile(
-                  key: Key(
-                    'archived-animal-list-item-'
-                    '${animal.id}',
-                  ),
-                  leading: FutureBuilder<MediaAsset?>(
-                    future: _pictureFutureFor(animal.pictureMediaId),
-                    builder: (context, pictureSnapshot) {
-                      return MediaThumbnail(
+                    tooltip: context.l10n.animalActions(displayNames.primary),
+                    onSelected: (action) {
+                      switch (action) {
+                        case _ArchivedAnimalAction.restore:
+                          _restoreAnimal(animal);
+                        case _ArchivedAnimalAction.duplicate:
+                          _duplicateAnimal(animal);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem<_ArchivedAnimalAction>(
                         key: Key(
-                          'archived-animal-thumbnail-'
+                          'archived-animal-restore-action-'
                           '${animal.id}',
                         ),
-                        pictureBytes: pictureSnapshot.data?.data,
-                        picturePath: pictureSnapshot.data == null
-                            ? animal.picturePath
-                            : null,
-                        fallbackIcon: Icons.emoji_nature_outlined,
-                        semanticsLabel: context.l10n.animalThumbnailLabel(
-                          displayNames.primary,
+                        value: _ArchivedAnimalAction.restore,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.restore, size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(context.l10n.restoreAnimal)),
+                          ],
                         ),
-                      );
-                    },
-                  ),
-                  title: Text(displayNames.primary),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(displayNames.secondary),
-                      const SizedBox(height: 4),
-                      Text(_archiveSummary(context, animal)),
+                      ),
+                      PopupMenuItem<_ArchivedAnimalAction>(
+                        key: Key(
+                          'archived-animal-duplicate-action-'
+                          '${animal.id}',
+                        ),
+                        value: _ArchivedAnimalAction.duplicate,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.copy_outlined, size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(context.l10n.duplicateAnimal)),
+                          ],
+                        ),
+                      ),
                     ],
-                  ),
-                  isThreeLine: true,
-                  trailing: menuButton,
-                  onTap: () {
-                    _openAnimalDetail(animal, animals);
-                  },
-                ),
+                    builder: (context, menuButton) => ListTile(
+                      key: Key(
+                        'archived-animal-list-item-'
+                        '${animal.id}',
+                      ),
+                      leading: FutureBuilder<MediaAsset?>(
+                        future: _pictureFutureFor(animal.pictureMediaId),
+                        builder: (context, pictureSnapshot) {
+                          return MediaThumbnail(
+                            key: Key(
+                              'archived-animal-thumbnail-'
+                              '${animal.id}',
+                            ),
+                            pictureBytes: pictureSnapshot.data?.data,
+                            picturePath: pictureSnapshot.data == null
+                                ? animal.picturePath
+                                : null,
+                            fallbackIcon: Icons.emoji_nature_outlined,
+                            semanticsLabel: context.l10n.animalThumbnailLabel(
+                              displayNames.primary,
+                            ),
+                          );
+                        },
+                      ),
+                      title: Text(displayNames.primary),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(displayNames.secondary),
+                          const SizedBox(height: 4),
+                          Text(_archiveSummary(context, animal)),
+                        ],
+                      ),
+                      isThreeLine: true,
+                      trailing: menuButton,
+                      onTap: () {
+                        _openAnimalDetail(animal, animals);
+                      },
+                    ),
+                  );
+                },
               );
             },
-          );
-        },
+          ),
+        ),
       ),
     );
   }

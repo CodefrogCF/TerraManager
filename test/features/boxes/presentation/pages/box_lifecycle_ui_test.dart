@@ -223,7 +223,11 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('edit-box-button')), findsNothing);
       expect(find.byKey(const Key('box-archived-status')), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Damaged'), 200);
+      await tester.pumpAndSettle();
       expect(find.text('Damaged'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Cracked glass'), 200);
+      await tester.pumpAndSettle();
       expect(find.text('Cracked glass'), findsOneWidget);
       await tester.tap(find.byKey(const Key('restore-box-button')));
       await tester.pumpAndSettle();

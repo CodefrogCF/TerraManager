@@ -256,6 +256,11 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('assigned-animal-thumbnail-5')),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(
       find.byKey(const Key('assigned-animal-thumbnail-5')),
       findsOneWidget,

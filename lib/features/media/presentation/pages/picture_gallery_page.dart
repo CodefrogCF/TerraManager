@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/picture_gallery_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
@@ -238,115 +239,123 @@ class _PictureGalleryPageState extends State<PictureGalleryPage> {
           Navigator.of(context).pop(_changed);
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(context.l10n.pictureGallery),
-          leading: BackButton(
-            onPressed: _processing
-                ? null
-                : () => Navigator.of(context).pop(_changed),
+      child: ConstrainedPageWidth(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(context.l10n.pictureGallery),
+            leading: BackButton(
+              onPressed: _processing
+                  ? null
+                  : () => Navigator.of(context).pop(_changed),
+            ),
           ),
-        ),
-        body: FutureBuilder<List<PictureGalleryEntry>>(
-          future: _picturesFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting &&
-                !snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text(context.l10n.failedToLoadPictures));
-            }
+          body: ConstrainedPageWidth(
+            maxWidth: 760,
+            child: FutureBuilder<List<PictureGalleryEntry>>(
+              future: _picturesFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text(context.l10n.failedToLoadPictures));
+                }
 
-            final pictures = snapshot.data ?? const [];
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final columns = constraints.maxWidth >= 720
-                    ? 3
-                    : constraints.maxWidth >= 420
-                    ? 2
-                    : 1;
-                return CustomScrollView(
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      sliver: SliverToBoxAdapter(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(context.l10n.pictureGalleryDescription),
-                            const SizedBox(height: 16),
-                            PictureSelectionControls(
-                              enabled: !_processing,
-                              processing: _processing,
-                              hasPicture: false,
-                              cameraSupported: _pictureSelectionFlow
-                                  .supportsImageSource(ImageSource.camera),
-                              onSelect: _selectPicture,
-                              onRemove: () {},
-                              actionButtonKey: const Key(
-                                'add-gallery-picture-button',
-                              ),
-                              removeButtonKey: const Key(
-                                'remove-gallery-picture-button',
-                              ),
-                            ),
-                            if (_error != null) ...[
-                              const SizedBox(height: 12),
-                              Text(
-                                _error!,
-                                key: const Key('picture-gallery-error'),
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
+                final pictures = snapshot.data ?? const [];
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    final columns = constraints.maxWidth >= 720
+                        ? 3
+                        : constraints.maxWidth >= 420
+                        ? 2
+                        : 1;
+                    return CustomScrollView(
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(context.l10n.pictureGalleryDescription),
+                                const SizedBox(height: 16),
+                                PictureSelectionControls(
+                                  enabled: !_processing,
+                                  processing: _processing,
+                                  hasPicture: false,
+                                  cameraSupported: _pictureSelectionFlow
+                                      .supportsImageSource(ImageSource.camera),
+                                  onSelect: _selectPicture,
+                                  onRemove: () {},
+                                  actionButtonKey: const Key(
+                                    'add-gallery-picture-button',
+                                  ),
+                                  removeButtonKey: const Key(
+                                    'remove-gallery-picture-button',
+                                  ),
                                 ),
-                              ),
-                            ],
-                            if (pictures.isEmpty) ...[
-                              const SizedBox(height: 32),
-                              Text(
-                                context.l10n.noPictures,
-                                key: const Key('empty-picture-gallery'),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (pictures.isNotEmpty)
-                      SliverPadding(
-                        padding: const EdgeInsets.all(16),
-                        sliver: SliverGrid.builder(
-                          itemCount: pictures.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: columns,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                mainAxisExtent: 270,
-                              ),
-                          itemBuilder: (context, index) => _PictureCard(
-                            picture: pictures[index],
-                            enabled: !_processing,
-                            timestamp: _formatTimestamp(
-                              context,
-                              pictures[index].capturedAt,
+                                if (_error != null) ...[
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    _error!,
+                                    key: const Key('picture-gallery-error'),
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .error,
+                                    ),
+                                  ),
+                                ],
+                                if (pictures.isEmpty) ...[
+                                  const SizedBox(height: 32),
+                                  Text(
+                                    context.l10n.noPictures,
+                                    key: const Key('empty-picture-gallery'),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ],
                             ),
-                            onOpen: () => FullScreenImagePage.open(
-                              context,
-                              imageBytes: pictures[index].media.data,
-                              title: context.l10n.pictureGallery,
-                            ),
-                            onSetPrimary: () => _setPrimary(pictures[index]),
-                            onDelete: () => _deletePicture(pictures[index]),
                           ),
                         ),
-                      ),
-                  ],
+                        if (pictures.isNotEmpty)
+                          SliverPadding(
+                            padding: const EdgeInsets.all(16),
+                            sliver: SliverGrid.builder(
+                              itemCount: pictures.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: columns,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                    mainAxisExtent: 270,
+                                  ),
+                              itemBuilder: (context, index) => _PictureCard(
+                                picture: pictures[index],
+                                enabled: !_processing,
+                                timestamp: _formatTimestamp(
+                                  context,
+                                  pictures[index].capturedAt,
+                                ),
+                                onOpen: () => FullScreenImagePage.open(
+                                  context,
+                                  imageBytes: pictures[index].media.data,
+                                  title: context.l10n.pictureGallery,
+                                ),
+                                onSetPrimary: () =>
+                                    _setPrimary(pictures[index]),
+                                onDelete: () => _deletePicture(pictures[index]),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 );
               },
-            );
-          },
+            ),
+          ),
         ),
       ),
     );

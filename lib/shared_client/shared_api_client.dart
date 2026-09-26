@@ -465,14 +465,27 @@ class SharedApiClient extends ChangeNotifier {
     return SharedBackupFile(response.bodyBytes, fileName, token);
   }
 
-  Future<void> restoreBackup(Uint8List bytes, String safetyToken) async {
+  Future<bool> safetyBackupRequired() async {
+    final json = await _request('GET', '/api/v1/admin/backups/restore-status');
+    final required = json['safetyBackupRequired'];
+    if (required is! bool) {
+      throw const SharedApiException(
+        200,
+        'invalid_response',
+        'The server did not confirm the restore requirements.',
+      );
+    }
+    return required;
+  }
+
+  Future<void> restoreBackup(Uint8List bytes, String? safetyToken) async {
     await _binaryRequest(
       'POST',
       '/api/v1/admin/backups/restore',
       bytes: bytes,
       timeout: const Duration(minutes: 10),
       extraHeaders: {
-        'X-Safety-Token': safetyToken,
+        'X-Safety-Token': ?safetyToken,
         'X-Restore-Confirmation': 'replace-shared-collection',
       },
     );

@@ -197,7 +197,10 @@ void main() {
       find.byKey(const Key('shared-create-backup-button')),
       300,
     );
-    await tester.drag(find.byType(ListView), const Offset(0, -250));
+    await Scrollable.ensureVisible(
+      tester.element(find.byKey(const Key('shared-create-backup-button'))),
+      alignment: 0.5,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('shared-create-backup-button')));
     await tester.pump();

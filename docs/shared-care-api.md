@@ -194,8 +194,20 @@ installation's personal preferences intact. Existing compatible `.tmbackup`
 archives can initialize an empty shared collection or replace a populated one.
 
 The response also issues a short-lived, session-bound safety token. The admin
-interface enables restore only after this current collection archive has been
-saved. The restore request sends the selected archive as the binary request
+interface requires this current collection archive to be saved when collection
+data exists. `GET /admin/backups/restore-status` is administrator-only and
+returns `{"safetyBackupRequired": true|false}` with `Cache-Control: no-store`.
+The browser checks it before selecting an archive; this response is advisory,
+not authorization to overwrite later changes. An empty collection can be
+initialized without `X-Safety-Token`. Emptiness means no rows in any collection
+table, including archived records, care histories, picture associations and
+unassociated media. Accounts and SQLite bookkeeping do not prevent first import.
+The server checks emptiness again after acquiring the exclusive restore gate,
+which drains existing mutations and prevents new writes through replacement.
+If a caregiver added data during selection or upload, a missing safety token
+returns `409 safety_backup_required` and preserves the collection. Populated
+collections still require a valid, unexpired, session-bound safety token with
+an unchanged generation. There is no opt-out for populated collections. The restore request sends the selected archive as the binary request
 body, the normal CSRF token, the safety token, and
 `X-Restore-Confirmation: replace-shared-collection`. The server validates the
 archive again and refuses the restore if the shared collection changed after

@@ -7,6 +7,7 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/box_archive_reason.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
@@ -308,6 +309,206 @@ void main() {
         accounts.close();
         await directory.delete(recursive: true);
         drift.driftRuntimeOptions.dontWarnAboutMultipleDatabases = false;
+      }
+    },
+  );
+  test(
+    'empty collection restore is server checked and rejects intervening writes',
+    () async {
+      final directory = await Directory.systemTemp.createTemp(
+        'tm-empty-restore-',
+      );
+      final accounts = await AccountStore.open(
+        File('${directory.path}/accounts.sqlite'),
+      );
+      final database = await openServerDatabase(
+        File('${directory.path}/collection.sqlite'),
+      );
+      final source = AppDatabase.test(NativeDatabase.memory());
+      final client = HttpClient();
+      HttpServer? server;
+      try {
+        await accounts.createInitialAdministrator(
+          'admin',
+          'secure admin password 123',
+        );
+        await accounts.createAccount(
+          'keeper',
+          'secure keeper password 123',
+          CareRole.caregiver,
+        );
+        await BoxRepository(source).createBox(
+          'TM:BOX:22222222-2222-4222-8222-222222222222',
+          name: 'Imported',
+        );
+        final backup = await BackupExportService(source).createBackup(
+          appVersion: 'development',
+          themeMode: ThemeMode.system,
+          accent: AppAccent.green,
+        );
+        server = await SharedServerApi(
+          database: database,
+          accounts: accounts,
+          publicUrl: Uri.parse('http://127.0.0.1'),
+        ).serve();
+        final admin = await _call(
+          client,
+          server,
+          'POST',
+          '/api/v1/auth/login',
+          json: {'username': 'admin', 'password': 'secure admin password 123'},
+        );
+        final cookie = admin.headers
+            .value(HttpHeaders.setCookieHeader)!
+            .split(';')
+            .first;
+        final csrf = admin.json['csrfToken'] as String;
+        final keeper = await _call(
+          client,
+          server,
+          'POST',
+          '/api/v1/auth/login',
+          json: {
+            'username': 'keeper',
+            'password': 'secure keeper password 123',
+          },
+        );
+        final keeperCookie = keeper.headers
+            .value(HttpHeaders.setCookieHeader)!
+            .split(';')
+            .first;
+        Future<_Reply> status() => _call(
+          client,
+          server!,
+          'GET',
+          '/api/v1/admin/backups/restore-status',
+          cookie: cookie,
+        );
+        Future<_Reply> restore({bool confirm = true, Uint8List? bytes}) =>
+            _call(
+              client,
+              server!,
+              'POST',
+              '/api/v1/admin/backups/restore',
+              cookie: cookie,
+              csrf: csrf,
+              confirm: confirm,
+              archive: bytes ?? backup.bytes,
+            );
+        expect(
+          (await _call(
+            client,
+            server,
+            'GET',
+            '/api/v1/admin/backups/restore-status',
+          )).status,
+          401,
+        );
+        expect(
+          (await _call(
+            client,
+            server,
+            'GET',
+            '/api/v1/admin/backups/restore-status',
+            cookie: keeperCookie,
+          )).status,
+          403,
+        );
+        expect((await status()).json['safetyBackupRequired'], false);
+        expect((await restore(confirm: false)).status, 400);
+        expect(
+          (await restore(bytes: Uint8List.fromList([1, 2, 3]))).status,
+          400,
+        );
+        expect((await status()).json['safetyBackupRequired'], false);
+
+        // An unassociated media row is still valuable collection data.
+        await database
+            .into(database.mediaAssets)
+            .insert(
+              MediaAssetsCompanion.insert(
+                fileName: 'orphan.png',
+                mimeType: 'image/png',
+                data: Uint8List.fromList([1]),
+              ),
+            );
+        expect((await status()).json['safetyBackupRequired'], true);
+        expect(
+          (await restore()).json['error']['code'],
+          'safety_backup_required',
+        );
+        await database.delete(database.mediaAssets).go();
+        expect((await status()).json['safetyBackupRequired'], false);
+
+        // Keep the upload open while a caregiver writes. The final check must
+        // reject replacement even if the server initially observed an empty DB.
+        final request = await client.postUrl(
+          Uri.parse(
+            'http://127.0.0.1:${server.port}/api/v1/admin/backups/restore',
+          ),
+        );
+        request.bufferOutput = false;
+        request.headers.set(HttpHeaders.cookieHeader, cookie);
+        request.headers.set('X-CSRF-Token', csrf);
+        request.headers.set(
+          'X-Restore-Confirmation',
+          'replace-shared-collection',
+        );
+        request.headers.contentType = ContentType.parse(
+          'application/vnd.terramanager.backup+zip',
+        );
+        request.contentLength = backup.bytes.length;
+        request.add(backup.bytes.sublist(0, 4));
+        await request.flush();
+        final changed = await _call(
+          client,
+          server,
+          'POST',
+          '/api/v1/boxes',
+          cookie: keeperCookie,
+          csrf: keeper.json['csrfToken'] as String,
+          json: {'name': 'Caregiver change'},
+        );
+        expect(changed.status, 201);
+        request.add(backup.bytes.sublist(4));
+        final response = await request.close();
+        expect(response.statusCode, 409);
+        await response.drain<void>();
+        expect(
+          (await BoxRepository(database).getAllBoxes()).single.name,
+          'Caregiver change',
+        );
+        expect((await status()).json['safetyBackupRequired'], true);
+        await BoxRepository(database).archiveBox(
+          boxId: (await BoxRepository(database).getAllBoxes()).single.id,
+          reason: BoxArchiveReason.other,
+          archivedAt: DateTime.utc(2026, 9, 26),
+        );
+        expect(await BoxRepository(database).getActiveBoxes(), isEmpty);
+        expect((await status()).json['safetyBackupRequired'], true);
+        expect(
+          (await restore()).json['error']['code'],
+          'safety_backup_required',
+        );
+        await database.delete(database.boxes).go();
+        expect((await restore()).status, 200);
+        expect(
+          (await BoxRepository(database).getAllBoxes()).single.name,
+          'Imported',
+        );
+        expect((await status()).json['safetyBackupRequired'], true);
+        expect(
+          (await restore()).json['error']['code'],
+          'safety_backup_required',
+        );
+        expect(accounts.hasAccounts, true);
+      } finally {
+        client.close(force: true);
+        await server?.close(force: true);
+        await source.close();
+        await database.close();
+        accounts.close();
+        await directory.delete(recursive: true);
       }
     },
   );

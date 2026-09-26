@@ -2005,19 +2005,21 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
   Future<void> _restore() async {
     if (_busy || !widget.connected) return;
     final token = _safetyToken;
-    if (token == null) {
-      _message(
-        sharedText(
-          context,
-          'Save a current safety backup first.',
-          'Speichere zuerst eine aktuelle Sicherheitskopie.',
-        ),
-      );
-      return;
-    }
     setState(() => _busy = true);
     widget.onBackupBusyChanged?.call(true);
     try {
+      final requiresSafety = await widget.api.safetyBackupRequired();
+      if (!mounted) return;
+      if (requiresSafety && token == null) {
+        _message(
+          sharedText(
+            context,
+            'The server contains collection data. Save a current safety backup first.',
+            'Der Server enthält Sammlungsdaten. Speichere zuerst eine aktuelle Sicherheitskopie.',
+          ),
+        );
+        return;
+      }
       final picked = await BackupFileService().pickBackup();
       if (picked == null || !mounted) return;
       if (picked.bytes.length > 256 * 1024 * 1024) {
@@ -2050,11 +2052,13 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
               'The selected backup contains ${validated.boxCount} Boxes and '
                   '${validated.animalCount} Animals. All current shared records '
                   'and pictures will be replaced. Browser preferences and '
-                  'caregiver accounts remain unchanged.',
+                  'caregiver accounts remain unchanged. '
+                  '${requiresSafety ? 'A current safety backup protects the existing collection.' : 'The server confirmed an empty collection; no safety backup is needed. This is checked again before replacement.'}',
               'Die Sicherung enthält ${validated.boxCount} Boxen und '
                   '${validated.animalCount} Tiere. Alle aktuellen gemeinsamen '
                   'Einträge und Bilder werden ersetzt. Browser-Einstellungen '
-                  'und Betreuungskonten bleiben unverändert.',
+                  'und Betreuungskonten bleiben unverändert. '
+                  '${requiresSafety ? 'Eine aktuelle Sicherheitskopie schützt die bestehende Sammlung.' : 'Der Server hat eine leere Sammlung bestätigt; eine Sicherheitskopie ist nicht erforderlich. Dies wird vor dem Ersetzen erneut geprüft.'}',
             ),
           ),
           actions: [
@@ -2148,8 +2152,8 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         subtitle: Text(
           sharedText(
             context,
-            'First save a current safety backup, then select a compatible .tmbackup file.',
-            'Zuerst eine aktuelle Sicherheitskopie speichern, dann eine kompatible .tmbackup-Datei wählen.',
+            'Select a compatible .tmbackup file. A current safety backup is required when the server contains collection data; an empty collection needs none.',
+            'Eine kompatible .tmbackup-Datei wählen. Enthält der Server Sammlungsdaten, ist eine aktuelle Sicherheitskopie erforderlich; bei einer leeren Sammlung entfällt sie.',
           ),
         ),
         trailing: const Icon(Icons.chevron_right),

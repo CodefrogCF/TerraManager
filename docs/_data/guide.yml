@@ -207,7 +207,7 @@ de:
         - number: "13"
           heading: Safety Backup bei Wiederherstellung
           body_html: Vor einer Wiederherstellung ist standardmäßig ein zusätzliches Safety Backup des aktuellen Zustands vorgesehen. Der Schutz ist als Opt-out ausgeführt und kann bewusst deaktiviert werden.
-          note_html: Im eigenständigen Modus ist bei aktiviertem Safety Backup keine separate manuelle Zwischensicherung vor jeder Wiederherstellung nötig. Bei Shared Care sollten Administratoren vor einer Wiederherstellung eine aktuelle portable Sicherung herunterladen; für die vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden.
+          note_html: Im eigenständigen Modus ist bei aktiviertem Safety Backup keine separate manuelle Zwischensicherung vor jeder Wiederherstellung nötig. Bei Shared Care ist vor dem Ersetzen vorhandener Sammlungsdaten eine aktuelle portable Sicherheitskopie erforderlich. Nur bei einer vom Server bestätigten leeren Sammlung entfällt sie; der Server prüft dies vor dem Ersetzen erneut. Die Bestätigung der Wiederherstellung bleibt erforderlich; für die vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden.
           images:
             - file: restore-safety-backup.webp
               alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
@@ -454,7 +454,7 @@ en:
         - number: "13"
           heading: Safety backup before restore
           body_html: Before restoring a backup, TerraManager offers an additional safety backup of the current state by default. This protection is opt-out and can be deliberately disabled.
-          note_html: In standalone mode, the enabled safety backup removes the need for a separate manual backup before every restore. In Shared Care, administrators should download a current portable backup before restoring; full server recovery also requires a backup of both databases in the server data directory.
+          note_html: In standalone mode, the enabled safety backup removes the need for a separate manual backup before every restore. In Shared Care, a current portable safety backup is required before replacing existing collection data. Only a server-confirmed empty collection may skip it, and the server checks again before replacement. Explicit restore confirmation is still required; full server recovery also requires a backup of both databases in the server data directory.
           images:
             - file: restore-safety-backup.webp
               alt: Restore dialog with safety backup enabled

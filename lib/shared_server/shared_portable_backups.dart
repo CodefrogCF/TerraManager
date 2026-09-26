@@ -20,6 +20,18 @@ class SharedPortableBackups {
     accent: 'green',
   );
 
+  /// Includes archived records, histories, associations and orphan media.
+  /// Account records and SQLite bookkeeping are not collection data.
+  Future<bool> isEmpty() async {
+    for (final table in database.allTables) {
+      final rows = await database
+          .customSelect('SELECT 1 FROM "${table.actualTableName}" LIMIT 1')
+          .get();
+      if (rows.isNotEmpty) return false;
+    }
+    return true;
+  }
+
   Future<BackupExportResult> export() =>
       PortableBackupExporter(
         database,

@@ -347,8 +347,14 @@ restoring it to an isolated test installation, not over the running server.
 The administrator's **Save shared backup** action instead downloads a portable
 `.tmbackup` containing all shared Boxes, Animals, histories and picture media.
 It excludes `accounts.sqlite`, sessions and personal browser preferences. To
-restore, save a fresh safety copy first, select a compatible backup, inspect
-its record counts and confirm replacement. The server rejects an outdated
+restore a populated collection, save a fresh safety copy first, select a
+compatible backup, inspect its record counts and confirm replacement. A new,
+genuinely empty collection can be initialized without an empty safety download.
+The server checks all collection tables, including archived records, histories
+and media, and repeats the check under the restore gate before replacing data.
+Accounts do not count as collection data. If another caregiver adds data before
+replacement, restore without a valid safety copy is rejected. The browser
+explains the requirement and still asks for explicit replacement confirmation. The server rejects an outdated
 safety copy after another caregiver changes the collection. A failed import
 does not replace existing data. Restore blocks collection edits until its
 transaction ends; reload other open browsers afterwards. The browser and

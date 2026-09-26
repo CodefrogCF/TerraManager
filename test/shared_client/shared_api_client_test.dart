@@ -377,4 +377,42 @@ void main() {
     expect(completed, isTrue);
     expect(failure, isNull);
   });
+  test(
+    'empty restore omits safety token but retains CSRF and confirmation',
+    () async {
+      http.Request? restored;
+      var statusBody = {'safetyBackupRequired': false};
+      final client = SharedApiClient(
+        Uri.parse(origin),
+        MockClient((request) async {
+          if (request.url.path == '/api/v1/auth/login') {
+            return http.Response(jsonEncode(session), 200);
+          }
+          if (request.url.path.endsWith('/restore-status')) {
+            return http.Response(jsonEncode(statusBody), 200);
+          }
+          restored = request;
+          return http.Response('{"restored":true}', 200);
+        }),
+      );
+      try {
+        await client.login('hagen', 'secret password');
+        expect(await client.safetyBackupRequired(), false);
+        await client.restoreBackup(Uint8List.fromList([80, 75]), null);
+        expect(restored!.headers.containsKey('X-Safety-Token'), false);
+        expect(restored!.headers['X-CSRF-Token'], 'csrf-secret');
+        expect(
+          restored!.headers['X-Restore-Confirmation'],
+          'replace-shared-collection',
+        );
+        statusBody = {};
+        await expectLater(
+          client.safetyBackupRequired(),
+          throwsA(isA<SharedApiException>()),
+        );
+      } finally {
+        client.close();
+      }
+    },
+  );
 }

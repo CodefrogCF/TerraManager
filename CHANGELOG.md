@@ -8,6 +8,12 @@ The project uses semantic versioning.
 
 ### Added
 
+- allow administrators to initialize a genuinely empty Shared Care collection
+  from a portable backup without downloading an empty safety copy — Issue #176
+- check all collection tables on the server and recheck under the exclusive
+  restore gate; populated collections retain the safety token requirement
+- explain empty and populated restore requirements in German and English
+
 - add the browser-local Show next feeding toggle above Big Picture Mode in
   Shared Care Settings
 - respect that toggle in compact and Big Picture Animal overviews while

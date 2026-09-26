@@ -238,6 +238,26 @@ class SharedServerApi {
 
   Future<void> _admin(HttpRequest request, CareSession current) async {
     final parts = request.uri.pathSegments;
+    if (parts.length == 5 &&
+        parts[3] == 'backups' &&
+        parts[4] == 'restore-status' &&
+        request.method == 'GET') {
+      if (!await _gate.enterExclusive()) {
+        throw const ApiProblem(
+          503,
+          'restore_in_progress',
+          'The shared collection is temporarily unavailable.',
+        );
+      }
+      try {
+        await _send(request.response, 200, {
+          'safetyBackupRequired': !await _backups.isEmpty(),
+        });
+      } finally {
+        _gate.leaveExclusive();
+      }
+      return;
+    }
     if (parts.length == 4 && parts[3] == 'backups' && request.method == 'GET') {
       await _exportBackup(request, current);
       return;
@@ -360,9 +380,11 @@ class SharedServerApi {
       );
     }
     final grant = _safetyGrants[current.token];
-    if (grant == null ||
-        grant.token != request.headers.value('X-Safety-Token') ||
-        DateTime.now().toUtc().isAfter(grant.expiresAt)) {
+    bool validGrant() =>
+        grant != null &&
+        grant.token == request.headers.value('X-Safety-Token') &&
+        !DateTime.now().toUtc().isAfter(grant.expiresAt);
+    if (!validGrant() && !await _backups.isEmpty()) {
       throw const ApiProblem(
         409,
         'safety_backup_required',
@@ -379,12 +401,23 @@ class SharedServerApi {
       );
     }
     try {
-      if (grant.generation != _gate.generation) {
-        throw const ApiProblem(
-          409,
-          'safety_backup_stale',
-          'The collection changed. Download a new safety backup.',
-        );
+      // The upload can take minutes. Recheck after existing writes have drained
+      // and while the gate excludes new writes through transactional replacement.
+      if (!await _backups.isEmpty()) {
+        if (!validGrant()) {
+          throw const ApiProblem(
+            409,
+            'safety_backup_required',
+            'Download a current safety backup before restoring.',
+          );
+        }
+        if (grant!.generation != _gate.generation) {
+          throw const ApiProblem(
+            409,
+            'safety_backup_stale',
+            'The collection changed. Download a new safety backup.',
+          );
+        }
       }
       final mediaCount = await _backups.restore(validated);
       _care.clearRequestCache();

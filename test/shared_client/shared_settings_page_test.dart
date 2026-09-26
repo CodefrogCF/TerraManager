@@ -105,4 +105,47 @@ void main() {
     expect(find.byKey(const Key('shared-create-backup-button')), findsNothing);
     expect(tester.takeException(), isNull);
   });
+  testWidgets(
+    'restore explains populated server protection before file selection',
+    (tester) async {
+      var checked = false;
+      final busy = <bool>[];
+      final api = SharedApiClient(
+        Uri.parse('https://192.168.1.117'),
+        MockClient((request) async {
+          expect(request.url.path, '/api/v1/admin/backups/restore-status');
+          checked = true;
+          return http.Response('{"safetyBackupRequired":true}', 200);
+        }),
+      );
+      addTearDown(api.close);
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('de'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: Scaffold(
+            body: SharedBackupSection(
+              api: api,
+              connected: true,
+              onRestored: () async => fail('Restore must not start'),
+              onBackupBusyChanged: busy.add,
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.byKey(const Key('shared-restore-backup-button')));
+      await tester.pumpAndSettle();
+      expect(checked, true);
+      expect(
+        find.text(
+          'Der Server enthält Sammlungsdaten. Speichere zuerst eine aktuelle Sicherheitskopie.',
+        ),
+        findsOneWidget,
+      );
+      expect(busy, [true, false]);
+      expect(find.byKey(const Key('shared-backup-progress')), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

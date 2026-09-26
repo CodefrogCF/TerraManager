@@ -157,7 +157,10 @@ scanning and recovery checks still needed for a new installation.
 
 Administrators can download the complete shared collection as a portable
 `.tmbackup` and restore a compatible archive after saving a current safety
-copy and confirming replacement. Shared archives leave caregiver accounts and
+copy and confirming replacement. Only a genuinely empty server collection may
+skip the safety download; the server checks every collection table again under
+the restore gate, so intervening writes cannot bypass protection. Shared
+archives leave caregiver accounts and
 personal browser preferences outside the portable collection. A host-volume
 backup is still needed to protect server accounts and sessions.
 

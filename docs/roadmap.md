@@ -1741,6 +1741,17 @@ standalone Android collection.
 
 ---
 
+## v1.14.0 — Shared Care Administration & Audit
+
+Issue #176 allows a first portable import without a safety download only when
+all server collection tables are empty. Administrator authorization, CSRF,
+explicit confirmation, archive validation and transactional replacement remain
+required. The server rechecks emptiness while excluding caregiver writes.
+Populated collections continue to require a current safety copy.
+
+Next planned work covers persistent audit records (#177), account administration
+(#178) and an administrator audit viewer (#179). These are not yet implemented.
+
 ## Future Development
 
 Possible later development areas include:

@@ -64,7 +64,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('shared-big-picture-toggle')));
+    await settings.setBigPictureModeEnabled(true);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('box-big-picture-1')), findsOneWidget);
     expect(find.byKey(const Key('box-big-picture-2')), findsOneWidget);
@@ -78,7 +78,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('box-big-picture-3')), findsOneWidget);
     expect(find.byKey(const Key('box-big-picture-1')), findsNothing);
-    await tester.tap(find.byKey(const Key('shared-big-picture-toggle')));
+    await settings.setBigPictureModeEnabled(false);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('box-big-picture-3')), findsNothing);
     expect(find.byKey(const Key('box-list-item-3')), findsOneWidget);

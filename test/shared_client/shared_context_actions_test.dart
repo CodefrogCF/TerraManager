@@ -53,7 +53,7 @@ void main() {
     expect(find.text('Delete Box'), findsNothing);
     await tester.tapAt(const Offset(1, 1));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('shared-big-picture-toggle')));
+    await settings.setBigPictureModeEnabled(true);
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('box-big-picture-1')), findsOneWidget);
     await tester.longPress(find.byKey(const Key('box-context-menu-region-1')));

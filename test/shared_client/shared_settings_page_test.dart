@@ -51,6 +51,14 @@ void main() {
     expect(find.byKey(const Key('shared-box-sort-selector')), findsNothing);
     expect(find.byKey(const Key('shared-animal-sort-selector')), findsNothing);
     expect(find.byKey(const Key('shared-category-view-switch')), findsNothing);
+    final bigPicture = find.byKey(const Key('big-picture-mode-switch'));
+    await tester.scrollUntilVisible(bigPicture, 200);
+    expect(find.text('Großbildmodus'), findsOneWidget);
+    expect(tester.widget<SwitchListTile>(bigPicture).value, isFalse);
+    await tester.tap(bigPicture);
+    await tester.pumpAndSettle();
+    expect(settings.bigPictureModeEnabled, isTrue);
+
     await tester.scrollUntilVisible(
       find.byKey(const Key('shared-server-section-heading')),
       500,

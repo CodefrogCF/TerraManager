@@ -178,8 +178,13 @@ the detail returns to its overview. A local archive or restore ends the old
 navigation context; reopen the matching overview to continue there.
 
 Shared Settings follows the standalone page's appearance and language
-controls. Sorting, category grouping and Big Picture Mode are changed directly
-on the relevant overview; these choices remain local to the browser. Server
+controls. Enable **Big Picture Mode** in Settings to use picture cards in both
+Box and Animal overviews, including archives. The existing choice is preserved
+in this browser. Sorting and Animal category grouping remain on the relevant
+overview. Box toolbar actions appear in the same order as the standalone app:
+sort, archive, Scan Box and Feeding Mode. The Animal toolbar contains category
+grouping, sort and archive. **Reload** is the additional rightmost action in
+both toolbars. Server
 status, administrator backups, caregiver accounts and sign-out are grouped in
 the **Shared server** section, so it is clear which actions affect everyone.
 

@@ -637,6 +637,74 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                 : context.l10n.navigationBoxes,
           ),
           actions: [
+            PopupMenuButton<BoxSortCriterion>(
+              key: const Key('box-sort-button'),
+              initialValue: settings.boxSortOrder.criterion,
+              tooltip: context.l10n.sortBoxes,
+              icon: const Icon(Icons.sort),
+              onSelected: (criterion) {
+                final current = settings.boxSortOrder;
+                settings.setBoxSortOrder(
+                  criterion == current.criterion
+                      ? current.reversed
+                      : criterion.defaultOrder,
+                );
+              },
+              itemBuilder: (context) => [
+                for (final criterion in BoxSortCriterion.values)
+                  CheckedPopupMenuItem<BoxSortCriterion>(
+                    key: Key('box-sort-option-${criterion.name}'),
+                    value: criterion,
+                    checked: criterion == settings.boxSortOrder.criterion,
+                    child: Text(
+                      context.l10n.boxSortCriterionMenuLabel(
+                        criterion,
+                        activeOrder:
+                            criterion == settings.boxSortOrder.criterion
+                            ? settings.boxSortOrder
+                            : null,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (!_archived)
+              IconButton(
+                key: const Key('box-archive-button'),
+                tooltip: context.l10n.archivedBoxes,
+                onPressed: () => setState(() => _archived = true),
+                icon: const Icon(Icons.inventory_2_outlined),
+              ),
+            if (!_archived)
+              IconButton(
+                key: const Key('shared-box-scan-button'),
+                tooltip: context.l10n.scanBoxTitle,
+                onPressed: widget.connected && widget.api.connected
+                    ? () async {
+                        await Navigator.of(context).push<void>(
+                          MaterialPageRoute(
+                            builder: (_) => SharedBoxScannerPage(
+                              api: widget.api,
+                              boxes: widget.boxes,
+                              animals: widget.animals,
+                              change: widget.change,
+                            ),
+                          ),
+                        );
+                        if (mounted) await widget.onReload();
+                      }
+                    : null,
+                icon: const Icon(Icons.qr_code_scanner),
+              ),
+            if (!_archived)
+              IconButton(
+                key: const Key('shared-feeding-mode-button'),
+                tooltip: context.l10n.feedingModeTitle,
+                onPressed: widget.connected && widget.api.connected
+                    ? _openFeedingMode
+                    : null,
+                icon: const Icon(Icons.restaurant_menu),
+              ),
             IconButton(
               key: const Key('shared-refresh'),
               tooltip: sharedText(context, 'Reload', 'Neu laden'),
@@ -644,92 +712,6 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
               icon: const Icon(Icons.refresh),
             ),
           ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(48),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  key: const Key('shared-big-picture-toggle'),
-                  tooltip: context.l10n.bigPictureMode,
-                  isSelected: settings.bigPictureModeEnabled,
-                  onPressed: () => settings.setBigPictureModeEnabled(
-                    !settings.bigPictureModeEnabled,
-                  ),
-                  icon: const Icon(Icons.grid_view_outlined),
-                  selectedIcon: const Icon(Icons.view_list_outlined),
-                ),
-                PopupMenuButton<BoxSortCriterion>(
-                  key: const Key('box-sort-button'),
-                  initialValue: settings.boxSortOrder.criterion,
-                  tooltip: context.l10n.sortBoxes,
-                  icon: const Icon(Icons.sort),
-                  onSelected: (criterion) {
-                    final current = settings.boxSortOrder;
-                    settings.setBoxSortOrder(
-                      criterion == current.criterion
-                          ? current.reversed
-                          : criterion.defaultOrder,
-                    );
-                  },
-                  itemBuilder: (context) => [
-                    for (final criterion in BoxSortCriterion.values)
-                      CheckedPopupMenuItem<BoxSortCriterion>(
-                        key: Key('box-sort-option-${criterion.name}'),
-                        value: criterion,
-                        checked: criterion == settings.boxSortOrder.criterion,
-                        child: Text(
-                          context.l10n.boxSortCriterionMenuLabel(
-                            criterion,
-                            activeOrder:
-                                criterion == settings.boxSortOrder.criterion
-                                ? settings.boxSortOrder
-                                : null,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                if (!_archived)
-                  IconButton(
-                    key: const Key('shared-feeding-mode-button'),
-                    tooltip: context.l10n.feedingModeTitle,
-                    onPressed: widget.connected && widget.api.connected
-                        ? _openFeedingMode
-                        : null,
-                    icon: const Icon(Icons.restaurant),
-                  ),
-                if (!_archived)
-                  IconButton(
-                    key: const Key('shared-box-scan-button'),
-                    tooltip: context.l10n.scanBoxTitle,
-                    onPressed: widget.connected && widget.api.connected
-                        ? () async {
-                            await Navigator.of(context).push<void>(
-                              MaterialPageRoute(
-                                builder: (_) => SharedBoxScannerPage(
-                                  api: widget.api,
-                                  boxes: widget.boxes,
-                                  animals: widget.animals,
-                                  change: widget.change,
-                                ),
-                              ),
-                            );
-                            if (mounted) await widget.onReload();
-                          }
-                        : null,
-                    icon: const Icon(Icons.qr_code_scanner),
-                  ),
-                if (!_archived)
-                  IconButton(
-                    key: const Key('box-archive-button'),
-                    tooltip: context.l10n.archivedBoxes,
-                    onPressed: () => setState(() => _archived = true),
-                    icon: const Icon(Icons.inventory_2_outlined),
-                  ),
-              ],
-            ),
-          ),
         ),
         floatingActionButton: _archived
             ? null
@@ -1358,6 +1340,62 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                 : context.l10n.navigationAnimals,
           ),
           actions: [
+            if (!_archived)
+              IconButton(
+                key: const Key('animal-category-view-toggle'),
+                isSelected: settings.animalCategoryViewEnabled,
+                onPressed: () => settings.setAnimalCategoryViewEnabled(
+                  !settings.animalCategoryViewEnabled,
+                ),
+                icon: const Icon(Icons.toggle_on_outlined),
+                selectedIcon: const Icon(Icons.toggle_off_outlined),
+                tooltip: settings.animalCategoryViewEnabled
+                    ? context.l10n.hideAnimalCategoryGroups
+                    : context.l10n.showAnimalCategoryGroups,
+              ),
+            PopupMenuButton<AnimalSortCriterion>(
+              key: const Key('animal-sort-button'),
+              initialValue: settings.animalSortOrder.criterion,
+              tooltip: context.l10n.sortAnimals,
+              icon: const Icon(Icons.sort),
+              onSelected: (criterion) {
+                final current = settings.animalSortOrder.normalized;
+                settings.setAnimalSortOrder(
+                  criterion == current.criterion
+                      ? current.reversed
+                      : criterion.defaultOrder,
+                );
+              },
+              itemBuilder: (context) => [
+                for (final criterion in const [
+                  AnimalSortCriterion.created,
+                  AnimalSortCriterion.displayName,
+                  AnimalSortCriterion.age,
+                  AnimalSortCriterion.latestFeeding,
+                ])
+                  CheckedPopupMenuItem<AnimalSortCriterion>(
+                    key: Key('animal-sort-option-${criterion.name}'),
+                    value: criterion,
+                    checked: criterion == settings.animalSortOrder.criterion,
+                    child: Text(
+                      context.l10n.animalSortCriterionMenuLabel(
+                        criterion,
+                        activeOrder:
+                            criterion == settings.animalSortOrder.criterion
+                            ? settings.animalSortOrder
+                            : null,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            if (!_archived)
+              IconButton(
+                key: const Key('animal-history-button'),
+                tooltip: context.l10n.animalHistory,
+                onPressed: () => setState(() => _archived = true),
+                icon: const Icon(Icons.history),
+              ),
             IconButton(
               key: const Key('shared-refresh'),
               tooltip: sharedText(context, 'Reload', 'Neu laden'),
@@ -1365,81 +1403,6 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
               icon: const Icon(Icons.refresh),
             ),
           ],
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(48),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  key: const Key('shared-big-picture-toggle'),
-                  tooltip: context.l10n.bigPictureMode,
-                  isSelected: settings.bigPictureModeEnabled,
-                  onPressed: () => settings.setBigPictureModeEnabled(
-                    !settings.bigPictureModeEnabled,
-                  ),
-                  icon: const Icon(Icons.grid_view_outlined),
-                  selectedIcon: const Icon(Icons.view_list_outlined),
-                ),
-                if (!_archived)
-                  IconButton(
-                    key: const Key('animal-category-view-toggle'),
-                    isSelected: settings.animalCategoryViewEnabled,
-                    onPressed: () => settings.setAnimalCategoryViewEnabled(
-                      !settings.animalCategoryViewEnabled,
-                    ),
-                    icon: const Icon(Icons.toggle_on_outlined),
-                    selectedIcon: const Icon(Icons.toggle_off_outlined),
-                    tooltip: settings.animalCategoryViewEnabled
-                        ? context.l10n.hideAnimalCategoryGroups
-                        : context.l10n.showAnimalCategoryGroups,
-                  ),
-                PopupMenuButton<AnimalSortCriterion>(
-                  key: const Key('animal-sort-button'),
-                  initialValue: settings.animalSortOrder.criterion,
-                  tooltip: context.l10n.sortAnimals,
-                  icon: const Icon(Icons.sort),
-                  onSelected: (criterion) {
-                    final current = settings.animalSortOrder.normalized;
-                    settings.setAnimalSortOrder(
-                      criterion == current.criterion
-                          ? current.reversed
-                          : criterion.defaultOrder,
-                    );
-                  },
-                  itemBuilder: (context) => [
-                    for (final criterion in const [
-                      AnimalSortCriterion.created,
-                      AnimalSortCriterion.displayName,
-                      AnimalSortCriterion.age,
-                      AnimalSortCriterion.latestFeeding,
-                    ])
-                      CheckedPopupMenuItem<AnimalSortCriterion>(
-                        key: Key('animal-sort-option-${criterion.name}'),
-                        value: criterion,
-                        checked:
-                            criterion == settings.animalSortOrder.criterion,
-                        child: Text(
-                          context.l10n.animalSortCriterionMenuLabel(
-                            criterion,
-                            activeOrder:
-                                criterion == settings.animalSortOrder.criterion
-                                ? settings.animalSortOrder
-                                : null,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                if (!_archived)
-                  IconButton(
-                    key: const Key('animal-history-button'),
-                    tooltip: context.l10n.animalHistory,
-                    onPressed: () => setState(() => _archived = true),
-                    icon: const Icon(Icons.history),
-                  ),
-              ],
-            ),
-          ),
         ),
         floatingActionButton: _archived
             ? null
@@ -1728,6 +1691,15 @@ class SharedSettingsPage extends StatelessWidget {
                 },
               ),
             ),
+          ),
+          const SizedBox(height: 16),
+          SwitchListTile(
+            key: const Key('big-picture-mode-switch'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(context.l10n.bigPictureMode),
+            subtitle: Text(context.l10n.bigPictureModeDescription),
+            value: settings.bigPictureModeEnabled,
+            onChanged: settings.setBigPictureModeEnabled,
           ),
           const SizedBox(height: 32),
           Text(

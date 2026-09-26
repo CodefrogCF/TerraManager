@@ -449,7 +449,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       color: colorScheme.errorContainer,
       child: ExpansionTile(
-        key: const Key('feeding-reminder-summary-toggle'),
+        // Expansion state must not share the overview's numeric scroll offset.
+        key: const PageStorageKey<String>('feeding-reminder-summary-toggle'),
         initiallyExpanded: _dueRemindersExpanded,
         onExpansionChanged: (expanded) =>
             setState(() => _dueRemindersExpanded = expanded),

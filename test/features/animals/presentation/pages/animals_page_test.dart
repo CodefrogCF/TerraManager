@@ -92,6 +92,53 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets(
+    'due reminder expansion survives scrolling and overview presentation changes',
+    (tester) async {
+      final boxId = await createTestBox();
+      final dueId = await createTestAnimal(
+        boxId: boxId,
+        feedingReminderIntervalDays: 1,
+        feedingReminderBaseline: DateTime.now().subtract(
+          const Duration(days: 3),
+        ),
+      );
+      for (var i = 0; i < 20; i++) {
+        await createTestAnimal(boxId: boxId, commonName: 'Animal $i');
+      }
+      final settings = AppSettingsController();
+      addTearDown(settings.dispose);
+      await pumpPage(tester, settingsController: settings);
+      final item = find.byKey(Key('feeding-reminder-summary-item-$dueId'));
+      expect(item.hitTestable(), findsOneWidget);
+      await tester.tap(find.text('Feeding reminders'));
+      await tester.pumpAndSettle();
+      expect(item.hitTestable(), findsNothing);
+      await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+      await tester.pumpAndSettle();
+      await settings.setBigPictureModeEnabled(true);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await settings.setAnimalNameOrder(AnimalNameOrder.latinNameFirst);
+      await settings.setAnimalCategoryViewEnabled(true);
+      await tester.pumpAndSettle();
+      await settings.setBigPictureModeEnabled(false);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final scrollable = tester.state<ScrollableState>(
+        find.byType(Scrollable).first,
+      );
+      scrollable.position.jumpTo(0);
+      await tester.pumpAndSettle();
+      expect(item.hitTestable(), findsNothing);
+      expect(find.text('1 Animal is due for feeding'), findsOneWidget);
+      await tester.tap(find.text('Feeding reminders'));
+      await tester.pumpAndSettle();
+      expect(item.hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('shows empty state when no animals exist', (tester) async {
     await pumpPage(tester);
 

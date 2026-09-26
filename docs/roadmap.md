@@ -1727,6 +1727,8 @@ Status: **Implemented; operator field checks passed on one Raspberry Pi**
   QR Feeding and QR Rehouse workflows
 - [x] Match overview sorting, Big Picture, context actions, detail navigation
   and in-app Feeding reminders, including the Animals navigation indicator
+- [x] Align overview toolbar order with standalone, keep Reload rightmost and
+  move the browser-local Big Picture switch to Settings — Issue #183
 - [x] Export selected active and archived Box QR codes as PNG, ZIP and A4 PDF
 - [x] Document the user workflow and Raspberry Pi deployment
 

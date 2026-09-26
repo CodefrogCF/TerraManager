@@ -57,7 +57,7 @@ de:
       number: "01"
       eyebrow: Bestand anlegen
       heading: Boxen und Tiere bilden die Grundlage
-      lead: Beim ersten Start einer leeren eigenständigen Sammlung führt dich eine überspringbare Einführung durch Boxen, Tiere, Fütterungen und QR-Codes. Du kannst sie unter Einstellungen erneut öffnen. Lege zuerst den realen Behälter als Box an. Danach erfasst du das Tier und weist ihm die passende Box zu.
+      lead: Beim ersten Start einer leeren eigenständigen Sammlung führt dich eine überspringbare Einführung durch Boxen, Tiere, Fütterungen und QR-Codes. Mit Weiter und Zurück bleibst du in der Einführung; Fertig oder Überspringen schließt sie, ohne die aktuelle Seite zu wechseln. Du kannst sie unter Einstellungen erneut öffnen. Lege zuerst den realen Behälter als Box an. Danach erfasst du das Tier und weist ihm die passende Box zu.
       heading_image:
         file: box_detail.webp
         alt: Detailansicht einer Box
@@ -87,7 +87,7 @@ de:
               caption: Tierdetails
         - number: "3"
           heading: Darstellung der Übersichten wählen
-          body_html: Aktiviere den <strong>Großbildmodus</strong>, wenn Bilder in der Box- und Tierübersicht stärker im Mittelpunkt stehen sollen. Die Einstellung gilt auch für die nach Kategorien gruppierte Tieransicht und wird in portablen Backups gesichert.
+          body_html: Aktiviere unter <strong>Einstellungen</strong> den <strong>Großbildmodus</strong>, wenn Bilder in der Box- und Tierübersicht stärker im Mittelpunkt stehen sollen. Die Einstellung gilt auch für die nach Kategorien gruppierte Tieransicht und wird in portablen Backups gesichert.
           images:
             - file: big-picture-mode.webp
               alt: Tierübersicht im Großbildmodus
@@ -227,6 +227,8 @@ de:
         body: Öffne das Kontextmenü einer Box oder eines Tieres durch langen Druck oder Rechtsklick. Aktive Einträge lassen sich umbenennen, bearbeiten, duplizieren und archivieren; beim Tier kannst du direkt eine Fütterung beginnen. Archivierte Einträge lassen sich über das Menü wiederherstellen. Endgültiges Löschen findest du nur in den archivierten Details. Ein Ausrufezeichen am Tiere-Symbol zeigt eine fällige Fütterung an.
       - title: Bilder und Fälligkeiten ansehen
         body: Hauptbilder und Galeriebilder von Boxen und Tieren öffnen sich per Tipp in einer vergrößerbaren Vollbildansicht. Die Gruppe fälliger Fütterungen lässt sich in der Tierübersicht ein- und ausklappen; Anzahl und Warnsymbol bleiben sichtbar.
+      - title: Darstellung und Bedienelemente wählen
+        body: Der Großbildmodus unter Einstellungen gilt für Boxen, Tiere und die Archive und bleibt für diesen Browser gespeichert. Sortierung und Kategorieanzeige stellst du direkt in der jeweiligen Übersicht ein. Die Aktionen stehen wie in der eigenständigen App oben in einer Leiste; Neu laden ist der zusätzliche Button ganz rechts.
       - title: Box-QR-Codes exportieren
         body: Unter Einstellungen → Box-QR-Codes kannst du ausgewählte aktive und archivierte Boxen als einzelne PNG-Dateien, ZIP oder A4-PDF speichern. Vor jedem Export öffnet sich eine Checkliste; beim PDF stellst du die Codegröße zwischen 6 und 20 mm ein. Die Dateien werden direkt im Browser erzeugt.
     note: Die portable Shared-Care-Sicherung enthält die Sammlung, aber keine Serverkonten. Für eine vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden. Der native Android-Modus bleibt eigenständig und benötigt keine zusätzlichen Netzwerkberechtigungen.
@@ -302,7 +304,7 @@ en:
       number: "01"
       eyebrow: Set up your collection
       heading: Enclosures and animals are the foundation
-      lead: On the first launch of an empty standalone collection, a skippable introduction walks through enclosures, animals, feedings and QR codes. You can replay it from Settings. Create the physical enclosure first, then add the animal and assign it to the appropriate enclosure.
+      lead: On the first launch of an empty standalone collection, a skippable introduction walks through enclosures, animals, feedings and QR codes. Next and Back stay within the introduction; Finish or Skip closes it without changing the current page. You can replay it from Settings. Create the physical enclosure first, then add the animal and assign it to the appropriate enclosure.
       heading_image:
         file: box_detail.webp
         alt: Enclosure detail view
@@ -332,7 +334,7 @@ en:
               caption: Animal details
         - number: "3"
           heading: Choose the overview presentation
-          body_html: Enable <strong>Big Picture Mode</strong> when pictures should be the main focus of the enclosure and animal overviews. The setting also applies when animals are grouped by category and is restored through portable backups.
+          body_html: Enable <strong>Big Picture Mode</strong> in <strong>Settings</strong> when pictures should be the main focus of the enclosure and animal overviews. The setting also applies when animals are grouped by category and is restored through portable backups.
           images:
             - file: big-picture-mode-en.webp
               alt: Animal overview using large pictures
@@ -472,6 +474,8 @@ en:
         body: Long-press or right-click a Box or Animal to open its context menu. Active records can be renamed, edited, duplicated and archived; Animals can start a Feeding directly. Archived records can be restored from the menu. Permanent deletion is available only in archived details. An exclamation mark on the Animals tab shows a due Feeding.
       - title: View pictures and due feedings
         body: Tap an enclosure or animal primary picture or gallery thumbnail to open the zoomable full-screen viewer. Collapse or expand the due-feeding group in the Animal Overview; its count and warning marker stay visible.
+      - title: Choose presentation and overview controls
+        body: Big Picture Mode in Settings applies to Boxes, Animals and their archives and stays saved in this browser. Sorting and category grouping are selected on the relevant overview. Actions share the same top toolbar as the standalone app; Reload is the additional rightmost button.
       - title: Export Box QR codes
         body: In Settings → Box QR codes, select active and archived Boxes to save individual PNG files, a ZIP or an A4 PDF. A checklist opens before every export; the PDF offers a 6–20 mm code-size slider. Files are generated directly in the browser.
     note: A portable Shared Care backup contains the collection but not server accounts. Full server recovery also requires a backup of both databases in the server data directory. Native Android mode stays standalone and needs no additional network permission.

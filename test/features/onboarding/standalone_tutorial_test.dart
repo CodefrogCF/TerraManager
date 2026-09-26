@@ -65,38 +65,58 @@ void main() {
     expect(preferences.getBool('standalone_tutorial_seen'), isTrue);
   });
 
-  testWidgets('introduction can be replayed from Settings and open Animals', (
-    tester,
-  ) async {
-    SharedPreferences.setMockInitialValues({'standalone_tutorial_seen': true});
-    await pumpGate(tester);
-    await tester.tap(find.byIcon(Icons.settings_outlined));
-    await tester.pumpAndSettle();
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      2,
-    );
-    final replay = find.byKey(const Key('replay-tutorial-button'));
-    await tester.scrollUntilVisible(
-      replay,
-      350,
-      scrollable: find
-          .descendant(
-            of: find.byType(SettingsPage),
-            matching: find.byType(Scrollable),
-          )
-          .first,
-    );
-    await tester.tap(replay);
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('standalone-tutorial-dialog')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('standalone-tutorial-next')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('standalone-tutorial-open-section')));
-    await tester.pumpAndSettle();
-    expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      1,
-    );
-  });
+  testWidgets(
+    'replayed introduction keeps Settings selected and never opens an overview',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'standalone_tutorial_seen': true,
+      });
+      await pumpGate(tester);
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+        2,
+      );
+      final replay = find.byKey(const Key('replay-tutorial-button'));
+      await tester.scrollUntilVisible(
+        replay,
+        350,
+        scrollable: find
+            .descendant(
+              of: find.byType(SettingsPage),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      await tester.tap(replay);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('standalone-tutorial-dialog')),
+        findsOneWidget,
+      );
+      for (var step = 1; step <= 4; step++) {
+        expect(find.text('Step $step of 4'), findsOneWidget);
+        expect(
+          find.byKey(const Key('standalone-tutorial-open-section')),
+          findsNothing,
+        );
+        if (step == 2) {
+          await tester.tap(find.byKey(const Key('standalone-tutorial-back')));
+          await tester.pumpAndSettle();
+          expect(find.text('Step 1 of 4'), findsOneWidget);
+          await tester.tap(find.byKey(const Key('standalone-tutorial-next')));
+          await tester.pumpAndSettle();
+        }
+        await tester.tap(find.byKey(const Key('standalone-tutorial-next')));
+        await tester.pumpAndSettle();
+      }
+      expect(find.byKey(const Key('standalone-tutorial-dialog')), findsNothing);
+      expect(
+        tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+        2,
+      );
+      expect(await BoxRepository(database).getAllBoxes(), isEmpty);
+    },
+  );
 }

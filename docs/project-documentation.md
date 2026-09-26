@@ -138,7 +138,10 @@ The optional Shared Care Web mode uses a separate Flutter entry point. It
 authenticates against a self-hosted LAN server, which alone owns the SQLite
 collection. Shared-mode browsers hold no local collection database and cannot
 edit while disconnected. Appearance, language and sorting preferences remain
-local to each browser. The Android app can open this mode in an external
+local to each browser. Big Picture Mode is selected in Settings and applies to
+both overviews and their archives. Sorting and Animal category grouping remain
+in the overview toolbars, which follow the standalone action order with Reload
+as the additional rightmost control. The Android app can open this mode in an external
 browser; its local collection remains independent.
 
 Shared Care's active Box overview can scan a physical Box label in a browser

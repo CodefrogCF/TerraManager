@@ -10,17 +10,9 @@ import '../../../feedings/application/feeding_reminder_service.dart';
 
 class AppShell extends StatefulWidget {
   final AppDatabase database;
-  final int initialIndex;
-  final int navigationRequest;
   final VoidCallback? onReplayTutorial;
 
-  const AppShell({
-    super.key,
-    required this.database,
-    this.initialIndex = 0,
-    this.navigationRequest = 0,
-    this.onReplayTutorial,
-  });
+  const AppShell({super.key, required this.database, this.onReplayTutorial});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -31,7 +23,7 @@ class _AppShellState extends State<AppShell> {
   static const double _minimumSwipeDistance = 80;
   static const double _minimumSwipeVelocity = 500;
 
-  late int _currentIndex = widget.initialIndex;
+  int _currentIndex = 0;
   int _dataRevision = 0;
   double _horizontalDragDistance = 0;
   int _animalsRevision = 0;
@@ -42,15 +34,6 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
     _refreshDueFeedings();
-  }
-
-  @override
-  void didUpdateWidget(covariant AppShell oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.navigationRequest != oldWidget.navigationRequest ||
-        widget.initialIndex != oldWidget.initialIndex) {
-      _currentIndex = widget.initialIndex;
-    }
   }
 
   Future<void> _refreshDueFeedings() async {

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../shared_client/shared_text.dart';
 
 /// A short tour of the existing local workflows. It never creates sample data.
-Future<int?> showStandaloneTutorial(BuildContext context) {
-  return showDialog<int>(
+Future<void> showStandaloneTutorial(BuildContext context) {
+  return showDialog<void>(
     context: context,
     builder: (context) => const _StandaloneTutorialDialog(),
   );
@@ -32,7 +32,6 @@ class _StandaloneTutorialDialogState extends State<_StandaloneTutorialDialog> {
           'Start with a Box. You can add its name, dimensions, notes and pictures, then use its QR code for quick access.',
           'Beginne mit einer Box. Du kannst Name, Maße, Notizen und Bilder hinzufügen und später den QR-Code für den schnellen Zugriff verwenden.',
         ),
-        page: 0,
       ),
       (
         icon: Icons.pets_outlined,
@@ -42,7 +41,6 @@ class _StandaloneTutorialDialogState extends State<_StandaloneTutorialDialog> {
           'Add an Animal to an active Box. Its details and optional care information stay in your local collection.',
           'Füge einer aktiven Box ein Tier hinzu. Details und optionale Haltungsangaben bleiben in deiner lokalen Sammlung.',
         ),
-        page: 1,
       ),
       (
         icon: Icons.restaurant_outlined,
@@ -52,7 +50,6 @@ class _StandaloneTutorialDialogState extends State<_StandaloneTutorialDialog> {
           'Record feedings for an Animal and set an optional reminder. Due feedings appear in the Animals overview.',
           'Erfasse Fütterungen für ein Tier und stelle bei Bedarf eine Erinnerung ein. Fällige Fütterungen erscheinen in der Tierübersicht.',
         ),
-        page: 1,
       ),
       (
         icon: Icons.qr_code_scanner_outlined,
@@ -66,7 +63,6 @@ class _StandaloneTutorialDialogState extends State<_StandaloneTutorialDialog> {
           'Find a Box by scanning its code, or use the QR feeding and rehouse actions when you need them. Scanning starts only when you choose an action.',
           'Finde eine Box über ihren QR-Code oder nutze bei Bedarf QR-Fütterung und QR-Umsetzen. Die Kamera startet erst, wenn du eine Aktion auswählst.',
         ),
-        page: 0,
       ),
     ];
     final current = steps[_step];
@@ -99,14 +95,6 @@ class _StandaloneTutorialDialogState extends State<_StandaloneTutorialDialog> {
               ),
               const SizedBox(height: 8),
               Text(current.body),
-              const SizedBox(height: 16),
-              TextButton(
-                key: const Key('standalone-tutorial-open-section'),
-                onPressed: () => Navigator.of(context).pop(current.page),
-                child: Text(
-                  sharedText(context, 'Open this section', 'Bereich öffnen'),
-                ),
-              ),
             ],
           ),
         ),

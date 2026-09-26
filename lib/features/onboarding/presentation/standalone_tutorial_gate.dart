@@ -20,8 +20,6 @@ class StandaloneTutorialGate extends StatefulWidget {
 class _StandaloneTutorialGateState extends State<StandaloneTutorialGate> {
   static const _seenKey = 'standalone_tutorial_seen';
   bool _tutorialOpen = false;
-  int _targetPage = 0;
-  int _navigationRequest = 0;
 
   @override
   void initState() {
@@ -49,14 +47,9 @@ class _StandaloneTutorialGateState extends State<StandaloneTutorialGate> {
     if (_tutorialOpen || !mounted) return;
     _tutorialOpen = true;
     try {
-      final selectedPage = await showStandaloneTutorial(context);
+      await showStandaloneTutorial(context);
       final preferences = await SharedPreferences.getInstance();
       await preferences.setBool(_seenKey, true);
-      if (!mounted || selectedPage == null) return;
-      setState(() {
-        _targetPage = selectedPage;
-        _navigationRequest++;
-      });
     } finally {
       _tutorialOpen = false;
     }
@@ -65,11 +58,6 @@ class _StandaloneTutorialGateState extends State<StandaloneTutorialGate> {
   @override
   Widget build(BuildContext context) => ConstrainedPageWidth(
     maxWidth: 960,
-    child: AppShell(
-      database: widget.database,
-      initialIndex: _targetPage,
-      navigationRequest: _navigationRequest,
-      onReplayTutorial: _openTutorial,
-    ),
+    child: AppShell(database: widget.database, onReplayTutorial: _openTutorial),
   );
 }

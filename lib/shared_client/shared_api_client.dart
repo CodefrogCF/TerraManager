@@ -441,6 +441,13 @@ class SharedApiClient extends ChangeNotifier {
 
   Uri mediaUrl(int mediaId) => _url('/api/v1/media/$mediaId');
 
+  Future<Uint8List> mediaBytes(int mediaId) async => (await _binaryRequest(
+    'GET',
+    '/api/v1/media/$mediaId',
+    timeout: const Duration(seconds: 15),
+    extraHeaders: {'Accept': 'image/*'},
+  )).bodyBytes;
+
   Future<SharedBackupFile> exportBackup() async {
     final response = await _binaryRequest('GET', '/api/v1/admin/backups');
     final token = response.headers['x-safety-token'];

@@ -4,6 +4,36 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [Unreleased]
+
+### Added
+
+- add the browser-local Show next feeding toggle above Big Picture Mode in
+  Shared Care Settings
+- respect that toggle in compact and Big Picture Animal overviews while
+  retaining due reminders
+
+### Changed
+
+- reuse Shared Care overview pictures while scrolling, sorting, switching
+  layouts and polling unchanged media IDs — Issue #184
+- renew the picture snapshot when an overview opens, after returning from
+  details or after manual Reload
+- limit the overview cache to 128 entries and 32 MiB of compressed pictures,
+  with four concurrent loads and aspect-preserving thumbnail decoding
+- clear overview picture caches and evict decoded entries when leaving the
+  overview or signing out
+
+### Testing
+
+- cover actual media request counts for Box and Animal list, grid and archive
+  navigation, record polling, changed pictures, Reload and detail return
+- cover cache deduplication, eviction, failed loads and late async results
+- cover localized Settings control order and next-feeding presentation
+
+The changes require no database migration, backup format change, additional
+device permission or external service.
+
 ## [1.10.4] - 2026-09-22
 
 ### Changed

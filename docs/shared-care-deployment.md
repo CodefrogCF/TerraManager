@@ -168,6 +168,22 @@ shedding summaries when enabled for that Animal. Box details show assigned
 Animal thumbnails; archived details retain reason, date and notes. Presentation
 choices remain per browser; collection records stay server-owned.
 
+Overview pictures are fetched through the authenticated same-origin client and
+reused in memory while that overview remains open. Scrolling, sorting, switching
+between list and Big Picture Mode, and ordinary collection polling reuse
+unchanged media IDs. A changed primary media ID loads only the new picture.
+Opening an overview, returning from details or choosing Reload starts a fresh
+picture snapshot. Missing pictures retain their placeholders until that refresh.
+
+Each overview retains at most 128 picture entries and 32 MiB of compressed
+picture data, with up to four concurrent loads. Thumbnails are decoded to fit
+within 512 × 512 pixels while preserving their aspect ratio. Least recently
+used entries are evicted when a limit is reached, so a very large collection
+may fetch an evicted picture again. Leaving the overview or signing out clears
+its cache and evicts its decoded images. No collection picture is persisted by
+this cache, and server responses continue to use `Cache-Control: no-store`.
+
+
 Box and Animal details retain the order and active/archive scope of the
 overview from which they were opened. Use the previous/next buttons (also
 available to keyboard and screen-reader users) or swipe horizontally outside
@@ -180,7 +196,10 @@ navigation context; reopen the matching overview to continue there.
 Shared Settings follows the standalone page's appearance and language
 controls. Enable **Big Picture Mode** in Settings to use picture cards in both
 Box and Animal overviews, including archives. The existing choice is preserved
-in this browser. Sorting and Animal category grouping remain on the relevant
+in this browser. **Show next feeding**, immediately above Big Picture Mode,
+optionally displays the next future reminder in both Animal overview layouts.
+It does not hide due reminders or change reminder data on the server.
+Sorting and Animal category grouping remain on the relevant
 overview. Box toolbar actions appear in the same order as the standalone app:
 sort, archive, Scan Box and Feeding Mode. The Animal toolbar contains category
 grouping, sort and archive. **Reload** is the additional rightmost action in
@@ -263,6 +282,14 @@ particular phone, camera and certificate work together.
    In flat and Big Picture overviews, check active right-click/long-press
    actions and archived details/restore actions. Confirm that delete appears
    only on archived detail pages and a due Feeding marks the Animals tab.
+   In Settings, toggle Show next feeding off and on in both overview layouts;
+   only the future reminder summary should disappear, while due entries stay.
+   In the browser Network panel, scroll away from and back to pictured records
+   and wait through a polling cycle. Unchanged media should not be requested
+   again within the cache limits. Return from details or choose Reload and
+   verify that visible pictures are fetched afresh. Change the primary picture
+   on another device and check that only its new media ID is fetched after
+   the next overview update.
 4. Export selected active and archived Box QR codes as PNG images, a ZIP and
    an A4 PDF. Deselect one Box each time and check that its code is absent.
    Check the PDF size slider at 6 mm and 20 mm, scan a printed result, and

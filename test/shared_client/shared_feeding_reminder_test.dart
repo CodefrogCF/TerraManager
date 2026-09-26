@@ -132,6 +132,7 @@ void main() {
     tester,
   ) async {
     final settings = AppSettingsController();
+    await settings.setNextFeedingSummaryEnabled(true);
     final api = SharedApiClient(
       Uri.parse('https://192.168.1.117'),
       MockClient((_) async => http.Response('{}', 404)),
@@ -205,6 +206,75 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+    'next feeding preference controls list and grid without hiding due reminders',
+    (tester) async {
+      final settings = AppSettingsController();
+      final api = SharedApiClient(
+        Uri.parse('https://192.168.1.117'),
+        MockClient((_) async => http.Response('{}', 404)),
+      );
+      addTearDown(settings.dispose);
+      addTearDown(api.close);
+      final now = DateTime.now();
+      await tester.pumpWidget(
+        AppSettingsScope(
+          controller: settings,
+          child: MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: SharedAnimalsPage(
+              api: api,
+              boxes: const [],
+              animals: [
+                {..._animal, 'id': 1, 'commonName': 'Due'},
+                {..._animal, 'id': 2, 'commonName': 'Upcoming'},
+              ],
+              reminders: [
+                {
+                  'animalId': 1,
+                  'dueAt': now
+                      .subtract(const Duration(days: 1))
+                      .toIso8601String(),
+                },
+                {
+                  'animalId': 2,
+                  'dueAt': now.add(const Duration(days: 1)).toIso8601String(),
+                },
+              ],
+              connected: true,
+              change: (_) async => true,
+              onReload: () async {},
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final next = find.byKey(const Key('shared-next-feeding-summary'));
+      final due = find.byKey(const Key('shared-feeding-reminder-summary'));
+      for (final bigPicture in [false, true]) {
+        await settings.setBigPictureModeEnabled(bigPicture);
+        await settings.setNextFeedingSummaryEnabled(false);
+        await tester.pumpAndSettle();
+        expect(next, findsNothing);
+        expect(due, findsOneWidget);
+        await settings.setNextFeedingSummaryEnabled(true);
+        await tester.pumpAndSettle();
+        expect(next, findsOneWidget);
+        expect(due, findsOneWidget);
+      }
+      await tester.tap(find.byKey(const Key('animal-history-button')));
+      await tester.pumpAndSettle();
+      expect(next, findsNothing);
+      expect(due, findsNothing);
+      final restoredSettings = AppSettingsController();
+      await restoredSettings.load();
+      expect(restoredSettings.nextFeedingSummaryEnabled, isTrue);
+      restoredSettings.dispose();
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('reminder settings save only the reminder with a revision', (
     tester,

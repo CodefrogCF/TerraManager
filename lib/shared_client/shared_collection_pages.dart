@@ -16,6 +16,7 @@ import '../features/backup/infrastructure/backup_file_service.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
+import 'media/application/shared_overview_image_cache.dart';
 import 'shared_box_qr_export.dart';
 import 'shared_box_scanner_page.dart';
 import 'shared_detail_pages.dart';
@@ -383,6 +384,38 @@ class SharedBoxesPage extends StatefulWidget {
 }
 
 class _SharedBoxesPageState extends State<SharedBoxesPage> {
+  late SharedOverviewImageCache _images;
+
+  @override
+  void initState() {
+    super.initState();
+    _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
+  }
+
+  @override
+  void didUpdateWidget(covariant SharedBoxesPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.api != widget.api) {
+      _images.dispose();
+      _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
+    } else {
+      _images.retain(
+        widget.boxes.map((record) => record['pictureMediaId']).whereType<int>(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _images.dispose();
+    super.dispose();
+  }
+
+  Future<void> _reload() async {
+    await widget.onReload();
+    if (mounted) setState(_images.clear);
+  }
+
   bool _archived = false;
 
   Future<void> _openFeedingMode() async {
@@ -402,14 +435,14 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                     api: widget.api,
                     box: box,
                     change: widget.change,
-                    onReload: widget.onReload,
+                    onReload: _reload,
                   ),
                 ),
               ),
         ),
       ),
     );
-    if (mounted) await widget.onReload();
+    if (mounted) await _reload();
   }
 
   Future<void> _openBox(Map<String, dynamic> box) async {
@@ -436,7 +469,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
         ),
       ),
     );
-    if (mounted) await widget.onReload();
+    if (mounted) await _reload();
   }
 
   Future<void> _boxAction(_BoxAction action, Map<String, dynamic> box) async {
@@ -475,7 +508,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
               ),
             ),
           );
-          if (mounted) await widget.onReload();
+          if (mounted) await _reload();
         } catch (_) {
           if (mounted) _showChangeFailure(context);
         }
@@ -563,6 +596,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
               child: SharedThumbnail(
                 key: Key('box-big-picture-$id'),
                 api: widget.api,
+                images: _images,
                 mediaId: box['pictureMediaId'] as int?,
                 fallback: Icons.inventory_2_outlined,
                 width: double.infinity,
@@ -691,7 +725,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                             ),
                           ),
                         );
-                        if (mounted) await widget.onReload();
+                        if (mounted) await _reload();
                       }
                     : null,
                 icon: const Icon(Icons.qr_code_scanner),
@@ -708,7 +742,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
             IconButton(
               key: const Key('shared-refresh'),
               tooltip: sharedText(context, 'Reload', 'Neu laden'),
-              onPressed: widget.onReload,
+              onPressed: _reload,
               icon: const Icon(Icons.refresh),
             ),
           ],
@@ -785,6 +819,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                     key: Key('box-list-item-$id'),
                     leading: SharedThumbnail(
                       api: widget.api,
+                      images: _images,
                       mediaId: box['pictureMediaId'] as int?,
                       fallback: Icons.inventory_2_outlined,
                     ),
@@ -847,6 +882,40 @@ class SharedAnimalsPage extends StatefulWidget {
 }
 
 class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
+  late SharedOverviewImageCache _images;
+
+  @override
+  void initState() {
+    super.initState();
+    _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
+  }
+
+  @override
+  void didUpdateWidget(covariant SharedAnimalsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.api != widget.api) {
+      _images.dispose();
+      _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
+    } else {
+      _images.retain(
+        widget.animals
+            .map((record) => record['pictureMediaId'])
+            .whereType<int>(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _images.dispose();
+    super.dispose();
+  }
+
+  Future<void> _reload() async {
+    await widget.onReload();
+    if (mounted) setState(_images.clear);
+  }
+
   bool _archived = false;
   bool _dueRemindersExpanded = true;
 
@@ -926,7 +995,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         ),
       ),
     );
-    if (mounted) await widget.onReload();
+    if (mounted) await _reload();
   }
 
   Future<void> _animalAction(
@@ -987,7 +1056,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
               ),
             ),
           );
-          if (mounted) await widget.onReload();
+          if (mounted) await _reload();
         } catch (_) {
           if (mounted) _showChangeFailure(context);
         }
@@ -1100,6 +1169,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                   SharedThumbnail(
                     key: Key('animal-big-picture-$id'),
                     api: widget.api,
+                    images: _images,
                     mediaId: animal['pictureMediaId'] as int?,
                     fallback: Icons.emoji_nature_outlined,
                     width: double.infinity,
@@ -1319,9 +1389,9 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     final dueReminders = reminderEntries
         .where((entry) => !entry.dueAt.isAfter(now))
         .toList();
-    final nextReminder = reminderEntries
-        .where((entry) => entry.dueAt.isAfter(now))
-        .firstOrNull;
+    final nextReminder = settings.nextFeedingSummaryEnabled
+        ? reminderEntries.where((entry) => entry.dueAt.isAfter(now)).firstOrNull
+        : null;
     final reminderRowCount =
         (dueReminders.isEmpty ? 0 : 1) + (nextReminder == null ? 0 : 1);
     return ConstrainedPageWidth(
@@ -1399,7 +1469,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
             IconButton(
               key: const Key('shared-refresh'),
               tooltip: sharedText(context, 'Reload', 'Neu laden'),
-              onPressed: widget.onReload,
+              onPressed: _reload,
               icon: const Icon(Icons.refresh),
             ),
           ],
@@ -1511,6 +1581,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                     key: Key('animal-list-item-$id'),
                     leading: SharedThumbnail(
                       api: widget.api,
+                      images: _images,
                       mediaId: animal['pictureMediaId'] as int?,
                       fallback: Icons.emoji_nature_outlined,
                     ),
@@ -1546,6 +1617,7 @@ class SharedThumbnail extends StatelessWidget {
     required this.api,
     required this.mediaId,
     required this.fallback,
+    this.images,
     this.width = 52,
     this.height = 52,
     this.iconSize,
@@ -1554,6 +1626,7 @@ class SharedThumbnail extends StatelessWidget {
   final SharedApiClient api;
   final int? mediaId;
   final IconData fallback;
+  final SharedOverviewImageCache? images;
   final double width;
   final double height;
   final double? iconSize;
@@ -1572,6 +1645,26 @@ class SharedThumbnail extends StatelessWidget {
       child: Icon(fallback, size: iconSize),
     );
     if (mediaId == null) return placeholder();
+    final cache = images;
+    if (cache != null) {
+      return FutureBuilder<ImageProvider?>(
+        future: cache.image(mediaId!),
+        builder: (context, snapshot) {
+          final image = snapshot.data;
+          if (image == null) return placeholder();
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(borderRadius),
+            child: Image(
+              image: image,
+              width: width,
+              height: height,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => placeholder(),
+            ),
+          );
+        },
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: Image.network(
@@ -1691,6 +1784,15 @@ class SharedSettingsPage extends StatelessWidget {
                 },
               ),
             ),
+          ),
+          const SizedBox(height: 16),
+          SwitchListTile(
+            key: const Key('next-feeding-summary-switch'),
+            contentPadding: EdgeInsets.zero,
+            title: Text(context.l10n.nextFeedingSummary),
+            subtitle: Text(context.l10n.nextFeedingSummaryDescription),
+            value: settings.nextFeedingSummaryEnabled,
+            onChanged: settings.setNextFeedingSummaryEnabled,
           ),
           const SizedBox(height: 16),
           SwitchListTile(

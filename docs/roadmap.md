@@ -1729,6 +1729,9 @@ Status: **Implemented; operator field checks passed on one Raspberry Pi**
   and in-app Feeding reminders, including the Animals navigation indicator
 - [x] Align overview toolbar order with standalone, keep Reload rightmost and
   move the browser-local Big Picture switch to Settings — Issue #183
+- [x] Reuse overview pictures while scrolling and polling, with a bounded,
+  session-scoped memory cache and explicit snapshot refresh — Issue #184
+- [x] Offer the browser-local Show next feeding switch above Big Picture Mode
 - [x] Export selected active and archived Box QR codes as PNG, ZIP and A4 PDF
 - [x] Document the user workflow and Raspberry Pi deployment
 

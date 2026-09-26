@@ -69,6 +69,13 @@ when the browser returns to the foreground, and offers a manual reload after
 connection failures. Hidden browser tabs do not poll. It does not queue edits while
 disconnected.
 
+Overview media reads reuse the authenticated client. The browser retains a
+bounded, in-memory picture snapshot for the current overview. Routine polling
+updates records without downloading unchanged pictures; manual reload, detail
+return and a new overview visit renew the snapshot. Changing a primary media ID
+loads the new image. The cache does not modify server media ownership, media
+routes, authorization or the `no-store` response policy.
+
 ## Local accounts
 
 | Route | Access | Purpose |

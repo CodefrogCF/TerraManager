@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/testing.dart';
 import 'package:http/http.dart' as http;
 import 'package:terramanager/features/settings/app_settings_controller.dart';
@@ -8,6 +9,7 @@ import 'package:terramanager/shared_client/shared_api_client.dart';
 import 'package:terramanager/shared_client/shared_collection_pages.dart';
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   testWidgets('shared settings group server actions and fit a phone', (
     tester,
   ) async {
@@ -51,9 +53,25 @@ void main() {
     expect(find.byKey(const Key('shared-box-sort-selector')), findsNothing);
     expect(find.byKey(const Key('shared-animal-sort-selector')), findsNothing);
     expect(find.byKey(const Key('shared-category-view-switch')), findsNothing);
+    final nextFeeding = find.byKey(const Key('next-feeding-summary-switch'));
+    await tester.scrollUntilVisible(nextFeeding, 200);
+    expect(tester.widget<SwitchListTile>(nextFeeding).value, isFalse);
+    await tester.tap(nextFeeding);
+    await tester.pumpAndSettle();
+    expect(settings.nextFeedingSummaryEnabled, isTrue);
+    expect(
+      (await SharedPreferences.getInstance()).getBool(
+        'next_feeding_summary_enabled',
+      ),
+      isTrue,
+    );
     final bigPicture = find.byKey(const Key('big-picture-mode-switch'));
     await tester.scrollUntilVisible(bigPicture, 200);
     expect(find.text('Großbildmodus'), findsOneWidget);
+    expect(
+      tester.getTopLeft(nextFeeding).dy,
+      lessThan(tester.getTopLeft(bigPicture).dy),
+    );
     expect(tester.widget<SwitchListTile>(bigPicture).value, isFalse);
     await tester.tap(bigPicture);
     await tester.pumpAndSettle();

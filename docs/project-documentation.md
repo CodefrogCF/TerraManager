@@ -139,7 +139,11 @@ authenticates against a self-hosted LAN server, which alone owns the SQLite
 collection. Shared-mode browsers hold no local collection database and cannot
 edit while disconnected. Appearance, language and sorting preferences remain
 local to each browser. Big Picture Mode is selected in Settings and applies to
-both overviews and their archives. Sorting and Animal category grouping remain
+both overviews and their archives. The Show next feeding switch immediately
+above it controls the future-feeding summary without hiding due reminders.
+Overview thumbnails use a bounded in-memory cache for the current overview;
+unchanged pictures survive scrolling and collection polling, while a new visit,
+detail return or manual reload refreshes them. Sorting and Animal category grouping remain
 in the overview toolbars, which follow the standalone action order with Reload
 as the additional rightmost control. The Android app can open this mode in an external
 browser; its local collection remains independent.

@@ -9,6 +9,8 @@ import 'package:sqlite3/sqlite3.dart';
 import '../core/database/app_database.dart';
 import '../features/backup/application/backup_validation_exception.dart';
 import 'account_store.dart';
+import 'audit_event.dart';
+import 'collection_audit_log.dart';
 import 'api_input.dart';
 import 'care_api.dart';
 import 'collection_operation_gate.dart';
@@ -35,6 +37,23 @@ class SharedServerApi {
        _care = CareApi(
          database: database,
          authenticator: SessionAuthenticator(accounts, publicUrl),
+         audit: (request, status, reply, replayed) async {
+           final actor = SessionAuthenticator(
+             accounts,
+             publicUrl,
+           ).session(request)?.account;
+           if (actor == null) throw StateError('Audit actor is unavailable.');
+           for (final event in collectionAuditEvents(
+             actor.auditActor,
+             request.method,
+             request.uri.pathSegments.skip(2).toList(),
+             status,
+             reply,
+             replayed: replayed,
+           )) {
+             await CollectionAuditLog(database).record(event);
+           }
+         },
        ),
        _backups = SharedPortableBackups(database);
 
@@ -44,6 +63,7 @@ class SharedServerApi {
         'Create the initial administrator before starting the server.',
       );
     }
+    await CollectionAuditLog(_database).initialize();
     final server = await HttpServer.bind(
       address ?? InternetAddress.loopbackIPv4,
       port,
@@ -106,7 +126,42 @@ class SharedServerApi {
             'Administrator access required.',
           );
         }
-        await _admin(request, current);
+        try {
+          await _admin(request, current);
+        } catch (error) {
+          if (!const {'GET', 'HEAD', 'OPTIONS'}.contains(request.method)) {
+            final parts = request.uri.pathSegments;
+            final status = error is ApiProblem
+                ? error.status
+                : error is BackupValidationException || error is FormatException
+                ? 400
+                : error is StateError
+                ? 409
+                : 500;
+            if (parts.length >= 4 && parts[3] == 'accounts') {
+              accounts.recordRejectedAdministration(
+                current.account,
+                request.method == 'POST' ? 'account.create' : 'account.update',
+                parts.length == 5 ? int.tryParse(parts[4]) : null,
+                status,
+              );
+            } else if (parts.length == 5 &&
+                parts[3] == 'backups' &&
+                parts[4] == 'restore') {
+              await CollectionAuditLog(_database).record(
+                AuditEvent(
+                  actor: current.account.auditActor,
+                  action: 'collection.restore',
+                  recordType: 'collection',
+                  recordId: null,
+                  outcome: 'rejected',
+                  statusCode: status,
+                ),
+              );
+            }
+          }
+          rethrow;
+        }
         return;
       }
       throw const ApiProblem(404, 'not_found', 'Unknown API path.');
@@ -286,6 +341,7 @@ class SharedServerApi {
           input.string('username', maxLength: 64),
           _password(input),
           _role(input.string('role', maxLength: 32)),
+          actor: current.account,
         );
         await _send(request.response, 201, {'account': account.toJson()});
         return;
@@ -319,6 +375,7 @@ class SharedServerApi {
             ? _role(input.string('role', maxLength: 32))
             : null,
         active: active as bool?,
+        actor: current.account,
       );
       await _send(request.response, 200, {'account': account.toJson()});
       return;
@@ -419,7 +476,20 @@ class SharedServerApi {
           );
         }
       }
-      final mediaCount = await _backups.restore(validated);
+      final mediaCount = await _database.transaction(() async {
+        final count = await _backups.restore(validated);
+        await CollectionAuditLog(_database).record(
+          AuditEvent(
+            actor: current.account.auditActor,
+            action: 'collection.restore',
+            recordType: 'collection',
+            recordId: null,
+            outcome: 'success',
+            statusCode: 200,
+          ),
+        );
+        return count;
+      });
       _care.clearRequestCache();
       _safetyGrants.clear();
       await _send(request.response, 200, {

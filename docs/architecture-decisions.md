@@ -1897,3 +1897,53 @@ standalone Android scanner and its existing permission model are unchanged.
 - browser support must be checked on the actual caregiver phones
 - Firefox users can still manage records but cannot use this native scanner
 - no Android release build or additional Android permission is required
+
+
+---
+
+## ADR-032: Commit Shared Care changes with server-owned audit metadata
+
+**Status:** Accepted
+
+**Date:** 2026-09-26
+
+### Context
+
+A shared collection needs durable attribution for caregiver and administrator
+changes. Account deactivation or removal must not erase earlier attribution.
+A portable collection restore must not replace the server's audit history.
+Logging after a committed write could silently omit an event if storage fails.
+The collection and account databases already have separate ownership.
+
+### Decision
+
+Each server database contains a server-only `shared_audit_events` table.
+Collection changes and their audit events commit in the same Drift transaction;
+account changes and their events commit in the same account-store transaction.
+Audit-write failure rolls back the associated mutation. Portable collection
+restore uses the same rule and preserves existing audit metadata. The Feeding
+idempotency cache is cleared after a transaction failure; cached successful
+replies are explicitly logged as replayed requests.
+
+Accounts receive persistent random audit identifiers, including existing
+accounts through an additive server migration. Events snapshot this identifier,
+username and role, UTC time, a fixed operation, record type and identifier, and
+outcome. Request bodies, free-text fields, credentials and binary media are
+never copied. Events do not have a foreign key to collection or account rows.
+Authenticated rejected operations can record a rejected outcome, but this is
+not a general login or HTTP access log.
+
+Portable backups omit both audit tables. Protected host-volume backups include
+them. The server prunes events older than 365 days at startup and on audit
+writes. Account removal preserves existing attribution until that retention
+expires; previously downloaded host backups follow operator retention.
+
+### Consequences
+
+- successful persisted mutations cannot silently lack their audit event
+- collection and account audit streams can later be merged by the admin viewer
+- removed accounts remain attributable without retaining passwords or sessions
+- a collection restore is an explicit audit boundary when record IDs are reused
+- audit storage failure prevents writes until the operator repairs storage
+- no standalone schema version or portable backup format change is required
+- no additional Android permission or external service is required

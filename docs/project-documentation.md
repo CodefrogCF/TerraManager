@@ -164,6 +164,14 @@ archives leave caregiver accounts and
 personal browser preferences outside the portable collection. A host-volume
 backup is still needed to protect server accounts and sessions.
 
+Shared Care records local audit metadata for collection and account changes.
+Events commit with the change, preserve actor attribution after deactivation or
+removal, and survive portable restore. They contain no notes, pictures or
+credentials. Audit entries are retained for 365 days; protected host-volume
+backups include them and portable backups exclude them. The administrator
+viewer is planned separately. Browser Back returns through detail, scanner
+and dialog routes; the standalone database remains separate.
+
 There is no developer-operated cloud synchronization.
 
 In standalone mode, data stored on one device is not automatically available

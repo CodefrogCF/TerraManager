@@ -225,3 +225,35 @@ so caregiver logins remain in place. The shared Flutter Web client uses this API
 for Box, Animal, archive, care, picture, backup and account workflows; its
 deployment is described in
 [Shared Care deployment](shared-care-deployment.md).
+
+
+## Server audit metadata
+
+Issue #177 records authenticated collection mutations (Boxes, Animals, Feeding,
+weight and shedding history, media, archive/restore and reassignment), portable
+restore, and account administration. Each event stores UTC time, a stable actor
+identifier, actor name/role snapshots, a fixed action, affected record type/ID,
+outcome and HTTP status. Grouped Feedings identify each affected Feeding record;
+an idempotent retry is marked `replayed`, not a second Feeding creation.
+
+Collection audit rows commit in the same transaction as the collection change;
+account audit rows commit in the same transaction as the account change. If an
+audit write fails, the mutation is rolled back and receives an error response.
+This includes backup replacement and prevents cached Feeding successes from
+surviving rollback. A lost HTTP response still requires checking the current
+collection before retrying an operation without idempotency protection.
+
+The server stores collection events in `collection.sqlite` and account events
+in `accounts.sqlite`. Both use `shared_audit_events`; neither stream is a
+portable collection table. Portable export excludes them and portable restore
+preserves them. Account target identifiers are stable audit identifiers rather
+than reusable account row numbers. Collection record IDs refer to their
+collection state at the event time; `collection.restore` marks replacement.
+Audit fields never contain request bodies, notes, picture/file bytes, filenames,
+password hashes, passwords, CSRF values, session tokens or idempotency keys.
+
+Audit metadata is pruned after 365 days at startup and on new audit writes.
+Account deactivation/removal does not cascade into these rows. Unauthorized and
+CSRF-denied requests are not collection-change audit entries. The administrator
+viewer and its read-only endpoints are separate work in Issue #179; this change
+does not expose a new public audit API.

@@ -1,6 +1,6 @@
 # TerraManager Datenschutzerklärung
 
-**Gültig ab:** 24. September 2026
+**Gültig ab:** 26. September 2026
 **Anwendung:** TerraManager
 **Entwickler:** Codefrog
 **Datenschutz- und Supportkontakt:** Die aktuellen Kontakt- und Supportmöglichkeiten sind im TerraManager-Projektrepository aufgeführt.
@@ -92,6 +92,26 @@ Der Betreiber ist für Kontozugänge, Serversicherheit, Zertifikatsvertrauen,
 Speicherdauer und Sicherungen verantwortlich. Die Android-App bleibt
 eigenständig: Ihr Link in den Einstellungen öffnet Shared Care im Browser,
 ohne die lokale Datenbank zu synchronisieren.
+
+Shared Care speichert außerdem ein lokales Änderungsprotokoll für angemeldete
+Änderungen an der Sammlung und an Benutzerkonten. Einträge enthalten den
+UTC-Zeitpunkt, eine stabile Kennung der ausführenden Person, den Kontonamen und
+die Rolle zum damaligen Zeitpunkt, die Aktion, betroffene Datensatzkennungen und
+das Ergebnis. Notizen, Bilder, hochgeladene Sicherungen, Passwörter und
+Sitzungstoken werden nicht in das Protokoll kopiert. Sammlungsereignisse liegen
+in der Sammlungsdatenbank, Kontenereignisse in der Kontendatenbank des Betreibers.
+Sie sind nicht Teil portabler `.tmbackup`-Dateien und werden durch eine portable
+Wiederherstellung nicht ersetzt. Geschützte Sicherungen des Serververzeichnisses
+enthalten diese Einträge.
+
+Der Server entfernt Protokolleinträge, die älter als 365 Tage sind, beim Start
+und beim Schreiben neuer Einträge. Eine Deaktivierung oder Löschung des Kontos
+entfernt die bisherige Zuordnung im Protokoll innerhalb dieser Frist nicht.
+Ältere geschützte Sicherungskopien können frühere Einträge enthalten, bis der
+Betreiber diese Kopien löscht. Der Betreiber kontrolliert den Zugriff, informiert
+Betreuungspersonen über diese lokale Verarbeitung und ist für den Schutz und
+die Löschung von Sicherungen verantwortlich. Protokolldaten werden nicht an den
+Entwickler oder einen externen Analysedienst übertragen.
 
 ## 4. Datenerhebung und Weitergabe
 

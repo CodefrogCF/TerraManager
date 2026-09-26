@@ -1749,8 +1749,13 @@ explicit confirmation, archive validation and transactional replacement remain
 required. The server rechecks emptiness while excluding caregiver writes.
 Populated collections continue to require a current safety copy.
 
-Next planned work covers persistent audit records (#177), account administration
-(#178) and an administrator audit viewer (#179). These are not yet implemented.
+Issue #177 adds transactional server audit metadata for collection and account
+changes, stable actor identities, 365-day retention and preservation across
+portable restore. Audit persistence failure rolls back the corresponding change.
+Shared Care browser Back also returns through detail, scanner and dialog routes.
+
+Next planned work covers account administration (#178) and an administrator
+audit viewer (#179). These are not yet implemented.
 
 ## Future Development
 

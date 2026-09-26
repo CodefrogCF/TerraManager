@@ -8,6 +8,14 @@ The project uses semantic versioning.
 
 ### Added
 
+- persist server-owned audit metadata for authenticated Shared Care collection
+  and account changes — Issue #177
+- retain stable actor identifiers and username/role snapshots without storing
+  notes, pictures, passwords or session tokens
+- commit collection and account mutations with their audit records, rolling
+  back changes if audit persistence fails; preserve audit records across
+  portable collection restore and retain them for 365 days
+
 - allow administrators to initialize a genuinely empty Shared Care collection
   from a portable backup without downloading an empty safety copy — Issue #176
 - check all collection tables on the server and recheck under the exclusive
@@ -20,6 +28,11 @@ The project uses semantic versioning.
   retaining due reminders
 
 ### Changed
+
+- connect Shared Care detail, scanner and dialog routes to browser Back history
+  so Android's edge-back gesture returns within the interface
+- synchronize in-app Back with browser history and respect protected-page
+  confirmation dialogs without triggering a second route pop
 
 - reuse Shared Care overview pictures while scrolling, sorting, switching
   layouts and polling unchanged media IDs — Issue #184

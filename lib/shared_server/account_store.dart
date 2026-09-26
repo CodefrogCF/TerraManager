@@ -5,6 +5,9 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:uuid/uuid.dart';
+
+import 'audit_event.dart';
 
 enum CareRole { administrator, caregiver }
 
@@ -13,8 +16,17 @@ class CareAccount {
   final String username;
   final CareRole role;
   final bool active;
+  final String auditId;
 
-  const CareAccount(this.id, this.username, this.role, this.active);
+  AuditActor get auditActor => AuditActor(auditId, username, role.name);
+
+  const CareAccount(
+    this.id,
+    this.username,
+    this.role,
+    this.active, [
+    this.auditId = '',
+  ]);
 
   Map<String, Object> toJson() => {
     'id': id,
@@ -75,6 +87,19 @@ class AccountStore {
       db.execute(
         'CREATE INDEX IF NOT EXISTS sessions_expires ON sessions(expires_at)',
       );
+      if (!db
+          .select('PRAGMA table_info(accounts)')
+          .any((row) => row['name'] == 'audit_id')) {
+        db.execute('ALTER TABLE accounts ADD COLUMN audit_id TEXT');
+      }
+      db.execute(
+        "UPDATE accounts SET audit_id = lower(hex(randomblob(16))) WHERE audit_id IS NULL",
+      );
+      db.execute(auditTableSql);
+      db.execute(auditIndexSql);
+      db.execute('DELETE FROM shared_audit_events WHERE occurred_at < ?', [
+        DateTime.now().toUtc().subtract(auditRetention).toIso8601String(),
+      ]);
       return AccountStore._(db);
     } catch (_) {
       db.close();
@@ -121,6 +146,7 @@ class AccountStore {
     String password,
     CareRole role, {
     bool initial = false,
+    CareAccount? actor,
   }) async {
     username = normalizeUsername(username);
     validatePassword(password);
@@ -130,23 +156,40 @@ class AccountStore {
         throw StateError('Initial administrator must be created first.');
       }
       _db.execute(
-        'INSERT INTO accounts(username, password_hash, role) VALUES (?, ?, ?)',
-        [username, hash, role.name],
+        'INSERT INTO accounts(username, password_hash, role, audit_id) VALUES (?, ?, ?, ?)',
+        [username, hash, role.name, const Uuid().v4()],
       );
-      return accountById(_db.lastInsertRowId)!;
+      final account = accountById(_db.lastInsertRowId)!;
+      _recordAudit(
+        AuditEvent(
+          actor:
+              actor?.auditActor ??
+              const AuditActor(
+                'server-bootstrap',
+                'Server administrator tool',
+                'system',
+              ),
+          action: 'account.create',
+          recordType: 'account',
+          recordId: account.auditId,
+          outcome: 'success',
+          statusCode: 201,
+        ),
+      );
+      return account;
     });
   }
 
   List<CareAccount> listAccounts() => _db
       .select(
-        'SELECT id, username, role, active FROM accounts ORDER BY username',
+        'SELECT id, username, role, active, audit_id FROM accounts ORDER BY username',
       )
       .map(_account)
       .toList(growable: false);
 
   CareAccount? accountById(int id) {
     final rows = _db.select(
-      'SELECT id, username, role, active FROM accounts WHERE id = ?',
+      'SELECT id, username, role, active, audit_id FROM accounts WHERE id = ?',
       [id],
     );
     return rows.isEmpty ? null : _account(rows.single);
@@ -154,7 +197,7 @@ class AccountStore {
 
   Future<CareAccount?> authenticate(String username, String password) async {
     final rows = _db.select(
-      'SELECT id, username, role, active, password_hash FROM accounts WHERE username = ?',
+      'SELECT id, username, role, active, audit_id, password_hash FROM accounts WHERE username = ?',
       [username.trim().toLowerCase()],
     );
     // Verify a dummy hash too, so unknown users are not a cheap oracle.
@@ -185,7 +228,7 @@ class AccountStore {
     }
     final rows = _db.select(
       '''
-      SELECT a.id, a.username, a.role, a.active, s.csrf_token, s.expires_at
+      SELECT a.id, a.username, a.role, a.active, a.audit_id, s.csrf_token, s.expires_at
       FROM sessions s JOIN accounts a ON a.id = s.account_id
       WHERE s.token_hash = ?
     ''',
@@ -219,6 +262,7 @@ class AccountStore {
     CareRole? role,
     bool? active,
     String? password,
+    CareAccount? actor,
   }) async {
     if (password != null) validatePassword(password);
     final hash = password == null
@@ -250,8 +294,49 @@ class AccountStore {
       if (role != null || active != null || hash != null) {
         _db.execute('DELETE FROM sessions WHERE account_id = ?', [id]);
       }
+      _recordAudit(
+        AuditEvent(
+          actor:
+              actor?.auditActor ??
+              const AuditActor(
+                'server-bootstrap',
+                'Server administrator tool',
+                'system',
+              ),
+          action: 'account.update',
+          recordType: 'account',
+          recordId: current.auditId,
+          outcome: 'success',
+          statusCode: 200,
+        ),
+      );
       return accountById(id)!;
     });
+  }
+
+  void recordRejectedAdministration(
+    CareAccount actor,
+    String action,
+    int? accountId,
+    int status,
+  ) {
+    _recordAudit(
+      AuditEvent(
+        actor: actor.auditActor,
+        action: action,
+        recordType: 'account',
+        recordId: accountId == null ? null : accountById(accountId)?.auditId,
+        outcome: 'rejected',
+        statusCode: status,
+      ),
+    );
+  }
+
+  void _recordAudit(AuditEvent event) {
+    _db.execute(auditInsertSql, event.sqlValues);
+    _db.execute('DELETE FROM shared_audit_events WHERE occurred_at < ?', [
+      DateTime.now().toUtc().subtract(auditRetention).toIso8601String(),
+    ]);
   }
 
   int _activeAdminCount() =>
@@ -285,6 +370,7 @@ class AccountStore {
     row['username'] as String,
     CareRole.values.byName(row['role'] as String),
     row['active'] == 1,
+    row['audit_id'] as String,
   );
 
   static Future<String> _hashPassword(String password, List<int> salt) async {

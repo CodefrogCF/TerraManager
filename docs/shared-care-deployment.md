@@ -414,3 +414,42 @@ Certificate renewal is an operator action: replace the two files in
 `deploy/certs/` with a new matching pair and restart the `web` service. Keep
 the hostname and client trust configuration aligned. No runtime cloud
 service, analytics endpoint or port forwarding is part of this stack.
+
+
+## Audit storage, retention and verification
+
+The server stores a local change audit with the collection and account databases
+(Issue #177). Both databases gain a server-only `shared_audit_events` table;
+existing accounts receive stable random audit identities automatically. This
+is additive and preserves existing records, passwords and valid sessions.
+Update both the server image and browser package for this release, then check
+ordinary Box/Animal, care and account operations on the updated instance.
+
+Keep both databases and their WAL files within protected host-volume backups;
+stop the server before making a filesystem archive as described above.
+Portable `.tmbackup` files exclude audit metadata and credentials. Portable
+restore preserves audit records and adds a `collection.restore` event. It is
+not a full server recovery procedure. Account removal retains prior actor
+identifier/name/role snapshots without retaining the removed password or session.
+
+Events older than 365 days are pruned at startup and on audit writes. Older
+host backups can retain earlier audit entries and must follow the operator's
+own protected-backup deletion policy. Inform caregivers about the local audit
+and restrict access to server storage. No audit data is uploaded to a developer
+service. An administrator audit viewer follows in Issue #179.
+
+If audit storage becomes unwritable or full, the associated collection/account
+mutation is rolled back and fails. Restore is also rolled back. Do not disable
+or drop the audit tables to work around errors; repair storage and verify the
+collection before retrying. Automated tests simulate rejected audit inserts,
+check rollback and Feeding retry, verify retention, and verify that portable
+restore and account removal preserve attribution.
+
+Shared Care now adds browser-history entries for opened detail, scanner and
+dialog routes. On Android, verify that the edge-back gesture returns from a
+detail to its overview, closes a scanner and releases the camera, and returns
+through any nested detail or history page. The in-app back arrow keeps browser
+history aligned. Protected confirmation dialogs remain active. Reload starts
+at the main interface; old forward entries do not recreate abandoned editors
+or camera sessions. Navigating Back from the main interface itself retains
+normal browser behavior.

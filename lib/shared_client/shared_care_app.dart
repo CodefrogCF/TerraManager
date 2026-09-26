@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../core/presentation/widgets/constrained_page_width.dart';
 import '../core/theme/app_theme.dart';
@@ -9,6 +10,7 @@ import '../features/settings/app_settings_controller.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'shared_api_client.dart';
+import 'navigation/shared_browser_back_observer.dart';
 import 'shared_collection_pages.dart';
 import 'shared_text.dart';
 
@@ -23,6 +25,8 @@ class SharedCareApp extends StatefulWidget {
 
 class _SharedCareAppState extends State<SharedCareApp> {
   final AppSettingsController _settings = AppSettingsController();
+  final _browserBack = SharedBrowserBackObserver();
+  final _webNavigator = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -32,6 +36,7 @@ class _SharedCareAppState extends State<SharedCareApp> {
 
   @override
   void dispose() {
+    _browserBack.dispose();
     widget.api.close();
     _settings.dispose();
     super.dispose();
@@ -43,6 +48,22 @@ class _SharedCareAppState extends State<SharedCareApp> {
     child: ListenableBuilder(
       listenable: _settings,
       builder: (context, _) => MaterialApp(
+        navigatorObservers: kIsWeb ? const [] : [_browserBack],
+        // MaterialApp's default Navigator selects single-entry browser history.
+        // Shared Care owns a multi-entry stack for its imperative routes instead.
+        builder: kIsWeb
+            ? (context, _) => Navigator(
+                key: _webNavigator,
+                reportsRouteUpdateToEngine: false,
+                observers: [_browserBack],
+                onGenerateRoute: (_) => MaterialPageRoute<void>(
+                  builder: (_) => ConstrainedPageWidth(
+                    maxWidth: 960,
+                    child: SharedCareHome(api: widget.api),
+                  ),
+                ),
+              )
+            : null,
         onGenerateTitle: (context) => context.l10n.appTitle,
         locale: _settings.language.locale,
         supportedLocales: supportedAppLocales,

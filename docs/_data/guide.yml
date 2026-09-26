@@ -231,6 +231,10 @@ de:
         body: Unter Einstellungen kannst du die nächste noch nicht fällige Fütterung ein- oder ausblenden; fällige Erinnerungen bleiben sichtbar. Der Großbildmodus direkt darunter gilt für Boxen, Tiere und die Archive und bleibt für diesen Browser gespeichert. Sortierung und Kategorieanzeige stellst du direkt in der jeweiligen Übersicht ein. Die Aktionen stehen wie in der eigenständigen App oben in einer Leiste; Neu laden ist der zusätzliche Button ganz rechts.
       - title: Box-QR-Codes exportieren
         body: Unter Einstellungen → Box-QR-Codes kannst du ausgewählte aktive und archivierte Boxen als einzelne PNG-Dateien, ZIP oder A4-PDF speichern. Vor jedem Export öffnet sich eine Checkliste; beim PDF stellst du die Codegröße zwischen 6 und 20 mm ein. Die Dateien werden direkt im Browser erzeugt.
+      - title: Zur vorherigen Ansicht zurückkehren
+        body: Mit dem Zurück-Pfeil oder der Zurück-Funktion des Browsers beziehungsweise Geräts verlässt du Details, Verlaufsseiten oder den QR-Scanner. Unter Android führt die Zurück-Geste vom Rand innerhalb von Shared Care zurück; beim Schließen des Scanners wird die Kamera freigegeben. Auf der Hauptansicht gilt das normale Browser-Verhalten.
+      - title: Lokale Nachvollziehbarkeit
+        body: Der Server des Betreibers protokolliert, wer wann gemeinsame Sammlungsdaten oder Konten geändert hat und welche Einträge betroffen waren. Notizen, Bilder und Zugangsdaten werden nicht in das Änderungsprotokoll kopiert. Einträge bleiben 365 Tage erhalten, auch nach einer Kontolöschung, und werden durch eine portable Wiederherstellung nicht ersetzt.
     note: Die portable Shared-Care-Sicherung enthält die Sammlung, aber keine Serverkonten. Für eine vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden. Der native Android-Modus bleibt eigenständig und benötigt keine zusätzlichen Netzwerkberechtigungen.
     setup: Einrichtung und Betrieb des eigenen Servers
   finish:
@@ -476,6 +480,10 @@ en:
         body: Tap an enclosure or animal primary picture or gallery thumbnail to open the zoomable full-screen viewer. The overview reuses loaded pictures while scrolling. Opening it again, returning from details or choosing Reload renews the picture snapshot. Collapse or expand the due-feeding group in the Animal Overview; its count and warning marker stay visible.
       - title: Choose presentation and overview controls
         body: In Settings, Show next feeding controls the next reminder that is still in the future; due reminders remain visible. Big Picture Mode immediately below it applies to Boxes, Animals and their archives and stays saved in this browser. Sorting and category grouping are selected on the relevant overview. Actions share the same top toolbar as the standalone app; Reload is the additional rightmost button.
+      - title: Return to the previous view
+        body: Use the in-app back arrow or the browser/system Back action to leave a detail, history page or QR scanner. On Android, the edge-back gesture returns within Shared Care; closing the scanner releases the camera. Back from the main view follows normal browser behavior.
+      - title: Local accountability
+        body: The operator's server records who changed shared collection data or accounts, when, and which records were affected. Notes, images and credentials are not copied into this audit log. Entries remain for 365 days, including after account removal, and survive portable backup restore.
       - title: Export Box QR codes
         body: In Settings → Box QR codes, select active and archived Boxes to save individual PNG files, a ZIP or an A4 PDF. A checklist opens before every export; the PDF offers a 6–20 mm code-size slider. Files are generated directly in the browser.
     note: A portable Shared Care backup contains the collection but not server accounts. Full server recovery also requires a backup of both databases in the server data directory. Native Android mode stays standalone and needs no additional network permission.

@@ -2,9 +2,10 @@
 layout: default
 title: TerraManager
 ---
+
 # TerraManager Privacy Policy
 
-**Effective date:** September 24, 2026
+**Effective date:** September 26, 2026
 **Application:** TerraManager
 **Developer:** Codefrog
 **Privacy and support contact:** See the TerraManager project repository for the current contact and support channels.
@@ -94,6 +95,23 @@ Shared Care collection database. The operator is responsible for account
 access, host security, certificate trust, retention and backups. The Android
 app remains standalone; its Settings link opens Shared Care in a browser and
 does not synchronize its local database.
+
+Shared Care also stores a local audit log of authenticated collection and
+account changes. Entries contain UTC time, a stable actor identifier, the
+account name and role at the time, an operation name, affected record identifiers
+and the outcome. Audit entries do not copy notes, images, uploaded archives,
+passwords or session tokens. Collection events are stored in the collection
+database and account events in the account database, on the operator's server.
+They are not included in portable `.tmbackup` archives and are not replaced by
+a portable restore. Protected host-volume backups include them.
+
+The server prunes audit entries older than 365 days on startup and when new
+entries are written. Deactivating or removing an account does not remove its
+existing audit attribution within that period. Older protected backup copies
+may retain earlier entries until the operator deletes those copies. The
+operator controls access to these records and is responsible for informing
+caregivers about this local processing and protecting or deleting backups.
+No audit data is sent to the developer or an external analytics service.
 
 ## 4. Data collection and sharing
 

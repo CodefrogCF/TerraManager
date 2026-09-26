@@ -26,14 +26,22 @@ import 'api_input.dart';
 import 'api_models.dart';
 import 'care_authenticator.dart';
 
+typedef CareAuditWriter = Future<void> Function(
+  HttpRequest request,
+  int status,
+  Map<String, dynamic>? reply,
+  bool replayed,
+);
+
 typedef _Payload = Map<String, dynamic>;
 
 class CareApi {
   final AppDatabase database;
   final CareAuthenticator authenticator;
+  final CareAuditWriter? audit;
   final Map<String, _IdempotentReply> _feedingRequests = {};
 
-  CareApi({required this.database, required this.authenticator});
+  CareApi({required this.database, required this.authenticator, this.audit});
 
   void clearRequestCache() => _feedingRequests.clear();
 
@@ -63,7 +71,7 @@ class CareApi {
       if (!await authenticator.isAuthenticated(request)) {
         throw const ApiProblem(401, 'unauthorized', 'Authentication required.');
       }
-      final reply = await _dispatch(request);
+      final reply = await _auditedDispatch(request);
       await _send(request.response, reply);
     } on ApiProblem catch (problem) {
       await _send(
@@ -114,6 +122,43 @@ class CareApi {
         request.response,
         _error(500, 'internal_error', 'The request could not be completed.'),
       );
+    }
+  }
+
+  Future<_Reply> _auditedDispatch(HttpRequest request) async {
+    if (audit == null ||
+        const {'GET', 'HEAD', 'OPTIONS'}.contains(request.method)) {
+      return _dispatch(request);
+    }
+    try {
+      return await database.transaction(() async {
+        final reply = await _dispatch(request);
+        if (reply.status >= 400) throw _RejectedReply(reply);
+        await audit!(request, reply.status, reply.body, reply.replayed);
+        return reply;
+      });
+    } on _RejectedReply catch (rejected) {
+      await audit!(request, rejected.reply.status, null, false);
+      return rejected.reply;
+    } catch (error) {
+      // Cached Feeding replies must never outlive a rolled-back transaction.
+      clearRequestCache();
+      final status = error is ApiProblem
+          ? error.status
+          : error is BoxArchiveBlockedException ||
+                error is BoxAssignmentException ||
+                error is StateError
+          ? 409
+          : error is ArgumentError
+          ? 400
+          : error is SqliteException &&
+                (error.resultCode == SqlError.SQLITE_CONSTRAINT ||
+                    error.resultCode == SqlError.SQLITE_BUSY ||
+                    error.resultCode == SqlError.SQLITE_LOCKED)
+          ? 409
+          : 500;
+      await audit!(request, status, null, false);
+      rethrow;
     }
   }
 
@@ -776,7 +821,8 @@ class CareApi {
           'Request key was reused with different data.',
         );
       }
-      return existing.result;
+      final reply = await existing.result;
+      return _Reply(reply.status, reply.body, replayed: true);
     }
     if (_feedingRequests.length >= 10000) {
       return _error(429, 'rate_limited', 'Too many recent feeding requests.');
@@ -1085,10 +1131,15 @@ class _Reply {
   final _Payload? body;
   final Uint8List? bytes;
   final String? mimeType;
+  final bool replayed;
 
-  const _Reply(this.status, this.body) : bytes = null, mimeType = null;
+  const _Reply(this.status, this.body, {this.replayed = false})
+    : bytes = null,
+      mimeType = null;
 
-  const _Reply.bytes(this.status, this.bytes, this.mimeType) : body = null;
+  const _Reply.bytes(this.status, this.bytes, this.mimeType)
+    : body = null,
+      replayed = false;
 }
 
 class _IdempotentReply {
@@ -1100,3 +1151,8 @@ class _IdempotentReply {
 }
 
 typedef _ImageUpload = ({String fileName, String mimeType, Uint8List bytes});
+
+class _RejectedReply implements Exception {
+  const _RejectedReply(this.reply);
+  final _Reply reply;
+}

@@ -1754,8 +1754,13 @@ changes, stable actor identities, 365-day retention and preservation across
 portable restore. Audit persistence failure rolls back the corresponding change.
 Shared Care browser Back also returns through detail, scanner and dialog routes.
 
-Next planned work covers account administration (#178) and an administrator
-audit viewer (#179). These are not yet implemented.
+Issue #178 adds Settings → Server → Manage accounts with username/role edits,
+password reset, activation changes and confirmed removal. Changes revoke the
+affected user's sessions. Server transactions protect the final active
+administrator and retain audit identity after removal. QR Feeding Mode now
+shows current Animal thumbnails in standalone and Shared Care selection lists.
+
+The administrator audit viewer (#179) remains planned and is not yet implemented.
 
 ## Future Development
 

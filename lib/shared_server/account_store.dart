@@ -33,6 +33,7 @@ class CareAccount {
     'username': username,
     'role': role.name,
     'active': active,
+    'auditId': auditId,
   };
 }
 
@@ -152,6 +153,7 @@ class AccountStore {
     validatePassword(password);
     final hash = await _hashPassword(password, _randomBytes(16));
     return _transaction(() {
+      _checkActor(actor);
       if (initial ? hasAccounts : !hasAccounts) {
         throw StateError('Initial administrator must be created first.');
       }
@@ -259,20 +261,29 @@ class AccountStore {
 
   Future<CareAccount> updateAccount(
     int id, {
+    String? username,
+    String? expectedAuditId,
     CareRole? role,
     bool? active,
     String? password,
     CareAccount? actor,
   }) async {
+    final normalizedName = username == null
+        ? null
+        : normalizeUsername(username);
     if (password != null) validatePassword(password);
     final hash = password == null
         ? null
         : await _hashPassword(password, _randomBytes(16));
     return _transaction(() {
+      _checkActor(actor);
       // Re-read inside the transaction: hashing may have yielded to another
       // administrator request that changed this account's role or state.
       final current = accountById(id);
       if (current == null) throw StateError('Account not found.');
+      if (expectedAuditId != null && current.auditId != expectedAuditId) {
+        throw StateError('Account changed. Reload before trying again.');
+      }
       if (current.role == CareRole.administrator &&
           current.active &&
           (role == CareRole.caregiver || active == false) &&
@@ -281,17 +292,21 @@ class AccountStore {
       }
       _db.execute(
         '''
-        UPDATE accounts SET role = ?, active = ?,
+        UPDATE accounts SET username = ?, role = ?, active = ?,
           password_hash = COALESCE(?, password_hash) WHERE id = ?
       ''',
         [
+          normalizedName ?? current.username,
           (role ?? current.role).name,
           (active ?? current.active) ? 1 : 0,
           hash,
           id,
         ],
       );
-      if (role != null || active != null || hash != null) {
+      if (normalizedName != null ||
+          role != null ||
+          active != null ||
+          hash != null) {
         _db.execute('DELETE FROM sessions WHERE account_id = ?', [id]);
       }
       _recordAudit(
@@ -311,6 +326,49 @@ class AccountStore {
         ),
       );
       return accountById(id)!;
+    });
+  }
+
+  void _checkActor(CareAccount? actor) {
+    if (actor == null) return; // Trusted local administrator tooling.
+    final current = accountById(actor.id);
+    if (current == null ||
+        current.auditId != actor.auditId ||
+        !current.active ||
+        current.role != CareRole.administrator) {
+      throw StateError('Administrator access is no longer available.');
+    }
+  }
+
+  void removeAccount(
+    int id, {
+    required CareAccount actor,
+    String? expectedAuditId,
+  }) {
+    _transaction(() {
+      _checkActor(actor);
+      final current = accountById(id);
+      if (current == null) throw StateError('Account not found.');
+      if (expectedAuditId != null && current.auditId != expectedAuditId) {
+        throw StateError('Account changed. Reload before trying again.');
+      }
+      if (current.active &&
+          current.role == CareRole.administrator &&
+          _activeAdminCount() <= 1) {
+        throw StateError('The last active administrator cannot be removed.');
+      }
+      _recordAudit(
+        AuditEvent(
+          actor: actor.auditActor,
+          action: 'account.delete',
+          recordType: 'account',
+          recordId: current.auditId,
+          outcome: 'success',
+          statusCode: 200,
+        ),
+      );
+      // Session foreign keys cascade; audit metadata deliberately has no FK.
+      _db.execute('DELETE FROM accounts WHERE id = ?', [id]);
     });
   }
 

@@ -1,4 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:drift/drift.dart' show Value;
+import 'package:terramanager/core/database/repositories/media_repository.dart';
+import 'package:terramanager/core/media/media_thumbnail.dart';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -108,6 +113,53 @@ void main() {
 
     return result;
   }
+
+  testWidgets(
+    'feeding selection shows current picture bytes and a placeholder without a picture',
+    (tester) async {
+      final box = await createBox();
+      final pictured = await createAnimal(
+        boxId: box.id,
+        commonName: 'Pictured',
+      );
+      final plain = await createAnimal(boxId: box.id, commonName: 'Plain');
+      final bytes = base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+      );
+      final mediaId = await MediaRepository(
+        database,
+      ).createMedia(fileName: 'animal.png', mimeType: 'image/png', data: bytes);
+      await pumpDirectPage(
+        tester,
+        box: box,
+        animals: [
+          pictured.copyWith(pictureMediaId: Value(mediaId)),
+          plain,
+        ],
+      );
+      await tester.pumpAndSettle();
+      final image = tester.widget<MediaThumbnail>(
+        find.byKey(Key('feeding-mode-thumbnail-${pictured.id}')),
+      );
+      expect(image.pictureBytes, bytes);
+      final placeholder = tester.widget<MediaThumbnail>(
+        find.byKey(Key('feeding-mode-thumbnail-${plain.id}')),
+      );
+      expect(placeholder.pictureBytes, isNull);
+      expect(placeholder.picturePath, isNull);
+      await tester.tap(find.byKey(Key('feeding-mode-animal-${plain.id}')));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<MediaThumbnail>(
+              find.byKey(Key('feeding-mode-thumbnail-${pictured.id}')),
+            )
+            .pictureBytes,
+        bytes,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('selects all Animals and pre-fills the feeding time', (
     tester,

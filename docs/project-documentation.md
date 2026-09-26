@@ -164,6 +164,18 @@ archives leave caregiver accounts and
 personal browser preferences outside the portable collection. A host-volume
 backup is still needed to protect server accounts and sessions.
 
+Shared Care administrators manage local users through Settings → Server →
+Manage accounts. The screen supports username and role changes, optional
+password reset, deactivation/reactivation and confirmed account removal.
+Changes revoke the affected user's sessions; the final active administrator is
+protected. Account removal retains collection records and previous audit
+attribution while removing credentials and sessions. Caregivers cannot access
+these administrator controls.
+
+QR Feeding Mode shows current Animal thumbnails beside the names in both
+standalone and Shared Care. Missing pictures use the existing placeholder;
+selection changes reuse already loaded media while the form stays open.
+
 Shared Care records local audit metadata for collection and account changes.
 Events commit with the change, preserve actor attribution after deactivation or
 removal, and survive portable restore. They contain no notes, pictures or

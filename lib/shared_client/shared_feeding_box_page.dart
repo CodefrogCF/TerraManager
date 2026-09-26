@@ -8,6 +8,7 @@ import '../core/sorting/natural_string_comparator.dart';
 import '../features/animals/presentation/animal_display_names.dart';
 import '../l10n/app_localizations_context.dart';
 import 'shared_api_client.dart';
+import 'media/application/shared_overview_image_cache.dart';
 import 'shared_collection_pages.dart';
 import 'shared_text.dart';
 
@@ -31,6 +32,7 @@ class SharedFeedingBoxPage extends StatefulWidget {
 }
 
 class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
+  late final SharedOverviewImageCache _images;
   final TextEditingController _notesController = TextEditingController();
   List<Map<String, dynamic>> _animals = const [];
   Set<int> _selectedIds = {};
@@ -46,11 +48,13 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
   @override
   void initState() {
     super.initState();
+    _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
     _loadAnimals();
   }
 
   @override
   void dispose() {
+    _images.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -81,6 +85,9 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
       if (!mounted) {
         return;
       }
+      _images.retain(
+        animals.map((animal) => animal['pictureMediaId']).whereType<int>(),
+      );
       setState(() {
         _animals = animals;
         _selectedIds = animals.map((animal) => animal['id'] as int).toSet();
@@ -286,6 +293,24 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
                                             }
                                             _error = null;
                                           }),
+                                    secondary: Semantics(
+                                      image: true,
+                                      label: context.l10n.animalThumbnailLabel(
+                                        names.primary,
+                                      ),
+                                      child: SharedThumbnail(
+                                        key: Key(
+                                          'shared-feeding-thumbnail-$id',
+                                        ),
+                                        api: widget.api,
+                                        mediaId:
+                                            animal['pictureMediaId'] as int?,
+                                        fallback: Icons.emoji_nature_outlined,
+                                        images: _images,
+                                        width: 48,
+                                        height: 48,
+                                      ),
+                                    ),
                                     controlAffinity:
                                         ListTileControlAffinity.leading,
                                     title: Text(names.primary),

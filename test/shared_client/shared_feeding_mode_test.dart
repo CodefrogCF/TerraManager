@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:terramanager/shared_client/shared_api_client.dart';
 import 'package:terramanager/shared_client/shared_feeding_box_page.dart';
+import 'package:terramanager/shared_client/shared_collection_pages.dart';
 
 void main() {
   const origin = 'https://192.168.1.117';
@@ -21,6 +22,7 @@ void main() {
         'status': 'active',
         'commonName': 'Animal 1',
         'latinName': 'Species one',
+        'pictureMediaId': 9,
       },
       {
         'id': 2,
@@ -50,11 +52,22 @@ void main() {
     tester,
   ) async {
     http.Request? submission;
+    var mediaLoads = 0;
     final api = SharedApiClient(
       Uri.parse(origin),
       MockClient((request) async {
         if (request.url.path == '/api/v1/auth/login') {
           return http.Response(jsonEncode(session), 200);
+        }
+        if (request.url.path == '/api/v1/media/9') {
+          mediaLoads++;
+          return http.Response.bytes(
+            base64Decode(
+              'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
+            ),
+            200,
+            headers: {'content-type': 'image/png'},
+          );
         }
         if (request.url.path == '/api/v1/boxes/7') {
           return http.Response(
@@ -103,7 +116,16 @@ void main() {
     expect(find.byKey(const Key('shared-feeding-animal-3')), findsNothing);
     expect(find.byKey(const Key('shared-feeding-animal-4')), findsNothing);
 
+    final thumbnail = tester.widget<SharedThumbnail>(
+      find.byKey(const Key('shared-feeding-thumbnail-1')),
+    );
+    expect(thumbnail.mediaId, 9);
+    expect(thumbnail.images, isNotNull);
+    expect(find.byKey(const Key('shared-feeding-thumbnail-2')), findsOneWidget);
+    expect(mediaLoads, 1);
     await tester.tap(find.byKey(const Key('shared-feeding-animal-2')));
+    await tester.pumpAndSettle();
+    expect(mediaLoads, 1);
     await tester.tap(find.byKey(const Key('shared-feeding-save')));
     await tester.pumpAndSettle();
 

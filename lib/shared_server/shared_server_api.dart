@@ -135,13 +135,19 @@ class SharedServerApi {
                 ? error.status
                 : error is BackupValidationException || error is FormatException
                 ? 400
-                : error is StateError
+                : error is StateError ||
+                      (error is SqliteException &&
+                          error.extendedResultCode == 2067)
                 ? 409
                 : 500;
             if (parts.length >= 4 && parts[3] == 'accounts') {
               accounts.recordRejectedAdministration(
                 current.account,
-                request.method == 'POST' ? 'account.create' : 'account.update',
+                request.method == 'POST'
+                    ? 'account.create'
+                    : request.method == 'DELETE'
+                    ? 'account.delete'
+                    : 'account.update',
                 parts.length == 5 ? int.tryParse(parts[4]) : null,
                 status,
               );
@@ -349,6 +355,36 @@ class SharedServerApi {
     }
     if (parts.length == 5 &&
         parts[3] == 'accounts' &&
+        request.method == 'DELETE') {
+      final id = int.tryParse(parts[4]);
+      if (id == null || id < 1) {
+        throw const ApiProblem(400, 'invalid_data', 'Invalid account ID.');
+      }
+      if (accounts.accountById(id) == null) {
+        throw const ApiProblem(404, 'not_found', 'Account not found.');
+      }
+      final input = await _body(request);
+      input.allow(const {'confirmation', 'expectedAuditId'});
+      if (input.string('confirmation', maxLength: 32) != 'remove-account') {
+        throw const ApiProblem(
+          400,
+          'invalid_data',
+          'Account removal must be confirmed.',
+        );
+      }
+      accounts.removeAccount(
+        id,
+        actor: current.account,
+        expectedAuditId: input.string('expectedAuditId', maxLength: 64),
+      );
+      await _send(request.response, 200, {
+        'removed': true,
+        'sessionRevoked': id == current.account.id,
+      });
+      return;
+    }
+    if (parts.length == 5 &&
+        parts[3] == 'accounts' &&
         request.method == 'PATCH') {
       final id = int.tryParse(parts[4]);
       if (id == null || id < 1) {
@@ -358,16 +394,28 @@ class SharedServerApi {
         throw const ApiProblem(404, 'not_found', 'Account not found.');
       }
       final input = await _body(request);
-      input.allow(const {'password', 'role', 'active'});
-      if (input.values.isEmpty) {
+      input.allow(const {
+        'username',
+        'password',
+        'role',
+        'active',
+        'expectedAuditId',
+      });
+      if (input.values.keys.every((key) => key == 'expectedAuditId')) {
         throw const ApiProblem(400, 'invalid_data', 'No fields to update.');
       }
       final active = input.values['active'];
-      if (active != null && active is! bool) {
+      if (input.values.containsKey('active') && active is! bool) {
         throw const ApiProblem(400, 'invalid_data', 'active must be Boolean.');
       }
       final account = await accounts.updateAccount(
         id,
+        expectedAuditId: input.values.containsKey('expectedAuditId')
+            ? input.string('expectedAuditId', maxLength: 64)
+            : null,
+        username: input.values.containsKey('username')
+            ? input.string('username', maxLength: 64)
+            : null,
         password: input.values.containsKey('password')
             ? _password(input)
             : null,
@@ -377,7 +425,10 @@ class SharedServerApi {
         active: active as bool?,
         actor: current.account,
       );
-      await _send(request.response, 200, {'account': account.toJson()});
+      await _send(request.response, 200, {
+        'account': account.toJson(),
+        'sessionRevoked': id == current.account.id,
+      });
       return;
     }
     throw const ApiProblem(

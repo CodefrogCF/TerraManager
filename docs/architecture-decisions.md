@@ -1947,3 +1947,46 @@ expires; previously downloaded host backups follow operator retention.
 - audit storage failure prevents writes until the operator repairs storage
 - no standalone schema version or portable backup format change is required
 - no additional Android permission or external service is required
+
+---
+
+## ADR-033: Manage server accounts without deleting audit attribution
+
+**Status:** Accepted
+
+**Date:** 2026-09-26
+
+### Context
+
+Shared Care already separates local account credentials from collection data.
+Administrators need to change usernames, roles, passwords and active status,
+and remove obsolete accounts. These controls must not lock out the operator,
+leave old sessions usable or erase accountability for earlier care changes.
+
+### Decision
+
+Settings exposes a separate administrator-only Manage accounts page under the
+Server section. Account updates revoke all sessions for the affected account;
+self-edit or self-removal returns the browser to sign-in. An omitted password
+retains the existing hash. Removal requires an explicit confirmation dialog and
+a confirmed, same-origin DELETE request with administrator authorization and CSRF.
+
+The account store validates the acting administrator and protects the last
+active administrator inside the mutation transaction, after any asynchronous
+password hashing. Username normalization and uniqueness remain server-owned.
+Account deletion removes credentials and cascades to sessions while preserving
+existing audit events. Reused usernames or row numbers receive new stable audit
+identities. Administrator account responses provide this non-secret identity;
+client edits and confirmed removals carry it as `expectedAuditId`, checked
+inside the transaction to reject stale forms targeting a reused row number.
+Successful mutations and their audit records commit together.
+
+### Consequences
+
+- administrators can manage access from the existing Shared Care interface
+- account changes invalidate affected sessions across devices
+- the final active administrator cannot be removed, deactivated or demoted
+- account removal does not delete collection records or prior audit attribution
+- historical host backups remain subject to operator retention
+- no standalone schema or portable backup format change is required
+- no additional Android permission or external service is required

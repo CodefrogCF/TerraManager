@@ -80,6 +80,39 @@ class SharedApiClient extends ChangeNotifier {
     'account',
   );
 
+  Future<Map<String, dynamic>> updateAccount(
+    int id,
+    Map<String, dynamic> values,
+  ) async {
+    final result = await _request(
+      'PATCH',
+      '/api/v1/admin/accounts/$id',
+      body: values,
+    );
+    final account = _object(result, 'account');
+    _accountSessionChanged(result);
+    return account;
+  }
+
+  Future<void> removeAccount(int id, String expectedAuditId) async {
+    final result = await _request(
+      'DELETE',
+      '/api/v1/admin/accounts/$id',
+      body: {
+        'confirmation': 'remove-account',
+        'expectedAuditId': expectedAuditId,
+      },
+    );
+    _accountSessionChanged(result);
+  }
+
+  void _accountSessionChanged(Map<String, dynamic> result) {
+    if (result['sessionRevoked'] == true) {
+      _session = null;
+      notifyListeners();
+    }
+  }
+
   Future<List<Map<String, dynamic>>> boxes() async =>
       _list(await _request('GET', '/api/v1/boxes'), 'boxes');
 

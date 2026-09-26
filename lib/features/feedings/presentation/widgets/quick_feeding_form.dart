@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
+import '../../../../core/database/repositories/media_repository.dart';
+import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/animal_display_names.dart';
@@ -36,6 +38,8 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
 
   late final Set<int> _selectedAnimalIds;
   late DateTime _fedAt;
+
+  final Map<int, Future<MediaAsset?>> _pictures = {};
 
   bool _saving = false;
   String? _error;
@@ -229,6 +233,28 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                             selected: selected ?? false,
                           );
                         },
+                  secondary: FutureBuilder<MediaAsset?>(
+                    future: animal.pictureMediaId == null
+                        ? null
+                        : _pictures.putIfAbsent(
+                            animal.pictureMediaId!,
+                            () =>
+                                MediaRepository(widget.database)
+                                    .getMediaById(animal.pictureMediaId!),
+                          ),
+                    builder: (context, snapshot) => MediaThumbnail(
+                      key: Key('feeding-mode-thumbnail-${animal.id}'),
+                      pictureBytes: snapshot.data?.data,
+                      picturePath: snapshot.data == null
+                          ? animal.picturePath
+                          : null,
+                      fallbackIcon: Icons.emoji_nature_outlined,
+                      semanticsLabel: context.l10n.animalThumbnailLabel(
+                        displayNames.primary,
+                      ),
+                      size: 48,
+                    ),
+                  ),
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                   title: Text(displayNames.primary),

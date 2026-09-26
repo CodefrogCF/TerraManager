@@ -445,11 +445,20 @@ collection before retrying. Automated tests simulate rejected audit inserts,
 check rollback and Feeding retry, verify retention, and verify that portable
 restore and account removal preserve attribution.
 
-Shared Care now adds browser-history entries for opened detail, scanner and
-dialog routes. On Android, verify that the edge-back gesture returns from a
-detail to its overview, closes a scanner and releases the camera, and returns
-through any nested detail or history page. The in-app back arrow keeps browser
-history aligned. Protected confirmation dialogs remain active. Reload starts
-at the main interface; old forward entries do not recreate abandoned editors
-or camera sessions. Navigating Back from the main interface itself retains
-normal browser behavior.
+## Account administration checks
+
+After updating both the server and Shared Care Web image, sign in as an
+administrator and open Settings → Server → Manage accounts. Add a temporary
+caregiver, then edit its username and role, reset its password, deactivate it
+and reactivate it. Each saved change revokes that account's sessions on all
+devices. A blank optional password field keeps the current password. Editing
+your own account returns this browser to sign-in; use the updated credentials.
+
+Confirm that a caregiver sees no account administration entry and that direct
+administrator API calls are denied. Verify that the last active administrator
+cannot be deactivated, demoted or removed. Cancel an account-removal dialog
+first, then confirm removal for the temporary account. Its old credentials and
+sessions must stop working while collection records and existing audit metadata
+remain. Deletion is permanent; previously retained host backups are governed by
+the operator's backup retention. This update requires no standalone database
+schema, portable backup format or Android permission change.

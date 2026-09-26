@@ -163,6 +163,15 @@ class _SharedCareHomeState extends State<SharedCareHome>
   }
 
   void _onApiChanged() {
+    if (_session != null && widget.api.session == null) {
+      _session = null;
+      _boxes = const [];
+      _animals = const [];
+      _reminders = const [];
+      _refreshVersion++;
+      _refreshing = false;
+      _busy = false;
+    }
     if (mounted) setState(() {});
   }
 

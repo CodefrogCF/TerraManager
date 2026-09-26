@@ -8,6 +8,14 @@ The project uses semantic versioning.
 
 ### Added
 
+- add the Shared Care Manage accounts screen with username/role editing,
+  optional password reset, deactivation/reactivation and confirmed removal —
+  Issue #178
+- revoke affected account sessions on edits and removal; protect the last
+  active administrator and retain existing audit attribution
+- show current Animal thumbnails in the QR Feeding Mode selection for both
+  standalone and Shared Care, with placeholders for missing pictures
+
 - persist server-owned audit metadata for authenticated Shared Care collection
   and account changes — Issue #177
 - retain stable actor identifiers and username/role snapshots without storing

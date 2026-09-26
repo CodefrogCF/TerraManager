@@ -85,16 +85,37 @@ routes, authorization or the `no-store` response policy.
 | `POST /auth/logout` | signed in, CSRF | Revoke the current session |
 | `GET /admin/accounts` | administrator | List local accounts without password hashes |
 | `POST /admin/accounts` | administrator, CSRF | Add an administrator or caregiver |
-| `PATCH /admin/accounts/{id}` | administrator, CSRF | Change role, reset password or activate/deactivate; revokes that user's sessions |
+| `PATCH /admin/accounts/{id}` | administrator, CSRF | Change username/role, reset password or activate/deactivate; revokes that user's sessions |
+| `DELETE /admin/accounts/{id}` | administrator, CSRF | Confirmed removal of credentials and sessions; preserves audit attribution |
 
 Usernames use 3–64 lower-case ASCII letters, digits, dots, underscores or
-dashes. Passwords are individually salted and hashed with Argon2id (19 MiB,
+dashes and begin with a letter or digit. Names are trimmed and case-normalized
+before uniqueness checks. Passwords are individually salted and hashed with Argon2id (19 MiB,
 two iterations, one lane). No plaintext password is written to either SQLite
-file. The final active administrator cannot be demoted or deactivated.
+file. The final active administrator cannot be demoted, deactivated or removed.
 Caregivers may read and edit collection and care records, including media, but
 cannot manage accounts or portable backups. Administrator backup export and
 full restore include collection records and picture galleries, but not accounts
 or sessions.
+
+The administrator interface is Settings → Server → Manage accounts. PATCH
+accepts a nonempty subset of `username`, `role`, `password` and `active`.
+An omitted password retains the existing hash; an empty or too-short password
+is rejected. DELETE requires the JSON body `{"confirmation":"remove-account"}`
+and an `expectedAuditId` matching the account selected for removal, as well as
+a valid administrator session, same-origin request and CSRF token. Administrator
+account responses expose this non-secret stable identity. The browser also
+sends it with PATCH, and the store checks it again inside the transaction so an
+old form cannot target a replacement account that reused the same row number.
+Edit and delete responses include `sessionRevoked` to tell the caller whether
+its own session was revoked. Self-edit/removal returns the client to sign-in.
+
+Account changes and their audit rows commit in the same transaction. The store
+rechecks the acting administrator and last-active-administrator constraint at
+commit time, including after asynchronous password hashing. Removing an account
+cascades to its sessions, deletes its credential hash and preserves earlier
+metadata in `shared_audit_events`; a new account with a reused name or row ID
+receives a new audit identity. Portable collection restore is unaffected.
 
 ## Operations
 

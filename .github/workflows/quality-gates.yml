@@ -22,6 +22,8 @@ jobs:
       - name: Check out source
         # actions/checkout v4.2.2
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
 
       - name: Set up Java
         # actions/setup-java v6.0.1

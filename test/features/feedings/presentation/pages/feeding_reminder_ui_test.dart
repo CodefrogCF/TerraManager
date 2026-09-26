@@ -163,7 +163,9 @@ void main() {
     );
     await pumpOverview(tester, now: now);
 
-    final group = find.byKey(const Key('feeding-reminder-summary-toggle'));
+    final group = find.byKey(
+      const PageStorageKey<String>('feeding-reminder-summary-toggle'),
+    );
     final entry = find.byKey(Key('feeding-reminder-summary-item-$animalId'));
     expect(group, findsOneWidget);
     expect(entry, findsOneWidget);

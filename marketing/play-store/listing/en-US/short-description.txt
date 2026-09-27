@@ -1,1 +1,0 @@
-Manage Boxes, Animals, feedings and pictures locally, without an account.

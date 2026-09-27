@@ -1,0 +1,10 @@
+{
+  "01-boxes.png": "Boxes overview with three demonstration enclosures, pictures and dimensions.",
+  "02-animal.png": "Luna's Animal details with species, assigned Box, feeding record and other care information.",
+  "03-feeding.png": "Feeding history with four dated demonstration entries and short feeding notes.",
+  "04-reminders.png": "Animals overview showing a due feeding, the next feeding time and two demonstration Animals.",
+  "05-box-qr.png": "Demonstration Box details with its QR code and the action to save the code.",
+  "06-new-animal.png": "New Animal form with an entered name, Box selection and the QR scanner button.",
+  "07-pictures.png": "Animal picture gallery with demonstration illustrations, a primary picture marker and image selection.",
+  "08-backups.png": "Standalone Settings with backup creation, restoration and Box QR code export."
+}

@@ -1,0 +1,122 @@
+{
+  "applicationId": "com.codefrog.terramanager",
+  "sourceVersion": "1.14.3+86",
+  "publication": "Publish with the matching Android release, after release-owner review.",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "headerHeight": 270,
+    "captureHeight": 1614
+  },
+  "colors": {
+    "background": "#073b2b",
+    "text": "#ffffff",
+    "muted": "#bedbc9"
+  },
+  "screenshots": [
+    {
+      "id": "01-boxes",
+      "de": {
+        "title": "Boxen im Blick",
+        "subtitle": "Platz für deine ganze Sammlung",
+        "alt": "Boxenübersicht mit drei Beispielboxen, Bildern und Abmessungen."
+      },
+      "en": {
+        "title": "Your Boxes at a glance",
+        "subtitle": "Room for your whole collection",
+        "alt": "Boxes overview with three demonstration enclosures, pictures and dimensions."
+      }
+    },
+    {
+      "id": "02-animal",
+      "de": {
+        "title": "Tiere kennenlernen",
+        "subtitle": "Art, Box und Pflege an einem Ort",
+        "alt": "Tierdetails von Luna mit Artname, zugeordneter Box, Fütterung und weiteren Pflegeinformationen."
+      },
+      "en": {
+        "title": "Know your Animals",
+        "subtitle": "Species, Box and care in one place",
+        "alt": "Luna's Animal details with species, assigned Box, feeding record and other care information."
+      }
+    },
+    {
+      "id": "03-feeding",
+      "de": {
+        "title": "Fütterungen festhalten",
+        "subtitle": "Datum und Notizen im Verlauf",
+        "alt": "Fütterungsverlauf mit vier datierten Beispieleinträgen und kurzen Fütterungsnotizen."
+      },
+      "en": {
+        "title": "Record feedings",
+        "subtitle": "Dates and notes in the history",
+        "alt": "Feeding history with four dated demonstration entries and short feeding notes."
+      }
+    },
+    {
+      "id": "04-reminders",
+      "de": {
+        "title": "Nächste Fütterung?",
+        "subtitle": "Erinnerungen direkt in der App",
+        "alt": "Tierübersicht mit fälliger Fütterung, nächstem Termin und zwei Beispieltieren."
+      },
+      "en": {
+        "title": "When is the next feed?",
+        "subtitle": "Reminders inside the app",
+        "alt": "Animals overview showing a due feeding, the next feeding time and two demonstration Animals."
+      }
+    },
+    {
+      "id": "05-box-qr",
+      "de": {
+        "title": "Boxen per QR finden",
+        "subtitle": "Code speichern, drucken und scannen",
+        "alt": "Detailansicht einer Beispielbox mit ihrem QR-Code und der Aktion zum Speichern."
+      },
+      "en": {
+        "title": "Find Boxes with QR",
+        "subtitle": "Save, print and scan Box codes",
+        "alt": "Demonstration Box details with its QR code and the action to save the code."
+      }
+    },
+    {
+      "id": "06-new-animal",
+      "de": {
+        "title": "Tier anlegen, Box wählen",
+        "subtitle": "Manuell oder mit dem QR-Scanner",
+        "alt": "Neues-Tier-Formular mit eingegebenem Namen, Box-Auswahl und QR-Scanner-Button."
+      },
+      "en": {
+        "title": "Add an Animal to a Box",
+        "subtitle": "Choose manually or scan its QR code",
+        "alt": "New Animal form with an entered name, Box selection and the QR scanner button."
+      }
+    },
+    {
+      "id": "07-pictures",
+      "de": {
+        "title": "Bilder erzählen mehr",
+        "subtitle": "Zuschneiden, sammeln, vergrößern",
+        "alt": "Tierbildergalerie mit Beispielillustrationen, Hauptbildmarkierung und Bildauswahl."
+      },
+      "en": {
+        "title": "Pictures tell the story",
+        "subtitle": "Crop, collect and view fullscreen",
+        "alt": "Animal picture gallery with demonstration illustrations, a primary picture marker and image selection."
+      }
+    },
+    {
+      "id": "08-backups",
+      "de": {
+        "title": "Deine Daten mitnehmen",
+        "subtitle": "Portable Backups selbst verwalten",
+        "alt": "Standalone-Einstellungen mit Backup-Erstellung, Wiederherstellung und QR-Code-Export."
+      },
+      "en": {
+        "title": "Take your data with you",
+        "subtitle": "Manage your portable backups",
+        "alt": "Standalone Settings with backup creation, restoration and Box QR code export."
+      }
+    }
+  ]
+}

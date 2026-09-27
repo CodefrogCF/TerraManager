@@ -1,0 +1,27 @@
+TerraManager helps you keep your terrarium collection and its care records organized. The Android app works locally on your device. You do not need an account or an internet connection to manage your collection.
+
+BOXES AND ANIMALS
+Create your enclosures and containers as Boxes. Add names, dimensions, notes and pictures, then assign your Animals to them. Animal profiles bring together common and scientific names, category, sex, birth details and other information. Edit records, move Animals to another Box or archive records that are no longer active.
+
+FEEDINGS AND CARE
+Record feedings with a date, time and optional notes. The history keeps previous entries available. Individual feeding intervals show due and upcoming feedings inside the app. Weight and shedding histories complement your care notes. Reminders are shown in the app; they are not a promise of background or push notifications.
+
+QR CODES FOR DAILY WORK
+Every Box has its own QR code. Scan it to open the matching Box, select a Box when adding an Animal or move an Animal between Boxes. QR Feeding Mode lets you select the Animals in a Box and record their feeding together. Export selected Box codes as images, a ZIP archive or a printable PDF. Scanning in the New Animal form only selects the Box; you save the Animal yourself afterwards.
+
+PICTURES AND GALLERIES
+Add multiple pictures to Boxes and Animals, crop them before saving and choose a primary picture. Open the gallery fullscreen, zoom in and navigate through the saved pictures.
+
+PORTABLE BACKUPS
+Create a portable .tmbackup file containing your collection, care history, pictures and local settings. You choose where to keep the file and when to restore it. Use it to transfer data manually to another device. There is no automatic cloud backup or synchronization. Backup files contain your collection data, so keep them somewhere you trust.
+
+YOUR DATA STAYS UNDER YOUR CONTROL
+The standalone app stores your collection on the device. TerraManager contains no advertising, tracking, developer analytics or telemetry. Camera and picture selection are used only for the relevant features. Optional website, guide and Play Store links open an external app or browser.
+
+SHARED CARE IS A SEPARATE MODE
+Shared Care is an additional self-hosted browser application. Caregivers sign in to accounts and work with the collection on the operator's server. The Android app remains an independent local collection and does not synchronize automatically with Shared Care. You can transfer a collection by deliberately exporting and restoring a portable backup.
+
+TerraManager is open source. You enter husbandry and care information yourself; the app does not replace expert animal-care advice.
+
+User guide: https://codefrogcf.github.io/TerraManager/guide/en/
+Project and downloads: https://codefrogcf.github.io/TerraManager/en/

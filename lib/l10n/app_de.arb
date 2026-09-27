@@ -688,5 +688,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "rateTerraManager": "TerraManager bewerten",
+  "rateTerraManagerDescription": "Google Play öffnen und freiwillig eine Bewertung abgeben",
+  "failedToOpenStoreListing": "Die Play-Store-Seite konnte nicht geöffnet werden. Bitte versuche es später erneut."
 }

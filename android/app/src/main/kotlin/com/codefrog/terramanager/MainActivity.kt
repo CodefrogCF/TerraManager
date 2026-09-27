@@ -14,6 +14,14 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "com.codefrog.terramanager/browser",
         ).setMethodCallHandler { call, result ->
+            if (call.method == "openStoreListing") {
+                if (PlayStoreListing.open(this)) {
+                    result.success(null)
+                } else {
+                    result.error("no_store_or_browser", "No app can open the Play Store listing.", null)
+                }
+                return@setMethodCallHandler
+            }
             val uri = when (call.method) {
                 "openExternalUrl" -> {
                     val raw = call.argument<String>("url")

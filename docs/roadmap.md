@@ -1792,6 +1792,21 @@ filters and pagination in Shared server Settings.
   using touch swipes, visible Previous/Next and keyboard arrows, with counters,
   correct boundaries, isolated image failures and zoomed panning.
 
+## v1.14.3 — Store Presence Refresh
+
+- [x] Prepare eight real standalone UI screenshots per language with only
+  synthetic demonstration data and editable, repeatable sources — Issue #180.
+- [x] Prepare complete German/English Store text within the current limits,
+  explain local privacy and separate Shared Care, and review it with the
+  screenshot set for the matching Android release — Issue #181.
+- [x] Add a voluntary Android Settings link — Issue #182. Bilingual UI,
+  explicit tap only, no new permission or tracking; Android Store dispatch and
+  Chrome fallback are implemented and tested. The release owner confirmed
+  that Android 1.14.1 is in closed testing, explaining the inaccessible public
+  listing. Private listing access requires an eligible tester account.
+- [ ] Release owner: check the signed candidate on a physical device and publish
+  the new Android build with its matching listing and screenshots.
+
 ## Future Development
 
 Possible later development areas include:

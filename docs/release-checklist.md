@@ -82,6 +82,14 @@ Technical format details remain authoritative in:
 
 ## Public documentation review
 
+For Store Presence Refresh, review the German/English descriptions and the
+localized screenshot contact sheet together. Follow
+[the Store asset handoff](../marketing/play-store/README.md), recheck current
+Play requirements and publish only with the Android build that contains the
+shown workflows. Confirm the voluntary rating link and browser fallback on
+a signed candidate installed on a physical phone. Publication is a release-owner
+step; the asset-generation tools do not upload or publish anything.
+
 For every release that changes visible behaviour, review:
 
 - project homepage

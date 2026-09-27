@@ -832,5 +832,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "rateTerraManager": "Rate TerraManager",
+  "rateTerraManagerDescription": "Open Google Play to leave a voluntary review",
+  "failedToOpenStoreListing": "The Play Store listing could not be opened. Please try again later."
 }

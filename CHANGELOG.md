@@ -32,6 +32,13 @@ The project uses semantic versioning.
 
 ### Added
 
+- prepare localized feature-focused standalone Play Store screenshots with
+  synthetic demonstration data, editable SVG sources and a repeatable capture
+  workflow; review German/English listing descriptions for the matching Android
+  release — Issues #180 and #181
+- offer an optional Android Settings link to rate TerraManager, with the Play
+  Store app first and an HTTPS browser fallback; no automatic prompt, telemetry,
+  new permission or dependency — Issue #182
 - add QR-based Box selection beside the New Animal dropdown in standalone
   and Shared Care; preserve the draft and create only on explicit Save
 - reuse standalone picture cropping and orientation handling for Shared Care

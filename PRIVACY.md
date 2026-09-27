@@ -1,6 +1,6 @@
 # TerraManager Privacy Policy
 
-**Effective date:** September 26, 2026
+**Effective date:** September 27, 2026
 **Application:** TerraManager
 **Developer:** Codefrog
 **Privacy and support contact:** See the TerraManager project repository for the current contact and support channels.
@@ -65,6 +65,13 @@ The Android production release does not request the Android `INTERNET` permissio
 As a result, the Android production application cannot use ordinary network connections to transmit TerraManager application data to TerraManager, the developer, advertising services or analytics services.
 
 TerraManager does not require an Internet connection for its normal collection-management functionality.
+
+Optional project, guide, Shared Care and rating links open an external browser
+or the Google Play app only when selected in Settings. TerraManager does not
+send collection records, account information or device identifiers with the
+rating link; it passes only the public app-listing address. The external service
+may process the connection under its own privacy terms. TerraManager does not
+automatically request, submit or monitor a review and adds no analytics or network permission.
 
 ### Standalone Web
 

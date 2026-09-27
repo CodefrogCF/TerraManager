@@ -29,6 +29,7 @@ import '../box_qr_selection_dialog.dart';
 import 'license_page.dart';
 import 'privacy_policy_page.dart';
 import '../widgets/shared_care_browser_link.dart';
+import '../widgets/rate_terramanager_link.dart';
 
 typedef AppVersionLoader = Future<String> Function();
 typedef AppInformationLoader = Future<AppInformation> Function();
@@ -1098,6 +1099,8 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 8),
               const ProjectWebLinks(),
+              const Divider(),
+              const RateTerraManagerLink(),
               const SizedBox(height: 32),
             ],
 

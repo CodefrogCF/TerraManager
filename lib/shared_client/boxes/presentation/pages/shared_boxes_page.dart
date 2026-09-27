@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
+import 'package:terramanager/features/settings/archive_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/l10n/app_localizations_labels.dart';
@@ -18,6 +19,7 @@ import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_
 import 'package:terramanager/shared_client/shared/presentation/record_labels.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_change_feedback.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
+import 'package:terramanager/shared_client/shared/presentation/shared_archive_records.dart';
 import 'package:terramanager/shared_client/shared/presentation/widgets/shared_archive_dialog.dart';
 import 'package:terramanager/shared_client/shared/presentation/widgets/shared_duplicate_dialog.dart';
 import 'package:terramanager/shared_client/shared/presentation/widgets/shared_menu_item.dart';
@@ -39,8 +41,10 @@ class SharedBoxesPage extends StatefulWidget {
     required this.connected,
     required this.change,
     required this.onReload,
+    this.archived = false,
   });
 
+  final bool archived;
   final SharedApiClient api;
   final List<Map<String, dynamic>> boxes;
   final List<Map<String, dynamic>> animals;
@@ -64,6 +68,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
   @override
   void didUpdateWidget(covariant SharedBoxesPage oldWidget) {
     super.didUpdateWidget(oldWidget);
+    _archiveData?.value = _archiveSnapshot;
     if (oldWidget.api != widget.api) {
       _images.dispose();
       _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
@@ -77,6 +82,8 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
   @override
   void dispose() {
     _images.dispose();
+    _archiveData?.dispose();
+    _archiveData = null;
     super.dispose();
   }
 
@@ -85,7 +92,37 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
     if (mounted) setState(_images.clear);
   }
 
-  bool _archived = false;
+  bool get _archived => widget.archived;
+  ValueNotifier<SharedArchiveSnapshot>? _archiveData;
+  SharedArchiveSnapshot get _archiveSnapshot => (
+    boxes: widget.boxes,
+    animals: widget.animals,
+    connected: widget.connected,
+  );
+
+  Future<void> _openArchive() async {
+    final data = _archiveData = ValueNotifier(_archiveSnapshot);
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => ValueListenableBuilder<SharedArchiveSnapshot>(
+          valueListenable: data,
+          builder: (context, snapshot, _) => SharedBoxesPage(
+            api: widget.api,
+            boxes: snapshot.boxes,
+            animals: snapshot.animals,
+            connected: snapshot.connected,
+            change: widget.change,
+            onReload: _reload,
+            archived: true,
+          ),
+        ),
+      ),
+    );
+    if (identical(_archiveData, data)) {
+      _archiveData = null;
+      data.dispose();
+    }
+  }
 
   Future<void> _openFeedingMode() async {
     await Navigator.of(context).push<void>(
@@ -116,10 +153,18 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
 
   Future<void> _openBox(Map<String, dynamic> box) async {
     final settings = AppSettingsScope.of(context);
-    final order = sortSharedBoxesForOverview(
-      widget.boxes.where((item) => (item['status'] == 'archived') == _archived),
-      settings.boxSortOrder,
-    );
+    final order = _archived
+        ? sortSharedArchiveRecords(
+            widget.boxes,
+            order: settings.boxArchiveSortOrder,
+            displayName: boxLabel,
+          )
+        : sortSharedBoxesForOverview(
+            widget.boxes.where(
+              (item) => (item['status'] == 'archived') == _archived,
+            ),
+            settings.boxSortOrder,
+          );
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (_) => SharedBoxDetailPage(
@@ -134,6 +179,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
             currentRecordId: recordId(box),
             archived: _archived,
             sortOrder: settings.boxSortOrder,
+            archiveSortOrder: _archived ? settings.boxArchiveSortOrder : null,
           ),
         ),
       ),
@@ -298,10 +344,18 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.of(context);
-    final values = sortSharedBoxesForOverview(
-      widget.boxes.where((box) => (box['status'] == 'archived') == _archived),
-      settings.boxSortOrder,
-    );
+    final values = _archived
+        ? sortSharedArchiveRecords(
+            widget.boxes,
+            order: settings.boxArchiveSortOrder,
+            displayName: boxLabel,
+          )
+        : sortSharedBoxesForOverview(
+            widget.boxes.where(
+              (box) => (box['status'] == 'archived') == _archived,
+            ),
+            settings.boxSortOrder,
+          );
 
     return ConstrainedPageWidth(
       child: Scaffold(
@@ -309,7 +363,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
           leading: _archived
               ? IconButton(
                   tooltip: sharedText(context, 'Back', 'Zurück'),
-                  onPressed: () => setState(() => _archived = false),
+                  onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.arrow_back),
                 )
               : null,
@@ -319,42 +373,77 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                 : context.l10n.navigationBoxes,
           ),
           actions: [
-            PopupMenuButton<BoxSortCriterion>(
-              key: const Key('box-sort-button'),
-              initialValue: settings.boxSortOrder.criterion,
-              tooltip: context.l10n.sortBoxes,
-              icon: const Icon(Icons.sort),
-              onSelected: (criterion) {
-                final current = settings.boxSortOrder;
-                settings.setBoxSortOrder(
-                  criterion == current.criterion
-                      ? current.reversed
-                      : criterion.defaultOrder,
-                );
-              },
-              itemBuilder: (context) => [
-                for (final criterion in BoxSortCriterion.values)
-                  CheckedPopupMenuItem<BoxSortCriterion>(
-                    key: Key('box-sort-option-${criterion.name}'),
-                    value: criterion,
-                    checked: criterion == settings.boxSortOrder.criterion,
-                    child: Text(
-                      context.l10n.boxSortCriterionMenuLabel(
-                        criterion,
-                        activeOrder:
-                            criterion == settings.boxSortOrder.criterion
-                            ? settings.boxSortOrder
-                            : null,
+            if (_archived)
+              PopupMenuButton<ArchiveSortCriterion>(
+                key: const Key('box-archive-sort-button'),
+                tooltip: context.l10n.sortArchivedBoxes,
+                icon: const Icon(Icons.sort),
+                initialValue: settings.boxArchiveSortOrder.criterion,
+                onSelected: (criterion) {
+                  final current = settings.boxArchiveSortOrder;
+                  settings.setBoxArchiveSortOrder(
+                    criterion == current.criterion
+                        ? current.reversed
+                        : criterion.defaultOrder,
+                  );
+                },
+                itemBuilder: (context) => [
+                  for (final criterion in ArchiveSortCriterion.values)
+                    CheckedPopupMenuItem<ArchiveSortCriterion>(
+                      key: Key('box-archive-sort-option-${criterion.name}'),
+                      value: criterion,
+                      checked:
+                          criterion == settings.boxArchiveSortOrder.criterion,
+                      child: Text(
+                        context.l10n.archiveSortCriterionMenuLabel(
+                          criterion,
+                          activeOrder:
+                              criterion ==
+                                  settings.boxArchiveSortOrder.criterion
+                              ? settings.boxArchiveSortOrder
+                              : null,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
+                ],
+              )
+            else
+              PopupMenuButton<BoxSortCriterion>(
+                key: const Key('box-sort-button'),
+                initialValue: settings.boxSortOrder.criterion,
+                tooltip: context.l10n.sortBoxes,
+                icon: const Icon(Icons.sort),
+                onSelected: (criterion) {
+                  final current = settings.boxSortOrder;
+                  settings.setBoxSortOrder(
+                    criterion == current.criterion
+                        ? current.reversed
+                        : criterion.defaultOrder,
+                  );
+                },
+                itemBuilder: (context) => [
+                  for (final criterion in BoxSortCriterion.values)
+                    CheckedPopupMenuItem<BoxSortCriterion>(
+                      key: Key('box-sort-option-${criterion.name}'),
+                      value: criterion,
+                      checked: criterion == settings.boxSortOrder.criterion,
+                      child: Text(
+                        context.l10n.boxSortCriterionMenuLabel(
+                          criterion,
+                          activeOrder:
+                              criterion == settings.boxSortOrder.criterion
+                              ? settings.boxSortOrder
+                              : null,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             if (!_archived)
               IconButton(
                 key: const Key('box-archive-button'),
                 tooltip: context.l10n.archivedBoxes,
-                onPressed: () => setState(() => _archived = true),
+                onPressed: _openArchive,
                 icon: const Icon(Icons.inventory_2_outlined),
               ),
             if (!_archived)
@@ -425,7 +514,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                       : context.l10n.noBoxesAvailable,
                 ),
               )
-            : settings.bigPictureModeEnabled
+            : !_archived && settings.bigPictureModeEnabled
             ? LayoutBuilder(
                 builder: (context, constraints) {
                   final columns = switch (constraints.maxWidth) {
@@ -472,7 +561,9 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                       fallback: Icons.inventory_2_outlined,
                     ),
                     title: Text(hasName ? name : 'Box $id'),
-                    subtitle: hasName
+                    subtitle: _archived
+                        ? Text(sharedArchiveSummary(context, box, box: true))
+                        : hasName
                         ? Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -484,7 +575,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                         : dimensions == null
                         ? null
                         : Text(dimensions),
-                    isThreeLine: hasName && dimensions != null,
+                    isThreeLine: !_archived && hasName && dimensions != null,
                     trailing: menuButton,
                     onTap: () => _openBox(box),
                   );

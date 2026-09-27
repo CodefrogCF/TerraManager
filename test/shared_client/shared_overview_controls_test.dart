@@ -100,12 +100,14 @@ void main() {
         expect(reloads, 1);
         await tester.tap(find.byKey(const Key('box-archive-button')));
         await tester.pumpAndSettle();
-        checkOrder(['box-sort-button', 'shared-refresh']);
+        checkOrder(['box-archive-sort-button', 'shared-refresh']);
         expect(find.byKey(const Key('shared-box-scan-button')), findsNothing);
         expect(
           find.byKey(const Key('shared-feeding-mode-button')),
           findsNothing,
         );
+        await tester.tap(find.byIcon(Icons.arrow_back));
+        await tester.pumpAndSettle();
         await tester.pumpWidget(
           app(
             SharedAnimalsPage(
@@ -130,7 +132,7 @@ void main() {
         expect(settings.animalCategoryViewEnabled, isTrue);
         await tester.tap(find.byKey(const Key('animal-history-button')));
         await tester.pumpAndSettle();
-        checkOrder(['animal-sort-button', 'shared-refresh']);
+        checkOrder(['animal-archive-sort-button', 'shared-refresh']);
         expect(
           find.byKey(const Key('animal-category-view-toggle')),
           findsNothing,
@@ -143,7 +145,7 @@ void main() {
   }
 
   testWidgets(
-    'Settings Big Picture switch updates both overviews and archives and persists',
+    'Settings Big Picture switch updates overviews, keeps archives as lists and persists',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -219,13 +221,19 @@ void main() {
       expect(find.byKey(const Key('box-big-picture-1')), findsOneWidget);
       await tester.tap(find.byKey(const Key('box-archive-button')));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('box-big-picture-2')), findsOneWidget);
+      expect(find.byKey(const Key('box-big-picture-2')), findsNothing);
+      expect(find.byKey(const Key('box-list-item-2')), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.pets_outlined));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('animal-big-picture-1')), findsOneWidget);
       await tester.tap(find.byKey(const Key('animal-history-button')));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('animal-big-picture-2')), findsOneWidget);
+      expect(find.byKey(const Key('animal-big-picture-2')), findsNothing);
+      expect(find.byKey(const Key('animal-list-item-2')), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.arrow_back));
+      await tester.pumpAndSettle();
       await tester.tap(find.byIcon(Icons.settings_outlined));
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(toggle, 200);

@@ -46,6 +46,27 @@ may reuse standalone pure enums, formatting and media-selection components.
 Collection writes always go through the server API; portable backup handling in
 the browser transfers archives and does not restore a browser database.
 
+## Browser navigation and care-entry controls
+
+`SerializedBrowserHistory` queues browser history writes behind the completion
+of `history.go()`. Its `popstate` echo acknowledges an in-app pop without
+dispatching another Flutter Back action. This prevents a menu's delayed event
+from closing the next confirmation dialog. Browser-initiated Back still reaches
+`SharedBrowserBackObserver` and respects protected forms and scanner cleanup.
+
+Animal and Box archives are pushed routes, so browser/mobile Back returns to
+their respective overview. Archive pages receive current records and connection
+state from the overview through `SharedArchiveSnapshot`; polling, mutations and
+account preferences continue to update the visible archive. They always use
+thumbnail lists with archive reason/date, regardless of Big Picture Mode.
+`sortSharedArchiveRecords` uses the standalone archive comparator and each
+account's separate Animal/Box archive sort preference. Detail navigation retains
+that archive order as records change.
+
+Shared Care history dialogs edit the date and local time separately. Time input
+starts with editable hour/minute fields, validates the range, and preserves the
+selected date. API operations continue to encode care-event instants in UTC.
+
 ## Server
 
 `bin/shared_server.dart` composes `shared_server/app/shared_server_api.dart`.

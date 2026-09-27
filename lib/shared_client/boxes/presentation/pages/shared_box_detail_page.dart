@@ -1,3 +1,5 @@
+import 'package:terramanager/shared_client/shared/presentation/shared_archive_records.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -136,10 +138,18 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
   List<int> _orderedBoxIds(
     SharedDetailNavigationContext navigation,
     List<Map<String, dynamic>> boxes,
-  ) => sortSharedBoxesForOverview(
-    boxes.where((box) => (box['status'] == 'archived') == navigation.archived),
-    navigation.boxSortOrder!,
-  ).map(recordId).toList();
+  ) => navigation.archiveSortOrder != null
+      ? sortSharedArchiveRecords(
+          boxes,
+          order: navigation.archiveSortOrder!,
+          displayName: boxLabel,
+        ).map(recordId).toList()
+      : sortSharedBoxesForOverview(
+          boxes.where(
+            (box) => (box['status'] == 'archived') == navigation.archived,
+          ),
+          navigation.boxSortOrder!,
+        ).map(recordId).toList();
 
   Future<void> _switchAdjacent({required bool next}) async {
     final navigation = _navigationContext;

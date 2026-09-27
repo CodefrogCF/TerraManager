@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
+import 'package:terramanager/features/settings/archive_sort_order.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
 
 enum SharedDetailSource { boxes, animals, boxAnimals }
@@ -14,6 +15,7 @@ final class SharedDetailNavigationContext {
     required this.currentRecordId,
     required this.archived,
     this.sourceBoxId,
+    this.archiveSortOrder,
     this.boxSortOrder,
     this.animalSortOrder,
     this.animalNameOrder,
@@ -33,12 +35,14 @@ final class SharedDetailNavigationContext {
     required int currentRecordId,
     required bool archived,
     required BoxSortOrder sortOrder,
+    ArchiveSortOrder? archiveSortOrder,
   }) => SharedDetailNavigationContext._(
     source: SharedDetailSource.boxes,
     recordIds: List<int>.unmodifiable(recordIds),
     currentRecordId: currentRecordId,
     archived: archived,
     boxSortOrder: sortOrder,
+    archiveSortOrder: archiveSortOrder,
   );
 
   factory SharedDetailNavigationContext.animals({
@@ -46,6 +50,7 @@ final class SharedDetailNavigationContext {
     required int currentRecordId,
     required bool archived,
     required AnimalSortOrder sortOrder,
+    ArchiveSortOrder? archiveSortOrder,
     required AnimalNameOrder nameOrder,
     required bool groupCategories,
   }) => SharedDetailNavigationContext._(
@@ -54,6 +59,7 @@ final class SharedDetailNavigationContext {
     currentRecordId: currentRecordId,
     archived: archived,
     animalSortOrder: sortOrder,
+    archiveSortOrder: archiveSortOrder,
     animalNameOrder: nameOrder,
     groupCategories: groupCategories,
   );
@@ -76,6 +82,7 @@ final class SharedDetailNavigationContext {
   final List<int> recordIds;
   final int currentRecordId;
   final bool archived;
+  final ArchiveSortOrder? archiveSortOrder;
   final int? sourceBoxId;
   final BoxSortOrder? boxSortOrder;
   final AnimalSortOrder? animalSortOrder;
@@ -106,6 +113,7 @@ final class SharedDetailNavigationContext {
       recordIds: values,
       currentRecordId: current,
       archived: archived,
+      archiveSortOrder: archiveSortOrder,
       sourceBoxId: sourceBoxId,
       boxSortOrder: boxSortOrder,
       animalSortOrder: animalSortOrder,

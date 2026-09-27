@@ -1,3 +1,5 @@
+import 'package:terramanager/shared_client/shared/presentation/shared_archive_records.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -164,6 +166,14 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
         ),
         order: AnimalSortOrder.displayNameAscending,
         nameOrder: navigation.animalNameOrder!,
+      ).map(recordId).toList();
+    }
+    if (navigation.archiveSortOrder != null) {
+      return sortSharedArchiveRecords(
+        animals,
+        order: navigation.archiveSortOrder!,
+        displayName: (animal) =>
+            animalLabel(animal, order: navigation.animalNameOrder!),
       ).map(recordId).toList();
     }
     final sorted = sortSharedAnimalsForOverview(

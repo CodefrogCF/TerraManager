@@ -336,18 +336,34 @@ class _HistoryDialogState extends State<_HistoryDialog> {
       lastDate: DateTime.now(),
     );
     if (selected == null || !mounted) return;
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(_date),
-    );
-    if (!mounted) return;
-    setState(() {
-      _date = DateTime(
+    setState(
+      () => _date = DateTime(
         selected.year,
         selected.month,
         selected.day,
-        time?.hour ?? _date.hour,
-        time?.minute ?? _date.minute,
+        _date.hour,
+        _date.minute,
+        _date.second,
+        _date.millisecond,
+        _date.microsecond,
+      ),
+    );
+  }
+
+  Future<void> _pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_date),
+      initialEntryMode: TimePickerEntryMode.input,
+    );
+    if (time == null || !mounted) return;
+    setState(() {
+      _date = DateTime(
+        _date.year,
+        _date.month,
+        _date.day,
+        time.hour,
+        time.minute,
       );
     });
   }
@@ -380,35 +396,56 @@ class _HistoryDialogState extends State<_HistoryDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: Text(sharedText(context, 'Care entry', 'Pflegeeintrag')),
-    content: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ListTile(
-          title: Text(_date.toLocal().toString().split('.').first),
-          trailing: const Icon(Icons.calendar_today_outlined),
-          onTap: _pickDate,
-        ),
-        if (widget.kind == SharedHistoryKind.weights)
-          TextField(
-            controller: _grams,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: sharedText(context, 'Weight (g)', 'Gewicht (g)'),
+    content: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            key: const Key('shared-history-date'),
+            title: Text(sharedText(context, 'Date', 'Datum')),
+            subtitle: Text(
+              MaterialLocalizations.of(context).formatShortDate(_date),
             ),
+            trailing: const Icon(Icons.calendar_today_outlined),
+            onTap: _pickDate,
           ),
-        if (widget.kind != SharedHistoryKind.weights)
-          TextField(
-            controller: _notes,
-            decoration: InputDecoration(
-              labelText: sharedText(context, 'Notes', 'Notizen'),
+          ListTile(
+            key: const Key('shared-history-time'),
+            title: Text(sharedText(context, 'Time', 'Uhrzeit')),
+            subtitle: Text(
+              MaterialLocalizations.of(context).formatTimeOfDay(
+                TimeOfDay.fromDateTime(_date),
+                alwaysUse24HourFormat: MediaQuery.of(context)
+                    .alwaysUse24HourFormat,
+              ),
             ),
+            trailing: const Icon(Icons.schedule_outlined),
+            onTap: _pickTime,
           ),
-        if (_error != null)
-          Text(
-            _error!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-      ],
+          if (widget.kind == SharedHistoryKind.weights)
+            TextField(
+              controller: _grams,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: sharedText(context, 'Weight (g)', 'Gewicht (g)'),
+              ),
+            ),
+          if (widget.kind != SharedHistoryKind.weights)
+            TextField(
+              controller: _notes,
+              decoration: InputDecoration(
+                labelText: sharedText(context, 'Notes', 'Notizen'),
+              ),
+            ),
+          if (_error != null)
+            Text(
+              _error!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+        ],
+      ),
     ),
     actions: [
       TextButton(

@@ -8,6 +8,13 @@ The project uses semantic versioning.
 
 ### Fixed
 
+- serialize Shared Care browser history changes so a delayed context-menu Back
+  event cannot dismiss the next duplicate, archive or picture-deletion dialog
+- open Shared Care Animal and Box archives as real routes; keep thumbnail lists
+  with archive reason/date and independent date/name sorting, even in Big Picture Mode
+- offer separate date and freely editable hour/minute controls for Shared Care
+  Feeding, Weight and Shedding history entries
+
 - export care-event and metadata times with explicit UTC offsets; require the
   original IANA time zone for legacy Shared Care imports, with per-event DST
   handling and date-only birth dates

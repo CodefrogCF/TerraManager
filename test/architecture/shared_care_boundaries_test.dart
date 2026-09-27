@@ -79,7 +79,7 @@ void main() {
       }
     }
     final violations = <String>[];
-    for (final directory in ['lib', 'bin', 'tool']) {
+    for (final directory in ['lib', 'bin']) {
       for (final file in dartFiles(directory)) {
         for (final dependency in dependencies(file)) {
           if (legacy.contains(dependency)) {

@@ -79,7 +79,8 @@ void main() {
     expect(find.byKey(const Key('box-context-menu-button-2')), findsOneWidget);
     await tester.tap(find.byKey(const Key('box-archive-button')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('box-big-picture-3')), findsOneWidget);
+    expect(find.byKey(const Key('box-big-picture-3')), findsNothing);
+    expect(find.byKey(const Key('box-list-item-3')), findsOneWidget);
     expect(find.byKey(const Key('box-big-picture-1')), findsNothing);
     await settings.setBigPictureModeEnabled(false);
     await tester.pumpAndSettle();

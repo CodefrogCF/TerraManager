@@ -1,7 +1,2 @@
-abstract class BrowserHistoryPort {
-  void initialize(void Function(int depth) onBack);
-  void pushDepth(int depth);
-  void replaceDepth(int depth);
-  void back(int count);
-  void dispose();
-}
+// Compatibility exports; implementations live in feature modules.
+export 'infrastructure/browser_history_port.dart';

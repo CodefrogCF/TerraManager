@@ -13,8 +13,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:terramanager/features/media/application/picture_optimizer.dart';
 import 'package:terramanager/features/media/presentation/pages/picture_crop_page.dart';
 import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_detail_pages.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/media/presentation/widgets/shared_picture_gallery.dart';
 
 import '../features/media/presentation/fake_picture_selection_flow.dart';
 

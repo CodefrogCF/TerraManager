@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared_client/shared_text.dart';
+import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
 
 /// A short tour of the existing local workflows. It never creates sample data.
 Future<void> showStandaloneTutorial(BuildContext context) {

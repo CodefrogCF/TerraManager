@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:terramanager/shared_server/account_store.dart';
+import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
 
 Future<void> main() async {
   final databasePath = Platform.environment['TM_DATABASE_PATH'];

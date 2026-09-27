@@ -11,10 +11,10 @@ import 'package:terramanager/core/database/repositories/shedding_repository.dart
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
-import 'package:terramanager/shared_server/shared_portable_backups.dart';
-import 'package:terramanager/shared_server/account_store.dart';
-import 'package:terramanager/shared_server/server_database.dart';
-import 'package:terramanager/shared_server/shared_server_api.dart';
+import 'package:terramanager/shared_server/backups/application/shared_portable_backups.dart';
+import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
+import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
+import 'package:terramanager/shared_server/app/shared_server_api.dart';
 
 void main() {
   late Directory dir;

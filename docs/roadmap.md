@@ -1807,6 +1807,16 @@ filters and pagination in Shared server Settings.
 - [ ] Release owner: check the signed candidate on a physical device and publish
   the new Android build with its matching listing and screenshots.
 
+## Shared Care code organization — Issue #185
+
+- [x] Organize client pages, widgets and API methods by feature, with shared
+  authentication, transport, navigation and presentation modules.
+- [x] Separate server feature handlers, application operations and infrastructure
+  while preserving server-owned persistence, guards and transaction boundaries.
+- [x] Retain API contracts, collection schema, portable backups and user-visible
+  behavior; update canonical imports, compatibility exports, tests and architecture
+  documentation for the incremental migration.
+
 ## Future Development
 
 Possible later development areas include:

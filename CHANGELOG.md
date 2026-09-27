@@ -22,6 +22,11 @@ The project uses semantic versioning.
 
 ### Changed
 
+- organize Shared Care client pages, widgets and API methods by feature; split
+  server routing, application commands, authentication and persistence modules
+  without changing API contracts, collection schema, portable backups or visible
+  workflows; retain old import paths as compatibility exports — Issue #185
+
 - remove redundant Rename entries from Shared Care Box and Animal menus;
   retain validated name changes through Edit and leave standalone menus intact
 - store all Shared Care personal appearance/display preferences per account

@@ -1,2 +1,2 @@
-export 'source_time_zone_stub.dart'
-    if (dart.library.js_interop) 'source_time_zone_web.dart';
+// Compatibility exports; implementations live in feature modules.
+export 'backups/infrastructure/source_time_zone.dart';

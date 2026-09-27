@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:terramanager/shared_server/account_store.dart';
-import 'package:terramanager/shared_server/server_database.dart';
-import 'package:terramanager/shared_server/shared_server_api.dart';
+import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
+import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
+import 'package:terramanager/shared_server/app/shared_server_api.dart';
 
 class _Response {
   final int status;

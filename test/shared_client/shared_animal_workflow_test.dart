@@ -12,10 +12,10 @@ import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/new_animal_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_scanner_page.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_box_scanner_page.dart';
-import 'package:terramanager/shared_client/shared_detail_pages.dart';
-import 'package:terramanager/shared_client/shared_forms.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
+import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_detail_page.dart';
+import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
 
 const _boxes = [
   {'id': 1, 'status': 'active', 'name': 'First'},

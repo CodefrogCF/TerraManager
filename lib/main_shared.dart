@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/browser_client.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-import 'shared_client/shared_api_client.dart';
-import 'shared_client/shared_care_app.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/app/shared_care_app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

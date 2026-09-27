@@ -1,6 +1,2 @@
-import 'dart:io';
-
-/// Authorizes collection requests before any database or media access.
-abstract class CareAuthenticator {
-  Future<bool> isAuthenticated(HttpRequest request);
-}
+// Compatibility exports for the incremental Shared Care feature migration.
+export 'package:terramanager/shared_server/authentication/infrastructure/http/care_authenticator.dart';

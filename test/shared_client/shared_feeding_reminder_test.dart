@@ -8,10 +8,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_collection_pages.dart';
-import 'package:terramanager/shared_client/shared_feeding_reminder_page.dart';
-import 'package:terramanager/shared_client/shared_forms.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/animals/presentation/pages/shared_animals_page.dart';
+import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_reminder_page.dart';
+import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
 
 const _animal = {
   'id': 7,

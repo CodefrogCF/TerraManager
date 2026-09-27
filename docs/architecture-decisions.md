@@ -2032,3 +2032,51 @@ viewer reads and no standalone schema or portable backup changes.
 - record IDs describe the state at event time; collection restore is a boundary
 - no-event, no-match, loading, retry and access-denied states are explicit
 - both Shared Web and the server must be updated for the new endpoint
+
+---
+
+## ADR-035: Organize Shared Care by feature with explicit transport and persistence boundaries
+
+**Status:** Accepted
+
+**Date:** 2026-09-27
+
+### Context
+
+Issue #185 applies the standalone feature layout to Shared Care. Mixed overview,
+detail, form and server API files combine independent Animal, Box, Feeding,
+Media, Settings and administration responsibilities, making changes difficult
+to review without accidentally crossing the browser/server boundary.
+
+### Decision
+
+Client pages and widgets live in feature presentation folders. Feature API
+mixins compose over one shared transient transport, retaining public client
+methods, session handling, CSRF and connection notifications. Authentication,
+navigation and reusable presentation have explicit shared locations.
+
+Server feature HTTP handlers delegate to application operations. Account and
+audit persistence, password hashing, HTTP readers/writers and serialization
+live in infrastructure modules. Domain models carry account/session identity,
+API results and allowlisted audit metadata. Existing collection repositories
+remain shared by standalone and the server; the browser does not import them.
+
+The composition roots retain global guards and error translation. Collection
+mutation auditing stays around the entire operation transaction. Backup and
+Audit handlers share the same collection gate, and Feeding replay state remains
+per CareApi with the existing invalidation rules. No route, payload, schema,
+backup format, permission, text or workflow changes are part of the refactor.
+
+Former flat paths remain export-only migration adapters. Repository code and
+tests use canonical paths. Architecture checks enforce dependency boundaries
+and prevent new production imports through migration adapters; compatibility
+coverage checks existing external imports.
+
+### Consequences
+
+- feature changes can be reviewed within smaller, focused modules
+- browser presentation and server-owned persistence remain separate
+- security and transaction behavior continue through common composition roots
+- existing callers can migrate imports incrementally
+- compatibility exports can be retired in a later explicit migration
+- [Shared Care code organization](shared-care-architecture.md) describes the layout

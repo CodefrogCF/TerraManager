@@ -1,0 +1,30 @@
+Map<String, dynamic> sharedAnimalUpdateValues(
+  Map<String, dynamic> animal,
+  String commonName,
+) => {
+  for (final key in const [
+    'boxId',
+    'latinName',
+    'category',
+    'subcategory',
+    'sex',
+    'birthDate',
+    'birthDateAccuracy',
+    'tempMin',
+    'tempMax',
+    'nighttimeTemperatureMin',
+    'nighttimeTemperatureMax',
+    'humidityMin',
+    'humidityMax',
+    'originHabitat',
+    'restOrDormancyPeriods',
+    'notes',
+    'pictureMediaId',
+    'feedingReminderIntervalDays',
+    'feedingReminderBaseline',
+    'showWeightOnDetail',
+    'showSheddingOnDetail',
+  ])
+    key: animal[key],
+  'commonName': commonName,
+};

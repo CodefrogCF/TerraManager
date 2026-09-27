@@ -9,7 +9,9 @@ import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
-import '../../../../shared_client/shared_text.dart';
+
+import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
+
 import '../../../backup/application/backup_export_service.dart';
 import '../../../backup/application/backup_restore_service.dart';
 import '../../../backup/application/backup_validation_exception.dart';

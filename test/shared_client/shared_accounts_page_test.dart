@@ -5,8 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/accounts/presentation/pages/shared_accounts_section.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/administration/accounts/presentation/pages/shared_accounts_section.dart';
 
 void main() {
   testWidgets('edit account fields and explicitly confirm deletion', (

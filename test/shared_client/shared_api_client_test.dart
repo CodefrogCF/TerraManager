@@ -5,7 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 
 void main() {
   const origin = 'https://192.168.1.117';

@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:terramanager/core/database/app_database.dart';
-import 'package:terramanager/shared_server/account_store.dart';
-import 'package:terramanager/shared_server/audit_event.dart';
-import 'package:terramanager/shared_server/collection_audit_log.dart';
-import 'package:terramanager/shared_server/server_database.dart';
-import 'package:terramanager/shared_server/shared_server_api.dart';
+import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
+import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
+import 'package:terramanager/shared_server/audit/infrastructure/audit_schema.dart';
+import 'package:terramanager/shared_server/audit/infrastructure/collection_audit_log.dart';
+import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
+import 'package:terramanager/shared_server/app/shared_server_api.dart';
 
 void main() {
   late Directory directory;

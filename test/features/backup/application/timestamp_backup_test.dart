@@ -17,8 +17,8 @@ import 'package:terramanager/features/backup/application/backup_validation_excep
 import 'package:terramanager/features/backup/application/portable_backup_database_restorer.dart';
 import 'package:terramanager/features/backup/application/portable_backup_exporter.dart';
 import 'package:terramanager/features/backup/domain/backup_timestamps.dart';
-import 'package:terramanager/shared_server/api_models.dart';
-import 'package:terramanager/shared_server/shared_portable_backups.dart';
+import 'package:terramanager/shared_server/shared/infrastructure/serialization/api_models.dart';
+import 'package:terramanager/shared_server/backups/application/shared_portable_backups.dart';
 
 void main() {
   late AppDatabase source;

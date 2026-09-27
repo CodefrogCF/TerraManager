@@ -50,6 +50,7 @@ For authoritative details see:
 - [Data model](data-model.md)
 - [Backup format](backup-format.md)
 - [Shared Care API and local accounts](shared-care-api.md)
+- [Shared Care code organization](shared-care-architecture.md)
 - [Shared Care Raspberry Pi deployment](shared-care-deployment.md)
 - [Installation and updates](installation-and-updates.md)
 

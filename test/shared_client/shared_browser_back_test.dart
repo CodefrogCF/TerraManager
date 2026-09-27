@@ -3,11 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
-import 'package:terramanager/shared_client/navigation/browser_history_port.dart';
-import 'package:terramanager/shared_client/navigation/shared_browser_back_observer.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_box_scanner_page.dart';
-import 'package:terramanager/shared_client/shared_detail_pages.dart';
+import 'package:terramanager/shared_client/navigation/infrastructure/browser_history_port.dart';
+import 'package:terramanager/shared_client/navigation/presentation/shared_browser_back_observer.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
+import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_detail_page.dart';
 
 class _History implements BrowserHistoryPort {
   final pushed = <int>[];

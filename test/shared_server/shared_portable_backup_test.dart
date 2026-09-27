@@ -13,9 +13,9 @@ import 'package:terramanager/core/database/repositories/picture_gallery_reposito
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
-import 'package:terramanager/shared_server/account_store.dart';
-import 'package:terramanager/shared_server/server_database.dart';
-import 'package:terramanager/shared_server/shared_server_api.dart';
+import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
+import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
+import 'package:terramanager/shared_server/app/shared_server_api.dart';
 
 class _Reply {
   const _Reply(this.status, this.bytes, this.headers);

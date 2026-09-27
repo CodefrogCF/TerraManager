@@ -4,7 +4,7 @@ library;
 import 'dart:js_interop';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:terramanager/shared_client/scanner_camera_cleanup_web.dart';
+import 'package:terramanager/shared_client/boxes/infrastructure/scanner_camera_cleanup_web.dart';
 import 'package:web/web.dart' as web;
 
 void main() {

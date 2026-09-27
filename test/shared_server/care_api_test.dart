@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
-import 'package:terramanager/shared_server/care_api.dart';
-import 'package:terramanager/shared_server/care_authenticator.dart';
-import 'package:terramanager/shared_server/server_database.dart';
+import 'package:terramanager/shared_server/collection/infrastructure/http/care_api.dart';
+import 'package:terramanager/shared_server/authentication/infrastructure/http/care_authenticator.dart';
+import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
 
 import '../drift/app_database/generated/schema_v15.dart' as v15;
 

@@ -8,7 +8,7 @@ import 'package:terramanager/features/backup/application/backup_restore_service.
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
-import 'package:terramanager/shared_server/shared_portable_backups.dart';
+import 'package:terramanager/shared_server/backups/application/shared_portable_backups.dart';
 
 void main() {
   test(

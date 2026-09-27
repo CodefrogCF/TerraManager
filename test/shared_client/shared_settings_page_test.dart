@@ -5,8 +5,9 @@ import 'package:http/testing.dart';
 import 'package:http/http.dart' as http;
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_collection_pages.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/settings/presentation/pages/shared_settings_page.dart';
+import 'package:terramanager/shared_client/backups/presentation/widgets/shared_backup_section.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));

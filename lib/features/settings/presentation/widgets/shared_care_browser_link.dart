@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../shared_client/shared_text.dart';
+import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
 
 const _browserChannel = MethodChannel('com.codefrog.terramanager/browser');
 

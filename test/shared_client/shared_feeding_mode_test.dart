@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_feeding_box_page.dart';
-import 'package:terramanager/shared_client/shared_collection_pages.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_box_page.dart';
+import 'package:terramanager/shared_client/media/presentation/widgets/shared_thumbnail.dart';
 
 void main() {
   const origin = 'https://192.168.1.117';

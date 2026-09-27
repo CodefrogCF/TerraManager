@@ -9,8 +9,8 @@ import 'package:http/testing.dart';
 import 'package:terramanager/core/qr/qr_export_service.dart';
 import 'package:terramanager/features/settings/presentation/box_qr_selection_dialog.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_box_qr_export.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_qr_export.dart';
 
 const firstQr = 'TM:BOX:12345678-1234-4123-8123-123456789abc';
 const secondQr = 'TM:BOX:12345678-1234-4123-8123-123456789abd';

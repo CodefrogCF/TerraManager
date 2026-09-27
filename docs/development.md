@@ -272,6 +272,12 @@ because release identifiers change independently from the documented contract.
 
 ## Recommended Validation Before Closing an Issue
 
+Shared Care follows the feature layout documented in
+[Shared Care code organization](shared-care-architecture.md). Use canonical
+feature imports when adding code; the former flat modules are export-only
+migration adapters. Preserve the browser/server dependency boundary and keep
+HTTP handling outside server application operations.
+
 Run:
 
 ```text

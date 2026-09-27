@@ -1,0 +1,55 @@
+import 'dart:typed_data';
+
+import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/features/backup/application/backup_export_result.dart';
+import 'package:terramanager/features/backup/application/backup_validation_service.dart';
+import 'package:terramanager/features/backup/application/portable_backup_database_restorer.dart';
+import 'package:terramanager/features/backup/application/portable_backup_exporter.dart';
+import 'package:terramanager/features/backup/application/validated_backup.dart';
+import 'package:terramanager/features/backup/domain/backup_settings.dart';
+
+/// Portable collection archives contain no account database or browser prefs.
+class SharedPortableBackups {
+  SharedPortableBackups(this.database);
+
+  final AppDatabase database;
+
+  static const collectionSettings = BackupSettings(
+    scope: 'collectionOnly',
+    themeMode: 'system',
+    accent: 'green',
+  );
+
+  /// Includes archived records, histories, associations and orphan media.
+  /// Account records and SQLite bookkeeping are not collection data.
+  Future<bool> isEmpty() async {
+    for (final table in database.allTables) {
+      final rows = await database
+          .customSelect('SELECT 1 FROM "${table.actualTableName}" LIMIT 1')
+          .get();
+      if (rows.isNotEmpty) return false;
+    }
+    return true;
+  }
+
+  Future<BackupExportResult> export() =>
+      PortableBackupExporter(
+        database,
+        mediaReader: (_) => throw StateError(
+          'A legacy device-local picture cannot be read by the shared server.',
+        ),
+      ).createBackup(
+        appVersion: 'TerraManager shared care',
+        settings: collectionSettings,
+      );
+
+  ValidatedBackup validate(Uint8List bytes, {String? legacyTimeZone}) =>
+      BackupValidationService(
+        maxExpandedBytes: 512 * 1024 * 1024,
+        legacyTimeZone: legacyTimeZone,
+        requireLegacyTimeZone: true,
+      ).validate(bytes);
+
+  Future<int> restore(ValidatedBackup backup) =>
+      PortableBackupDatabaseRestorer(database).restore(backup);
+}

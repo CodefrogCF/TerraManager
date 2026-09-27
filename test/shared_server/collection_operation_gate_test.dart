@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:terramanager/shared_server/collection_operation_gate.dart';
+import 'package:terramanager/shared_server/collection/application/collection_operation_gate.dart';
 
 void main() {
   test('exclusive backup waits for edits and prevents further edits', () async {

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:terramanager/shared_client/shared_api_client.dart';
-import 'package:terramanager/shared_client/shared_box_scanner_page.dart';
-import 'package:terramanager/shared_client/shared_forms.dart';
+import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
+import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
+import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
 
 void main() {
   const firstBox = {'id': 1, 'status': 'active', 'name': 'First'};

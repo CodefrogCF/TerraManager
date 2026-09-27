@@ -144,7 +144,11 @@ void main() {
       'other',
     ]);
     expect(
-      validated.data.boxes.skip(1).every((box) => box.archivedAt == archivedAt),
+      validated.data.boxes
+          .skip(1)
+          .every(
+            (box) => box.archivedAt?.isAtSameMomentAs(archivedAt) ?? false,
+          ),
       isTrue,
     );
     expect(validated.data.boxes.last.archiveNotes, isNull);

@@ -6,6 +6,28 @@ The project uses semantic versioning.
 
 ## [Unreleased]
 
+### Fixed
+
+- export care-event and metadata times with explicit UTC offsets; require the
+  original IANA time zone for legacy Shared Care imports, with per-event DST
+  handling and date-only birth dates
+- restrict every Shared Care permanent collection/picture deletion to
+  administrators in both API and UI; retain caregiver create/edit/archive
+  workflows and standalone deletion
+- keep Box/Animal duplication dialogs open until confirmed success, select
+  Animal name and destination together, prevent repeated submission and show
+  validation/permission/connection feedback; refresh successful copies
+- use the active account's Animal name order and fallback in every Next
+  Feeding overview, including compact lists
+
+### Changed
+
+- store all Shared Care personal appearance/display preferences per account
+  in the server account database, with explicit defaults and isolation across
+  login changes; preserve settings across browsers/devices and exclude them
+  from portable collection backups
+
+
 ### Added
 
 - add an administrator-only Audit viewer under Shared server Settings with

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import '../core/database/app_database.dart';
+import '../core/database/date_only.dart';
 import '../core/database/repositories/picture_gallery_repository.dart';
 
 String? _date(DateTime? value) => value?.toUtc().toIso8601String();
@@ -34,7 +35,7 @@ Map<String, dynamic> animalJson(Animal animal) => _withRevision({
   'category': animal.category.name,
   'subcategory': animal.subcategory?.name,
   'sex': animal.sex?.name,
-  'birthDate': _date(animal.birthDate),
+  'birthDate': dateOnlyString(animal.birthDate),
   'birthDateAccuracy': animal.birthDateAccuracy?.name,
   'tempMin': animal.tempMin,
   'tempMax': animal.tempMax,

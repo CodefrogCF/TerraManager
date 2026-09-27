@@ -137,8 +137,8 @@ Local Database
 The optional Shared Care Web mode uses a separate Flutter entry point. It
 authenticates against a self-hosted LAN server, which alone owns the SQLite
 collection. Shared-mode browsers hold no local collection database and cannot
-edit while disconnected. Appearance, language and sorting preferences remain
-local to each browser. Big Picture Mode is selected in Settings and applies to
+edit while disconnected. Appearance, language and sorting preferences are
+stored per account on the server. Big Picture Mode is selected in Settings and applies to
 both overviews and their archives. The Show next feeding switch immediately
 above it controls the future-feeding summary without hiding due reminders.
 Overview thumbnails use a bounded in-memory cache for the current overview;
@@ -160,9 +160,9 @@ Administrators can download the complete shared collection as a portable
 copy and confirming replacement. Only a genuinely empty server collection may
 skip the safety download; the server checks every collection table again under
 the restore gate, so intervening writes cannot bypass protection. Shared
-archives leave caregiver accounts and
-personal browser preferences outside the portable collection. A host-volume
-backup is still needed to protect server accounts and sessions.
+archives leave caregiver accounts and personal account preferences outside the
+portable collection. A host-volume backup is still needed to protect server
+accounts and sessions.
 
 Shared Care administrators manage local users through Settings → Server →
 Manage accounts. The screen supports username and role changes, optional

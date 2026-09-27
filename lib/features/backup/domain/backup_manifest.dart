@@ -16,7 +16,7 @@ class BackupManifest {
       'backupFormatVersion': backupFormatVersion,
       'appVersion': appVersion,
       'databaseSchemaVersion': databaseSchemaVersion,
-      'createdAt': createdAt.toIso8601String(),
+      'createdAt': createdAt.toUtc().toIso8601String(),
     };
   }
 

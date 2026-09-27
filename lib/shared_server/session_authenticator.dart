@@ -69,6 +69,14 @@ class SessionAuthenticator implements CareAuthenticator {
     if (!{'GET', 'HEAD', 'OPTIONS'}.contains(request.method)) {
       checkMutation(request, current);
     }
+    if (request.method == 'DELETE' &&
+        current.account.role != CareRole.administrator) {
+      throw const ApiProblem(
+        403,
+        'forbidden',
+        'Only administrators may permanently delete collection records or pictures.',
+      );
+    }
     return true;
   }
 

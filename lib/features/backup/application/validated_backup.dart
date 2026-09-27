@@ -8,6 +8,7 @@ class ValidatedBackup {
   final BackupManifest manifest;
   final BackupData data;
   final BackupSettings settings;
+  final bool hasLegacyTimestamps;
 
   final Map<String, Uint8List> mediaFiles;
 
@@ -15,6 +16,7 @@ class ValidatedBackup {
     required this.manifest,
     required this.data,
     required this.settings,
+    this.hasLegacyTimestamps = false,
     required Map<String, Uint8List> mediaFiles,
   }) : mediaFiles = Map.unmodifiable(mediaFiles);
 

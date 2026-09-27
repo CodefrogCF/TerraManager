@@ -51,6 +51,34 @@ class AppSettingsController extends ChangeNotifier {
 
   ArchiveSortOrder get boxArchiveSortOrder => _boxArchiveSortOrder;
 
+  /// Hydrate an account snapshot without reading or writing device preferences.
+  /// Missing fields always use application defaults, never the previous account.
+  void applyStoredSettings(Map<String, dynamic> values) {
+    _themeMode = _parseThemeMode(values[_themeModeKey] as String?);
+    _accent = _parseAccent(values[_accentKey] as String?);
+    _language = _parseLanguage(values[_languageKey] as String?);
+    _animalNameOrder = _parseAnimalNameOrder(
+      values[_animalNameOrderKey] as String?,
+    );
+    _animalSortOrder = _parseAnimalSortOrder(
+      values[_animalSortOrderKey] as String?,
+    ).normalized;
+    _boxSortOrder = _parseBoxSortOrder(values[_boxSortOrderKey] as String?);
+    _animalArchiveSortOrder = _parseArchiveSortOrder(
+      values[_animalArchiveSortOrderKey] as String?,
+    );
+    _boxArchiveSortOrder = _parseArchiveSortOrder(
+      values[_boxArchiveSortOrderKey] as String?,
+    );
+    _animalCategoryViewEnabled =
+        values[_animalCategoryViewEnabledKey] as bool? ?? false;
+    _nextFeedingSummaryEnabled =
+        values[_nextFeedingSummaryEnabledKey] as bool? ?? false;
+    _bigPictureModeEnabled =
+        values[_bigPictureModeEnabledKey] as bool? ?? false;
+    notifyListeners();
+  }
+
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
 

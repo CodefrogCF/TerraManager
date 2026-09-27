@@ -552,29 +552,32 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
                           ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: widget.api.connected
-                            ? () async {
-                                if (!await confirmPermanentDeletion(context)) {
-                                  return;
+                      if (widget.api.canDeleteCollection)
+                        TextButton.icon(
+                          onPressed: widget.api.connected
+                              ? () async {
+                                  if (!await confirmPermanentDeletion(
+                                    context,
+                                  )) {
+                                    return;
+                                  }
+                                  final done = await _change(() async {
+                                    await widget.api.deleteBox(_id);
+                                  });
+                                  if (done && context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
                                 }
-                                final done = await _change(() async {
-                                  await widget.api.deleteBox(_id);
-                                });
-                                if (done && context.mounted) {
-                                  Navigator.of(context).pop();
-                                }
-                              }
-                            : null,
-                        icon: const Icon(Icons.delete_forever_outlined),
-                        label: Text(
-                          sharedText(
-                            context,
-                            'Delete permanently',
-                            'Endgültig löschen',
+                              : null,
+                          icon: const Icon(Icons.delete_forever_outlined),
+                          label: Text(
+                            sharedText(
+                              context,
+                              'Delete permanently',
+                              'Endgültig löschen',
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ],
                 ),
@@ -1330,7 +1333,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                       _DetailRow(
                         label: context.l10n.birthDateLowercase,
                         value: MaterialLocalizations.of(context)
-                            .formatMediumDate(birthDate.toLocal()),
+                            .formatMediumDate(birthDate),
                       ),
                     if (BirthDateAccuracy.values
                             .where(
@@ -1496,29 +1499,32 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                           ),
                         ),
                       ),
-                      TextButton.icon(
-                        onPressed: widget.api.connected
-                            ? () async {
-                                if (!await confirmPermanentDeletion(context)) {
-                                  return;
+                      if (widget.api.canDeleteCollection)
+                        TextButton.icon(
+                          onPressed: widget.api.connected
+                              ? () async {
+                                  if (!await confirmPermanentDeletion(
+                                    context,
+                                  )) {
+                                    return;
+                                  }
+                                  final done = await _change(() async {
+                                    await widget.api.deleteAnimal(_id);
+                                  });
+                                  if (done && context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
                                 }
-                                final done = await _change(() async {
-                                  await widget.api.deleteAnimal(_id);
-                                });
-                                if (done && context.mounted) {
-                                  Navigator.of(context).pop();
-                                }
-                              }
-                            : null,
-                        icon: const Icon(Icons.delete_forever_outlined),
-                        label: Text(
-                          sharedText(
-                            context,
-                            'Delete permanently',
-                            'Endgültig löschen',
+                              : null,
+                          icon: const Icon(Icons.delete_forever_outlined),
+                          label: Text(
+                            sharedText(
+                              context,
+                              'Delete permanently',
+                              'Endgültig löschen',
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ],
                 ),
@@ -1778,7 +1784,9 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
                                         color: Colors.amber,
                                       ),
                                     ),
-                                  if (widget.active)
+                                  if (widget.active &&
+                                      (widget.api.canDeleteCollection ||
+                                          picture['isPrimary'] != true))
                                     Positioned(
                                       top: 0,
                                       right: 0,
@@ -1798,16 +1806,17 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
                                                 ),
                                               ),
                                             ),
-                                          PopupMenuItem(
-                                            value: 'delete',
-                                            child: Text(
-                                              sharedText(
-                                                context,
-                                                'Delete picture',
-                                                'Bild löschen',
+                                          if (widget.api.canDeleteCollection)
+                                            PopupMenuItem(
+                                              value: 'delete',
+                                              child: Text(
+                                                sharedText(
+                                                  context,
+                                                  'Delete picture',
+                                                  'Bild löschen',
+                                                ),
                                               ),
                                             ),
-                                          ),
                                         ],
                                       ),
                                     ),

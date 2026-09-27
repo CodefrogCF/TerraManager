@@ -8,7 +8,7 @@ stored in the collection database, so both files must be kept together.
 **Shared Web mode:** The gateway serves the Flutter application compiled from
 `lib/main_shared.dart`. This entry point does not create `AppDatabase` or a
 browser collection database. It signs in through the same-origin API, reloads
-the server collection and keeps appearance preferences in each browser. The
+the server collection and keeps personal preferences against the signed-in account. The
 normal `lib/main.dart` entry point remains the standalone, browser-local mode.
 Opening a standalone Web build at another URL will not connect it to this
 server.
@@ -151,7 +151,7 @@ for care work:
    a failed save: the server may have committed it before its reply was lost.
 4. In the browser's developer tools, inspect storage for the shared HTTPS
    origin. There must be no TerraManager collection database in IndexedDB.
-   Local browser storage may contain personal presentation preferences. The
+   Personal presentation preferences are stored per account on the server. The
    standalone Web application uses its own local collection at its separate
    origin and must not be mistaken for the shared client.
 5. Open the same Box or Animal edit form in both browsers. Save a change in
@@ -175,7 +175,7 @@ concurrent edits must be reloaded and reviewed. Animal details show the primary
 picture, gallery, latest Feeding and an active Feeding reminder, plus weight and
 shedding summaries when enabled for that Animal. Box details show assigned
 Animal thumbnails; archived details retain reason, date and notes. Presentation
-choices remain per browser; collection records stay server-owned.
+choices belong to each account and follow it across browsers and devices; collection records stay server-owned.
 
 Overview pictures are fetched through the authenticated same-origin client and
 reused in memory while that overview remains open. Scrolling, sorting, switching
@@ -355,7 +355,7 @@ restoring it to an isolated test installation, not over the running server.
 
 The administrator's **Save shared backup** action instead downloads a portable
 `.tmbackup` containing all shared Boxes, Animals, histories and picture media.
-It excludes `accounts.sqlite`, sessions and personal browser preferences. To
+It excludes `accounts.sqlite`, sessions and personal account preferences. To
 restore a populated collection, save a fresh safety copy first, select a
 compatible backup, inspect its record counts and confirm replacement. A new,
 genuinely empty collection can be initialized without an empty safety download.

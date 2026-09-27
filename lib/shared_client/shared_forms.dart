@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core/database/date_only.dart';
+
 import '../core/presentation/widgets/constrained_page_width.dart';
 import '../core/database/enums/animal_category.dart';
 import '../core/database/enums/birth_date_accuracy.dart';
@@ -318,7 +320,9 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     for (final value in Sex.values) {
       if (value.name == initial?['sex']) _sex = value;
     }
-    _birthDate = DateTime.tryParse(initial?['birthDate'] as String? ?? '');
+    _birthDate = initial?['birthDate'] == null
+        ? null
+        : parseDateOnly(initial!['birthDate'] as String);
     _birthAccuracy = initial?['birthDateAccuracy'] as String?;
     _reminderBaseline = DateTime.tryParse(
       initial?['feedingReminderBaseline'] as String? ?? '',
@@ -392,8 +396,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     final initialBirthDate = DateTime.tryParse(
       initial['birthDate'] as String? ?? '',
     );
-    if (initialBirthDate?.toUtc().toIso8601String() !=
-        _birthDate?.toUtc().toIso8601String()) {
+    if (dateOnlyString(initialBirthDate) != dateOnlyString(_birthDate)) {
       return true;
     }
     for (final entry in _fields.entries) {
@@ -563,7 +566,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       'category': _category.name,
       'subcategory': _subcategory?.name,
       'sex': _sex?.name,
-      'birthDate': _birthDate?.toUtc().toIso8601String(),
+      'birthDate': dateOnlyString(_birthDate),
       'birthDateAccuracy': _birthAccuracy,
       'tempMin': tempMin,
       'tempMax': tempMax,
@@ -646,7 +649,9 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         for (final value in Sex.values) {
           if (value.name == latest['sex']) _sex = value;
         }
-        _birthDate = DateTime.tryParse(latest['birthDate'] as String? ?? '');
+        _birthDate = latest['birthDate'] == null
+            ? null
+            : parseDateOnly(latest['birthDate'] as String);
         _birthAccuracy = latest['birthDateAccuracy'] as String?;
         _reminderBaseline = DateTime.tryParse(
           latest['feedingReminderBaseline'] as String? ?? '',
@@ -862,7 +867,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                       title: Text(
                         _birthDate == null
                             ? sharedText(context, 'Birth date', 'Geburtsdatum')
-                            : _birthDate!.toLocal().toString().split(' ').first,
+                            : dateOnlyString(_birthDate)!,
                       ),
                       trailing: const Icon(Icons.calendar_today),
                       onTap: () async {

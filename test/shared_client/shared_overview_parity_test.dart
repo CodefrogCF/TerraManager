@@ -475,5 +475,6 @@ void main() {
 const _session = {
   'user': {'username': 'hagen', 'role': 'administrator'},
   'csrfToken': 'csrf-secret',
+  'preferences': {'box_sort_order': 'nameAscending'},
   'expiresAt': '2026-09-24T08:00:00Z',
 };

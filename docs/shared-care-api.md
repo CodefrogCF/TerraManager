@@ -13,7 +13,7 @@ separate SQLite file holds local accounts and sessions. The server alone holds
 both database connections; API clients cannot request either file or execute
 SQL. Existing standalone Android and Web modes keep their local database
 behavior. Shared-mode browsers use this API only; their presentation
-preferences remain local.
+preferences belong to the signed-in account and are stored in the account database.
 
 Media assets remain in the SQLite `MediaAssets` table. Local accounts and
 sessions live in a separate `accounts.sqlite` database beside the collection
@@ -59,7 +59,7 @@ Requests and responses containing records use JSON. The Animal list includes
 `latestFeedingAt` as a nullable UTC timestamp calculated for the whole list in
 one database query. This read-only overview field is not part of the Animal
 revision token and updates after a Feeding is added, edited or deleted.
-Dates in write requests
+Instant dates in write requests
 must use ISO-8601 with `Z` or a numeric time-zone offset. Server responses use
 UTC ISO-8601 timestamps. A client should clear its local login state on
 `401 unauthorized`, show the denied operation on `403 forbidden` or `403 csrf_failed`,
@@ -77,6 +77,37 @@ loads the new image. The cache does not modify server media ownership, media
 routes, authorization or the `no-store` response policy.
 
 ## Local accounts
+
+From v1.14.1, all collection `DELETE` routes (Animals, Boxes, Feedings, weight
+and shedding history, picture associations and future media deletion routes)
+require an administrator and a valid CSRF token. A caregiver receives `403`
+before dispatch and the record is unchanged. Creating, editing, duplicating,
+archiving, restoring and selecting a primary picture remain available to
+caregivers. Changing a primary picture does not delete its gallery association.
+Standalone deletion is unaffected.
+
+`GET /auth/preferences` returns the current account's personal preferences;
+`PATCH /auth/preferences` updates only supplied allowlisted fields, with CSRF.
+There is no account-ID parameter, even for administrators. Login and session
+responses include the same `preferences` snapshot. Invalid/unknown fields or
+values return `400` without changing the saved settings.
+
+Preferences are stored in `accounts.sqlite` with an account foreign key and
+are removed when that account is removed. They include theme, accent, language,
+Animal name order, Box/Animal sorting, category grouping, Big Picture Mode,
+Next Feeding visibility and both archive sort orders. Defaults are system
+theme/language, green accent, common-name-first, oldest-created Animal sorting,
+ascending Box labels, newest-archived-first, and all three display toggles off.
+Browser preferences are not imported: a new account receives these defaults.
+Sign-out and session expiry reset the displayed settings; a late save response
+cannot overwrite a subsequently signed-in account. Standalone preferences
+remain device-local. Account preferences are excluded from portable collection
+backups; include the account database in operator disaster-recovery backups.
+
+Birth-date request/response values are `YYYY-MM-DD`; legacy time-bearing birth
+dates are accepted using their written calendar components. All other dates
+are instants with explicit offsets. See [backup timestamps](backup-format.md)
+for the legacy restore policy and the `X-Backup-Time-Zone` restore header.
 
 | Route | Access | Purpose |
 | --- | --- | --- |
@@ -209,7 +240,7 @@ Errors have the stable shape
 `GET /admin/backups` returns the standard Backup Format 2 archive with
 `application/vnd.terramanager.backup+zip`. The browser saves it to an
 administrator-chosen location. Its `settings.json` has `scope: collectionOnly`
-and neutral required settings values; no caregiver's browser preferences are
+and neutral required settings values; no caregiver's account preferences are
 included. Restoring this archive in a standalone installation leaves that
 installation's personal preferences intact. Existing compatible `.tmbackup`
 archives can initialize an empty shared collection or replace a populated one.

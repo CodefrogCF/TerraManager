@@ -108,7 +108,7 @@ class AnimalCommand {
       category: category,
       subcategory: input.nullableEnum('subcategory', AnimalSubcategory.values),
       sex: input.nullableEnum('sex', Sex.values),
-      birthDate: input.nullableDateTime('birthDate'),
+      birthDate: input.nullableDateOnly('birthDate'),
       birthDateAccuracy: input.nullableEnum(
         'birthDateAccuracy',
         BirthDateAccuracy.values,

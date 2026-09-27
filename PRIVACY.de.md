@@ -86,8 +86,9 @@ oder einem anderen Gerät im lokalen Netz bereitstellt, meldet sich der Browser
 über HTTPS an diesem Server an. Daten zu Boxen, Tieren, Fütterungen, Verläufen
 und Bildern werden an die SQLite-Datenbank des Betreibers übertragen und dort
 gespeichert. Lokale Kontonamen, Passwort-Hashes und Sitzungen liegen in einer
-separaten Serverdatenbank. Jeder Browser speichert eigene Einstellungen für
-Darstellung, Sprache und Sortierung, aber keine eigene Shared-Care-Sammlungsdatenbank.
+separaten Serverdatenbank. Persönliche Einstellungen für Darstellung, Sprache
+und Sortierung werden pro Konto auf dem Server gespeichert und nach der Anmeldung
+geladen. Der Browser hält keine eigene Shared-Care-Sammlungsdatenbank.
 Der Betreiber ist für Kontozugänge, Serversicherheit, Zertifikatsvertrauen,
 Speicherdauer und Sicherungen verantwortlich. Die Android-App bleibt
 eigenständig: Ihr Link in den Einstellungen öffnet Shared Care im Browser,
@@ -117,7 +118,7 @@ Entwickler oder einen externen Analysedienst übertragen.
 
 Der Entwickler betreibt keinen Server und kein Backend, das Tier- oder Sammlungsdaten von Benutzerinnen und Benutzern empfängt. Ein optionaler Shared-Care-Server wird vom Sammlungsbetreiber bereitgestellt.
 
-In den eigenständigen Modi verarbeitet TerraManager Daten zu Tieren, Boxen, FeedingEvents, Bildern und Einstellungen lokal. Im Shared-Care-Modus werden Sammlungsänderungen und Medien an den lokalen Server des Betreibers übertragen; persönliche Darstellungseinstellungen bleiben im Browser.
+In den eigenständigen Modi verarbeitet TerraManager Daten zu Tieren, Boxen, FeedingEvents, Bildern und Einstellungen lokal. Im Shared-Care-Modus werden Sammlungsänderungen und Medien an den lokalen Server des Betreibers übertragen; persönliche Darstellungseinstellungen werden pro angemeldetem Konto auf dem Server gespeichert.
 
 TerraManager:
 
@@ -156,7 +157,7 @@ Im Shared-Care-Modus können Administratoren eine portable Sammlungssicherung
 ausdrücklich herunterladen oder wiederherstellen. Der Betreiber sollte
 zusätzlich das Serververzeichnis sichern, damit Sammlung und Kontodatenbanken
 geschützt sind. Portable Sicherungen enthalten keine Konten, Sitzungen oder
-persönlichen Browsereinstellungen. TerraManager verschlüsselt keine dieser
+persönlichen Kontoeinstellungen. TerraManager verschlüsselt keine dieser
 Sicherungen; der Betreiber schützt Speicherort und Zugriff.
 
 Die Benutzerin oder der Benutzer wählt aus, wo eine exportierte Sicherung gespeichert oder wohin sie übertragen wird.

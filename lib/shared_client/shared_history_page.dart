@@ -254,17 +254,18 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
                                     : null,
                                 icon: const Icon(Icons.edit_outlined),
                               ),
-                              IconButton(
-                                tooltip: sharedText(
-                                  context,
-                                  'Delete',
-                                  'Löschen',
+                              if (widget.api.canDeleteCollection)
+                                IconButton(
+                                  tooltip: sharedText(
+                                    context,
+                                    'Delete',
+                                    'Löschen',
+                                  ),
+                                  onPressed: widget.api.connected
+                                      ? () => _delete(entry)
+                                      : null,
+                                  icon: const Icon(Icons.delete_outline),
                                 ),
-                                onPressed: widget.api.connected
-                                    ? () => _delete(entry)
-                                    : null,
-                                icon: const Icon(Icons.delete_outline),
-                              ),
                             ],
                           )
                         : null,

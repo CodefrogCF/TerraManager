@@ -107,8 +107,26 @@ class SharedServerApi {
           'user': current.account.toJson(),
           'csrfToken': current.csrfToken,
           'expiresAt': current.expiresAt.toIso8601String(),
+          'preferences': accounts.preferences(current.account.id),
         });
         return;
+      }
+      if (path == '/api/v1/auth/preferences') {
+        if (request.method == 'GET') {
+          await _send(request.response, 200, {
+            'preferences': accounts.preferences(current.account.id),
+          });
+          return;
+        }
+        if (request.method == 'PATCH') {
+          final input = await _body(request);
+          final preferences = accounts.updatePreferences(
+            current.account.id,
+            input.values,
+          );
+          await _send(request.response, 200, {'preferences': preferences});
+          return;
+        }
       }
       if (path == '/api/v1/auth/logout' && request.method == 'POST') {
         accounts.revokeSession(current.token);
@@ -295,6 +313,7 @@ class SharedServerApi {
       'user': account.toJson(),
       'csrfToken': session.csrfToken,
       'expiresAt': session.expiresAt.toIso8601String(),
+      'preferences': accounts.preferences(account.id),
     });
   }
 
@@ -516,7 +535,10 @@ class SharedServerApi {
       );
     }
     final bytes = await _backupBody(request);
-    final validated = _backups.validate(bytes);
+    final validated = _backups.validate(
+      bytes,
+      legacyTimeZone: request.headers.value('X-Backup-Time-Zone'),
+    );
     if (!await _gate.enterExclusive()) {
       throw const ApiProblem(
         503,

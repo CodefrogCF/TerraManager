@@ -89,8 +89,8 @@ When a collection operator deploys Shared Care on a Raspberry Pi or another
 LAN host, the browser signs in to that operator's server over HTTPS. Box,
 Animal, feeding, history and picture data is sent to and stored in the
 operator-owned SQLite database. Local account names, password hashes and
-sessions are stored in a separate server database. Each browser stores its
-own appearance, language and sorting preferences; it does not hold a separate
+sessions and per-account appearance, language and sorting preferences are
+stored in a separate server database. The browser loads its signed-in account settings; it does not hold a separate
 Shared Care collection database. The operator is responsible for account
 access, host security, certificate trust, retention and backups. The Android
 app remains standalone; its Settings link opens Shared Care in a browser and
@@ -117,7 +117,7 @@ No audit data is sent to the developer or an external analytics service.
 
 The developer does not operate a server or backend that receives users' animal or collection data. An optional Shared Care server is operated by the collection owner.
 
-In standalone modes, Animal, Box, FeedingEvent, picture and application-setting data is processed locally by TerraManager. In Shared Care, collection changes and media are sent to the operator's LAN server; browser presentation preferences remain local.
+In standalone modes, Animal, Box, FeedingEvent, picture and application-setting data is processed locally by TerraManager. In Shared Care, collection changes and media are sent to the operator's LAN server; personal presentation preferences are stored per account on the operator server.
 
 TerraManager does not:
 
@@ -155,7 +155,7 @@ TerraManager does not automatically upload backups to a TerraManager server or c
 In Shared Care, administrators can explicitly download or restore a portable
 collection backup. The operator should also back up the server volume to
 protect both the collection and account databases. Portable backups exclude
-accounts, sessions and personal browser preferences. Neither type of backup
+accounts, sessions and personal account preferences. Neither type of backup
 is encrypted by TerraManager; the operator controls its storage and access.
 
 The user chooses where an exported backup is stored or transferred.

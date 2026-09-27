@@ -23,6 +23,7 @@ class SharedApiClient extends ChangeNotifier {
   Object? lastFailure;
 
   SharedSession? get session => _session;
+  bool get canDeleteCollection => _session?.role == 'administrator';
   bool get connected => _connected;
 
   void _setConnected(bool value) {
@@ -41,7 +42,9 @@ class SharedApiClient extends ChangeNotifier {
   Future<SharedSession?> restoreSession() async {
     try {
       final json = await _request('GET', '/api/v1/auth/session');
-      return _session = SharedSession.fromJson(json);
+      _session = SharedSession.fromJson(json);
+      notifyListeners();
+      return _session;
     } on SharedApiException catch (error) {
       if (error.status == 401) {
         _session = null;
@@ -58,13 +61,23 @@ class SharedApiClient extends ChangeNotifier {
       body: {'username': username, 'password': password},
       requiresSession: false,
     );
-    return _session = SharedSession.fromJson(json);
+    _session = SharedSession.fromJson(json);
+    notifyListeners();
+    return _session!;
   }
 
   Future<void> logout() async {
     await _request('POST', '/api/v1/auth/logout');
     _session = null;
+    notifyListeners();
   }
+
+  Future<Map<String, dynamic>> updatePreferences(
+    Map<String, Object> patch,
+  ) async => _object(
+    await _request('PATCH', '/api/v1/auth/preferences', body: patch),
+    'preferences',
+  );
 
   Future<List<Map<String, dynamic>>> accounts() async =>
       _list(await _request('GET', '/api/v1/admin/accounts'), 'accounts');
@@ -551,7 +564,11 @@ class SharedApiClient extends ChangeNotifier {
     return required;
   }
 
-  Future<void> restoreBackup(Uint8List bytes, String? safetyToken) async {
+  Future<void> restoreBackup(
+    Uint8List bytes,
+    String? safetyToken, {
+    String? legacyTimeZone,
+  }) async {
     await _binaryRequest(
       'POST',
       '/api/v1/admin/backups/restore',
@@ -559,6 +576,7 @@ class SharedApiClient extends ChangeNotifier {
       timeout: const Duration(minutes: 10),
       extraHeaders: {
         'X-Safety-Token': ?safetyToken,
+        'X-Backup-Time-Zone': ?legacyTimeZone,
         'X-Restore-Confirmation': 'replace-shared-collection',
       },
     );
@@ -594,7 +612,10 @@ class SharedApiClient extends ChangeNotifier {
       throw const SharedConnectionException();
     }
     _setConnected(true);
-    if (response.statusCode == 401) _session = null;
+    if (response.statusCode == 401) {
+      _session = null;
+      notifyListeners();
+    }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       try {
         final payload = jsonDecode(response.body);
@@ -671,7 +692,10 @@ class SharedApiClient extends ChangeNotifier {
       throw failure;
     }
 
-    if (response.statusCode == 401 && requiresSession) _session = null;
+    if (response.statusCode == 401 && requiresSession) {
+      _session = null;
+      notifyListeners();
+    }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       final error = json['error'];
       final failure = SharedApiException(
@@ -726,11 +750,13 @@ class SharedSession {
     required this.username,
     required this.role,
     required this.csrfToken,
+    this.preferences = const {},
   });
 
   final String username;
   final String role;
   final String csrfToken;
+  final Map<String, dynamic> preferences;
 
   factory SharedSession.fromJson(Map<String, dynamic> json) {
     final user = json['user'];
@@ -746,6 +772,11 @@ class SharedSession {
       );
     }
     return SharedSession(
+      preferences: json['preferences'] is Map<String, dynamic>
+          ? Map<String, dynamic>.unmodifiable(
+              json['preferences'] as Map<String, dynamic>,
+            )
+          : const {},
       username: user['username'] as String,
       role: user['role'] as String,
       csrfToken: csrf,

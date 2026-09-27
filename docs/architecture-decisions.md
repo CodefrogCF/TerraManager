@@ -1832,9 +1832,11 @@ Shared-mode browsers access collection data only through the API. They do not
 initialize a local collection database or queue offline edits. If the server is
 unavailable, the application displays a connection error.
 
-Appearance, language, sorting and other presentation preferences remain local
-to each browser. Existing Android and Web standalone modes continue to use
-their local databases.
+From v1.14.1, appearance, language, sorting and other presentation preferences
+belong to the signed-in account and are stored in the separate server account
+database. They follow the account across browsers and are reset on sign-out;
+new accounts get explicit defaults. Existing Android and Web standalone modes
+continue to use their local databases and locally stored preferences.
 
 An administrator can explicitly import an existing `.tmbackup` into the server
 collection. This does not establish synchronization with the original
@@ -1852,7 +1854,7 @@ defined in the implementation work.
 - the UI needs a data-access boundary for local and HTTP-backed modes
 - collection validation, media persistence and backups move to the server in
   shared mode
-- browser preferences remain personal and may differ between devices
+- account preferences remain personal and follow the account between devices
 - server outages prevent edits instead of creating divergent local changes
 - migration from standalone mode requires an explicit backup import
 - browser-based shared mode requires no new Android app permission

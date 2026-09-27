@@ -41,6 +41,34 @@ The backup format must:
 
 ## Versioning
 
+### Timestamp meaning from v1.14.1
+
+New archives retain format version 2 and encode every event/metadata instant
+(`fedAt`, `measuredAt`, `shedAt`, `capturedAt`, reminder baselines, creation,
+update and archive times) as UTC ISO-8601 ending in `Z`. Storage preserves the
+instant; clients convert it once to their local time for display. No fixed
+two-hour adjustment is applied. These archives restore in standalone and
+Shared Care, and a subsequent export does not add another offset.
+
+Versions 1 and 2 remain supported. Older archives can contain local wall-clock
+timestamps with no offset. Their original source time zone cannot be inferred
+from the archive. Shared Care therefore asks the administrator to confirm the
+original device's IANA zone (for example `Europe/Berlin`), suggesting the
+browser zone when available. The restore API requires `X-Backup-Time-Zone`
+for such files and rejects the file before replacement if it is omitted or
+invalid. Each timestamp uses that zone's historical daylight-saving rule.
+An ambiguous repeated autumn hour uses the earlier occurrence; a nonexistent
+spring-transition time is rejected instead of silently moved. Standalone
+retains the documented legacy rule of interpreting offset-free timestamps in
+the importing device's local zone. Explicit `Z` or numeric offsets always take
+precedence over the legacy source-zone selection.
+
+Birth dates are calendar dates (`YYYY-MM-DD`), never UTC instants. Old date
+strings with a time/offset retain their written calendar components. Birth-date
+accuracy is unchanged. Existing collection rows are not guessed or shifted:
+to repair previously shifted care history, restore the original backup with
+the correct source zone, following the normal safety-copy workflow.
+
 The backup format has its own version number:
 
 ```text
@@ -228,19 +256,24 @@ Example:
 
 ## Timestamp Format
 
-TerraManager Backup Format Versions 1 and 2 serialize `DateTime` values using ISO 8601.
-
-Dart serialization uses:
+Event and metadata instants use ISO 8601. From v1.14.1, every new export
+normalizes those values to UTC with an explicit `Z` suffix:
 
 ```dart
-dateTime.toIso8601String()
+dateTime.toUtc().toIso8601String()
 ```
 
-Deserialization uses:
+Explicit-offset values can be parsed with:
 
 ```dart
 DateTime.parse(...)
 ```
+
+Clients convert an instant to local time once for display. Legacy offset-free
+values in Versions 1 and 2 first follow the source-zone rules described above;
+they must not be assumed to be UTC. Offset-free examples below illustrate
+supported legacy data, not the current export representation. Birth dates use
+`YYYY-MM-DD` and do not pass through UTC conversion.
 
 Raw Drift or SQLite timestamp representations must not be exposed as the
 portable backup representation.
@@ -1060,7 +1093,7 @@ Excluding generated QR images:
 `settings.json` contains portable application preferences. Archives exported
 from the shared server include the optional `scope: collectionOnly` value and
 neutral required settings fields. They contain the shared collection, not any
-caregiver's browser preferences. Importing such an archive into a standalone
+caregiver's account preferences. Importing such an archive into a standalone
 installation preserves that installation's personal preferences. Older archives
 without `scope` retain their established personal-settings behavior.
 
@@ -1068,7 +1101,7 @@ Shared Care administrators export this archive through Shared Settings. A
 restore replaces the server collection only after validating the archive and
 checking a safety token against concurrent changes; the account database is
 not replaced. The archive includes collection picture media but excludes
-server accounts, password hashes, sessions and local browser preferences.
+server accounts, password hashes, sessions and personal account preferences.
 For server disaster recovery, the operator must separately back up both
 SQLite databases in `deploy/data/` while the server is stopped. Neither the
 portable archive nor the host-volume archive is encrypted by TerraManager.

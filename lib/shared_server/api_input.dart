@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import '../core/database/date_only.dart';
+
 class ApiProblem implements Exception {
   final int status;
   final String code;
@@ -121,6 +123,17 @@ class ApiInput {
 
   DateTime? nullableDateTime(String key) =>
       values[key] == null ? null : dateTime(key);
+
+  DateTime? nullableDateOnly(String key) {
+    final value = values[key];
+    if (value == null) return null;
+    try {
+      if (value is String) return parseDateOnly(value);
+    } on FormatException {
+      /* Return a consistent input error below. */
+    }
+    throw ApiProblem(400, 'invalid_data', '$key must be a calendar date.');
+  }
 
   T enumerated<T extends Enum>(String key, List<T> options) {
     final value = values[key];

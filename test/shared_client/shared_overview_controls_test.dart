@@ -148,15 +148,28 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
+      final savedPreferences = <String, dynamic>{
+        'big_picture_mode_enabled': false,
+      };
       SharedApiClient client() => SharedApiClient(
         Uri.parse('https://192.168.1.117'),
-        MockClient(
-          (request) async => http.Response(
+        MockClient((request) async {
+          if (request.url.path == '/api/v1/auth/preferences') {
+            savedPreferences.addAll(
+              jsonDecode(request.body) as Map<String, dynamic>,
+            );
+            return http.Response(
+              jsonEncode({'preferences': savedPreferences}),
+              200,
+            );
+          }
+          return http.Response(
             jsonEncode(switch (request.url.path) {
               '/api/v1/auth/session' => {
                 'user': {'username': 'carer', 'role': 'caregiver'},
                 'csrfToken': 'test-token',
                 'expiresAt': '2099-01-01T00:00:00Z',
+                'preferences': savedPreferences,
               },
               '/api/v1/boxes' => {
                 'boxes': [
@@ -184,8 +197,8 @@ void main() {
               _ => {},
             }),
             200,
-          ),
-        ),
+          );
+        }),
       );
       await tester.pumpWidget(SharedCareApp(api: client()));
       await tester.pumpAndSettle();
@@ -199,12 +212,7 @@ void main() {
       expect(tile.value, isFalse);
       await tester.tap(toggle);
       await tester.pumpAndSettle();
-      expect(
-        (await SharedPreferences.getInstance()).getBool(
-          'big_picture_mode_enabled',
-        ),
-        isTrue,
-      );
+      expect(savedPreferences['big_picture_mode_enabled'], isTrue);
       await tester.tap(find.byIcon(Icons.inventory_2_outlined).last);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('box-big-picture-1')), findsOneWidget);
@@ -227,7 +235,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('animal-big-picture-1')), findsNothing);
       expect(find.byKey(const Key('animal-list-item-1')), findsOneWidget);
-      // Loading a new client restores the same existing browser preference.
+      // Loading a new client restores the saved account preference from the server.
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();
       await tester.pumpWidget(SharedCareApp(api: client()));

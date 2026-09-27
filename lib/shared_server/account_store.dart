@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 
 import 'audit_event.dart';
 import 'audit_query.dart';
+import 'account_preferences.dart';
 
 enum CareRole { administrator, caregiver }
 
@@ -89,6 +90,12 @@ class AccountStore {
       db.execute(
         'CREATE INDEX IF NOT EXISTS sessions_expires ON sessions(expires_at)',
       );
+      db.execute('''
+        CREATE TABLE IF NOT EXISTS account_preferences (
+          account_id INTEGER PRIMARY KEY REFERENCES accounts(id) ON DELETE CASCADE,
+          preferences_json TEXT NOT NULL
+        )
+      ''');
       if (!db
           .select('PRAGMA table_info(accounts)')
           .any((row) => row['name'] == 'audit_id')) {
@@ -111,6 +118,36 @@ class AccountStore {
   }
 
   void close() => _db.close();
+
+  Map<String, Object> preferences(int accountId) {
+    final rows = _db.select(
+      'SELECT preferences_json FROM account_preferences WHERE account_id = ?',
+      [accountId],
+    );
+    return {
+      ...defaultAccountPreferences,
+      if (rows.isNotEmpty)
+        ...validateAccountPreferences(
+          jsonDecode(rows.single['preferences_json'] as String)
+              as Map<String, dynamic>,
+        ),
+    };
+  }
+
+  Map<String, Object> updatePreferences(
+    int accountId,
+    Map<String, dynamic> patch,
+  ) {
+    final valid = validateAccountPreferences(patch);
+    // Synchronous SQLite read/merge/write cannot interleave with another request.
+    final updated = {...preferences(accountId), ...valid};
+    _db.execute(
+      'INSERT INTO account_preferences (account_id, preferences_json) VALUES (?, ?) '
+      'ON CONFLICT(account_id) DO UPDATE SET preferences_json = excluded.preferences_json',
+      [accountId, jsonEncode(updated)],
+    );
+    return updated;
+  }
 
   List<Map<String, Object?>> readAudit(AuditQuery query) => [
     for (final row in _db.select(query.sql, query.values('account')))

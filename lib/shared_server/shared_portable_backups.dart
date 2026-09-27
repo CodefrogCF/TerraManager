@@ -43,9 +43,12 @@ class SharedPortableBackups {
         settings: collectionSettings,
       );
 
-  ValidatedBackup validate(Uint8List bytes) =>
-      BackupValidationService(maxExpandedBytes: 512 * 1024 * 1024)
-          .validate(bytes);
+  ValidatedBackup validate(Uint8List bytes, {String? legacyTimeZone}) =>
+      BackupValidationService(
+        maxExpandedBytes: 512 * 1024 * 1024,
+        legacyTimeZone: legacyTimeZone,
+        requireLegacyTimeZone: true,
+      ).validate(bytes);
 
   Future<int> restore(ValidatedBackup backup) =>
       PortableBackupDatabaseRestorer(database).restore(backup);

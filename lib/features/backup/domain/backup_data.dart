@@ -1,3 +1,5 @@
+import '../../../core/database/date_only.dart';
+
 class BackupData {
   final List<BackupBox> boxes;
   final List<BackupAnimal> animals;
@@ -84,7 +86,7 @@ class BackupBox {
       'qrId': qrId,
       'status': status,
       'archiveReason': archiveReason,
-      'archivedAt': archivedAt?.toIso8601String(),
+      'archivedAt': archivedAt?.toUtc().toIso8601String(),
       'archiveNotes': archiveNotes,
       'name': name,
       'widthCm': widthCm,
@@ -94,8 +96,8 @@ class BackupBox {
       'notes': notes,
       'pictureMediaPath': pictureMediaPath,
       'pictures': pictures.map((picture) => picture.toJson()).toList(),
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt.toUtc().toIso8601String(),
+      'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
   }
 
@@ -144,7 +146,7 @@ class BackupWeightEntry {
   Map<String, dynamic> toJson() => {
     'id': id,
     'weightGrams': weightGrams,
-    'measuredAt': measuredAt.toIso8601String(),
+    'measuredAt': measuredAt.toUtc().toIso8601String(),
   };
 
   factory BackupWeightEntry.fromJson(Map<String, dynamic> json) {
@@ -174,10 +176,10 @@ class BackupSheddingEvent {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'shedAt': shedAt.toIso8601String(),
+      'shedAt': shedAt.toUtc().toIso8601String(),
       'notes': notes,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt.toUtc().toIso8601String(),
+      'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
   }
 
@@ -292,7 +294,7 @@ class BackupAnimal {
       'category': category,
       'subcategory': subcategory,
       'sex': sex,
-      'birthDate': birthDate?.toIso8601String(),
+      'birthDate': dateOnlyString(birthDate),
       'birthDateAccuracy': birthDateAccuracy,
       'tempMin': tempMin,
       'tempMax': tempMax,
@@ -314,14 +316,16 @@ class BackupAnimal {
       'pictures': pictures.map((picture) => picture.toJson()).toList(),
       'notes': notes,
       'archiveReason': archiveReason,
-      'archivedAt': archivedAt?.toIso8601String(),
+      'archivedAt': archivedAt?.toUtc().toIso8601String(),
       'archiveNotes': archiveNotes,
       'feedingReminderIntervalDays': feedingReminderIntervalDays,
-      'feedingReminderBaseline': feedingReminderBaseline?.toIso8601String(),
+      'feedingReminderBaseline': feedingReminderBaseline
+          ?.toUtc()
+          .toIso8601String(),
       'showWeightOnDetail': showWeightOnDetail,
       'showSheddingOnDetail': showSheddingOnDetail,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt.toUtc().toIso8601String(),
+      'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
   }
 
@@ -341,7 +345,7 @@ class BackupAnimal {
       sex: json['sex'] as String?,
       birthDate: json['birthDate'] == null
           ? null
-          : DateTime.parse(json['birthDate'] as String),
+          : parseDateOnly(json['birthDate'] as String),
       birthDateAccuracy: json['birthDateAccuracy'] as String?,
       tempMin: (json['tempMin'] as num).toDouble(),
       tempMax: (json['tempMax'] as num).toDouble(),
@@ -402,7 +406,10 @@ class BackupPicture {
   final DateTime capturedAt;
 
   Map<String, dynamic> toJson() {
-    return {'mediaPath': mediaPath, 'capturedAt': capturedAt.toIso8601String()};
+    return {
+      'mediaPath': mediaPath,
+      'capturedAt': capturedAt.toUtc().toIso8601String(),
+    };
   }
 
   factory BackupPicture.fromJson(Map<String, dynamic> json) {
@@ -448,7 +455,7 @@ class BackupFeedingEvent {
     return {
       'id': id,
       'animalId': animalId,
-      'fedAt': fedAt.toIso8601String(),
+      'fedAt': fedAt.toUtc().toIso8601String(),
       'notes': notes,
     };
   }

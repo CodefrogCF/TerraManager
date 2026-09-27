@@ -1760,7 +1760,23 @@ affected user's sessions. Server transactions protect the final active
 administrator and retain audit identity after removal. QR Feeding Mode now
 shows current Animal thumbnails in standalone and Shared Care selection lists.
 
-The administrator audit viewer (#179) remains planned and is not yet implemented.
+Issue #179 adds the administrator Audit subsection, metadata-only history,
+filters and pagination in Shared server Settings.
+
+## v1.14.1 — Shared Care correctness, permissions and account preferences
+
+- [x] Preserve care-event instants across standalone/Shared Care backups and
+  API display; encode UTC, confirm legacy source zones, handle DST and keep
+  birth dates date-only.
+- [x] Restrict permanent collection and picture deletion to administrators in
+  the server and interface, while retaining caregiver create/edit/archive.
+- [x] Store appearance, language, naming and display/sorting preferences per
+  account in the server database, with independent defaults and no portable
+  collection backup coupling.
+- [x] Complete Box and Animal duplication with a guarded dialog, destination
+  selection, visible failures, overview refresh and standalone copy semantics.
+- [x] Respect active account name order and fallback in both compact and Big
+  Picture Next Feeding summaries.
 
 ## Future Development
 

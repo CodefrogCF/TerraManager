@@ -7,6 +7,7 @@ import '../../../core/database/enums/animal_category.dart';
 import '../../../core/database/validation/animal_environmental_limits.dart';
 import '../../../core/qr/qr_validator.dart';
 import '../domain/backup_data.dart';
+import '../domain/backup_timestamps.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_format.dart';
 import '../domain/backup_manifest.dart';
@@ -19,10 +20,14 @@ typedef BackupQrIdValidator = bool Function(String qrId);
 class BackupValidationService {
   final BackupQrIdValidator qrIdValidator;
   final int? maxExpandedBytes;
+  final String? legacyTimeZone;
+  final bool requireLegacyTimeZone;
 
   BackupValidationService({
     BackupQrIdValidator? qrIdValidator,
     this.maxExpandedBytes,
+    this.legacyTimeZone,
+    this.requireLegacyTimeZone = false,
   }) : qrIdValidator = qrIdValidator ?? isValidBoxQrId;
 
   ValidatedBackup validate(Uint8List bytes) {
@@ -132,6 +137,23 @@ class BackupValidationService {
       BackupFormat.settingsFileName,
     );
 
+    bool hasLegacyTimestamps;
+    try {
+      hasLegacyTimestamps = BackupTimestamps.normalize(
+        dataJson,
+        legacyTimeZone: legacyTimeZone,
+        requireZone: requireLegacyTimeZone,
+      );
+      BackupTimestamps.normalize(manifestJson, legacyTimeZone: legacyTimeZone);
+    } catch (error) {
+      throw BackupValidationException(
+        code: BackupValidationErrorCode.invalidArchive,
+        message: error is FormatException
+            ? error.message
+            : 'Invalid source time zone.',
+        cause: error,
+      );
+    }
     final manifest = _parseManifest(manifestJson);
 
     _validateManifest(manifest);
@@ -151,6 +173,7 @@ class BackupValidationService {
       data: data,
       settings: settings,
       mediaFiles: mediaFiles,
+      hasLegacyTimestamps: hasLegacyTimestamps,
     );
   }
 

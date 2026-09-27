@@ -227,7 +227,7 @@ void main() {
 
     expect(
       animal['feedingReminderBaseline'],
-      reminderBaseline.toIso8601String(),
+      reminderBaseline.toUtc().toIso8601String(),
     );
 
     final feedingEvents = dataJson['feedingEvents'] as List<dynamic>;
@@ -530,7 +530,7 @@ void main() {
 
     expect(restoredFeeding.animalId, animalId);
 
-    expect(restoredFeeding.fedAt, DateTime(2026, 9, 2, 14, 15));
+    expect(restoredFeeding.fedAt, DateTime(2026, 9, 2, 14, 15).toUtc());
 
     expect(restoredFeeding.notes, 'Roundtrip feeding');
 

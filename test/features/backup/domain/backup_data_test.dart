@@ -115,7 +115,7 @@ void main() {
 
     expect(
       restored.animals.single.feedingReminderBaseline,
-      DateTime(2026, 8, 2, 9, 30),
+      DateTime(2026, 8, 2, 9, 30).toUtc(),
     );
 
     expect(restored.feedingEvents.single.notes, 'Mouse');
@@ -152,7 +152,7 @@ void main() {
 
     expect(restored.archiveReason, 'rehomed');
 
-    expect(restored.archivedAt, DateTime(2026, 9, 1));
+    expect(restored.archivedAt, DateTime(2026, 9, 1).toUtc());
   });
 
   test('legacy v1 box json loads new fields as null', () {

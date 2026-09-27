@@ -10,6 +10,7 @@ import '../features/settings/app_settings_controller.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/generated/app_localizations.dart';
 import 'shared_api_client.dart';
+import 'shared_account_settings.dart';
 import 'navigation/shared_browser_back_observer.dart';
 import 'shared_collection_pages.dart';
 import 'shared_text.dart';
@@ -24,7 +25,9 @@ class SharedCareApp extends StatefulWidget {
 }
 
 class _SharedCareAppState extends State<SharedCareApp> {
-  final AppSettingsController _settings = AppSettingsController();
+  late final SharedAccountSettings _settings = SharedAccountSettings(
+    widget.api,
+  );
   final _browserBack = SharedBrowserBackObserver();
   final _webNavigator = GlobalKey<NavigatorState>();
 
@@ -51,19 +54,41 @@ class _SharedCareAppState extends State<SharedCareApp> {
         navigatorObservers: kIsWeb ? const [] : [_browserBack],
         // MaterialApp's default Navigator selects single-entry browser history.
         // Shared Care owns a multi-entry stack for its imperative routes instead.
-        builder: kIsWeb
-            ? (context, _) => Navigator(
-                key: _webNavigator,
-                reportsRouteUpdateToEngine: false,
-                observers: [_browserBack],
-                onGenerateRoute: (_) => MaterialPageRoute<void>(
-                  builder: (_) => ConstrainedPageWidth(
-                    maxWidth: 960,
-                    child: SharedCareHome(api: widget.api),
+        builder: (context, child) => Column(
+          children: [
+            if (_settings.saveError != null)
+              MaterialBanner(
+                content: Text(
+                  sharedText(
+                    context,
+                    'Personal preferences could not be saved. Check your connection and try again.',
+                    'Persönliche Einstellungen konnten nicht gespeichert werden. Prüfe die Verbindung und versuche es erneut.',
                   ),
                 ),
-              )
-            : null,
+                actions: [
+                  TextButton(
+                    onPressed: _settings.dismissError,
+                    child: Text(sharedText(context, 'Dismiss', 'Schließen')),
+                  ),
+                ],
+              ),
+            Expanded(
+              child: kIsWeb
+                  ? Navigator(
+                      key: _webNavigator,
+                      reportsRouteUpdateToEngine: false,
+                      observers: [_browserBack],
+                      onGenerateRoute: (_) => MaterialPageRoute<void>(
+                        builder: (_) => ConstrainedPageWidth(
+                          maxWidth: 960,
+                          child: SharedCareHome(api: widget.api),
+                        ),
+                      ),
+                    )
+                  : child!,
+            ),
+          ],
+        ),
         onGenerateTitle: (context) => context.l10n.appTitle,
         locale: _settings.language.locale,
         supportedLocales: supportedAppLocales,

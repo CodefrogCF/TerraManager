@@ -16,6 +16,8 @@ import '../features/backup/infrastructure/backup_file_service.dart';
 import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
+import 'shared_duplicate_dialog.dart';
+import 'shared_legacy_backup_dialog.dart';
 import 'accounts/presentation/pages/shared_accounts_section.dart';
 import 'audit/shared_audit_section.dart';
 import 'media/application/shared_overview_image_cache.dart';
@@ -515,16 +517,13 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
           if (mounted) _showChangeFailure(context);
         }
       case _BoxAction.duplicate:
-        final name = await askSharedName(
+        final saved = await showSharedDuplicateDialog(
           context,
-          title: context.l10n.duplicateBox,
-          initial: (box['name'] as String?) ?? '',
+          api: widget.api,
+          change: widget.change,
+          source: box,
         );
-        if (name == null) return;
-        final saved = await widget.change(() async {
-          await widget.api.duplicateBox(id, name);
-        });
-        if (!saved && mounted) _showChangeFailure(context);
+        if (saved == true && mounted) await _reload();
       case _BoxAction.archive:
         final choice = await showArchiveDialog(
           context,
@@ -1073,18 +1072,14 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         });
         if (!saved && mounted) _showChangeFailure(context);
       case _AnimalAction.duplicate:
-        final destination = await selectActiveBox(context, widget.boxes);
-        if (destination == null || !mounted) return;
-        final name = await askSharedName(
+        final saved = await showSharedDuplicateDialog(
           context,
-          title: context.l10n.duplicateAnimal,
-          initial: (animal['commonName'] as String?) ?? '',
+          api: widget.api,
+          change: widget.change,
+          source: animal,
+          boxes: widget.boxes,
         );
-        if (name == null) return;
-        final saved = await widget.change(() async {
-          await widget.api.duplicateAnimal(id, destination, name);
-        });
-        if (!saved && mounted) _showChangeFailure(context);
+        if (saved == true && mounted) await _reload();
       case _AnimalAction.restore:
         final destination = await selectActiveBox(context, widget.boxes);
         if (destination == null || !mounted) return;
@@ -1541,7 +1536,10 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                           title: Text(context.l10n.nextFeeding),
                           subtitle: Text(
                             context.l10n.nextFeedingSummaryForAnimal(
-                              animalLabel(nextReminder.animal),
+                              animalLabel(
+                                nextReminder.animal,
+                                order: settings.animalNameOrder,
+                              ),
                               _reminderDate(nextReminder.dueAt),
                             ),
                           ),
@@ -2038,10 +2036,20 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         );
         return;
       }
-      final validated = BackupValidationService(
+      var validated = BackupValidationService(
         maxExpandedBytes: 512 * 1024 * 1024,
       ).validate(picked.bytes);
       if (!mounted) return;
+      String? legacyTimeZone;
+      if (validated.hasLegacyTimestamps) {
+        legacyTimeZone = await selectLegacyBackupTimeZone(context);
+        if (legacyTimeZone == null || !mounted) return;
+        validated = BackupValidationService(
+          maxExpandedBytes: 512 * 1024 * 1024,
+          legacyTimeZone: legacyTimeZone,
+          requireLegacyTimeZone: true,
+        ).validate(picked.bytes);
+      }
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
@@ -2057,12 +2065,12 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
               dialogContext,
               'The selected backup contains ${validated.boxCount} Boxes and '
                   '${validated.animalCount} Animals. All current shared records '
-                  'and pictures will be replaced. Browser preferences and '
+                  'and pictures will be replaced. Account preferences and '
                   'caregiver accounts remain unchanged. '
                   '${requiresSafety ? 'A current safety backup protects the existing collection.' : 'The server confirmed an empty collection; no safety backup is needed. This is checked again before replacement.'}',
               'Die Sicherung enthält ${validated.boxCount} Boxen und '
                   '${validated.animalCount} Tiere. Alle aktuellen gemeinsamen '
-                  'Einträge und Bilder werden ersetzt. Browser-Einstellungen '
+                  'Einträge und Bilder werden ersetzt. Kontoeinstellungen '
                   'und Betreuungskonten bleiben unverändert. '
                   '${requiresSafety ? 'Eine aktuelle Sicherheitskopie schützt die bestehende Sammlung.' : 'Der Server hat eine leere Sammlung bestätigt; eine Sicherheitskopie ist nicht erforderlich. Dies wird vor dem Ersetzen erneut geprüft.'}',
             ),
@@ -2087,7 +2095,11 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         ),
       );
       if (confirmed != true || !mounted) return;
-      await widget.api.restoreBackup(picked.bytes, token);
+      await widget.api.restoreBackup(
+        picked.bytes,
+        token,
+        legacyTimeZone: legacyTimeZone,
+      );
       if (!mounted) return;
       setState(() => _safetyToken = null);
       await widget.onRestored();
@@ -2137,7 +2149,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
           sharedText(
             context,
             'Exports all shared records and pictures. Personal browser settings and caregiver accounts are excluded.',
-            'Exportiert alle gemeinsamen Einträge und Bilder. Persönliche Browser-Einstellungen und Betreuungskonten sind ausgenommen.',
+            'Exportiert alle gemeinsamen Einträge und Bilder. Persönliche Kontoeinstellungen und Betreuungskonten sind ausgenommen.',
           ),
         ),
         trailing: const Icon(Icons.chevron_right),

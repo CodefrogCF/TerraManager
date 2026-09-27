@@ -237,6 +237,8 @@ de:
         body: Administratoren öffnen Einstellungen → Server → Konten verwalten, um Benutzer hinzuzufügen, Namen und Rollen zu ändern, Passwörter zurückzusetzen, Konten zu deaktivieren oder zu reaktivieren und eine endgültige Löschung zu bestätigen. Änderungen melden den betroffenen Benutzer auf allen Geräten ab. Der letzte aktive Administrator kann nicht herabgestuft, deaktiviert oder gelöscht werden. Eine Kontolöschung erhält die Sammlung und bisherige Audit-Einträge.
       - title: Lokale Nachvollziehbarkeit
         body: Der Server des Betreibers protokolliert, wer wann gemeinsame Sammlungsdaten oder Konten geändert hat und welche Einträge betroffen waren. Notizen, Bilder und Zugangsdaten werden nicht in das Änderungsprotokoll kopiert. Einträge bleiben 365 Tage erhalten, auch nach einer Kontolöschung, und werden durch eine portable Wiederherstellung nicht ersetzt.
+      - title: Audit-Verlauf prüfen
+        body: Administratoren öffnen Einstellungen → Gemeinsamer Server → Audit → Letzte Ereignisse ansehen. Der Verlauf zeigt Benutzer, lokale Uhrzeit, Aktion und betroffene Datensatz-ID, neueste Ereignisse zuerst. Filtere nach Datumsbereich, Benutzername oder Aktion; mit Zurück und Weiter wechselst du die Seite. Aktualisieren zeigt wieder die neuesten Ereignisse. Betreuungskonten können diesen Verlauf nicht öffnen. Ohne Ereignisse oder passende Filtertreffer erscheint ein eindeutiger Leerzustand.
     note: Die portable Shared-Care-Sicherung enthält die Sammlung, aber keine Serverkonten. Für eine vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden. Der native Android-Modus bleibt eigenständig und benötigt keine zusätzlichen Netzwerkberechtigungen.
     setup: Einrichtung und Betrieb des eigenen Servers
   finish:
@@ -488,6 +490,8 @@ en:
         body: Administrators open Settings → Server → Manage accounts to add users, edit names and roles, reset passwords, deactivate or reactivate accounts and confirm permanent removal. Changes sign the affected user out on all devices. The last active administrator cannot be demoted, deactivated or removed. Removing an account preserves the collection and past audit entries.
       - title: Local accountability
         body: The operator's server records who changed shared collection data or accounts, when, and which records were affected. Notes, images and credentials are not copied into this audit log. Entries remain for 365 days, including after account removal, and survive portable backup restore.
+      - title: Review audit history
+        body: Administrators open Settings → Shared server → Audit → View recent events. History shows the actor, local time, action and affected record ID, newest first. Filter by date range, actor name or action and use Previous/Next to change pages. Refresh returns to the latest events. Caregiver accounts cannot open this history. An empty history or a filter without matches displays an explicit empty state.
       - title: Export Box QR codes
         body: In Settings → Box QR codes, select active and archived Boxes to save individual PNG files, a ZIP or an A4 PDF. A checklist opens before every export; the PDF offers a 6–20 mm code-size slider. Files are generated directly in the browser.
     note: A portable Shared Care backup contains the collection but not server accounts. Full server recovery also requires a backup of both databases in the server data directory. Native Android mode stays standalone and needs no additional network permission.

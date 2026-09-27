@@ -8,6 +8,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
 
 import 'audit_event.dart';
+import 'audit_query.dart';
 
 enum CareRole { administrator, caregiver }
 
@@ -98,6 +99,7 @@ class AccountStore {
       );
       db.execute(auditTableSql);
       db.execute(auditIndexSql);
+      db.execute(auditReadIndexSql);
       db.execute('DELETE FROM shared_audit_events WHERE occurred_at < ?', [
         DateTime.now().toUtc().subtract(auditRetention).toIso8601String(),
       ]);
@@ -109,6 +111,11 @@ class AccountStore {
   }
 
   void close() => _db.close();
+
+  List<Map<String, Object?>> readAudit(AuditQuery query) => [
+    for (final row in _db.select(query.sql, query.values('account')))
+      auditMetadata(row, 'account'),
+  ];
 
   bool get hasAccounts =>
       (_db.select('SELECT COUNT(*) AS n FROM accounts').single['n'] as int) > 0;

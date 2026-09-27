@@ -15,6 +15,15 @@ server.
 
 ## Host and network preparation
 
+Administrators can review recent collection and account changes under
+Settings > Shared server > Audit. Filter by local date range, actor name or
+action and use Previous/Next for older events. Only metadata is shown, without
+private notes or credentials. Refresh returns to the latest events. History
+uses the existing 365-day retention and includes initial administrator setup;
+an empty history or a filter without matches displays an explicit empty state.
+Caregivers cannot access this page or its API. Deploy both the updated server
+and the Shared Web build to enable the viewer.
+
 Use a Raspberry Pi running 64-bit Raspberry Pi OS, with Docker Engine and the
 Docker Compose plugin installed. Reserve a stable LAN address for the Pi in
 the router or configure a static address. Give it a hostname that every

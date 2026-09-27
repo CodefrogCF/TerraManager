@@ -1990,3 +1990,43 @@ Successful mutations and their audit records commit together.
 - historical host backups remain subject to operator retention
 - no standalone schema or portable backup format change is required
 - no additional Android permission or external service is required
+
+---
+
+## ADR-034: Read administrator audit metadata with bounded merged pagination
+
+**Status:** Accepted
+
+**Date:** 2026-09-27
+
+### Context
+
+Issue #179 adds an administrator viewer for the collection and account audit
+streams introduced in Issue #177. Reading history must preserve account
+attribution after deletion and avoid exposing collection payloads, credentials
+or private notes. The interface must fit both phones and desktop browsers.
+
+### Decision
+
+An Audit subsection in Shared server Settings opens a read-only page with
+localized actor, time, action, target and outcome metadata. Local date ranges,
+literal actor-name matching and operation filters run on the server. The
+existing session/administrator checks protect the API independently of UI
+visibility. Failed authorization hides previously loaded events.
+
+Each database returns at most one page plus one lookahead row. A timestamp,
+source and event-ID cursor merges these bounded streams newest first and
+avoids offset shifts when new events arrive. A normalized timestamp expression
+and index preserve ordering across millisecond and microsecond precision.
+Only allowlisted audit columns are selected; account/collection payloads are
+never joined. Existing retention remains enforced, with no audit writes for
+viewer reads and no standalone schema or portable backup changes.
+
+### Consequences
+
+- caregivers cannot read history through the UI or direct API requests
+- filtered history and pagination do not download the complete audit log
+- timestamps and actor names reflect the original event, even after renames
+- record IDs describe the state at event time; collection restore is a boundary
+- no-event, no-match, loading, retry and access-denied states are explicit
+- both Shared Web and the server must be updated for the new endpoint

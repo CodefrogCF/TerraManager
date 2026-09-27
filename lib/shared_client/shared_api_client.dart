@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import 'audit/shared_audit_models.dart';
+
 /// The shared client deliberately holds no collection data on disk.
 class SharedApiClient extends ChangeNotifier {
   SharedApiClient(this.origin, this._client) {
@@ -66,6 +68,44 @@ class SharedApiClient extends ChangeNotifier {
 
   Future<List<Map<String, dynamic>>> accounts() async =>
       _list(await _request('GET', '/api/v1/admin/accounts'), 'accounts');
+
+  Future<SharedAuditPage> auditEvents({
+    String? cursor,
+    String? actor,
+    String? action,
+    DateTime? from,
+    DateTime? until,
+    int limit = 20,
+  }) async {
+    if (_session?.role != 'administrator') {
+      throw const SharedApiException(
+        403,
+        'forbidden',
+        'Administrator access required.',
+      );
+    }
+    final path = Uri(
+      path: '/api/v1/admin/audit',
+      queryParameters: {
+        'limit': '$limit',
+        'cursor': ?cursor,
+        if (actor != null && actor.trim().isNotEmpty) 'actor': actor.trim(),
+        'action': ?action,
+        if (from != null) 'from': from.toUtc().toIso8601String(),
+        if (until != null) 'until': until.toUtc().toIso8601String(),
+      },
+    ).toString();
+    final json = await _request('GET', path);
+    try {
+      return SharedAuditPage.fromJson(json);
+    } catch (_) {
+      throw const SharedApiException(
+        200,
+        'invalid_response',
+        'The server returned invalid audit metadata.',
+      );
+    }
+  }
 
   Future<Map<String, dynamic>> createAccount(
     String username,

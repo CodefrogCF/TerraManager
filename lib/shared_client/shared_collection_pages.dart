@@ -17,6 +17,7 @@ import '../l10n/app_localizations_context.dart';
 import '../l10n/app_localizations_labels.dart';
 import 'shared_api_client.dart';
 import 'accounts/presentation/pages/shared_accounts_section.dart';
+import 'audit/shared_audit_section.dart';
 import 'media/application/shared_overview_image_cache.dart';
 import 'shared_box_qr_export.dart';
 import 'shared_box_scanner_page.dart';
@@ -1919,6 +1920,10 @@ class SharedSettingsPage extends StatelessWidget {
             const Divider(),
             const SizedBox(height: 24),
             SharedAccountsSection(api: api),
+            const SizedBox(height: 24),
+            const Divider(),
+            const SizedBox(height: 24),
+            SharedAuditSection(api: api, enabled: actionsEnabled),
           ],
           const SizedBox(height: 24),
           const Divider(),

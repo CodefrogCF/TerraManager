@@ -275,6 +275,47 @@ password hashes, passwords, CSRF values, session tokens or idempotency keys.
 
 Audit metadata is pruned after 365 days at startup and on new audit writes.
 Account deactivation/removal does not cascade into these rows. Unauthorized and
-CSRF-denied requests are not collection-change audit entries. The administrator
-viewer and its read-only endpoints are separate work in Issue #179; this change
-does not expose a new public audit API.
+CSRF-denied requests are not collection-change audit entries.
+
+### Administrator audit viewer (Issue #179)
+
+Settings > Shared server > Audit opens the read-only event viewer for
+administrators. Caregivers do not see this subsection. The server independently
+checks the current session and role on every `GET /api/v1/admin/audit` request;
+missing/revoked sessions receive 401 and caregivers receive 403. Responses use
+`Cache-Control: no-store`. Reading the log does not create another audit event.
+
+The endpoint merges the collection and account streams, newest first, with
+timestamp, source and event ID as deterministic ordering keys. Each source
+loads at most `limit + 1` rows. The response is
+`{"events": [...], "nextCursor": "..." | null}`. Events contain only `id`,
+`source` (`collection` or `account`), `occurredAt`, `actorId`, `actorName`,
+`actorRole`, `action`, `recordType`, `recordId`, `outcome`, and `statusCode`.
+No record payload, note, password, hash, session value or filename is joined
+into the response. Deleted accounts retain their original attribution.
+
+Optional query parameters:
+
+| Parameter | Meaning |
+| --- | --- |
+| `limit` | Page size, default 20, between 1 and 100 |
+| `cursor` | Opaque `nextCursor` from the previous page; keep the same filters |
+| `from` | Inclusive UTC timestamp in Dart ISO format, e.g. `2026-09-27T00:00:00.000Z` |
+| `until` | Exclusive UTC timestamp in the same format |
+| `actor` | Literal case-insensitive substring of the actor name snapshot, 1–64 characters |
+| `action` | Operation: `create`, `update`, `delete`, `archive`, `restore`, `duplicate`, `move`, `feeding-reminder`, or `set_primary` |
+
+Unknown/repeated parameters, invalid dates/ranges, actions, page sizes and
+malformed cursors receive 400. Queries always exclude expired audit metadata.
+The UI accepts inclusive local calendar dates and converts their boundaries
+to UTC, including the day after the end date. Times are displayed locally.
+Actor matching uses names at event time, so historical events keep their old
+names after a rename; stable actor identifiers remain in the API metadata.
+
+Seek pagination avoids offset shifts when newer events arrive. Previous
+reuses the stored page cursor; Refresh and applying/resetting filters start at
+the newest page. Events may age out under the existing retention policy.
+The empty state distinguishes no retained events from no filter matches.
+Initial administrator creation is already an account event and can therefore
+appear on a newly bootstrapped server. Loading, retry and denied-access states
+hide stale results; a rejected administrator request hides the viewer.

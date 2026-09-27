@@ -10,6 +10,7 @@ import '../core/database/app_database.dart';
 import '../features/backup/application/backup_validation_exception.dart';
 import 'account_store.dart';
 import 'audit_event.dart';
+import 'audit_query.dart';
 import 'collection_audit_log.dart';
 import 'api_input.dart';
 import 'care_api.dart';
@@ -299,6 +300,21 @@ class SharedServerApi {
 
   Future<void> _admin(HttpRequest request, CareSession current) async {
     final parts = request.uri.pathSegments;
+    if (parts.length == 4 && parts[3] == 'audit' && request.method == 'GET') {
+      final query = AuditQuery.parse(request.uri);
+      // Stay out of collection replacement transactions, just like care reads.
+      if (_gate.exclusive) {
+        throw const ApiProblem(
+          503,
+          'restore_in_progress',
+          'The shared collection is temporarily unavailable.',
+        );
+      }
+      final events = await CollectionAuditLog(_database).read(query);
+      events.addAll(accounts.readAudit(query));
+      await _send(request.response, 200, auditPage(events, query.limit));
+      return;
+    }
     if (parts.length == 5 &&
         parts[3] == 'backups' &&
         parts[4] == 'restore-status' &&

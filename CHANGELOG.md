@@ -8,6 +8,9 @@ The project uses semantic versioning.
 
 ### Added
 
+- add an administrator-only Audit viewer under Shared server Settings with
+  merged collection/account events, date/name/action filters, seek pagination,
+  localized empty/error states and responsive layouts — Issue #179
 - add the Shared Care Manage accounts screen with username/role editing,
   optional password reset, deactivation/reactivation and confirmed removal —
   Issue #178

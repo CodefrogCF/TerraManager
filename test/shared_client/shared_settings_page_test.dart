@@ -96,6 +96,12 @@ void main() {
     );
     expect(tester.takeException(), isNull);
 
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('shared-audit-section-heading')),
+      200,
+    );
+    expect(find.byKey(const Key('shared-view-audit')), findsOneWidget);
+
     await tester.pumpWidget(page('caregiver'));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
@@ -103,6 +109,8 @@ void main() {
       500,
     );
     expect(find.byKey(const Key('shared-create-backup-button')), findsNothing);
+    expect(find.byKey(const Key('shared-audit-section-heading')), findsNothing);
+    expect(find.byKey(const Key('shared-view-audit')), findsNothing);
     expect(tester.takeException(), isNull);
   });
   testWidgets(

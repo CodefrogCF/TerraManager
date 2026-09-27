@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
+import 'package:terramanager/core/database/repositories/animal_weight_repository.dart';
+import 'package:terramanager/core/database/repositories/shedding_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
@@ -166,6 +168,89 @@ void main() {
       );
     },
   );
+
+  test('caregiver visibility changes persist through other sessions and backup restore without changing history', () async {
+    final box = await BoxRepository(db).createBoxWithGeneratedQrId();
+    final id = await AnimalRepository(db).createAnimal(
+      boxId: box,
+      commonName: 'Animal',
+      latinName: 'Species',
+      tempMin: 20,
+      tempMax: 30,
+      humidityMin: 40,
+      humidityMax: 60,
+    );
+    await AnimalWeightRepository(db).add(
+      animalId: id,
+      weightGrams: 12.5,
+      measuredAt: DateTime.utc(2026, 7, 1, 17),
+    );
+    await SheddingRepository(db).add(
+      animalId: id,
+      shedAt: DateTime.utc(2026, 7, 2, 17),
+      notes: 'Keep history',
+    );
+    final beforeWeight = (await call('GET', '/api/v1/animals/$id/weights')).$2;
+    final beforeShedding = (await call(
+      'GET',
+      '/api/v1/animals/$id/shedding',
+    )).$2;
+    Future<int> setVisibility(Object weight, bool shedding) async {
+      final current =
+          (await call('GET', '/api/v1/animals/$id')).$2['animal'] as Map;
+      return (await call(
+        'PUT',
+        '/api/v1/animals/$id',
+        session: caregiver,
+        body: {
+          'boxId': box,
+          'commonName': 'Animal',
+          'latinName': 'Species',
+          'category': 'other',
+          'tempMin': 20,
+          'tempMax': 30,
+          'humidityMin': 40,
+          'humidityMax': 60,
+          'showWeightOnDetail': weight,
+          'showSheddingOnDetail': shedding,
+          'expectedRevision': current['revision'],
+        },
+      )).$1;
+    }
+
+    expect(await setVisibility(false, false), 200);
+    final hidden =
+        (await call(
+              'GET',
+              '/api/v1/animals/$id',
+              session: accounts.createSession(admin.account),
+            )).$2['animal']
+            as Map;
+    expect(hidden['showWeightOnDetail'], isFalse);
+    expect(hidden['showSheddingOnDetail'], isFalse);
+    final backups = SharedPortableBackups(db);
+    await backups.restore(backups.validate((await backups.export()).bytes));
+    final restored =
+        (await call('GET', '/api/v1/animals/$id')).$2['animal'] as Map;
+    expect(restored['showWeightOnDetail'], isFalse);
+    expect(restored['showSheddingOnDetail'], isFalse);
+    expect((await call('GET', '/api/v1/animals/$id/weights')).$2, beforeWeight);
+    expect(
+      (await call('GET', '/api/v1/animals/$id/shedding')).$2,
+      beforeShedding,
+    );
+    expect(await setVisibility('invalid', true), 400);
+    expect(await setVisibility(true, true), 200);
+    expect((await call('GET', '/api/v1/animals/$id/weights')).$2, beforeWeight);
+    expect(
+      (await call('GET', '/api/v1/animals/$id/shedding')).$2,
+      beforeShedding,
+    );
+    final shown =
+        (await call('GET', '/api/v1/animals/$id')).$2['animal'] as Map;
+    expect(shown['showWeightOnDetail'], isTrue);
+    expect(shown['showSheddingOnDetail'], isTrue);
+  });
 
   test('preferences belong to accounts, survive sessions and reject foreign fields', () async {
     expect(

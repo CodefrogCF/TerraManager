@@ -16,6 +16,7 @@ import '../../../../core/database/validation/animal_environmental_limits.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
+import '../../../boxes/presentation/pages/box_scanner_page.dart';
 import '../../../feedings/presentation/widgets/feeding_reminder_form_fields.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
@@ -81,6 +82,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   bool _loading = true;
   bool _saving = false;
   bool _processingPicture = false;
+  bool _scanning = false;
 
   String? _loadError;
   String? _saveError;
@@ -135,6 +137,42 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         _loading = false;
         _loadError = context.l10n.failedToLoadBoxes;
       });
+    }
+  }
+
+  Future<void> _openBoxSelectionScanner() async {
+    if (_saving || _processingPicture || _loading || _scanning) return;
+    setState(() => _scanning = true);
+    try {
+      await Navigator.of(context).push<bool>(
+        MaterialPageRoute(
+          builder: (_) => BoxScannerPage(
+            database: widget.database,
+            title: context.l10n.scanBoxTitle,
+            onBoxScanned: (box) async {
+              final boxes = await BoxRepository(widget.database)
+                  .getActiveBoxes();
+              if (!mounted) return false;
+              if (!boxes.any((candidate) => candidate.id == box.id)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.l10n.boxUnavailableForAssignment),
+                  ),
+                );
+                return false;
+              }
+              setState(() {
+                _boxes = boxes;
+                _boxId = box.id;
+                _saveError = null;
+              });
+              return true;
+            },
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _scanning = false);
     }
   }
 
@@ -374,34 +412,46 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
             ),
             const SizedBox(height: 24),
 
-            DropdownButtonFormField<int>(
-              key: const Key('box-field'),
-              initialValue: _boxId,
-              decoration: InputDecoration(
-                labelText: context.l10n.associatedBox,
-              ),
-              items: _boxes
-                  .map(
-                    (box) => DropdownMenuItem<int>(
-                      value: box.id,
-                      child: Text(boxSelectionLabel(context.l10n, box)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    key: const Key('box-field'),
+                    isExpanded: true,
+                    initialValue: _boxId,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.associatedBox,
                     ),
-                  )
-                  .toList(),
-              onChanged: _saving
-                  ? null
-                  : (value) {
-                      setState(() {
-                        _boxId = value;
-                      });
-                    },
-              validator: (value) {
-                if (value == null) {
-                  return context.l10n.pleaseSelectBox;
-                }
-
-                return null;
-              },
+                    items: _boxes
+                        .map(
+                          (box) => DropdownMenuItem<int>(
+                            value: box.id,
+                            child: Text(
+                              boxSelectionLabel(context.l10n, box),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: _saving
+                        ? null
+                        : (value) => setState(() => _boxId = value),
+                    validator: (value) =>
+                        value == null ? context.l10n.pleaseSelectBox : null,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  key: const Key('new-animal-scan-box-button'),
+                  onPressed: _saving || _processingPicture || _scanning
+                      ? null
+                      : _openBoxSelectionScanner,
+                  icon: const Icon(Icons.qr_code_scanner),
+                  tooltip: context.l10n.scanNewBox,
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 

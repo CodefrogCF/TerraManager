@@ -231,17 +231,9 @@ List<Object> sharedAnimalOverviewRows(
   return rows;
 }
 
-enum _BoxAction { details, rename, edit, duplicate, archive, restore }
+enum _BoxAction { details, edit, duplicate, archive, restore }
 
-enum _AnimalAction {
-  details,
-  feeding,
-  rename,
-  edit,
-  archive,
-  duplicate,
-  restore,
-}
+enum _AnimalAction { details, feeding, edit, archive, duplicate, restore }
 
 PopupMenuItem<T> _menuItem<T>(T value, IconData icon, String label) =>
     PopupMenuItem<T>(
@@ -486,19 +478,6 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
     switch (action) {
       case _BoxAction.details:
         return;
-      case _BoxAction.rename:
-        final name = await askSharedName(
-          context,
-          title: context.l10n.renameBox,
-          initial: (box['name'] as String?) ?? '',
-        );
-        if (name == null) return;
-        final saved = await widget.change(() async {
-          await widget.api.updateBox(id, {
-            'name': name,
-          }, box['revision'] as String);
-        });
-        if (!saved && mounted) _showChangeFailure(context);
       case _BoxAction.edit:
         try {
           final current = await widget.api.box(id);
@@ -547,11 +526,6 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
       _BoxAction.details,
       Icons.open_in_new_outlined,
       sharedText(context, 'Open details', 'Details öffnen'),
-    ),
-    _menuItem(
-      _BoxAction.rename,
-      Icons.drive_file_rename_outline,
-      context.l10n.renameBox,
     ),
     _menuItem(_BoxAction.edit, Icons.edit_outlined, context.l10n.editBox),
     _menuItem(
@@ -1025,24 +999,6 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
             ),
           ),
         );
-      case _AnimalAction.rename:
-        final name = await askSharedName(
-          context,
-          title: context.l10n.renameAnimal,
-          initial: (animal['commonName'] as String?) ?? '',
-        );
-        if (name == null) return;
-        final saved = await widget.change(() async {
-          // PUT accepts a complete Animal command. Preserve every editable
-          // field while changing only the common name.
-          final current = await widget.api.animal(id);
-          await widget.api.updateAnimal(
-            id,
-            sharedAnimalUpdateValues(current, name),
-            current['revision'] as String,
-          );
-        });
-        if (!saved && mounted) _showChangeFailure(context);
       case _AnimalAction.edit:
         try {
           final current = await widget.api.animal(id);
@@ -1100,11 +1056,6 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
       _AnimalAction.feeding,
       Icons.restaurant_outlined,
       context.l10n.createFeeding,
-    ),
-    _menuItem(
-      _AnimalAction.rename,
-      Icons.drive_file_rename_outline,
-      context.l10n.renameAnimal,
     ),
     _menuItem(_AnimalAction.edit, Icons.edit_outlined, context.l10n.editAnimal),
     _menuItem(

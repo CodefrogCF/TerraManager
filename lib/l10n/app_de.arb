@@ -675,5 +675,18 @@
   },
   "rehouseAnimalAction": "Tier umsetzen",
   "animalAlreadyInBox": "Dieses Tier ist bereits der gescannten Box zugewiesen.",
-  "failedToRehouseAnimal": "Tier konnte nicht umgesetzt werden."
+  "failedToRehouseAnimal": "Tier konnte nicht umgesetzt werden.",
+  "previousPicture": "Vorheriges Bild",
+  "nextPicture": "Nächstes Bild",
+  "picturePosition": "{index} von {count}",
+  "@picturePosition": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

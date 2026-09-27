@@ -837,6 +837,16 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               key: const Key('animal-picture'),
               pictureBytes: pictureSnapshot.data?.data,
               picturePath: animal.picturePath,
+              onOpen: pictureSnapshot.data == null
+                  ? null
+                  : () => openStoredPictureGalleryViewer(
+                      context,
+                      database: widget.database,
+                      owner: PictureGalleryOwner.animal,
+                      ownerId: animal.id,
+                      selectedMediaId: animal.pictureMediaId,
+                      fallbackBytes: pictureSnapshot.data!.data,
+                    ),
             );
           },
         ),

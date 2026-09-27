@@ -819,5 +819,18 @@
   },
   "rehouseAnimalAction": "Move Animal",
   "animalAlreadyInBox": "This Animal is already assigned to the scanned Box.",
-  "failedToRehouseAnimal": "Failed to move Animal."
+  "failedToRehouseAnimal": "Failed to move Animal.",
+  "previousPicture": "Previous picture",
+  "nextPicture": "Next picture",
+  "picturePosition": "{index} of {count}",
+  "@picturePosition": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

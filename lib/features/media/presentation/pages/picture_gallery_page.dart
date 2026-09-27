@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -10,6 +12,45 @@ import '../widgets/picture_selection_controls.dart';
 import 'full_screen_image_page.dart';
 
 enum PictureGalleryOwner { animal, box }
+
+/// Opens the ordered stored gallery at the selected primary/detail image.
+Future<void> openStoredPictureGalleryViewer(
+  BuildContext context, {
+  required AppDatabase database,
+  required PictureGalleryOwner owner,
+  required int ownerId,
+  required int? selectedMediaId,
+  required Uint8List fallbackBytes,
+}) async {
+  final title = owner == PictureGalleryOwner.animal
+      ? context.l10n.animalPicture
+      : context.l10n.boxPicture;
+  final repository = PictureGalleryRepository(database);
+  List<PictureGalleryEntry> pictures;
+  try {
+    pictures = owner == PictureGalleryOwner.animal
+        ? await repository.getAnimalPictures(ownerId)
+        : await repository.getBoxPictures(ownerId);
+  } catch (_) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(context.l10n.failedToLoadPictures)));
+    pictures = const [];
+  }
+  if (!context.mounted) return;
+  final selected = pictures.indexWhere(
+    (entry) => entry.media.id == selectedMediaId,
+  );
+  await FullScreenImagePage.openGallery(
+    context,
+    imageProviders: pictures.isEmpty
+        ? [MemoryImage(fallbackBytes)]
+        : [for (final picture in pictures) MemoryImage(picture.media.data)],
+    initialIndex: selected < 0 ? 0 : selected,
+    title: title,
+  );
+}
 
 class PictureGalleryPage extends StatefulWidget {
   const PictureGalleryPage({
@@ -338,9 +379,13 @@ class _PictureGalleryPageState extends State<PictureGalleryPage> {
                                   context,
                                   pictures[index].capturedAt,
                                 ),
-                                onOpen: () => FullScreenImagePage.open(
+                                onOpen: () => FullScreenImagePage.openGallery(
                                   context,
-                                  imageBytes: pictures[index].media.data,
+                                  imageProviders: [
+                                    for (final entry in pictures)
+                                      MemoryImage(entry.media.data),
+                                  ],
+                                  initialIndex: index,
                                   title: context.l10n.pictureGallery,
                                 ),
                                 onSetPrimary: () =>

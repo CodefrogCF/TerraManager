@@ -155,6 +155,35 @@ not fetch an external decoder. Trusted HTTPS is required on other LAN devices.
 The [deployment guide](shared-care-deployment.md) lists the full two-device,
 scanning and recovery checks still needed for a new installation.
 
+From v1.14.2, New Animal offers the same QR button beside the Box selector in
+standalone and Shared Care. Scanning selects an active Box and preserves the
+draft; cancelling leaves the selection unchanged. It does not create an Animal
+or move an existing one. Creation still requires an explicit, validated Save.
+Edit Animal retains the existing confirmed QR rehousing workflow.
+
+Shared Care Box and Animal context menus use Edit for name changes and have no
+separate Rename entry. Applicable Details, Duplicate, Archive, Feeding and
+Restore actions retain their existing permissions. Standalone menus are unchanged.
+Shared Care Edit Animal also exposes the existing independent Weight and
+Shedding visibility fields. These belong to the Animal and affect all users'
+detail views; they are not personal account preferences. Hiding either section
+preserves its history, and portable backups retain both visibility values.
+
+Shared Care Animal and Box uploads now use the standalone selection/cropping
+flow, including EXIF orientation normalization, free-form touch/pointer controls
+and WebP optimization. Cancelling does not upload or change existing pictures.
+The cropped/optimized result must meet the existing 8 MiB upload limit, and
+busy/error handling prevents duplicate submissions and false successful entries.
+
+Opening an Animal or Box primary/detail-gallery picture in either mode passes
+the same ordered gallery to the common fullscreen viewer at the selected index.
+Visible Previous/Next controls, arrow keys and one-finger horizontal swipes
+navigate without wrapping at the boundaries; the counter shows the current
+position. Swipes at normal scale navigate, while zoomed drags pan the current
+picture. Pinch zoom remains available, explicit navigation resets the new
+picture to normal scale, and a failed/loading image does not disable navigation.
+Closing the viewer preserves the underlying detail/gallery state.
+
 Administrators can download the complete shared collection as a portable
 `.tmbackup` and restore a compatible archive after saving a current safety
 copy and confirming replacement. Only a genuinely empty server collection may
@@ -181,7 +210,7 @@ Events commit with the change, preserve actor attribution after deactivation or
 removal, and survive portable restore. They contain no notes, pictures or
 credentials. Audit entries are retained for 365 days; protected host-volume
 backups include them and portable backups exclude them. The administrator
-viewer is planned separately. Browser Back returns through detail, scanner
+viewer is available to administrators in Shared server Settings. Browser Back returns through detail, scanner
 and dialog routes; the standalone database remains separate.
 
 There is no developer-operated cloud synchronization.

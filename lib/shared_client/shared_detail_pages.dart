@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../features/media/presentation/picture_selection_flow.dart';
+
 import 'package:intl/intl.dart';
 
 import '../core/presentation/widgets/responsive_picture_frame.dart';
@@ -1546,7 +1549,9 @@ class SharedPictureGallery extends StatefulWidget {
     required this.active,
     required this.change,
     required this.onChanged,
+    this.pictureSelectionFlow,
   });
+  final PictureSelectionFlow? pictureSelectionFlow;
   final SharedApiClient api;
   final String kind;
   final int recordId;
@@ -1560,11 +1565,20 @@ class SharedPictureGallery extends StatefulWidget {
 
 class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   late Future<List<Map<String, dynamic>>> _pictures;
+  late final PictureSelectionFlow _pictureSelectionFlow;
+  bool _adding = false;
 
-  void _openPicture(Map<String, dynamic> picture) {
-    FullScreenImagePage.openNetwork(
+  void _openPicture(
+    Map<String, dynamic> picture,
+    List<Map<String, dynamic>> pictures,
+  ) {
+    FullScreenImagePage.openGallery(
       context,
-      imageUrl: widget.api.mediaUrl(picture['mediaId'] as int),
+      imageProviders: [
+        for (final entry in pictures)
+          NetworkImage(widget.api.mediaUrl(entry['mediaId'] as int).toString()),
+      ],
+      initialIndex: pictures.indexOf(picture),
       title: widget.kind == 'boxes'
           ? context.l10n.boxPicture
           : context.l10n.animalPicture,
@@ -1575,35 +1589,46 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   void initState() {
     super.initState();
     _pictures = widget.api.pictures(widget.kind, widget.recordId);
+    _pictureSelectionFlow =
+        widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
   }
 
   void _reload() => setState(() {
     _pictures = widget.api.pictures(widget.kind, widget.recordId);
   });
 
+  void _uploadFailure([String? message]) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message ?? context.l10n.failedToAddPicture)),
+    );
+  }
+
   Future<void> _add() async {
+    if (_adding || !widget.active || !widget.api.connected) return;
+    setState(() => _adding = true);
     try {
-      final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-      if (picked == null) return;
-      final bytes = await picked.readAsBytes();
-      if (bytes.length > 8 * 1024 * 1024) {
-        if (mounted) _showFailure(context);
+      final picture = await _pictureSelectionFlow.selectAndCrop(
+        context: context,
+        source: ImageSource.gallery,
+      );
+      if (picture == null || !mounted) return;
+      if (picture.bytes.length > 8 * 1024 * 1024) {
+        _uploadFailure(
+          sharedText(
+            context,
+            'The cropped picture exceeds the 8 MiB upload limit.',
+            'Das zugeschnittene Bild überschreitet die Upload-Grenze von 8 MiB.',
+          ),
+        );
         return;
       }
-      final name = picked.name;
-      final lower = name.toLowerCase();
-      final mime = lower.endsWith('.png')
-          ? 'image/png'
-          : lower.endsWith('.webp')
-          ? 'image/webp'
-          : 'image/jpeg';
       final saved = await widget.change(() async {
         await widget.api.addPicture(
           widget.kind,
           widget.recordId,
-          name,
-          mime,
-          bytes,
+          picture.fileName,
+          picture.mimeType,
+          picture.bytes,
         );
       });
       if (!mounted) return;
@@ -1611,10 +1636,12 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
         _reload();
         widget.onChanged();
       } else {
-        _showFailure(context);
+        _uploadFailure();
       }
     } catch (_) {
-      if (mounted) _showFailure(context);
+      if (mounted) _uploadFailure();
+    } finally {
+      if (mounted) setState(() => _adding = false);
     }
   }
 
@@ -1622,6 +1649,7 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
     Map<String, dynamic> picture,
     String action,
   ) async {
+    if (_adding) return;
     final mediaId = picture['mediaId'] as int;
     if (action == 'delete' && !await confirmPermanentDeletion(context)) {
       return;
@@ -1685,7 +1713,9 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
                       : SystemMouseCursors.click,
                   child: GestureDetector(
                     key: const Key('shared-open-primary-picture'),
-                    onTap: primary == null ? null : () => _openPicture(primary),
+                    onTap: primary == null
+                        ? null
+                        : () => _openPicture(primary, pictures),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: ResponsivePictureFrame(
@@ -1753,7 +1783,8 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
                                         key: Key(
                                           'shared-open-gallery-picture-${picture['mediaId']}',
                                         ),
-                                        onTap: () => _openPicture(picture),
+                                        onTap: () =>
+                                            _openPicture(picture, pictures),
                                         child: Image.network(
                                           widget.api
                                               .mediaUrl(
@@ -1791,7 +1822,8 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
                                       top: 0,
                                       right: 0,
                                       child: PopupMenuButton<String>(
-                                        enabled: widget.api.connected,
+                                        enabled:
+                                            widget.api.connected && !_adding,
                                         onSelected: (action) =>
                                             _pictureAction(picture, action),
                                         itemBuilder: (context) => [
@@ -1835,8 +1867,15 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
               ),
               if (widget.active)
                 TextButton.icon(
-                  onPressed: widget.api.connected ? _add : null,
-                  icon: const Icon(Icons.add_photo_alternate_outlined),
+                  key: const Key('shared-add-gallery-picture'),
+                  onPressed: widget.api.connected && !_adding ? _add : null,
+                  icon: _adding
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.add_photo_alternate_outlined),
                   label: Text(
                     sharedText(context, 'Add picture', 'Bild hinzufügen'),
                   ),

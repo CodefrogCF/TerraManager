@@ -609,6 +609,16 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                       return BoxPicture(
                         key: const Key('box-detail-picture'),
                         pictureBytes: snapshot.data?.data,
+                        onOpen: snapshot.data == null
+                            ? null
+                            : () => openStoredPictureGalleryViewer(
+                                context,
+                                database: widget.database,
+                                owner: PictureGalleryOwner.box,
+                                ownerId: box.id,
+                                selectedMediaId: box.pictureMediaId,
+                                fallbackBytes: snapshot.data!.data,
+                              ),
                         emptyText: snapshot.hasError
                             ? context.l10n.imageUnavailable
                             : context.l10n.noPicture,

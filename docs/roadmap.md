@@ -1778,6 +1778,20 @@ filters and pagination in Shared server Settings.
 - [x] Respect active account name order and fallback in both compact and Big
   Picture Next Feeding summaries.
 
+## v1.14.2 — Animal workflow and media parity
+
+- [x] Select the New Animal's Box by QR in standalone and Shared Care without
+  saving, rehousing or losing the draft; keep manual selection and validation.
+- [x] Simplify Shared Care Box/Animal overview and archive context menus by
+  removing Rename; retain validated name changes through Edit and standalone menus.
+- [x] Crop Animal/Box pictures before Shared Care upload with the existing
+  standalone controls, orientation handling and cancellation; retain upload limits.
+- [x] Edit the Animal's independent Weight/Shedding detail visibility in Shared
+  Care without changing history, with shared persistence and backup compatibility.
+- [x] Navigate the ordered detail galleries in the common fullscreen viewer
+  using touch swipes, visible Previous/Next and keyboard arrows, with counters,
+  correct boundaries, isolated image failures and zoomed panning.
+
 ## Future Development
 
 Possible later development areas include:

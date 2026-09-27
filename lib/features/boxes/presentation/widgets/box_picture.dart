@@ -9,9 +9,16 @@ import '../../../media/presentation/pages/full_screen_image_page.dart';
 class BoxPicture extends StatelessWidget {
   final Uint8List? pictureBytes;
   final double? height;
+  final VoidCallback? onOpen;
   final String? emptyText;
 
-  const BoxPicture({super.key, this.pictureBytes, this.height, this.emptyText});
+  const BoxPicture({
+    super.key,
+    this.pictureBytes,
+    this.height,
+    this.emptyText,
+    this.onOpen,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +34,15 @@ class BoxPicture extends StatelessWidget {
         child: GestureDetector(
           key: const Key('open-box-picture-button'),
           behavior: HitTestBehavior.opaque,
-          onTap: () {
-            FullScreenImagePage.open(
-              context,
-              imageBytes: pictureBytes!,
-              title: context.l10n.boxPicture,
-            );
-          },
+          onTap:
+              onOpen ??
+              () {
+                FullScreenImagePage.open(
+                  context,
+                  imageBytes: pictureBytes!,
+                  title: context.l10n.boxPicture,
+                );
+              },
           child: ResponsivePictureFrame(
             height: height,
             child: ClipRRect(

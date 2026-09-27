@@ -22,6 +22,8 @@ The project uses semantic versioning.
 
 ### Changed
 
+- remove redundant Rename entries from Shared Care Box and Animal menus;
+  retain validated name changes through Edit and leave standalone menus intact
 - store all Shared Care personal appearance/display preferences per account
   in the server account database, with explicit defaults and isolation across
   login changes; preserve settings across browsers/devices and exclude them
@@ -30,6 +32,15 @@ The project uses semantic versioning.
 
 ### Added
 
+- add QR-based Box selection beside the New Animal dropdown in standalone
+  and Shared Care; preserve the draft and create only on explicit Save
+- reuse standalone picture cropping and orientation handling for Shared Care
+  Animal/Box uploads, with cancellation, upload limits and busy/error handling
+- expose independent Weight and Shedding detail-visibility controls in Shared
+  Care Edit Animal, retaining all history and existing backup fields
+- navigate ordered Animal/Box galleries in the common fullscreen viewer with
+  Previous/Next, keyboard arrows, position counters and horizontal swipes at
+  normal scale; preserve zoomed panning and per-picture failure isolation
 - add an administrator-only Audit viewer under Shared server Settings with
   merged collection/account events, date/name/action filters, seek pagination,
   localized empty/error states and responsive layouts — Issue #179

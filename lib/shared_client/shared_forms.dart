@@ -294,6 +294,8 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   Sex? _sex;
   DateTime? _birthDate;
   String? _birthAccuracy;
+  bool _showWeightOnDetail = true;
+  bool _showSheddingOnDetail = true;
   bool _reminderEnabled = false;
   DateTime? _reminderBaseline;
   bool _saving = false;
@@ -306,6 +308,8 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     _initial = widget.initial;
     _boxes = widget.boxes;
     final initial = widget.initial;
+    _showWeightOnDetail = initial?['showWeightOnDetail'] as bool? ?? true;
+    _showSheddingOnDetail = initial?['showSheddingOnDetail'] as bool? ?? true;
     final activeBoxes = _boxes.where((box) => box['status'] == 'active');
     _boxId =
         initial?['boxId'] as int? ??
@@ -380,7 +384,9 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         _category.name != initial['category'] ||
         _subcategory?.name != initial['subcategory'] ||
         _sex?.name != initial['sex'] ||
-        _birthAccuracy != initial['birthDateAccuracy']) {
+        _birthAccuracy != initial['birthDateAccuracy'] ||
+        _showWeightOnDetail != (initial['showWeightOnDetail'] ?? true) ||
+        _showSheddingOnDetail != (initial['showSheddingOnDetail'] ?? true)) {
       return true;
     }
     final originalBaseline = DateTime.tryParse(
@@ -407,6 +413,44 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       }
     }
     return false;
+  }
+
+  Future<void> _openBoxSelectionScanner() async {
+    if (_initial != null || _saving || !widget.api.connected) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => SharedBoxScannerPage(
+          api: widget.api,
+          boxes: _boxes,
+          animals: const [],
+          change: widget.change,
+          title: context.l10n.scanBoxTitle,
+          onBoxResolved: (scannerContext, box) async {
+            final boxes = await widget.api.boxes();
+            if (!mounted || !scannerContext.mounted) return null;
+            final id = recordId(box);
+            if (!boxes.any(
+              (candidate) =>
+                  candidate['status'] == 'active' && candidate['id'] == id,
+            )) {
+              ScaffoldMessenger.of(scannerContext).showSnackBar(
+                SnackBar(
+                  content: Text(context.l10n.boxUnavailableForAssignment),
+                ),
+              );
+              return false;
+            }
+            setState(() {
+              _boxes = boxes;
+              _boxId = id;
+              _error = null;
+            });
+            Navigator.of(scannerContext).pop();
+            return null;
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _openRehouseScanner() async {
@@ -584,8 +628,8 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       'feedingReminderBaseline': _reminderEnabled
           ? _reminderBaseline?.toUtc().toIso8601String()
           : null,
-      'showWeightOnDetail': _initial?['showWeightOnDetail'] ?? true,
-      'showSheddingOnDetail': _initial?['showSheddingOnDetail'] ?? true,
+      'showWeightOnDetail': _showWeightOnDetail,
+      'showSheddingOnDetail': _showSheddingOnDetail,
     };
     final saved = await widget.change(() async {
       if (_initial == null) {
@@ -635,6 +679,8 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       }
       setState(() {
         _initial = latest;
+        _showWeightOnDetail = latest['showWeightOnDetail'] as bool? ?? true;
+        _showSheddingOnDetail = latest['showSheddingOnDetail'] as bool? ?? true;
         _boxes = boxes;
         _boxId = latest['boxId'] as int?;
         _category = AnimalCategory.values.firstWhere(
@@ -751,13 +797,19 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                             : (value) => setState(() => _boxId = value),
                       ),
                     ),
-                    if (_initial != null) ...[
+                    ...[
                       const SizedBox(width: 8),
                       IconButton.filledTonal(
-                        key: const Key('shared-rehouse-scan-button'),
+                        key: Key(
+                          _initial == null
+                              ? 'shared-new-animal-scan-box-button'
+                              : 'shared-rehouse-scan-button',
+                        ),
                         tooltip: context.l10n.scanNewBox,
                         onPressed: widget.api.connected && !_saving && !_stale
-                            ? _openRehouseScanner
+                            ? (_initial == null
+                                  ? _openBoxSelectionScanner
+                                  : _openRehouseScanner)
                             : null,
                         icon: const Icon(Icons.qr_code_scanner),
                       ),
@@ -959,6 +1011,31 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                     ),
                   ],
                 ),
+                if (_initial != null) ...[
+                  SwitchListTile(
+                    key: const Key('shared-show-weight-on-detail'),
+                    title: Text(context.l10n.showWeightOnAnimalDetail),
+                    subtitle: Text(
+                      context.l10n.showWeightOnAnimalDetailDescription,
+                    ),
+                    value: _showWeightOnDetail,
+                    onChanged: !_saving && !_stale && widget.api.connected
+                        ? (value) => setState(() => _showWeightOnDetail = value)
+                        : null,
+                  ),
+                  SwitchListTile(
+                    key: const Key('shared-show-shedding-on-detail'),
+                    title: Text(context.l10n.showSheddingOnAnimalDetail),
+                    subtitle: Text(
+                      context.l10n.showSheddingOnAnimalDetailDescription,
+                    ),
+                    value: _showSheddingOnDetail,
+                    onChanged: !_saving && !_stale && widget.api.connected
+                        ? (value) =>
+                              setState(() => _showSheddingOnDetail = value)
+                        : null,
+                  ),
+                ],
                 if (_error != null)
                   Text(
                     _error!,

@@ -11,12 +11,14 @@ class AnimalPicture extends StatelessWidget {
   final String? picturePath;
   final Uint8List? pictureBytes;
   final double? height;
+  final VoidCallback? onOpen;
 
   const AnimalPicture({
     super.key,
     this.picturePath,
     this.pictureBytes,
     this.height,
+    this.onOpen,
   });
 
   @override
@@ -60,13 +62,15 @@ class AnimalPicture extends StatelessWidget {
         child: GestureDetector(
           key: const Key('open-animal-picture-button'),
           behavior: HitTestBehavior.opaque,
-          onTap: () {
-            FullScreenImagePage.open(
-              context,
-              imageBytes: imageBytes,
-              title: context.l10n.animalPicture,
-            );
-          },
+          onTap:
+              onOpen ??
+              () {
+                FullScreenImagePage.open(
+                  context,
+                  imageBytes: imageBytes,
+                  title: context.l10n.animalPicture,
+                );
+              },
           child: ResponsivePictureFrame(
             height: height,
             child: ClipRRect(

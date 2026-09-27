@@ -77,6 +77,11 @@ Repository-root documents remain authoritative for:
 - `CONTRIBUTING.md`
 - `LICENSE`
 
+When either root privacy policy changes, update the corresponding public page
+in `privacy/index.md` or `privacy/de/index.md` with the same document body and
+preserve its Jekyll front matter. The privacy synchronization test checks both
+languages.
+
 ### Release history and planning
 
 `CHANGELOG.md` records published changes.
@@ -105,6 +110,32 @@ Minor cosmetic changes do not automatically require replacement.
 Screenshots must not contain private user data.
 
 Keep filenames stable where practical to avoid broken references.
+
+## Store listing assets
+
+Keep the German and English Store descriptions, screenshots and editable
+sources together with the Android version they describe. The assets may be
+handed over in a separate Store package; this repository's release documentation
+must remain usable without that package being checked into the source tree.
+
+Prepared Store packages contain title, short-description and full-description
+text files in `listing/de-DE/` and `listing/en-US/`, with the corresponding
+numbered phone PNGs and localized alt text in `screenshots/de/` and
+`screenshots/en/`. Review the descriptions alongside the screenshots, using
+the package's `review.html` or contact sheet. Upload the individual phone PNGs
+in their numbered order.
+
+Use demonstration collections and images without private user data. Preserve
+editable captions, original captures and image sources so the assets can be
+refreshed after interface changes. Feature claims must match the Android build
+being distributed, including the distinction between standalone collections
+and separately hosted Shared Care with manual backup transfer.
+
+Before upload, recheck the current official Play Console text and image
+requirements. Coordinate the Store changes with the matching Android release.
+Verify the voluntary Settings link and browser fallback using the signed
+candidate on a physical phone; closed-test listing access requires an eligible
+tester account. Store publication remains a release-owner action.
 
 ## English and German alignment
 

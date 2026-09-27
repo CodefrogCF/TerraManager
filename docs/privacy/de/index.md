@@ -5,7 +5,7 @@ title: TerraManager Datenschutz
 
 # TerraManager Datenschutzerklärung
 
-**Gültig ab:** 26. September 2026
+**Gültig ab:** 27. September 2026
 **Anwendung:** TerraManager
 **Entwickler:** Codefrog
 **Datenschutz- und Supportkontakt:** Die aktuellen Kontakt- und Supportmöglichkeiten sind im TerraManager-Projektrepository aufgeführt.
@@ -71,6 +71,14 @@ Die Android-Produktionsversion fordert die Android-Berechtigung `INTERNET` nicht
 Dadurch kann die Android-Produktionsanwendung keine üblichen Netzwerkverbindungen verwenden, um TerraManager-Anwendungsdaten an TerraManager, den Entwickler, Werbedienste oder Analysedienste zu übertragen.
 
 TerraManager benötigt für seine üblichen Funktionen zur Sammlungsverwaltung keine Internetverbindung.
+
+Freiwillige Projekt-, Anleitungs-, Shared-Care- und Bewertungslinks öffnen erst
+nach Auswahl in den Einstellungen einen externen Browser oder Google Play.
+TerraManager übergibt mit dem Bewertungslink nur die öffentliche Store-Adresse,
+keine Sammlungsdaten, Kontoinformationen oder Gerätekennungen. Der externe
+Dienst kann die Verbindung nach seinen eigenen Datenschutzbedingungen
+verarbeiten. TerraManager zeigt keine automatische Bewertungsaufforderung, übermittelt oder
+überwacht sie nicht und ergänzt weder Analysedienste noch Netzwerkberechtigungen.
 
 ### Eigenständige Webanwendung
 

@@ -377,6 +377,68 @@ void main() {
     expect(completed, isTrue);
     expect(failure, isNull);
   });
+
+  testWidgets('picture upload stays pending beyond the ordinary 15 seconds', (
+    tester,
+  ) async {
+    final uploadResponse = Completer<http.Response>();
+    http.Request? uploadRequest;
+    final client = SharedApiClient(
+      Uri.parse(origin),
+      MockClient((request) async {
+        if (request.url.path == '/api/v1/auth/login') {
+          return http.Response(jsonEncode(session), 200);
+        }
+        uploadRequest = request;
+        return uploadResponse.future;
+      }),
+    );
+    addTearDown(client.close);
+    await client.login('hagen', 'secret password');
+
+    Map<String, dynamic>? result;
+    Object? failure;
+    unawaited(
+      client
+          .addPicture(
+            'boxes',
+            7,
+            'slow.png',
+            'image/png',
+            Uint8List.fromList([1, 2, 3]),
+            requestId: '12345678-1234-4123-8123-123456789abc',
+          )
+          .then<void>(
+            (value) {
+              result = value;
+            },
+            onError: (Object error) {
+              failure = error;
+            },
+          ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 16));
+    expect(result, isNull);
+    expect(failure, isNull);
+    expect(
+      uploadRequest!.headers['Idempotency-Key'],
+      '12345678-1234-4123-8123-123456789abc',
+    );
+
+    uploadResponse.complete(
+      http.Response(
+        jsonEncode({
+          'picture': {'mediaId': 27},
+        }),
+        201,
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+    expect(result?['mediaId'], 27);
+    expect(failure, isNull);
+  });
   test(
     'empty restore omits safety token but retains CSRF and confirmation',
     () async {

@@ -42,7 +42,11 @@ class MediaHandler {
         request,
         maxBytes: 12 * 1024 * 1024,
       );
-      return operations.boxCreate(box, input);
+      return operations.boxCreate(
+        box,
+        input,
+        request.headers.value('Idempotency-Key'),
+      );
     }
     if (path.length < 4) {
       return apiError(404, 'not_found', 'Unknown Box picture operation.');
@@ -74,7 +78,11 @@ class MediaHandler {
         request,
         maxBytes: 12 * 1024 * 1024,
       );
-      return operations.animalCreate(animal, input);
+      return operations.animalCreate(
+        animal,
+        input,
+        request.headers.value('Idempotency-Key'),
+      );
     }
     if (path.length < 4) {
       return apiError(404, 'not_found', 'Unknown Animal picture operation.');

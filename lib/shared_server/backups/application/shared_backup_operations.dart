@@ -7,6 +7,7 @@ import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/collection_audit_log.dart';
 import 'package:terramanager/shared_server/backups/application/shared_portable_backups.dart';
 import 'package:terramanager/shared_server/media/infrastructure/media_storage_policy.dart';
+import 'package:terramanager/shared_server/media/infrastructure/picture_upload_requests.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
 
@@ -19,6 +20,9 @@ class SharedBackupOperations {
     try {
       mediaCount = await _database.transaction(() async {
         final count = await _backups.restore(validated);
+        // A replacement collection can reuse numeric media IDs. Old upload
+        // receipts must not be replayed against pictures from the new one.
+        await PictureUploadRequests(_database).clear();
         await CollectionAuditLog(_database).record(
           AuditEvent(
             actor: actor.auditActor,

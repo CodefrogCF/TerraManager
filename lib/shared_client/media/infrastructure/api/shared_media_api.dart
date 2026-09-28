@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_payload.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 
@@ -18,8 +19,9 @@ mixin SharedMediaApi on SharedApiTransport {
     int recordId,
     String fileName,
     String mimeType,
-    Uint8List bytes,
-  ) async => readApiObject(
+    Uint8List bytes, {
+    String? requestId,
+  }) async => readApiObject(
     await requestJson(
       'POST',
       '/api/v1/$kind/$recordId/pictures',
@@ -28,6 +30,8 @@ mixin SharedMediaApi on SharedApiTransport {
         'mimeType': mimeType,
         'dataBase64': base64Encode(bytes),
       },
+      extraHeaders: {'Idempotency-Key': requestId ?? const Uuid().v4()},
+      timeout: const Duration(minutes: 5),
     ),
     'picture',
   );

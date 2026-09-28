@@ -159,18 +159,32 @@ void main() {
         body: {'notes': secret},
       );
       expect(shed.status, 201);
+      const pictureKey = '22222222-2222-4222-8222-222222222222';
+      final pictureBody = {
+        'fileName': 'secret.png',
+        'mimeType': 'image/png',
+        'dataBase64': base64Encode(
+          image.encodePng(image.Image(width: 1, height: 1)),
+        ),
+      };
       final picture = await call(
         'POST',
         '/api/v1/animals/$animalId/pictures',
-        body: {
-          'fileName': 'secret.png',
-          'mimeType': 'image/png',
-          'dataBase64': base64Encode(
-            image.encodePng(image.Image(width: 1, height: 1)),
-          ),
-        },
+        body: pictureBody,
+        key: pictureKey,
       );
       expect(picture.status, 201);
+      final pictureReplay = await call(
+        'POST',
+        '/api/v1/animals/$animalId/pictures',
+        body: pictureBody,
+        key: pictureKey,
+      );
+      expect(pictureReplay.status, 201);
+      expect(
+        pictureReplay.json['picture']['mediaId'],
+        picture.json['picture']['mediaId'],
+      );
       const key = '11111111-1111-4111-8111-111111111111';
       final feed = {
         'animalIds': [animalId],
@@ -224,6 +238,14 @@ void main() {
         containsAll(['success', 'replayed']),
       );
       expect(feeding.map((e) => e['record_id']).toSet(), hasLength(1));
+      final media = entries
+          .where((e) => e['action'] == 'media.create')
+          .toList();
+      expect(
+        media.map((e) => e['outcome']),
+        containsAll(['success', 'replayed']),
+      );
+      expect(media.map((e) => e['record_id']).toSet(), hasLength(1));
       for (final entry in entries) {
         expect(entry['actor_id'], admin.auditId);
         expect(entry['actor_name'], 'admin');
@@ -239,6 +261,7 @@ void main() {
         csrf,
         'secure admin password 123',
         'dataBase64',
+        pictureKey,
       ]) {
         expect(encoded, isNot(contains(excluded)));
       }

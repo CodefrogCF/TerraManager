@@ -222,6 +222,16 @@ collection above the limit remains readable and can delete pictures, but
 cannot add more until it is below the limit. Uploads are authenticated like
 every collection endpoint.
 
+Gallery uploads should send a UUID in `Idempotency-Key`. The server stores a
+receipt in the collection database in the same transaction as the picture and
+its Box or Animal association. Repeating the same key, record and payload
+returns the original picture instead of adding another; reusing the key with
+different data returns `409 idempotency_conflict`. Receipts are retained for
+30 days and survive server restarts. Older clients without the header remain
+supported, but their uploads cannot be safely retried after an uncertain
+response. Replacing the collection from a portable backup clears old receipts;
+receipts are not included in portable backups.
+
 ## Errors
 
 Errors have the stable shape

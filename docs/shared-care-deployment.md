@@ -125,6 +125,14 @@ static PNG, JPEG or WebP of at most 8 MiB, 8,192 pixels per side and
 20,971,520 pixels total. The original bytes are retained so orientation
 metadata remains intact.
 
+The Shared Care browser allows up to five minutes for a picture upload. If
+the response is lost or times out, the gallery shows an uncertain result and
+offers to retry the same upload. That retry uses the same request key, so a
+late server success creates no second picture. The key receipt is stored with
+the collection for 30 days, survives a server restart and is excluded from
+portable backups. Deploy the updated server and browser together before using
+this workflow.
+
 Older server versions could leave images without a Box or Animal association.
 After taking a safety backup, stop the server and inspect the number and total
 bytes of these unused images with the dry-run cleanup command:

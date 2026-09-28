@@ -47,7 +47,8 @@ Future<_HttpResult> _call(
   if (authorized) {
     request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_token');
   }
-  if (method == 'POST' && path == '/api/v1/feedings') {
+  if (idempotencyKey != null ||
+      (method == 'POST' && path == '/api/v1/feedings')) {
     request.headers.set(
       'Idempotency-Key',
       idempotencyKey ??
@@ -796,6 +797,79 @@ void main() {
     expect((gallery.json!['pictures'] as List), hasLength(1));
     expect(await database.select(database.mediaAssets).get(), hasLength(1));
   });
+
+  for (final kind in ['boxes', 'animals']) {
+    test('$kind picture retry replays one durable upload', () async {
+      final boxId = await _createBox(clientA, server, 'Retry gallery');
+      final recordId = kind == 'boxes'
+          ? boxId
+          : await _createAnimal(clientA, server, boxId);
+      final path = '/api/v1/$kind/$recordId/pictures';
+      const key = '12345678-1234-4123-8123-123456789abc';
+      final body = {
+        'fileName': 'retry.png',
+        'mimeType': 'image/png',
+        'dataBase64': base64Encode(
+          image.encodePng(image.Image(width: 2, height: 2)),
+        ),
+      };
+      final responses = await Future.wait([
+        _call(clientA, server, 'POST', path, body: body, idempotencyKey: key),
+        _call(clientB, server, 'POST', path, body: body, idempotencyKey: key),
+      ]);
+      expect(responses.map((reply) => reply.status), everyElement(201));
+      final mediaId = (responses.first.json!['picture'] as Map)['mediaId'];
+      expect((responses.last.json!['picture'] as Map)['mediaId'], mediaId);
+      expect(await database.select(database.mediaAssets).get(), hasLength(1));
+
+      await server.close(force: true);
+      await database.close();
+      database = await openServerDatabase(file);
+      server = await CareApi(
+        database: database,
+        authenticator: _TestBearerAuthenticator(),
+      ).serve();
+
+      final replay = await _call(
+        clientB,
+        server,
+        'POST',
+        path,
+        body: body,
+        idempotencyKey: key,
+      );
+      expect(replay.status, 201, reason: replay.json.toString());
+      expect((replay.json!['picture'] as Map)['mediaId'], mediaId);
+      final gallery = await _call(clientB, server, 'GET', path);
+      expect(gallery.status, 200);
+      expect((gallery.json!['pictures'] as List), hasLength(1));
+
+      final conflict = await _call(
+        clientB,
+        server,
+        'POST',
+        path,
+        body: {...body, 'fileName': 'changed.png'},
+        idempotencyKey: key,
+      );
+      expect(conflict.status, 409);
+      expect((conflict.json!['error'] as Map)['code'], 'idempotency_conflict');
+      expect(await database.select(database.mediaAssets).get(), hasLength(1));
+
+      final removed = await _call(clientA, server, 'DELETE', '$path/$mediaId');
+      expect(removed.status, 200);
+      final deletedReplay = await _call(
+        clientB,
+        server,
+        'POST',
+        path,
+        body: body,
+        idempotencyKey: key,
+      );
+      expect(deletedReplay.status, 409);
+      expect(await database.select(database.mediaAssets).get(), isEmpty);
+    });
+  }
 
   test('a disconnected picture upload leaves no media asset', () async {
     final boxId = await _createBox(clientA, server, 'Interrupted upload');

@@ -113,6 +113,163 @@ Widget _gallery(
 
 void main() {
   for (final kind in ['animals', 'boxes']) {
+    testWidgets(
+      '$kind late upload response can be retried without duplication',
+      (tester) async {
+        final lateResponse = Completer<http.Response>();
+        final requestKeys = <String?>[];
+        final pictures = <Map<String, dynamic>>[];
+        var changes = 0;
+        final api = await _login((request) async {
+          if (request.url.path == '/api/v1/$kind/1/pictures') {
+            if (request.method == 'GET') {
+              return http.Response(jsonEncode({'pictures': pictures}), 200);
+            }
+            requestKeys.add(request.headers['Idempotency-Key']);
+            if (requestKeys.length == 1) return lateResponse.future;
+            return http.Response(jsonEncode({'picture': pictures.single}), 201);
+          }
+          return http.Response('{}', 404);
+        });
+        addTearDown(api.close);
+        await tester.pumpWidget(
+          _gallery(
+            api,
+            kind,
+            FakePictureSelectionFlow(
+              result: normalizedTestPicture('slow.webp'),
+            ),
+            () => changes++,
+          ),
+        );
+        await tester.pumpAndSettle();
+        final add = find.byKey(const Key('shared-add-gallery-picture'));
+        await tester.tap(add);
+        await _waitFor(tester, () => requestKeys.isNotEmpty);
+        expect(tester.widget<TextButton>(add).onPressed, isNull);
+
+        await tester.pump(const Duration(minutes: 5, seconds: 1));
+        await tester.pump();
+        final retry = find.byKey(const Key('shared-retry-picture-upload'));
+        expect(retry, findsOneWidget);
+        expect(tester.widget<TextButton>(add).onPressed, isNull);
+        expect(changes, 0);
+
+        // The server commits after the browser has stopped waiting.
+        pictures.add({'mediaId': 99, 'isPrimary': true});
+        lateResponse.complete(
+          http.Response(jsonEncode({'picture': pictures.single}), 201),
+        );
+        await tester.pump();
+        await tester.tap(retry);
+        await _waitFor(tester, () => requestKeys.length == 2 && changes == 1);
+        await tester.pumpAndSettle();
+        expect(requestKeys.first, isNotEmpty);
+        expect(requestKeys.last, requestKeys.first);
+        expect(pictures, hasLength(1));
+        expect(retry, findsNothing);
+        expect(tester.widget<TextButton>(add).onPressed, isNotNull);
+      },
+    );
+  }
+
+  testWidgets('connection loss preserves the picture request for retry', (
+    tester,
+  ) async {
+    final requestKeys = <String?>[];
+    var disconnected = true;
+    var changes = 0;
+    final api = await _login((request) async {
+      if (request.url.path == '/api/v1/boxes/1/pictures') {
+        if (request.method == 'GET') {
+          if (disconnected) throw http.ClientException('offline');
+          return http.Response(
+            jsonEncode({
+              'pictures': [
+                {'mediaId': 73, 'isPrimary': true},
+              ],
+            }),
+            200,
+          );
+        }
+        requestKeys.add(request.headers['Idempotency-Key']);
+        if (disconnected) throw http.ClientException('offline');
+        return http.Response(
+          jsonEncode({
+            'picture': {'mediaId': 73, 'isPrimary': true},
+          }),
+          201,
+        );
+      }
+      return http.Response('{}', 404);
+    });
+    addTearDown(api.close);
+    disconnected = false;
+    await tester.pumpWidget(
+      _gallery(
+        api,
+        'boxes',
+        FakePictureSelectionFlow(result: normalizedTestPicture('lost.webp')),
+        () => changes++,
+      ),
+    );
+    await tester.pumpAndSettle();
+    disconnected = true;
+    await tester.tap(find.byKey(const Key('shared-add-gallery-picture')));
+    await _waitFor(tester, () => requestKeys.isNotEmpty);
+    await tester.pumpAndSettle();
+    final retry = find.byKey(const Key('shared-retry-picture-upload'));
+    expect(retry, findsOneWidget);
+    expect(changes, 0);
+
+    disconnected = false;
+    await tester.tap(retry);
+    await _waitFor(tester, () => requestKeys.length == 2 && changes == 1);
+    expect(requestKeys.last, requestKeys.first);
+    expect(retry, findsNothing);
+  });
+
+  testWidgets('rejected upload reports storage failure without false success', (
+    tester,
+  ) async {
+    var changes = 0;
+    final api = await _login((request) async {
+      if (request.method == 'GET') {
+        return http.Response(jsonEncode({'pictures': []}), 200);
+      }
+      return http.Response(
+        jsonEncode({
+          'error': {
+            'code': 'media_storage_limit',
+            'message': 'Shared Care picture storage is full.',
+          },
+        }),
+        413,
+      );
+    });
+    addTearDown(api.close);
+    await tester.pumpWidget(
+      _gallery(
+        api,
+        'boxes',
+        FakePictureSelectionFlow(result: normalizedTestPicture('full.webp')),
+        () => changes++,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shared-add-gallery-picture')));
+    await _waitFor(
+      tester,
+      () => find
+          .text('Shared Care picture storage is full.')
+          .evaluate()
+          .isNotEmpty,
+    );
+    expect(changes, 0);
+    expect(find.byKey(const Key('shared-retry-picture-upload')), findsNothing);
+  });
+
+  for (final kind in ['animals', 'boxes']) {
     for (final cancel in [false, true]) {
       testWidgets(
         '$kind uses the real crop step and ${cancel ? 'cancellation never uploads' : 'confirmation uploads oriented cropped bytes'}',
@@ -284,7 +441,7 @@ void main() {
           find.text(
             oversized
                 ? 'The cropped picture exceeds the 8 MiB upload limit.'
-                : 'Picture could not be added',
+                : 'The picture could not be uploaded (500).',
           ),
           findsOneWidget,
         );

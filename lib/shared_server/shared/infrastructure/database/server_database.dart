@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/shared_server/media/infrastructure/media_storage_policy.dart';
+import 'package:terramanager/shared_server/media/infrastructure/picture_upload_requests.dart';
 
 /// Opens the only writable collection database for a shared server instance.
 ///
@@ -17,6 +18,7 @@ Future<AppDatabase> openServerDatabase(File file) async {
     await database.customSelect('SELECT 1').get();
     await database.customSelect('PRAGMA journal_mode = WAL').get();
     await MediaStoragePolicy(database).install();
+    await PictureUploadRequests(database).initialize();
     return database;
   } catch (_) {
     await database.close();

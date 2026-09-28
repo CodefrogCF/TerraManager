@@ -120,6 +120,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
     Map<String, dynamic>? body,
     bool requiresSession = true,
     Map<String, String> extraHeaders = const {},
+    Duration timeout = const Duration(seconds: 15),
   }) async {
     final headers = <String, String>{'Accept': 'application/json'};
     headers.addAll(extraHeaders);
@@ -141,7 +142,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
       response = await _client
           .send(request)
           .then(http.Response.fromStream)
-          .timeout(const Duration(seconds: 15));
+          .timeout(timeout);
     } catch (_) {
       _setConnected(false);
       lastFailure = const SharedConnectionException();

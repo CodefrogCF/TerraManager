@@ -14,6 +14,7 @@ import 'package:terramanager/features/backup/application/backup_export_service.d
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
+import 'package:terramanager/shared_server/media/infrastructure/picture_upload_requests.dart';
 import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
 import 'package:terramanager/shared_server/app/shared_server_api.dart';
 
@@ -97,12 +98,22 @@ void main() {
           'TM:BOX:11111111-1111-4111-8111-111111111111',
           name: 'Original',
         );
-        await PictureGalleryRepository(database).addBoxPicture(
-          boxId: originalId,
-          fileName: 'original.png',
-          mimeType: 'image/png',
-          data: Uint8List.fromList([1, 2, 3]),
-          capturedAt: DateTime.utc(2026, 1, 1),
+        final originalMediaId = await PictureGalleryRepository(database)
+            .addBoxPicture(
+              boxId: originalId,
+              fileName: 'original.png',
+              mimeType: 'image/png',
+              data: Uint8List.fromList([1, 2, 3]),
+              capturedAt: DateTime.utc(2026, 1, 1),
+            );
+        const uploadKey = '12345678-1234-4123-8123-123456789abc';
+        final uploadReceipts = PictureUploadRequests(database);
+        await uploadReceipts.remember(
+          key: uploadKey,
+          kind: 'boxes',
+          recordId: originalId,
+          payloadHash: 'test-fingerprint',
+          mediaId: originalMediaId,
         );
         server = await SharedServerApi(
           database: database,
@@ -166,6 +177,7 @@ void main() {
         expect(saved.settings.scope, 'collectionOnly');
         expect(saved.data.boxes.single.name, 'Original');
         expect(saved.mediaFileCount, 1);
+        expect(await uploadReceipts.find(uploadKey), isNotNull);
 
         source = AppDatabase.test(NativeDatabase.memory());
         final importedId = await BoxRepository(source).createBox(
@@ -208,6 +220,7 @@ void main() {
           archive: Uint8List.fromList([1, 2, 3]),
         );
         expect(invalid.status, 400);
+        expect(await uploadReceipts.find(uploadKey), isNotNull);
         expect(
           (await BoxRepository(database).getAllBoxes()).single.name,
           'Original',
@@ -226,6 +239,7 @@ void main() {
         );
         expect(restored.status, 200, reason: restored.json.toString());
         expect(restored.json['restored'], true);
+        expect(await uploadReceipts.find(uploadKey), isNull);
         expect(
           (await BoxRepository(database).getAllBoxes()).single.name,
           'Imported',

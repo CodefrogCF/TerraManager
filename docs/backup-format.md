@@ -109,6 +109,11 @@ Backup Format 2
 
 New backups are always created as Backup Format Version 2.
 
+Current `.tmbackup` files are unencrypted ZIP archives. Password-encrypted
+backups are not yet supported. The evaluation and deferred implementation
+conditions are recorded in [ADR-036](architecture-decisions.md); no encrypted
+container or new portable backup version was released with Issue #118.
+
 Backup Format Version 1 remains supported for backward compatibility with
 backups created by TerraManager 0.6.x.
 
@@ -1027,6 +1032,17 @@ extension is preserved. If known MIME metadata conflicts with a stale filename,
 the MIME type determines the exported extension. A legacy source without known
 extension or MIME metadata uses `.img`. Media bytes are copied into and out of
 the archive unchanged; backup operations never recompress them.
+
+Current exports ZIP the structured JSON and every referenced gallery picture.
+New or replaced pictures normally reach the backup already reduced to WebP
+with a 1920-pixel maximum edge; legacy pictures keep their original format and
+bytes. The primary gallery picture is referenced, not exported twice. Generated
+QR images are omitted because they can be recreated from Box QR identifiers.
+Duplicated records can still carry separate copies of identical picture bytes.
+Further size reduction must be measured against complete archives and must not
+silently discard media or history. Backup-size work precedes the proposed
+password-encrypted container (ADR-036); even smaller archives still require
+bounded-memory export and restore for large collections.
 
 Legacy Animal `picturePath` data may still be read during export as a
 compatibility fallback.

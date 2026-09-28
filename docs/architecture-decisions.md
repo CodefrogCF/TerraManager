@@ -2087,3 +2087,126 @@ coverage checks existing external imports.
 - existing callers can migrate imports incrementally
 - compatibility exports can be retired in a later explicit migration
 - [Shared Care code organization](shared-care-architecture.md) describes the layout
+
+---
+
+## ADR-036: Defer password-encrypted backups until large-file handling is bounded
+
+**Status:** Accepted evaluation; implementation deferred to a stretch milestone
+
+**Date:** 2026-09-28
+
+### Context and evaluation
+
+Issue #118 asks for optional authenticated encryption only if it remains simple,
+reliable on Android and Web, and reasonably sized. The validated clients are
+Android and standalone Web; Shared Care adds a browser client and a Dart server.
+iOS is not yet a validated release platform. The current `.tmbackup` is a ZIP
+held in memory, with portable formats 1 and 2. Standalone export and import,
+Shared Care browser download and upload, and the server's restore validator all
+consume complete byte arrays. Shared Care allows 256 MiB compressed input and
+512 MiB expanded data. Restore can also create a safety backup.
+
+The already pinned [`cryptography` 2.9.0](https://pub.dev/packages/cryptography/versions/2.9.0)
+provides Argon2id and AES-256-GCM on Android and Web without a new dependency
+or a custom cryptographic primitive. A proof of concept for a versioned,
+authenticated outer container used a fresh 16-byte salt and 12-byte nonce
+around unchanged input bytes. It passed Dart-VM round-trip, wrong-password,
+tamper, salt/nonce-uniqueness and 16 MiB payload tests. Browser compilation and
+both Android Release builds succeeded. The local Chrome test runner never
+executed the test, and no Android runtime test was performed; neither platform
+has a verified runtime result. An incorrect password and manipulated ciphertext
+both produce an authentication failure, so the UI must describe both
+possibilities without pretending to distinguish them.
+
+The sibling [`cryptography_flutter` package](https://pub.dev/packages/cryptography_flutter)
+could accelerate Android with native APIs but adds a Flutter plugin and Gradle
+dependency work without addressing the full-buffer copies. The existing
+`cryptography` package also supports PBKDF2-HMAC-SHA256; at 600,000 iterations
+it took about 7.9 seconds on this local Dart VM, versus about 0.53 seconds for
+the candidate Argon2id configuration. These are evaluation timings, not a
+device benchmark or a final KDF parameter decision.
+
+Size probe: only the reachable codec was added temporarily to each entry point,
+without the proposed UI. Builds used local Flutter 3.47.0, Java 22 and a
+disposable test signing key; these are not the CI/release toolchain.
+
+| Artifact | Baseline bytes | Codec probe bytes | Increase |
+|---|---:|---:|---:|
+| Release APK | 91,272,456 | 91,583,752 | 311,296 (0.34%) |
+| Release AAB | 80,397,959 | 80,738,535 | 340,576 (0.42%) |
+| Standalone Web bundle | 48,224,404 | 48,266,179 | 41,775 (0.09%) |
+| Shared Care Web bundle | 48,618,652 | 48,660,520 | 41,868 (0.09%) |
+
+Size is acceptable for the codec itself, but the whole-file approach is not a
+reliable large-backup design. In a local Dart-VM measurement, a 64 MiB input
+raised process resident memory from about 251 MB to 1,085 MB after encryption
+and 1,292 MB after decryption; the two operations took about 14 and 12 seconds.
+These figures are machine-specific, not Android/Web benchmarks. They expose
+multiple full-buffer copies on top of the existing ZIP/media buffers. No
+reliable upper bound or 256 MiB phone/browser test exists.
+
+### Reduce backup size before adding encryption
+
+Backup size deserves its own measured step before choosing the encrypted
+container. The existing picture pipeline already bounds new and replaced
+images to a 1920-pixel longest edge and encodes them as WebP at quality 82;
+older images retain their original bytes. The v0.12.0 roadmap records one
+67-picture collection shrinking from about 140 MB to 22.7 MB after picture
+normalization. This is evidence for that collection, not a prediction for
+other users. Current exports use ZIP with its default fast DEFLATE setting,
+copy each referenced gallery picture into its own archive entry, and omit
+regenerable QR images. The primary picture is referenced by the gallery rather
+than added a second time. Duplicated records can nevertheless contain
+independent copies of identical picture bytes.
+
+First measure complete backup composition on representative, consented or
+synthetic collections: JSON versus media, legacy versus normalized formats,
+duplicate picture content, archive overhead, export/import time, and peak
+memory on Android, standalone Web and Shared Care. Do not inspect or publish
+private collection contents in diagnostics. Compare candidate ZIP levels,
+lossless duplicate handling and optional migration of legacy pictures against
+size, fidelity, restore compatibility and CPU/memory costs. An already encoded
+sample WebP in the repository gained no size from either fast or maximum ZIP
+DEFLATE in a small local probe; this is not a collection benchmark.
+
+Do not silently omit archived records, histories, notes or pictures, and do
+not recompress existing pictures with quality loss merely to make a backup.
+Any optional legacy-picture optimization must be explicit, preview its effect,
+preserve the original collection until a verified result exists, and round-trip
+through both standalone and Shared Care. Existing format-1/2 imports remain
+supported. Smaller typical archives will improve transfer and storage but
+cannot replace bounded-memory encryption and restore: the supported size
+limits still allow large media-rich backups.
+
+One privately supplied sample backup was inspected locally using aggregate
+measurements only. Its media already consisted entirely of WebP pictures with
+no image exceeding the configured 1920-pixel edge, and there were no
+byte-identical picture copies. ZIP reduced the media payload by only about
+0.03%. This single sample does not characterize every collection, but it gives
+no evidence for archive deduplication or stronger ZIP compression as the next
+change. Stripping color profiles or re-encoding pictures would risk display
+fidelity for a small or unknown benefit.
+
+### Decision
+
+Do not ship the proof of concept or change the backup format in Issue #118.
+Formats 1 and 2 remain unencrypted and importable. The negligible dependency
+and build-size cost does not overcome the unbounded peak-memory risk and the
+unverified browser/device runtime. The first backup-size assessment found no
+worthwhile lossless optimization in the supplied sample. Prioritize a
+bounded-memory container and file-flow design in the later stretch milestone
+"Password-protected portable backups" and validate it with realistic
+media-backup tests on Android and Web. Reconsider size reduction only if a
+broader measurement shows a material opportunity without data or quality loss.
+
+The later design must keep the inner portable ZIP and legacy imports, identify
+its encrypted envelope with an explicit version, authenticate its metadata and
+ciphertext, use fresh salts/nonces, and never persist passwords or plaintext
+temporary files. Export must confirm the password and warn that it cannot be
+recovered. Import must distinguish unsupported/truncated containers from the
+combined wrong-password-or-tampered-data state before any collection change.
+Standalone safety copies must not silently become plaintext; Shared Care may
+encrypt/decrypt in the browser while retaining the server's existing plaintext
+restore API and administrator checks. Re-measure the complete feature, not just
+the codec, against the pinned release toolchain.

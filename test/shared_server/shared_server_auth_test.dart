@@ -23,6 +23,7 @@ Future<_Response> _call(
   String? cookie,
   String? csrf,
   String? origin,
+  String? forwardedFor,
 }) async {
   final request = await client.openUrl(
     method,
@@ -31,6 +32,9 @@ Future<_Response> _call(
   if (cookie != null) request.headers.set(HttpHeaders.cookieHeader, cookie);
   if (csrf != null) request.headers.set('X-CSRF-Token', csrf);
   if (origin != null) request.headers.set('Origin', origin);
+  if (forwardedFor != null) {
+    request.headers.set('X-Forwarded-For', forwardedFor);
+  }
   if (body != null) {
     request.headers.contentType = ContentType.json;
     request.write(jsonEncode(body));
@@ -45,6 +49,83 @@ Future<_Response> _call(
 }
 
 void main() {
+  test(
+    'login limit ignores spoofed proxy headers and isolates accounts',
+    () async {
+      final directory = await Directory.systemTemp.createTemp(
+        'tm-throttle-test-',
+      );
+      final accounts = await AccountStore.open(
+        File('${directory.path}${Platform.pathSeparator}accounts.sqlite'),
+      );
+      final database = await openServerDatabase(
+        File('${directory.path}${Platform.pathSeparator}collection.sqlite'),
+      );
+      final client = HttpClient();
+      HttpServer? server;
+      try {
+        await accounts.createInitialAdministrator(
+          'admin',
+          'a secure admin password 123',
+        );
+        server = await SharedServerApi(
+          database: database,
+          accounts: accounts,
+          publicUrl: Uri.parse('http://127.0.0.1'),
+        ).serve();
+        for (var i = 0; i < 5; i++) {
+          final response = await _call(
+            client,
+            server,
+            'POST',
+            '/api/v1/auth/login',
+            forwardedFor: '192.0.2.$i',
+            body: {'username': 'AdMiN', 'password': 'wrong'},
+          );
+          expect(response.status, 401);
+          expect(
+            (response.body['error'] as Map)['code'],
+            'invalid_credentials',
+          );
+        }
+
+        final blocked = await _call(
+          client,
+          server,
+          'POST',
+          '/api/v1/auth/login',
+          forwardedFor: '198.51.100.77',
+          body: {
+            'username': 'admin',
+            'password': 'a secure admin password 123',
+          },
+        );
+        expect(blocked.status, 429);
+        expect((blocked.body['error'] as Map)['code'], 'rate_limited');
+        expect(
+          blocked.body.toString(),
+          isNot(contains('a secure admin password')),
+        );
+
+        // A blocked account does not impose a five-minute lock on other names.
+        final unrelated = await _call(
+          client,
+          server,
+          'POST',
+          '/api/v1/auth/login',
+          body: {'username': 'unknown', 'password': 'wrong'},
+        );
+        expect(unrelated.status, 401);
+      } finally {
+        client.close(force: true);
+        await server?.close(force: true);
+        await database.close();
+        accounts.close();
+        await directory.delete(recursive: true);
+      }
+    },
+  );
+
   test(
     'local accounts gate collection and media, roles, CSRF and sessions',
     () async {

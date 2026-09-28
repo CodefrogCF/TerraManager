@@ -18,11 +18,7 @@ class AuthenticationHandler {
     input.allow(const {'username', 'password'});
     final username = input.string('username', maxLength: 64).toLowerCase();
     final password = readAccountPassword(input);
-    final session = await operations.login(
-      username,
-      password,
-      request.connectionInfo?.remoteAddress.address,
-    );
+    final session = await operations.login(username, password);
     final account = session.account;
     request.response.headers.add(
       HttpHeaders.setCookieHeader,

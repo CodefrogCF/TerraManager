@@ -1,39 +1,49 @@
 import 'dart:async';
 
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
+import 'package:terramanager/shared_server/authentication/application/login_attempt_limiter.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 
 class AuthenticationOperations {
-  AuthenticationOperations(this.accounts);
+  AuthenticationOperations(
+    AccountStore accounts, {
+    Future<CareAccount?> Function(String, String)? authenticate,
+  }) : accounts = accounts,
+       _authenticate = authenticate ?? accounts.authenticate;
+
   final AccountStore accounts;
-  final Map<String, List<DateTime>> _failedLogins = {};
-  Future<CareSession> login(
-    String username,
-    String password,
-    String? remoteAddress,
-  ) async {
-    final key = '$remoteAddress:$username';
-    final now = DateTime.now().toUtc();
-    _failedLogins.removeWhere((_, attempts) {
-      attempts.removeWhere(
-        (time) => now.difference(time) > const Duration(minutes: 5),
-      );
-      return attempts.isEmpty;
-    });
-    if ((_failedLogins[key]?.length ?? 0) >= 5) {
-      throw const ApiProblem(429, 'rate_limited', 'Try again later.');
-    }
-    final account = await accounts.authenticate(username, password);
-    if (account == null) {
-      if (_failedLogins.length > 1000) _failedLogins.clear();
-      _failedLogins.putIfAbsent(key, () => []).add(now);
+  final Future<CareAccount?> Function(String, String) _authenticate;
+  final LoginAttemptLimiter _limiter = LoginAttemptLimiter();
+
+  Future<CareSession> login(String username, String password) async {
+    final normalizedUsername = username.trim().toLowerCase();
+    final attempt = _limiter.reserve(normalizedUsername);
+    if (attempt == null) {
       throw const ApiProblem(
-        401,
-        'invalid_credentials',
-        'Invalid credentials.',
+        429,
+        'rate_limited',
+        'Too many login attempts. Try again later.',
       );
     }
-    _failedLogins.remove(key);
-    return accounts.createSession(account);
+
+    var resultRecorded = false;
+    try {
+      final account = await _authenticate(normalizedUsername, password);
+      if (account == null) {
+        attempt.failed();
+        resultRecorded = true;
+        throw const ApiProblem(
+          401,
+          'invalid_credentials',
+          'Invalid credentials.',
+        );
+      }
+      final session = accounts.createSession(account);
+      attempt.succeeded();
+      resultRecorded = true;
+      return session;
+    } finally {
+      if (!resultRecorded) attempt.abort();
+    }
   }
 }

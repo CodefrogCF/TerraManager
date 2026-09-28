@@ -117,6 +117,16 @@ Builds need access to the selected base images and Dart packages; routine
 operation does not. The server has no published port. Only the gateway binds
 `TM_LAN_BIND_IP:443` and forwards `/api/*` inside the Compose network.
 
+Shared Care limits sign-ins per normalized account name to five attempts
+within five minutes and runs at most four password verifications at once.
+Further attempts receive HTTP 429 until the window expires; a successful
+sign-in resets that account's count. The in-memory limiter is bounded to 1,000
+active names. When full, new names receive HTTP 429 until old entries expire,
+without clearing existing limits. Restarting the server resets these in-memory
+counts. The limiter deliberately ignores `X-Forwarded-For` and other client
+address headers: Caddy is the only exposed entry point, and these headers can
+be supplied by clients. Keep the server port private to the Compose network.
+
 Open `https://<TM_HOST>/` from a second LAN device. It should show the
 shared sign-in page without a browser certificate warning after the local CA
 is trusted. `https://<TM_HOST>/api/v1/health` should return `{"status":"ok"}`;

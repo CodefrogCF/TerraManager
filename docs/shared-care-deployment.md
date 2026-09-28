@@ -5,6 +5,15 @@ The server and HTTPS gateway run as ARM64 containers. The server owns one
 collection SQLite database and one account/session SQLite database. Media is
 stored in the collection database, so both files must be kept together.
 
+The `shared-care-server` job in `.github/workflows/quality-gates.yml` checks
+`deploy/server/pubspec.lock` with Dart's lockfile enforcement, builds the
+production `linux/arm64` server image, and smoke-tests its first-administrator
+setup and `/api/v1/health` endpoint. It uses a temporary, local-only database
+and generated credentials; it needs no deployment certificates or secrets.
+The existing Flutter, Android and Web checks remain in the separate
+`quality-gates` job. This CI smoke test does not replace a deployment test
+through the HTTPS gateway on the target Raspberry Pi.
+
 **Shared Web mode:** The gateway serves the Flutter application compiled from
 `lib/main_shared.dart`. This entry point does not create `AppDatabase` or a
 browser collection database. It signs in through the same-origin API, reloads

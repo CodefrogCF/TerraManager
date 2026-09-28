@@ -72,3 +72,43 @@ jobs:
 
       - name: Build Web release
         run: flutter build web --release
+
+  shared-care-server:
+    name: Build and smoke-test Shared Care server (ARM64)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out source
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Set up ARM64 emulation
+        # docker/setup-qemu-action v4.2.0
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8
+        with:
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        # docker/setup-buildx-action v4.3.0
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e
+
+      - name: Verify locked server dependencies
+        run: |
+          mkdir -p "$RUNNER_TEMP/server-dependencies"
+          cp deploy/server/pubspec.yaml deploy/server/pubspec.lock "$RUNNER_TEMP/server-dependencies/"
+          docker run --rm --platform linux/arm64 \
+            --mount "type=bind,source=$RUNNER_TEMP/server-dependencies,target=/src" \
+            --workdir /src dart:3.13.4 dart pub get --enforce-lockfile
+          cmp deploy/server/pubspec.lock "$RUNNER_TEMP/server-dependencies/pubspec.lock"
+
+      - name: Build production server image
+        run: |
+          docker buildx build --platform linux/arm64 \
+            --file deploy/server.Dockerfile \
+            --tag terramanager-server:ci --load .
+
+      - name: Smoke-test administrator setup and health endpoint
+        run: python3 tool/ci/shared_server_smoke.py terramanager-server:ci

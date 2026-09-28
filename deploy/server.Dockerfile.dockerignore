@@ -1,6 +1,7 @@
 **
 !bin/
 !bin/create_admin.dart
+!bin/cleanup_media.dart
 !bin/shared_server.dart
 !lib/
 !lib/core/

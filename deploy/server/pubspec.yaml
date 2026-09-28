@@ -10,6 +10,7 @@ dependencies:
   archive: 4.0.9
   crypto: 3.0.7
   cryptography: 2.9.0
+  image: 4.9.2
   drift: 2.34.3
   sqlite3: 3.5.1
   uuid: 4.6.0

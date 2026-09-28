@@ -17,6 +17,7 @@ import 'package:terramanager/shared_server/feedings/application/feeding_reminder
 import 'package:terramanager/shared_server/feedings/infrastructure/http/feeding_handler.dart';
 import 'package:terramanager/shared_server/media/application/media_operations.dart';
 import 'package:terramanager/shared_server/media/infrastructure/http/media_handler.dart';
+import 'package:terramanager/shared_server/media/infrastructure/media_storage_policy.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
 
@@ -106,9 +107,15 @@ class CareApi {
     } on SqliteException catch (error) {
       await _send(
         request.response,
-        error.resultCode == SqlError.SQLITE_CONSTRAINT ||
-                error.resultCode == SqlError.SQLITE_BUSY ||
-                error.resultCode == SqlError.SQLITE_LOCKED
+        MediaStoragePolicy.isQuotaError(error)
+            ? apiError(
+                413,
+                'media_storage_limit',
+                'Shared Care picture storage is full.',
+              )
+            : error.resultCode == SqlError.SQLITE_CONSTRAINT ||
+                  error.resultCode == SqlError.SQLITE_BUSY ||
+                  error.resultCode == SqlError.SQLITE_LOCKED
             ? apiError(409, 'conflict', 'Database state prevents this change.')
             : apiError(
                 500,
@@ -116,10 +123,20 @@ class CareApi {
                 'The request could not be completed.',
               ),
       );
-    } catch (_) {
+    } catch (error) {
       await _send(
         request.response,
-        apiError(500, 'internal_error', 'The request could not be completed.'),
+        MediaStoragePolicy.isQuotaError(error)
+            ? apiError(
+                413,
+                'media_storage_limit',
+                'Shared Care picture storage is full.',
+              )
+            : apiError(
+                500,
+                'internal_error',
+                'The request could not be completed.',
+              ),
       );
     }
   }
@@ -144,6 +161,8 @@ class CareApi {
       clearRequestCache();
       final status = error is ApiProblem
           ? error.status
+          : MediaStoragePolicy.isQuotaError(error)
+          ? 413
           : error is BoxArchiveBlockedException ||
                 error is BoxAssignmentException ||
                 error is StateError

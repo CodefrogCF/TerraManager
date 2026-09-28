@@ -17,13 +17,6 @@ class MediaHandler {
     HttpRequest request,
   ) async {
     final media = operations;
-    if (path.length == 1 && method == 'POST') {
-      final input = await readCollectionBody(
-        request,
-        maxBytes: 12 * 1024 * 1024,
-      );
-      return operations.create(input);
-    }
     if (path.length == 2 && method == 'GET') {
       final asset = await media.getMediaById(parseRecordId(path[1]));
       if (asset == null) return apiError(404, 'not_found', 'Media not found.');

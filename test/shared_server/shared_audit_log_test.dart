@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as image;
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
@@ -164,7 +165,9 @@ void main() {
         body: {
           'fileName': 'secret.png',
           'mimeType': 'image/png',
-          'dataBase64': 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j1ioAAAAASUVORK5CYII=',
+          'dataBase64': base64Encode(
+            image.encodePng(image.Image(width: 1, height: 1)),
+          ),
         },
       );
       expect(picture.status, 201);

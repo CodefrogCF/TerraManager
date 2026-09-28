@@ -19,19 +19,6 @@ class MediaOperations extends CollectionOperations {
   Future<List<PictureGalleryEntry>> getAnimalPictures(int id) =>
       PictureGalleryRepository(database).getAnimalPictures(id);
 
-  Future<ApiReply> create(ApiInput input) async {
-    final media = MediaRepository(database);
-
-    input.allow(const {'fileName', 'mimeType', 'dataBase64'});
-    final image = decodeImageUpload(input);
-    final id = await media.createMedia(
-      fileName: image.fileName,
-      mimeType: image.mimeType,
-      data: image.bytes,
-    );
-    return ApiReply(201, {'id': id});
-  }
-
   Future<ApiReply> boxList(Box box) async {
     final pictures = PictureGalleryRepository(database);
 

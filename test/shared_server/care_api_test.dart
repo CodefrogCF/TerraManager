@@ -4,9 +4,12 @@ import 'dart:typed_data';
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as image;
+import 'package:terramanager/shared_server/media/application/image_upload_validation.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/shared_server/collection/infrastructure/http/care_api.dart';
 import 'package:terramanager/shared_server/authentication/infrastructure/http/care_authenticator.dart';
+import 'package:terramanager/shared_server/media/infrastructure/media_storage_policy.dart';
 import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
 
 import '../drift/app_database/generated/schema_v15.dart' as v15;
@@ -632,9 +635,7 @@ void main() {
     );
     expect((histories.json!['weights'] as List).single['id'], weightId);
 
-    const png =
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJ'
-        'AAAADUlEQVQIHWP4z8DwHwAFgAI/ScL/nwAAAABJRU5ErkJggg==';
+    final png = base64Encode(image.encodePng(image.Image(width: 1, height: 1)));
     final upload = await _call(
       clientA,
       server,
@@ -642,16 +643,8 @@ void main() {
       '/api/v1/media',
       body: {'fileName': 'one.png', 'mimeType': 'image/png', 'dataBase64': png},
     );
-    expect(upload.status, 201);
-    final mediaId = upload.json!['id'];
-    final download = await _call(
-      clientB,
-      server,
-      'GET',
-      '/api/v1/media/$mediaId',
-    );
-    expect(download.status, 200);
-    expect(download.bytes, base64Decode(png));
+    expect(upload.status, 404);
+    expect((await database.select(database.mediaAssets).get()), isEmpty);
 
     final attached = await _call(
       clientA,
@@ -666,6 +659,14 @@ void main() {
     );
     expect(attached.status, 201);
     final galleryMediaId = (attached.json!['picture'] as Map)['mediaId'];
+    final download = await _call(
+      clientB,
+      server,
+      'GET',
+      '/api/v1/media/$galleryMediaId',
+    );
+    expect(download.status, 200);
+    expect(download.bytes, base64Decode(png));
     final gallery = await _call(
       clientB,
       server,
@@ -690,6 +691,132 @@ void main() {
       '/api/v1/media/$galleryMediaId',
     );
     expect(noLongerReferenced.status, 404);
+  });
+
+  test(
+    'gallery uploads decode images and reject malformed or excessive data',
+    () async {
+      final boxId = await _createBox(clientA, server, 'Image checks');
+      final valid = image.encodePng(image.Image(width: 2, height: 2));
+      final oversizedDimensions = Uint8List.fromList(valid);
+      // The PNG IHDR width/height precede pixel decompression.
+      oversizedDimensions.setRange(16, 24, [0, 0, 0x40, 0, 0, 0, 0x40, 0]);
+      final attempts = <(String, Uint8List)>[
+        ('image/png', Uint8List.fromList([0x89, 0x50, 0x4e, 0x47])),
+        ('image/png', oversizedDimensions),
+        ('image/jpeg', valid),
+      ];
+      for (final (mime, bytes) in attempts) {
+        final response = await _call(
+          clientA,
+          server,
+          'POST',
+          '/api/v1/boxes/$boxId/pictures',
+          body: {
+            'fileName': 'bad-picture',
+            'mimeType': mime,
+            'dataBase64': base64Encode(bytes),
+          },
+        );
+        expect(response.status, 400, reason: response.json.toString());
+        expect((response.json!['error'] as Map)['code'], 'invalid_data');
+      }
+      final tooManyBytes = await _call(
+        clientA,
+        server,
+        'POST',
+        '/api/v1/boxes/$boxId/pictures',
+        body: {
+          'fileName': 'oversized.png',
+          'mimeType': 'image/png',
+          'dataBase64': base64Encode(Uint8List(maxUploadImageBytes + 1)),
+        },
+      );
+      expect(tooManyBytes.status, 400);
+      expect(await database.select(database.mediaAssets).get(), isEmpty);
+
+      for (final (mime, bytes) in <(String, Uint8List)>[
+        ('image/png', valid),
+        ('image/jpeg', image.encodeJpg(image.Image(width: 2, height: 2))),
+        ('image/webp', image.encodeWebP(image.Image(width: 2, height: 2))),
+      ]) {
+        final added = await _call(
+          clientA,
+          server,
+          'POST',
+          '/api/v1/boxes/$boxId/pictures',
+          body: {
+            'fileName': 'picture',
+            'mimeType': mime,
+            'dataBase64': base64Encode(bytes),
+          },
+        );
+        expect(added.status, 201, reason: added.json.toString());
+        final mediaId = (added.json!['picture'] as Map)['mediaId'];
+        final downloaded = await _call(
+          clientB,
+          server,
+          'GET',
+          '/api/v1/media/$mediaId',
+        );
+        expect(downloaded.status, 200);
+        expect(downloaded.bytes, bytes);
+      }
+    },
+  );
+
+  test('storage limit rejects a gallery upload without an orphan', () async {
+    final boxId = await _createBox(clientA, server, 'Limited gallery');
+    final bytes = image.encodePng(image.Image(width: 2, height: 2));
+    await MediaStoragePolicy(database).install(maxBytes: bytes.length + 1);
+
+    Future<_HttpResult> upload() => _call(
+      clientA,
+      server,
+      'POST',
+      '/api/v1/boxes/$boxId/pictures',
+      body: {
+        'fileName': 'picture.png',
+        'mimeType': 'image/png',
+        'dataBase64': base64Encode(bytes),
+      },
+    );
+
+    final first = await upload();
+    expect(first.status, 201, reason: first.json.toString());
+    final second = await upload();
+    expect(second.status, 413, reason: second.json.toString());
+    expect((second.json!['error'] as Map)['code'], 'media_storage_limit');
+    final gallery = await _call(
+      clientB,
+      server,
+      'GET',
+      '/api/v1/boxes/$boxId/pictures',
+    );
+    expect((gallery.json!['pictures'] as List), hasLength(1));
+    expect(await database.select(database.mediaAssets).get(), hasLength(1));
+  });
+
+  test('a disconnected picture upload leaves no media asset', () async {
+    final boxId = await _createBox(clientA, server, 'Interrupted upload');
+    final request = await clientA.postUrl(
+      Uri.parse('http://127.0.0.1:${server.port}/api/v1/boxes/$boxId/pictures'),
+    );
+    request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $_token');
+    request.headers.contentType = ContentType.json;
+    request.contentLength = 100000;
+    request.write('{"fileName":"incomplete.png","mimeType":"image/png",');
+    await request.flush();
+    request.abort();
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+    expect(await database.select(database.mediaAssets).get(), isEmpty);
+    final gallery = await _call(
+      clientB,
+      server,
+      'GET',
+      '/api/v1/boxes/$boxId/pictures',
+    );
+    expect((gallery.json!['pictures'] as List), isEmpty);
   });
 
   test('server validates edits and keeps QR identifiers immutable', () async {

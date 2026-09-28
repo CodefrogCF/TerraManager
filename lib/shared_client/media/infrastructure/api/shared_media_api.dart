@@ -1,34 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_exception.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_payload.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 
 mixin SharedMediaApi on SharedApiTransport {
-  Future<int> uploadMedia(
-    String fileName,
-    String mimeType,
-    Uint8List bytes,
-  ) async {
-    final response = await requestJson(
-      'POST',
-      '/api/v1/media',
-      body: {
-        'fileName': fileName,
-        'mimeType': mimeType,
-        'dataBase64': base64Encode(bytes),
-      },
-    );
-    final id = response['id'];
-    if (id is int) return id;
-    throw const SharedApiException(
-      200,
-      'invalid_response',
-      'The server returned an invalid media ID.',
-    );
-  }
-
   Future<List<Map<String, dynamic>>> pictures(
     String kind,
     int recordId,

@@ -117,6 +117,30 @@ Builds need access to the selected base images and Dart packages; routine
 operation does not. The server has no published port. Only the gateway binds
 `TM_LAN_BIND_IP:443` and forwards `/api/*` inside the Compose network.
 
+Shared Care stores at most 512 MiB of image bytes in the collection database.
+New gallery pictures, duplicated pictures and backup restores count toward
+this limit. Collections already above it remain readable; deleting pictures
+or archived records can reduce their use. Each new upload must be a decodable
+static PNG, JPEG or WebP of at most 8 MiB, 8,192 pixels per side and
+20,971,520 pixels total. The original bytes are retained so orientation
+metadata remains intact.
+
+Older server versions could leave images without a Box or Animal association.
+After taking a safety backup, stop the server and inspect the number and total
+bytes of these unused images with the dry-run cleanup command:
+
+```sh
+docker compose stop server
+docker compose run --rm --no-deps --entrypoint /opt/media/bin/cleanup_media server
+```
+
+If the count is expected, remove only those unassociated images by adding
+`--apply` to the end of the command. The cleaner rechecks gallery and primary
+picture references inside one transaction and never removes referenced images.
+Restart the server with `docker compose up -d server` afterwards. The tool
+requires an existing `TM_DATABASE_PATH` and prints counts only, not filenames
+or image contents.
+
 Shared Care limits sign-ins per normalized account name to five attempts
 within five minutes and runs at most four password verifications at once.
 Further attempts receive HTTP 429 until the window expires; a successful

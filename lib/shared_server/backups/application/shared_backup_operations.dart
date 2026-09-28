@@ -6,6 +6,8 @@ import 'package:terramanager/shared_server/accounts/infrastructure/account_store
 import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/collection_audit_log.dart';
 import 'package:terramanager/shared_server/backups/application/shared_portable_backups.dart';
+import 'package:terramanager/shared_server/media/infrastructure/media_storage_policy.dart';
+import 'package:terramanager/shared_server/shared/application/api_input.dart';
 import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
 
 class SharedBackupOperations {
@@ -13,20 +15,32 @@ class SharedBackupOperations {
   final AppDatabase _database;
   final SharedPortableBackups _backups;
   Future<ApiReply> restore(ValidatedBackup validated, CareAccount actor) async {
-    final mediaCount = await _database.transaction(() async {
-      final count = await _backups.restore(validated);
-      await CollectionAuditLog(_database).record(
-        AuditEvent(
-          actor: actor.auditActor,
-          action: 'collection.restore',
-          recordType: 'collection',
-          recordId: null,
-          outcome: 'success',
-          statusCode: 200,
-        ),
-      );
-      return count;
-    });
+    final int mediaCount;
+    try {
+      mediaCount = await _database.transaction(() async {
+        final count = await _backups.restore(validated);
+        await CollectionAuditLog(_database).record(
+          AuditEvent(
+            actor: actor.auditActor,
+            action: 'collection.restore',
+            recordType: 'collection',
+            recordId: null,
+            outcome: 'success',
+            statusCode: 200,
+          ),
+        );
+        return count;
+      });
+    } catch (error) {
+      if (MediaStoragePolicy.isQuotaError(error)) {
+        throw const ApiProblem(
+          413,
+          'media_storage_limit',
+          'The backup exceeds Shared Care picture storage.',
+        );
+      }
+      rethrow;
+    }
     return ApiReply(200, {
       'restored': true,
       'boxes': validated.boxCount,

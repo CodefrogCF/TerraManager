@@ -159,7 +159,7 @@ receives a new audit identity. Portable collection restore is unaffected.
 | Weight | `GET/POST /animals/{id}/weights`, `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`, `PUT/DELETE /animals/{id}/shedding/{eventId}` |
 | Picture galleries | `GET/POST /boxes/{id}/pictures` and `/animals/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
-| Media | `POST /media` with `fileName`, `mimeType` and `dataBase64`; `GET /media/{id}` returns image bytes |
+| Media | `GET /media/{id}` returns authenticated image bytes; `POST /media` is no longer supported |
 | Portable backup | Administrator-only `GET /admin/backups` downloads a `.tmbackup`; `POST /admin/backups/restore` replaces the collection after confirmation |
 
 Creation of a Box generates its permanent QR identifier on the server.
@@ -213,8 +213,14 @@ The API applies the existing environmental, taxonomy, Box-assignment and
 lifecycle rules on the server. Grouped feeding and Animal reassignment run
 inside database transactions. Only archived Boxes and Animals can be
 permanently deleted. Direct gallery uploads add the image and association in
-one transaction. Image uploads accept PNG, JPEG and WebP up to 8 MiB; they are
-authenticated like every collection endpoint.
+one transaction. Image uploads accept static PNG, JPEG and WebP up to 8 MiB,
+8,192 pixels on either side and 20,971,520 pixels in total. The server decodes
+each image before storage and keeps the original bytes, including orientation
+metadata. The total stored image data in Shared Care is limited to 512 MiB;
+gallery copies and restored pictures count toward that total. An existing
+collection above the limit remains readable and can delete pictures, but
+cannot add more until it is below the limit. Uploads are authenticated like
+every collection endpoint.
 
 ## Errors
 
@@ -231,6 +237,7 @@ Errors have the stable shape
 | 409 | `stale_record` | Record changed since the editor opened; reload and review it |
 | 409 | `idempotency_conflict` | A feeding request key was reused with different data |
 | 413 | `too_large` | Request exceeds the body limit |
+| 413 | `media_storage_limit` | Stored Shared Care pictures exceed the collection limit |
 | 415 | `unsupported_media_type` | Write request is not JSON |
 | 429 | `rate_limited` | Too many failed login attempts in five minutes |
 | 500 | `internal_error` | Unexpected server failure; details are not returned |

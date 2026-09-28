@@ -1187,6 +1187,8 @@ Disadvantages:
 
 **Date:** 2026-09-09
 
+**Updated:** 2026-09-28 (Android Gradle dependency locks)
+
 ### Context
 
 Release confidence previously depended on commands run manually on one Windows
@@ -1207,10 +1209,15 @@ push and pull request verifies the committed dependency lock, generated
 localizations, formatting, static analysis, the complete test suite, an
 Android Debug APK and a Web Release build.
 
-The committed `pubspec.lock` is the exact dependency baseline. Upgrades occur
-only in focused changes with regression validation. The supported Gradle,
-Android Gradle Plugin and Kotlin declarations and their upgrade procedure are
-recorded in `docs/toolchain-baseline.md`.
+The committed `pubspec.lock` fixes Dart package versions. Strict Gradle
+dependency locks fix the resolved Android app, plugin and plugin-buildscript
+module versions in repository-owned files; settings plugin resolution has its
+own lockfile. Flutter engine artifacts follow the pinned Flutter SDK. A
+specific Kotlin transitive is excluded because Gradle resolves it differently
+after loading a lock; the exception and its verification boundary are recorded
+in `docs/toolchain-baseline.md`. Upgrades occur only in focused changes with
+regression validation. The supported Gradle, Android Gradle Plugin and Kotlin
+declarations and their upgrade procedure are recorded there as well.
 
 Public CI does not receive production signing credentials and does not build a
 Release APK or AAB. Those artifacts remain in the documented authorized local

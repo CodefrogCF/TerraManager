@@ -67,6 +67,11 @@ jobs:
       - name: Build Android Debug APK
         run: flutter build apk --debug
 
+      - name: Verify Android Gradle locks
+        run: |
+          git diff --exit-code -- android
+          test -z "$(git ls-files --others --exclude-standard -- 'android/*.lockfile' 'android/app/*.lockfile' 'android/gradle-locks/*.lockfile')"
+
       - name: Build Drift Web worker
         run: dart compile js -O4 web/drift_worker.dart -o web/drift_worker.dart.js
 

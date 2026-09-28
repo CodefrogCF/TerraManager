@@ -1,8 +1,8 @@
 # Toolchain and Quality-Gate Baseline
 
-This document defines the supported development and continuous-integration
-baseline for the TerraManager v1.0.0 preparation cycle. A toolchain upgrade is
-a deliberate maintenance change and must not happen implicitly during an
+This document defines the current supported development and
+continuous-integration baseline for TerraManager. A toolchain upgrade is a
+deliberate maintenance change and must not happen implicitly during an
 unrelated feature or release build.
 
 ## Supported baseline
@@ -46,6 +46,57 @@ The message that newer incompatible package versions are available is
 informational. It does not make the locked build invalid and is not a reason to
 upgrade dependencies during release packaging.
 
+### Android Gradle dependency locks
+
+Android uses [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html)
+in strict mode for every repository build project. Gradle-generated files are
+committed alongside the build configuration:
+
+- `android/settings-gradle.lockfile` records the settings/plugin classpath,
+  including the declared Android and Kotlin Gradle plugins;
+- `android/app/gradle.lockfile` records the app's Debug, Profile, Release and
+  test dependency configurations;
+- `android/gradle-locks/<plugin>.lockfile` records each included Flutter Android
+  plugin project's dependencies, and `android/gradle-locks/<plugin>-buildscript.lockfile`
+  records a plugin buildscript when it resolves a classpath.
+
+Flutter plugin projects live in the Pub cache; their lockfile locations are
+redirected into this repository. The Android root project has no resolvable
+external project dependencies, so Gradle does not produce an
+`android/gradle.lockfile`. The Flutter Gradle plugin's included build belongs to
+the pinned Flutter SDK rather than this repository. These lockfiles pin module
+versions; they are not artifact checksum or signature verification.
+
+Two narrowly scoped modules are excluded from project lockfiles:
+`io.flutter:*` tracks the pinned Flutter engine revision, and Gradle can resolve
+`org.jetbrains.kotlin:kotlin-stdlib-common` only after applying the otherwise
+complete Kotlin lock state. The latter is a known
+[Gradle locking inconsistency](https://github.com/gradle/gradle/issues/21396);
+other Kotlin modules and plugin classpaths remain locked. Revisit both
+exclusions during a coordinated Flutter/Gradle/Kotlin upgrade.
+
+To refresh Android locks after an intentional dependency or toolchain change,
+use the pinned Flutter and Java toolchain from the table above. From the
+repository root:
+
+```sh
+flutter pub get
+flutter build apk --config-only
+cd android
+./gradlew resolveAndroidDependencyLocks --write-locks
+./gradlew :app:assembleDebug --write-locks
+./gradlew :app:assembleDebug
+```
+
+On Windows, use `.\gradlew.bat` in place of `./gradlew`. The first Gradle task
+resolves every currently included Android project; the Debug build also covers
+configurations that Android Gradle Plugin resolves only during build tasks.
+Review and commit all changed lockfiles together with any affected
+`pubspec.lock` and build declarations. The final build omits `--write-locks`
+so strict locking checks the committed state. Release signing is not needed
+for this refresh. The signed Release build remains a separate release-owner
+check.
+
 ## Automated quality gates
 
 `.github/workflows/quality-gates.yml` runs for pushes, pull requests and manual
@@ -56,7 +107,11 @@ dispatches. Third-party actions are pinned to complete commit hashes. The job:
 3. generates localization output;
 4. rejects formatting differences in `lib/` and `test/`;
 5. runs `flutter analyze` and the complete test suite;
-6. builds an Android Debug APK and a Web Release bundle.
+6. builds an Android Debug APK with strict Gradle locks, verifies the Android
+   source and lockfiles are unchanged, and builds a Web Release bundle.
+
+The separate `shared-care-server` job checks the server's Dart lockfile, builds
+the ARM64 server image and smoke-tests administrator setup and health.
 
 The Android CI build is intentionally Debug. Production APK and AAB builds
 require the private TerraManager signing key and remain part of the authorized
@@ -112,7 +167,7 @@ For every proposed baseline update:
 1. open a focused maintenance Issue;
 2. update the pinned workflow version and this document together;
 3. run `flutter pub outdated` and review direct and transitive changes;
-4. update `pubspec.lock` intentionally;
+4. update `pubspec.lock` and affected Android Gradle lockfiles intentionally;
 5. regenerate localization and Drift output when affected;
 6. run all quality gates and supported platform builds;
 7. repeat backup, camera, scanner, media and physical Android regressions when

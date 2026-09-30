@@ -205,6 +205,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('shared-create-backup-button')));
     await tester.pump();
+    await tester.tap(find.byKey(const Key('backup-password-submit')));
+    await tester.pump();
 
     final readsBeforeWait = boxReads;
     await tester.pump(const Duration(seconds: 16));

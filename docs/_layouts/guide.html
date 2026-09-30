@@ -112,7 +112,7 @@
                   {% endif %}
                 </div>
 
-                {% if step.images.size > 1 %}
+                {% if step.images and step.images.size > 1 %}
                   <div class="shot-pair{% if step.wide_images %} wide-shot-pair{% endif %}">
                     {% for image in step.images %}
                       <figure class="app-shot">
@@ -121,7 +121,7 @@
                       </figure>
                     {% endfor %}
                   </div>
-                {% else %}
+                {% elsif step.images and step.images.size > 0 %}
                   {% assign image = step.images[0] %}
                   <figure class="app-shot solo-shot{% if section.tone == 'dark' %} dark-shot{% endif %}">
                     <img src="{{ '/guide/assets/images/' | append: image.file | relative_url }}" alt="{{ image.alt }}">

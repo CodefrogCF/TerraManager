@@ -224,7 +224,7 @@ class BackupValidationService {
       settings: settings,
       mediaFiles: mediaFiles,
       mediaPaths: mediaPaths,
-      readMedia: retainMediaBytes
+      mediaReader: retainMediaBytes
           ? null
           : (path) {
               final entry = files[path];
@@ -235,7 +235,7 @@ class BackupValidationService {
                 entry.closeSync();
               }
             },
-      onDispose: onDispose,
+      disposer: onDispose,
       hasLegacyTimestamps: hasLegacyTimestamps,
     );
   }

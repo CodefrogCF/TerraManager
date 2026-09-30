@@ -73,8 +73,8 @@ Future<ValidatedBackup> validatePickedBackupEncrypted(
       hasLegacyTimestamps: backup.hasLegacyTimestamps,
       mediaFiles: backup.mediaFiles,
       mediaPaths: backup.mediaPaths,
-      readMedia: backup.readMedia,
-      onDispose: () {
+      mediaReader: backup.readMedia,
+      disposer: () {
         backup.dispose();
         directory.deleteSync(recursive: true);
       },

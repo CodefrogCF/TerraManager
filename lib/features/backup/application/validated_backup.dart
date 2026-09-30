@@ -12,8 +12,8 @@ class ValidatedBackup {
 
   final Map<String, Uint8List> mediaFiles;
   final Set<String> mediaPaths;
-  final Uint8List? Function(String path)? _readMedia;
-  final void Function()? _onDispose;
+  final Uint8List? Function(String path)? mediaReader;
+  final void Function()? disposer;
 
   ValidatedBackup({
     required this.manifest,
@@ -22,17 +22,15 @@ class ValidatedBackup {
     this.hasLegacyTimestamps = false,
     required Map<String, Uint8List> mediaFiles,
     Set<String>? mediaPaths,
-    Uint8List? Function(String path)? readMedia,
-    void Function()? onDispose,
+    this.mediaReader,
+    this.disposer,
   }) : mediaFiles = Map.unmodifiable(mediaFiles),
-       mediaPaths = Set.unmodifiable(mediaPaths ?? mediaFiles.keys.toSet()),
-       _readMedia = readMedia,
-       _onDispose = onDispose;
+       mediaPaths = Set.unmodifiable(mediaPaths ?? mediaFiles.keys.toSet());
 
   Uint8List? readMedia(String path) =>
-      _readMedia?.call(path) ?? mediaFiles[path];
+      mediaReader?.call(path) ?? mediaFiles[path];
 
-  void dispose() => _onDispose?.call();
+  void dispose() => disposer?.call();
 
   int get boxCount => data.boxes.length;
 

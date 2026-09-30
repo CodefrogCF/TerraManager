@@ -192,7 +192,7 @@ void main() {
     },
   );
 
-  test('documents local data permissions and unencrypted backups', () {
+  test('documents local data permissions and optional backup protection', () {
     final privacy = read('PRIVACY.md');
     final productionManifest = read('android/app/src/main/AndroidManifest.xml');
 
@@ -206,7 +206,8 @@ void main() {
     expect(privacy, contains('generated entirely'));
     expect(privacy, contains('operating-system save dialog'));
     expect(privacy, contains('additional broad storage, media or network'));
-    expect(privacy, contains('not encrypted'));
+    expect(privacy, contains('password-protected export'));
+    expect(privacy, contains('does not encrypt the server database'));
     expect(privacy, contains('analytics'));
     expect(
       privacy,

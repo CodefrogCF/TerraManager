@@ -2285,3 +2285,32 @@ Standalone safety copies must not silently become plaintext; Shared Care may
 encrypt/decrypt in the browser while retaining the server's existing plaintext
 restore API and administrator checks. Re-measure the complete feature, not just
 the codec, against the pinned release toolchain.
+
+### Stretch-milestone implementation status (2026-09-30)
+
+The optional version-1 encrypted container now wraps the unchanged portable
+ZIP. It authenticates the complete header and ordered 256 KiB frames with
+Argon2id and AES-256-GCM, fresh salt and nonce material per export, and a
+final authenticated empty frame. Standalone and Shared Care clients offer
+password-protected export. Import detects the container before ZIP parsing;
+Shared Care decrypts in the browser and sends only the inner ZIP to the
+existing authenticated restore API. The password is not persisted or sent to
+the Shared Care server. Native encrypted exports spool only ciphertext, and
+native encrypted imports authenticate the whole file before validation while
+re-reading media one at a time from the encrypted file. A standalone restore
+of an encrypted backup saves its safety copy under the same password. A Shared
+Care restore of an encrypted backup requires its current safety copy to have
+been saved with password protection.
+
+This implementation has not yet met the 256 MiB, bounded-memory acceptance
+condition on every platform. Browser import and the existing restore POST
+still materialize complete byte arrays, and browser Save As fallbacks do so
+for export. The server still stages the submitted plaintext ZIP while
+validating it, as described above; the decrypted archive is visible to that
+server and its operator. No physical Android or mobile-browser peak-memory
+measurement, cross-client device run, or final pinned-toolchain artifact-size
+comparison is recorded here. The proposed target is no more than 64 MiB
+additional peak memory versus the same unencrypted operation for a backup up
+to 256 MiB, but this is a target, not a measured property. The stretch
+milestone remains open until the browser path is bounded and those checks are
+recorded.

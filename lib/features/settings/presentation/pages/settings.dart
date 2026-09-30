@@ -1,3 +1,4 @@
+import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -13,11 +14,14 @@ import '../../../../l10n/app_localizations_labels.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
 
 import '../../../backup/application/backup_export_service.dart';
+import '../../../backup/application/backup_export_result.dart';
 import '../../../backup/application/backup_restore_service.dart';
 import '../../../backup/application/backup_validation_exception.dart';
 import '../../../backup/application/backup_validation_service.dart';
+import '../../../backup/application/encrypted_backup_container.dart';
 import '../../../backup/application/validated_backup.dart';
 import '../../../backup/infrastructure/backup_file_service.dart';
+import '../../../backup/presentation/backup_password_dialog.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
 import '../../application/box_qr_archive_export_service.dart';
 import '../../application/box_qr_batch_export_service.dart';
@@ -167,6 +171,9 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
 
+    final protection = await chooseBackupProtection(context);
+    if (protection == null || !mounted) return;
+
     setState(() {
       _backupBusy = true;
       _backupProgressVisible = true;
@@ -177,21 +184,26 @@ class _SettingsPageState extends State<SettingsPage> {
 
       final appVersion = await _loadAppVersion();
 
-      final savedPath = await _backupFileGateway.saveGeneratedBackup(
-        (output) => _backupExportService.writeBackup(
-          appVersion: appVersion,
-          themeMode: settings.themeMode,
-          accent: settings.accent,
-          language: settings.language,
-          animalNameOrder: settings.animalNameOrder,
-          animalSortOrder: settings.animalSortOrder,
-          boxSortOrder: settings.boxSortOrder,
-          animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
-          nextFeedingSummaryEnabled: settings.nextFeedingSummaryEnabled,
-          bigPictureModeEnabled: settings.bigPictureModeEnabled,
-          output: output,
-        ),
-      );
+      Future<BackupExportMetadata> writer(OutputStream output) =>
+          _backupExportService.writeBackup(
+            appVersion: appVersion,
+            themeMode: settings.themeMode,
+            accent: settings.accent,
+            language: settings.language,
+            animalNameOrder: settings.animalNameOrder,
+            animalSortOrder: settings.animalSortOrder,
+            boxSortOrder: settings.boxSortOrder,
+            animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
+            nextFeedingSummaryEnabled: settings.nextFeedingSummaryEnabled,
+            bigPictureModeEnabled: settings.bigPictureModeEnabled,
+            output: output,
+          );
+      final savedPath = protection.encrypted
+          ? await _backupFileGateway.saveGeneratedEncryptedBackup(
+              writer,
+              password: protection.password!,
+            )
+          : await _backupFileGateway.saveGeneratedBackup(writer);
 
       if (!mounted) {
         return;
@@ -237,6 +249,7 @@ class _SettingsPageState extends State<SettingsPage> {
       _backupProgressVisible = true;
     });
 
+    ValidatedBackup? selectedBackup;
     try {
       final picked = await _backupFileGateway.pickBackup();
 
@@ -245,9 +258,22 @@ class _SettingsPageState extends State<SettingsPage> {
       }
 
       final ValidatedBackup backup;
+      String? importPassword;
 
       try {
-        backup = await picked.validate(_backupValidationService);
+        if (await picked.isEncrypted) {
+          if (!mounted) return;
+          setState(() => _backupProgressVisible = false);
+          importPassword = await askBackupPassword(context);
+          if (importPassword == null || !mounted) return;
+          setState(() => _backupProgressVisible = true);
+          backup = await picked.validateEncrypted(
+            _backupValidationService,
+            password: importPassword,
+          );
+        } else {
+          backup = await picked.validate(_backupValidationService);
+        }
       } on BackupValidationException catch (error) {
         if (!mounted) {
           return;
@@ -260,7 +286,21 @@ class _SettingsPageState extends State<SettingsPage> {
         await _showValidationError(error);
 
         return;
+      } on EncryptedBackupException catch (error) {
+        if (!mounted) return;
+        _showMessage(
+          error.code == EncryptedBackupError.authenticationFailed
+              ? sharedText(
+                  context,
+                  'Incorrect password or modified/damaged backup.',
+                  'Falsches Passwort oder veränderte/beschädigte Sicherung.',
+                )
+              : error.message,
+          error: true,
+        );
+        return;
       }
+      selectedBackup = backup;
 
       if (!mounted) {
         return;
@@ -300,9 +340,12 @@ class _SettingsPageState extends State<SettingsPage> {
         database: widget.database,
         settingsController: settings,
         safetyBackupWriter: (writeArchive) async {
-          final savedPath = await _backupFileGateway.saveGeneratedBackup(
-            writeArchive,
-          );
+          final savedPath = importPassword == null
+              ? await _backupFileGateway.saveGeneratedBackup(writeArchive)
+              : await _backupFileGateway.saveGeneratedEncryptedBackup(
+                  writeArchive,
+                  password: importPassword,
+                );
 
           if (savedPath == null) {
             throw StateError('Safety backup save was cancelled.');
@@ -338,6 +381,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
       _showMessage(context.l10n.failedToRestoreBackup, error: true);
     } finally {
+      selectedBackup?.dispose();
       if (mounted) {
         setState(() {
           _backupBusy = false;

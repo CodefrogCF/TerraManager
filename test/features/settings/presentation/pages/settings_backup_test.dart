@@ -151,6 +151,8 @@ void main() {
     await scrollToKey(tester, const Key('create-backup-button'));
 
     await tester.tap(find.byKey(const Key('create-backup-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('backup-password-submit')));
 
     await pumpUntil(tester, () => fileGateway.savedBackups.length == 1);
 

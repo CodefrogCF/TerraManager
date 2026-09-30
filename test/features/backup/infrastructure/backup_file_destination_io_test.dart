@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
+import 'package:terramanager/features/backup/application/encrypted_backup_container.dart';
 import 'package:terramanager/features/backup/infrastructure/backup_file_destination_io.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 
@@ -41,6 +42,32 @@ void main() {
           await File(path).readAsBytes(),
         );
         expect(validated.boxCount, 0);
+        return 'saved';
+      },
+    );
+    expect(saved, 'saved');
+    expect(await Directory('${testDirectory.path}/spool').exists(), isFalse);
+  });
+
+  test('protected native save spools only authenticated ciphertext', () async {
+    final saved = await saveGeneratedEncryptedBackupToFile(
+      (output) => BackupExportService(database).writeBackup(
+        appVersion: 'test',
+        themeMode: ThemeMode.system,
+        accent: AppAccent.green,
+        output: output,
+      ),
+      password: 'private test password',
+      createTemporaryDirectory: createSpool,
+      saveFromPath: (name, path) async {
+        expect(name, endsWith('.tmbackup'));
+        final bytes = await File(path).readAsBytes();
+        expect(bytes.sublist(0, 8), EncryptedBackupContainer.magic);
+        final plain = await EncryptedBackupContainer.decryptBytes(
+          bytes,
+          password: 'private test password',
+        );
+        expect(BackupValidationService().validate(plain).boxCount, 0);
         return 'saved';
       },
     );

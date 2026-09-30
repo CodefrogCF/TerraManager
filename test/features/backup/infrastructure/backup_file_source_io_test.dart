@@ -10,7 +10,9 @@ import 'package:terramanager/core/database/repositories/picture_gallery_reposito
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
 import 'package:terramanager/features/backup/application/backup_validation_exception.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
+import 'package:terramanager/features/backup/application/encrypted_backup_container.dart';
 import 'package:terramanager/features/backup/infrastructure/backup_file_source_io.dart';
+import 'package:archive/archive.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 
 void main() {
@@ -66,6 +68,37 @@ void main() {
       expect(await file.exists(), isFalse);
     },
   );
+
+  test('validates encrypted native file and reads media lazily', () async {
+    final plain = await createArchive();
+    final file = File('${testDirectory.path}/encrypted.tmbackup');
+    final output = OutputFileStream(file.path);
+    final encrypted = await EncryptedBackupContainer.newOutput(
+      output,
+      password: 'portable-secret',
+    );
+    encrypted.writeBytes(plain);
+    encrypted.finish();
+    encrypted.dispose();
+    await output.close();
+
+    final backup = await validateEncryptedBackupFilePath(
+      file.path,
+      BackupValidationService(),
+      'portable-secret',
+    );
+    try {
+      expect(backup.mediaFileCount, 1);
+      expect(backup.mediaFiles, isEmpty);
+      final path = backup.mediaPaths.single;
+      expect(backup.readMedia(path), [1, 2, 3, 4]);
+      expect(backup.readMedia(path), [1, 2, 3, 4]);
+    } finally {
+      backup.dispose();
+    }
+    await file.delete();
+    expect(await file.exists(), isFalse);
+  });
 
   test(
     'spooled byte stream validates and removes its temporary file',

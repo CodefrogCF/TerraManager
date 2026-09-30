@@ -299,7 +299,7 @@ class PortableBackupDatabaseRestorer {
     final restored = <_RestoredPicture>[];
     int? primaryMediaId;
     for (final picture in effectivePictures) {
-      final bytes = backup.mediaFiles[picture.mediaPath];
+      final bytes = backup.readMedia(picture.mediaPath);
       if (bytes == null) {
         throw StateError(
           'Validated backup is missing media: ${picture.mediaPath}',

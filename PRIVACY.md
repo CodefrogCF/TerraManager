@@ -157,14 +157,23 @@ TerraManager does not automatically upload backups to a TerraManager server or c
 In Shared Care, administrators can explicitly download or restore a portable
 collection backup. The operator should also back up the server volume to
 protect both the collection and account databases. Portable backups exclude
-accounts, sessions and personal account preferences. Neither type of backup
-is encrypted by TerraManager; the operator controls its storage and access.
+accounts, sessions and personal account preferences. Portable exports can
+optionally be encrypted with a user-chosen password in the browser. Backups of
+the server volume are separate and remain the operator's responsibility.
 
 The user chooses where an exported backup is stored or transferred.
 
-TerraManager backup archives are not encrypted by TerraManager. Anyone who
-obtains access to an exported backup may be able to read the collection data
-and media contained in it.
+Unprotected portable exports are readable ZIP archives. An optional
+password-protected export encrypts the complete archive on the device with
+Argon2id and AES-256-GCM. TerraManager does not store or recover the password.
+Anyone who obtains an unprotected export may be able to read its collection
+data and media. A lost password prevents recovery of a protected export.
+
+For Shared Care, the browser encrypts a downloaded backup locally. During a
+restore, the browser decrypts the selected file and sends the ordinary
+portable ZIP to the operator's server over the authenticated connection. The
+server can therefore read the restored collection; password protection of
+the exported file does not encrypt the server database or its volume backups.
 
 Users should therefore store and transfer backup files using appropriately
 protected storage and communication methods.

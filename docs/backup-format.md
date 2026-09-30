@@ -109,10 +109,49 @@ Backup Format 2
 
 New backups are always created as Backup Format Version 2.
 
-Current `.tmbackup` files are unencrypted ZIP archives. Password-encrypted
-backups are not yet supported. The evaluation and deferred implementation
-conditions are recorded in [ADR-036](architecture-decisions.md); no encrypted
-container or new portable backup version was released with Issue #118.
+New `.tmbackup` files may be plain ZIP archives or password-protected
+containers. The inner ZIP remains portable format 2 in either case. Plain
+format-1 and format-2 ZIP files remain readable. The outer container has its
+own version and does not change `backupFormatVersion`.
+
+### Password-protected container version 1
+
+All integer fields below are unsigned. Multi-byte fields are little-endian
+unless stated otherwise. The 42-byte header is:
+
+| Offset | Bytes | Content |
+|---:|---:|---|
+| 0 | 8 | ASCII `TMBKENC!` |
+| 8 | 1 | Container version `1` |
+| 9 | 1 | KDF `1` = Argon2id |
+| 10 | 1 | Cipher `1` = AES-256-GCM |
+| 11 | 4 | Maximum plaintext frame size, `262144` |
+| 15 | 4 | Argon2id memory in KiB, currently `19456` |
+| 19 | 2 | Argon2id iterations, currently `2` |
+| 21 | 1 | Argon2id parallelism, currently `1` |
+| 22 | 16 | Fresh random salt |
+| 38 | 4 | Fresh random nonce prefix |
+
+Argon2id derives a 32-byte key from the entered password and the header salt.
+Each frame is a four-byte plaintext length followed by that many ciphertext
+bytes and a 16-byte GCM tag. The AES-GCM nonce is the header nonce prefix
+followed by the zero-based 64-bit frame number in big-endian order. Additional
+authenticated data is the entire header, the frame number in big-endian order,
+and the plaintext length in little-endian order. The last frame has length
+zero and an authenticated tag. Readers reject missing final frames, extra
+bytes, invalid lengths and unsupported header parameters. A wrong password
+and modified ciphertext intentionally have the same authentication error.
+No filename, manifest, media or settings appear outside the encrypted payload;
+the container header reveals only its format and KDF settings.
+
+The password is never stored in a backup, settings, account data or server
+request. It cannot be recovered. Shared Care encrypts the downloaded ZIP in
+the browser and decrypts a selected protected file before submitting the
+ordinary portable ZIP to the server over its authenticated connection.
+The Shared Care server therefore processes the inner ZIP and is not a
+password-recovery service. Native encrypted export writes only encrypted
+bytes to its temporary save file. A stream-only encrypted selection is staged
+as ciphertext and removed after restore or cancellation.
 
 Backup Format Version 1 remains supported for backward compatibility with
 backups created by TerraManager 0.6.x.

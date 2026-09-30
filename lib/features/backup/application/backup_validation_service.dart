@@ -38,9 +38,23 @@ class BackupValidationService {
   ValidatedBackup validateStream(InputStream input) =>
       _validate(input, closeArchiveEntries: false);
 
+  /// File-backed encrypted inputs can re-read media after validation without
+  /// retaining every decoded image in memory.
+  ValidatedBackup validateLazyStream(
+    InputStream input, {
+    void Function()? onDispose,
+  }) => _validate(
+    input,
+    closeArchiveEntries: false,
+    retainMediaBytes: false,
+    onDispose: onDispose,
+  );
+
   ValidatedBackup _validate(
     InputStream input, {
     required bool closeArchiveEntries,
+    bool retainMediaBytes = true,
+    void Function()? onDispose,
   }) {
     if (input.length == 0) {
       throw const BackupValidationException(
@@ -189,11 +203,18 @@ class BackupValidationService {
 
     _validateData(data);
 
-    final mediaFiles = _validateMedia(data, files);
+    final mediaPaths = <String>{};
+    final mediaFiles = _validateMedia(
+      data,
+      files,
+      mediaPaths: mediaPaths,
+      retainMediaBytes: retainMediaBytes,
+    );
     _verifyRestoreEntries(
       files,
       expectedEntries,
       mediaFiles,
+      mediaPaths: mediaPaths,
       closeArchiveEntries: closeArchiveEntries,
     );
 
@@ -202,6 +223,19 @@ class BackupValidationService {
       data: data,
       settings: settings,
       mediaFiles: mediaFiles,
+      mediaPaths: mediaPaths,
+      readMedia: retainMediaBytes
+          ? null
+          : (path) {
+              final entry = files[path];
+              if (entry == null) return null;
+              try {
+                return entry.readBytes();
+              } finally {
+                entry.closeSync();
+              }
+            },
+      onDispose: onDispose,
       hasLegacyTimestamps: hasLegacyTimestamps,
     );
   }
@@ -210,6 +244,7 @@ class BackupValidationService {
     Map<String, ArchiveFile> files,
     Map<String, (int, int)> expectedEntries,
     Map<String, Uint8List> mediaFiles, {
+    required Set<String> mediaPaths,
     required bool closeArchiveEntries,
   }) {
     // Extra ZIP entries are ignored by the portable format. Do not expand
@@ -218,7 +253,7 @@ class BackupValidationService {
       BackupFormat.manifestFileName,
       BackupFormat.dataFileName,
       BackupFormat.settingsFileName,
-      ...mediaFiles.keys,
+      ...mediaPaths,
     };
     for (final path in paths) {
       final file = files[path]!;
@@ -750,8 +785,10 @@ class BackupValidationService {
 
   Map<String, Uint8List> _validateMedia(
     BackupData data,
-    Map<String, ArchiveFile> archiveFiles,
-  ) {
+    Map<String, ArchiveFile> archiveFiles, {
+    required Set<String> mediaPaths,
+    required bool retainMediaBytes,
+  }) {
     final result = <String, Uint8List>{};
 
     for (final box in data.boxes) {
@@ -763,6 +800,8 @@ class BackupValidationService {
         isValidPath: _isValidBoxMediaPath,
         archiveFiles: archiveFiles,
         result: result,
+        mediaPaths: mediaPaths,
+        retainMediaBytes: retainMediaBytes,
       );
     }
 
@@ -775,6 +814,8 @@ class BackupValidationService {
         isValidPath: _isValidAnimalMediaPath,
         archiveFiles: archiveFiles,
         result: result,
+        mediaPaths: mediaPaths,
+        retainMediaBytes: retainMediaBytes,
       );
     }
 
@@ -789,6 +830,8 @@ class BackupValidationService {
     required bool Function(String path) isValidPath,
     required Map<String, ArchiveFile> archiveFiles,
     required Map<String, Uint8List> result,
+    required Set<String> mediaPaths,
+    required bool retainMediaBytes,
   }) {
     final paths = pictures.map((picture) => picture.mediaPath).toList();
     if (paths.isEmpty && primaryPath != null) {
@@ -842,6 +885,11 @@ class BackupValidationService {
           code: BackupValidationErrorCode.emptyMedia,
           message: 'Referenced media file is empty: $mediaPath',
         );
+      }
+      mediaPaths.add(mediaPath);
+      if (!retainMediaBytes) {
+        file.closeSync();
+        continue;
       }
       // For compressed entries this is already an independent decoded
       // buffer. Stored entries can be views into the entire ZIP, so detach

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import '../application/backup_export_result.dart';
 import '../application/backup_validation_service.dart';
+import '../application/encrypted_backup_container.dart';
 import '../application/validated_backup.dart';
 import '../domain/backup_format.dart';
 import 'backup_file_destination_stub.dart'
@@ -42,6 +43,27 @@ class PickedBackupFile {
     if (file != null) return source.validatePickedBackup(file, validator);
     return validator.validate(bytes!);
   }
+
+  Future<bool> get isEncrypted async {
+    final file = _platformFile;
+    if (file != null) return source.isPickedBackupEncrypted(file);
+    return EncryptedBackupContainer.hasEncryptedHeader(bytes!.take(8).toList());
+  }
+
+  Future<ValidatedBackup> validateEncrypted(
+    BackupValidationService validator, {
+    required String password,
+  }) async {
+    final file = _platformFile;
+    if (file != null) {
+      return source.validatePickedBackupEncrypted(file, validator, password);
+    }
+    final plain = await EncryptedBackupContainer.decryptBytes(
+      bytes!,
+      password: password,
+    );
+    return validator.validate(plain);
+  }
 }
 
 abstract class BackupFileGateway {
@@ -59,10 +81,47 @@ abstract class BackupFileGateway {
     );
   }
 
+  Future<String?> saveGeneratedEncryptedBackup(
+    BackupArchiveWriter writer, {
+    required String password,
+  }) async {
+    final output = OutputMemoryStream();
+    final encrypted = await EncryptedBackupContainer.newOutput(
+      output,
+      password: password,
+    );
+    try {
+      final metadata = await writer(encrypted);
+      encrypted.finish();
+      return await saveBackup(
+        BackupExportResult.fromMetadata(
+          bytes: output.getBytes(),
+          metadata: metadata,
+        ),
+      );
+    } finally {
+      encrypted.dispose();
+    }
+  }
+
   Future<PickedBackupFile?> pickBackup();
 }
 
 class BackupFileService extends BackupFileGateway {
+  @override
+  Future<String?> saveGeneratedEncryptedBackup(
+    BackupArchiveWriter writer, {
+    required String password,
+  }) {
+    if (kIsWeb) {
+      return super.saveGeneratedEncryptedBackup(writer, password: password);
+    }
+    return destination.saveGeneratedEncryptedBackupToFile(
+      writer,
+      password: password,
+    );
+  }
+
   @override
   Future<String?> saveGeneratedBackup(BackupArchiveWriter writer) {
     if (kIsWeb) return super.saveGeneratedBackup(writer);

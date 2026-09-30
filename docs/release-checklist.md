@@ -57,6 +57,23 @@ At minimum review:
 - localization for changed user-visible text
 - platform-specific functionality touched by the release
 
+For a release containing password-protected portable backups, record the
+following before closing that milestone:
+
+- A physical Android device with approximately 4 GiB RAM and desktop/mobile
+  browsers: plain and protected export/restore, including a media-rich backup
+  near 256 MiB; record peak memory and duration against the same unencrypted
+  operation. The proposed additional-memory goal is at most 64 MiB.
+- Cross-client standalone and Shared Care imports, including portable formats
+  1 and 2, wrong password, tampering, truncation, cancellation and safety-copy
+  failure; verify that failed operations leave the collection unchanged.
+- Check that no password appears in settings, logs, API requests or the file;
+  inspect native temporary files and browser download fallbacks for plaintext.
+- Compare final signed APK/AAB and both Web bundles with the Issue #118
+  baseline using the pinned toolchain; record byte sizes and tool versions.
+- Regenerate and inspect both downloadable guide PDFs after updating the
+  English and German guide data.
+
 Do not duplicate feature-specific test matrices here. Feature-specific regression
 coverage belongs to the implementation issue and automated tests.
 

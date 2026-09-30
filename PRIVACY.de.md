@@ -165,12 +165,25 @@ Im Shared-Care-Modus können Administratoren eine portable Sammlungssicherung
 ausdrücklich herunterladen oder wiederherstellen. Der Betreiber sollte
 zusätzlich das Serververzeichnis sichern, damit Sammlung und Kontodatenbanken
 geschützt sind. Portable Sicherungen enthalten keine Konten, Sitzungen oder
-persönlichen Kontoeinstellungen. TerraManager verschlüsselt keine dieser
-Sicherungen; der Betreiber schützt Speicherort und Zugriff.
+persönlichen Kontoeinstellungen. Portable Exporte können im Browser optional
+mit einem selbst gewählten Passwort verschlüsselt werden. Sicherungen des
+Serververzeichnisses sind davon getrennt und bleiben Aufgabe des Betreibers.
 
 Die Benutzerin oder der Benutzer wählt aus, wo eine exportierte Sicherung gespeichert oder wohin sie übertragen wird.
 
-TerraManager verschlüsselt Sicherungsarchive nicht. Personen, die Zugriff auf eine exportierte Sicherung erhalten, können möglicherweise die darin enthaltenen Sammlungsdaten und Medien lesen.
+Ungeschützte portable Exporte sind lesbare ZIP-Archive. Bei einem optionalen
+passwortgeschützten Export wird das gesamte Archiv auf dem Gerät mit Argon2id
+und AES-256-GCM verschlüsselt. TerraManager speichert das Passwort nicht und
+kann es nicht wiederherstellen. Wer eine ungeschützte Sicherung erhält, kann
+die enthaltenen Sammlungsdaten und Medien möglicherweise lesen. Ein
+verlorenes Passwort verhindert die Wiederherstellung einer geschützten Datei.
+
+Bei Shared Care verschlüsselt der Browser einen heruntergeladenen Export
+lokal. Für eine Wiederherstellung entschlüsselt er die gewählte Datei und
+sendet das gewöhnliche portable ZIP über die authentifizierte Verbindung
+an den Server des Betreibers. Der Server kann die wiederhergestellte Sammlung
+daher lesen. Der Passwortschutz der Exportdatei verschlüsselt weder die
+Serverdatenbanken noch Sicherungen des Serververzeichnisses.
 
 Sicherungsdateien sollten deshalb nur über angemessen geschützte Speicher- und Übertragungswege gespeichert und übertragen werden.
 

@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
+import 'package:terramanager/features/backup/application/encrypted_backup_container.dart';
 import 'package:terramanager/features/backup/infrastructure/backup_file_service.dart';
+import 'package:terramanager/features/backup/presentation/backup_password_dialog.dart';
 import 'package:terramanager/shared_client/backups/infrastructure/streamed_backup_save_support_stub.dart'
     if (dart.library.js_interop) 'package:terramanager/shared_client/backups/infrastructure/streamed_backup_save_support_web.dart'
     as stream_support;
@@ -30,6 +34,7 @@ class SharedBackupSection extends StatefulWidget {
 class _SharedBackupSectionState extends State<SharedBackupSection> {
   bool _busy = false;
   String? _safetyToken;
+  bool _safetyEncrypted = false;
 
   void _message(String text) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
@@ -45,6 +50,8 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
 
   Future<void> _export() async {
     if (_busy || !widget.connected) return;
+    final protection = await chooseBackupProtection(context);
+    if (protection == null || !mounted) return;
     setState(() => _busy = true);
     widget.onBackupBusyChanged?.call(true);
     try {
@@ -54,7 +61,12 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         safetyToken = await widget.api.exportBackupTo((bytes) async {
           final saved = await FileSaver.instance.saveAsStream(
             name: fileName,
-            stream: bytes,
+            stream: protection.encrypted
+                ? EncryptedBackupContainer.encryptStream(
+                    bytes,
+                    password: protection.password!,
+                  )
+                : bytes,
             includeExtension: false,
             mimeType: MimeType.custom,
             customMimeType: 'application/vnd.terramanager.backup+zip',
@@ -65,7 +77,12 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         final backup = await widget.api.exportBackup();
         final saved = await FileSaver.instance.saveAs(
           name: backup.fileName,
-          bytes: backup.bytes,
+          bytes: protection.encrypted
+              ? await EncryptedBackupContainer.encryptBytes(
+                  backup.bytes,
+                  password: protection.password!,
+                )
+              : backup.bytes,
           includeExtension: false,
           mimeType: MimeType.custom,
           customMimeType: 'application/vnd.terramanager.backup+zip',
@@ -83,7 +100,10 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         );
         return;
       }
-      setState(() => _safetyToken = safetyToken);
+      setState(() {
+        _safetyToken = safetyToken;
+        _safetyEncrypted = protection.encrypted;
+      });
       _message(
         sharedText(
           context,
@@ -129,6 +149,18 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       }
       final picked = await BackupFileService().pickBackup();
       if (picked == null || !mounted) return;
+      final encrypted = await picked.isEncrypted;
+      if (!mounted) return;
+      if (encrypted && requiresSafety && !_safetyEncrypted) {
+        _message(
+          sharedText(
+            context,
+            'Save a password-protected safety backup before restoring an encrypted file.',
+            'Speichere vor der Wiederherstellung einer verschlüsselten Datei eine passwortgeschützte Sicherheitskopie.',
+          ),
+        );
+        return;
+      }
       const maxImportBytes = 256 * 1024 * 1024;
       final pickedLength = await picked.length();
       if (!mounted) return;
@@ -142,7 +174,19 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         );
         return;
       }
-      final backupBytes = await picked.readAsBytes();
+      final selectedBytes = await picked.readAsBytes();
+      final Uint8List backupBytes;
+      if (encrypted) {
+        if (!mounted) return;
+        final password = await askBackupPassword(context);
+        if (password == null || !mounted) return;
+        backupBytes = await EncryptedBackupContainer.decryptBytes(
+          selectedBytes,
+          password: password,
+        );
+      } else {
+        backupBytes = selectedBytes;
+      }
       if (!mounted) return;
       if (backupBytes.length > maxImportBytes) {
         _message(
@@ -219,7 +263,10 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         legacyTimeZone: legacyTimeZone,
       );
       if (!mounted) return;
-      setState(() => _safetyToken = null);
+      setState(() {
+        _safetyToken = null;
+        _safetyEncrypted = false;
+      });
       await widget.onRestored();
       if (mounted) {
         _message(
@@ -238,6 +285,18 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
             'No restore confirmation was received. The server may still be restoring. Wait, reload, and check the collection before trying again.',
             'Keine Bestätigung für die Wiederherstellung erhalten. Der Server arbeitet möglicherweise noch. Warte, lade neu und prüfe die Sammlung, bevor du es erneut versuchst.',
           ),
+        );
+      }
+    } on EncryptedBackupException catch (error) {
+      if (mounted) {
+        _message(
+          error.code == EncryptedBackupError.authenticationFailed
+              ? sharedText(
+                  context,
+                  'Incorrect password or modified/damaged backup.',
+                  'Falsches Passwort oder veränderte/beschädigte Sicherung.',
+                )
+              : error.message,
         );
       }
     } catch (error) {

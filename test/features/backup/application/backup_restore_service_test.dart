@@ -15,6 +15,7 @@ import 'package:terramanager/core/database/repositories/animal_weight_repository
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/repositories/shedding_repository.dart';
 import 'package:terramanager/features/backup/application/backup_restore_exception.dart';
+import 'package:terramanager/features/backup/application/backup_export_result.dart';
 import 'package:terramanager/features/backup/application/backup_restore_service.dart';
 import 'package:terramanager/features/backup/application/validated_backup.dart';
 import 'package:terramanager/features/backup/domain/backup_data.dart';
@@ -29,6 +30,10 @@ import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:archive/archive.dart';
 import 'package:terramanager/features/backup/domain/backup_format.dart';
+
+Future<void> _discardSafetyBackup(BackupArchiveWriter writeArchive) async {
+  await writeArchive(OutputMemoryStream());
+}
 
 void main() {
   late AppDatabase database;
@@ -237,7 +242,8 @@ void main() {
     final service = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (backup) async {
+      safetyBackupWriter: (writeArchive) async {
+        final backup = await writeArchive(OutputMemoryStream());
         safetyBackupWritten = true;
 
         expect(backup.data.animals.single.commonName, 'Old Animal');
@@ -449,6 +455,66 @@ void main() {
     expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
   });
 
+  test(
+    'restore refuses a safety writer that did not generate a backup',
+    () async {
+      await createExistingData();
+
+      final service = BackupRestoreService(
+        database: database,
+        settingsController: settingsController,
+        safetyBackupWriter: (_) async {},
+      );
+
+      await expectLater(
+        service.restore(
+          backup: createTargetBackup(),
+          currentAppVersion: '0.6.0',
+        ),
+        throwsA(
+          isA<BackupRestoreException>().having(
+            (error) => error.stage,
+            'stage',
+            BackupRestoreStage.safetyBackup,
+          ),
+        ),
+      );
+      expect(
+        (await database.select(database.animals).get()).single.commonName,
+        'Old Animal',
+      );
+    },
+  );
+
+  test('cancelled safety save leaves the collection unchanged', () async {
+    await createExistingData();
+
+    final service = BackupRestoreService(
+      database: database,
+      settingsController: settingsController,
+      safetyBackupWriter: (writeArchive) async {
+        await writeArchive(OutputMemoryStream());
+        throw StateError('Save As was cancelled.');
+      },
+    );
+
+    await expectLater(
+      service.restore(backup: createTargetBackup(), currentAppVersion: '0.6.0'),
+      throwsA(
+        isA<BackupRestoreException>().having(
+          (error) => error.stage,
+          'stage',
+          BackupRestoreStage.safetyBackup,
+        ),
+      ),
+    );
+    expect(
+      (await database.select(database.animals).get()).single.commonName,
+      'Old Animal',
+    );
+    expect(settingsController.themeMode, ThemeMode.light);
+  });
+
   test('missing media in unvalidated backup '
       'rolls back database and settings', () async {
     await createExistingData();
@@ -467,7 +533,7 @@ void main() {
     final service = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (_) async {},
+      safetyBackupWriter: _discardSafetyBackup,
     );
 
     await expectLater(
@@ -511,7 +577,7 @@ void main() {
     final service = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (_) async {},
+      safetyBackupWriter: _discardSafetyBackup,
     );
 
     // Deliberately bypasses validation
@@ -561,7 +627,7 @@ void main() {
     final service = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (_) async {},
+      safetyBackupWriter: _discardSafetyBackup,
     );
 
     await service.restore(
@@ -598,7 +664,7 @@ void main() {
     final service = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (_) async {},
+      safetyBackupWriter: _discardSafetyBackup,
     );
 
     await service.restore(backup: backup, currentAppVersion: '0.6.0');
@@ -629,7 +695,7 @@ void main() {
     final service = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (_) async {},
+      safetyBackupWriter: _discardSafetyBackup,
     );
 
     final result = await service.restore(
@@ -700,7 +766,7 @@ void main() {
       final restoreService = BackupRestoreService(
         database: database,
         settingsController: settingsController,
-        safetyBackupWriter: (_) async {},
+        safetyBackupWriter: _discardSafetyBackup,
       );
 
       await restoreService.restore(
@@ -728,7 +794,7 @@ void main() {
     final restoreService = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (_) async {},
+      safetyBackupWriter: _discardSafetyBackup,
     );
 
     await restoreService.restore(
@@ -787,7 +853,9 @@ void main() {
     final service = BackupRestoreService(
       database: database,
       settingsController: settingsController,
-      safetyBackupWriter: (backup) async {
+      safetyBackupWriter: (writeArchive) async {
+        final output = OutputMemoryStream();
+        final backup = await writeArchive(output);
         checkedSafetyBackup = true;
 
         expect(
@@ -806,7 +874,10 @@ void main() {
 
         expect(backup.mediaFileCount, 1);
 
-        final archive = ZipDecoder().decodeBytes(backup.bytes, verify: true);
+        final archive = ZipDecoder().decodeBytes(
+          output.getBytes(),
+          verify: true,
+        );
 
         final pictureFile = archive.find('media/boxes/$boxId.png');
 

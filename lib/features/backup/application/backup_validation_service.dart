@@ -30,8 +30,19 @@ class BackupValidationService {
     this.requireLegacyTimeZone = false,
   }) : qrIdValidator = qrIdValidator ?? isValidBoxQrId;
 
-  ValidatedBackup validate(Uint8List bytes) {
-    if (bytes.isEmpty) {
+  ValidatedBackup validate(Uint8List bytes) =>
+      _validate(InputMemoryStream(bytes), closeArchiveEntries: true);
+
+  /// Validates a caller-owned stream without loading the complete ZIP.
+  /// The caller closes the stream after this method returns.
+  ValidatedBackup validateStream(InputStream input) =>
+      _validate(input, closeArchiveEntries: false);
+
+  ValidatedBackup _validate(
+    InputStream input, {
+    required bool closeArchiveEntries,
+  }) {
+    if (input.length == 0) {
       throw const BackupValidationException(
         code: BackupValidationErrorCode.invalidArchive,
         message: 'Backup file is empty.',
@@ -39,11 +50,12 @@ class BackupValidationService {
     }
 
     final Archive archive;
+    final expectedEntries = <String, (int, int)>{};
 
     try {
       // Inspect the central directory before ZipDecoder can expand symlinks
       // or deduplicate names. Shared restores accept archives from browsers.
-      final directory = ZipDirectory()..read(InputMemoryStream(bytes));
+      final directory = ZipDirectory()..read(input);
       final seen = <String>{};
       var remaining = maxExpandedBytes;
       for (final header in directory.fileHeaders) {
@@ -63,6 +75,14 @@ class BackupValidationService {
             message: 'Backup contains duplicate archive entry: $name',
           );
         }
+        if (name.endsWith('/') &&
+            (header.uncompressedSize != 0 || header.crc32 != 0)) {
+          throw BackupValidationException(
+            code: BackupValidationErrorCode.invalidArchive,
+            message: 'Backup contains a non-empty directory entry: $name',
+          );
+        }
+        expectedEntries[name] = (header.uncompressedSize, header.crc32);
         if (((header.externalFileAttributes >> 16) & 0xf000) == 0xa000) {
           throw const BackupValidationException(
             code: BackupValidationErrorCode.invalidArchive,
@@ -80,7 +100,10 @@ class BackupValidationService {
           remaining -= header.uncompressedSize;
         }
       }
-      archive = ZipDecoder().decodeBytes(bytes, verify: true);
+      // archive 4.0.x accepts `verify: true` but does not currently check
+      // entry CRCs. Verify all entries consumed by restore explicitly.
+      input.reset();
+      archive = ZipDecoder().decodeStream(input);
     } on BackupValidationException {
       rethrow;
     } catch (error) {
@@ -167,6 +190,12 @@ class BackupValidationService {
     _validateData(data);
 
     final mediaFiles = _validateMedia(data, files);
+    _verifyRestoreEntries(
+      files,
+      expectedEntries,
+      mediaFiles,
+      closeArchiveEntries: closeArchiveEntries,
+    );
 
     return ValidatedBackup(
       manifest: manifest,
@@ -175,6 +204,49 @@ class BackupValidationService {
       mediaFiles: mediaFiles,
       hasLegacyTimestamps: hasLegacyTimestamps,
     );
+  }
+
+  void _verifyRestoreEntries(
+    Map<String, ArchiveFile> files,
+    Map<String, (int, int)> expectedEntries,
+    Map<String, Uint8List> mediaFiles, {
+    required bool closeArchiveEntries,
+  }) {
+    // Extra ZIP entries are ignored by the portable format. Do not expand
+    // them merely to check a checksum: an unused entry could be very large.
+    final paths = <String>{
+      BackupFormat.manifestFileName,
+      BackupFormat.dataFileName,
+      BackupFormat.settingsFileName,
+      ...mediaFiles.keys,
+    };
+    for (final path in paths) {
+      final file = files[path]!;
+      try {
+        final expected = expectedEntries[path];
+        if (expected == null) {
+          throw const FormatException('ZIP entry is missing from directory.');
+        }
+        final (expectedLength, expectedCrc) = expected;
+        final bytes = mediaFiles[path] ?? file.readBytes();
+        if (bytes == null ||
+            bytes.length != expectedLength ||
+            getCrc32(bytes) != expectedCrc) {
+          throw const FormatException('ZIP entry size or CRC mismatch.');
+        }
+      } catch (error) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.invalidArchive,
+          message: 'Backup contains a damaged archive entry: $path',
+          cause: error,
+        );
+      } finally {
+        // The returned media map owns its byte arrays; the ZIP entry no
+        // longer needs to retain an additional decompressed copy. File-backed
+        // entries share one file handle, which the caller closes at the end.
+        if (closeArchiveEntries) file.closeSync();
+      }
+    }
   }
 
   ArchiveFile _requiredFile(Map<String, ArchiveFile> files, String fileName) {
@@ -755,14 +827,28 @@ class BackupValidationService {
           message: 'Referenced media file is missing: $mediaPath',
         );
       }
-      final bytes = file.readBytes();
+      final Uint8List? bytes;
+      try {
+        bytes = file.readBytes();
+      } catch (error) {
+        throw BackupValidationException(
+          code: BackupValidationErrorCode.invalidArchive,
+          message: 'Referenced media file is damaged: $mediaPath',
+          cause: error,
+        );
+      }
       if (bytes == null || bytes.isEmpty) {
         throw BackupValidationException(
           code: BackupValidationErrorCode.emptyMedia,
           message: 'Referenced media file is empty: $mediaPath',
         );
       }
-      result[mediaPath] = Uint8List.fromList(bytes);
+      // For compressed entries this is already an independent decoded
+      // buffer. Stored entries can be views into the entire ZIP, so detach
+      // those to avoid retaining the whole input through one picture.
+      result[mediaPath] = bytes.buffer.lengthInBytes == bytes.lengthInBytes
+          ? bytes
+          : Uint8List.fromList(bytes);
     }
   }
 

@@ -158,6 +158,9 @@ TerraManager_Backup_YYYY-MM-DD_HH-mm.tmbackup
     └── boxes/
 ```
 
+The tree describes required paths, not ZIP entry order. Exporters may write
+media entries before the JSON entries; restore resolves entries by path.
+
 Version 2 adds the following portable Box fields. `name`, lifecycle metadata,
 `temperatureZones` and `notes` are later, backward-compatible extensions of the
 same format:

@@ -177,20 +177,21 @@ class _SettingsPageState extends State<SettingsPage> {
 
       final appVersion = await _loadAppVersion();
 
-      final backup = await _backupExportService.createBackup(
-        appVersion: appVersion,
-        themeMode: settings.themeMode,
-        accent: settings.accent,
-        language: settings.language,
-        animalNameOrder: settings.animalNameOrder,
-        animalSortOrder: settings.animalSortOrder,
-        boxSortOrder: settings.boxSortOrder,
-        animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
-        nextFeedingSummaryEnabled: settings.nextFeedingSummaryEnabled,
-        bigPictureModeEnabled: settings.bigPictureModeEnabled,
+      final savedPath = await _backupFileGateway.saveGeneratedBackup(
+        (output) => _backupExportService.writeBackup(
+          appVersion: appVersion,
+          themeMode: settings.themeMode,
+          accent: settings.accent,
+          language: settings.language,
+          animalNameOrder: settings.animalNameOrder,
+          animalSortOrder: settings.animalSortOrder,
+          boxSortOrder: settings.boxSortOrder,
+          animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
+          nextFeedingSummaryEnabled: settings.nextFeedingSummaryEnabled,
+          bigPictureModeEnabled: settings.bigPictureModeEnabled,
+          output: output,
+        ),
       );
-
-      final savedPath = await _backupFileGateway.saveBackup(backup);
 
       if (!mounted) {
         return;
@@ -246,7 +247,7 @@ class _SettingsPageState extends State<SettingsPage> {
       final ValidatedBackup backup;
 
       try {
-        backup = _backupValidationService.validate(picked.bytes);
+        backup = await picked.validate(_backupValidationService);
       } on BackupValidationException catch (error) {
         if (!mounted) {
           return;
@@ -298,8 +299,10 @@ class _SettingsPageState extends State<SettingsPage> {
       final restoreService = BackupRestoreService(
         database: widget.database,
         settingsController: settings,
-        safetyBackupWriter: (safetyBackup) async {
-          final savedPath = await _backupFileGateway.saveBackup(safetyBackup);
+        safetyBackupWriter: (writeArchive) async {
+          final savedPath = await _backupFileGateway.saveGeneratedBackup(
+            writeArchive,
+          );
 
           if (savedPath == null) {
             throw StateError('Safety backup save was cancelled.');

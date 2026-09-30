@@ -2188,6 +2188,81 @@ no evidence for archive deduplication or stronger ZIP compression as the next
 change. Stripping color profiles or re-encoding pictures would risk display
 fidelity for a small or unknown benefit.
 
+### Incremental ZIP assembly
+
+Standalone and Shared Care server exports now add each picture to the ZIP as
+it is read, rather than holding a collection-wide `Map` of all picture bytes
+until the end. Both exporters use one ZIP builder. ZIP entry order is not part
+of portable format 2, and existing imports continue to resolve entries by
+path. This reduces a full-media buffer during export without changing the
+stored data, schema, backup format or the save and restore flows.
+
+Manual standalone exports and pre-restore safety copies on native platforms
+now write the ZIP into an app-owned temporary file, hand that file path to the
+system Save As flow, and remove the temporary file on success, cancellation
+or handled failure. A cancelled or failed safety-copy save stops the restore
+before settings or collection data are replaced. The Shared Care server uses
+the same file-backed ZIP output and sends the completed
+file through the HTTP response, removing it afterwards. Its collection gate
+is released after the snapshot is complete; a subsequent collection change
+invalidates the safety token through the existing generation check. Shared
+Care in browsers with the File System Access save picker now opens the picker
+before starting an authenticated streamed HTTP download. It grants the client
+the restore safety token only after the complete response has been written;
+when `Content-Length` is present, the received length must also match. The
+browser suggests a local-time filename, while the archive manifest retains
+the server's export timestamp. Browsers without that picker retain the
+existing byte-array download and Save As flow. In-memory export APIs remain
+for that fallback and tests; standalone Web safety copies still use the
+in-memory save fallback. None of these paths changes the portable archive
+format.
+
+This is still not an end-to-end bounded-memory backup implementation. The ZIP
+encoder buffers each picture while compressing it; browser fallbacks and the
+Shared Care client upload still materialize complete byte arrays, while
+restores retain referenced media collections. Native and server file-backed
+exports create temporary *unencrypted* files, so their cleanup must be
+preserved, and the future encrypted format must never spool a plaintext
+archive. A process crash can leave a temporary unencrypted file;
+this remains a limitation of the current unencrypted export path. The next
+design step must bound the browser fallback and import paths, carry
+authenticated chunks through encryption and restore, and prevent a partial
+restore. Browser support, large-file memory use and cleanup behavior need
+device/browser measurements before claiming bounded behavior across platforms.
+
+Import validation now checks the actual length and CRC-32 of every ZIP entry
+used for restore against the central directory before returning a
+`ValidatedBackup` for restore. The pinned `archive` package does not perform
+this check even when `ZipDecoder.decodeBytes(verify: true)` is requested.
+This rejects damaged metadata and referenced pictures before the collection
+is replaced. Unused entries remain ignored so their contents need not be
+expanded in memory.
+Referenced decoded media are retained once for the subsequent database
+transaction; a stored ZIP entry is detached when its byte view would otherwise
+keep the entire input archive alive. CRC-32 detects accidental corruption but
+is not authentication: a deliberately altered ZIP can be recomputed. It does
+not replace the authenticated encryption planned for the later milestone.
+Native standalone imports now validate a picker-provided file path through a
+file-backed ZIP reader. If the picker exposes only a byte stream, the app
+writes it to a private temporary file for validation and removes that file on
+success or handled failure. This avoids retaining the complete compressed ZIP
+as a byte array. All referenced media are still decoded and held in the
+validated backup until the user confirms restore; the import is therefore not
+yet bounded-memory. The file-backed reader keeps its shared handle open until
+validation finishes, then closes it before any confirmation dialog. A process
+crash can leave a temporary unencrypted copy of a stream-only selection. The
+future encrypted format must avoid staging decrypted plaintext. Shared Care
+server restores now also write the HTTP upload to a private temporary file,
+enforce the existing 256 MiB limit while receiving it, and validate that file
+without retaining the complete compressed archive in memory. The file is
+removed after success or handled failure, including a rejected archive or a
+stale safety grant. Validation still holds referenced media in memory until
+the database transaction finishes. A process crash can leave an unencrypted
+temporary upload, so a future encrypted format must not spool decrypted
+plaintext there. Browser imports and uploads retain their existing in-memory
+path. Bounded media restore, browser safety-copy handling and device
+measurements remain open.
+
 ### Decision
 
 Do not ship the proof of concept or change the backup format in Issue #118.

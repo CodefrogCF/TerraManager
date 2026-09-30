@@ -1,3 +1,5 @@
+import 'package:archive/archive.dart';
+
 import '../../../core/database/app_database.dart';
 import '../../settings/app_settings_controller.dart';
 import 'backup_export_result.dart';
@@ -8,8 +10,9 @@ import 'backup_settings_codec.dart';
 import 'validated_backup.dart';
 import 'portable_backup_database_restorer.dart';
 
+/// Persists a complete archive before the collection may be replaced.
 typedef BackupSafetyBackupWriter = Future<void> Function(
-  BackupExportResult backup,
+  BackupArchiveWriter writeArchive,
 );
 
 class BackupRestoreService {
@@ -86,11 +89,9 @@ class BackupRestoreService {
       backup.settings.boxSortOrder,
     );
 
-    BackupExportResult? safetyBackup;
+    BackupExportMetadata? safetyBackup;
 
     if (createSafetyBackup) {
-      late final BackupExportResult createdSafetyBackup;
-
       try {
         final appVersion = currentAppVersion;
 
@@ -101,34 +102,35 @@ class BackupRestoreService {
           );
         }
 
-        createdSafetyBackup = await _exportService.createBackup(
-          appVersion: appVersion,
-          themeMode: previousThemeMode,
-          accent: previousAccent,
-          language: previousLanguage,
-          animalNameOrder: previousAnimalNameOrder,
-          animalSortOrder: previousAnimalSortOrder,
-          animalCategoryViewEnabled: previousAnimalCategoryViewEnabled,
-          nextFeedingSummaryEnabled: previousNextFeedingSummaryEnabled,
-          bigPictureModeEnabled: previousBigPictureModeEnabled,
-          boxSortOrder: previousBoxSortOrder,
-        );
+        var writerCalled = false;
+        await safetyBackupWriter((OutputStream output) async {
+          if (writerCalled) {
+            throw StateError('Safety backup writer was called more than once.');
+          }
+          writerCalled = true;
+          final metadata = await _exportService.writeBackup(
+            appVersion: appVersion,
+            themeMode: previousThemeMode,
+            accent: previousAccent,
+            language: previousLanguage,
+            animalNameOrder: previousAnimalNameOrder,
+            animalSortOrder: previousAnimalSortOrder,
+            animalCategoryViewEnabled: previousAnimalCategoryViewEnabled,
+            nextFeedingSummaryEnabled: previousNextFeedingSummaryEnabled,
+            bigPictureModeEnabled: previousBigPictureModeEnabled,
+            boxSortOrder: previousBoxSortOrder,
+            output: output,
+          );
+          safetyBackup = metadata;
+          return metadata;
+        });
+        if (safetyBackup == null) {
+          throw StateError('Safety backup was not generated.');
+        }
       } catch (error) {
         throw BackupRestoreException(
           stage: BackupRestoreStage.safetyBackup,
-          message: 'Failed to create safety backup.',
-          cause: error,
-        );
-      }
-
-      safetyBackup = createdSafetyBackup;
-
-      try {
-        await safetyBackupWriter(createdSafetyBackup);
-      } catch (error) {
-        throw BackupRestoreException(
-          stage: BackupRestoreStage.safetyBackup,
-          message: 'Failed to persist safety backup.',
+          message: 'Failed to create or persist safety backup.',
           cause: error,
         );
       }

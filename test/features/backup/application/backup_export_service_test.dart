@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -17,6 +18,7 @@ import 'package:terramanager/core/database/repositories/feeding_repository.dart'
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/backup/application/backup_export_exception.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
+import 'package:terramanager/features/backup/application/backup_validation_service.dart';
 import 'package:terramanager/features/backup/domain/backup_data.dart';
 import 'package:terramanager/features/backup/domain/backup_format.dart';
 import 'package:terramanager/features/backup/domain/backup_manifest.dart';
@@ -676,5 +678,51 @@ void main() {
     expect(result.data.animals.single.pictureMediaPath, animalPath);
     expect(archive.find(boxPath)!.readBytes(), legacyBoxBytes);
     expect(archive.find(animalPath)!.readBytes(), normalizedAnimalBytes);
+  });
+
+  test('file output is a restorable standalone backup', () async {
+    final mediaBytes = Uint8List.fromList([0x89, 0x50, 0x4e, 0x47]);
+    final mediaId = await MediaRepository(
+      database,
+    ).createMedia(fileName: 'box.png', mimeType: 'image/png', data: mediaBytes);
+    final boxId = await database
+        .into(database.boxes)
+        .insert(
+          BoxesCompanion.insert(
+            qrId: 'TM:BOX:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+            pictureMediaId: drift.Value(mediaId),
+          ),
+        );
+    final directory = await Directory.systemTemp.createTemp('tm-file-export-');
+    final archiveFile = File('${directory.path}/backup.tmbackup');
+    final output = OutputFileStream(archiveFile.path);
+    try {
+      final metadata = await BackupExportService(database).writeBackup(
+        appVersion: 'test',
+        themeMode: ThemeMode.system,
+        accent: AppAccent.green,
+        output: output,
+      );
+      await output.close();
+
+      final bytes = await archiveFile.readAsBytes();
+      final validated = BackupValidationService().validate(bytes);
+      expect(metadata.mediaFileCount, 1);
+      expect(
+        validated.data.boxes.single.pictureMediaPath,
+        'media/boxes/$boxId.png',
+      );
+      expect(validated.mediaFileCount, 1);
+      expect(
+        ZipDecoder()
+            .decodeBytes(bytes, verify: true)
+            .find('media/boxes/$boxId.png')!
+            .readBytes(),
+        mediaBytes,
+      );
+    } finally {
+      await output.close();
+      await directory.delete(recursive: true);
+    }
   });
 }

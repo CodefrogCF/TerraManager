@@ -62,7 +62,10 @@ Future<ApiInput> readAccountBody(HttpRequest request) async {
   }
 }
 
-Future<Uint8List> readBackupBody(HttpRequest request) async {
+Future<void> writeBackupBodyToFile(
+  HttpRequest request,
+  File destination,
+) async {
   if (request.headers.contentType?.mimeType !=
       'application/vnd.terramanager.backup+zip') {
     throw const ApiProblem(
@@ -75,12 +78,33 @@ Future<Uint8List> readBackupBody(HttpRequest request) async {
   if (request.contentLength > maxBytes) {
     throw const ApiProblem(413, 'too_large', 'Backup exceeds 256 MiB.');
   }
-  final builder = BytesBuilder(copy: false);
-  await for (final chunk in request) {
-    builder.add(chunk);
-    if (builder.length > maxBytes) {
-      throw const ApiProblem(413, 'too_large', 'Backup exceeds 256 MiB.');
+  await writeBoundedBackupStreamToFile(
+    request,
+    destination,
+    maxBytes: maxBytes,
+  );
+}
+
+Future<void> writeBoundedBackupStreamToFile(
+  Stream<List<int>> chunks,
+  File destination, {
+  required int maxBytes,
+}) async {
+  final output = await destination.open(mode: FileMode.write);
+  try {
+    var length = 0;
+    await for (final chunk in chunks) {
+      length += chunk.length;
+      if (length > maxBytes) {
+        throw const ApiProblem(413, 'too_large', 'Backup exceeds 256 MiB.');
+      }
+      await output.writeFrom(chunk);
     }
+  } catch (_) {
+    try {
+      await output.close();
+    } catch (_) {}
+    rethrow;
   }
-  return builder.takeBytes();
+  await output.close();
 }

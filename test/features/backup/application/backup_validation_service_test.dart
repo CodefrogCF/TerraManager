@@ -135,6 +135,7 @@ void main() {
     Map<String, dynamic>? data,
     Map<String, dynamic>? settings,
     Map<String, Uint8List> media = const {},
+    bool storeMediaWithoutCompression = false,
     bool includeManifest = true,
     bool includeData = true,
     bool includeSettings = true,
@@ -169,10 +170,60 @@ void main() {
     }
 
     for (final entry in media.entries) {
-      archive.add(ArchiveFile.bytes(entry.key, entry.value));
+      archive.add(
+        storeMediaWithoutCompression
+            ? ArchiveFile.noCompress(entry.key, entry.value.length, entry.value)
+            : ArchiveFile.bytes(entry.key, entry.value),
+      );
     }
 
     return ZipEncoder().encodeBytes(archive);
+  }
+
+  Uint8List withBadCentralDirectoryCrc(Uint8List source, String fileName) {
+    final bytes = Uint8List.fromList(source);
+    for (var offset = 0; offset + 46 <= bytes.length; offset++) {
+      if (bytes[offset] != 0x50 ||
+          bytes[offset + 1] != 0x4b ||
+          bytes[offset + 2] != 0x01 ||
+          bytes[offset + 3] != 0x02) {
+        continue;
+      }
+      final nameLength = bytes[offset + 28] | (bytes[offset + 29] << 8);
+      if (offset + 46 + nameLength > bytes.length) continue;
+      final name = utf8.decode(
+        bytes.sublist(offset + 46, offset + 46 + nameLength),
+      );
+      if (name == fileName) {
+        bytes[offset + 16] ^= 0x01;
+        return bytes;
+      }
+    }
+    throw StateError('Missing ZIP directory entry: $fileName');
+  }
+
+  Uint8List withDamagedStoredEntry(Uint8List source, String fileName) {
+    final bytes = Uint8List.fromList(source);
+    for (var offset = 0; offset + 30 <= bytes.length; offset++) {
+      if (bytes[offset] != 0x50 ||
+          bytes[offset + 1] != 0x4b ||
+          bytes[offset + 2] != 0x03 ||
+          bytes[offset + 3] != 0x04) {
+        continue;
+      }
+      final nameLength = bytes[offset + 26] | (bytes[offset + 27] << 8);
+      final extraLength = bytes[offset + 28] | (bytes[offset + 29] << 8);
+      final dataOffset = offset + 30 + nameLength + extraLength;
+      if (dataOffset >= bytes.length) continue;
+      final name = utf8.decode(
+        bytes.sublist(offset + 30, offset + 30 + nameLength),
+      );
+      if (name == fileName) {
+        bytes[dataOffset] ^= 0x01;
+        return bytes;
+      }
+    }
+    throw StateError('Missing stored ZIP entry: $fileName');
   }
 
   test('accepts valid backup', () {
@@ -197,6 +248,90 @@ void main() {
     expect(result.settings.animalSortOrder, 'createdOldestFirst');
 
     expect(result.settings.boxSortOrder, 'labelAscending');
+  });
+
+  test('rejects a damaged referenced picture before restore', () {
+    const mediaPath = 'media/animals/10.jpg';
+    final source = createArchive(
+      data: dataJson(animals: [activeAnimal(pictureMediaPath: mediaPath)]),
+      media: {
+        mediaPath: Uint8List.fromList([1, 2, 3]),
+      },
+    );
+
+    expect(
+      () => validator.validate(withBadCentralDirectoryCrc(source, mediaPath)),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidArchive,
+        ),
+      ),
+    );
+  });
+
+  test('rejects modified stored media bytes with unchanged ZIP metadata', () {
+    const mediaPath = 'media/boxes/1.jpg';
+    final source = createArchive(
+      data: dataJson(
+        boxes: [
+          {
+            'id': 1,
+            'qrId': 'TM:BOX:11111111-1111-4111-8111-111111111111',
+            'pictureMediaPath': mediaPath,
+            'createdAt': '2026-08-01T10:00:00.000',
+            'updatedAt': '2026-08-01T10:00:00.000',
+          },
+        ],
+      ),
+      media: {
+        mediaPath: Uint8List.fromList([7, 8, 9]),
+      },
+      storeMediaWithoutCompression: true,
+    );
+
+    expect(
+      () => validator.validate(withDamagedStoredEntry(source, mediaPath)),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidArchive,
+        ),
+      ),
+    );
+  });
+
+  test('rejects damaged manifest metadata', () {
+    final source = createArchive();
+
+    expect(
+      () => validator.validate(
+        withBadCentralDirectoryCrc(source, BackupFormat.manifestFileName),
+      ),
+      throwsA(
+        isA<BackupValidationException>().having(
+          (error) => error.code,
+          'code',
+          BackupValidationErrorCode.invalidArchive,
+        ),
+      ),
+    );
+  });
+
+  test('does not expand unused ZIP entries during validation', () {
+    const extraPath = 'media/animals/unused.jpg';
+    final source = createArchive(
+      media: {
+        extraPath: Uint8List.fromList([4, 5, 6]),
+      },
+    );
+
+    final result = validator.validate(
+      withBadCentralDirectoryCrc(source, extraPath),
+    );
+    expect(result.mediaFileCount, 0);
   });
 
   test('accepts optional Animal characteristics', () {

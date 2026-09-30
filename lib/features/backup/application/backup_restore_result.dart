@@ -1,7 +1,8 @@
 import 'backup_export_result.dart';
 
 class BackupRestoreResult {
-  final BackupExportResult? safetyBackup;
+  /// Metadata only; the saved safety archive is not retained in memory.
+  final BackupExportMetadata? safetyBackup;
 
   final int boxCount;
   final int animalCount;

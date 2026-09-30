@@ -113,6 +113,73 @@ abstract class SharedApiTransport extends ChangeNotifier {
     return response;
   }
 
+  /// Keeps a successful response body as a stream for large downloads.
+  @protected
+  Future<http.StreamedResponse> requestDownload(
+    String path, {
+    Duration timeout = const Duration(minutes: 10),
+  }) async {
+    late final http.StreamedResponse response;
+    try {
+      response = await _client
+          .send(http.Request('GET', apiUrl(path)))
+          .timeout(timeout);
+    } catch (_) {
+      _setConnected(false);
+      throw const SharedConnectionException();
+    }
+    _setConnected(true);
+    if (response.statusCode == 401) {
+      _session = null;
+      notifyListeners();
+    }
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return response;
+    }
+
+    // API errors are small JSON documents. Bound what a faulty server can
+    // make us retain while preserving the same useful error as requestBinary.
+    final errorBytes = <int>[];
+    try {
+      await for (final chunk in response.stream.timeout(timeout)) {
+        if (errorBytes.length + chunk.length > 64 * 1024) break;
+        errorBytes.addAll(chunk);
+      }
+      final payload = jsonDecode(utf8.decode(errorBytes));
+      final error = payload is Map ? payload['error'] : null;
+      throw SharedApiException(
+        response.statusCode,
+        error is Map && error['code'] is String
+            ? error['code'] as String
+            : 'request_failed',
+        error is Map && error['message'] is String
+            ? error['message'] as String
+            : 'The request failed.',
+      );
+    } on SharedApiException {
+      rethrow;
+    } catch (_) {
+      throw SharedApiException(
+        response.statusCode,
+        'request_failed',
+        'The request failed.',
+      );
+    }
+  }
+
+  @protected
+  Stream<List<int>> downloadBody(
+    http.StreamedResponse response, {
+    Duration timeout = const Duration(minutes: 10),
+  }) async* {
+    try {
+      yield* response.stream.timeout(timeout);
+    } catch (_) {
+      _setConnected(false);
+      throw const SharedConnectionException();
+    }
+  }
+
   @protected
   Future<Map<String, dynamic>> requestJson(
     String method,

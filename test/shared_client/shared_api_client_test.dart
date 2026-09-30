@@ -335,6 +335,113 @@ void main() {
     },
   );
 
+  test('streamed backup waits for the save destination', () async {
+    var backupRequests = 0;
+    final backend = MockClient((request) async {
+      if (request.url.path == '/api/v1/auth/login') {
+        return http.Response(jsonEncode(session), 200);
+      }
+      if (request.url.path == '/api/v1/admin/backups') {
+        backupRequests++;
+        return http.Response.bytes(
+          [80, 75, 3, 4],
+          200,
+          headers: {
+            'x-safety-token': 'stream-safety-token',
+            'content-length': '4',
+          },
+        );
+      }
+      return http.Response('{}', 404);
+    });
+    final client = SharedApiClient(Uri.parse(origin), backend);
+    addTearDown(client.close);
+    await client.login('hagen', 'secret password');
+
+    final cancelled = await client.exportBackupTo((_) async => false);
+    expect(cancelled, isNull);
+    expect(backupRequests, 0);
+
+    final received = <int>[];
+    final token = await client.exportBackupTo((stream) async {
+      await for (final chunk in stream) {
+        received.addAll(chunk);
+      }
+      return true;
+    });
+    expect(backupRequests, 1);
+    expect(received, [80, 75, 3, 4]);
+    expect(token, 'stream-safety-token');
+  });
+
+  test('incomplete streamed backup does not grant a safety token', () async {
+    final backend = MockClient.streaming((request, _) async {
+      if (request.url.path == '/api/v1/auth/login') {
+        return http.StreamedResponse(
+          Stream.value(utf8.encode(jsonEncode(session))),
+          200,
+        );
+      }
+      return http.StreamedResponse(
+        Stream.value([80, 75, 3, 4]),
+        200,
+        contentLength: 5,
+        headers: {'x-safety-token': 'stream-safety-token'},
+      );
+    });
+    final client = SharedApiClient(Uri.parse(origin), backend);
+    addTearDown(client.close);
+    await client.login('hagen', 'secret password');
+
+    await expectLater(
+      client.exportBackupTo((stream) async {
+        await stream.drain<void>();
+        return true;
+      }),
+      throwsA(
+        isA<SharedApiException>().having(
+          (error) => error.code,
+          'code',
+          'incomplete_backup',
+        ),
+      ),
+    );
+  });
+
+  test('empty streamed backup does not grant a safety token', () async {
+    final backend = MockClient.streaming((request, _) async {
+      if (request.url.path == '/api/v1/auth/login') {
+        return http.StreamedResponse(
+          Stream.value(utf8.encode(jsonEncode(session))),
+          200,
+        );
+      }
+      return http.StreamedResponse(
+        const Stream<List<int>>.empty(),
+        200,
+        contentLength: 0,
+        headers: {'x-safety-token': 'stream-safety-token'},
+      );
+    });
+    final client = SharedApiClient(Uri.parse(origin), backend);
+    addTearDown(client.close);
+    await client.login('hagen', 'secret password');
+
+    await expectLater(
+      client.exportBackupTo((stream) async {
+        await stream.drain<void>();
+        return true;
+      }),
+      throwsA(
+        isA<SharedApiException>().having(
+          (error) => error.code,
+          'code',
+          'invalid_response',
+        ),
+      ),
+    );
+  });
+
   testWidgets('restore waits beyond two minutes for a slow server', (
     tester,
   ) async {

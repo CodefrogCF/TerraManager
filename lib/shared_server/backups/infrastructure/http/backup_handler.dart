@@ -49,8 +49,18 @@ class BackupHandler {
         'The shared collection is temporarily unavailable.',
       );
     }
+    Directory? temporaryDirectory;
+    var exclusiveHeld = true;
+    var grantIssued = false;
+    var transferComplete = false;
     try {
-      final exported = await _backups.export();
+      temporaryDirectory = await Directory.systemTemp.createTemp(
+        'terramanager-export-',
+      );
+      final archiveFile = File(
+        '${temporaryDirectory.path}${Platform.pathSeparator}collection.tmbackup',
+      );
+      final exported = await _backups.exportToFile(archiveFile.path);
       final random = Random.secure();
       final token = base64UrlEncode(
         List<int>.generate(32, (_) => random.nextInt(256)),
@@ -62,6 +72,11 @@ class BackupHandler {
         _gate.generation,
         now.add(const Duration(minutes: 30)),
       );
+      grantIssued = true;
+      // The file is a complete snapshot. Allow edits during the download;
+      // restore will reject this safety grant if the collection then changes.
+      _gate.leaveExclusive();
+      exclusiveHeld = false;
       final response = request.response;
       response.statusCode = 200;
       response.headers.contentType = ContentType.parse(
@@ -74,10 +89,18 @@ class BackupHandler {
         'Content-Disposition',
         'attachment; filename="${exported.fileName}"',
       );
-      response.add(exported.bytes);
+      response.contentLength = await archiveFile.length();
+      await response.addStream(archiveFile.openRead());
       await response.close();
+      transferComplete = true;
     } finally {
-      _gate.leaveExclusive();
+      if (grantIssued && !transferComplete) {
+        _safetyGrants.remove(current.token);
+      }
+      if (exclusiveHeld) _gate.leaveExclusive();
+      if (temporaryDirectory != null) {
+        await temporaryDirectory.delete(recursive: true);
+      }
     }
   }
 
@@ -102,43 +125,53 @@ class BackupHandler {
         'Download a current safety backup before restoring.',
       );
     }
-    final bytes = await readBackupBody(request);
-    final validated = _backups.validate(
-      bytes,
-      legacyTimeZone: request.headers.value('X-Backup-Time-Zone'),
+    final directory = await Directory.systemTemp.createTemp(
+      'terramanager-restore-',
     );
-    if (!await _gate.enterExclusive()) {
-      throw const ApiProblem(
-        503,
-        'restore_in_progress',
-        'The shared collection is temporarily unavailable.',
-      );
-    }
     try {
-      // The upload can take minutes. Recheck after existing writes have drained
-      // and while the gate excludes new writes through transactional replacement.
-      if (!await _backups.isEmpty()) {
-        if (!validGrant()) {
-          throw const ApiProblem(
-            409,
-            'safety_backup_required',
-            'Download a current safety backup before restoring.',
-          );
-        }
-        if (grant!.generation != _gate.generation) {
-          throw const ApiProblem(
-            409,
-            'safety_backup_stale',
-            'The collection changed. Download a new safety backup.',
-          );
-        }
+      final archiveFile = File(
+        '${directory.path}${Platform.pathSeparator}collection.tmbackup',
+      );
+      await writeBackupBodyToFile(request, archiveFile);
+      final validated = _backups.validateFile(
+        archiveFile.path,
+        legacyTimeZone: request.headers.value('X-Backup-Time-Zone'),
+      );
+      if (!await _gate.enterExclusive()) {
+        throw const ApiProblem(
+          503,
+          'restore_in_progress',
+          'The shared collection is temporarily unavailable.',
+        );
       }
-      final reply = await operations.restore(validated, current.account);
-      _care.clearRequestCache();
-      _safetyGrants.clear();
-      await sendApiResponse(request.response, reply.status, reply.body!);
+      try {
+        // The upload can take minutes. Recheck after existing writes have
+        // drained and while the gate excludes new writes through replacement.
+        if (!await _backups.isEmpty()) {
+          if (!validGrant()) {
+            throw const ApiProblem(
+              409,
+              'safety_backup_required',
+              'Download a current safety backup before restoring.',
+            );
+          }
+          if (grant!.generation != _gate.generation) {
+            throw const ApiProblem(
+              409,
+              'safety_backup_stale',
+              'The collection changed. Download a new safety backup.',
+            );
+          }
+        }
+        final reply = await operations.restore(validated, current.account);
+        _care.clearRequestCache();
+        _safetyGrants.clear();
+        await sendApiResponse(request.response, reply.status, reply.body!);
+      } finally {
+        _gate.leaveExclusive();
+      }
     } finally {
-      _gate.leaveExclusive();
+      await directory.delete(recursive: true);
     }
   }
 }

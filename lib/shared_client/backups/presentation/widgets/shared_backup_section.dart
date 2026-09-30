@@ -2,6 +2,9 @@ import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
 import 'package:terramanager/features/backup/infrastructure/backup_file_service.dart';
+import 'package:terramanager/shared_client/backups/infrastructure/streamed_backup_save_support_stub.dart'
+    if (dart.library.js_interop) 'package:terramanager/shared_client/backups/infrastructure/streamed_backup_save_support_web.dart'
+    as stream_support;
 import 'package:terramanager/shared_client/backups/presentation/widgets/shared_legacy_backup_dialog.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
@@ -32,21 +35,45 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
+  String _streamedBackupName() {
+    final now = DateTime.now();
+    String twoDigits(int value) => value.toString().padLeft(2, '0');
+    return 'TerraManager_Shared_Backup_'
+        '${now.year}-${twoDigits(now.month)}-${twoDigits(now.day)}_'
+        '${twoDigits(now.hour)}-${twoDigits(now.minute)}.tmbackup';
+  }
+
   Future<void> _export() async {
     if (_busy || !widget.connected) return;
     setState(() => _busy = true);
     widget.onBackupBusyChanged?.call(true);
     try {
-      final backup = await widget.api.exportBackup();
-      final saved = await FileSaver.instance.saveAs(
-        name: backup.fileName,
-        bytes: backup.bytes,
-        includeExtension: false,
-        mimeType: MimeType.custom,
-        customMimeType: 'application/vnd.terramanager.backup+zip',
-      );
+      String? safetyToken;
+      if (stream_support.supportsStreamedBackupSaving) {
+        final fileName = _streamedBackupName();
+        safetyToken = await widget.api.exportBackupTo((bytes) async {
+          final saved = await FileSaver.instance.saveAsStream(
+            name: fileName,
+            stream: bytes,
+            includeExtension: false,
+            mimeType: MimeType.custom,
+            customMimeType: 'application/vnd.terramanager.backup+zip',
+          );
+          return saved != null;
+        });
+      } else {
+        final backup = await widget.api.exportBackup();
+        final saved = await FileSaver.instance.saveAs(
+          name: backup.fileName,
+          bytes: backup.bytes,
+          includeExtension: false,
+          mimeType: MimeType.custom,
+          customMimeType: 'application/vnd.terramanager.backup+zip',
+        );
+        if (saved != null) safetyToken = backup.safetyToken;
+      }
       if (!mounted) return;
-      if (saved == null) {
+      if (safetyToken == null) {
         _message(
           sharedText(
             context,
@@ -56,7 +83,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         );
         return;
       }
-      setState(() => _safetyToken = backup.safetyToken);
+      setState(() => _safetyToken = safetyToken);
       _message(
         sharedText(
           context,
@@ -65,7 +92,17 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         ),
       );
     } catch (error) {
-      if (mounted) _message(error.toString());
+      if (mounted) {
+        _message(
+          stream_support.isStreamSaveCancellation(error)
+              ? sharedText(
+                  context,
+                  'Backup save cancelled.',
+                  'Sicherung wurde nicht gespeichert.',
+                )
+              : error.toString(),
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
       widget.onBackupBusyChanged?.call(false);
@@ -92,7 +129,22 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       }
       final picked = await BackupFileService().pickBackup();
       if (picked == null || !mounted) return;
-      if (picked.bytes.length > 256 * 1024 * 1024) {
+      const maxImportBytes = 256 * 1024 * 1024;
+      final pickedLength = await picked.length();
+      if (!mounted) return;
+      if (pickedLength > maxImportBytes) {
+        _message(
+          sharedText(
+            context,
+            'This backup exceeds the 256 MiB import limit.',
+            'Diese Sicherung überschreitet die Importgrenze von 256 MiB.',
+          ),
+        );
+        return;
+      }
+      final backupBytes = await picked.readAsBytes();
+      if (!mounted) return;
+      if (backupBytes.length > maxImportBytes) {
         _message(
           sharedText(
             context,
@@ -104,7 +156,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       }
       var validated = BackupValidationService(
         maxExpandedBytes: 512 * 1024 * 1024,
-      ).validate(picked.bytes);
+      ).validate(backupBytes);
       if (!mounted) return;
       String? legacyTimeZone;
       if (validated.hasLegacyTimestamps) {
@@ -114,7 +166,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
           maxExpandedBytes: 512 * 1024 * 1024,
           legacyTimeZone: legacyTimeZone,
           requireLegacyTimeZone: true,
-        ).validate(picked.bytes);
+        ).validate(backupBytes);
       }
       final confirmed = await showDialog<bool>(
         context: context,
@@ -162,7 +214,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       );
       if (confirmed != true || !mounted) return;
       await widget.api.restoreBackup(
-        picked.bytes,
+        backupBytes,
         token,
         legacyTimeZone: legacyTimeZone,
       );

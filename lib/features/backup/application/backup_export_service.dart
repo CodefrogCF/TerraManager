@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -26,6 +25,7 @@ import '../domain/backup_media_format.dart';
 import 'backup_export_exception.dart';
 import 'backup_export_result.dart';
 import 'backup_settings_codec.dart';
+import 'backup_zip_builder.dart';
 
 typedef BackupMediaReader = Future<Uint8List> Function(String path);
 
@@ -49,6 +49,42 @@ class BackupExportService {
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
     DateTime? createdAt,
   }) async {
+    final output = OutputMemoryStream();
+    final metadata = await writeBackup(
+      appVersion: appVersion,
+      themeMode: themeMode,
+      accent: accent,
+      language: language,
+      animalNameOrder: animalNameOrder,
+      animalSortOrder: animalSortOrder,
+      animalCategoryViewEnabled: animalCategoryViewEnabled,
+      nextFeedingSummaryEnabled: nextFeedingSummaryEnabled,
+      bigPictureModeEnabled: bigPictureModeEnabled,
+      boxSortOrder: boxSortOrder,
+      createdAt: createdAt,
+      output: output,
+    );
+    return BackupExportResult.fromMetadata(
+      bytes: output.getBytes(),
+      metadata: metadata,
+    );
+  }
+
+  /// Writes the archive to a caller-owned output without collecting ZIP bytes.
+  Future<BackupExportMetadata> writeBackup({
+    required String appVersion,
+    required ThemeMode themeMode,
+    required AppAccent accent,
+    required OutputStream output,
+    AppLanguage language = AppLanguage.system,
+    AnimalNameOrder animalNameOrder = AnimalNameOrder.commonNameFirst,
+    AnimalSortOrder animalSortOrder = AnimalSortOrder.createdOldestFirst,
+    bool animalCategoryViewEnabled = false,
+    bool nextFeedingSummaryEnabled = false,
+    bool bigPictureModeEnabled = false,
+    BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
+    DateTime? createdAt,
+  }) async {
     final backupTime = createdAt ?? DateTime.now();
 
     final boxes = await BoxRepository(database).getAllBoxes();
@@ -60,7 +96,7 @@ class BackupExportService {
     final mediaRepository = MediaRepository(database);
     final galleryRepository = PictureGalleryRepository(database);
 
-    final mediaFiles = <String, Uint8List>{};
+    final archiveWriter = BackupZipBuilder(output);
 
     final backupBoxes = <BackupBox>[];
 
@@ -69,7 +105,7 @@ class BackupExportService {
         box: box,
         mediaRepository: mediaRepository,
         galleryRepository: galleryRepository,
-        mediaFiles: mediaFiles,
+        archiveWriter: archiveWriter,
       );
 
       backupBoxes.add(
@@ -107,7 +143,7 @@ class BackupExportService {
         animal: animal,
         mediaRepository: mediaRepository,
         galleryRepository: galleryRepository,
-        mediaFiles: mediaFiles,
+        archiveWriter: archiveWriter,
       );
 
       backupAnimals.add(
@@ -214,44 +250,18 @@ class BackupExportService {
       createdAt: backupTime.toUtc(),
     );
 
-    final archive = Archive();
-
-    const jsonEncoder = JsonEncoder.withIndent('  ');
-
-    archive.add(
-      ArchiveFile.string(
-        BackupFormat.manifestFileName,
-        jsonEncoder.convert(manifest.toJson()),
-      ),
+    archiveWriter.finish(
+      manifest: manifest,
+      data: backupData,
+      settings: backupSettings,
     );
 
-    archive.add(
-      ArchiveFile.string(
-        BackupFormat.dataFileName,
-        jsonEncoder.convert(backupData.toJson()),
-      ),
-    );
-
-    archive.add(
-      ArchiveFile.string(
-        BackupFormat.settingsFileName,
-        jsonEncoder.convert(backupSettings.toJson()),
-      ),
-    );
-
-    for (final entry in mediaFiles.entries) {
-      archive.add(ArchiveFile.bytes(entry.key, entry.value));
-    }
-
-    final bytes = ZipEncoder().encodeBytes(archive);
-
-    return BackupExportResult(
-      bytes: bytes,
+    return BackupExportMetadata(
       fileName: _buildBackupFileName(backupTime),
       manifest: manifest,
       data: backupData,
       settings: backupSettings,
-      mediaFileCount: mediaFiles.length,
+      mediaFileCount: archiveWriter.mediaFileCount,
     );
   }
 
@@ -259,7 +269,7 @@ class BackupExportService {
     required Box box,
     required MediaRepository mediaRepository,
     required PictureGalleryRepository galleryRepository,
-    required Map<String, Uint8List> mediaFiles,
+    required BackupZipBuilder archiveWriter,
   }) async {
     final gallery = await galleryRepository.getBoxPictures(box.id);
     if (gallery.isNotEmpty) {
@@ -269,7 +279,7 @@ class BackupExportService {
         mediaDirectory: BackupFormat.boxMediaDirectory,
         primaryMediaId: box.pictureMediaId,
         pictures: gallery,
-        mediaFiles: mediaFiles,
+        archiveWriter: archiveWriter,
       );
     }
 
@@ -279,7 +289,7 @@ class BackupExportService {
       mediaDirectory: BackupFormat.boxMediaDirectory,
       mediaId: box.pictureMediaId,
       mediaRepository: mediaRepository,
-      mediaFiles: mediaFiles,
+      archiveWriter: archiveWriter,
     );
   }
 
@@ -287,7 +297,7 @@ class BackupExportService {
     required Animal animal,
     required MediaRepository mediaRepository,
     required PictureGalleryRepository galleryRepository,
-    required Map<String, Uint8List> mediaFiles,
+    required BackupZipBuilder archiveWriter,
   }) async {
     final gallery = await galleryRepository.getAnimalPictures(animal.id);
     if (gallery.isNotEmpty) {
@@ -297,7 +307,7 @@ class BackupExportService {
         mediaDirectory: BackupFormat.animalMediaDirectory,
         primaryMediaId: animal.pictureMediaId,
         pictures: gallery,
-        mediaFiles: mediaFiles,
+        archiveWriter: archiveWriter,
       );
     }
 
@@ -308,7 +318,7 @@ class BackupExportService {
         mediaDirectory: BackupFormat.animalMediaDirectory,
         mediaId: animal.pictureMediaId,
         mediaRepository: mediaRepository,
-        mediaFiles: mediaFiles,
+        archiveWriter: archiveWriter,
       );
     }
 
@@ -345,7 +355,7 @@ class BackupExportService {
         '${BackupFormat.animalMediaDirectory}/'
         '${animal.id}.$extension';
 
-    mediaFiles[mediaPath] = bytes;
+    archiveWriter.addMedia(mediaPath, bytes);
 
     return _ExportedPictures(
       primaryPath: mediaPath,
@@ -361,7 +371,7 @@ class BackupExportService {
     required String mediaDirectory,
     required int? mediaId,
     required MediaRepository mediaRepository,
-    required Map<String, Uint8List> mediaFiles,
+    required BackupZipBuilder archiveWriter,
   }) async {
     if (mediaId == null) {
       return const _ExportedPictures(primaryPath: null, pictures: []);
@@ -382,7 +392,7 @@ class BackupExportService {
       mimeType: media.mimeType,
     );
     final mediaPath = '$mediaDirectory/$ownerId.$extension';
-    mediaFiles[mediaPath] = media.data;
+    archiveWriter.addMedia(mediaPath, media.data);
     return _ExportedPictures(
       primaryPath: mediaPath,
       pictures: [
@@ -397,7 +407,7 @@ class BackupExportService {
     required String mediaDirectory,
     required int? primaryMediaId,
     required List<PictureGalleryEntry> pictures,
-    required Map<String, Uint8List> mediaFiles,
+    required BackupZipBuilder archiveWriter,
   }) {
     final backupPictures = <BackupPicture>[];
     String? primaryPath;
@@ -417,7 +427,7 @@ class BackupExportService {
           ? '$ownerId'
           : '${ownerId}_gallery_${picture.sortOrder}_${picture.media.id}';
       final mediaPath = '$mediaDirectory/$fileStem.$extension';
-      mediaFiles[mediaPath] = picture.media.data;
+      archiveWriter.addMedia(mediaPath, picture.media.data);
       backupPictures.add(
         BackupPicture(mediaPath: mediaPath, capturedAt: picture.capturedAt),
       );

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/features/backup/application/backup_export_result.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
@@ -32,23 +33,52 @@ class SharedPortableBackups {
     return true;
   }
 
-  Future<BackupExportResult> export() =>
-      PortableBackupExporter(
-        database,
-        mediaReader: (_) => throw StateError(
-          'A legacy device-local picture cannot be read by the shared server.',
-        ),
-      ).createBackup(
+  PortableBackupExporter _exporter() => PortableBackupExporter(
+    database,
+    mediaReader: (_) => throw StateError(
+      'A legacy device-local picture cannot be read by the shared server.',
+    ),
+  );
+
+  Future<BackupExportResult> export() => _exporter().createBackup(
+    appVersion: 'TerraManager shared care',
+    settings: collectionSettings,
+  );
+
+  Future<BackupExportMetadata> exportToFile(String path) async {
+    final output = OutputFileStream(path);
+    try {
+      final metadata = await _exporter().writeBackup(
         appVersion: 'TerraManager shared care',
         settings: collectionSettings,
+        output: output,
       );
+      await output.close();
+      return metadata;
+    } catch (_) {
+      await output.close();
+      rethrow;
+    }
+  }
 
   ValidatedBackup validate(Uint8List bytes, {String? legacyTimeZone}) =>
+      _validator(legacyTimeZone).validate(bytes);
+
+  ValidatedBackup validateFile(String path, {String? legacyTimeZone}) {
+    final input = InputFileStream(path);
+    try {
+      return _validator(legacyTimeZone).validateStream(input);
+    } finally {
+      input.closeSync();
+    }
+  }
+
+  BackupValidationService _validator(String? legacyTimeZone) =>
       BackupValidationService(
         maxExpandedBytes: 512 * 1024 * 1024,
         legacyTimeZone: legacyTimeZone,
         requireLegacyTimeZone: true,
-      ).validate(bytes);
+      );
 
   Future<int> restore(ValidatedBackup backup) =>
       PortableBackupDatabaseRestorer(database).restore(backup);

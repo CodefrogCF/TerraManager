@@ -18,10 +18,17 @@ import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 
-class FakeBackupFileGateway implements BackupFileGateway {
+class FakeBackupFileGateway extends BackupFileGateway {
   PickedBackupFile? pickedFile;
+  int generatedSaveCalls = 0;
 
   final List<BackupExportResult> savedBackups = [];
+
+  @override
+  Future<String?> saveGeneratedBackup(BackupArchiveWriter writer) {
+    generatedSaveCalls++;
+    return super.saveGeneratedBackup(writer);
+  }
 
   @override
   Future<PickedBackupFile?> pickBackup() async {
@@ -517,6 +524,7 @@ void main() {
 
     // Safety backup of the previous
     // database was saved.
+    expect(fileGateway.generatedSaveCalls, 1);
     expect(fileGateway.savedBackups.length, 1);
 
     expect(

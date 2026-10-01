@@ -257,6 +257,11 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
 
+      // Let the progress message paint before reading and validating a large
+      // browser file on the UI isolate.
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+
       final ValidatedBackup backup;
       String? importPassword;
 
@@ -267,6 +272,8 @@ class _SettingsPageState extends State<SettingsPage> {
           importPassword = await askBackupPassword(context);
           if (importPassword == null || !mounted) return;
           setState(() => _backupProgressVisible = true);
+          await WidgetsBinding.instance.endOfFrame;
+          if (!mounted) return;
           backup = await picked.validateEncrypted(
             _backupValidationService,
             password: importPassword,
@@ -1087,8 +1094,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
             if (_backupProgressVisible) ...[
               const SizedBox(height: 24),
-              const Center(
-                child: CircularProgressIndicator(key: Key('backup-progress')),
+              Center(
+                child: Column(
+                  children: [
+                    const CircularProgressIndicator(
+                      key: Key('backup-progress'),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      sharedText(
+                        context,
+                        'Processing backup. Large files can take several minutes.',
+                        'Sicherung wird verarbeitet. Große Dateien können mehrere Minuten dauern.',
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ],
 

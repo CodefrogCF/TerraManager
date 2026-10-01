@@ -101,6 +101,25 @@ void main() {
   });
 
   test(
+    'memory-backed ZIP keeps media available without retaining copies',
+    () async {
+      final bytes = await createArchive();
+      final backup = BackupValidationService().validateLazyStream(
+        InputMemoryStream(bytes),
+      );
+      try {
+        expect(backup.mediaFileCount, 1);
+        expect(backup.mediaFiles, isEmpty);
+        final path = backup.mediaPaths.single;
+        expect(backup.readMedia(path), [1, 2, 3, 4]);
+        expect(backup.readMedia(path), [1, 2, 3, 4]);
+      } finally {
+        backup.dispose();
+      }
+    },
+  );
+
+  test(
     'spooled byte stream validates and removes its temporary file',
     () async {
       final bytes = await createArchive();

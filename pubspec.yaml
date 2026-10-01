@@ -105,6 +105,11 @@ flutter:
       - assets/pictures/frog.webp
       - assets/fonts/NotoSans-Regular.ttf
 
+  fonts:
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans-Regular.ttf
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 

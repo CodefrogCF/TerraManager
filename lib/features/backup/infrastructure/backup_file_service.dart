@@ -43,7 +43,11 @@ class PickedBackupFile {
 
   Future<ValidatedBackup> validate(BackupValidationService validator) async {
     final file = _platformFile;
-    if (file != null && kIsWeb) return validator.validate(await readAsBytes());
+    if (file != null && kIsWeb) {
+      return validator.validateLazyStream(
+        InputMemoryStream(await readAsBytes()),
+      );
+    }
     if (file != null) return source.validatePickedBackup(file, validator);
     return validator.validate(bytes!);
   }
@@ -65,12 +69,11 @@ class PickedBackupFile {
   }) async {
     final file = _platformFile;
     if (file != null && kIsWeb) {
-      return validator.validate(
-        await EncryptedBackupContainer.decryptInPlace(
-          await readAsBytes(),
-          password: password,
-        ),
+      final plain = await EncryptedBackupContainer.decryptInPlace(
+        await readAsBytes(),
+        password: password,
       );
+      return validator.validateLazyStream(InputMemoryStream(plain));
     }
     if (file != null) {
       return source.validatePickedBackupEncrypted(file, validator, password);

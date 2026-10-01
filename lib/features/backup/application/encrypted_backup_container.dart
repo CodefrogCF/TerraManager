@@ -206,6 +206,11 @@ abstract final class EncryptedBackupContainer {
         }
         input.setRange(writeOffset, writeOffset + size, plaintext);
         writeOffset += size;
+        if (index % 16 == 0) {
+          // Give the browser a chance to paint progress and handle input while
+          // a large backup is authenticated frame by frame.
+          await Future<void>.delayed(Duration.zero);
+        }
       }
     } finally {
       key.destroy();

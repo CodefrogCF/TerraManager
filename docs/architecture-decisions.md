@@ -2307,16 +2307,26 @@ condition on every platform. Browser import and the existing restore POST
 still materialize complete byte arrays, and browser Save As fallbacks do so
 for export. Web import now authenticates and compacts encrypted frames in the
 selected byte buffer, avoiding a second complete plaintext array, but the
-picker, ZIP validator and Shared Care POST remain proportional to archive
-size. Shared Care server export and restore now use temporary encrypted
-spools with per-operation random secrets held only in process memory. The
-server authenticates the spool before reading the inner ZIP, validates media
-lazily, and removes the spool after the request. The decrypted archive is
-still visible to the server process and its operator while it handles the
-restore. No physical Android or mobile-browser peak-memory
-measurement, cross-client device run, or final pinned-toolchain artifact-size
-comparison is recorded here. The proposed target is no more than 64 MiB
-additional peak memory versus the same unencrypted operation for a backup up
-to 256 MiB, but this is a target, not a measured property. The stretch
-milestone remains open until the browser path is bounded and those checks are
-recorded.
+picker and Shared Care POST remain proportional to archive size. Web ZIP
+validation now reads media lazily from the selected archive buffer rather
+than retaining every media byte array, but still validates synchronously on
+the UI isolate. Shared Care server export and restore now use temporary
+encrypted spools with per-operation random secrets held only in process
+memory. The server authenticates the spool before reading the inner ZIP,
+validates media lazily, and removes the spool after the request. The
+decrypted archive is still visible to the server process and its operator
+while it handles the restore. On 2026-10-01, a physical Galaxy S22 completed
+protected 252 MiB imports in Brave, Chrome and Firefox. The same build also
+completed a plain
+import in Brave. The [device report](testing/password-backup-s22-2026-09-30.md)
+contains package-wide PSS traces, the large protected export and re-import,
+and negative-path results. A sequential Brave plain/protected import pair
+showed sampled increases of 1,118.6 and 1,619.5 MiB, respectively. Its
+500.9 MiB difference exceeds the proposed 64 MiB additional-memory target,
+although the second run started 220.3 MiB higher and the traces include other
+Brave activity. This is a warning, not a controlled measurement of the
+encryption codec alone. There is still no native Android check on the current
+build, physical approximately 4 GiB device result, full cross-client device
+run, or final pinned-toolchain artifact-size comparison. The stretch
+milestone remains open until the browser path is bounded and the remaining
+checks are recorded.

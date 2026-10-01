@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -9,6 +10,7 @@ class AppTheme {
         seedColor: seedColor,
         brightness: Brightness.light,
       ),
+      fontFamily: kIsWeb ? 'NotoSans' : null,
       useMaterial3: true,
     );
   }
@@ -19,6 +21,7 @@ class AppTheme {
         seedColor: seedColor,
         brightness: Brightness.dark,
       ),
+      fontFamily: kIsWeb ? 'NotoSans' : null,
       useMaterial3: true,
     );
   }

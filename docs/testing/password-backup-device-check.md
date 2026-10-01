@@ -69,6 +69,12 @@ com.codefrog.terramanager` reports `TOTAL PSS` in KiB on supported Android
 versions. Sample it repeatedly during the operation; one sample after the
 operation cannot establish the peak.
 
+For large mobile-Web imports, record two times separately: from file selection
+to the backup preview with its Restore button, and from restore confirmation
+to the collection overview. Note whether the progress indicator animates and
+the page responds during each interval. A successful eventual restore does
+not establish that the UI remained responsive.
+
 For Android Brave, Chrome and Firefox, close other tabs and sample
 `adb shell dumpsys meminfo --package <browser-package>` in the same way,
 substituting the package name reported by the phone. This includes browser

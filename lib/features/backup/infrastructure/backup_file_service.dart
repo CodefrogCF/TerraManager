@@ -19,8 +19,9 @@ class PickedBackupFile {
   final String name;
   final Uint8List? bytes;
   final PlatformFile? _platformFile;
+  Uint8List? _cachedWebBytes;
 
-  const PickedBackupFile({required this.name, required this.bytes})
+  PickedBackupFile({required this.name, required this.bytes})
     : _platformFile = null;
 
   PickedBackupFile.fromPlatformFile(PlatformFile file)
@@ -35,17 +36,25 @@ class PickedBackupFile {
 
   Future<Uint8List> readAsBytes() async {
     final file = _platformFile;
-    return file == null ? bytes! : file.readAsBytes();
+    if (file == null) return bytes!;
+    if (kIsWeb) return _cachedWebBytes ??= await file.readAsBytes();
+    return file.readAsBytes();
   }
 
   Future<ValidatedBackup> validate(BackupValidationService validator) async {
     final file = _platformFile;
+    if (file != null && kIsWeb) return validator.validate(await readAsBytes());
     if (file != null) return source.validatePickedBackup(file, validator);
     return validator.validate(bytes!);
   }
 
   Future<bool> get isEncrypted async {
     final file = _platformFile;
+    if (file != null && kIsWeb) {
+      return EncryptedBackupContainer.hasEncryptedHeader(
+        (await readAsBytes()).take(8).toList(),
+      );
+    }
     if (file != null) return source.isPickedBackupEncrypted(file);
     return EncryptedBackupContainer.hasEncryptedHeader(bytes!.take(8).toList());
   }
@@ -55,6 +64,14 @@ class PickedBackupFile {
     required String password,
   }) async {
     final file = _platformFile;
+    if (file != null && kIsWeb) {
+      return validator.validate(
+        await EncryptedBackupContainer.decryptInPlace(
+          await readAsBytes(),
+          password: password,
+        ),
+      );
+    }
     if (file != null) {
       return source.validatePickedBackupEncrypted(file, validator, password);
     }

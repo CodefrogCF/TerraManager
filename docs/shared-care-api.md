@@ -287,7 +287,11 @@ cleared after a successful restore. Restore requests above 256 MiB compressed
 or 512 MiB expanded are refused before media extraction; larger collections
 require a separate migration procedure.
 
-The server keeps no uploaded archive or unencrypted temporary backup file.
+During export and restore, the server stages only an encrypted temporary
+archive. A fresh random spool secret stays in process memory for that request;
+the temporary file is removed afterward. The HTTP export is still a plain ZIP,
+and the restore endpoint still accepts a plain ZIP over the authenticated
+connection. The server can read collection data while processing either request.
 Protect downloaded `.tmbackup` files: they contain records, notes and pictures
 without encryption. The separate account database is not exported or replaced,
 so caregiver logins remain in place. The shared Flutter Web client uses this API

@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
+import 'package:terramanager/features/backup/application/encrypted_backup_container.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 
 int parseRecordId(String raw) {
@@ -62,10 +64,14 @@ Future<ApiInput> readAccountBody(HttpRequest request) async {
   }
 }
 
-Future<void> writeBackupBodyToFile(
+/// The restore endpoint receives a plain ZIP, but its temporary file contains
+/// only authenticated ciphertext. The caller keeps [password] in memory until
+/// validation and replacement have finished.
+Future<void> writeEncryptedBackupBodyToFile(
   HttpRequest request,
-  File destination,
-) async {
+  File destination, {
+  required String password,
+}) async {
   if (request.headers.contentType?.mimeType !=
       'application/vnd.terramanager.backup+zip') {
     throw const ApiProblem(
@@ -78,33 +84,46 @@ Future<void> writeBackupBodyToFile(
   if (request.contentLength > maxBytes) {
     throw const ApiProblem(413, 'too_large', 'Backup exceeds 256 MiB.');
   }
-  await writeBoundedBackupStreamToFile(
+  await writeBoundedBackupStreamToEncryptedFile(
     request,
     destination,
+    password: password,
     maxBytes: maxBytes,
   );
 }
 
-Future<void> writeBoundedBackupStreamToFile(
+Future<void> writeBoundedBackupStreamToEncryptedFile(
   Stream<List<int>> chunks,
   File destination, {
+  required String password,
   required int maxBytes,
 }) async {
-  final output = await destination.open(mode: FileMode.write);
+  final output = OutputFileStream(destination.path);
+  EncryptedBackupOutputStream? encrypted;
   try {
+    encrypted = await EncryptedBackupContainer.newOutput(
+      output,
+      password: password,
+    );
     var length = 0;
     await for (final chunk in chunks) {
       length += chunk.length;
       if (length > maxBytes) {
         throw const ApiProblem(413, 'too_large', 'Backup exceeds 256 MiB.');
       }
-      await output.writeFrom(chunk);
+      encrypted.writeBytes(chunk);
     }
+    encrypted.finish();
+    await output.close();
   } catch (_) {
     try {
       await output.close();
     } catch (_) {}
+    try {
+      await destination.delete();
+    } catch (_) {}
     rethrow;
+  } finally {
+    encrypted?.dispose();
   }
-  await output.close();
 }

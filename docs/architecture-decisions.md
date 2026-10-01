@@ -2305,9 +2305,15 @@ been saved with password protection.
 This implementation has not yet met the 256 MiB, bounded-memory acceptance
 condition on every platform. Browser import and the existing restore POST
 still materialize complete byte arrays, and browser Save As fallbacks do so
-for export. The server still stages the submitted plaintext ZIP while
-validating it, as described above; the decrypted archive is visible to that
-server and its operator. No physical Android or mobile-browser peak-memory
+for export. Web import now authenticates and compacts encrypted frames in the
+selected byte buffer, avoiding a second complete plaintext array, but the
+picker, ZIP validator and Shared Care POST remain proportional to archive
+size. Shared Care server export and restore now use temporary encrypted
+spools with per-operation random secrets held only in process memory. The
+server authenticates the spool before reading the inner ZIP, validates media
+lazily, and removes the spool after the request. The decrypted archive is
+still visible to the server process and its operator while it handles the
+restore. No physical Android or mobile-browser peak-memory
 measurement, cross-client device run, or final pinned-toolchain artifact-size
 comparison is recorded here. The proposed target is no more than 64 MiB
 additional peak memory versus the same unencrypted operation for a backup up

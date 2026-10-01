@@ -180,7 +180,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
         if (!mounted) return;
         final password = await askBackupPassword(context);
         if (password == null || !mounted) return;
-        backupBytes = await EncryptedBackupContainer.decryptBytes(
+        backupBytes = await EncryptedBackupContainer.decryptInPlace(
           selectedBytes,
           password: password,
         );

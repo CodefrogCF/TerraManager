@@ -55,6 +55,60 @@ void main() {
   );
 
   test(
+    'in-place decryption reuses the encrypted buffer across frames',
+    () async {
+      final source = Uint8List.fromList(
+        List<int>.generate(600000, (index) => index % 251),
+      );
+      final encrypted = await EncryptedBackupContainer.encryptBytes(
+        source,
+        password: password,
+      );
+      final result = await EncryptedBackupContainer.decryptInPlace(
+        encrypted,
+        password: password,
+      );
+      expect(result, source);
+      final first = result.first;
+      result[0] ^= 1;
+      expect(encrypted[0], result[0]);
+      result[0] = first;
+      expect(encrypted.skip(result.length).every((byte) => byte == 0), isTrue);
+    },
+  );
+
+  test('in-place decryption rejects tampering and truncation', () async {
+    final encrypted = await EncryptedBackupContainer.encryptBytes(
+      Uint8List.fromList(List<int>.generate(320000, (i) => i % 251)),
+      password: password,
+    );
+    final tampered = Uint8List.fromList(encrypted)..[80] ^= 1;
+    await expectLater(
+      EncryptedBackupContainer.decryptInPlace(tampered, password: password),
+      throwsA(
+        isA<EncryptedBackupException>().having(
+          (error) => error.code,
+          'code',
+          EncryptedBackupError.authenticationFailed,
+        ),
+      ),
+    );
+    final truncated = Uint8List.fromList(
+      encrypted.sublist(0, encrypted.length - 1),
+    );
+    await expectLater(
+      EncryptedBackupContainer.decryptInPlace(truncated, password: password),
+      throwsA(
+        isA<EncryptedBackupException>().having(
+          (error) => error.code,
+          'code',
+          EncryptedBackupError.truncated,
+        ),
+      ),
+    );
+  });
+
+  test(
     'wrong password and changed ciphertext use one authentication error',
     () async {
       final encrypted = await EncryptedBackupContainer.encryptBytes(

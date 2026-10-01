@@ -60,6 +60,9 @@ At minimum review:
 For a release containing password-protected portable backups, record the
 following before closing that milestone:
 
+Use the [password backup device check](testing/password-backup-device-check.md)
+and its synthetic 252 MiB fixtures for the comparable platform measurements.
+
 - A physical Android device with approximately 4 GiB RAM and desktop/mobile
   browsers: plain and protected export/restore, including a media-rich backup
   near 256 MiB; record peak memory and duration against the same unencrypted

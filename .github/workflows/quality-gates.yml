@@ -64,6 +64,20 @@ jobs:
       - name: Test
         run: flutter test
 
+      - name: Check browser encryption runtime
+        run: |
+          dart compile js -O2 tool/ci/web_encrypted_backup_runtime.dart -o "$RUNNER_TEMP/web_encrypted_backup_runtime.js"
+          cp tool/ci/web_encrypted_backup_runtime.html "$RUNNER_TEMP/web_encrypted_backup_runtime.html"
+          google-chrome --headless --no-sandbox --disable-gpu --no-first-run \
+            --user-data-dir="$RUNNER_TEMP/chrome-web-encryption" \
+            --virtual-time-budget=60000 --dump-dom \
+            "file://$RUNNER_TEMP/web_encrypted_backup_runtime.html" \
+            > "$RUNNER_TEMP/web_encrypted_backup_runtime-output.html"
+          if ! grep -Fq 'Web encryption round trip passed' "$RUNNER_TEMP/web_encrypted_backup_runtime-output.html"; then
+            cat "$RUNNER_TEMP/web_encrypted_backup_runtime-output.html"
+            exit 1
+          fi
+
       - name: Build Android Debug APK
         run: flutter build apk --debug
 

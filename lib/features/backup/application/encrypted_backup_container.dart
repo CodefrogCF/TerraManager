@@ -110,6 +110,108 @@ abstract final class EncryptedBackupContainer {
     return output.takeBytes();
   }
 
+  /// Authenticates and compacts frames in the caller's buffer. This avoids a
+  /// second archive-sized allocation where a browser picker already returned
+  /// the complete encrypted file. The input is consumed even if a later frame
+  /// fails authentication, so callers must discard it on every error.
+  static Future<Uint8List> decryptInPlace(
+    Uint8List input, {
+    required String password,
+  }) async {
+    if (input.length < magic.length) {
+      throw const EncryptedBackupException(
+        EncryptedBackupError.truncated,
+        'Encrypted backup header is truncated.',
+      );
+    }
+    if (!hasEncryptedHeader(Uint8List.sublistView(input, 0, magic.length))) {
+      throw const EncryptedBackupException(
+        EncryptedBackupError.invalidHeader,
+        'This is not an encrypted TerraManager backup.',
+      );
+    }
+    if (input.length < headerLength) {
+      throw const EncryptedBackupException(
+        EncryptedBackupError.truncated,
+        'Encrypted backup header is truncated.',
+      );
+    }
+    final header = Uint8List.fromList(input.sublist(0, headerLength));
+    _validateHeader(header);
+    final key = await _deriveKey(password, header);
+    try {
+      final cipher = DartAesGcm.with256bits();
+      var readOffset = headerLength;
+      var writeOffset = 0;
+      var index = 0;
+      while (true) {
+        if (readOffset + 4 + tagLength > input.length) {
+          throw const EncryptedBackupException(
+            EncryptedBackupError.truncated,
+            'Encrypted backup is truncated.',
+          );
+        }
+        final size = ByteData.sublistView(
+          input,
+          readOffset,
+          readOffset + 4,
+        ).getUint32(0, Endian.little);
+        if (size > chunkSize) {
+          throw const EncryptedBackupException(
+            EncryptedBackupError.invalidHeader,
+            'Encrypted backup contains an invalid chunk length.',
+          );
+        }
+        readOffset += 4;
+        if (readOffset + size + tagLength > input.length) {
+          throw const EncryptedBackupException(
+            EncryptedBackupError.truncated,
+            'Encrypted backup is truncated.',
+          );
+        }
+        final ciphertext = Uint8List.sublistView(
+          input,
+          readOffset,
+          readOffset + size,
+        );
+        final tag = Uint8List.sublistView(
+          input,
+          readOffset + size,
+          readOffset + size + tagLength,
+        );
+        final List<int> plaintext;
+        try {
+          plaintext = cipher.decryptSync(
+            SecretBox(ciphertext, nonce: _nonce(header, index), mac: Mac(tag)),
+            secretKeyData: key,
+            aad: _aad(header, index, size),
+          );
+        } on SecretBoxAuthenticationError {
+          throw const EncryptedBackupException(
+            EncryptedBackupError.authenticationFailed,
+            'Incorrect password or modified/damaged backup.',
+          );
+        }
+        readOffset += size + tagLength;
+        index++;
+        if (size == 0) {
+          if (readOffset != input.length) {
+            throw const EncryptedBackupException(
+              EncryptedBackupError.invalidHeader,
+              'Encrypted backup has trailing data.',
+            );
+          }
+          input.fillRange(writeOffset, input.length, 0);
+          return Uint8List.sublistView(input, 0, writeOffset);
+        }
+        input.setRange(writeOffset, writeOffset + size, plaintext);
+        writeOffset += size;
+      }
+    } finally {
+      key.destroy();
+    }
+  }
+
   /// For file-backed readers that authenticate every frame before exposing
   /// the ZIP and then need bounded, random-access reads.
   static Future<EncryptedBackupCipher> openCipher(
@@ -243,7 +345,7 @@ abstract final class EncryptedBackupContainer {
   static Uint8List _nonce(Uint8List header, int index) {
     final nonce = Uint8List(12);
     nonce.setRange(0, 4, header, 38);
-    ByteData.sublistView(nonce).setUint64(4, index, Endian.big);
+    _writeFrameIndex(nonce, 4, index);
     return nonce;
   }
 
@@ -251,9 +353,21 @@ abstract final class EncryptedBackupContainer {
     final aad = Uint8List(headerLength + 12);
     aad.setRange(0, headerLength, header);
     final fields = ByteData.sublistView(aad);
-    fields.setUint64(headerLength, index, Endian.big);
+    _writeFrameIndex(aad, headerLength, index);
     fields.setUint32(headerLength + 8, length, Endian.little);
     return aad;
+  }
+
+  // dart2js does not support ByteData.setUint64. Frame indices are small for
+  // portable backups, but keep the on-disk eight-byte big-endian encoding.
+  static void _writeFrameIndex(Uint8List bytes, int offset, int index) {
+    if (index < 0) throw RangeError.value(index, 'index');
+    var remaining = index;
+    for (var position = offset + 7; position >= offset; position--) {
+      bytes[position] = remaining % 256;
+      remaining ~/= 256;
+    }
+    if (remaining != 0) throw RangeError.value(index, 'index');
   }
 }
 

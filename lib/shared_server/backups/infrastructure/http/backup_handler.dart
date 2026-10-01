@@ -4,6 +4,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/features/backup/application/validated_backup.dart';
+import 'package:terramanager/features/backup/infrastructure/encrypted_backup_file_io.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
 import 'package:terramanager/shared_server/backups/application/shared_backup_operations.dart';
 import 'package:terramanager/shared_server/backups/application/shared_portable_backups.dart';
@@ -23,6 +25,19 @@ class BackupHandler {
   final SharedPortableBackups _backups;
   late final SharedBackupOperations operations;
   final Map<String, _SafetyGrant> _safetyGrants = {};
+
+  String _temporaryPassword() {
+    final random = Random.secure();
+    return base64UrlEncode(List<int>.generate(32, (_) => random.nextInt(256)));
+  }
+
+  Stream<List<int>> _plainZipChunks(EncryptedBackupFile backup) async* {
+    final input = backup.openZipStream();
+    while (!input.isEOS) {
+      yield input.readBytes(min(input.length, 64 * 1024)).toUint8List();
+    }
+  }
+
   Future<void> status(HttpRequest request) async {
     if (!await _gate.enterExclusive()) {
       throw const ApiProblem(
@@ -50,6 +65,7 @@ class BackupHandler {
       );
     }
     Directory? temporaryDirectory;
+    EncryptedBackupFile? stagedBackup;
     var exclusiveHeld = true;
     var grantIssued = false;
     var transferComplete = false;
@@ -58,9 +74,17 @@ class BackupHandler {
         'terramanager-export-',
       );
       final archiveFile = File(
-        '${temporaryDirectory.path}${Platform.pathSeparator}collection.tmbackup',
+        '${temporaryDirectory.path}${Platform.pathSeparator}collection.spool',
       );
-      final exported = await _backups.exportToFile(archiveFile.path);
+      final temporaryPassword = _temporaryPassword();
+      final exported = await _backups.exportToEncryptedFile(
+        archiveFile.path,
+        password: temporaryPassword,
+      );
+      stagedBackup = await EncryptedBackupFile.open(
+        archiveFile.path,
+        password: temporaryPassword,
+      );
       final random = Random.secure();
       final token = base64UrlEncode(
         List<int>.generate(32, (_) => random.nextInt(256)),
@@ -89,17 +113,21 @@ class BackupHandler {
         'Content-Disposition',
         'attachment; filename="${exported.fileName}"',
       );
-      response.contentLength = await archiveFile.length();
-      await response.addStream(archiveFile.openRead());
+      response.contentLength = stagedBackup.length;
+      await response.addStream(_plainZipChunks(stagedBackup));
       await response.close();
       transferComplete = true;
     } finally {
       if (grantIssued && !transferComplete) {
         _safetyGrants.remove(current.token);
       }
-      if (exclusiveHeld) _gate.leaveExclusive();
-      if (temporaryDirectory != null) {
-        await temporaryDirectory.delete(recursive: true);
+      try {
+        stagedBackup?.close();
+      } finally {
+        if (exclusiveHeld) _gate.leaveExclusive();
+        if (temporaryDirectory != null) {
+          await temporaryDirectory.delete(recursive: true);
+        }
       }
     }
   }
@@ -128,13 +156,20 @@ class BackupHandler {
     final directory = await Directory.systemTemp.createTemp(
       'terramanager-restore-',
     );
+    ValidatedBackup? validated;
     try {
       final archiveFile = File(
-        '${directory.path}${Platform.pathSeparator}collection.tmbackup',
+        '${directory.path}${Platform.pathSeparator}collection.spool',
       );
-      await writeBackupBodyToFile(request, archiveFile);
-      final validated = _backups.validateFile(
+      final temporaryPassword = _temporaryPassword();
+      await writeEncryptedBackupBodyToFile(
+        request,
+        archiveFile,
+        password: temporaryPassword,
+      );
+      validated = await _backups.validateEncryptedFile(
         archiveFile.path,
+        password: temporaryPassword,
         legacyTimeZone: request.headers.value('X-Backup-Time-Zone'),
       );
       if (!await _gate.enterExclusive()) {
@@ -171,7 +206,11 @@ class BackupHandler {
         _gate.leaveExclusive();
       }
     } finally {
-      await directory.delete(recursive: true);
+      try {
+        validated?.dispose();
+      } finally {
+        await directory.delete(recursive: true);
+      }
     }
   }
 }

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>TerraManager browser encryption check</title>
+<pre id="result">loading</pre>
+<script>
+  const result = document.getElementById('result');
+  const originalLog = console.log.bind(console);
+  console.log = (...values) => {
+    originalLog(...values);
+    result.textContent += '\n' + values.join(' ');
+  };
+  window.addEventListener('error', event => {
+    result.textContent += '\nERROR ' + event.message;
+  });
+  window.addEventListener('unhandledrejection', event => {
+    result.textContent += '\nREJECTION ' + event.reason;
+  });
+</script>
+<script src="web_encrypted_backup_runtime.js"></script>
+</html>

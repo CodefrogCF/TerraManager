@@ -408,17 +408,16 @@ class EncryptedBackupCipher {
       );
     }
     try {
-      return Uint8List.fromList(
-        _cipher.decryptSync(
-          SecretBox(
-            ciphertext,
-            nonce: EncryptedBackupContainer._nonce(_header, index),
-            mac: Mac(tag),
-          ),
-          secretKeyData: _key,
-          aad: EncryptedBackupContainer._aad(_header, index, ciphertext.length),
+      final plaintext = _cipher.decryptSync(
+        SecretBox(
+          ciphertext,
+          nonce: EncryptedBackupContainer._nonce(_header, index),
+          mac: Mac(tag),
         ),
+        secretKeyData: _key,
+        aad: EncryptedBackupContainer._aad(_header, index, ciphertext.length),
       );
+      return plaintext is Uint8List ? plaintext : Uint8List.fromList(plaintext);
     } on SecretBoxAuthenticationError {
       throw const EncryptedBackupException(
         EncryptedBackupError.authenticationFailed,

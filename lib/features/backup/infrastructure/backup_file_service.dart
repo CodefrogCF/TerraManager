@@ -29,6 +29,16 @@ class PickedBackupFile {
       bytes = null,
       _platformFile = file;
 
+  /// Android's picker copies selected files into the app cache. Release that
+  /// copy only after validation and any lazy media reads have finished.
+  Future<void> clearTemporaryFiles() async {
+    if (_platformFile != null &&
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android) {
+      await FilePicker.clearTemporaryFiles();
+    }
+  }
+
   Future<int> length() async {
     final file = _platformFile;
     return file == null ? bytes!.length : await file.length();

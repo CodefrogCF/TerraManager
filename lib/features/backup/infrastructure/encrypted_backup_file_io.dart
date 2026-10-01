@@ -33,9 +33,7 @@ class EncryptedBackupFile {
           'Encrypted backup header is truncated.',
         );
       }
-      final header = Uint8List.fromList(
-        file.readSync(EncryptedBackupContainer.headerLength),
-      );
+      final header = file.readSync(EncryptedBackupContainer.headerLength);
       cipher = await EncryptedBackupContainer.openCipher(
         header,
         password: password,
@@ -53,7 +51,7 @@ class EncryptedBackupFile {
         }
         file.setPositionSync(fileOffset);
         final frameLength = file.readSync(4);
-        final size = ByteData.sublistView(Uint8List.fromList(frameLength))
+        final size = ByteData.sublistView(frameLength)
             .getUint32(0, Endian.little);
         if (size > EncryptedBackupContainer.chunkSize) {
           throw const EncryptedBackupException(
@@ -70,11 +68,10 @@ class EncryptedBackupFile {
             'Encrypted backup is truncated.',
           );
         }
-        final ciphertext = Uint8List.fromList(file.readSync(size));
-        final tag = Uint8List.fromList(
-          file.readSync(EncryptedBackupContainer.tagLength),
-        );
-        cipher.decryptFrame(index, ciphertext, tag);
+        final ciphertext = file.readSync(size);
+        final tag = file.readSync(EncryptedBackupContainer.tagLength);
+        final plaintext = cipher.decryptFrame(index, ciphertext, tag);
+        plaintext.fillRange(0, plaintext.length, 0);
         if (size == 0) {
           if (nextOffset != fileSize) {
             throw const EncryptedBackupException(
@@ -123,10 +120,8 @@ class EncryptedBackupFile {
     if (_cachedIndex == index) return _cachedBytes;
     final frame = _frames[index];
     _file.setPositionSync(frame.cipherOffset);
-    final ciphertext = Uint8List.fromList(_file.readSync(frame.length));
-    final tag = Uint8List.fromList(
-      _file.readSync(EncryptedBackupContainer.tagLength),
-    );
+    final ciphertext = _file.readSync(frame.length);
+    final tag = _file.readSync(EncryptedBackupContainer.tagLength);
     _cachedBytes.fillRange(0, _cachedBytes.length, 0);
     _cachedBytes = _cipher.decryptFrame(index, ciphertext, tag);
     _cachedIndex = index;

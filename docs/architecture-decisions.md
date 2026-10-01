@@ -2325,8 +2325,17 @@ showed sampled increases of 1,118.6 and 1,619.5 MiB, respectively. Its
 500.9 MiB difference exceeds the proposed 64 MiB additional-memory target,
 although the second run started 220.3 MiB higher and the traces include other
 Brave activity. This is a warning, not a controlled measurement of the
-encryption codec alone. There is still no native Android check on the current
-build, physical approximately 4 GiB device result, full cross-client device
-run, or final pinned-toolchain artifact-size comparison. The stretch
-milestone remains open until the browser path is bounded and the remaining
-checks are recorded.
+encryption codec alone. A subsequent native S22 test-signed Release pair
+started from nearly equal PSS baselines and completed both 252 MiB imports.
+The protected run's sampled PSS increase was initially 453.4 MiB higher than
+the plain run's. Removing redundant native encrypted-frame copies reduced the
+protected sampled peak by 282.4 MiB in a repeat run; its increase remained
+164.2 MiB above the plain run's, still above the proposed 64 MiB target.
+Android's picker had retained a complete selected-file copy after import;
+the client now clears that plugin cache after the backup is disposed. The
+[device report](testing/password-backup-s22-2026-09-30.md) records raw traces,
+debug and Release build qualifications, and observed cache cleanup. There is
+still no physical approximately 4 GiB device
+result, full Shared Care cross-client device run, paired export-memory
+comparison, or production-signed artifact-size comparison. The stretch
+milestone remains open until these checks and the memory work are complete.

@@ -4,8 +4,11 @@ This is an intermediate physical-device result for the password-protected
 portable-backup milestone. The protected 252 MiB import succeeded on the
 corrected persistent-Web build on 2026-10-01 in Brave, Chrome and Firefox.
 Protected and plain exports, and the protected export's re-import, also
-succeeded in Brave. A controlled paired export-memory comparison and
-approximately 4 GiB physical-device checks are still outstanding.
+succeeded in Brave. Native Android debug and test-signed Release imports of
+the plain and protected fixture also succeeded. The measured native Release
+memory difference exceeds the proposed 64 MiB encryption-overhead target;
+paired export measurements and approximately 4 GiB physical-device checks
+are still outstanding.
 
 ## Setup
 
@@ -201,15 +204,100 @@ during the run. These figures should not be compared across browsers as a
 measure of encryption overhead because their baseline state and process
 models differ.
 
-Next, test native Android and Shared Care, then repeat on a physical device
-with about 4 GiB RAM. Record controlled plain/protected import and export
-comparisons with matched idle states, signed-build size, and failed/cancelled
-safety-backup save. The full browser archive buffer and synchronous ZIP
+The native Android results below follow these browser checks. Shared Care,
+a physical device with about 4 GiB RAM, paired export measurements, a
+production-signed size comparison, and failed/cancelled safety-backup saves
+remain to be checked. The full browser archive buffer and synchronous ZIP
 validation remain unresolved memory and responsiveness limits.
 
-An attempt to build the current native Android debug APK from the isolated
-source copy with `flutter build apk --debug --no-pub` failed at
-`:app:mergeDebugAssets`: Gradle could not resolve numerous locked runtime
-dependencies, including `org.jetbrains.kotlinx:atomicfu:0.28.0`. No current
-APK was produced or installed, so the native S22 import is not evidenced by
-the Web runs above.
+## Native Android retest, 2026-10-01
+
+The initial isolated debug build failed to resolve locked Gradle dependencies
+because the local test shell had an invalid proxy. With that proxy removed,
+the build succeeded. Its first installation crashed on startup because the
+Windows host did not regenerate the ignored Flutter plugin registrant after
+`flutter pub get` stopped on the missing Developer Mode symlink permission.
+Copying the generated registrant into the **isolated test build only** and
+rebuilding made the app start. This was a local test-build setup problem, not
+an observed backup-runtime failure. The debug build was installed only on the
+user-authorized expendable S22 test app.
+
+Each large native import started from an empty app collection, selected the
+same synthetic 12-Box/84-picture fixture through Android DocumentsUI, and
+disabled the optional safety copy. Both reached the 12-Box/84-picture preview,
+completed restore, and showed Box 12 with its thumbnail. No crash or app
+restart was observed. `adb shell dumpsys meminfo --package
+com.codefrog.terramanager` sampled the one app process at roughly 1.2–1.4
+second intervals. The raw [debug plain](evidence/native-s22-debug-plain-import-2026-10-01.csv)
+and [debug protected](evidence/native-s22-debug-protected-import-2026-10-01.csv)
+traces include picker and dialog idle time.
+
+| Debug run | Start PSS | Highest sampled PSS | Sampled increase | End PSS |
+| --- | ---: | ---: | ---: | ---: |
+| Plain import | 330.2 MiB | 1,150.9 MiB | 820.7 MiB | 537.4 MiB |
+| Protected import | 424.4 MiB | 1,861.9 MiB | 1,437.5 MiB | 631.5 MiB |
+
+The debug baselines differ by 94.2 MiB, so this pair is diagnostic only. A
+test-signed Release APK from the same isolated source was then built and
+installed after removing the debug app. It is AOT compiled and **not** signed
+with the project's production key. The APK measured 92,600,700 bytes. Again,
+each run began from an empty app collection and ended with 12 Boxes and image
+thumbnails. The [Release plain](evidence/native-s22-release-plain-import-2026-10-01.csv)
+and [Release protected](evidence/native-s22-release-protected-import-2026-10-01.csv)
+traces use the same package-wide PSS sampler.
+
+| Release run | Start PSS | Highest sampled PSS | Sampled increase | End PSS |
+| --- | ---: | ---: | ---: | ---: |
+| Plain import | 133.4 MiB | 686.3 MiB | 553.0 MiB | 405.7 MiB |
+| Protected import | 130.5 MiB | 1,136.9 MiB | 1,006.4 MiB | 443.9 MiB |
+
+The starting PSS values differ by only 2.9 MiB. In this first Release pair,
+the protected run's sampled increase was **453.4 MiB** above the plain run's;
+its absolute peak was 450.6 MiB higher. The peaks occurred in different phases
+(plain during restore, protected during validation), so their difference does
+not isolate cipher memory. It nevertheless exposed avoidable frame copies.
+
+The native reader was then changed to use the newly allocated byte arrays
+returned by `RandomAccessFile.readSync` and `DartAesGcm.decryptSync` directly.
+During the required full-file authentication pass, each decrypted frame is
+zeroed immediately after its tag is checked. A fresh test-signed Release build
+with this change again restored the protected fixture from an empty collection
+and displayed Box 12 with its thumbnail. Its raw
+[protected no-copy trace](evidence/native-s22-release-protected-import-no-copy-2026-10-01.csv)
+had 137.2 MiB starting PSS, 854.5 MiB highest sampled PSS, 717.2 MiB sampled
+increase, and 468.4 MiB end PSS. Compared with the original protected Release
+run, the sampled peak fell by 282.4 MiB and the sampled increase by 289.2 MiB.
+Compared with the plain Release run, the optimized protected increase remains
+**164.2 MiB higher** (168.2 MiB higher absolute peak), above the proposed
+64 MiB target. The plain run used the immediately preceding Release build;
+its import path was unchanged by this copy-removal change. This comparison is
+useful evidence, but it is one run of each variant with manual operation
+boundaries, not a stable benchmark. PSS sampling can miss a shorter peak, and
+the build is locally test-signed. The functional result on this 7.10 GiB
+device does not establish success on an approximately 4 GiB device.
+
+After the first debug protected restore, Android's file-picker cache still
+contained a 264,457,033-byte copy of the selected encrypted file. The new
+import cleanup calls the picker's supported temporary-file cleanup after the
+validated backup is disposed, including when the user cancels a preview.
+After installing the corrected debug APK, opening the small protected backup
+and cancelling its preview left `cache/file_picker` empty; the earlier large
+copy was removed too. The test-signed Release build also contains this fix,
+but its private cache could not be inspected with `run-as` because Release is
+not debuggable. The selected file remains in the picker cache during an
+active operation, and Android can still retain it if the process is killed
+before cleanup. No plaintext temporary ZIP was observed in the debug cache.
+
+Validation of these changes: full `flutter analyze --no-pub` reported no
+issues after both edits; 162 backup/settings tests passed before the frame
+copy change, and its nine targeted encryption/file tests passed afterward.
+Debug and test-signed Release APKs built. The tests do not assert the Android
+plugin's cache behavior; the S22 cancel-preview check above provides that
+device evidence.
+
+The milestone remains open. Next: investigate the native and browser
+protected-import memory peaks, repeat paired exports with operation markers,
+test on an approximately 4 GiB physical Android device, exercise Shared Care
+cross-client restore, and compare a production-signed build's size against a
+recorded pre-feature baseline. The browser full-archive buffer and synchronous
+ZIP validation remain separate unresolved limits.

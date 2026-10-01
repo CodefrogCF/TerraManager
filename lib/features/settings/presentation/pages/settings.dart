@@ -250,12 +250,14 @@ class _SettingsPageState extends State<SettingsPage> {
     });
 
     ValidatedBackup? selectedBackup;
+    PickedBackupFile? selectedFile;
     try {
       final picked = await _backupFileGateway.pickBackup();
 
       if (picked == null) {
         return;
       }
+      selectedFile = picked;
 
       // Let the progress message paint before reading and validating a large
       // browser file on the UI isolate.
@@ -389,6 +391,11 @@ class _SettingsPageState extends State<SettingsPage> {
       _showMessage(context.l10n.failedToRestoreBackup, error: true);
     } finally {
       selectedBackup?.dispose();
+      try {
+        await selectedFile?.clearTemporaryFiles();
+      } catch (error) {
+        debugPrint('Could not clear selected backup cache: $error');
+      }
       if (mounted) {
         setState(() {
           _backupBusy = false;

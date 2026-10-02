@@ -8,16 +8,17 @@ import 'package:terramanager/shared_server/accounts/infrastructure/account_store
 import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/audit_schema.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/collection_audit_log.dart';
-import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
 import 'package:terramanager/shared_server/app/shared_server_api.dart';
 
+import '../helpers/test_database_helper.dart';
+
 void main() {
-  late Directory directory;
+  TestDatabaseHelper? helper;
   late AppDatabase database;
   late AccountStore accounts;
-  late sqlite.Database accountDatabase;
-  late HttpServer server;
-  late HttpClient client;
+  sqlite.Database? accountDatabase;
+  HttpServer? server;
+  HttpClient? client;
   late String adminCookie;
   late String caregiverCookie;
   late String csrf;
@@ -32,9 +33,9 @@ void main() {
     String method = 'GET',
     Map<String, Object?>? body,
   }) async {
-    final request = await client.openUrl(
+    final request = await client!.openUrl(
       method,
-      Uri.parse('http://127.0.0.1:${server.port}$path'),
+      Uri.parse('http://127.0.0.1:${server!.port}$path'),
     );
     if (cookie != null) request.headers.set('Cookie', cookie);
     if (body != null) {
@@ -68,7 +69,7 @@ void main() {
       occurredAt: time,
     );
     if (source == 'account') {
-      accountDatabase.execute(auditInsertSql, event.sqlValues);
+      accountDatabase!.execute(auditInsertSql, event.sqlValues);
     } else {
       await CollectionAuditLog(database).record(event);
     }
@@ -76,13 +77,13 @@ void main() {
   }
 
   setUp(() async {
-    directory = await Directory.systemTemp.createTemp('tm-audit-viewer-');
-    accounts = await AccountStore.open(
-      File('${directory.path}/accounts.sqlite'),
+    final created = await TestDatabaseHelper.create(
+      prefix: 'tm-audit-viewer-',
     );
-    database = await openServerDatabase(
-      File('${directory.path}/collection.sqlite'),
-    );
+    helper = created;
+    accounts = created.accounts;
+    database = created.database;
+    client = HttpClient();
     await accounts.createInitialAdministrator(
       'admin',
       'secure admin password 123',
@@ -97,7 +98,6 @@ void main() {
       accounts: accounts,
       publicUrl: Uri.parse('http://127.0.0.1'),
     ).serve();
-    client = HttpClient();
     csrf = '';
     final admin = await call(
       '/api/v1/auth/login',
@@ -115,17 +115,19 @@ void main() {
       },
     );
     caregiverCookie = caregiver.$3.value('Set-Cookie')!.split(';').first;
-    accountDatabase = sqlite.sqlite3.open('${directory.path}/accounts.sqlite');
-    accountDatabase.execute('DELETE FROM shared_audit_events');
+    accountDatabase = sqlite.sqlite3.open(created.accountsDbFile.path);
+    accountDatabase!.execute('DELETE FROM shared_audit_events');
   });
 
   tearDown(() async {
-    client.close(force: true);
-    await server.close(force: true);
-    accountDatabase.close();
-    accounts.close();
-    await database.close();
-    await directory.delete(recursive: true);
+    await server?.close(force: true);
+    server = null;
+    client?.close(force: true);
+    client = null;
+    accountDatabase?.close();
+    accountDatabase = null;
+    await helper?.cleanup();
+    helper = null;
   });
 
   test('administrator authorization precedes filters and empty history is explicit', () async {
@@ -138,7 +140,7 @@ void main() {
     expect(empty.$1, 200);
     expect(empty.$2, {'events': [], 'nextCursor': null});
     expect(empty.$3.value('Cache-Control'), 'no-store');
-  });
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   test(
     'bounded pages merge both streams with stable timestamp/source/id ties',

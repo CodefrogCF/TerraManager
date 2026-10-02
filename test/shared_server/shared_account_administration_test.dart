@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
-import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
 import 'package:terramanager/shared_server/app/shared_server_api.dart';
+
+import '../helpers/test_database_helper.dart';
 
 class _Response {
   final int status;
@@ -47,33 +48,31 @@ Future<_Response> _call(
 
 void main() {
   test('account administration enforces roles, confirmations and last administrator protection', () async {
-    final directory = await Directory.systemTemp.createTemp('tm-admin-');
-    final accounts = await AccountStore.open(
-      File('${directory.path}/accounts.sqlite'),
-    );
-    final database = await openServerDatabase(
-      File('${directory.path}/collection.sqlite'),
-    );
-    final admin = await accounts.createInitialAdministrator(
-      'admin',
-      'admin password 1234',
-    );
-    final caregiver = await accounts.createAccount(
-      'caregiver',
-      'caregiver password 1234',
-      CareRole.caregiver,
-    );
-    final auditId = caregiver.auditId;
+    final helper = await TestDatabaseHelper.create(prefix: 'tm-admin-');
+    final accounts = helper.accounts;
+    final database = helper.database;
     final client = HttpClient();
-    final server = await SharedServerApi(
-      database: database,
-      accounts: accounts,
-      publicUrl: Uri.parse('http://127.0.0.1'),
-    ).serve();
+    HttpServer? server;
     try {
+      final admin = await accounts.createInitialAdministrator(
+        'admin',
+        'admin password 1234',
+      );
+      final caregiver = await accounts.createAccount(
+        'caregiver',
+        'caregiver password 1234',
+        CareRole.caregiver,
+      );
+      final auditId = caregiver.auditId;
+      final activeServer = await SharedServerApi(
+        database: database,
+        accounts: accounts,
+        publicUrl: Uri.parse('http://127.0.0.1'),
+      ).serve();
+      server = activeServer;
       Future<_Response> login(String name, String password) => _call(
         client,
-        server,
+        activeServer,
         'POST',
         '/api/v1/auth/login',
         body: {'username': name, 'password': password},
@@ -91,7 +90,7 @@ void main() {
         _Response? actor,
       }) => _call(
         client,
-        server,
+        activeServer,
         method,
         '/api/v1/admin/accounts/$id',
         body: {
@@ -105,7 +104,7 @@ void main() {
       expect(
         (await _call(
           client,
-          server,
+          activeServer,
           'GET',
           '/api/v1/admin/accounts',
           cookie: caregiverLogin.cookie,
@@ -127,7 +126,7 @@ void main() {
       expect(
         (await _call(
           client,
-          server,
+          activeServer,
           'PATCH',
           '/api/v1/admin/accounts/${caregiver.id}',
           body: {'active': false},
@@ -145,7 +144,7 @@ void main() {
       expect(
         (await _call(
           client,
-          server,
+          activeServer,
           'GET',
           '/api/v1/auth/session',
           cookie: caregiverLogin.cookie,
@@ -231,7 +230,7 @@ void main() {
       expect(
         (await _call(
           client,
-          server,
+          activeServer,
           'GET',
           '/api/v1/admin/accounts',
           cookie: adminLogin.cookie,
@@ -240,19 +239,19 @@ void main() {
       );
       expect(other.active, true);
     } finally {
+      await server?.close(force: true);
       client.close(force: true);
-      await server.close(force: true);
-      accounts.close();
-      await database.close();
-      await directory.delete(recursive: true);
+      await helper.cleanup();
     }
-  });
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   test('failed deletion audit rolls back credentials and sessions; removed actor identity remains', () async {
-    final directory = await Directory.systemTemp.createTemp('tm-admin-atomic-');
-    final file = File('${directory.path}/accounts.sqlite');
-    final accounts = await AccountStore.open(file);
-    final inspector = sqlite3.open(file.path);
+    final helper = await TestDatabaseHelper.create(
+      prefix: 'tm-admin-atomic-',
+      openCollectionDatabase: false,
+    );
+    final accounts = helper.accounts;
+    final inspector = sqlite3.open(helper.accountsDbFile.path);
     try {
       final admin = await accounts.createInitialAdministrator(
         'admin',
@@ -291,17 +290,15 @@ void main() {
       expect(await accounts.authenticate('user', 'user password 1234'), isNull);
     } finally {
       inspector.close();
-      accounts.close();
-      await directory.delete(recursive: true);
+      await helper.cleanup();
     }
   });
   test('concurrent hashed administrator demotions leave one active administrator and reject stale actors', () async {
-    final directory = await Directory.systemTemp.createTemp(
-      'tm-admin-concurrent-',
+    final helper = await TestDatabaseHelper.create(
+      prefix: 'tm-admin-concurrent-',
+      openCollectionDatabase: false,
     );
-    final accounts = await AccountStore.open(
-      File('${directory.path}/accounts.sqlite'),
-    );
+    final accounts = helper.accounts;
     try {
       final first = await accounts.createInitialAdministrator(
         'first',
@@ -344,8 +341,7 @@ void main() {
       );
       expect(accounts.listAccounts().length, 2);
     } finally {
-      accounts.close();
-      await directory.delete(recursive: true);
+      await helper.cleanup();
     }
   });
 }

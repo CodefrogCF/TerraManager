@@ -33,6 +33,15 @@ import 'app_database.steps.dart';
 
 part 'app_database.g.dart';
 
+QueryExecutor _configureTestQueryExecutor(QueryExecutor executor) {
+  // AppDatabase.test is used with isolated executors in tests that intentionally
+  // keep more than one database instance alive at the same time. Configure
+  // Drift before the generated database constructor runs, without importing
+  // flutter_test into production code.
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  return executor;
+}
+
 @DriftDatabase(
   tables: [
     Boxes,
@@ -49,7 +58,8 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
     : super(executor ?? platform_connection.openDatabase());
 
-  AppDatabase.test(super.executor);
+  AppDatabase.test(QueryExecutor executor)
+    : super(_configureTestQueryExecutor(executor));
 
   @override
   MigrationStrategy get migration {

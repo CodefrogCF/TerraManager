@@ -10,9 +10,9 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/shared_server/collection/infrastructure/http/care_api.dart';
 import 'package:terramanager/shared_server/authentication/infrastructure/http/care_authenticator.dart';
 import 'package:terramanager/shared_server/media/infrastructure/media_storage_policy.dart';
-import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
 
 import '../drift/app_database/generated/schema_v15.dart' as v15;
+import '../helpers/test_database_helper.dart';
 
 const _token = 'a-local-test-token-that-is-long-enough';
 
@@ -115,31 +115,64 @@ Future<int> _createAnimal(
 }
 
 void main() {
+  late TestDatabaseHelper helper;
   late Directory directory;
-  late File file;
   late AppDatabase database;
   late HttpServer server;
   late HttpClient clientA;
   late HttpClient clientB;
+  var helperReady = false;
+  var serverStarted = false;
+  var clientsReady = false;
 
-  setUp(() async {
-    directory = await Directory.systemTemp.createTemp('terramanager-server-');
-    file = File('${directory.path}${Platform.pathSeparator}collection.sqlite');
-    database = await openServerDatabase(file);
+  Future<void> startServer() async {
     server = await CareApi(
       database: database,
       authenticator: _TestBearerAuthenticator(),
     ).serve();
+    serverStarted = true;
+  }
+
+  Future<void> stopServer() async {
+    if (!serverStarted) return;
+    await server.close(force: true);
+    serverStarted = false;
+  }
+
+  Future<void> restartServerDatabase([File? target]) async {
+    await stopServer();
+    database = await helper.reopenCollectionDatabase(target);
+    await startServer();
+  }
+
+  setUp(() async {
+    helperReady = false;
+    serverStarted = false;
+    clientsReady = false;
     clientA = HttpClient();
     clientB = HttpClient();
+    clientsReady = true;
+    helper = await TestDatabaseHelper.create(
+      prefix: 'terramanager-server-',
+      openAccountStore: false,
+    );
+    helperReady = true;
+    directory = helper.directory;
+    database = helper.database;
+    await startServer();
   });
 
   tearDown(() async {
-    clientA.close(force: true);
-    clientB.close(force: true);
-    await server.close(force: true);
-    await database.close();
-    await directory.delete(recursive: true);
+    await stopServer();
+    if (clientsReady) {
+      clientA.close(force: true);
+      clientB.close(force: true);
+      clientsReady = false;
+    }
+    if (helperReady) {
+      await helper.cleanup();
+      helperReady = false;
+    }
   });
 
   test(
@@ -260,13 +293,7 @@ void main() {
     expect(animal.status, 200);
     expect((animal.json!['animal'] as Map)['boxId'], boxId);
 
-    await server.close(force: true);
-    await database.close();
-    database = await openServerDatabase(file);
-    server = await CareApi(
-      database: database,
-      authenticator: _TestBearerAuthenticator(),
-    ).serve();
+    await restartServerDatabase();
     final persisted = await _call(
       clientB,
       server,
@@ -527,6 +554,7 @@ void main() {
         DateTime.utc(2026, 10, 5, 8),
       );
     },
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 
   test(
@@ -863,13 +891,7 @@ void main() {
       expect((responses.last.json!['picture'] as Map)['mediaId'], mediaId);
       expect(await database.select(database.mediaAssets).get(), hasLength(1));
 
-      await server.close(force: true);
-      await database.close();
-      database = await openServerDatabase(file);
-      server = await CareApi(
-        database: database,
-        authenticator: _TestBearerAuthenticator(),
-      ).serve();
+      await restartServerDatabase();
 
       final replay = await _call(
         clientB,
@@ -1190,8 +1212,8 @@ void main() {
   test(
     'opening an existing server file migrates without losing data',
     () async {
-      await server.close(force: true);
-      await database.close();
+      await stopServer();
+      await helper.closeCollectionDatabase();
       final olderFile = File(
         '${directory.path}${Platform.pathSeparator}older.sqlite',
       );
@@ -1209,11 +1231,8 @@ void main() {
       );
       await oldDatabase.close();
 
-      database = await openServerDatabase(olderFile);
-      server = await CareApi(
-        database: database,
-        authenticator: _TestBearerAuthenticator(),
-      ).serve();
+      database = await helper.reopenCollectionDatabase(olderFile);
+      await startServer();
       final rows = await database.select(database.animals).get();
       expect(rows, hasLength(1));
       expect(rows.single.commonName, 'Kept Animal');

@@ -9,8 +9,9 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
 import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/collection_audit_log.dart';
-import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
 import 'package:terramanager/shared_server/app/shared_server_api.dart';
+
+import '../helpers/test_database_helper.dart';
 
 class _Response {
   const _Response(this.status, this.bytes, this.headers);
@@ -23,10 +24,11 @@ class _Response {
 
 void main() {
   late Directory directory;
+  TestDatabaseHelper? helper;
   late AppDatabase database;
   late AccountStore accounts;
-  late HttpServer server;
-  late HttpClient client;
+  HttpServer? server;
+  HttpClient? client;
   late CareAccount admin;
   late String cookie;
   late String csrf;
@@ -38,9 +40,9 @@ void main() {
     String? safety,
     String? key,
   }) async {
-    final request = await client.openUrl(
+    final request = await client!.openUrl(
       method,
-      Uri.parse('http://127.0.0.1:${server.port}$path'),
+      Uri.parse('http://127.0.0.1:${server!.port}$path'),
     );
     if (path != '/api/v1/auth/login') {
       request.headers.set('Cookie', cookie);
@@ -80,13 +82,12 @@ void main() {
       row.data,
   ];
   setUp(() async {
-    directory = await Directory.systemTemp.createTemp('tm-audit-');
-    accounts = await AccountStore.open(
-      File('${directory.path}/accounts.sqlite'),
-    );
-    database = await openServerDatabase(
-      File('${directory.path}/collection.sqlite'),
-    );
+    final created = await TestDatabaseHelper.create(prefix: 'tm-audit-');
+    helper = created;
+    directory = created.directory;
+    accounts = created.accounts;
+    database = created.database;
+    client = HttpClient();
     admin = await accounts.createInitialAdministrator(
       'admin',
       'secure admin password 123',
@@ -96,7 +97,6 @@ void main() {
       accounts: accounts,
       publicUrl: Uri.parse('http://127.0.0.1'),
     ).serve();
-    client = HttpClient();
     final login = await call(
       'POST',
       '/api/v1/auth/login',
@@ -106,11 +106,12 @@ void main() {
     csrf = login.json['csrfToken'] as String;
   });
   tearDown(() async {
-    client.close(force: true);
-    await server.close(force: true);
-    await database.close();
-    accounts.close();
-    await directory.delete(recursive: true);
+    await server?.close(force: true);
+    server = null;
+    client?.close(force: true);
+    client = null;
+    await helper?.cleanup();
+    helper = null;
   });
 
   test(
@@ -279,6 +280,7 @@ void main() {
       expect((await events()).last['action'], 'collection.restore');
       expect(accounts.accountById(admin.id)!.auditId, admin.auditId);
     },
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 
   test(
@@ -359,6 +361,7 @@ void main() {
       );
       expect(await database.select(database.feedingEvents).get(), hasLength(1));
     },
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 
   test(

@@ -77,9 +77,7 @@ void main() {
   }
 
   setUp(() async {
-    final created = await TestDatabaseHelper.create(
-      prefix: 'tm-audit-viewer-',
-    );
+    final created = await TestDatabaseHelper.create(prefix: 'tm-audit-viewer-');
     helper = created;
     accounts = created.accounts;
     database = created.database;

@@ -212,6 +212,12 @@ abstract final class EncryptedBackupContainer {
           await Future<void>.delayed(Duration.zero);
         }
       }
+    } catch (_) {
+      // A later frame may fail after earlier plaintext was compacted into the
+      // selected browser buffer. Do not retain that partial plaintext after a
+      // rejected or interrupted import.
+      input.fillRange(0, input.length, 0);
+      rethrow;
     } finally {
       key.destroy();
     }

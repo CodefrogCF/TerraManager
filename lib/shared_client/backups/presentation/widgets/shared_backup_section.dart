@@ -149,18 +149,6 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       }
       final picked = await BackupFileService().pickBackup();
       if (picked == null || !mounted) return;
-      final encrypted = await picked.isEncrypted;
-      if (!mounted) return;
-      if (encrypted && requiresSafety && !_safetyEncrypted) {
-        _message(
-          sharedText(
-            context,
-            'Save a password-protected safety backup before restoring an encrypted file.',
-            'Speichere vor der Wiederherstellung einer verschlüsselten Datei eine passwortgeschützte Sicherheitskopie.',
-          ),
-        );
-        return;
-      }
       const maxImportBytes = 256 * 1024 * 1024;
       final pickedLength = await picked.length();
       if (!mounted) return;
@@ -170,6 +158,18 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
             context,
             'This backup exceeds the 256 MiB import limit.',
             'Diese Sicherung überschreitet die Importgrenze von 256 MiB.',
+          ),
+        );
+        return;
+      }
+      final encrypted = await picked.isEncrypted;
+      if (!mounted) return;
+      if (encrypted && requiresSafety && !_safetyEncrypted) {
+        _message(
+          sharedText(
+            context,
+            'Save a password-protected safety backup before restoring an encrypted file.',
+            'Speichere vor der Wiederherstellung einer verschlüsselten Datei eine passwortgeschützte Sicherheitskopie.',
           ),
         );
         return;
@@ -200,7 +200,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
       }
       var validated = BackupValidationService(
         maxExpandedBytes: 512 * 1024 * 1024,
-      ).validate(backupBytes);
+      ).validatePreview(backupBytes);
       if (!mounted) return;
       String? legacyTimeZone;
       if (validated.hasLegacyTimestamps) {
@@ -210,7 +210,7 @@ class _SharedBackupSectionState extends State<SharedBackupSection> {
           maxExpandedBytes: 512 * 1024 * 1024,
           legacyTimeZone: legacyTimeZone,
           requireLegacyTimeZone: true,
-        ).validate(backupBytes);
+        ).validatePreview(backupBytes);
       }
       final confirmed = await showDialog<bool>(
         context: context,

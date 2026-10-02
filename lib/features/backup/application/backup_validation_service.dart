@@ -33,6 +33,15 @@ class BackupValidationService {
   ValidatedBackup validate(Uint8List bytes) =>
       _validate(InputMemoryStream(bytes), closeArchiveEntries: true);
 
+  /// Validates a browser upload before confirmation without retaining decoded
+  /// pictures. The caller only needs the counts; the server validates and
+  /// reads the media again before replacing the collection.
+  ValidatedBackup validatePreview(Uint8List bytes) => _validate(
+    InputMemoryStream(bytes),
+    closeArchiveEntries: true,
+    retainMediaBytes: false,
+  );
+
   /// Validates a caller-owned stream without loading the complete ZIP.
   /// The caller closes the stream after this method returns.
   ValidatedBackup validateStream(InputStream input) =>
@@ -224,7 +233,7 @@ class BackupValidationService {
       settings: settings,
       mediaFiles: mediaFiles,
       mediaPaths: mediaPaths,
-      mediaReader: retainMediaBytes
+      mediaReader: retainMediaBytes || closeArchiveEntries
           ? null
           : (path) {
               final entry = files[path];

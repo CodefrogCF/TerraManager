@@ -2339,3 +2339,30 @@ still no physical approximately 4 GiB device
 result, full Shared Care cross-client device run, paired export-memory
 comparison, or production-signed artifact-size comparison. The stretch
 milestone remains open until these checks and the memory work are complete.
+
+### Follow-up evidence and release decision (2026-10-02)
+
+The Web picker now requests a read stream without eagerly loading selected
+file bytes and reads only the encrypted magic before prompting for a password.
+Shared Care preview validation discards media bytes after checking them, and
+failed Web authentication clears any buffer that may already contain compacted
+plaintext. Standalone backup failures no longer print raw exception or stack
+details to application logs. These changes reduce avoidable copies and
+information exposure but do not make browser restore memory-bounded.
+
+On a disposable local Shared Care server, a Galaxy S22 Chrome client restored
+a password-protected 264,457,033-byte backup containing 12 Boxes and 84 media
+assets. An expired safety token was rejected with HTTP 409 without replacing
+the prior collection; a new encrypted safety copy and token allowed the full
+restore, recorded as HTTP 200. The sampled Chrome package PSS rose from
+817,506 KiB to 2,440,886 KiB. See the
+[follow-up report](testing/password-backup-milestone-2026-10-02.md) for the
+trace method, build checks and size comparison.
+
+The Galaxy S22 has about 7.1 GiB physical RAM, so this result cannot prove
+the proposed approximately 4 GiB target. The browser import buffer, Shared
+Care POST and save fallback still scale with the entire archive. Therefore
+Issues #203-#207 are not complete and password-protected backups remain
+unreleased. Resolve bounded-memory browser file flow and the native overhead,
+then rerun the supported platform matrix and pinned signed artifact comparison
+before changing this decision.

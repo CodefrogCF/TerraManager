@@ -82,7 +82,14 @@ void main() {
       Uint8List.fromList(List<int>.generate(320000, (i) => i % 251)),
       password: password,
     );
-    final tampered = Uint8List.fromList(encrypted)..[80] ^= 1;
+    // Damage the second frame, after the first has already been decrypted.
+    final tampered = Uint8List.fromList(encrypted)
+      ..[EncryptedBackupContainer.headerLength +
+              4 +
+              EncryptedBackupContainer.chunkSize +
+              EncryptedBackupContainer.tagLength +
+              8] ^=
+          1;
     await expectLater(
       EncryptedBackupContainer.decryptInPlace(tampered, password: password),
       throwsA(
@@ -93,6 +100,7 @@ void main() {
         ),
       ),
     );
+    expect(tampered.every((byte) => byte == 0), isTrue);
     final truncated = Uint8List.fromList(
       encrypted.sublist(0, encrypted.length - 1),
     );
@@ -106,6 +114,7 @@ void main() {
         ),
       ),
     );
+    expect(truncated.every((byte) => byte == 0), isTrue);
   });
 
   test(

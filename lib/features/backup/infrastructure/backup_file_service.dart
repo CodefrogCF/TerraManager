@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_saver/file_saver.dart';
@@ -14,6 +16,9 @@ import 'backup_file_destination_stub.dart'
 import 'backup_file_source_stub.dart'
     if (dart.library.io) 'backup_file_source_io.dart'
     as source;
+import 'backup_picker_options_stub.dart'
+    if (dart.library.js_interop) 'backup_picker_options_web.dart'
+    as picker_options;
 
 class PickedBackupFile {
   final String name;
@@ -65,9 +70,27 @@ class PickedBackupFile {
   Future<bool> get isEncrypted async {
     final file = _platformFile;
     if (file != null && kIsWeb) {
-      return EncryptedBackupContainer.hasEncryptedHeader(
-        (await readAsBytes()).take(8).toList(),
-      );
+      final cached = _cachedWebBytes;
+      if (cached != null) {
+        return EncryptedBackupContainer.hasEncryptedHeader(
+          cached.take(EncryptedBackupContainer.magic.length).toList(),
+        );
+      }
+      final iterator = StreamIterator(file.readAsByteStream());
+      final prefix = <int>[];
+      try {
+        while (prefix.length < EncryptedBackupContainer.magic.length &&
+            await iterator.moveNext()) {
+          prefix.addAll(
+            iterator.current.take(
+              EncryptedBackupContainer.magic.length - prefix.length,
+            ),
+          );
+        }
+      } finally {
+        await iterator.cancel();
+      }
+      return EncryptedBackupContainer.hasEncryptedHeader(prefix);
     }
     if (file != null) return source.isPickedBackupEncrypted(file);
     return EncryptedBackupContainer.hasEncryptedHeader(bytes!.take(8).toList());
@@ -174,6 +197,7 @@ class BackupFileService extends BackupFileGateway {
     final file = await FilePicker.pickFile(
       type: FileType.custom,
       allowedExtensions: const [BackupFormat.fileExtension],
+      webOptions: picker_options.backupPickerWebOptions,
     );
 
     if (file == null) {

@@ -216,13 +216,8 @@ class _SettingsPageState extends State<SettingsPage> {
       }
 
       _showMessage(context.l10n.backupCreatedSuccessfully);
-    } catch (error, stackTrace) {
-      debugPrint('Backup creation failed: $error');
-
-      debugPrintStack(
-        label: 'Backup creation stack trace',
-        stackTrace: stackTrace,
-      );
+    } catch (_) {
+      debugPrint('Backup creation failed.');
 
       if (!mounted) {
         return;
@@ -258,6 +253,20 @@ class _SettingsPageState extends State<SettingsPage> {
         return;
       }
       selectedFile = picked;
+
+      if (await picked.length() > 256 * 1024 * 1024) {
+        if (mounted) {
+          _showMessage(
+            sharedText(
+              context,
+              'This backup exceeds the 256 MiB import limit.',
+              'Diese Sicherung überschreitet die Importgrenze von 256 MiB.',
+            ),
+            error: true,
+          );
+        }
+        return;
+      }
 
       // Let the progress message paint before reading and validating a large
       // browser file on the UI isolate.
@@ -376,13 +385,8 @@ class _SettingsPageState extends State<SettingsPage> {
       }
 
       _showMessage(context.l10n.backupRestoredSuccessfully);
-    } catch (error, stackTrace) {
-      debugPrint('Backup restore failed: $error');
-
-      debugPrintStack(
-        label: 'Backup restore stack trace',
-        stackTrace: stackTrace,
-      );
+    } catch (_) {
+      debugPrint('Backup restore failed.');
 
       if (!mounted) {
         return;

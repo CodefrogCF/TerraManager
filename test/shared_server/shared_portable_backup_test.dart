@@ -12,6 +12,8 @@ import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
+import 'package:terramanager/features/backup/application/encrypted_backup_container.dart';
+import 'package:terramanager/features/backup/application/portable_backup_database_restorer.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
 import 'package:terramanager/shared_server/media/infrastructure/picture_upload_requests.dart';
@@ -84,6 +86,7 @@ void main() {
       final client = HttpClient();
       HttpServer? server;
       AppDatabase? source;
+      AppDatabase? standaloneTarget;
       try {
         await accounts.createInitialAdministrator(
           'admin',
@@ -179,6 +182,43 @@ void main() {
         expect(saved.mediaFileCount, 1);
         expect(await uploadReceipts.find(uploadKey), isNotNull);
 
+        // The browser needs only a validated preview before confirmation.
+        // Pictures must not stay expanded alongside the archive and upload.
+        final preview = BackupValidationService().validatePreview(
+          exported.bytes,
+        );
+        expect(preview.boxCount, 1);
+        expect(preview.mediaFileCount, 1);
+        expect(preview.mediaFiles, isEmpty);
+        expect(preview.readMedia(preview.mediaPaths.single), isNull);
+
+        // Shared Care protects its downloaded ZIP in the client. A standalone
+        // restore of those bytes must still recover the collection and media.
+        const backupPassword = 'a local integration test password';
+        final protectedExport = await EncryptedBackupContainer.encryptBytes(
+          exported.bytes,
+          password: backupPassword,
+        );
+        final recoveredExport = await EncryptedBackupContainer.decryptBytes(
+          protectedExport,
+          password: backupPassword,
+        );
+        standaloneTarget = AppDatabase.test(NativeDatabase.memory());
+        await PortableBackupDatabaseRestorer(standaloneTarget)
+            .restore(BackupValidationService().validate(recoveredExport));
+        expect(
+          (await BoxRepository(standaloneTarget).getAllBoxes()).single.name,
+          'Original',
+        );
+        expect(
+          (await PictureGalleryRepository(standaloneTarget)
+                  .getBoxPictures(originalId))
+              .single
+              .media
+              .data,
+          [1, 2, 3],
+        );
+
         source = AppDatabase.test(NativeDatabase.memory());
         final importedId = await BoxRepository(source).createBox(
           'TM:BOX:22222222-2222-4222-8222-222222222222',
@@ -196,6 +236,58 @@ void main() {
           themeMode: ThemeMode.system,
           accent: AppAccent.green,
         );
+        final protectedImport = await EncryptedBackupContainer.encryptBytes(
+          importFile.bytes,
+          password: backupPassword,
+        );
+        await expectLater(
+          EncryptedBackupContainer.decryptBytes(
+            protectedImport,
+            password: 'wrong password',
+          ),
+          throwsA(isA<EncryptedBackupException>()),
+        );
+        final changedImport = Uint8List.fromList(protectedImport)..[55] ^= 1;
+        await expectLater(
+          EncryptedBackupContainer.decryptBytes(
+            changedImport,
+            password: backupPassword,
+          ),
+          throwsA(isA<EncryptedBackupException>()),
+        );
+        expect(
+          (await BoxRepository(database).getAllBoxes()).single.name,
+          'Original',
+        );
+        // An encrypted container is never itself sent to the server. It only
+        // accepts the authenticated inner portable ZIP after client decrypt.
+        final encryptedUpload = await _call(
+          client,
+          server,
+          'POST',
+          '/api/v1/admin/backups/restore',
+          cookie: adminCookie,
+          csrf: csrf,
+          safetyToken: safetyToken,
+          confirm: true,
+          archive: protectedImport,
+        );
+        expect(encryptedUpload.status, 400);
+        expect(
+          (await BoxRepository(database).getAllBoxes()).single.name,
+          'Original',
+        );
+        final authenticatedImport =
+            await EncryptedBackupContainer.decryptInPlace(
+              protectedImport,
+              password: backupPassword,
+            );
+        expect(
+          BackupValidationService()
+              .validatePreview(authenticatedImport)
+              .boxCount,
+          1,
+        );
 
         final missingConfirmation = await _call(
           client,
@@ -205,7 +297,7 @@ void main() {
           cookie: adminCookie,
           csrf: csrf,
           safetyToken: safetyToken,
-          archive: importFile.bytes,
+          archive: authenticatedImport,
         );
         expect(missingConfirmation.status, 400);
         final invalid = await _call(
@@ -235,7 +327,7 @@ void main() {
           csrf: csrf,
           safetyToken: safetyToken,
           confirm: true,
-          archive: importFile.bytes,
+          archive: authenticatedImport,
         );
         expect(restored.status, 200, reason: restored.json.toString());
         expect(restored.json['restored'], true);
@@ -319,6 +411,7 @@ void main() {
         client.close(force: true);
         await server?.close(force: true);
         await source?.close();
+        await standaloneTarget?.close();
         await database.close();
         accounts.close();
         await directory.delete(recursive: true);

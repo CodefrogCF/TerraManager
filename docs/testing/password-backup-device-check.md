@@ -128,10 +128,12 @@ restarting the app or browser.
    and import it in standalone. Check format-1 and format-2 legacy ZIP fixtures
    separately if available.
 
-Keep the raw measurements and screenshots with the release evidence. The
-milestone remains open if any listed platform still materializes the full
-archive during import or download, if a plaintext temporary archive is found,
-or if the physical-device and signed-build checks are missing.
+Keep the raw measurements and screenshots with the release evidence. A
+plaintext temporary archive, a failed authentication that changes collection
+data, or a missing final signed-build check blocks release. If a listed
+platform still materializes the full archive or the memory goal is missed,
+record the measured limitation and an explicit release decision; do not claim
+bounded-memory behavior.
 
 The first physical-device findings and the dart2js runtime correction are
 recorded in [the Galaxy S22 test report](password-backup-s22-2026-09-30.md).

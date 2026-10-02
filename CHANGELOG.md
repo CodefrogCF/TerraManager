@@ -44,6 +44,11 @@ The project uses semantic versioning.
 
 ### Added
 
+- add optional password-protected portable backups to standalone and Shared
+  Care with Argon2id, framed AES-256-GCM authentication, encrypted safety
+  copies and unchanged format-1/2 ZIP imports; document that large protected
+  browser operations can take several minutes and require substantial memory
+  — Issues #203-#207
 - prepare localized feature-focused standalone Play Store screenshots with
   synthetic demonstration data, editable SVG sources and a repeatable capture
   workflow; review German/English listing descriptions for the matching Android

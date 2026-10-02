@@ -397,8 +397,8 @@ class _SettingsPageState extends State<SettingsPage> {
       selectedBackup?.dispose();
       try {
         await selectedFile?.clearTemporaryFiles();
-      } catch (error) {
-        debugPrint('Could not clear selected backup cache: $error');
+      } catch (_) {
+        debugPrint('Could not clear selected backup cache.');
       }
       if (mounted) {
         setState(() {

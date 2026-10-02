@@ -63,10 +63,12 @@ following before closing that milestone:
 Use the [password backup device check](testing/password-backup-device-check.md)
 and its synthetic 252 MiB fixtures for the comparable platform measurements.
 
-- A physical Android device with approximately 4 GiB RAM and desktop/mobile
-  browsers: plain and protected export/restore, including a media-rich backup
-  near 256 MiB; record peak memory and duration against the same unencrypted
-  operation. The proposed additional-memory goal is at most 64 MiB.
+- On available physical Android hardware and desktop/mobile browsers, compare
+  plain and protected export/restore with a media-rich backup near 256 MiB.
+  Record peak memory, duration and device RAM. The optimization goal is at most
+  64 MiB additional peak memory on an approximately 4 GiB device. If that goal
+  is deferred, record the explicit release decision, the measured limitation
+  and the unchanged-collection result for failed or interrupted operations.
 - Cross-client standalone and Shared Care imports, including portable formats
   1 and 2, wrong password, tampering, truncation, cancellation and safety-copy
   failure; verify that failed operations leave the collection unchanged.
@@ -76,6 +78,12 @@ and its synthetic 252 MiB fixtures for the comparable platform measurements.
   baseline using the pinned toolchain; record byte sizes and tool versions.
 - Regenerate and inspect both downloadable guide PDFs after updating the
   English and German guide data.
+
+The memory optimization goal is not a cryptographic or data-integrity claim.
+An accepted exception may defer it when the current proportional-memory
+behavior is documented for users and the release evidence does not claim
+bounded-memory operation. The security, legacy compatibility, unchanged-data
+failure behavior and final artifact checks above still apply.
 
 Do not duplicate feature-specific test matrices here. Feature-specific regression
 coverage belongs to the implementation issue and automated tests.

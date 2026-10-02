@@ -417,10 +417,12 @@ replacement, restore without a valid safety copy is rejected. The browser
 explains the requirement and still asks for explicit replacement confirmation. The server rejects an outdated
 safety copy after another caregiver changes the collection. A failed import
 does not replace existing data. Restore blocks collection edits until its
-transaction ends; reload other open browsers afterwards. The browser and
-server process these archives in memory and leave no temporary backup files
-on the Pi. The 256 MiB compressed and 512 MiB expanded import limits protect
-the Pi from oversized uploads.
+transaction ends; reload other open browsers afterwards. The browser can still
+hold a complete archive in memory. The server stages request and export data in
+private, per-operation encrypted temporary files and removes them after the
+request; it does not write the portable ZIP as a plaintext temporary file. The
+256 MiB compressed and 512 MiB expanded import limits protect the Pi from
+oversized uploads.
 
 On a Pi, restoring a larger archive can take several minutes. Keep the browser
 page open. Other signed-in browsers may temporarily receive HTTP 503 while the
@@ -438,9 +440,13 @@ speed and browser backup restore completed. Diagnose the affected client's
 network configuration before repeating a restore; a timeout alone does not
 identify a server or backup-format problem.
 
-Keep downloaded archives in protected storage because portable backups are not
-encrypted. For an installation with larger archives, use a separately planned
-migration rather than bypassing the limit.
+The administrator can download either an unprotected portable backup or a
+password-protected backup. Keep both in protected storage. TerraManager cannot
+recover a forgotten password. For an installation with larger archives, use a
+separately planned migration rather than bypassing the limit. Protected browser
+operations currently use memory proportional to the selected archive and can
+take several minutes or fail on a device with insufficient memory; a failed
+restore does not partially replace the collection.
 
 The portable export is a collection transfer, not a server disaster-recovery
 backup: it omits caregiver accounts, password hashes and sessions. Conversely,

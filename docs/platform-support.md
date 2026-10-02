@@ -463,6 +463,16 @@ not replaced during restore.
 
 ## Known Web Limitations
 
+### Large password-protected backups
+
+Password protection is optional. Encryption and authentication can take several
+minutes for media-rich backups. Current browser selection, validation, upload
+and download fallback paths may use memory proportional to the complete
+archive. A protected backup close to the 256 MiB import limit can therefore
+fail on a device with insufficient available memory. TerraManager validates and
+authenticates the backup before collection replacement; a failed or cancelled
+attempt leaves the existing collection unchanged.
+
 ### Browser-managed storage
 
 Application data is stored in browser-managed local storage.

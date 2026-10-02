@@ -1,7 +1,8 @@
 # Password backup milestone follow-up, 2026-10-02
 
-This is diagnostic evidence from an isolated source copy, not release approval.
-The primary checkout was left unchanged. The local Shared Care server and its
+This is diagnostic evidence from an isolated source copy for the recorded
+release decision. It is not a production-signed release-candidate result. The
+primary checkout was left unchanged. The local Shared Care server and its
 collection were disposable test instances bound to `127.0.0.1:8765`; the Galaxy
 S22 reached it through `adb reverse`. No production server or user collection
 was used for the Shared Care test.
@@ -10,10 +11,11 @@ was used for the Shared Care test.
 
 - Full `flutter analyze --no-pub`: no issues. Targeted encrypted-container,
   Shared Care portable-backup, standalone settings-backup and Shared Care
-  settings tests: 15 passed. A broader test-suite attempt was stopped after
-  309 passing cases when running it concurrently exhausted the host memory
-  needed for the Android reference build. It is not a completed full-suite
-  result.
+  settings tests: 15 passed. The complete suite was then run by itself with
+  `--concurrency=1`: 1,130 tests passed and one existing network-dependent
+  test was skipped. An earlier concurrent attempt had been stopped after 309
+  passing cases when it competed with the Android reference build for host
+  memory; that incomplete attempt is superseded by the serial result.
 - Both standalone and Shared Care Web release bundles built. A same-machine,
   pre-feature source copy was built for diagnostic size deltas. These builds
   used Flutter 3.47.0 rather than the release pin, Flutter 3.47.2.
@@ -77,12 +79,24 @@ this is a size record rather than an acceptance result.
 | Standalone Web bundle | 48,224,404 B | 48,458,875 B | +234,471 B |
 | Shared Care Web bundle | 48,618,652 B | 48,687,817 B | +69,165 B |
 
-## Release gate
+## Release decision
 
-Keep password-protected backups unreleased. Web file selection, validation,
-Shared Care request upload and some save fallbacks still have complete-archive
-memory costs. The existing native paired 252 MiB result also exceeded the
-proposed additional 64 MiB memory target. A physical approximately 4 GiB
-Android device, supported desktop and mobile browser matrix, pinned release
-toolchain, production signing and final APK/AAB/Web size comparison remain
-unverified. The fixture and this diagnostic build do not replace those gates.
+The project accepts the measured memory limitation for the first release of
+the optional password-protected backup feature. Web validation, Shared Care
+request upload and some save fallbacks still have complete-archive memory
+costs. The native paired 252 MiB result also exceeded the proposed additional
+64 MiB memory target. The feature must therefore not be described as
+bounded-memory, and very large protected operations can fail on lower-memory
+devices.
+
+The 64 MiB goal and a physical approximately 4 GiB device run are deferred to
+follow-up optimization. The completed authentication, corruption, legacy,
+cancellation, safety-copy, cross-client and atomic-replacement checks support
+shipping the feature with this known limitation. Users see processing progress
+and can continue to choose an unprotected portable backup.
+
+A production publication still requires the ordinary release process: build
+with the pinned toolchain and production signing, record the final APK, AAB and
+both Web-bundle sizes, inspect the generated guide PDFs, and smoke-test the
+actual release candidate on the supported targets. The fixture and diagnostic
+builds in this report do not replace those release-candidate checks.

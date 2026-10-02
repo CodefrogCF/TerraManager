@@ -2090,9 +2090,9 @@ coverage checks existing external imports.
 
 ---
 
-## ADR-036: Defer password-encrypted backups until large-file handling is bounded
+## ADR-036: Password-encrypted backups and large-file memory
 
-**Status:** Accepted evaluation; implementation deferred to a stretch milestone
+**Status:** Accepted; released with a documented large-backup memory limitation
 
 **Date:** 2026-09-28
 
@@ -2337,8 +2337,8 @@ the client now clears that plugin cache after the backup is disposed. The
 debug and Release build qualifications, and observed cache cleanup. There is
 still no physical approximately 4 GiB device
 result, full Shared Care cross-client device run, paired export-memory
-comparison, or production-signed artifact-size comparison. The stretch
-milestone remains open until these checks and the memory work are complete.
+comparison, or production-signed artifact-size comparison. At this checkpoint,
+the stretch milestone remained open pending those checks and the memory work.
 
 ### Follow-up evidence and release decision (2026-10-02)
 
@@ -2359,10 +2359,21 @@ restore, recorded as HTTP 200. The sampled Chrome package PSS rose from
 [follow-up report](testing/password-backup-milestone-2026-10-02.md) for the
 trace method, build checks and size comparison.
 
-The Galaxy S22 has about 7.1 GiB physical RAM, so this result cannot prove
+The Galaxy S22 has about 7.1 GiB physical RAM, so this result does not prove
 the proposed approximately 4 GiB target. The browser import buffer, Shared
-Care POST and save fallback still scale with the entire archive. Therefore
-Issues #203-#207 are not complete and password-protected backups remain
-unreleased. Resolve bounded-memory browser file flow and the native overhead,
-then rerun the supported platform matrix and pinned signed artifact comparison
-before changing this decision.
+Care POST and save fallback still scale with the entire archive.
+
+The project accepts that limitation for the first release of the optional
+feature. Users receive progress feedback and may continue to use unprotected
+portable backups. Authentication, validation and safety-copy failures occur
+before collection replacement, and the tested stale-token and wrong-password
+paths preserved the existing collection. A very large protected operation can
+still exhaust memory or be terminated by the operating system, especially on
+lower-memory devices; this limitation is documented in the guides and platform
+support notes.
+
+The 64 MiB additional-memory goal and an approximately 4 GiB device result are
+deferred to follow-up optimization rather than blocking Issues #203-#207. This
+decision does not claim bounded-memory behavior. Final distribution artifacts
+still follow the ordinary release checklist, including the pinned toolchain,
+production signing, size recording and release-candidate smoke tests.

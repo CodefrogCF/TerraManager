@@ -11,6 +11,9 @@ mixin SharedFeedingsApi on SharedApiTransport {
     required String expectedRevision,
     required int? intervalDays,
     required DateTime? baseline,
+    int? weekdays,
+    int? minuteOfDay,
+    String? timeZone,
   }) async => readApiObject(
     await requestJson(
       'PUT',
@@ -19,6 +22,9 @@ mixin SharedFeedingsApi on SharedApiTransport {
         'expectedRevision': expectedRevision,
         'intervalDays': intervalDays,
         'baseline': baseline?.toUtc().toIso8601String(),
+        'weekdays': weekdays,
+        'minuteOfDay': minuteOfDay,
+        'timeZone': timeZone,
       },
     ),
     'animal',

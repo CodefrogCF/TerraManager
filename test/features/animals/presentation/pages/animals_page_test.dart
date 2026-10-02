@@ -920,7 +920,7 @@ void main() {
   );
 
   testWidgets(
-    'does not show next feeding summary when all reminder Animals are already due',
+    'keeps the schedule available when all reminder Animals are already due',
     (tester) async {
       final boxId = await createTestBox();
 
@@ -946,7 +946,7 @@ void main() {
         findsOneWidget,
       );
 
-      expect(find.byKey(const Key('next-feeding-summary')), findsNothing);
+      expect(find.byKey(const Key('next-feeding-summary')), findsOneWidget);
 
       settingsController.dispose();
     },
@@ -1052,49 +1052,52 @@ void main() {
     },
   );
 
-  testWidgets('tapping next feeding summary opens the relevant Animal detail', (
-    tester,
-  ) async {
-    final boxId = await createTestBox();
+  testWidgets(
+    'tapping next feeding summary opens all reminders in date order',
+    (tester) async {
+      final boxId = await createTestBox();
 
-    await createTestAnimal(
-      boxId: boxId,
-      commonName: 'Later Snake',
-      feedingReminderIntervalDays: 10,
-      feedingReminderBaseline: DateTime.now(),
-    );
+      await createTestAnimal(
+        boxId: boxId,
+        commonName: 'Later Snake',
+        feedingReminderIntervalDays: 10,
+        feedingReminderBaseline: DateTime.now(),
+      );
 
-    final nextAnimalId = await createTestAnimal(
-      boxId: boxId,
-      commonName: 'Next Snake',
-      feedingReminderIntervalDays: 2,
-      feedingReminderBaseline: DateTime.now(),
-    );
+      final nextAnimalId = await createTestAnimal(
+        boxId: boxId,
+        commonName: 'Next Snake',
+        feedingReminderIntervalDays: 2,
+        feedingReminderBaseline: DateTime.now(),
+      );
 
-    final settingsController = AppSettingsController();
-    await settingsController.load();
-    await settingsController.setNextFeedingSummaryEnabled(true);
+      final settingsController = AppSettingsController();
+      await settingsController.load();
+      await settingsController.setNextFeedingSummaryEnabled(true);
 
-    await pumpPage(tester, settingsController: settingsController);
+      await pumpPage(tester, settingsController: settingsController);
 
-    await tester.tap(find.byKey(const Key('next-feeding-summary-tap-target')));
+      await tester.tap(
+        find.byKey(const Key('next-feeding-summary-tap-target')),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    expect(find.byType(AnimalDetailPage), findsOneWidget);
+      expect(find.byKey(const Key('feeding-schedule-page')), findsOneWidget);
+      expect(
+        find.byKey(Key('feeding-schedule-animal-$nextAnimalId')),
+        findsOneWidget,
+      );
+      expect(find.text('Later Snake'), findsOneWidget);
+      final nextPosition = tester.getTopLeft(
+        find.byKey(Key('feeding-schedule-animal-$nextAnimalId')),
+      );
+      final laterPosition = tester.getTopLeft(find.text('Later Snake'));
+      expect(nextPosition.dy, lessThan(laterPosition.dy));
 
-    final detailPage = tester.widget<AnimalDetailPage>(
-      find.byType(AnimalDetailPage),
-    );
-
-    expect(detailPage.animalId, nextAnimalId);
-
-    expect(detailPage.navigationContext, isNotNull);
-
-    expect(detailPage.navigationContext!.currentRecordId, nextAnimalId);
-
-    settingsController.dispose();
-  });
+      settingsController.dispose();
+    },
+  );
 
   testWidgets('places next feeding below due reminders and above Animal list', (
     tester,

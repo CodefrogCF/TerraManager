@@ -205,6 +205,13 @@ void main() {
       find.byKey(const Key('shared-feeding-reminder-due-7')),
       findsOneWidget,
     );
+    await tester.tap(find.byKey(const Key('shared-next-feeding-summary')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('feeding-schedule-page')), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Due')).dy,
+      lessThan(tester.getTopLeft(find.text('Next')).dy),
+    );
   });
 
   testWidgets(
@@ -318,7 +325,65 @@ void main() {
     expect(body['expectedRevision'], 'opened-revision');
     expect(body['intervalDays'], 4);
     expect(DateTime.tryParse(body['baseline'] as String), isNotNull);
-    expect(body.keys, {'expectedRevision', 'intervalDays', 'baseline'});
+    expect(body.keys, {
+      'expectedRevision',
+      'intervalDays',
+      'baseline',
+      'weekdays',
+      'minuteOfDay',
+      'timeZone',
+    });
+    expect(body['weekdays'], isNull);
+  });
+
+  testWidgets('shared reminder settings send weekday plan fields', (
+    tester,
+  ) async {
+    http.Request? saved;
+    final api = await _client((request) async {
+      if (request.url.path == '/api/v1/animals/7' && request.method == 'GET') {
+        return http.Response(jsonEncode({'animal': _animal}), 200);
+      }
+      if (request.url.path == '/api/v1/animals/7/feeding-reminder') {
+        saved = request;
+        return http.Response(jsonEncode({'animal': _animal}), 200);
+      }
+      return http.Response('{}', 404);
+    });
+    addTearDown(api.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SharedFeedingReminderPage(
+          api: api,
+          animalId: 7,
+          change: (operation) async {
+            await operation();
+            return true;
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.byKey(const Key('feeding-reminder-enabled-switch')));
+    await tester.pump();
+    await tester.tap(find.text('Selected weekdays'));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('feeding-weekday-1')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('feeding-weekday-3')));
+    await tester.pump();
+    await tester.ensureVisible(
+      find.byKey(const Key('shared-feeding-reminder-save')),
+    );
+    await tester.tap(find.byKey(const Key('shared-feeding-reminder-save')));
+    await tester.pump();
+    expect(saved, isNotNull);
+    final body = jsonDecode(saved!.body) as Map<String, dynamic>;
+    expect(body['intervalDays'], isNull);
+    expect(body['weekdays'], 1 | 4);
+    expect(body['minuteOfDay'], 720);
+    expect(body['timeZone'], 'UTC');
   });
 
   testWidgets('new Animal can enable a reminder with a baseline', (

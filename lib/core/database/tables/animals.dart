@@ -79,6 +79,13 @@ class Animals extends Table {
 
   DateTimeColumn get feedingReminderBaseline => dateTime().nullable()();
 
+  // Monday is bit 0, Sunday bit 6. Null means the legacy interval mode.
+  IntColumn get feedingReminderWeekdays => integer().nullable()();
+
+  IntColumn get feedingReminderMinuteOfDay => integer().nullable()();
+
+  TextColumn get feedingReminderTimeZone => text().nullable()();
+
   BoolColumn get showWeightOnDetail =>
       boolean().withDefault(const Constant(true))();
 

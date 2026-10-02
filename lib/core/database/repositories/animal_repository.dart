@@ -11,6 +11,7 @@ import '../validation/animal_environmental_limits.dart';
 import 'animal_weight_repository.dart';
 import 'box_lifecycle_exception.dart';
 import 'picture_gallery_repository.dart';
+import '../../../features/feedings/domain/feeding_weekday_schedule.dart';
 
 class AnimalRepository {
   final AppDatabase database;
@@ -33,8 +34,9 @@ class AnimalRepository {
       ..where(
         (animal) =>
             animal.status.equalsValue(AnimalStatus.active) &
-            animal.feedingReminderIntervalDays.isNotNull() &
-            animal.feedingReminderIntervalDays.isBiggerThanValue(0) &
+            ((animal.feedingReminderIntervalDays.isNotNull() &
+                    animal.feedingReminderIntervalDays.isBiggerThanValue(0)) |
+                animal.feedingReminderWeekdays.isNotNull()) &
             animal.feedingReminderBaseline.isNotNull(),
       );
 
@@ -94,6 +96,9 @@ class AnimalRepository {
     String? notes,
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
+    int? feedingReminderWeekdays,
+    int? feedingReminderMinuteOfDay,
+    String? feedingReminderTimeZone,
     bool showWeightOnDetail = true,
     bool showSheddingOnDetail = true,
   }) {
@@ -109,6 +114,9 @@ class AnimalRepository {
     _validateFeedingReminder(
       intervalDays: feedingReminderIntervalDays,
       baseline: feedingReminderBaseline,
+      weekdays: feedingReminderWeekdays,
+      minuteOfDay: feedingReminderMinuteOfDay,
+      timeZone: feedingReminderTimeZone,
     );
     _validateTaxonomy(category, subcategory);
 
@@ -149,6 +157,15 @@ class AnimalRepository {
               ),
               feedingReminderBaseline: Value.absentIfNull(
                 feedingReminderBaseline,
+              ),
+              feedingReminderWeekdays: Value.absentIfNull(
+                feedingReminderWeekdays,
+              ),
+              feedingReminderMinuteOfDay: Value.absentIfNull(
+                feedingReminderMinuteOfDay,
+              ),
+              feedingReminderTimeZone: Value.absentIfNull(
+                feedingReminderTimeZone,
               ),
               showWeightOnDetail: Value(showWeightOnDetail),
               showSheddingOnDetail: Value(showSheddingOnDetail),
@@ -233,6 +250,9 @@ class AnimalRepository {
       _validateFeedingReminder(
         intervalDays: source.feedingReminderIntervalDays,
         baseline: source.feedingReminderBaseline,
+        weekdays: source.feedingReminderWeekdays,
+        minuteOfDay: source.feedingReminderMinuteOfDay,
+        timeZone: source.feedingReminderTimeZone,
       );
 
       final galleryRepository = PictureGalleryRepository(database);
@@ -287,6 +307,15 @@ class AnimalRepository {
               feedingReminderBaseline: Value.absentIfNull(
                 source.feedingReminderBaseline,
               ),
+              feedingReminderWeekdays: Value.absentIfNull(
+                source.feedingReminderWeekdays,
+              ),
+              feedingReminderMinuteOfDay: Value.absentIfNull(
+                source.feedingReminderMinuteOfDay,
+              ),
+              feedingReminderTimeZone: Value.absentIfNull(
+                source.feedingReminderTimeZone,
+              ),
               showWeightOnDetail: Value(source.showWeightOnDetail),
               showSheddingOnDetail: Value(source.showSheddingOnDetail),
             ),
@@ -332,6 +361,9 @@ class AnimalRepository {
     String? notes,
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
+    int? feedingReminderWeekdays,
+    int? feedingReminderMinuteOfDay,
+    String? feedingReminderTimeZone,
     required bool showWeightOnDetail,
     required bool showSheddingOnDetail,
   }) async {
@@ -347,6 +379,9 @@ class AnimalRepository {
     _validateFeedingReminder(
       intervalDays: feedingReminderIntervalDays,
       baseline: feedingReminderBaseline,
+      weekdays: feedingReminderWeekdays,
+      minuteOfDay: feedingReminderMinuteOfDay,
+      timeZone: feedingReminderTimeZone,
     );
     if (category != null) {
       _validateTaxonomy(category, subcategory);
@@ -398,6 +433,9 @@ class AnimalRepository {
                     feedingReminderIntervalDays,
                   ),
                   feedingReminderBaseline: Value(feedingReminderBaseline),
+                  feedingReminderWeekdays: Value(feedingReminderWeekdays),
+                  feedingReminderMinuteOfDay: Value(feedingReminderMinuteOfDay),
+                  feedingReminderTimeZone: Value(feedingReminderTimeZone),
                   showWeightOnDetail: Value(showWeightOnDetail),
                   showSheddingOnDetail: Value(showSheddingOnDetail),
                   updatedAt: Value(DateTime.now()),
@@ -464,8 +502,17 @@ class AnimalRepository {
     required int animalId,
     required int? intervalDays,
     required DateTime? baseline,
+    int? weekdays,
+    int? minuteOfDay,
+    String? timeZone,
   }) async {
-    _validateFeedingReminder(intervalDays: intervalDays, baseline: baseline);
+    _validateFeedingReminder(
+      intervalDays: intervalDays,
+      baseline: baseline,
+      weekdays: weekdays,
+      minuteOfDay: minuteOfDay,
+      timeZone: timeZone,
+    );
 
     final updatedRows =
         await (database.update(database.animals)..where(
@@ -477,6 +524,9 @@ class AnimalRepository {
               AnimalsCompanion(
                 feedingReminderIntervalDays: Value(intervalDays),
                 feedingReminderBaseline: Value(baseline),
+                feedingReminderWeekdays: Value(weekdays),
+                feedingReminderMinuteOfDay: Value(minuteOfDay),
+                feedingReminderTimeZone: Value(timeZone),
                 updatedAt: Value(DateTime.now()),
               ),
             );
@@ -639,23 +689,16 @@ class AnimalRepository {
   static void _validateFeedingReminder({
     required int? intervalDays,
     required DateTime? baseline,
+    required int? weekdays,
+    required int? minuteOfDay,
+    required String? timeZone,
   }) {
-    if (intervalDays == null && baseline == null) {
-      return;
-    }
-
-    if (intervalDays == null || baseline == null) {
-      throw ArgumentError(
-        'A feeding reminder requires both an interval and a baseline.',
-      );
-    }
-
-    if (intervalDays <= 0) {
-      throw ArgumentError.value(
-        intervalDays,
-        'feedingReminderIntervalDays',
-        'Reminder interval must be greater than zero.',
-      );
-    }
+    FeedingWeekdaySchedule.validate(
+      intervalDays: intervalDays,
+      baseline: baseline,
+      weekdays: weekdays,
+      minuteOfDay: minuteOfDay,
+      timeZone: timeZone,
+    );
   }
 }

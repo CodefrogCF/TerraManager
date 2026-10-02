@@ -584,6 +584,9 @@ archivedAt
 archiveNotes
 feedingReminderIntervalDays
 feedingReminderBaseline
+feedingReminderWeekdays
+feedingReminderMinuteOfDay
+feedingReminderTimeZone
 createdAt
 updatedAt
 ```
@@ -837,6 +840,13 @@ excluded from active reminder results by application logic.
 Backups created before these fields were introduced omit them. Missing fields
 are decoded as `null`, which restores the Animal with reminders disabled. The
 change is additive and therefore does not require Backup Format Version 3.
+
+Weekday reminders add three optional Animal fields within Backup Format 2:
+`feedingReminderWeekdays` (bit mask 1–127, Monday bit 0),
+`feedingReminderMinuteOfDay` (0–1439), and `feedingReminderTimeZone` (valid
+IANA zone). They require a baseline and a null interval. All three must be
+present together; a partial or conflicting configuration is invalid. Older
+backups omit these fields and keep their interval reminders unchanged.
 
 ## Animal Lifecycle Invariants
 

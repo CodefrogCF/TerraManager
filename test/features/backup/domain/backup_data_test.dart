@@ -155,6 +155,39 @@ void main() {
     expect(restored.archivedAt, DateTime(2026, 9, 1).toUtc());
   });
 
+  test('weekday reminder fields survive backup JSON round trip', () {
+    final original = BackupAnimal(
+      id: 12,
+      boxId: 1,
+      status: 'active',
+      commonName: 'Weekday Animal',
+      latinName: 'Species',
+      sex: null,
+      birthDate: null,
+      birthDateAccuracy: null,
+      tempMin: 20,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+      pictureMediaPath: null,
+      notes: null,
+      archiveReason: null,
+      archivedAt: null,
+      archiveNotes: null,
+      feedingReminderBaseline: DateTime.utc(2026, 10, 4),
+      feedingReminderWeekdays: 1 | 4 | 16,
+      feedingReminderMinuteOfDay: 600,
+      feedingReminderTimeZone: 'Europe/Berlin',
+      createdAt: DateTime.utc(2026, 10, 1),
+      updatedAt: DateTime.utc(2026, 10, 4),
+    );
+    final restored = BackupAnimal.fromJson(original.toJson());
+    expect(restored.feedingReminderIntervalDays, isNull);
+    expect(restored.feedingReminderWeekdays, 21);
+    expect(restored.feedingReminderMinuteOfDay, 600);
+    expect(restored.feedingReminderTimeZone, 'Europe/Berlin');
+  });
+
   test('legacy v1 box json loads new fields as null', () {
     final restored = BackupBox.fromJson({
       'id': 4,

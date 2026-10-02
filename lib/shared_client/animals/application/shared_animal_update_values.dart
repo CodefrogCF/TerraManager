@@ -22,6 +22,9 @@ Map<String, dynamic> sharedAnimalUpdateValues(
     'pictureMediaId',
     'feedingReminderIntervalDays',
     'feedingReminderBaseline',
+    'feedingReminderWeekdays',
+    'feedingReminderMinuteOfDay',
+    'feedingReminderTimeZone',
     'showWeightOnDetail',
     'showSheddingOnDetail',
   ])

@@ -18,6 +18,7 @@ import '../../../../l10n/app_localizations_labels.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
 import '../../../boxes/presentation/pages/box_scanner_page.dart';
 import '../../../feedings/presentation/widgets/feeding_reminder_form_fields.dart';
+import '../../../feedings/infrastructure/feeding_device_time_zone.dart';
 import '../../../media/presentation/picture_selection_flow.dart';
 import '../../../media/presentation/widgets/picture_selection_controls.dart';
 import '../animal_environmental_validator.dart';
@@ -72,6 +73,10 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   DateTime? _birthDate;
   BirthDateAccuracy? _birthDateAccuracy;
   bool _feedingReminderEnabled = false;
+  bool _feedingWeekdayMode = false;
+  int _feedingWeekdays = 0;
+  int _feedingMinuteOfDay = 720;
+  String _feedingTimeZone = 'UTC';
   bool _additionalCharacteristicsExpanded = false;
   DateTime? _feedingReminderBaseline;
 
@@ -289,11 +294,24 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
           notes: _notesController.text.trim().isEmpty
               ? null
               : _notesController.text.trim(),
-          feedingReminderIntervalDays: _feedingReminderEnabled
+          feedingReminderIntervalDays:
+              _feedingReminderEnabled && !_feedingWeekdayMode
               ? int.parse(_feedingReminderIntervalDaysController.text.trim())
               : null,
           feedingReminderBaseline: _feedingReminderEnabled
               ? _feedingReminderBaseline
+              : null,
+          feedingReminderWeekdays:
+              _feedingReminderEnabled && _feedingWeekdayMode
+              ? _feedingWeekdays
+              : null,
+          feedingReminderMinuteOfDay:
+              _feedingReminderEnabled && _feedingWeekdayMode
+              ? _feedingMinuteOfDay
+              : null,
+          feedingReminderTimeZone:
+              _feedingReminderEnabled && _feedingWeekdayMode
+              ? _feedingTimeZone
               : null,
         );
       });
@@ -613,6 +631,25 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               controlsEnabled: !_saving && !_processingPicture,
               intervalDaysController: _feedingReminderIntervalDaysController,
               onReminderEnabledChanged: _setFeedingReminderEnabled,
+              weekdayMode: _feedingWeekdayMode,
+              onWeekdayModeChanged: (value) async {
+                setState(() => _feedingWeekdayMode = value);
+                if (value) {
+                  final zone = await currentFeedingTimeZone();
+                  if (mounted && _feedingWeekdayMode) {
+                    setState(() => _feedingTimeZone = zone);
+                  }
+                }
+              },
+              selectedWeekdays: _feedingWeekdays,
+              onWeekdaysChanged: (value) =>
+                  setState(() => _feedingWeekdays = value),
+              minuteOfDay: _feedingMinuteOfDay,
+              onMinuteOfDayChanged: (value) =>
+                  setState(() => _feedingMinuteOfDay = value),
+              timeZone: _feedingTimeZone,
+              onTimeZoneChanged: (value) =>
+                  setState(() => _feedingTimeZone = value),
             ),
             const SizedBox(height: 16),
 

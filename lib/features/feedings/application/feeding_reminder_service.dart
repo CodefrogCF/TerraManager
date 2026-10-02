@@ -3,6 +3,7 @@ import '../../../core/database/enums/animal_status.dart';
 import '../../../core/database/repositories/animal_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
 import '../domain/feeding_reminder_state.dart';
+import '../domain/feeding_weekday_schedule.dart';
 
 typedef FeedingReminderClock = DateTime Function();
 
@@ -117,8 +118,15 @@ class FeedingReminderService {
   }) {
     final intervalDays = animal.feedingReminderIntervalDays;
     final baseline = animal.feedingReminderBaseline;
+    final weekdays = animal.feedingReminderWeekdays;
 
-    if (intervalDays == null || intervalDays <= 0 || baseline == null) {
+    if (!FeedingWeekdaySchedule.isConfigured(
+      intervalDays: intervalDays,
+      baseline: baseline,
+      weekdays: weekdays,
+      minuteOfDay: animal.feedingReminderMinuteOfDay,
+      timeZone: animal.feedingReminderTimeZone,
+    )) {
       throw StateError(
         'Cannot calculate a feeding reminder without a valid configuration.',
       );
@@ -128,7 +136,7 @@ class FeedingReminderService {
     // they were originally written as UTC. Keep all values exposed by one
     // reminder state in the same representation as the injected clock while
     // preserving their actual moments in time.
-    final normalizedBaseline = _inClockTimeZone(baseline, evaluatedAt);
+    final normalizedBaseline = _inClockTimeZone(baseline!, evaluatedAt);
     final normalizedLatestFeedingAt = latestFeedingAt == null
         ? null
         : _inClockTimeZone(latestFeedingAt, evaluatedAt);
@@ -136,11 +144,23 @@ class FeedingReminderService {
     // Feeding history is authoritative whenever it exists. The baseline only
     // gives Animals without any FeedingEvent a defined starting point.
     final referenceAt = normalizedLatestFeedingAt ?? normalizedBaseline;
-    final dueAt = referenceAt.add(Duration(days: intervalDays));
+    final dueAt = weekdays == null
+        ? referenceAt.add(Duration(days: intervalDays!))
+        : _inClockTimeZone(
+            FeedingWeekdaySchedule.nextDueAt(
+              weekdays: weekdays,
+              minuteOfDay: animal.feedingReminderMinuteOfDay!,
+              timeZone: animal.feedingReminderTimeZone!,
+              baseline: baseline,
+              latestFeedingAt: latestFeedingAt,
+            ),
+            evaluatedAt,
+          );
 
     return FeedingReminderState(
       animal: animal,
       intervalDays: intervalDays,
+      weekdays: weekdays,
       baseline: normalizedBaseline,
       latestFeedingAt: normalizedLatestFeedingAt,
       referenceAt: referenceAt,
@@ -155,11 +175,13 @@ class FeedingReminderService {
   }
 
   bool _hasEnabledReminder(Animal animal) {
-    final intervalDays = animal.feedingReminderIntervalDays;
-
     return animal.status == AnimalStatus.active &&
-        intervalDays != null &&
-        intervalDays > 0 &&
-        animal.feedingReminderBaseline != null;
+        FeedingWeekdaySchedule.isConfigured(
+          intervalDays: animal.feedingReminderIntervalDays,
+          baseline: animal.feedingReminderBaseline,
+          weekdays: animal.feedingReminderWeekdays,
+          minuteOfDay: animal.feedingReminderMinuteOfDay,
+          timeZone: animal.feedingReminderTimeZone,
+        );
   }
 }

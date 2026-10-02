@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/feedings/presentation/pages/feeding_schedule_page.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/archive_sort_order.dart';
@@ -55,6 +56,26 @@ class SharedAnimalsPage extends StatefulWidget {
 
 class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   late SharedOverviewImageCache _images;
+
+  Future<void> _openFeedingSchedule(
+    List<({Map<String, dynamic> animal, DateTime dueAt})> reminders,
+    AnimalNameOrder nameOrder,
+  ) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FeedingSchedulePage(
+          entries: [
+            for (final reminder in reminders)
+              FeedingScheduleEntry(
+                animalId: recordId(reminder.animal),
+                animalName: animalLabel(reminder.animal, order: nameOrder),
+                dueAt: reminder.dueAt,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -456,6 +477,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     AnimalNameOrder nameOrder,
     List<({Map<String, dynamic> animal, DateTime dueAt})> dueReminders,
     ({Map<String, dynamic> animal, DateTime dueAt})? nextReminder,
+    List<({Map<String, dynamic> animal, DateTime dueAt})> allReminders,
   ) => LayoutBuilder(
     builder: (context, constraints) {
       final columns = switch (constraints.maxWidth) {
@@ -489,7 +511,8 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                           _reminderDate(nextReminder.dueAt),
                         ),
                       ),
-                      onTap: () => _openAnimal(nextReminder.animal),
+                      onTap: () =>
+                          _openFeedingSchedule(allReminders, nameOrder),
                     ),
                   ),
               ],
@@ -590,7 +613,10 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         .where((entry) => !entry.dueAt.isAfter(now))
         .toList();
     final nextReminder = settings.nextFeedingSummaryEnabled
-        ? reminderEntries.where((entry) => entry.dueAt.isAfter(now)).firstOrNull
+        ? reminderEntries
+                  .where((entry) => entry.dueAt.isAfter(now))
+                  .firstOrNull ??
+              reminderEntries.firstOrNull
         : null;
     final reminderRowCount =
         (dueReminders.isEmpty ? 0 : 1) + (nextReminder == null ? 0 : 1);
@@ -746,6 +772,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                 settings.animalNameOrder,
                 dueReminders,
                 nextReminder,
+                reminderEntries,
               )
             : ListView.builder(
                 key: PageStorageKey<String>(
@@ -783,7 +810,10 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                             ),
                           ),
                           trailing: const Icon(Icons.chevron_right),
-                          onTap: () => _openAnimal(nextReminder.animal),
+                          onTap: () => _openFeedingSchedule(
+                            reminderEntries,
+                            settings.animalNameOrder,
+                          ),
                         ),
                       );
                     }

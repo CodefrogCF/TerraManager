@@ -238,6 +238,9 @@ class BackupAnimal {
 
   final int? feedingReminderIntervalDays;
   final DateTime? feedingReminderBaseline;
+  final int? feedingReminderWeekdays;
+  final int? feedingReminderMinuteOfDay;
+  final String? feedingReminderTimeZone;
 
   final bool showWeightOnDetail;
   final bool showSheddingOnDetail;
@@ -278,6 +281,9 @@ class BackupAnimal {
     required this.archiveNotes,
     this.feedingReminderIntervalDays,
     this.feedingReminderBaseline,
+    this.feedingReminderWeekdays,
+    this.feedingReminderMinuteOfDay,
+    this.feedingReminderTimeZone,
     this.showWeightOnDetail = true,
     this.showSheddingOnDetail = true,
     required this.createdAt,
@@ -322,6 +328,9 @@ class BackupAnimal {
       'feedingReminderBaseline': feedingReminderBaseline
           ?.toUtc()
           .toIso8601String(),
+      'feedingReminderWeekdays': feedingReminderWeekdays,
+      'feedingReminderMinuteOfDay': feedingReminderMinuteOfDay,
+      'feedingReminderTimeZone': feedingReminderTimeZone,
       'showWeightOnDetail': showWeightOnDetail,
       'showSheddingOnDetail': showSheddingOnDetail,
       'createdAt': createdAt.toUtc().toIso8601String(),
@@ -391,6 +400,9 @@ class BackupAnimal {
       feedingReminderBaseline: json['feedingReminderBaseline'] == null
           ? null
           : DateTime.parse(json['feedingReminderBaseline'] as String),
+      feedingReminderWeekdays: json['feedingReminderWeekdays'] as int?,
+      feedingReminderMinuteOfDay: json['feedingReminderMinuteOfDay'] as int?,
+      feedingReminderTimeZone: json['feedingReminderTimeZone'] as String?,
       showWeightOnDetail: json['showWeightOnDetail'] as bool? ?? true,
       showSheddingOnDetail: json['showSheddingOnDetail'] as bool? ?? true,
       createdAt: createdAt,

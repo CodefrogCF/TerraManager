@@ -489,6 +489,47 @@ void main() {
   );
 
   test(
+    'shared reminder API stores weekday plans and returns their due time',
+    () async {
+      final boxId = await _createBox(clientA, server, 'Weekday Box');
+      final animalId = await _createAnimal(clientA, server, boxId);
+      final before = await _call(
+        clientA,
+        server,
+        'GET',
+        '/api/v1/animals/$animalId',
+      );
+      final revision = (before.json!['animal'] as Map)['revision'] as String;
+      final enabled = await _call(
+        clientA,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          'expectedRevision': revision,
+          'intervalDays': null,
+          'baseline': '2026-10-04T12:00:00Z',
+          'weekdays': 1 | 4 | 16,
+          'minuteOfDay': 600,
+          'timeZone': 'Europe/Berlin',
+        },
+      );
+      expect(enabled.status, 200, reason: enabled.json.toString());
+      final saved = enabled.json!['animal'] as Map;
+      expect(saved['feedingReminderWeekdays'], 21);
+      expect(saved['feedingReminderMinuteOfDay'], 600);
+      expect(saved['feedingReminderTimeZone'], 'Europe/Berlin');
+      final result = await _call(clientB, server, 'GET', '/api/v1/reminders');
+      expect(result.status, 200);
+      final reminder = (result.json!['reminders'] as List).single as Map;
+      expect(
+        DateTime.parse(reminder['dueAt'] as String),
+        DateTime.utc(2026, 10, 5, 8),
+      );
+    },
+  );
+
+  test(
     'QR reassignment rejects an opened Animal revision that became stale',
     () async {
       final firstBox = await _createBox(clientA, server, 'First Box');

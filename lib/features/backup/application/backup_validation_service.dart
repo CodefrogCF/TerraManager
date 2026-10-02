@@ -6,6 +6,7 @@ import 'package:archive/archive.dart';
 import '../../../core/database/enums/animal_category.dart';
 import '../../../core/database/validation/animal_environmental_limits.dart';
 import '../../../core/qr/qr_validator.dart';
+import '../../feedings/domain/feeding_weekday_schedule.dart';
 import '../domain/backup_data.dart';
 import '../domain/backup_timestamps.dart';
 import '../domain/backup_enum_codec.dart';
@@ -698,14 +699,15 @@ class BackupValidationService {
   }
 
   void _validateFeedingReminder(BackupAnimal animal) {
-    final intervalDays = animal.feedingReminderIntervalDays;
-    final baseline = animal.feedingReminderBaseline;
-
-    if (intervalDays == null && baseline == null) {
-      return;
-    }
-
-    if (intervalDays == null || baseline == null || intervalDays <= 0) {
+    try {
+      FeedingWeekdaySchedule.validate(
+        intervalDays: animal.feedingReminderIntervalDays,
+        baseline: animal.feedingReminderBaseline,
+        weekdays: animal.feedingReminderWeekdays,
+        minuteOfDay: animal.feedingReminderMinuteOfDay,
+        timeZone: animal.feedingReminderTimeZone,
+      );
+    } on ArgumentError {
       throw BackupValidationException(
         code: BackupValidationErrorCode.invalidData,
         message:

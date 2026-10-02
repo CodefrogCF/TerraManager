@@ -6,6 +6,13 @@ The project uses semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- allow each Animal to choose fixed weekdays, a time and a time zone for its
+  feeding reminder while keeping existing interval reminders compatible
+- open a chronological list of all active feeding appointments from the
+  optional Next Feeding card in standalone and Shared Care
+
 ### Fixed
 
 - serialize Shared Care browser history changes so a delayed context-menu Back

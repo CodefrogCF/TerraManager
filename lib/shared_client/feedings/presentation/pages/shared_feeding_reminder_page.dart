@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/features/animals/presentation/animal_display_names.dart';
 import 'package:terramanager/features/feedings/presentation/widgets/feeding_reminder_form_fields.dart';
+import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
+import 'package:terramanager/features/feedings/infrastructure/feeding_device_time_zone.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/shared_client/shared/application/shared_change.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
@@ -31,6 +33,10 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
   Map<String, dynamic>? _animal;
   DateTime? _baseline;
   bool _enabled = false;
+  bool _weekdayMode = false;
+  int _weekdays = 0;
+  int _minuteOfDay = 12 * 60;
+  String _timeZone = 'UTC';
   bool _loading = true;
   bool _saving = false;
   bool _dirty = false;
@@ -72,8 +78,17 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
       setState(() {
         _animal = animal;
         _baseline = baseline;
-        _enabled =
-            animal['feedingReminderIntervalDays'] is int && baseline != null;
+        _enabled = FeedingWeekdaySchedule.isConfigured(
+          intervalDays: animal['feedingReminderIntervalDays'] as int?,
+          baseline: baseline,
+          weekdays: animal['feedingReminderWeekdays'] as int?,
+          minuteOfDay: animal['feedingReminderMinuteOfDay'] as int?,
+          timeZone: animal['feedingReminderTimeZone'] as String?,
+        );
+        _weekdayMode = animal['feedingReminderWeekdays'] != null;
+        _weekdays = animal['feedingReminderWeekdays'] as int? ?? 0;
+        _minuteOfDay = animal['feedingReminderMinuteOfDay'] as int? ?? 720;
+        _timeZone = animal['feedingReminderTimeZone'] as String? ?? 'UTC';
         _loading = false;
         _dirty = false;
         _stale = false;
@@ -105,8 +120,13 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
       await widget.api.updateFeedingReminder(
         widget.animalId,
         expectedRevision: animal['revision'] as String,
-        intervalDays: _enabled ? int.parse(_interval.text.trim()) : null,
+        intervalDays: _enabled && !_weekdayMode
+            ? int.parse(_interval.text.trim())
+            : null,
         baseline: _enabled ? _baseline : null,
+        weekdays: _enabled && _weekdayMode ? _weekdays : null,
+        minuteOfDay: _enabled && _weekdayMode ? _minuteOfDay : null,
+        timeZone: _enabled && _weekdayMode ? _timeZone : null,
       );
     });
     if (!mounted) return;
@@ -232,6 +252,34 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
                           _dirty = true;
                         }),
                         onIntervalChanged: (_) => setState(() => _dirty = true),
+                        weekdayMode: _weekdayMode,
+                        onWeekdayModeChanged: (value) async {
+                          setState(() {
+                            _weekdayMode = value;
+                            _dirty = true;
+                          });
+                          if (value) {
+                            final zone = await currentFeedingTimeZone();
+                            if (mounted && _weekdayMode) {
+                              setState(() => _timeZone = zone);
+                            }
+                          }
+                        },
+                        selectedWeekdays: _weekdays,
+                        onWeekdaysChanged: (value) => setState(() {
+                          _weekdays = value;
+                          _dirty = true;
+                        }),
+                        minuteOfDay: _minuteOfDay,
+                        onMinuteOfDayChanged: (value) => setState(() {
+                          _minuteOfDay = value;
+                          _dirty = true;
+                        }),
+                        timeZone: _timeZone,
+                        onTimeZoneChanged: (value) => setState(() {
+                          _timeZone = value;
+                          _dirty = true;
+                        }),
                       ),
                       const SizedBox(height: 24),
                       FilledButton.icon(

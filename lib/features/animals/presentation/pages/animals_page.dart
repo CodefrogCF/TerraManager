@@ -13,6 +13,7 @@ import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
+import '../../../feedings/presentation/pages/feeding_schedule_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../settings/animal_name_order.dart';
 import '../../../settings/animal_sort_order.dart';
@@ -119,6 +120,32 @@ class _AnimalsPageState extends State<AnimalsPage> {
       latestFeedingTimes: latestFeedingTimes,
       dueReminders: dueReminders,
       nextUpcomingReminder: nextUpcomingReminder,
+    );
+  }
+
+  Future<void> _openFeedingSchedule() async {
+    final reminders = await FeedingReminderService(
+      widget.database,
+      now: widget.reminderNow,
+    ).getReminderStates();
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FeedingSchedulePage(
+          entries: [
+            for (final reminder in reminders)
+              FeedingScheduleEntry(
+                animalId: reminder.animalId,
+                animalName: AnimalDisplayNames.fromContext(
+                  context,
+                  commonName: reminder.animal.commonName,
+                  latinName: reminder.animal.latinName,
+                ).primary,
+                dueAt: reminder.dueAt,
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -518,9 +545,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
       margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
       child: InkWell(
         key: const Key('next-feeding-summary-tap-target'),
-        onTap: () {
-          _openAnimalDetail(reminder.animal, animals);
-        },
+        onTap: _openFeedingSchedule,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -1201,7 +1226,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
               data?.dueReminders ?? const <FeedingReminderState>[];
 
           final nextUpcomingReminder = nextFeedingSummaryEnabled
-              ? data?.nextUpcomingReminder
+              ? data?.nextUpcomingReminder ?? dueReminders.firstOrNull
               : null;
 
           if (animals.isEmpty) {

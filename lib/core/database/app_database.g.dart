@@ -1602,6 +1602,39 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _feedingReminderWeekdaysMeta =
+      const VerificationMeta('feedingReminderWeekdays');
+  @override
+  late final GeneratedColumn<int> feedingReminderWeekdays =
+      GeneratedColumn<int>(
+        'feeding_reminder_weekdays',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _feedingReminderMinuteOfDayMeta =
+      const VerificationMeta('feedingReminderMinuteOfDay');
+  @override
+  late final GeneratedColumn<int> feedingReminderMinuteOfDay =
+      GeneratedColumn<int>(
+        'feeding_reminder_minute_of_day',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _feedingReminderTimeZoneMeta =
+      const VerificationMeta('feedingReminderTimeZone');
+  @override
+  late final GeneratedColumn<String> feedingReminderTimeZone =
+      GeneratedColumn<String>(
+        'feeding_reminder_time_zone',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _showWeightOnDetailMeta =
       const VerificationMeta('showWeightOnDetail');
   @override
@@ -1686,6 +1719,9 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
     archiveNotes,
     feedingReminderIntervalDays,
     feedingReminderBaseline,
+    feedingReminderWeekdays,
+    feedingReminderMinuteOfDay,
+    feedingReminderTimeZone,
     showWeightOnDetail,
     showSheddingOnDetail,
     createdAt,
@@ -1898,6 +1934,33 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         ),
       );
     }
+    if (data.containsKey('feeding_reminder_weekdays')) {
+      context.handle(
+        _feedingReminderWeekdaysMeta,
+        feedingReminderWeekdays.isAcceptableOrUnknown(
+          data['feeding_reminder_weekdays']!,
+          _feedingReminderWeekdaysMeta,
+        ),
+      );
+    }
+    if (data.containsKey('feeding_reminder_minute_of_day')) {
+      context.handle(
+        _feedingReminderMinuteOfDayMeta,
+        feedingReminderMinuteOfDay.isAcceptableOrUnknown(
+          data['feeding_reminder_minute_of_day']!,
+          _feedingReminderMinuteOfDayMeta,
+        ),
+      );
+    }
+    if (data.containsKey('feeding_reminder_time_zone')) {
+      context.handle(
+        _feedingReminderTimeZoneMeta,
+        feedingReminderTimeZone.isAcceptableOrUnknown(
+          data['feeding_reminder_time_zone']!,
+          _feedingReminderTimeZoneMeta,
+        ),
+      );
+    }
     if (data.containsKey('show_weight_on_detail')) {
       context.handle(
         _showWeightOnDetailMeta,
@@ -2069,6 +2132,18 @@ class $AnimalsTable extends Animals with TableInfo<$AnimalsTable, Animal> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}feeding_reminder_baseline'],
       ),
+      feedingReminderWeekdays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}feeding_reminder_weekdays'],
+      ),
+      feedingReminderMinuteOfDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}feeding_reminder_minute_of_day'],
+      ),
+      feedingReminderTimeZone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feeding_reminder_time_zone'],
+      ),
       showWeightOnDetail: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}show_weight_on_detail'],
@@ -2147,6 +2222,9 @@ class Animal extends DataClass implements Insertable<Animal> {
   final String? archiveNotes;
   final int? feedingReminderIntervalDays;
   final DateTime? feedingReminderBaseline;
+  final int? feedingReminderWeekdays;
+  final int? feedingReminderMinuteOfDay;
+  final String? feedingReminderTimeZone;
   final bool showWeightOnDetail;
   final bool showSheddingOnDetail;
   final DateTime createdAt;
@@ -2182,6 +2260,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     this.archiveNotes,
     this.feedingReminderIntervalDays,
     this.feedingReminderBaseline,
+    this.feedingReminderWeekdays,
+    this.feedingReminderMinuteOfDay,
+    this.feedingReminderTimeZone,
     required this.showWeightOnDetail,
     required this.showSheddingOnDetail,
     required this.createdAt,
@@ -2284,6 +2365,19 @@ class Animal extends DataClass implements Insertable<Animal> {
         feedingReminderBaseline,
       );
     }
+    if (!nullToAbsent || feedingReminderWeekdays != null) {
+      map['feeding_reminder_weekdays'] = Variable<int>(feedingReminderWeekdays);
+    }
+    if (!nullToAbsent || feedingReminderMinuteOfDay != null) {
+      map['feeding_reminder_minute_of_day'] = Variable<int>(
+        feedingReminderMinuteOfDay,
+      );
+    }
+    if (!nullToAbsent || feedingReminderTimeZone != null) {
+      map['feeding_reminder_time_zone'] = Variable<String>(
+        feedingReminderTimeZone,
+      );
+    }
     map['show_weight_on_detail'] = Variable<bool>(showWeightOnDetail);
     map['show_shedding_on_detail'] = Variable<bool>(showSheddingOnDetail);
     map['created_at'] = Variable<DateTime>(createdAt);
@@ -2364,6 +2458,16 @@ class Animal extends DataClass implements Insertable<Animal> {
       feedingReminderBaseline: feedingReminderBaseline == null && nullToAbsent
           ? const Value.absent()
           : Value(feedingReminderBaseline),
+      feedingReminderWeekdays: feedingReminderWeekdays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedingReminderWeekdays),
+      feedingReminderMinuteOfDay:
+          feedingReminderMinuteOfDay == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedingReminderMinuteOfDay),
+      feedingReminderTimeZone: feedingReminderTimeZone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(feedingReminderTimeZone),
       showWeightOnDetail: Value(showWeightOnDetail),
       showSheddingOnDetail: Value(showSheddingOnDetail),
       createdAt: Value(createdAt),
@@ -2423,6 +2527,15 @@ class Animal extends DataClass implements Insertable<Animal> {
       feedingReminderBaseline: serializer.fromJson<DateTime?>(
         json['feedingReminderBaseline'],
       ),
+      feedingReminderWeekdays: serializer.fromJson<int?>(
+        json['feedingReminderWeekdays'],
+      ),
+      feedingReminderMinuteOfDay: serializer.fromJson<int?>(
+        json['feedingReminderMinuteOfDay'],
+      ),
+      feedingReminderTimeZone: serializer.fromJson<String?>(
+        json['feedingReminderTimeZone'],
+      ),
       showWeightOnDetail: serializer.fromJson<bool>(json['showWeightOnDetail']),
       showSheddingOnDetail: serializer.fromJson<bool>(
         json['showSheddingOnDetail'],
@@ -2477,6 +2590,15 @@ class Animal extends DataClass implements Insertable<Animal> {
       'feedingReminderBaseline': serializer.toJson<DateTime?>(
         feedingReminderBaseline,
       ),
+      'feedingReminderWeekdays': serializer.toJson<int?>(
+        feedingReminderWeekdays,
+      ),
+      'feedingReminderMinuteOfDay': serializer.toJson<int?>(
+        feedingReminderMinuteOfDay,
+      ),
+      'feedingReminderTimeZone': serializer.toJson<String?>(
+        feedingReminderTimeZone,
+      ),
       'showWeightOnDetail': serializer.toJson<bool>(showWeightOnDetail),
       'showSheddingOnDetail': serializer.toJson<bool>(showSheddingOnDetail),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -2515,6 +2637,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     Value<String?> archiveNotes = const Value.absent(),
     Value<int?> feedingReminderIntervalDays = const Value.absent(),
     Value<DateTime?> feedingReminderBaseline = const Value.absent(),
+    Value<int?> feedingReminderWeekdays = const Value.absent(),
+    Value<int?> feedingReminderMinuteOfDay = const Value.absent(),
+    Value<String?> feedingReminderTimeZone = const Value.absent(),
     bool? showWeightOnDetail,
     bool? showSheddingOnDetail,
     DateTime? createdAt,
@@ -2574,6 +2699,15 @@ class Animal extends DataClass implements Insertable<Animal> {
     feedingReminderBaseline: feedingReminderBaseline.present
         ? feedingReminderBaseline.value
         : this.feedingReminderBaseline,
+    feedingReminderWeekdays: feedingReminderWeekdays.present
+        ? feedingReminderWeekdays.value
+        : this.feedingReminderWeekdays,
+    feedingReminderMinuteOfDay: feedingReminderMinuteOfDay.present
+        ? feedingReminderMinuteOfDay.value
+        : this.feedingReminderMinuteOfDay,
+    feedingReminderTimeZone: feedingReminderTimeZone.present
+        ? feedingReminderTimeZone.value
+        : this.feedingReminderTimeZone,
     showWeightOnDetail: showWeightOnDetail ?? this.showWeightOnDetail,
     showSheddingOnDetail: showSheddingOnDetail ?? this.showSheddingOnDetail,
     createdAt: createdAt ?? this.createdAt,
@@ -2649,6 +2783,15 @@ class Animal extends DataClass implements Insertable<Animal> {
       feedingReminderBaseline: data.feedingReminderBaseline.present
           ? data.feedingReminderBaseline.value
           : this.feedingReminderBaseline,
+      feedingReminderWeekdays: data.feedingReminderWeekdays.present
+          ? data.feedingReminderWeekdays.value
+          : this.feedingReminderWeekdays,
+      feedingReminderMinuteOfDay: data.feedingReminderMinuteOfDay.present
+          ? data.feedingReminderMinuteOfDay.value
+          : this.feedingReminderMinuteOfDay,
+      feedingReminderTimeZone: data.feedingReminderTimeZone.present
+          ? data.feedingReminderTimeZone.value
+          : this.feedingReminderTimeZone,
       showWeightOnDetail: data.showWeightOnDetail.present
           ? data.showWeightOnDetail.value
           : this.showWeightOnDetail,
@@ -2693,6 +2836,9 @@ class Animal extends DataClass implements Insertable<Animal> {
           ..write('archiveNotes: $archiveNotes, ')
           ..write('feedingReminderIntervalDays: $feedingReminderIntervalDays, ')
           ..write('feedingReminderBaseline: $feedingReminderBaseline, ')
+          ..write('feedingReminderWeekdays: $feedingReminderWeekdays, ')
+          ..write('feedingReminderMinuteOfDay: $feedingReminderMinuteOfDay, ')
+          ..write('feedingReminderTimeZone: $feedingReminderTimeZone, ')
           ..write('showWeightOnDetail: $showWeightOnDetail, ')
           ..write('showSheddingOnDetail: $showSheddingOnDetail, ')
           ..write('createdAt: $createdAt, ')
@@ -2733,6 +2879,9 @@ class Animal extends DataClass implements Insertable<Animal> {
     archiveNotes,
     feedingReminderIntervalDays,
     feedingReminderBaseline,
+    feedingReminderWeekdays,
+    feedingReminderMinuteOfDay,
+    feedingReminderTimeZone,
     showWeightOnDetail,
     showSheddingOnDetail,
     createdAt,
@@ -2773,6 +2922,9 @@ class Animal extends DataClass implements Insertable<Animal> {
           other.feedingReminderIntervalDays ==
               this.feedingReminderIntervalDays &&
           other.feedingReminderBaseline == this.feedingReminderBaseline &&
+          other.feedingReminderWeekdays == this.feedingReminderWeekdays &&
+          other.feedingReminderMinuteOfDay == this.feedingReminderMinuteOfDay &&
+          other.feedingReminderTimeZone == this.feedingReminderTimeZone &&
           other.showWeightOnDetail == this.showWeightOnDetail &&
           other.showSheddingOnDetail == this.showSheddingOnDetail &&
           other.createdAt == this.createdAt &&
@@ -2810,6 +2962,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   final Value<String?> archiveNotes;
   final Value<int?> feedingReminderIntervalDays;
   final Value<DateTime?> feedingReminderBaseline;
+  final Value<int?> feedingReminderWeekdays;
+  final Value<int?> feedingReminderMinuteOfDay;
+  final Value<String?> feedingReminderTimeZone;
   final Value<bool> showWeightOnDetail;
   final Value<bool> showSheddingOnDetail;
   final Value<DateTime> createdAt;
@@ -2845,6 +3000,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.archiveNotes = const Value.absent(),
     this.feedingReminderIntervalDays = const Value.absent(),
     this.feedingReminderBaseline = const Value.absent(),
+    this.feedingReminderWeekdays = const Value.absent(),
+    this.feedingReminderMinuteOfDay = const Value.absent(),
+    this.feedingReminderTimeZone = const Value.absent(),
     this.showWeightOnDetail = const Value.absent(),
     this.showSheddingOnDetail = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2881,6 +3039,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     this.archiveNotes = const Value.absent(),
     this.feedingReminderIntervalDays = const Value.absent(),
     this.feedingReminderBaseline = const Value.absent(),
+    this.feedingReminderWeekdays = const Value.absent(),
+    this.feedingReminderMinuteOfDay = const Value.absent(),
+    this.feedingReminderTimeZone = const Value.absent(),
     this.showWeightOnDetail = const Value.absent(),
     this.showSheddingOnDetail = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -2922,6 +3083,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Expression<String>? archiveNotes,
     Expression<int>? feedingReminderIntervalDays,
     Expression<DateTime>? feedingReminderBaseline,
+    Expression<int>? feedingReminderWeekdays,
+    Expression<int>? feedingReminderMinuteOfDay,
+    Expression<String>? feedingReminderTimeZone,
     Expression<bool>? showWeightOnDetail,
     Expression<bool>? showSheddingOnDetail,
     Expression<DateTime>? createdAt,
@@ -2964,6 +3128,12 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
         'feeding_reminder_interval_days': feedingReminderIntervalDays,
       if (feedingReminderBaseline != null)
         'feeding_reminder_baseline': feedingReminderBaseline,
+      if (feedingReminderWeekdays != null)
+        'feeding_reminder_weekdays': feedingReminderWeekdays,
+      if (feedingReminderMinuteOfDay != null)
+        'feeding_reminder_minute_of_day': feedingReminderMinuteOfDay,
+      if (feedingReminderTimeZone != null)
+        'feeding_reminder_time_zone': feedingReminderTimeZone,
       if (showWeightOnDetail != null)
         'show_weight_on_detail': showWeightOnDetail,
       if (showSheddingOnDetail != null)
@@ -3004,6 +3174,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
     Value<String?>? archiveNotes,
     Value<int?>? feedingReminderIntervalDays,
     Value<DateTime?>? feedingReminderBaseline,
+    Value<int?>? feedingReminderWeekdays,
+    Value<int?>? feedingReminderMinuteOfDay,
+    Value<String?>? feedingReminderTimeZone,
     Value<bool>? showWeightOnDetail,
     Value<bool>? showSheddingOnDetail,
     Value<DateTime>? createdAt,
@@ -3045,6 +3218,12 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           feedingReminderIntervalDays ?? this.feedingReminderIntervalDays,
       feedingReminderBaseline:
           feedingReminderBaseline ?? this.feedingReminderBaseline,
+      feedingReminderWeekdays:
+          feedingReminderWeekdays ?? this.feedingReminderWeekdays,
+      feedingReminderMinuteOfDay:
+          feedingReminderMinuteOfDay ?? this.feedingReminderMinuteOfDay,
+      feedingReminderTimeZone:
+          feedingReminderTimeZone ?? this.feedingReminderTimeZone,
       showWeightOnDetail: showWeightOnDetail ?? this.showWeightOnDetail,
       showSheddingOnDetail: showSheddingOnDetail ?? this.showSheddingOnDetail,
       createdAt: createdAt ?? this.createdAt,
@@ -3171,6 +3350,21 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
         feedingReminderBaseline.value,
       );
     }
+    if (feedingReminderWeekdays.present) {
+      map['feeding_reminder_weekdays'] = Variable<int>(
+        feedingReminderWeekdays.value,
+      );
+    }
+    if (feedingReminderMinuteOfDay.present) {
+      map['feeding_reminder_minute_of_day'] = Variable<int>(
+        feedingReminderMinuteOfDay.value,
+      );
+    }
+    if (feedingReminderTimeZone.present) {
+      map['feeding_reminder_time_zone'] = Variable<String>(
+        feedingReminderTimeZone.value,
+      );
+    }
     if (showWeightOnDetail.present) {
       map['show_weight_on_detail'] = Variable<bool>(showWeightOnDetail.value);
     }
@@ -3221,6 +3415,9 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
           ..write('archiveNotes: $archiveNotes, ')
           ..write('feedingReminderIntervalDays: $feedingReminderIntervalDays, ')
           ..write('feedingReminderBaseline: $feedingReminderBaseline, ')
+          ..write('feedingReminderWeekdays: $feedingReminderWeekdays, ')
+          ..write('feedingReminderMinuteOfDay: $feedingReminderMinuteOfDay, ')
+          ..write('feedingReminderTimeZone: $feedingReminderTimeZone, ')
           ..write('showWeightOnDetail: $showWeightOnDetail, ')
           ..write('showSheddingOnDetail: $showSheddingOnDetail, ')
           ..write('createdAt: $createdAt, ')
@@ -6436,6 +6633,9 @@ typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
   Value<String?> archiveNotes,
   Value<int?> feedingReminderIntervalDays,
   Value<DateTime?> feedingReminderBaseline,
+  Value<int?> feedingReminderWeekdays,
+  Value<int?> feedingReminderMinuteOfDay,
+  Value<String?> feedingReminderTimeZone,
   Value<bool> showWeightOnDetail,
   Value<bool> showSheddingOnDetail,
   Value<DateTime> createdAt,
@@ -6472,6 +6672,9 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<String?> archiveNotes,
   Value<int?> feedingReminderIntervalDays,
   Value<DateTime?> feedingReminderBaseline,
+  Value<int?> feedingReminderWeekdays,
+  Value<int?> feedingReminderMinuteOfDay,
+  Value<String?> feedingReminderTimeZone,
   Value<bool> showWeightOnDetail,
   Value<bool> showSheddingOnDetail,
   Value<DateTime> createdAt,
@@ -6755,6 +6958,21 @@ class $$AnimalsTableFilterComposer
 
   ColumnFilters<DateTime> get feedingReminderBaseline => $composableBuilder(
     column: $table.feedingReminderBaseline,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get feedingReminderWeekdays => $composableBuilder(
+    column: $table.feedingReminderWeekdays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get feedingReminderMinuteOfDay => $composableBuilder(
+    column: $table.feedingReminderMinuteOfDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get feedingReminderTimeZone => $composableBuilder(
+    column: $table.feedingReminderTimeZone,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7076,6 +7294,21 @@ class $$AnimalsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get feedingReminderWeekdays => $composableBuilder(
+    column: $table.feedingReminderWeekdays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get feedingReminderMinuteOfDay => $composableBuilder(
+    column: $table.feedingReminderMinuteOfDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get feedingReminderTimeZone => $composableBuilder(
+    column: $table.feedingReminderTimeZone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get showWeightOnDetail => $composableBuilder(
     column: $table.showWeightOnDetail,
     builder: (column) => ColumnOrderings(column),
@@ -7272,6 +7505,21 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get feedingReminderBaseline => $composableBuilder(
     column: $table.feedingReminderBaseline,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get feedingReminderWeekdays => $composableBuilder(
+    column: $table.feedingReminderWeekdays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get feedingReminderMinuteOfDay => $composableBuilder(
+    column: $table.feedingReminderMinuteOfDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get feedingReminderTimeZone => $composableBuilder(
+    column: $table.feedingReminderTimeZone,
     builder: (column) => column,
   );
 
@@ -7508,6 +7756,9 @@ class $$AnimalsTableTableManager
                 Value<String?> archiveNotes = const Value.absent(),
                 Value<int?> feedingReminderIntervalDays = const Value.absent(),
                 Value<DateTime?> feedingReminderBaseline = const Value.absent(),
+                Value<int?> feedingReminderWeekdays = const Value.absent(),
+                Value<int?> feedingReminderMinuteOfDay = const Value.absent(),
+                Value<String?> feedingReminderTimeZone = const Value.absent(),
                 Value<bool> showWeightOnDetail = const Value.absent(),
                 Value<bool> showSheddingOnDetail = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -7543,6 +7794,9 @@ class $$AnimalsTableTableManager
                 archiveNotes: archiveNotes,
                 feedingReminderIntervalDays: feedingReminderIntervalDays,
                 feedingReminderBaseline: feedingReminderBaseline,
+                feedingReminderWeekdays: feedingReminderWeekdays,
+                feedingReminderMinuteOfDay: feedingReminderMinuteOfDay,
+                feedingReminderTimeZone: feedingReminderTimeZone,
                 showWeightOnDetail: showWeightOnDetail,
                 showSheddingOnDetail: showSheddingOnDetail,
                 createdAt: createdAt,
@@ -7582,6 +7836,9 @@ class $$AnimalsTableTableManager
                 Value<String?> archiveNotes = const Value.absent(),
                 Value<int?> feedingReminderIntervalDays = const Value.absent(),
                 Value<DateTime?> feedingReminderBaseline = const Value.absent(),
+                Value<int?> feedingReminderWeekdays = const Value.absent(),
+                Value<int?> feedingReminderMinuteOfDay = const Value.absent(),
+                Value<String?> feedingReminderTimeZone = const Value.absent(),
                 Value<bool> showWeightOnDetail = const Value.absent(),
                 Value<bool> showSheddingOnDetail = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
@@ -7617,6 +7874,9 @@ class $$AnimalsTableTableManager
                 archiveNotes: archiveNotes,
                 feedingReminderIntervalDays: feedingReminderIntervalDays,
                 feedingReminderBaseline: feedingReminderBaseline,
+                feedingReminderWeekdays: feedingReminderWeekdays,
+                feedingReminderMinuteOfDay: feedingReminderMinuteOfDay,
+                feedingReminderTimeZone: feedingReminderTimeZone,
                 showWeightOnDetail: showWeightOnDetail,
                 showSheddingOnDetail: showSheddingOnDetail,
                 createdAt: createdAt,

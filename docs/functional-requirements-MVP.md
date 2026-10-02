@@ -139,6 +139,7 @@ The application must allow the user to:
 - preserve feeding history while an Animal is archived
 - preserve its picture while an Animal is archived
 - optionally configure a feeding reminder interval in positive whole days
+- alternatively select fixed feeding weekdays, local time and time zone
 - capture a reminder baseline when the reminder is enabled
 - retain reminder configuration while the Animal is archived
 - preserve reminder configuration while editing other Animal fields
@@ -289,18 +290,21 @@ Repeated save submissions must not create duplicate FeedingEvents.
 Feeding Mode must use the existing FeedingEvent model so new entries remain
 visible and editable through the existing Animal feeding history.
 
-Per-Animal feeding reminders must be disabled by default. When enabled, both a
-positive whole-day interval and a baseline timestamp must be stored. Invalid or
-incomplete reminder configuration must not be saved.
+Per-Animal feeding reminders must be disabled by default. An enabled reminder
+stores a baseline and either a positive whole-day interval or selected
+weekdays with a local time and IANA time zone. The two modes are exclusive.
+Invalid or incomplete reminder configuration must not be saved.
 
 Archiving an Animal must retain its configuration for a later restore, while
 archived Animals must not produce active reminder results.
 
 For each active Animal with an enabled reminder, the reminder reference is its
 latest FeedingEvent timestamp whenever feeding history exists. The configured
-baseline is used only when no FeedingEvent exists. The due timestamp is that
-reference plus the configured whole-day interval. The Animal is due when the
-current time is equal to or later than this timestamp.
+baseline is used only when no FeedingEvent exists. Interval mode adds the
+configured whole-day interval to that reference. Weekday mode finds the next
+selected local weekday and time after the reference; feeding on a selected day
+completes that day's appointment without shifting later weekdays. The Animal
+is due when the current time is equal to or later than the due timestamp.
 
 Reminder calculations must use current FeedingEvent data rather than storing a
 duplicate due-state value. Adding, editing or deleting a FeedingEvent must
@@ -329,9 +333,10 @@ blocking dialog automatically and must not request system-notification
 permissions.
 
 When the optional next-feeding summary is enabled, the Animal Overview must
-show the earliest upcoming reminder that is still in the future. The summary
-must not replace, hide or delay active due reminders. Selecting the summary
-must open the corresponding Animal workflow.
+show the earliest upcoming reminder, or the earliest due reminder when all are
+due. The summary must not replace, hide or delay active due reminders.
+Selecting the summary opens a chronological list of all active Animals with a
+configured reminder and their next appointment.
 
 The primary Animals navigation item must indicate when at least one active
 Animal has a due feeding. The indicator is derived from the existing reminder

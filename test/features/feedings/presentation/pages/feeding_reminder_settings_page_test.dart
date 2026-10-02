@@ -174,6 +174,49 @@ void main() {
     expect(animal.feedingReminderBaseline, baseline);
   });
 
+  testWidgets('saves a weekday plan without changing the interval model', (
+    tester,
+  ) async {
+    final animalId = await createAnimal();
+    final baseline = DateTime.utc(2026, 10, 4, 12);
+    await pumpPageWithNavigation(
+      tester,
+      animalId: animalId,
+      now: () => baseline,
+    );
+    await tester.tap(find.byKey(const Key('feeding-reminder-enabled-switch')));
+    await tester.pump();
+    await tester.tap(find.text('Selected weekdays'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('feeding-weekday-1')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('feeding-weekday-3')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('feeding-weekday-5')));
+    await tester.pump();
+    expect(
+      tester
+          .widget<FilterChip>(find.byKey(const Key('feeding-weekday-1')))
+          .selected,
+      isTrue,
+    );
+    await tester.ensureVisible(
+      find.byKey(const Key('save-feeding-reminder-form-button')),
+    );
+    await tester.tap(
+      find.byKey(const Key('save-feeding-reminder-form-button')),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Open Reminder'), findsOneWidget);
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+    expect(animal!.feedingReminderIntervalDays, isNull);
+    expect(animal.feedingReminderWeekdays, 1 | 4 | 16);
+    expect(animal.feedingReminderMinuteOfDay, 720);
+    expect(animal.feedingReminderTimeZone, 'UTC');
+    expect(animal.feedingReminderBaseline!.isAtSameMomentAs(baseline), isTrue);
+  });
+
   testWidgets('changes an interval without resetting its baseline', (
     tester,
   ) async {

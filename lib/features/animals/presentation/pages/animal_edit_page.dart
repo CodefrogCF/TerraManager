@@ -545,6 +545,9 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               : _notesController.text.trim(),
           feedingReminderIntervalDays: _animal!.feedingReminderIntervalDays,
           feedingReminderBaseline: _animal!.feedingReminderBaseline,
+          feedingReminderWeekdays: _animal!.feedingReminderWeekdays,
+          feedingReminderMinuteOfDay: _animal!.feedingReminderMinuteOfDay,
+          feedingReminderTimeZone: _animal!.feedingReminderTimeZone,
           showWeightOnDetail: _showWeightOnDetail,
           showSheddingOnDetail: _showSheddingOnDetail,
         );

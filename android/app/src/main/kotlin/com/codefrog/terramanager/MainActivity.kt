@@ -14,6 +14,10 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "com.codefrog.terramanager/browser",
         ).setMethodCallHandler { call, result ->
+            if (call.method == "deviceTimeZoneId") {
+                result.success(java.util.TimeZone.getDefault().id)
+                return@setMethodCallHandler
+            }
             if (call.method == "openStoreListing") {
                 if (PlayStoreListing.open(this)) {
                     result.success(null)

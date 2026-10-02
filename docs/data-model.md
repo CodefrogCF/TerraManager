@@ -184,6 +184,9 @@ Animal
 ├── archiveNotes
 ├── feedingReminderIntervalDays
 ├── feedingReminderBaseline
+├── feedingReminderWeekdays
+├── feedingReminderMinuteOfDay
+├── feedingReminderTimeZone
 ├── showWeightOnDetail
 ├── showSheddingOnDetail
 ├── createdAt
@@ -223,6 +226,9 @@ Animal
 - archiveNotes – optional archive notes
 - feedingReminderIntervalDays – optional positive whole-day feeding interval
 - feedingReminderBaseline – fallback timestamp used when no FeedingEvent exists
+- feedingReminderWeekdays – optional weekday bit mask for a fixed weekly plan
+- feedingReminderMinuteOfDay – optional local time in minutes after midnight
+- feedingReminderTimeZone – optional IANA time zone for the weekly plan
 - showWeightOnDetail – required Boolean controlling whether weight information
   and weight actions are shown on Animal details; defaults to `true`
 - showSheddingOnDetail – required Boolean controlling whether shedding
@@ -332,14 +338,17 @@ relationship.
 
 ### Feeding Reminder Configuration
 
-A feeding reminder is disabled when both reminder fields are `null`:
+A feeding reminder is disabled when all five reminder fields are `null`:
 
 ```text
 feedingReminderIntervalDays = null
 feedingReminderBaseline = null
+feedingReminderWeekdays = null
+feedingReminderMinuteOfDay = null
+feedingReminderTimeZone = null
 ```
 
-An enabled reminder requires both fields:
+An enabled interval reminder requires:
 
 ```text
 feedingReminderIntervalDays > 0
@@ -350,6 +359,11 @@ The create and edit workflows validate this pair before persistence. Capturing
 the baseline when a reminder is first enabled prevents an existing Animal with
 no feeding history from becoming overdue immediately. Changing only the
 interval of an enabled reminder preserves its existing baseline.
+
+An enabled weekday reminder instead stores a weekday bit mask (Monday = bit 0,
+Sunday = bit 6), a minute of the local day from 0 to 1439, an IANA time zone,
+and a baseline. Its interval field is `null`. The two modes are mutually
+exclusive. Existing interval records remain valid after schema migration 17.
 
 ### Feeding Reminder Calculation
 
@@ -370,6 +384,13 @@ When no FeedingEvent exists, the baseline is the reference. When feeding
 history exists, the latest FeedingEvent remains authoritative even if it
 predates the reminder baseline. Equality at the due
 timestamp counts as due.
+
+In weekday mode, `dueAt` is the first selected local weekday and time after
+the baseline or latest FeedingEvent. A feeding on a selected calendar day
+completes that day's appointment even when recorded before the chosen time.
+The following selected day remains fixed; it is not shifted by the feeding.
+A missed appointment remains overdue until a feeding is recorded. The saved
+IANA zone keeps the chosen local time stable through daylight saving changes.
 
 The application queries all active Animals with valid reminder configuration
 and aggregates the latest FeedingEvent timestamps for their IDs in one query.

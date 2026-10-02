@@ -5,6 +5,7 @@ import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/enums/animal_status.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
 import 'package:terramanager/shared_server/animals/application/animal_command.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 import 'package:terramanager/shared_server/shared/application/collection_operations.dart';
@@ -58,6 +59,9 @@ class AnimalOperations extends CollectionOperations {
       pictureMediaId: data.pictureMediaId,
       feedingReminderIntervalDays: data.feedingReminderIntervalDays,
       feedingReminderBaseline: data.feedingReminderBaseline,
+      feedingReminderWeekdays: data.feedingReminderWeekdays,
+      feedingReminderMinuteOfDay: data.feedingReminderMinuteOfDay,
+      feedingReminderTimeZone: data.feedingReminderTimeZone,
       weightGrams: data.weightGrams,
       weightMeasuredAt: data.weightMeasuredAt,
       showWeightOnDetail: data.showWeightOnDetail,
@@ -121,6 +125,9 @@ class AnimalOperations extends CollectionOperations {
         pictureMediaId: data.pictureMediaId,
         feedingReminderIntervalDays: data.feedingReminderIntervalDays,
         feedingReminderBaseline: data.feedingReminderBaseline,
+        feedingReminderWeekdays: data.feedingReminderWeekdays,
+        feedingReminderMinuteOfDay: data.feedingReminderMinuteOfDay,
+        feedingReminderTimeZone: data.feedingReminderTimeZone,
         weightGrams: data.weightGrams,
         weightMeasuredAt: data.weightMeasuredAt,
         showWeightOnDetail: data.showWeightOnDetail,
@@ -137,15 +144,33 @@ class AnimalOperations extends CollectionOperations {
   Future<ApiReply> updateReminder(int id, ApiInput input) async {
     final animals = AnimalRepository(database);
 
-    input.allow(const {'expectedRevision', 'intervalDays', 'baseline'});
+    input.allow(const {
+      'expectedRevision',
+      'intervalDays',
+      'baseline',
+      'weekdays',
+      'minuteOfDay',
+      'timeZone',
+    });
     final expectedRevision = input.string('expectedRevision', maxLength: 64);
     final intervalDays = input.nullableInteger('intervalDays');
     final baseline = input.nullableDateTime('baseline');
-    if ((intervalDays == null) != (baseline == null)) {
+    final weekdays = input.nullableInteger('weekdays');
+    final minuteOfDay = input.nullableInteger('minuteOfDay');
+    final timeZone = input.nullableString('timeZone');
+    try {
+      FeedingWeekdaySchedule.validate(
+        intervalDays: intervalDays,
+        baseline: baseline,
+        weekdays: weekdays,
+        minuteOfDay: minuteOfDay,
+        timeZone: timeZone,
+      );
+    } on ArgumentError {
       throw const ApiProblem(
         400,
         'invalid_data',
-        'Reminder interval and baseline must both be set or both be null.',
+        'Invalid feeding reminder configuration.',
       );
     }
     final updated = await database.transaction(() async {
@@ -158,6 +183,9 @@ class AnimalOperations extends CollectionOperations {
         animalId: id,
         intervalDays: intervalDays,
         baseline: baseline,
+        weekdays: weekdays,
+        minuteOfDay: minuteOfDay,
+        timeZone: timeZone,
       );
     });
     return updated

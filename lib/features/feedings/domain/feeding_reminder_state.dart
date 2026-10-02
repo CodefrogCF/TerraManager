@@ -2,7 +2,8 @@ import '../../../core/database/app_database.dart';
 
 class FeedingReminderState {
   final Animal animal;
-  final int intervalDays;
+  final int? intervalDays;
+  final int? weekdays;
   final DateTime baseline;
   final DateTime? latestFeedingAt;
   final DateTime referenceAt;
@@ -13,6 +14,7 @@ class FeedingReminderState {
   const FeedingReminderState({
     required this.animal,
     required this.intervalDays,
+    this.weekdays,
     required this.baseline,
     required this.latestFeedingAt,
     required this.referenceAt,

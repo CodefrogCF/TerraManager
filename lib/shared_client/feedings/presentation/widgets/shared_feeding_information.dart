@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_date_time_label.dart';
 
@@ -50,9 +51,27 @@ class SharedFeedingInformation extends StatelessWidget {
         final baseline = DateTime.tryParse(
           animal['feedingReminderBaseline'] as String? ?? '',
         );
-        final next = interval == null || interval <= 0 || baseline == null
+        final weekdays = animal['feedingReminderWeekdays'] as int?;
+        final minuteOfDay = animal['feedingReminderMinuteOfDay'] as int?;
+        final timeZone = animal['feedingReminderTimeZone'] as String?;
+        final next =
+            !FeedingWeekdaySchedule.isConfigured(
+              intervalDays: interval,
+              baseline: baseline,
+              weekdays: weekdays,
+              minuteOfDay: minuteOfDay,
+              timeZone: timeZone,
+            )
             ? null
-            : (latest ?? baseline).add(Duration(days: interval));
+            : weekdays == null
+            ? (latest ?? baseline!).add(Duration(days: interval!))
+            : FeedingWeekdaySchedule.nextDueAt(
+                weekdays: weekdays,
+                minuteOfDay: minuteOfDay!,
+                timeZone: timeZone!,
+                baseline: baseline!,
+                latestFeedingAt: latest,
+              );
         final overdue = next != null && !next.isAfter(DateTime.now());
         if (due) {
           if (!overdue || animal['status'] != 'active') {

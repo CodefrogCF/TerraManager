@@ -201,6 +201,11 @@ class PortableBackupDatabaseRestorer {
                   animal.feedingReminderIntervalDays,
                 ),
                 feedingReminderBaseline: Value(animal.feedingReminderBaseline),
+                feedingReminderWeekdays: Value(animal.feedingReminderWeekdays),
+                feedingReminderMinuteOfDay: Value(
+                  animal.feedingReminderMinuteOfDay,
+                ),
+                feedingReminderTimeZone: Value(animal.feedingReminderTimeZone),
                 showWeightOnDetail: Value(animal.showWeightOnDetail),
                 showSheddingOnDetail: Value(animal.showSheddingOnDetail),
                 createdAt: Value(animal.createdAt),

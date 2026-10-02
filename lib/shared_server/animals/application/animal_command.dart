@@ -24,6 +24,9 @@ class AnimalCommand {
   final int? pictureMediaId;
   final int? feedingReminderIntervalDays;
   final DateTime? feedingReminderBaseline;
+  final int? feedingReminderWeekdays;
+  final int? feedingReminderMinuteOfDay;
+  final String? feedingReminderTimeZone;
   final double? weightGrams;
   final DateTime? weightMeasuredAt;
   final bool showWeightOnDetail;
@@ -50,6 +53,9 @@ class AnimalCommand {
     required this.pictureMediaId,
     required this.feedingReminderIntervalDays,
     required this.feedingReminderBaseline,
+    required this.feedingReminderWeekdays,
+    required this.feedingReminderMinuteOfDay,
+    required this.feedingReminderTimeZone,
     required this.weightGrams,
     required this.weightMeasuredAt,
     required this.showWeightOnDetail,
@@ -78,6 +84,9 @@ class AnimalCommand {
       'pictureMediaId',
       'feedingReminderIntervalDays',
       'feedingReminderBaseline',
+      'feedingReminderWeekdays',
+      'feedingReminderMinuteOfDay',
+      'feedingReminderTimeZone',
       'weightGrams',
       'weightMeasuredAt',
       'showWeightOnDetail',
@@ -129,6 +138,11 @@ class AnimalCommand {
       feedingReminderBaseline: input.nullableDateTime(
         'feedingReminderBaseline',
       ),
+      feedingReminderWeekdays: input.nullableInteger('feedingReminderWeekdays'),
+      feedingReminderMinuteOfDay: input.nullableInteger(
+        'feedingReminderMinuteOfDay',
+      ),
+      feedingReminderTimeZone: input.nullableString('feedingReminderTimeZone'),
       weightGrams: weightGrams,
       weightMeasuredAt: input.nullableDateTime('weightMeasuredAt'),
       showWeightOnDetail: input.boolean(

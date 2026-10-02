@@ -7,6 +7,8 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/animal_display_names.dart';
 import '../../application/feeding_reminder_service.dart';
+import '../../domain/feeding_weekday_schedule.dart';
+import '../../infrastructure/feeding_device_time_zone.dart';
 import '../widgets/feeding_reminder_form_fields.dart';
 
 class FeedingReminderSettingsPage extends StatefulWidget {
@@ -33,6 +35,10 @@ class _FeedingReminderSettingsPageState
 
   Animal? _animal;
   bool _reminderEnabled = false;
+  bool _weekdayMode = false;
+  int _weekdays = 0;
+  int _minuteOfDay = 12 * 60;
+  String _timeZone = 'UTC';
   DateTime? _baseline;
   bool _loading = true;
   bool _saving = false;
@@ -80,7 +86,17 @@ class _FeedingReminderSettingsPageState
       final baseline = animal.feedingReminderBaseline;
 
       _animal = animal;
-      _reminderEnabled = intervalDays != null && baseline != null;
+      _reminderEnabled = FeedingWeekdaySchedule.isConfigured(
+        intervalDays: intervalDays,
+        baseline: baseline,
+        weekdays: animal.feedingReminderWeekdays,
+        minuteOfDay: animal.feedingReminderMinuteOfDay,
+        timeZone: animal.feedingReminderTimeZone,
+      );
+      _weekdayMode = animal.feedingReminderWeekdays != null;
+      _weekdays = animal.feedingReminderWeekdays ?? 0;
+      _minuteOfDay = animal.feedingReminderMinuteOfDay ?? 12 * 60;
+      _timeZone = animal.feedingReminderTimeZone ?? 'UTC';
       _intervalDaysController.text = intervalDays?.toString() ?? '';
       _baseline = baseline;
 
@@ -122,6 +138,18 @@ class _FeedingReminderSettingsPageState
     });
   }
 
+  Future<void> _setWeekdayMode(bool value) async {
+    if (_saving) return;
+    setState(() {
+      _weekdayMode = value;
+      _hasUnsavedChanges = true;
+    });
+    if (value) {
+      final zone = await currentFeedingTimeZone();
+      if (mounted && _weekdayMode) setState(() => _timeZone = zone);
+    }
+  }
+
   Future<void> _save() async {
     if (_saving || _animal == null || !_formKey.currentState!.validate()) {
       return;
@@ -136,10 +164,13 @@ class _FeedingReminderSettingsPageState
       final updated = await AnimalRepository(widget.database)
           .updateFeedingReminder(
             animalId: widget.animalId,
-            intervalDays: _reminderEnabled
+            intervalDays: _reminderEnabled && !_weekdayMode
                 ? int.parse(_intervalDaysController.text.trim())
                 : null,
             baseline: _reminderEnabled ? _baseline : null,
+            weekdays: _reminderEnabled && _weekdayMode ? _weekdays : null,
+            minuteOfDay: _reminderEnabled && _weekdayMode ? _minuteOfDay : null,
+            timeZone: _reminderEnabled && _weekdayMode ? _timeZone : null,
           );
 
       if (!mounted) {
@@ -290,6 +321,23 @@ class _FeedingReminderSettingsPageState
             intervalDaysController: _intervalDaysController,
             onReminderEnabledChanged: _setReminderEnabled,
             onIntervalChanged: (_) => _markAsChanged(),
+            weekdayMode: _weekdayMode,
+            onWeekdayModeChanged: _setWeekdayMode,
+            selectedWeekdays: _weekdays,
+            onWeekdaysChanged: (value) => setState(() {
+              _weekdays = value;
+              _hasUnsavedChanges = true;
+            }),
+            minuteOfDay: _minuteOfDay,
+            onMinuteOfDayChanged: (value) => setState(() {
+              _minuteOfDay = value;
+              _hasUnsavedChanges = true;
+            }),
+            timeZone: _timeZone,
+            onTimeZoneChanged: (value) => setState(() {
+              _timeZone = value;
+              _hasUnsavedChanges = true;
+            }),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(

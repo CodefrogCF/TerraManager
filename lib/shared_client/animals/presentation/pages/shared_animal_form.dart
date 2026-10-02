@@ -7,6 +7,8 @@ import 'package:terramanager/core/database/validation/animal_environmental_limit
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/features/animals/presentation/widgets/animal_range_fields.dart';
 import 'package:terramanager/features/feedings/presentation/widgets/feeding_reminder_form_fields.dart';
+import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
+import 'package:terramanager/features/feedings/infrastructure/feeding_device_time_zone.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/l10n/app_localizations_labels.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
@@ -46,6 +48,10 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   bool _showWeightOnDetail = true;
   bool _showSheddingOnDetail = true;
   bool _reminderEnabled = false;
+  bool _weekdayMode = false;
+  int _weekdays = 0;
+  int _minuteOfDay = 720;
+  String _timeZone = 'UTC';
   DateTime? _reminderBaseline;
   bool _saving = false;
   bool _stale = false;
@@ -80,9 +86,17 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     _reminderBaseline = DateTime.tryParse(
       initial?['feedingReminderBaseline'] as String? ?? '',
     );
-    _reminderEnabled =
-        initial?['feedingReminderIntervalDays'] is int &&
-        _reminderBaseline != null;
+    _reminderEnabled = FeedingWeekdaySchedule.isConfigured(
+      intervalDays: initial?['feedingReminderIntervalDays'] as int?,
+      baseline: _reminderBaseline,
+      weekdays: initial?['feedingReminderWeekdays'] as int?,
+      minuteOfDay: initial?['feedingReminderMinuteOfDay'] as int?,
+      timeZone: initial?['feedingReminderTimeZone'] as String?,
+    );
+    _weekdayMode = initial?['feedingReminderWeekdays'] != null;
+    _weekdays = initial?['feedingReminderWeekdays'] as int? ?? 0;
+    _minuteOfDay = initial?['feedingReminderMinuteOfDay'] as int? ?? 720;
+    _timeZone = initial?['feedingReminderTimeZone'] as String? ?? 'UTC';
     _fields = {
       for (final key in [
         'commonName',
@@ -142,8 +156,18 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       initial['feedingReminderBaseline'] as String? ?? '',
     );
     if (_reminderEnabled !=
-            (initial['feedingReminderIntervalDays'] is int &&
-                originalBaseline != null) ||
+            FeedingWeekdaySchedule.isConfigured(
+              intervalDays: initial['feedingReminderIntervalDays'] as int?,
+              baseline: originalBaseline,
+              weekdays: initial['feedingReminderWeekdays'] as int?,
+              minuteOfDay: initial['feedingReminderMinuteOfDay'] as int?,
+              timeZone: initial['feedingReminderTimeZone'] as String?,
+            ) ||
+        _weekdayMode != (initial['feedingReminderWeekdays'] != null) ||
+        _weekdays != (initial['feedingReminderWeekdays'] as int? ?? 0) ||
+        _minuteOfDay !=
+            (initial['feedingReminderMinuteOfDay'] as int? ?? 720) ||
+        _timeZone != (initial['feedingReminderTimeZone'] as String? ?? 'UTC') ||
         _reminderBaseline?.toUtc().toIso8601String() !=
             originalBaseline?.toUtc().toIso8601String()) {
       return true;
@@ -371,8 +395,17 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       'restOrDormancyPeriods': _text('restOrDormancyPeriods'),
       'notes': _text('notes'),
       'pictureMediaId': _initial?['pictureMediaId'],
-      'feedingReminderIntervalDays': _reminderEnabled
+      'feedingReminderIntervalDays': _reminderEnabled && !_weekdayMode
           ? int.parse(_text('feedingReminderIntervalDays')!)
+          : null,
+      'feedingReminderWeekdays': _reminderEnabled && _weekdayMode
+          ? _weekdays
+          : null,
+      'feedingReminderMinuteOfDay': _reminderEnabled && _weekdayMode
+          ? _minuteOfDay
+          : null,
+      'feedingReminderTimeZone': _reminderEnabled && _weekdayMode
+          ? _timeZone
           : null,
       'feedingReminderBaseline': _reminderEnabled
           ? _reminderBaseline?.toUtc().toIso8601String()
@@ -451,9 +484,17 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         _reminderBaseline = DateTime.tryParse(
           latest['feedingReminderBaseline'] as String? ?? '',
         );
-        _reminderEnabled =
-            latest['feedingReminderIntervalDays'] is int &&
-            _reminderBaseline != null;
+        _reminderEnabled = FeedingWeekdaySchedule.isConfigured(
+          intervalDays: latest['feedingReminderIntervalDays'] as int?,
+          baseline: _reminderBaseline,
+          weekdays: latest['feedingReminderWeekdays'] as int?,
+          minuteOfDay: latest['feedingReminderMinuteOfDay'] as int?,
+          timeZone: latest['feedingReminderTimeZone'] as String?,
+        );
+        _weekdayMode = latest['feedingReminderWeekdays'] != null;
+        _weekdays = latest['feedingReminderWeekdays'] as int? ?? 0;
+        _minuteOfDay = latest['feedingReminderMinuteOfDay'] as int? ?? 720;
+        _timeZone = latest['feedingReminderTimeZone'] as String? ?? 'UTC';
         for (final entry in _fields.entries) {
           entry.value.text = latest[entry.key]?.toString() ?? '';
         }
@@ -757,6 +798,25 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                         _reminderEnabled = enabled;
                         _reminderBaseline = enabled ? DateTime.now() : null;
                       }),
+                      weekdayMode: _weekdayMode,
+                      onWeekdayModeChanged: (value) async {
+                        setState(() => _weekdayMode = value);
+                        if (value) {
+                          final zone = await currentFeedingTimeZone();
+                          if (mounted && _weekdayMode) {
+                            setState(() => _timeZone = zone);
+                          }
+                        }
+                      },
+                      selectedWeekdays: _weekdays,
+                      onWeekdaysChanged: (value) =>
+                          setState(() => _weekdays = value),
+                      minuteOfDay: _minuteOfDay,
+                      onMinuteOfDayChanged: (value) =>
+                          setState(() => _minuteOfDay = value),
+                      timeZone: _timeZone,
+                      onTimeZoneChanged: (value) =>
+                          setState(() => _timeZone = value),
                     ),
                   ],
                 ),

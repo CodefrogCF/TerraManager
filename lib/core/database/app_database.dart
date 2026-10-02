@@ -176,6 +176,20 @@ class AppDatabase extends _$AppDatabase {
                   schema.animals.showSheddingOnDetail,
                 );
               },
+              from16To17: (m, schema) async {
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.feedingReminderWeekdays,
+                );
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.feedingReminderMinuteOfDay,
+                );
+                await m.addColumn(
+                  schema.animals,
+                  schema.animals.feedingReminderTimeZone,
+                );
+              },
             ),
           );
 
@@ -200,7 +214,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

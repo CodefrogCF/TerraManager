@@ -159,12 +159,12 @@ de:
       number: "04"
       eyebrow: Erinnerungen
       heading: Individuelle Fütterungsrhythmen im Blick behalten
-      lead: Für jedes Tier kann ein eigenes Fütterungsintervall in Tagen aktiviert werden.
+      lead: Für jedes Tier kann ein Intervall in Tagen oder ein fester Wochentagsplan aktiviert werden.
       tone: soft
       steps:
         - number: "10"
-          heading: Intervall festlegen
-          body_html: Öffne das Erinnerungssymbol in den Tierdetails, aktiviere die Fütterungserinnerung und gib eine positive Anzahl ganzer Tage als Intervall an.
+          heading: Intervall oder Wochentage festlegen
+          body_html: Öffne das Erinnerungssymbol in den Tierdetails und aktiviere die Fütterungserinnerung. Wähle entweder ein Intervall mit einer positiven Anzahl ganzer Tage oder feste Wochentage mit Uhrzeit und Zeitzone. Eine Fütterung verschiebt die gewählten Wochentage nicht. Bestehende Intervalle bleiben erhalten.
           images:
             - file: feeding-reminder-settings.webp
               alt: Einstellungen für eine Fütterungserinnerung
@@ -172,7 +172,7 @@ de:
         - number: "11"
           reverse: true
           heading: Fällige und bevorstehende Fütterungen erkennen
-          body_html: Erreicht oder überschreitet ein Tier den errechneten Termin, erscheint es als <strong>Fällig</strong>. Der Tiereintrag in der Hauptnavigation und die Tierübersicht weisen auf aktive Fälligkeiten hin. Die Liste der fälligen Tiere lässt sich in beiden Ansichtsmodi ein- und ausklappen; die Anzahl bleibt sichtbar. Eine optionale Einstellung kann zusätzlich die nächste bevorstehende Fütterung anzeigen, solange sie noch nicht fällig ist.
+          body_html: Erreicht oder überschreitet ein Tier den errechneten Termin, erscheint es als <strong>Fällig</strong>. Der Tiereintrag in der Hauptnavigation und die Tierübersicht weisen auf aktive Fälligkeiten hin. Die Liste der fälligen Tiere lässt sich in beiden Ansichtsmodi ein- und ausklappen; die Anzahl bleibt sichtbar. Aktiviere optional „Nächste Fütterung“ und tippe auf die Karte, um alle Tiere mit Erinnerung chronologisch nach ihrem nächsten Termin zu sehen, auch wenn alle Termine fällig sind.
           images:
             - file: feeding-reminders-due.webp
               alt: Tierübersicht mit mehreren fälligen Fütterungen
@@ -418,12 +418,12 @@ en:
       number: "04"
       eyebrow: Reminders
       heading: Keep individual feeding schedules in view
-      lead: Each animal can have its own feeding reminder interval in days.
+      lead: Each animal can use a day interval or a fixed weekday feeding plan.
       tone: soft
       steps:
         - number: "10"
-          heading: Set an interval
-          body_html: Open the reminder action in the animal details, enable the feeding reminder and enter a positive whole number of days as the interval.
+          heading: Set an interval or weekdays
+          body_html: Open the reminder action in the animal details and enable the feeding reminder. Choose either a positive whole number of days or fixed weekdays with a time and time zone. Recording a feeding does not shift the selected weekdays. Existing intervals remain available.
           images:
             - file: feeding-reminder-settings.webp
               alt: Feeding reminder settings
@@ -431,7 +431,7 @@ en:
         - number: "11"
           reverse: true
           heading: See which animals are due
-          body_html: When the calculated date is reached or passed, the animal is marked as <strong>Due</strong>. The primary Animals navigation item and the Animal Overview indicate active due feedings. The due list can be collapsed and expanded in both overview modes while its count stays visible. An optional setting can also show the next upcoming feeding while it is still in the future.
+          body_html: When the calculated date is reached or passed, the animal is marked as <strong>Due</strong>. The primary Animals navigation item and the Animal Overview indicate active due feedings. The due list can be collapsed and expanded in both overview modes while its count stays visible. Enable the optional Next Feeding card and tap it to see all animals with reminders ordered by their next appointment, even when every appointment is overdue.
           images:
             - file: feeding-reminders-due.webp
               alt: Animal overview with several due feedings

@@ -87,9 +87,9 @@ de:
 #      - title: Installation und Updates
 #        body: Vertrauenswürdige Builds, Android-Signatur und sichere Aktualisierung.
 #        url: /installation-and-updates.html
-      - title: Android-Test
-        body: Anmeldung und Installation über den geschlossenen Google-Play-Test.
-        url: /testing/
+#      - title: Android-Test
+#        body: Anmeldung und Installation über den geschlossenen Google-Play-Test.
+#        url: /testing/
       - title: Projektdokumentation
         body: Funktionen, Architektur, Datenmodell, Backup-Format und Entwicklung.
         url: /project-documentation.html
@@ -195,9 +195,9 @@ en:
 #      - title: Installation and updates
 #        body: Trusted builds, Android signing and safe updates.
 #        url: /installation-and-updates.html
-      - title: Android testing
-        body: Registration and installation through the closed Google Play test.
-        url: /testing/
+#      - title: Android testing
+#        body: Registration and installation through the closed Google Play test.
+#        url: /testing/
       - title: Project documentation
         body: Features, architecture, data model, backup format and development.
         url: /project-documentation.html

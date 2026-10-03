@@ -76,7 +76,7 @@ de:
   guides:
     eyebrow: Hilfe und Dokumentation
     heading: Antworten ohne Umwege
-    body: Der visuelle Guide erklärt die wichtigsten Arbeitsabläufe. Weitere Seiten führen zu Android-Test, Installation, Updates und technischer Projektdokumentation.
+    body: Der visuelle Guide erklärt die wichtigsten Arbeitsabläufe. Weitere Seiten führen zur Erläuterung des Shared-Care-Modus und zur technischen Projektdokumentation.
     cards:
       - title: Visueller Benutzer-Guide
         body: Boxen und Tiere anlegen, QR-Codes nutzen, Fütterungen dokumentieren, Erinnerungen verwalten und Daten sichern.
@@ -184,7 +184,7 @@ en:
   guides:
     eyebrow: Help and documentation
     heading: Answers without detours
-    body: The visual guide covers the main daily workflows. Additional pages provide Android testing, installation, update and technical project documentation.
+    body: The visual guide covers the main daily workflows. Additional pages provide a guide for the Shared Care mode and technical project documentation.
     cards:
       - title: Visual user guide
         body: Add enclosures and animals, use QR codes, record feedings, manage reminders and back up your data.

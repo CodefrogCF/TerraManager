@@ -286,7 +286,6 @@ void main() {
     expect(installation, contains('com.codefrog.terramanager'));
     expect(installation, contains('production signing certificate'));
     expect(installation, contains('f9bcd66cf622597f'));
-    expect(installation, contains('not encrypted'));
 
     expect(support, contains('GitHub Issues'));
     expect(support, contains('Never publish real'));

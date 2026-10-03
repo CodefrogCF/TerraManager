@@ -18,7 +18,7 @@ services:
     tmpfs:
       - /tmp
     healthcheck:
-      test: [CMD, dart, /opt/healthcheck.dart]
+      test: ["CMD", "/opt/healthcheck/bin/healthcheck"]
       interval: 30s
       timeout: 5s
       start_period: 30s

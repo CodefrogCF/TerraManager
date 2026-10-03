@@ -113,6 +113,10 @@ void main() {
       releaseChecklist,
       contains('canonical release-validation checklist'),
     );
+    expect(
+      releaseChecklist,
+      contains('does not block this release-validation issue'),
+    );
 
     expect(
       development,
@@ -192,6 +196,34 @@ void main() {
     },
   );
 
+  test('documents shipped password-backup behavior in both guides', () {
+    final guide = read('docs/_data/guide.yml');
+    final backupFormat = read('docs/backup-format.md');
+
+    expect(
+      guide,
+      contains('TerraManager speichert das Backup-Passwort nicht dauerhaft.'),
+    );
+    expect(
+      guide,
+      contains('TerraManager does not persist the backup password.'),
+    );
+    expect(
+      guide,
+      contains(
+        'Bei großen Sicherungen kann die Verarbeitung mehrere Minuten dauern',
+      ),
+    );
+    expect(
+      guide,
+      contains('Processing a large backup can take several minutes'),
+    );
+    expect(
+      backupFormat,
+      contains('is not written to application or Shared Care server logs'),
+    );
+  });
+
   test('documents local data permissions and optional backup protection', () {
     final privacy = read('PRIVACY.md');
     final productionManifest = read('android/app/src/main/AndroidManifest.xml');
@@ -207,6 +239,7 @@ void main() {
     expect(privacy, contains('operating-system save dialog'));
     expect(privacy, contains('additional broad storage, media or network'));
     expect(privacy, contains('password-protected export'));
+    expect(privacy, contains('does not write backup passwords'));
     expect(privacy, contains('does not encrypt the server database'));
     expect(privacy, contains('analytics'));
     expect(

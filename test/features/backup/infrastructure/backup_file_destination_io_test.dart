@@ -75,6 +75,61 @@ void main() {
     expect(await Directory('${testDirectory.path}/spool').exists(), isFalse);
   });
 
+  test(
+    'cancelled protected save leaves only ciphertext and removes the spool',
+    () async {
+      final saved = await saveGeneratedEncryptedBackupToFile(
+        (output) => BackupExportService(database).writeBackup(
+          appVersion: 'test',
+          themeMode: ThemeMode.system,
+          accent: AppAccent.green,
+          output: output,
+        ),
+        password: 'private test password',
+        createTemporaryDirectory: createSpool,
+        saveFromPath: (_, path) async {
+          final bytes = await File(path).readAsBytes();
+          expect(
+            bytes.sublist(0, EncryptedBackupContainer.magic.length),
+            EncryptedBackupContainer.magic,
+          );
+          expect(
+            bytes.take(4).toList(),
+            isNot(equals([0x50, 0x4b, 0x03, 0x04])),
+          );
+          return null;
+        },
+      );
+      expect(saved, isNull);
+      expect(await Directory('${testDirectory.path}/spool').exists(), isFalse);
+    },
+  );
+
+  test('failed protected save removes the ciphertext spool', () async {
+    await expectLater(
+      saveGeneratedEncryptedBackupToFile(
+        (output) => BackupExportService(database).writeBackup(
+          appVersion: 'test',
+          themeMode: ThemeMode.system,
+          accent: AppAccent.green,
+          output: output,
+        ),
+        password: 'private test password',
+        createTemporaryDirectory: createSpool,
+        saveFromPath: (_, path) async {
+          final bytes = await File(path).readAsBytes();
+          expect(
+            bytes.sublist(0, EncryptedBackupContainer.magic.length),
+            EncryptedBackupContainer.magic,
+          );
+          throw StateError('save failed');
+        },
+      ),
+      throwsStateError,
+    );
+    expect(await Directory('${testDirectory.path}/spool').exists(), isFalse);
+  });
+
   test('cancelled save removes the unencrypted spool', () async {
     final saved = await saveGeneratedBackupToFile(
       (output) => BackupExportService(database).writeBackup(

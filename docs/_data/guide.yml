@@ -215,7 +215,7 @@ de:
         - number: "14"
           heading: Sicherung mit Passwort schützen
           body_html: Wähle beim Speichern einer portablen Sicherung <strong>Mit Passwort schützen</strong>, gib das Passwort zweimal ein und bewahre es getrennt von der Datei auf. Beim Import erkennt TerraManager die geschützte Datei und fragt nach dem Passwort. Ein falsches Passwort oder eine beschädigte Datei wird vor dem Ersetzen der Sammlung zurückgewiesen. Ungeschützte ältere Sicherungen bleiben importierbar.
-          note_html: Ein vergessenes Passwort kann nicht wiederhergestellt werden. Bei großen Sicherungen kann die Verarbeitung mehrere Minuten dauern und auf Geräten mit wenig freiem Speicher scheitern; ein fehlgeschlagener oder abgebrochener Versuch ersetzt die bestehende Sammlung nicht. Beim Wiederherstellen einer geschützten Datei erhält die optionale lokale Sicherheitskopie dasselbe Passwort. Bei Shared Care speichert ein Administrator zuerst eine aktuelle passwortgeschützte Sicherheitskopie; der Browser entschlüsselt die Importdatei vor dem Senden an den eigenen Server.
+          note_html: Ein vergessenes Passwort kann nicht wiederhergestellt werden. TerraManager speichert das Backup-Passwort nicht dauerhaft. Bei großen Sicherungen kann die Verarbeitung mehrere Minuten dauern und auf Geräten mit wenig freiem Speicher scheitern; ein fehlgeschlagener oder abgebrochener Versuch ersetzt die bestehende Sammlung nicht. Beim Wiederherstellen einer geschützten Datei erhält die optionale lokale Sicherheitskopie dasselbe Passwort. Bei Shared Care speichert ein Administrator zuerst eine aktuelle passwortgeschützte Sicherheitskopie; der Browser entschlüsselt die Importdatei vor dem Senden an den eigenen Server.
   shared_care:
     eyebrow: Optionale gemeinsame Nutzung
     heading: Eine Sammlung auf deinem eigenen Server
@@ -474,7 +474,7 @@ en:
         - number: "14"
           heading: Protect a backup with a password
           body_html: Select <strong>Protect with password</strong> when saving a portable backup, enter the password twice, and keep it separately from the file. TerraManager recognizes a protected import and asks for the password. It rejects a wrong password or damaged file before replacing the collection. Older unprotected backups remain importable.
-          note_html: A forgotten password cannot be recovered. Processing a large backup can take several minutes and may fail on a device with little free memory; a failed or cancelled attempt does not replace the existing collection. When restoring a protected file, the optional local safety backup uses the same password. In Shared Care, an administrator first saves a current password-protected safety copy; the browser decrypts the selected file before sending it to the operator's server.
+          note_html: A forgotten password cannot be recovered. TerraManager does not persist the backup password. Processing a large backup can take several minutes and may fail on a device with little free memory; a failed or cancelled attempt does not replace the existing collection. When restoring a protected file, the optional local safety backup uses the same password. In Shared Care, an administrator first saves a current password-protected safety copy; the browser decrypts the selected file before sending it to the operator's server.
   shared_care:
     eyebrow: Optional shared use
     heading: One collection on your own server

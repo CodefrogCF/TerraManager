@@ -79,6 +79,31 @@ this is a size record rather than an acceptance result.
 | Standalone Web bundle | 48,224,404 B | 48,458,875 B | +234,471 B |
 | Shared Care Web bundle | 48,618,652 B | 48,687,817 B | +69,165 B |
 
+## Release-validation acceptance status
+
+The bounded-memory optimization is tracked separately and is not a completion
+condition for this release-validation issue. The current release must continue
+to document proportional memory use for large protected operations and must not
+claim bounded-memory behavior.
+
+| Acceptance area | Current evidence | Status before publication |
+| --- | --- | --- |
+| Physical Android encrypted restore | Galaxy S22 Debug and test-signed Release restored the 252 MiB protected fixture | Complete |
+| Physical Android encrypted export | Native protected export still needs one release-candidate device run | Open |
+| Standalone mobile Web | Brave protected export/restore plus Chrome and Firefox protected restore on the Galaxy S22 | Complete |
+| Shared Care browser path | Galaxy S22 Chrome protected safety export and 252 MiB restore against a disposable local server | Complete |
+| Supported desktop Web | The in-app Chromium diagnostic run is not a supported desktop-browser release result | Open |
+| Wrong password, changed ciphertext/header, truncation, fresh salt/nonce | Automated coverage plus Brave negative-path device checks; header salt/nonce manipulation is covered by the focused container tests | Complete after focused tests pass |
+| Large media | Synthetic 252 MiB / 84-picture fixtures exercised on native Android, standalone Web and Shared Care | Complete functionally; memory bound deferred |
+| Unencrypted legacy formats | Portable formats 1 and 2 remain accepted by automated backup validation/restore coverage | Complete after full suite passes |
+| Password/plaintext/log exposure | Native encrypted save spools and Shared Care temporary server spools are ciphertext; S22 debug cache inspection found no plaintext ZIP; password persistence/logging is covered by focused source/tests and final release-candidate inspection remains required | Final inspection open |
+| APK/AAB/Web size comparison | Diagnostic values are recorded, but they used Flutter 3.47.0 / Java 22 instead of the pinned release toolchain | Open |
+| Format/privacy/DE+EN guide/release documentation | Synchronized with shipped behavior and the documented large-backup limitation | Complete after documentation tests/PDF regeneration |
+
+The remaining open rows are release-candidate evidence tasks, not implementation
+or memory-optimization tasks. Close this issue after those rows are recorded
+with the pinned release build.
+
 ## Release decision
 
 The project accepts the measured memory limitation for the first release of

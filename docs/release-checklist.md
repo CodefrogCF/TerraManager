@@ -63,12 +63,12 @@ following before closing that milestone:
 Use the [password backup device check](testing/password-backup-device-check.md)
 and its synthetic 252 MiB fixtures for the comparable platform measurements.
 
-- On available physical Android hardware and desktop/mobile browsers, compare
+- On available physical Android hardware and desktop/mobile browsers, exercise
   plain and protected export/restore with a media-rich backup near 256 MiB.
-  Record peak memory, duration and device RAM. The optimization goal is at most
-  64 MiB additional peak memory on an approximately 4 GiB device. If that goal
-  is deferred, record the explicit release decision, the measured limitation
-  and the unchanged-collection result for failed or interrupted operations.
+  Record duration, device RAM and whether the operation completed without
+  changing the collection on failure or cancellation. Peak-memory measurements
+  remain useful evidence, but the separate bounded-memory follow-up owns the
+  former 64 MiB / approximately 4 GiB optimization target.
 - Cross-client standalone and Shared Care imports, including portable formats
   1 and 2, wrong password, tampering, truncation, cancellation and safety-copy
   failure; verify that failed operations leave the collection unchanged.
@@ -80,10 +80,12 @@ and its synthetic 252 MiB fixtures for the comparable platform measurements.
   English and German guide data.
 
 The memory optimization goal is not a cryptographic or data-integrity claim.
-An accepted exception may defer it when the current proportional-memory
-behavior is documented for users and the release evidence does not claim
-bounded-memory operation. The security, legacy compatibility, unchanged-data
-failure behavior and final artifact checks above still apply.
+The separate follow-up work to bound memory use for large password-protected
+backup operations does not block this release-validation issue. It may remain
+open when the current proportional-memory behavior is documented for users and
+the release evidence does not claim bounded-memory operation. The security,
+legacy compatibility, large-media functional checks, unchanged-data failure
+behavior and final artifact checks above still apply.
 
 Do not duplicate feature-specific test matrices here. Feature-specific regression
 coverage belongs to the implementation issue and automated tests.

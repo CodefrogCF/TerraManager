@@ -31,8 +31,9 @@ Galaxy S25 Ultra. On each phone use Brave first; repeat any failure in Chrome
 and Firefox, and run at least one successful protected import in each browser.
 Record actual RAM and Android/browser versions rather than inferring them from
 the model name. These phones do not by themselves establish performance on a
-physical device with approximately 4 GiB RAM, which remains a separate release
-check.
+physical device with approximately 4 GiB RAM. That lower-memory measurement is
+now part of the separate bounded-memory follow-up and is not required to close
+this release-validation issue.
 
 On Windows, connect the phone by USB, enable Developer options and USB
 debugging, accept the phone's RSA prompt, then check the connection with
@@ -89,11 +90,13 @@ runs. Browser JS heap alone is not process memory.
 For each operation, calculate `peak minus idle` separately for the plain
 and protected run. Their difference is
 `(protected peak - protected idle) - (plain peak - plain idle)`. Use the same
-fixture and collection state. The proposed target is at most 64 MiB
-**additional** peak memory for protected operations. Record the absolute peak
-as well as the difference; an out-of-memory termination is a failure even if
-the last sample was below the target. Repeat a surprising result after
-restarting the app or browser.
+fixture and collection state. The original diagnostic target is at most 64 MiB
+**additional** peak memory for protected operations. Continue to record the
+absolute peak and difference when measuring performance, but meeting this
+target is owned by the separate bounded-memory follow-up and is not a
+release-validation completion condition. An out-of-memory termination during a
+required functional release-candidate run is still a failure. Repeat a surprising
+result after restarting the app or browser.
 
 | Platform / browser and build | Operation | Plain idle / peak MiB | Protected idle / peak MiB | Added MiB | Plain / protected seconds | Result |
 | --- | --- | --- | --- | ---: | --- | --- |
@@ -130,10 +133,11 @@ restarting the app or browser.
 
 Keep the raw measurements and screenshots with the release evidence. A
 plaintext temporary archive, a failed authentication that changes collection
-data, or a missing final signed-build check blocks release. If a listed
-platform still materializes the full archive or the memory goal is missed,
-record the measured limitation and an explicit release decision; do not claim
-bounded-memory behavior.
+data, or a missing final signed-build check blocks release. Full-archive memory
+use or a missed 64 MiB target does not block this validation issue when the
+large-media operation still completes on the required release candidate and the
+limitation is documented. Keep that optimization in the separate follow-up and
+do not claim bounded-memory behavior.
 
 The first physical-device findings and the dart2js runtime correction are
 recorded in [the Galaxy S22 test report](password-backup-s22-2026-09-30.md).

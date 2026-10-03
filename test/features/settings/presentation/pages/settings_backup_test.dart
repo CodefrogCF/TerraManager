@@ -1,7 +1,6 @@
-import 'dart:typed_data';
-
 import 'package:drift/drift.dart' as drift;
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +9,9 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/backup/application/backup_export_result.dart';
 import 'package:terramanager/features/backup/application/backup_export_service.dart';
+import 'package:terramanager/features/backup/application/backup_validation_service.dart';
+import 'package:terramanager/features/backup/application/encrypted_backup_container.dart';
+import 'package:terramanager/features/backup/application/validated_backup.dart';
 import 'package:terramanager/features/backup/infrastructure/backup_file_service.dart';
 import 'package:terramanager/features/settings/app_language.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
@@ -21,12 +23,27 @@ import 'package:terramanager/features/settings/presentation/pages/settings.dart'
 class FakeBackupFileGateway extends BackupFileGateway {
   PickedBackupFile? pickedFile;
   int generatedSaveCalls = 0;
+  int generatedEncryptedSaveCalls = 0;
+  String? lastGeneratedEncryptedPassword;
 
   final List<BackupExportResult> savedBackups = [];
 
   @override
   Future<String?> saveGeneratedBackup(BackupArchiveWriter writer) {
     generatedSaveCalls++;
+    return super.saveGeneratedBackup(writer);
+  }
+
+  @override
+  Future<String?> saveGeneratedEncryptedBackup(
+    BackupArchiveWriter writer, {
+    required String password,
+  }) {
+    generatedEncryptedSaveCalls++;
+    lastGeneratedEncryptedPassword = password;
+
+    // Keep widget tests focused on the settings/UI lifecycle. The real
+    // Argon2id + AES-GCM envelope is covered by encrypted_backup_container_test.
     return super.saveGeneratedBackup(writer);
   }
 
@@ -40,6 +57,31 @@ class FakeBackupFileGateway extends BackupFileGateway {
     savedBackups.add(backup);
 
     return backup.fileName;
+  }
+}
+
+class FakeAuthenticationFailureBackupFile extends PickedBackupFile {
+  FakeAuthenticationFailureBackupFile({required this.onPassword})
+    : super(
+        name: 'encrypted-test.tmbak',
+        bytes: Uint8List.fromList(EncryptedBackupContainer.magic),
+      );
+
+  final void Function(String password) onPassword;
+
+  @override
+  Future<bool> get isEncrypted async => true;
+
+  @override
+  Future<ValidatedBackup> validateEncrypted(
+    BackupValidationService validator, {
+    required String password,
+  }) async {
+    onPassword(password);
+    throw const EncryptedBackupException(
+      EncryptedBackupError.authenticationFailed,
+      'Incorrect password or modified/damaged backup.',
+    );
   }
 }
 
@@ -192,6 +234,92 @@ void main() {
     expect(find.text('Backup created successfully.'), findsOneWidget);
 
     expect(find.byKey(const Key('backup-progress')), findsNothing);
+  });
+
+  testWidgets(
+    'protected export forwards password ephemerally and does not persist it',
+    (tester) async {
+      const password = 'temporary-backup-secret-2026';
+
+      await tester.pumpWidget(buildApp());
+      await scrollToKey(tester, const Key('create-backup-button'));
+      await tester.tap(find.byKey(const Key('create-backup-button')));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('backup-password-protection')));
+      await tester.pump();
+      await tester.enterText(
+        find.byKey(const Key('backup-password')),
+        password,
+      );
+      await tester.enterText(
+        find.byKey(const Key('backup-password-confirmation')),
+        password,
+      );
+      await tester.tap(find.byKey(const Key('backup-password-submit')));
+
+      await pumpUntil(
+        tester,
+        () => fileGateway.generatedEncryptedSaveCalls == 1,
+      );
+      await tester.pump();
+
+      expect(fileGateway.lastGeneratedEncryptedPassword, password);
+      expect(fileGateway.savedBackups, hasLength(1));
+
+      final preferences = await SharedPreferences.getInstance();
+      for (final key in preferences.getKeys()) {
+        expect(key.toLowerCase(), isNot(contains('backup-password')));
+        expect(preferences.get(key)?.toString(), isNot(contains(password)));
+      }
+    },
+  );
+
+  testWidgets('wrong backup password is not written to debug logs', (
+    tester,
+  ) async {
+    const wrongPassword = 'wrong-backup-secret-2026';
+    String? submittedPassword;
+    fileGateway.pickedFile = FakeAuthenticationFailureBackupFile(
+      onPassword: (password) => submittedPassword = password,
+    );
+
+    final messages = <String>[];
+    final originalDebugPrint = debugPrint;
+    debugPrint = (message, {wrapWidth}) {
+      if (message != null) messages.add(message);
+    };
+    try {
+      await tester.pumpWidget(buildApp());
+      await scrollToKey(tester, const Key('restore-backup-button'));
+      await tester.tap(find.byKey(const Key('restore-backup-button')));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const Key('backup-password')),
+        wrongPassword,
+      );
+      await tester.tap(find.byKey(const Key('backup-password-submit')));
+      await pumpUntil(
+        tester,
+        () => find
+            .text('Incorrect password or modified/damaged backup.')
+            .evaluate()
+            .isNotEmpty,
+      );
+
+      expect(submittedPassword, wrongPassword);
+      expect(
+        find.text('Incorrect password or modified/damaged backup.'),
+        findsOneWidget,
+      );
+      final log = messages.join('\n');
+      expect(log, isNot(contains(wrongPassword)));
+      expect(log, isNot(contains('EncryptedBackupException')));
+      expect(log, isNot(contains('authenticationFailed')));
+    } finally {
+      debugPrint = originalDebugPrint;
+    }
   });
 
   testWidgets('validates confirms and restores '

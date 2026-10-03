@@ -165,7 +165,8 @@ The user chooses where an exported backup is stored or transferred.
 
 Unprotected portable exports are readable ZIP archives. An optional
 password-protected export encrypts the complete archive on the device with
-Argon2id and AES-256-GCM. TerraManager does not store or recover the password.
+Argon2id and AES-256-GCM. TerraManager does not store or recover the password
+and does not write backup passwords to application or Shared Care server logs.
 Anyone who obtains an unprotected export may be able to read its collection
 data and media. A lost password prevents recovery of a protected export.
 

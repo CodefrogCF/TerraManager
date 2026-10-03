@@ -21,7 +21,9 @@ void main() {
         source,
         password: password,
       );
-      expect(first.sublist(22, 42), isNot(second.sublist(22, 42)));
+      expect(first.sublist(22, 38), isNot(second.sublist(22, 38)));
+      expect(first.sublist(38, 42), isNot(second.sublist(38, 42)));
+      expect(String.fromCharCodes(first), isNot(contains(password)));
       expect(
         await EncryptedBackupContainer.decryptBytes(first, password: password),
         source,
@@ -115,6 +117,30 @@ void main() {
       ),
     );
     expect(truncated.every((byte) => byte == 0), isTrue);
+  });
+
+  test('changed salt or nonce prefix uses the authentication error', () async {
+    final encrypted = await EncryptedBackupContainer.encryptBytes(
+      Uint8List.fromList(List<int>.generate(320000, (i) => i % 251)),
+      password: password,
+    );
+
+    for (final offset in [22, 38]) {
+      final changedHeader = Uint8List.fromList(encrypted)..[offset] ^= 1;
+      await expectLater(
+        EncryptedBackupContainer.decryptBytes(
+          changedHeader,
+          password: password,
+        ),
+        throwsA(
+          isA<EncryptedBackupException>().having(
+            (error) => error.code,
+            'code',
+            EncryptedBackupError.authenticationFailed,
+          ),
+        ),
+      );
+    }
   });
 
   test(

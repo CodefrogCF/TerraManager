@@ -120,6 +120,10 @@ The project uses semantic versioning.
 
 ### Testing
 
+- extend password-protected backup regression coverage for fresh salt/nonce
+  material, authenticated header/ciphertext changes, password non-persistence
+  and encrypted native spool cleanup; record the remaining release-candidate
+  evidence separately from the deferred large-operation memory optimization
 - cover actual media request counts for Box and Animal list, grid and archive
   navigation, record polling, changed pictures, Reload and detail return
 - cover cache deduplication, eviction, failed loads and late async results

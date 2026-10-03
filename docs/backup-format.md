@@ -145,9 +145,11 @@ No filename, manifest, media or settings appear outside the encrypted payload;
 the container header reveals only its format and KDF settings.
 
 The password is never stored in a backup, settings, account data or server
-request. It cannot be recovered. Shared Care encrypts the downloaded ZIP in
-the browser and decrypts a selected protected file before submitting the
-ordinary portable ZIP to the server over its authenticated connection.
+request and is not written to application or Shared Care server logs. It is
+kept only for the active operation and cannot be recovered. Shared Care
+encrypts the downloaded ZIP in the browser and decrypts a selected protected
+file before submitting the ordinary portable ZIP to the server over its
+authenticated connection.
 The Shared Care server therefore processes the inner ZIP and is not a
 password-recovery service. Native encrypted export writes only encrypted
 bytes to its temporary save file. A stream-only encrypted selection is staged

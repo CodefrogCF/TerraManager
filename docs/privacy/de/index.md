@@ -178,10 +178,12 @@ Die Benutzerin oder der Benutzer wählt aus, wo eine exportierte Sicherung gespe
 
 Ungeschützte portable Exporte sind lesbare ZIP-Archive. Bei einem optionalen
 passwortgeschützten Export wird das gesamte Archiv auf dem Gerät mit Argon2id
-und AES-256-GCM verschlüsselt. TerraManager speichert das Passwort nicht und
-kann es nicht wiederherstellen. Wer eine ungeschützte Sicherung erhält, kann
-die enthaltenen Sammlungsdaten und Medien möglicherweise lesen. Ein
-verlorenes Passwort verhindert die Wiederherstellung einer geschützten Datei.
+und AES-256-GCM verschlüsselt. TerraManager speichert das Passwort nicht,
+kann es nicht wiederherstellen und schreibt Backup-Passwörter weder in
+Anwendungs- noch in Shared-Care-Serverprotokolle. Wer eine ungeschützte
+Sicherung erhält, kann die enthaltenen Sammlungsdaten und Medien möglicherweise
+lesen. Ein verlorenes Passwort verhindert die Wiederherstellung einer
+geschützten Datei.
 
 Bei Shared Care verschlüsselt der Browser einen heruntergeladenen Export
 lokal. Für eine Wiederherstellung entschlüsselt er die gewählte Datei und

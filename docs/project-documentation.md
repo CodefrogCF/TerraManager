@@ -443,9 +443,12 @@ reporting service. Camera, gallery and file access is requested only for the
 corresponding user-initiated feature. Feeding reminders remain inside the
 application and do not request system notification permission.
 
-Portable `.tmbackup` archives include records, settings and pictures and are
-not encrypted. Store them as sensitive files. The complete data and permission
-description is available in [PRIVACY.md](../PRIVACY.md).
+Portable `.tmbackup` archives include records, settings and pictures. They can
+be exported unprotected or with optional password protection. Protected backups
+use an authenticated encrypted container; existing unprotected backups remain
+supported. Store backup files and their passwords separately and treat every
+backup as sensitive. The complete data and permission description is available
+in [PRIVACY.md](../PRIVACY.md).
 
 ## Support and Security
 

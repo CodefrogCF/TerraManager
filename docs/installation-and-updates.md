@@ -111,11 +111,14 @@ see the published [Privacy Policy](privacy/).
 ## Backups during updates
 
 `.tmbackup` archives include application data, settings and Box and Animal
-pictures. They are portable between the validated Android and Web platforms but
-are not encrypted. Store and transfer them as sensitive files. Restore performs
-validated full replacement of the current local state. Its pre-restore safety
-backup is enabled by default where supported and can be disabled for the
-current operation.
+pictures. They are portable between the validated Android and Web platforms and
+can be exported either unprotected or with optional password protection.
+Password-protected backups use an authenticated encrypted container; existing
+unprotected Backup Format 1 and 2 archives remain supported. Store and transfer
+every backup as a sensitive file, and keep backup passwords separate from the
+files. Restore performs validated full replacement of the current local state.
+Its pre-restore safety backup is enabled by default where supported and can be
+disabled for the current operation.
 
 For format details and compatibility rules, see
 [backup-format.md](backup-format.md).

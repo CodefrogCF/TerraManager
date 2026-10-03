@@ -4,7 +4,7 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
-## [Unreleased]
+## [1.15.1] - 2026-10-02
 
 ### Added
 
@@ -13,124 +13,229 @@ The project uses semantic versioning.
 - open a chronological list of all active feeding appointments from the
   optional Next Feeding card in standalone and Shared Care
 
-### Fixed
-
-- serialize Shared Care browser history changes so a delayed context-menu Back
-  event cannot dismiss the next duplicate, archive or picture-deletion dialog
-- open Shared Care Animal and Box archives as real routes; keep thumbnail lists
-  with archive reason/date and independent date/name sorting, even in Big Picture Mode
-- offer separate date and freely editable hour/minute controls for Shared Care
-  Feeding, Weight and Shedding history entries
-
-- export care-event and metadata times with explicit UTC offsets; require the
-  original IANA time zone for legacy Shared Care imports, with per-event DST
-  handling and date-only birth dates
-- restrict every Shared Care permanent collection/picture deletion to
-  administrators in both API and UI; retain caregiver create/edit/archive
-  workflows and standalone deletion
-- keep Box/Animal duplication dialogs open until confirmed success, select
-  Animal name and destination together, prevent repeated submission and show
-  validation/permission/connection feedback; refresh successful copies
-- use the active account's Animal name order and fallback in every Next
-  Feeding overview, including compact lists
-
-### Changed
-
-- organize Shared Care client pages, widgets and API methods by feature; split
-  server routing, application commands, authentication and persistence modules
-  without changing API contracts, collection schema, portable backups or visible
-  workflows; retain old import paths as compatibility exports — Issue #185
-
-- remove redundant Rename entries from Shared Care Box and Animal menus;
-  retain validated name changes through Edit and leave standalone menus intact
-- store all Shared Care personal appearance/display preferences per account
-  in the server account database, with explicit defaults and isolation across
-  login changes; preserve settings across browsers/devices and exclude them
-  from portable collection backups
-
+## [1.15.0] - 2026-10-02
 
 ### Added
 
 - add optional password-protected portable backups to standalone and Shared
-  Care with Argon2id, framed AES-256-GCM authentication, encrypted safety
-  copies and unchanged format-1/2 ZIP imports; document that large protected
-  browser operations can take several minutes and require substantial memory
-  — Issues #203-#207
-- prepare localized feature-focused standalone Play Store screenshots with
-  synthetic demonstration data, editable SVG sources and a repeatable capture
-  workflow; review German/English listing descriptions for the matching Android
-  release — Issues #180 and #181
-- offer an optional Android Settings link to rate TerraManager, with the Play
-  Store app first and an HTTPS browser fallback; no automatic prompt, telemetry,
-  new permission or dependency — Issue #182
-- add QR-based Box selection beside the New Animal dropdown in standalone
-  and Shared Care; preserve the draft and create only on explicit Save
-- reuse standalone picture cropping and orientation handling for Shared Care
-  Animal/Box uploads, with cancellation, upload limits and busy/error handling
+  Care with Argon2id, framed AES-256-GCM authentication, fresh salt/nonce
+  material and encrypted pre-restore safety copies — Issues #203-#207
+- keep the existing portable ZIP as the authenticated container payload and
+  continue to import supported unencrypted Backup Format 1 and 2 archives
+- add QR-based Box selection beside the New Animal dropdown in standalone and
+  Shared Care; preserve the draft and create only on explicit Save
+- reuse standalone picture cropping, orientation normalization and WebP
+  processing for Shared Care Animal and Box uploads, including cancellation,
+  upload limits and busy/error handling
 - expose independent Weight and Shedding detail-visibility controls in Shared
-  Care Edit Animal, retaining all history and existing backup fields
-- navigate ordered Animal/Box galleries in the common fullscreen viewer with
-  Previous/Next, keyboard arrows, position counters and horizontal swipes at
-  normal scale; preserve zoomed panning and per-picture failure isolation
-- add an administrator-only Audit viewer under Shared server Settings with
-  merged collection/account events, date/name/action filters, seek pagination,
-  localized empty/error states and responsive layouts — Issue #179
-- add the Shared Care Manage accounts screen with username/role editing,
-  optional password reset, deactivation/reactivation and confirmed removal —
-  Issue #178
-- revoke affected account sessions on edits and removal; protect the last
-  active administrator and retain existing audit attribution
-- show current Animal thumbnails in the QR Feeding Mode selection for both
-  standalone and Shared Care, with placeholders for missing pictures
+  Care Edit Animal without deleting or changing the underlying history
+- navigate ordered Animal and Box galleries in the common fullscreen viewer
+  with Previous/Next, keyboard arrows, position counters and horizontal swipes
+  at normal scale while preserving zoomed panning
+- prepare localized, feature-focused standalone Play Store screenshots with
+  synthetic demonstration data and reusable editable sources — Issues #180 and
+  #181
+- offer an optional Android Settings link to rate TerraManager, preferring the
+  Play Store app with an HTTPS browser fallback and without automatic prompts,
+  telemetry, a new permission or a new dependency — Issue #182
+
+### Changed
+
+- organize Shared Care client pages, widgets and API methods by feature and
+  split server routing, application commands, authentication and persistence
+  modules without changing API contracts, collection schema, portable backups
+  or visible workflows; retain previous import paths as compatibility exports —
+  Issue #185
+- remove redundant Rename entries from Shared Care Box and Animal menus;
+  validated name changes remain available through Edit and standalone menus are
+  unchanged
+- keep Shared Care password processing client-side for portable backup
+  protection; the password is not persisted and is not sent to the Shared Care
+  server
+- spool native protected exports as ciphertext and authenticate protected
+  imports before restore validation; handled temporary encrypted spools are
+  removed after success or failure
+
+### Fixed
+
+- serialize Shared Care browser-history changes so a delayed context-menu Back
+  event cannot dismiss the next duplicate, archive or picture-deletion dialog
+- open Shared Care Animal and Box archives as real routes and retain thumbnail
+  lists, archive reason/date and independent date/name sorting in normal and Big
+  Picture presentation
+- offer separate date and freely editable hour/minute controls for Shared Care
+  Feeding, Weight and Shedding history entries
+- avoid exposing raw standalone backup failure details through application logs
+  and clear failed Web authentication buffers that may contain compacted
+  plaintext
+
+### Security and compatibility
+
+- wrong passwords and authenticated data manipulation fail before collection
+  replacement; the UI intentionally does not claim to distinguish those states
+- native protected temporary backup files contain encrypted container data, not
+  a plaintext portable ZIP
+- large protected browser operations can still take several minutes and use
+  substantial memory; bounded-memory optimization is tracked separately and is
+  not claimed by this release
+- Database Schema Version 16 and Portable Backup Format Version 2 remain current;
+  the encrypted container is an optional outer envelope and older unencrypted
+  backups remain supported
+
+### Testing
+
+- extend password-protected backup regression coverage for fresh salt/nonce
+  material, authenticated header/ciphertext changes, wrong passwords, password
+  non-persistence and encrypted native spool cleanup
+- validate large protected backup paths on a physical Galaxy S22 in supported
+  standalone browsers and through Shared Care, while documenting the remaining
+  browser-memory limitation
+- retain release-candidate evidence separately from the deferred large-operation
+  memory optimization
+
+## [1.14.1] - 2026-09-27
+
+### Added
 
 - persist server-owned audit metadata for authenticated Shared Care collection
   and account changes — Issue #177
 - retain stable actor identifiers and username/role snapshots without storing
-  notes, pictures, passwords or session tokens
-- commit collection and account mutations with their audit records, rolling
-  back changes if audit persistence fails; preserve audit records across
-  portable collection restore and retain them for 365 days
-
+  notes, pictures, passwords or session tokens; commit mutations and audit
+  records together and retain audit history for 365 days
+- add the Shared Care Manage accounts screen with username/role editing,
+  optional password reset, deactivation/reactivation and confirmed removal —
+  Issue #178
+- revoke affected sessions after account changes, protect the last active
+  administrator and retain previous audit attribution after account removal
+- add an administrator-only Audit viewer under Shared server Settings with
+  merged collection/account events, date/name/action filters, seek pagination
+  and responsive localized states — Issue #179
 - allow administrators to initialize a genuinely empty Shared Care collection
-  from a portable backup without downloading an empty safety copy — Issue #176
-- check all collection tables on the server and recheck under the exclusive
-  restore gate; populated collections retain the safety token requirement
-- explain empty and populated restore requirements in German and English
-
-- add the browser-local Show next feeding toggle above Big Picture Mode in
-  Shared Care Settings
-- respect that toggle in compact and Big Picture Animal overviews while
-  retaining due reminders
+  from a portable backup without downloading an empty safety copy; populated
+  collections retain the safety-token requirement — Issue #176
+- show current Animal thumbnails in QR Feeding Mode for standalone and Shared
+  Care, with the existing fallback for missing pictures
 
 ### Changed
 
 - connect Shared Care detail, scanner and dialog routes to browser Back history
-  so Android's edge-back gesture returns within the interface
-- synchronize in-app Back with browser history and respect protected-page
-  confirmation dialogs without triggering a second route pop
+  so Android edge-back and in-app Back return within the interface without a
+  duplicate route pop
+- store Shared Care appearance, language, sorting and other personal display
+  preferences per account in the server account database, with explicit
+  defaults and isolation across login changes
+- keep personal account preferences outside portable collection backups so they
+  follow the signed-in account rather than the collection
 
+### Fixed
+
+- export care-event and metadata timestamps with explicit UTC offsets and use the
+  original IANA time zone when importing legacy Shared Care values, including
+  DST-sensitive event times and date-only birth dates
+- restrict Shared Care permanent collection and picture deletion to
+  administrators in both API and UI while preserving caregiver create, edit and
+  archive workflows
+- keep Box and Animal duplication dialogs open until confirmed success, select
+  Animal name and destination together, prevent repeated submission and expose
+  validation, permission and connection feedback
+- use the active account's Animal-name order and fallback consistently in every
+  Next Feeding overview, including compact presentation
+
+### Security and compatibility
+
+- audit entries deliberately omit free-text notes, pictures, passwords and
+  session tokens and remain separate from portable collection backups
+- account administration and audit metadata remain server-owned; standalone
+  Database Schema Version 16 and Portable Backup Format Version 2 are unchanged
+
+### Testing
+
+- cover administrator/caregiver authorization, final-administrator protection,
+  session revocation and retained audit attribution
+- cover audit rollback behavior, filtered/paginated audit viewing and empty
+  initial collection restore
+- cover time-zone round trips, permanent-delete permissions, guarded duplication
+  and per-account preference isolation
+
+## [1.13.0] - 2026-09-26
+
+### Added
+
+- add a short, skippable guided introduction on the first launch of an empty
+  standalone collection covering Boxes, Animals, feeding/reminders and QR
+  workflows
+- allow the standalone introduction to be replayed from Settings; it never
+  creates sample collection data
+- add the browser-local Show next feeding toggle above Big Picture Mode in
+  Shared Care Settings
+- respect that toggle in compact and Big Picture Animal overviews without
+  hiding active due reminders
+
+### Changed
+
+- keep onboarding navigation inside the introduction itself; Back/Next move
+  between steps and Finish/Skip closes the tour without changing the current
+  primary page
+- align Shared Care overview controls more closely with standalone workflows and
+  keep Big Picture Mode in Settings
 - reuse Shared Care overview pictures while scrolling, sorting, switching
   layouts and polling unchanged media IDs — Issue #184
 - renew the picture snapshot when an overview opens, after returning from
   details or after manual Reload
-- limit the overview cache to 128 entries and 32 MiB of compressed pictures,
-  with four concurrent loads and aspect-preserving thumbnail decoding
+- limit the Shared Care overview cache to 128 entries and 32 MiB of compressed
+  pictures, with four concurrent loads and aspect-preserving thumbnail decoding
 - clear overview picture caches and evict decoded entries when leaving the
   overview or signing out
 
 ### Testing
 
-- extend password-protected backup regression coverage for fresh salt/nonce
-  material, authenticated header/ciphertext changes, password non-persistence
-  and encrypted native spool cleanup; record the remaining release-candidate
-  evidence separately from the deferred large-operation memory optimization
-- cover actual media request counts for Box and Animal list, grid and archive
-  navigation, record polling, changed pictures, Reload and detail return
-- cover cache deduplication, eviction, failed loads and late async results
+- cover guided-start presentation and replay behavior without sample-data side
+  effects
+- cover actual Shared Care media request counts for Box and Animal list/grid
+  navigation, polling, changed pictures, Reload and detail return
+- cover cache deduplication, eviction, failed loads and late asynchronous results
 - cover localized Settings control order and next-feeding presentation
 
-The changes require no database migration, backup format change, additional
-device permission or external service.
+Database Schema Version 16 and Portable Backup Format Version 2 remain current.
+The release requires no additional device permission or external service.
+
+## [1.11.0] - 2026-09-24
+
+### Added
+
+- introduce optional Shared Care LAN Web mode backed by a self-hosted Dart
+  server that owns one authoritative SQLite collection for participating
+  caregivers
+- add a separate Shared Care browser client that reads and changes the shared
+  collection only through the authenticated same-origin API instead of opening a
+  local collection database or queuing offline edits
+- provide local Shared Care accounts and authenticated collection operations for
+  Boxes, Animals, care history, media and portable collection backup/restore
+- add browser-based Box QR lookup for supported browsers; camera frames remain
+  on the scanning device and only a validated TerraManager Box identifier is
+  sent to the operator's server
+- add an Android Settings entry that opens the configured Shared Care server in
+  the system browser while keeping the Android standalone collection independent
+- document self-hosted Raspberry Pi/LAN deployment, trusted HTTPS and the
+  separation between portable collection backups and server-owned accounts
+
+### Changed
+
+- keep standalone Android and standalone Web local-first and independent from a
+  Shared Care installation; opening Shared Care does not synchronize or replace
+  either standalone collection
+- make server unavailability an explicit Shared Care connection state rather
+  than creating divergent offline edits
+- keep server account/session data outside portable collection backups; host
+  backups remain the operator's responsibility for that server-owned data
+
+### Privacy and compatibility
+
+- Shared Care communicates only with the user/operator configured self-hosted
+  server; TerraManager does not introduce a developer-operated cloud service
+- browser QR scanning does not upload camera frames to the server
+- standalone Database Schema Version 16 and Portable Backup Format Version 2
+  remain current
 
 ## [1.10.4] - 2026-09-22
 

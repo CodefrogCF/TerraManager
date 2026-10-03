@@ -3,9 +3,17 @@
 This guide covers the currently validated TerraManager platforms: Android and
 Web. iOS, macOS, Linux and Windows are not current supported release targets.
 
-The experimental Raspberry Pi server stack has separate
-[Shared Care deployment instructions](shared-care-deployment.md). Its browser
-client is still being developed; the existing Web release remains standalone.
+The optional Shared Care stack provides a self-hosted LAN deployment for
+TerraManager using a Dart server and a dedicated Flutter Web client and has
+separate [Shared Care deployment instructions](shared-care-deployment.md).
+
+The server owns the shared collection and local user accounts, while
+authenticated browsers access the collection through the Shared Care API. The
+stack is designed for self-hosted operation on ARM64 systems such as a Raspberry
+Pi and is used in production deployments.
+
+Standalone Android and Web installations remain independent from Shared Care and
+continue to store their collection locally.
 
 ## Obtain a trusted release
 

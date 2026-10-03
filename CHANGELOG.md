@@ -4,6 +4,17 @@ All notable changes to TerraManager are documented in this file.
 
 The project uses semantic versioning.
 
+## [Unreleased]
+
+### Changed
+
+- update the Android build-tool declarations from Kotlin Gradle Plugin 2.4.0 to
+  2.4.20 and Android Gradle Plugin 9.1.0 to 9.1.1 while retaining Gradle 9.3.1,
+  Java 17 and the pinned Flutter 3.47.2 release toolchain
+- keep strict Android dependency locking as the verification boundary for the
+  coordinated build-tool update; build/test-only scanner findings remain
+  separate from the Android application runtime dependency graph
+
 ## [1.15.1] - 2026-10-02
 
 ### Added

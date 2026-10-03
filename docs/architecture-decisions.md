@@ -1187,7 +1187,7 @@ Disadvantages:
 
 **Date:** 2026-09-09
 
-**Updated:** 2026-09-28 (Android Gradle dependency locks)
+**Updated:** 2026-10-03 (Android build-tool security hardening)
 
 ### Context
 
@@ -1217,7 +1217,10 @@ specific Kotlin transitive is excluded because Gradle resolves it differently
 after loading a lock; the exception and its verification boundary are recorded
 in `docs/toolchain-baseline.md`. Upgrades occur only in focused changes with
 regression validation. The supported Gradle, Android Gradle Plugin and Kotlin
-declarations and their upgrade procedure are recorded there as well.
+declarations and their upgrade procedure are recorded there as well. The
+October 2026 hardening step moves the declared Kotlin Gradle Plugin to 2.4.20
+and Android Gradle Plugin to 9.1.1 while retaining Gradle 9.3.1 and Java 17;
+Android dependency locks are regenerated as part of that coordinated change.
 
 Public CI does not receive production signing credentials and does not build a
 Release APK or AAB. Those artifacts remain in the documented authorized local

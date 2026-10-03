@@ -55,6 +55,16 @@ void main() {
     final development = read('docs/development.md');
     final projectDocumentation = read('docs/project-documentation.md');
     final gradleProperties = read('android/gradle.properties');
+    final gradleSettings = read('android/settings.gradle.kts');
+
+    expect(
+      gradleSettings,
+      contains('id("com.android.application") version "9.1.1"'),
+    );
+    expect(
+      gradleSettings,
+      contains('id("org.jetbrains.kotlin.android") version "2.4.20"'),
+    );
 
     expect(baseline, contains('Flutter 3.47.2'));
     expect(baseline, contains('Eclipse Temurin 17'));

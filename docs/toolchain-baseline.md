@@ -12,15 +12,24 @@ unrelated feature or release build.
 | Flutter | 3.47.2, stable channel | `.github/workflows/quality-gates.yml` |
 | Dart | Version bundled with Flutter 3.47.2; project range `>=3.13.0 <4.0.0` | Flutter SDK and `pubspec.lock` |
 | Java | Eclipse Temurin 17 LTS | CI workflow and Android Java/Kotlin targets |
-| Android Gradle Plugin | 9.1.0 | `android/settings.gradle.kts` |
+| Android Gradle Plugin | 9.1.1 | `android/settings.gradle.kts` |
 | Gradle | 9.3.1 | `android/gradle/wrapper/gradle-wrapper.properties` |
-| Kotlin declaration | 2.4.0 | `android/settings.gradle.kts` |
+| Kotlin declaration | 2.4.20 | `android/settings.gradle.kts` |
 | CI host | Ubuntu 24.04 | `.github/workflows/quality-gates.yml` |
 
 Android `compileSdk`, `targetSdk`, `minSdk` and NDK values are obtained from
 the pinned Flutter SDK. The application compiles Java and Kotlin source for
 Java 17. Local Android development may use Windows 11, but it must reproduce
 the same Flutter, Dart, Java, Gradle and dependency baseline before a release.
+
+The October 2026 build-tool hardening update keeps the existing Gradle 9.3.1
+and Java 17 baseline while moving the Kotlin Gradle Plugin to 2.4.20 and the
+Android Gradle Plugin to the 9.1.1 patch release. Kotlin 2.4.20 is the minimum
+project declaration accepted after the build-cache deserialization advisory;
+strict Gradle lockfiles must be regenerated with the pinned Flutter 3.47.2 and
+Java 17 toolchain whenever either declaration changes. Scanner findings that
+exist only in Android build/test tooling are tracked separately from the
+application runtime graph and are not hidden with broad version overrides.
 
 Dart is distributed with Flutter. Do not install or select an unrelated Dart
 SDK for this project.

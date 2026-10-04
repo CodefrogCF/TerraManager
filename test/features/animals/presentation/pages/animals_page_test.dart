@@ -46,6 +46,9 @@ void main() {
     int? pictureMediaId,
     int? feedingReminderIntervalDays,
     DateTime? feedingReminderBaseline,
+    int? feedingReminderWeekdays,
+    int? feedingReminderMinuteOfDay,
+    String? feedingReminderTimeZone,
   }) {
     return AnimalRepository(database).createAnimal(
       boxId: boxId,
@@ -60,6 +63,9 @@ void main() {
       pictureMediaId: pictureMediaId,
       feedingReminderIntervalDays: feedingReminderIntervalDays,
       feedingReminderBaseline: feedingReminderBaseline,
+      feedingReminderWeekdays: feedingReminderWeekdays,
+      feedingReminderMinuteOfDay: feedingReminderMinuteOfDay,
+      feedingReminderTimeZone: feedingReminderTimeZone,
     );
   }
 
@@ -75,12 +81,13 @@ void main() {
     WidgetTester tester, {
     AppSettingsController? settingsController,
     Locale? locale,
+    DateTime Function()? reminderNow,
   }) async {
     final app = MaterialApp(
       locale: locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: AnimalsPage(database: database),
+      home: AnimalsPage(database: database, reminderNow: reminderNow),
     );
 
     await tester.pumpWidget(
@@ -143,6 +150,59 @@ void main() {
     await pumpPage(tester);
 
     expect(find.text('No animals available'), findsOneWidget);
+  });
+
+  testWidgets('shows Monday noon in Berlin throughout standalone overview', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+    final dueId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Due Snake',
+      feedingReminderBaseline: DateTime.utc(2026, 5, 31, 12),
+      feedingReminderWeekdays: 1,
+      feedingReminderMinuteOfDay: 12 * 60,
+      feedingReminderTimeZone: 'Europe/Berlin',
+    );
+    final nextId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Next Snake',
+      feedingReminderBaseline: DateTime.utc(2026, 6, 7, 12),
+      feedingReminderWeekdays: 1,
+      feedingReminderMinuteOfDay: 12 * 60,
+      feedingReminderTimeZone: 'Europe/Berlin',
+    );
+    final settings = AppSettingsController();
+    addTearDown(settings.dispose);
+    await settings.load();
+    await settings.setNextFeedingSummaryEnabled(true);
+    await pumpPage(
+      tester,
+      settingsController: settings,
+      locale: const Locale('de'),
+      reminderNow: () => DateTime.utc(2026, 6, 1, 10),
+    );
+
+    final dueTile = tester.widget<ListTile>(
+      find.byKey(Key('feeding-reminder-summary-item-$dueId')),
+    );
+    expect((dueTile.subtitle as Text).data, contains('12:00 (Europe/Berlin)'));
+    final nextText = tester.widget<Text>(
+      find.byKey(const Key('next-feeding-summary-text')),
+    );
+    expect(nextText.data, contains('12:00 (Europe/Berlin)'));
+
+    await tester.tap(find.byKey(const Key('next-feeding-summary-tap-target')));
+    await tester.pumpAndSettle();
+    for (final id in [dueId, nextId]) {
+      final scheduleTile = tester.widget<ListTile>(
+        find.byKey(Key('feeding-schedule-animal-$id')),
+      );
+      expect(
+        (scheduleTile.subtitle as Text).data,
+        contains('12:00 (Europe/Berlin)'),
+      );
+    }
   });
 
   testWidgets('shows animal from database', (tester) async {

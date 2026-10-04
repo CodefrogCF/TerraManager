@@ -30,6 +30,9 @@ void main() {
     required String commonName,
     int? intervalDays,
     DateTime? baseline,
+    int? weekdays,
+    int? minuteOfDay,
+    String? timeZone,
   }) {
     return animalRepository.createAnimal(
       boxId: boxId,
@@ -41,6 +44,9 @@ void main() {
       humidityMax: 70,
       feedingReminderIntervalDays: intervalDays,
       feedingReminderBaseline: baseline,
+      feedingReminderWeekdays: weekdays,
+      feedingReminderMinuteOfDay: minuteOfDay,
+      feedingReminderTimeZone: timeZone,
     );
   }
 
@@ -93,6 +99,34 @@ void main() {
 
     expect(state!.isDue, isTrue);
   });
+
+  test(
+    'weekday reminder is due at 18:00 Berlin in summer and winter',
+    () async {
+      for (final (baseline, dueAt) in [
+        (DateTime.utc(2026, 5, 31, 12), DateTime.utc(2026, 6, 1, 16)),
+        (DateTime.utc(2026, 1, 4, 12), DateTime.utc(2026, 1, 5, 17)),
+      ]) {
+        final animalId = await createAnimal(
+          commonName: 'Berlin $dueAt',
+          baseline: baseline,
+          weekdays: 1,
+          minuteOfDay: 18 * 60,
+          timeZone: 'Europe/Berlin',
+        );
+        var now = dueAt.subtract(const Duration(microseconds: 1));
+        final service = FeedingReminderService(database, now: () => now);
+        var state = await service.getReminderStateForAnimal(animalId);
+        expect(state!.dueAt.isAtSameMomentAs(dueAt), isTrue);
+        expect(state.isDue, isFalse);
+
+        now = dueAt;
+        state = await service.getReminderStateForAnimal(animalId);
+        expect(state!.dueAt.isAtSameMomentAs(dueAt), isTrue);
+        expect(state.isDue, isTrue);
+      }
+    },
+  );
 
   test('uses the latest feeding when multiple feedings exist', () async {
     final baseline = DateTime.utc(2026, 9, 10, 9);

@@ -139,7 +139,7 @@ The application must allow the user to:
 - preserve feeding history while an Animal is archived
 - preserve its picture while an Animal is archived
 - optionally configure a feeding reminder interval in positive whole days
-- alternatively select fixed feeding weekdays, local time and time zone
+- alternatively select fixed feeding weekdays and a local time; the app detects and stores the time zone
 - capture a reminder baseline when the reminder is enabled
 - retain reminder configuration while the Animal is archived
 - preserve reminder configuration while editing other Animal fields
@@ -292,7 +292,8 @@ visible and editable through the existing Animal feeding history.
 
 Per-Animal feeding reminders must be disabled by default. An enabled reminder
 stores a baseline and either a positive whole-day interval or selected
-weekdays with a local time and IANA time zone. The two modes are exclusive.
+weekdays with a local time and an automatically detected IANA time zone. The
+two modes are exclusive.
 Invalid or incomplete reminder configuration must not be saved.
 
 Archiving an Animal must retain its configuration for a later restore, while

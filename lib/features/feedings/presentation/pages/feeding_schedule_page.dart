@@ -3,17 +3,20 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../widgets/feeding_due_date_label.dart';
 
 class FeedingScheduleEntry {
   const FeedingScheduleEntry({
     required this.animalId,
     required this.animalName,
     required this.dueAt,
+    this.timeZone,
   });
 
   final int animalId;
   final String animalName;
   final DateTime dueAt;
+  final String? timeZone;
 }
 
 /// Chronological appointments for all active Animals with a reminder.
@@ -55,7 +58,15 @@ class FeedingSchedulePage extends StatelessWidget {
                           : Icons.notifications_active_outlined,
                     ),
                     title: Text(entry.animalName),
-                    subtitle: Text(formatter.format(entry.dueAt.toLocal())),
+                    subtitle: Text(
+                      entry.timeZone == null
+                          ? formatter.format(entry.dueAt.toLocal())
+                          : feedingDueDateLabel(
+                              context,
+                              entry.dueAt,
+                              timeZone: entry.timeZone,
+                            ),
+                    ),
                     trailing: onSelectAnimal == null
                         ? null
                         : const Icon(Icons.chevron_right),

@@ -662,6 +662,49 @@ void main() {
     expect(find.byKey(const Key('feeding-reminder-status')), findsNothing);
   });
 
+  testWidgets('shows Monday noon Berlin time for a due weekday reminder', (
+    tester,
+  ) async {
+    final boxId = await BoxRepository(database)
+        .createBox('berlin-reminder-box');
+    final animalId = await AnimalRepository(database).createAnimal(
+      boxId: boxId,
+      commonName: 'Berlin Snake',
+      latinName: 'Pantherophis guttatus',
+      tempMin: 24,
+      tempMax: 28,
+      humidityMin: 40,
+      humidityMax: 60,
+      feedingReminderBaseline: DateTime.utc(2026, 5, 31, 12),
+      feedingReminderWeekdays: 1,
+      feedingReminderMinuteOfDay: 12 * 60,
+      feedingReminderTimeZone: 'Europe/Berlin',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('de'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: AnimalDetailPage(
+          database: database,
+          animalId: animalId,
+          reminderNow: () => DateTime.utc(2026, 6, 1, 10),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('feeding-reminder-status')),
+      300,
+    );
+    await tester.pumpAndSettle();
+    final dueDate = tester.widget<Text>(
+      find.byKey(const Key('feeding-reminder-due-date')),
+    );
+    expect(dueDate.data, contains('12:00 (Europe/Berlin)'));
+  });
+
   testWidgets('named Box reference opens the assigned Box details', (
     tester,
   ) async {

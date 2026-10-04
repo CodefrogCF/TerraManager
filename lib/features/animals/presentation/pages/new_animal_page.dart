@@ -76,7 +76,6 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   bool _feedingWeekdayMode = false;
   int _feedingWeekdays = 0;
   int _feedingMinuteOfDay = 720;
-  String _feedingTimeZone = 'UTC';
   bool _additionalCharacteristicsExpanded = false;
   DateTime? _feedingReminderBaseline;
 
@@ -252,6 +251,20 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       _saving = true;
       _saveError = null;
     });
+    final timeZone = _feedingReminderEnabled && _feedingWeekdayMode
+        ? await currentFeedingTimeZone()
+        : null;
+    if (!mounted) return;
+    if (_feedingReminderEnabled && _feedingWeekdayMode && timeZone == null) {
+      final message = context.l10n.feedingReminderTimeZoneUnavailable;
+      setState(() {
+        _saving = false;
+        _saveError = message;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
 
     try {
       await widget.database.transaction(() async {
@@ -309,10 +322,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               _feedingReminderEnabled && _feedingWeekdayMode
               ? _feedingMinuteOfDay
               : null,
-          feedingReminderTimeZone:
-              _feedingReminderEnabled && _feedingWeekdayMode
-              ? _feedingTimeZone
-              : null,
+          feedingReminderTimeZone: timeZone,
         );
       });
 
@@ -632,24 +642,14 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               intervalDaysController: _feedingReminderIntervalDaysController,
               onReminderEnabledChanged: _setFeedingReminderEnabled,
               weekdayMode: _feedingWeekdayMode,
-              onWeekdayModeChanged: (value) async {
-                setState(() => _feedingWeekdayMode = value);
-                if (value) {
-                  final zone = await currentFeedingTimeZone();
-                  if (mounted && _feedingWeekdayMode) {
-                    setState(() => _feedingTimeZone = zone);
-                  }
-                }
-              },
+              onWeekdayModeChanged: (value) =>
+                  setState(() => _feedingWeekdayMode = value),
               selectedWeekdays: _feedingWeekdays,
               onWeekdaysChanged: (value) =>
                   setState(() => _feedingWeekdays = value),
               minuteOfDay: _feedingMinuteOfDay,
               onMinuteOfDayChanged: (value) =>
                   setState(() => _feedingMinuteOfDay = value),
-              timeZone: _feedingTimeZone,
-              onTimeZoneChanged: (value) =>
-                  setState(() => _feedingTimeZone = value),
             ),
             const SizedBox(height: 16),
 

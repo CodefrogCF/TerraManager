@@ -300,7 +300,7 @@ TerraManager can display feeding-related reminder information within the applica
 The current version does not require Android system-notification permission for this functionality.
 
 In standalone mode, feeding reminder calculations use local data. In Shared Care, the operator's server calculates reminder dates from the shared records; the browser displays those dates and marks reminders that are due.
-For a fixed weekday plan, the selected weekdays, time and time zone are stored with the Animal record so the appointment stays at the chosen local time.
+For a fixed weekday plan, the selected weekdays and time, together with the automatically detected time zone, are stored with the Animal record so the appointment stays at the chosen local time.
 
 ## 12. Accounts and registration
 

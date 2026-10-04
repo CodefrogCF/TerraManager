@@ -14,6 +14,7 @@ import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../feedings/presentation/pages/feeding_schedule_page.dart';
+import '../../../feedings/presentation/widgets/feeding_due_date_label.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../settings/animal_name_order.dart';
 import '../../../settings/animal_sort_order.dart';
@@ -142,6 +143,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
                   latinName: reminder.animal.latinName,
                 ).primary,
                 dueAt: reminder.dueAt,
+                timeZone: reminder.weekdays == null
+                    ? null
+                    : reminder.animal.feedingReminderTimeZone,
               ),
           ],
         ),
@@ -514,7 +518,15 @@ class _AnimalsPageState extends State<AnimalsPage> {
                 ).primary,
               ),
               subtitle: Text(
-                context.l10n.feedingDueSince(_formatDateTime(reminder.dueAt)),
+                context.l10n.feedingDueSince(
+                  reminder.weekdays == null
+                      ? _formatDateTime(reminder.dueAt)
+                      : feedingDueDateLabel(
+                          context,
+                          reminder.dueAt,
+                          timeZone: reminder.animal.feedingReminderTimeZone,
+                        ),
+                ),
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
@@ -565,7 +577,14 @@ class _AnimalsPageState extends State<AnimalsPage> {
                     Text(
                       context.l10n.nextFeedingSummaryForAnimal(
                         displayNames.primary,
-                        _formatDateTime(reminder.dueAt),
+                        reminder.weekdays == null
+                            ? _formatDateTime(reminder.dueAt)
+                            : feedingDueDateLabel(
+                                context,
+                                reminder.dueAt,
+                                timeZone:
+                                    reminder.animal.feedingReminderTimeZone,
+                              ),
                       ),
                       key: const Key('next-feeding-summary-text'),
                     ),

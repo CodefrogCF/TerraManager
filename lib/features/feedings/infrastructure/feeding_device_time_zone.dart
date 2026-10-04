@@ -6,22 +6,36 @@ import 'feeding_browser_time_zone_stub.dart'
     if (dart.library.js_interop) 'feeding_browser_time_zone_web.dart'
     as web;
 
-/// Captures the local IANA zone when a weekly plan is first configured.
-Future<String> currentFeedingTimeZone() async {
+/// Returns the current IANA zone, or null when it cannot be determined.
+Future<String?> currentFeedingTimeZone() async {
   String? value;
   if (kIsWeb) {
-    value = web.browserFeedingTimeZone();
+    try {
+      value = web.browserFeedingTimeZone();
+    } catch (_) {
+      return null;
+    }
   } else if (defaultTargetPlatform == TargetPlatform.android) {
     try {
       value = await const MethodChannel('com.codefrog.terramanager/browser')
           .invokeMethod<String>('deviceTimeZoneId');
     } on PlatformException {
-      // The selector still works on platforms without the Android channel.
+      // An unavailable device zone must not silently become UTC.
     } on MissingPluginException {
-      // Widget tests and unsupported platforms use UTC until configured.
+      // Widget tests and unsupported platforms have no reliable IANA zone.
+    } catch (_) {
+      return null;
     }
   }
   return value != null && FeedingWeekdaySchedule.isValidTimeZone(value)
       ? value
-      : 'UTC';
+      : null;
+}
+
+/// Preserve an existing weekly plan's zone when editing it on another device.
+Future<String?> resolveFeedingTimeZone(String? existing) async {
+  if (existing != null) {
+    return FeedingWeekdaySchedule.isValidTimeZone(existing) ? existing : null;
+  }
+  return currentFeedingTimeZone();
 }

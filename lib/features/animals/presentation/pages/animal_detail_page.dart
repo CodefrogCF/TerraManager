@@ -19,6 +19,7 @@ import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../feedings/presentation/pages/feeding_reminder_settings_page.dart';
+import '../../../feedings/presentation/widgets/feeding_due_date_label.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
 import '../../../boxes/presentation/pages/box_detail_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
@@ -584,7 +585,15 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               ),
             ),
             subtitle: Text(
-              context.l10n.feedingDueSince(_formatDateTime(reminder.dueAt)),
+              context.l10n.feedingDueSince(
+                reminder.weekdays == null
+                    ? _formatDateTime(reminder.dueAt)
+                    : feedingDueDateLabel(
+                        context,
+                        reminder.dueAt,
+                        timeZone: reminder.animal.feedingReminderTimeZone,
+                      ),
+              ),
               key: const Key('feeding-reminder-due-date'),
               style: TextStyle(color: contentColor),
             ),
@@ -702,7 +711,13 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                 leading: const Icon(Icons.event_outlined),
                 title: Text(
                   context.l10n.feedingScheduledFor(
-                    _formatDateTime(reminder.dueAt),
+                    reminder.weekdays == null
+                        ? _formatDateTime(reminder.dueAt)
+                        : feedingDueDateLabel(
+                            context,
+                            reminder.dueAt,
+                            timeZone: reminder.animal.feedingReminderTimeZone,
+                          ),
                   ),
                   key: const Key('next-feeding-date'),
                 ),

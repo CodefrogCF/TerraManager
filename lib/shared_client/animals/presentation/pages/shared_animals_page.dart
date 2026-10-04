@@ -3,6 +3,7 @@ import 'package:terramanager/core/presentation/widgets/constrained_page_width.da
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_schedule_page.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/feeding_due_date_label.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/archive_sort_order.dart';
@@ -70,6 +71,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                 animalId: recordId(reminder.animal),
                 animalName: animalLabel(reminder.animal, order: nameOrder),
                 dueAt: reminder.dueAt,
+                timeZone: reminder.animal['feedingReminderTimeZone'] as String?,
               ),
           ],
         ),
@@ -146,12 +148,12 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
 
   bool _dueRemindersExpanded = true;
 
-  String _reminderDate(DateTime date) {
-    final local = date.toLocal();
-    final material = MaterialLocalizations.of(context);
-    return '${material.formatMediumDate(local)} '
-        '${material.formatTimeOfDay(TimeOfDay.fromDateTime(local))}';
-  }
+  String _reminderDate(DateTime date, Map<String, dynamic> animal) =>
+      feedingDueDateLabel(
+        context,
+        date,
+        timeZone: animal['feedingReminderTimeZone'] as String?,
+      );
 
   Widget _dueReminderSummary(
     List<({Map<String, dynamic> animal, DateTime dueAt})> reminders,
@@ -181,7 +183,9 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
             leading: const Icon(Icons.restaurant_outlined),
             title: Text(animalLabel(reminder.animal, order: nameOrder)),
             subtitle: Text(
-              context.l10n.feedingDueSince(_reminderDate(reminder.dueAt)),
+              context.l10n.feedingDueSince(
+                _reminderDate(reminder.dueAt, reminder.animal),
+              ),
             ),
             onTap: () => _openAnimal(reminder.animal),
           ),
@@ -508,7 +512,10 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                       subtitle: Text(
                         context.l10n.nextFeedingSummaryForAnimal(
                           animalLabel(nextReminder.animal, order: nameOrder),
-                          _reminderDate(nextReminder.dueAt),
+                          _reminderDate(
+                            nextReminder.dueAt,
+                            nextReminder.animal,
+                          ),
                         ),
                       ),
                       onTap: () =>
@@ -806,7 +813,10 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                                 nextReminder.animal,
                                 order: settings.animalNameOrder,
                               ),
-                              _reminderDate(nextReminder.dueAt),
+                              _reminderDate(
+                                nextReminder.dueAt,
+                                nextReminder.animal,
+                              ),
                             ),
                           ),
                           trailing: const Icon(Icons.chevron_right),

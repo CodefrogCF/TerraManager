@@ -51,7 +51,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   bool _weekdayMode = false;
   int _weekdays = 0;
   int _minuteOfDay = 720;
-  String _timeZone = 'UTC';
+  String? _timeZone;
   DateTime? _reminderBaseline;
   bool _saving = false;
   bool _stale = false;
@@ -96,7 +96,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
     _weekdayMode = initial?['feedingReminderWeekdays'] != null;
     _weekdays = initial?['feedingReminderWeekdays'] as int? ?? 0;
     _minuteOfDay = initial?['feedingReminderMinuteOfDay'] as int? ?? 720;
-    _timeZone = initial?['feedingReminderTimeZone'] as String? ?? 'UTC';
+    _timeZone = initial?['feedingReminderTimeZone'] as String?;
     _fields = {
       for (final key in [
         'commonName',
@@ -167,7 +167,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         _weekdays != (initial['feedingReminderWeekdays'] as int? ?? 0) ||
         _minuteOfDay !=
             (initial['feedingReminderMinuteOfDay'] as int? ?? 720) ||
-        _timeZone != (initial['feedingReminderTimeZone'] as String? ?? 'UTC') ||
+        _timeZone != (initial['feedingReminderTimeZone'] as String?) ||
         _reminderBaseline?.toUtc().toIso8601String() !=
             originalBaseline?.toUtc().toIso8601String()) {
       return true;
@@ -376,6 +376,20 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       _saving = true;
       _error = null;
     });
+    final timeZone = _reminderEnabled && _weekdayMode
+        ? await resolveFeedingTimeZone(_timeZone)
+        : null;
+    if (!mounted) return;
+    if (_reminderEnabled && _weekdayMode && timeZone == null) {
+      final message = context.l10n.feedingReminderTimeZoneUnavailable;
+      setState(() {
+        _saving = false;
+        _error = message;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
     final values = <String, dynamic>{
       'boxId': _boxId,
       'commonName': _text('commonName') ?? '',
@@ -404,9 +418,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       'feedingReminderMinuteOfDay': _reminderEnabled && _weekdayMode
           ? _minuteOfDay
           : null,
-      'feedingReminderTimeZone': _reminderEnabled && _weekdayMode
-          ? _timeZone
-          : null,
+      'feedingReminderTimeZone': timeZone,
       'feedingReminderBaseline': _reminderEnabled
           ? _reminderBaseline?.toUtc().toIso8601String()
           : null,
@@ -494,7 +506,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         _weekdayMode = latest['feedingReminderWeekdays'] != null;
         _weekdays = latest['feedingReminderWeekdays'] as int? ?? 0;
         _minuteOfDay = latest['feedingReminderMinuteOfDay'] as int? ?? 720;
-        _timeZone = latest['feedingReminderTimeZone'] as String? ?? 'UTC';
+        _timeZone = latest['feedingReminderTimeZone'] as String?;
         for (final entry in _fields.entries) {
           entry.value.text = latest[entry.key]?.toString() ?? '';
         }
@@ -799,24 +811,14 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                         _reminderBaseline = enabled ? DateTime.now() : null;
                       }),
                       weekdayMode: _weekdayMode,
-                      onWeekdayModeChanged: (value) async {
-                        setState(() => _weekdayMode = value);
-                        if (value) {
-                          final zone = await currentFeedingTimeZone();
-                          if (mounted && _weekdayMode) {
-                            setState(() => _timeZone = zone);
-                          }
-                        }
-                      },
+                      onWeekdayModeChanged: (value) =>
+                          setState(() => _weekdayMode = value),
                       selectedWeekdays: _weekdays,
                       onWeekdaysChanged: (value) =>
                           setState(() => _weekdays = value),
                       minuteOfDay: _minuteOfDay,
                       onMinuteOfDayChanged: (value) =>
                           setState(() => _minuteOfDay = value),
-                      timeZone: _timeZone,
-                      onTimeZoneChanged: (value) =>
-                          setState(() => _timeZone = value),
                     ),
                   ],
                 ),

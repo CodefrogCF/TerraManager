@@ -36,7 +36,7 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
   bool _weekdayMode = false;
   int _weekdays = 0;
   int _minuteOfDay = 12 * 60;
-  String _timeZone = 'UTC';
+  String? _timeZone;
   bool _loading = true;
   bool _saving = false;
   bool _dirty = false;
@@ -88,7 +88,7 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
         _weekdayMode = animal['feedingReminderWeekdays'] != null;
         _weekdays = animal['feedingReminderWeekdays'] as int? ?? 0;
         _minuteOfDay = animal['feedingReminderMinuteOfDay'] as int? ?? 720;
-        _timeZone = animal['feedingReminderTimeZone'] as String? ?? 'UTC';
+        _timeZone = animal['feedingReminderTimeZone'] as String?;
         _loading = false;
         _dirty = false;
         _stale = false;
@@ -116,6 +116,20 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
       _saving = true;
       _error = null;
     });
+    final timeZone = _enabled && _weekdayMode
+        ? await resolveFeedingTimeZone(_timeZone)
+        : null;
+    if (!mounted) return;
+    if (_enabled && _weekdayMode && timeZone == null) {
+      final message = context.l10n.feedingReminderTimeZoneUnavailable;
+      setState(() {
+        _saving = false;
+        _error = message;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
     final saved = await widget.change(() async {
       await widget.api.updateFeedingReminder(
         widget.animalId,
@@ -126,7 +140,7 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
         baseline: _enabled ? _baseline : null,
         weekdays: _enabled && _weekdayMode ? _weekdays : null,
         minuteOfDay: _enabled && _weekdayMode ? _minuteOfDay : null,
-        timeZone: _enabled && _weekdayMode ? _timeZone : null,
+        timeZone: timeZone,
       );
     });
     if (!mounted) return;
@@ -253,17 +267,11 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
                         }),
                         onIntervalChanged: (_) => setState(() => _dirty = true),
                         weekdayMode: _weekdayMode,
-                        onWeekdayModeChanged: (value) async {
+                        onWeekdayModeChanged: (value) {
                           setState(() {
                             _weekdayMode = value;
                             _dirty = true;
                           });
-                          if (value) {
-                            final zone = await currentFeedingTimeZone();
-                            if (mounted && _weekdayMode) {
-                              setState(() => _timeZone = zone);
-                            }
-                          }
                         },
                         selectedWeekdays: _weekdays,
                         onWeekdaysChanged: (value) => setState(() {
@@ -273,11 +281,6 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
                         minuteOfDay: _minuteOfDay,
                         onMinuteOfDayChanged: (value) => setState(() {
                           _minuteOfDay = value;
-                          _dirty = true;
-                        }),
-                        timeZone: _timeZone,
-                        onTimeZoneChanged: (value) => setState(() {
-                          _timeZone = value;
                           _dirty = true;
                         }),
                       ),

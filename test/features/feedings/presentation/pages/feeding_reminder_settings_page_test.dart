@@ -1,5 +1,7 @@
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
@@ -10,6 +12,7 @@ import 'package:terramanager/features/feedings/presentation/pages/feeding_remind
 import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
+  const timeZoneChannel = MethodChannel('com.codefrog.terramanager/browser');
   late AppDatabase database;
   late int boxId;
 
@@ -20,10 +23,28 @@ void main() {
   });
 
   tearDown(() async {
+    debugDefaultTargetPlatformOverride = null;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(timeZoneChannel, null);
     await database.close();
   });
 
-  Future<int> createAnimal({int? intervalDays, DateTime? baseline}) {
+  void setDeviceTimeZone(String? zone) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(timeZoneChannel, (call) async {
+          expect(call.method, 'deviceTimeZoneId');
+          return zone;
+        });
+  }
+
+  Future<int> createAnimal({
+    int? intervalDays,
+    DateTime? baseline,
+    int? weekdays,
+    int? minuteOfDay,
+    String? timeZone,
+  }) {
     return AnimalRepository(database).createAnimal(
       boxId: boxId,
       commonName: 'Reminder Snake',
@@ -34,6 +55,9 @@ void main() {
       humidityMax: 60,
       feedingReminderIntervalDays: intervalDays,
       feedingReminderBaseline: baseline,
+      feedingReminderWeekdays: weekdays,
+      feedingReminderMinuteOfDay: minuteOfDay,
+      feedingReminderTimeZone: timeZone,
     );
   }
 
@@ -177,6 +201,7 @@ void main() {
   testWidgets('saves a weekday plan without changing the interval model', (
     tester,
   ) async {
+    setDeviceTimeZone('Europe/Berlin');
     final animalId = await createAnimal();
     final baseline = DateTime.utc(2026, 10, 4, 12);
     await pumpPageWithNavigation(
@@ -207,14 +232,71 @@ void main() {
       find.byKey(const Key('save-feeding-reminder-form-button')),
     );
     await tester.pumpAndSettle();
+    debugDefaultTargetPlatformOverride = null;
     expect(find.text('Open Reminder'), findsOneWidget);
 
     final animal = await AnimalRepository(database).getAnimalById(animalId);
     expect(animal!.feedingReminderIntervalDays, isNull);
     expect(animal.feedingReminderWeekdays, 1 | 4 | 16);
     expect(animal.feedingReminderMinuteOfDay, 720);
-    expect(animal.feedingReminderTimeZone, 'UTC');
+    expect(animal.feedingReminderTimeZone, 'Europe/Berlin');
     expect(animal.feedingReminderBaseline!.isAtSameMomentAs(baseline), isTrue);
+  });
+
+  testWidgets('keeps an existing plan zone when editing on another device', (
+    tester,
+  ) async {
+    setDeviceTimeZone('America/New_York');
+    final animalId = await createAnimal(
+      baseline: DateTime.utc(2026, 10, 4, 12),
+      weekdays: 1,
+      minuteOfDay: 18 * 60,
+      timeZone: 'Europe/Berlin',
+    );
+    await pumpPageWithNavigation(tester, animalId: animalId);
+    expect(find.byKey(const Key('feeding-reminder-time-zone')), findsNothing);
+    expect(find.byKey(const Key('feeding-reminder-time')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('feeding-weekday-3')));
+    await tester.tap(
+      find.byKey(const Key('save-feeding-reminder-form-button')),
+    );
+    await tester.pumpAndSettle();
+    debugDefaultTargetPlatformOverride = null;
+
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+    expect(animal!.feedingReminderWeekdays, 1 | 4);
+    expect(animal.feedingReminderMinuteOfDay, 18 * 60);
+    expect(animal.feedingReminderTimeZone, 'Europe/Berlin');
+  });
+
+  testWidgets('does not save a weekday plan without a detected zone', (
+    tester,
+  ) async {
+    setDeviceTimeZone(null);
+    final animalId = await createAnimal();
+    await pumpPage(tester, animalId: animalId);
+    await tester.tap(find.byKey(const Key('feeding-reminder-enabled-switch')));
+    await tester.pump();
+    await tester.tap(find.text('Selected weekdays'));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('feeding-weekday-1')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('save-feeding-reminder-button')));
+    await tester.pumpAndSettle();
+    debugDefaultTargetPlatformOverride = null;
+
+    expect(
+      find.byKey(const Key('feeding-reminder-save-error')),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('Could not determine the device time zone'),
+      findsWidgets,
+    );
+    final animal = await AnimalRepository(database).getAnimalById(animalId);
+    expect(animal!.feedingReminderWeekdays, isNull);
+    expect(animal.feedingReminderTimeZone, isNull);
   });
 
   testWidgets('changes an interval without resetting its baseline', (

@@ -308,7 +308,7 @@ TerraManager kann fütterungsbezogene Erinnerungsinformationen innerhalb der Anw
 Die aktuelle Version benötigt für diese Funktion keine Android-Systemberechtigung für Benachrichtigungen.
 
 Im eigenständigen Modus werden Fütterungserinnerungen anhand lokaler Daten berechnet. Im Shared-Care-Modus berechnet der Betreiber-Server die Erinnerungstermine aus den gemeinsamen Datensätzen; der Browser zeigt sie an und markiert fällige Erinnerungen.
-Bei einem festen Wochentagsplan werden die gewählten Wochentage, die Uhrzeit und die Zeitzone zusammen mit dem Tierdatensatz gespeichert, damit der Termin zur gewählten Ortszeit bestehen bleibt.
+Bei einem festen Wochentagsplan werden die gewählten Wochentage und die Uhrzeit zusammen mit der automatisch ermittelten Zeitzone im Tierdatensatz gespeichert, damit der Termin zur gewählten Ortszeit bestehen bleibt.
 
 ## 12. Konten und Registrierung
 

@@ -38,7 +38,7 @@ class _FeedingReminderSettingsPageState
   bool _weekdayMode = false;
   int _weekdays = 0;
   int _minuteOfDay = 12 * 60;
-  String _timeZone = 'UTC';
+  String? _timeZone;
   DateTime? _baseline;
   bool _loading = true;
   bool _saving = false;
@@ -96,7 +96,7 @@ class _FeedingReminderSettingsPageState
       _weekdayMode = animal.feedingReminderWeekdays != null;
       _weekdays = animal.feedingReminderWeekdays ?? 0;
       _minuteOfDay = animal.feedingReminderMinuteOfDay ?? 12 * 60;
-      _timeZone = animal.feedingReminderTimeZone ?? 'UTC';
+      _timeZone = animal.feedingReminderTimeZone;
       _intervalDaysController.text = intervalDays?.toString() ?? '';
       _baseline = baseline;
 
@@ -138,16 +138,12 @@ class _FeedingReminderSettingsPageState
     });
   }
 
-  Future<void> _setWeekdayMode(bool value) async {
+  void _setWeekdayMode(bool value) {
     if (_saving) return;
     setState(() {
       _weekdayMode = value;
       _hasUnsavedChanges = true;
     });
-    if (value) {
-      final zone = await currentFeedingTimeZone();
-      if (mounted && _weekdayMode) setState(() => _timeZone = zone);
-    }
   }
 
   Future<void> _save() async {
@@ -159,6 +155,20 @@ class _FeedingReminderSettingsPageState
       _saving = true;
       _error = null;
     });
+    final timeZone = _reminderEnabled && _weekdayMode
+        ? await resolveFeedingTimeZone(_timeZone)
+        : null;
+    if (!mounted) return;
+    if (_reminderEnabled && _weekdayMode && timeZone == null) {
+      final message = context.l10n.feedingReminderTimeZoneUnavailable;
+      setState(() {
+        _saving = false;
+        _error = message;
+      });
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+      return;
+    }
 
     try {
       final updated = await AnimalRepository(widget.database)
@@ -170,7 +180,7 @@ class _FeedingReminderSettingsPageState
             baseline: _reminderEnabled ? _baseline : null,
             weekdays: _reminderEnabled && _weekdayMode ? _weekdays : null,
             minuteOfDay: _reminderEnabled && _weekdayMode ? _minuteOfDay : null,
-            timeZone: _reminderEnabled && _weekdayMode ? _timeZone : null,
+            timeZone: timeZone,
           );
 
       if (!mounted) {
@@ -331,11 +341,6 @@ class _FeedingReminderSettingsPageState
             minuteOfDay: _minuteOfDay,
             onMinuteOfDayChanged: (value) => setState(() {
               _minuteOfDay = value;
-              _hasUnsavedChanges = true;
-            }),
-            timeZone: _timeZone,
-            onTimeZoneChanged: (value) => setState(() {
-              _timeZone = value;
               _hasUnsavedChanges = true;
             }),
           ),

@@ -553,6 +553,33 @@ void main() {
         DateTime.parse(reminder['dueAt'] as String),
         DateTime.utc(2026, 10, 5, 8),
       );
+      final winter = await _call(
+        clientA,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          'expectedRevision': saved['revision'],
+          'intervalDays': null,
+          'baseline': '2026-01-04T12:00:00Z',
+          'weekdays': 1,
+          'minuteOfDay': 18 * 60,
+          'timeZone': 'Europe/Berlin',
+        },
+      );
+      expect(winter.status, 200, reason: winter.json.toString());
+      final winterResult = await _call(
+        clientB,
+        server,
+        'GET',
+        '/api/v1/reminders',
+      );
+      final winterReminder =
+          (winterResult.json!['reminders'] as List).single as Map;
+      expect(
+        DateTime.parse(winterReminder['dueAt'] as String),
+        DateTime.utc(2026, 1, 5, 17),
+      );
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );

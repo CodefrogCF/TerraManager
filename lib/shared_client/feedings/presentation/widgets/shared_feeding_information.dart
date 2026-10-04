@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/feeding_due_date_label.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_date_time_label.dart';
 
@@ -85,7 +86,7 @@ class SharedFeedingInformation extends StatelessWidget {
               title: Text(context.l10n.feedingDue),
               subtitle: Text(
                 context.l10n.feedingDueSince(
-                  sharedDateTimeLabel(context, next),
+                  feedingDueDateLabel(context, next, timeZone: timeZone),
                 ),
               ),
               onTap: () => onHistory(true),
@@ -108,7 +109,9 @@ class SharedFeedingInformation extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.event_outlined),
                 title: Text(context.l10n.nextFeeding),
-                subtitle: Text(sharedDateTimeLabel(context, next)),
+                subtitle: Text(
+                  feedingDueDateLabel(context, next, timeZone: timeZone),
+                ),
                 onTap: () => onHistory(true),
               ),
           ],

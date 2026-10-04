@@ -17,8 +17,6 @@ class FeedingReminderFormFields extends StatelessWidget {
   final ValueChanged<int>? onWeekdaysChanged;
   final int minuteOfDay;
   final ValueChanged<int>? onMinuteOfDayChanged;
-  final String timeZone;
-  final ValueChanged<String>? onTimeZoneChanged;
 
   const FeedingReminderFormFields({
     super.key,
@@ -33,53 +31,7 @@ class FeedingReminderFormFields extends StatelessWidget {
     this.onWeekdaysChanged,
     this.minuteOfDay = 12 * 60,
     this.onMinuteOfDayChanged,
-    this.timeZone = 'UTC',
-    this.onTimeZoneChanged,
   });
-
-  Future<void> _chooseTimeZone(BuildContext context) async {
-    var query = '';
-    final chosen = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, setDialogState) {
-          final zones = FeedingWeekdaySchedule.availableTimeZones
-              .where((zone) => zone.toLowerCase().contains(query.toLowerCase()))
-              .toList();
-          return AlertDialog(
-            title: Text(context.l10n.feedingReminderTimeZone),
-            content: SizedBox(
-              width: 420,
-              height: 440,
-              child: Column(
-                children: [
-                  TextField(
-                    autofocus: true,
-                    onChanged: (value) =>
-                        setDialogState(() => query = value.trim()),
-                    decoration: InputDecoration(
-                      labelText: context.l10n.feedingReminderSearchTimeZone,
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: zones.length,
-                      itemBuilder: (context, index) => ListTile(
-                        title: Text(zones[index]),
-                        onTap: () =>
-                            Navigator.of(dialogContext).pop(zones[index]),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-    if (chosen != null) onTimeZoneChanged?.call(chosen);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,16 +170,6 @@ class FeedingReminderFormFields extends StatelessWidget {
                         );
                       }
                     }
-                  : null,
-            ),
-            ListTile(
-              key: const Key('feeding-reminder-time-zone'),
-              contentPadding: EdgeInsets.zero,
-              title: Text(context.l10n.feedingReminderTimeZone),
-              subtitle: Text(timeZone),
-              trailing: const Icon(Icons.arrow_drop_down),
-              onTap: controlsEnabled && onTimeZoneChanged != null
-                  ? () => _chooseTimeZone(context)
                   : null,
             ),
           ],

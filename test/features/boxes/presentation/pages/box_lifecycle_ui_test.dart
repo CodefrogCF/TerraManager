@@ -293,8 +293,35 @@ void main() {
     );
     await openArchiveDialog(tester);
     expect(find.text('Box archivieren'), findsWidgets);
-    await selectReason(tester, label: 'Beschädigt');
+    await selectReason(tester, label: 'Eingelagert');
     expect(find.text('Archivieren'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('confirm-archive-box-button')));
+    await tester.pumpAndSettle();
+    expect(
+      (await boxes.getBoxById(id))!.archiveReason,
+      BoxArchiveReason.stored,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('German archive list and Box details show Eingelagert', (
+    tester,
+  ) async {
+    final id = await boxes.createBoxWithGeneratedQrId();
+    await boxes.archiveBox(
+      boxId: id,
+      reason: BoxArchiveReason.stored,
+      archivedAt: DateTime(2026, 9, 13),
+    );
+    await pumpPage(tester, BoxesPage(database: database), language: 'de');
+    await tester.tap(find.byKey(const Key('box-archive-button')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Eingelagert'), findsOneWidget);
+    await tester.tap(find.byKey(Key('archived-box-list-item-$id')));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Eingelagert'), 200);
+    await tester.pumpAndSettle();
+    expect(find.text('Eingelagert'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

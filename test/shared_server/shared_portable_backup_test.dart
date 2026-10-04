@@ -109,6 +109,14 @@ void main() {
               data: Uint8List.fromList([1, 2, 3]),
               capturedAt: DateTime.utc(2026, 1, 1),
             );
+        expect(
+          await BoxRepository(database).archiveBox(
+            boxId: originalId,
+            reason: BoxArchiveReason.stored,
+            archivedAt: DateTime.utc(2026, 1, 3),
+          ),
+          isTrue,
+        );
         const uploadKey = '12345678-1234-4123-8123-123456789abc';
         final uploadReceipts = PictureUploadRequests(database);
         await uploadReceipts.remember(
@@ -179,6 +187,7 @@ void main() {
         final saved = BackupValidationService().validate(exported.bytes);
         expect(saved.settings.scope, 'collectionOnly');
         expect(saved.data.boxes.single.name, 'Original');
+        expect(saved.data.boxes.single.archiveReason, 'stored');
         expect(saved.mediaFileCount, 1);
         expect(await uploadReceipts.find(uploadKey), isNotNull);
 
@@ -211,6 +220,12 @@ void main() {
           'Original',
         );
         expect(
+          (await BoxRepository(
+            standaloneTarget,
+          ).getAllBoxes()).single.archiveReason,
+          BoxArchiveReason.stored,
+        );
+        expect(
           (await PictureGalleryRepository(standaloneTarget)
                   .getBoxPictures(originalId))
               .single
@@ -230,6 +245,14 @@ void main() {
           mimeType: 'image/png',
           data: Uint8List.fromList([4, 5, 6]),
           capturedAt: DateTime.utc(2026, 1, 2),
+        );
+        expect(
+          await BoxRepository(source).archiveBox(
+            boxId: importedId,
+            reason: BoxArchiveReason.stored,
+            archivedAt: DateTime.utc(2026, 1, 4),
+          ),
+          isTrue,
         );
         final importFile = await BackupExportService(source).createBackup(
           appVersion: 'development',
@@ -335,6 +358,10 @@ void main() {
         expect(
           (await BoxRepository(database).getAllBoxes()).single.name,
           'Imported',
+        );
+        expect(
+          (await BoxRepository(database).getAllBoxes()).single.archiveReason,
+          BoxArchiveReason.stored,
         );
         final restoredPictures = await PictureGalleryRepository(database)
             .getBoxPictures(importedId);

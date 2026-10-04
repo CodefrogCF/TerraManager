@@ -47,6 +47,7 @@ class FeedingSchedulePage extends StatelessWidget {
         body: sorted.isEmpty
             ? Center(child: Text(context.l10n.feedingScheduleEmpty))
             : ListView.builder(
+                key: const PageStorageKey<String>('feeding-schedule-list'),
                 itemCount: sorted.length,
                 itemBuilder: (context, index) {
                   final entry = sorted[index];

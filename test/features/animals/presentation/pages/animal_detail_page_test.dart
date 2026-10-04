@@ -702,7 +702,8 @@ void main() {
     final dueDate = tester.widget<Text>(
       find.byKey(const Key('feeding-reminder-due-date')),
     );
-    expect(dueDate.data, contains('12:00 (Europe/Berlin)'));
+    expect(dueDate.data, contains('12:00'));
+    expect(dueDate.data, isNot(contains('Europe/Berlin')));
   });
 
   testWidgets('named Box reference opens the assigned Box details', (

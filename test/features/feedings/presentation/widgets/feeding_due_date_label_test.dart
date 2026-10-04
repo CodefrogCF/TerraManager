@@ -4,7 +4,7 @@ import 'package:terramanager/features/feedings/presentation/widgets/feeding_due_
 import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
-  testWidgets('shows Berlin wall time and zone in summer and winter', (
+  testWidgets('shows scheduled wall time without a zone suffix', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -44,7 +44,9 @@ void main() {
       ),
     );
 
-    expect(find.textContaining('18:00 (Europe/Berlin)'), findsNWidgets(2));
-    expect(find.textContaining('12:00 (America/New_York)'), findsOneWidget);
+    expect(find.textContaining('18:00'), findsNWidgets(2));
+    expect(find.textContaining('12:00'), findsOneWidget);
+    expect(find.textContaining('Europe/Berlin'), findsNothing);
+    expect(find.textContaining('America/New_York'), findsNothing);
   });
 }

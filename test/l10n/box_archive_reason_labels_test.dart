@@ -12,12 +12,14 @@ void main() {
       'Sold',
       'Replaced',
       'Damaged',
+      'Stored',
       'Other',
     ]);
     expect(BoxArchiveReason.values.map(german.boxArchiveReasonLabel), [
       'Verkauft',
       'Ersetzt',
       'Beschädigt',
+      'Eingelagert',
       'Sonstiges',
     ]);
   });

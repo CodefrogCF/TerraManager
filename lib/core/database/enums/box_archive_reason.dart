@@ -1,1 +1,1 @@
-enum BoxArchiveReason { sold, replaced, damaged, other }
+enum BoxArchiveReason { sold, replaced, damaged, stored, other }

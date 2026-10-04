@@ -99,6 +99,7 @@ extension AppLocalizationsLabels on AppLocalizations {
       BoxArchiveReason.sold => archiveReasonSold,
       BoxArchiveReason.replaced => boxArchiveReasonReplaced,
       BoxArchiveReason.damaged => boxArchiveReasonDamaged,
+      BoxArchiveReason.stored => boxArchiveReasonStored,
       BoxArchiveReason.other => archiveReasonOther,
     };
   }

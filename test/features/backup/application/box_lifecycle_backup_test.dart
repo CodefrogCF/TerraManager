@@ -136,11 +136,13 @@ void main() {
       'archived',
       'archived',
       'archived',
+      'archived',
     ]);
     expect(validated.data.boxes.skip(1).map((box) => box.archiveReason), [
       'sold',
       'replaced',
       'damaged',
+      'stored',
       'other',
     ]);
     expect(
@@ -352,6 +354,14 @@ void main() {
   );
 
   test('Box enum codecs use stable portable values', () {
+    expect(
+      BackupEnumCodec.encodeBoxArchiveReason(BoxArchiveReason.stored),
+      'stored',
+    );
+    expect(
+      BackupEnumCodec.decodeBoxArchiveReason('other'),
+      BoxArchiveReason.other,
+    );
     for (final value in BoxStatus.values) {
       expect(
         BackupEnumCodec.decodeBoxStatus(BackupEnumCodec.encodeBoxStatus(value)),

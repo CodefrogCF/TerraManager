@@ -426,8 +426,13 @@ void main() {
           case '/api/v1/boxes/1/archive':
             archives++;
             final payload = jsonDecode(request.body) as Map<String, dynamic>;
-            expect(payload['reason'], 'sold');
-            boxes[0] = {...boxes[0], 'status': 'archived'};
+            expect(payload['reason'], 'stored');
+            boxes[0] = {
+              ...boxes[0],
+              'status': 'archived',
+              'archiveReason': 'stored',
+              'archivedAt': '2026-09-13T12:30:00.000',
+            };
             return http.Response(jsonEncode({'box': boxes[0]}), 200);
         }
         return http.Response('{}', 404);
@@ -487,6 +492,10 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Archive Box'));
       await tester.pumpAndSettle();
+      await tester.tap(find.byType(DropdownButtonFormField<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Stored').last);
+      await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, 'Archive'));
       await tester.pumpAndSettle();
       expect(archives, 1);
@@ -494,7 +503,11 @@ void main() {
       await tester.tap(find.byKey(const Key('box-archive-button')));
       await tester.pumpAndSettle();
       expect(find.text('Renamed'), findsOneWidget);
+      expect(find.textContaining('Stored'), findsOneWidget);
       expect(find.byKey(const Key('shared-box-scan-button')), findsNothing);
+      await tester.tap(find.byKey(const Key('box-list-item-1')));
+      await tester.pumpAndSettle();
+      expect(find.text('Stored'), findsOneWidget);
     },
   );
 }

@@ -186,11 +186,13 @@ void main() {
     final dueTile = tester.widget<ListTile>(
       find.byKey(Key('feeding-reminder-summary-item-$dueId')),
     );
-    expect((dueTile.subtitle as Text).data, contains('12:00 (Europe/Berlin)'));
+    expect((dueTile.subtitle as Text).data, contains('12:00'));
+    expect((dueTile.subtitle as Text).data, isNot(contains('Europe/Berlin')));
     final nextText = tester.widget<Text>(
       find.byKey(const Key('next-feeding-summary-text')),
     );
-    expect(nextText.data, contains('12:00 (Europe/Berlin)'));
+    expect(nextText.data, contains('12:00'));
+    expect(nextText.data, isNot(contains('Europe/Berlin')));
 
     await tester.tap(find.byKey(const Key('next-feeding-summary-tap-target')));
     await tester.pumpAndSettle();
@@ -198,10 +200,7 @@ void main() {
       final scheduleTile = tester.widget<ListTile>(
         find.byKey(Key('feeding-schedule-animal-$id')),
       );
-      expect(
-        (scheduleTile.subtitle as Text).data,
-        contains('12:00 (Europe/Berlin)'),
-      );
+      expect((scheduleTile.subtitle as Text).data, contains('12:00'));
     }
   });
 
@@ -1158,6 +1157,52 @@ void main() {
       settingsController.dispose();
     },
   );
+
+  testWidgets('schedule opens due and upcoming Animal details and returns', (
+    tester,
+  ) async {
+    final boxId = await createTestBox();
+    final now = DateTime.now();
+    final dueId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Due Snake',
+      feedingReminderIntervalDays: 1,
+      feedingReminderBaseline: now.subtract(const Duration(days: 3)),
+    );
+    final upcomingId = await createTestAnimal(
+      boxId: boxId,
+      commonName: 'Upcoming Snake',
+      feedingReminderIntervalDays: 2,
+      feedingReminderBaseline: now,
+    );
+    final settings = AppSettingsController();
+    addTearDown(settings.dispose);
+    await settings.load();
+    await settings.setNextFeedingSummaryEnabled(true);
+    await pumpPage(tester, settingsController: settings);
+
+    await tester.tap(find.byKey(const Key('next-feeding-summary-tap-target')));
+    await tester.pumpAndSettle();
+    final due = find.byKey(Key('feeding-schedule-animal-$dueId'));
+    final upcoming = find.byKey(Key('feeding-schedule-animal-$upcomingId'));
+    expect(tester.getTopLeft(due).dy, lessThan(tester.getTopLeft(upcoming).dy));
+
+    for (final id in [dueId, upcomingId]) {
+      await tester.tap(find.byKey(Key('feeding-schedule-animal-$id')));
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<AnimalDetailPage>(find.byType(AnimalDetailPage)).animalId,
+        id,
+      );
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('feeding-schedule-page')), findsOneWidget);
+      expect(
+        tester.getTopLeft(due).dy,
+        lessThan(tester.getTopLeft(upcoming).dy),
+      );
+    }
+  });
 
   testWidgets('places next feeding below due reminders and above Animal list', (
     tester,

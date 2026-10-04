@@ -656,9 +656,21 @@ void main() {
       server,
       'POST',
       '/api/v1/boxes/$firstBox/archive',
-      body: {'reason': 'replaced'},
+      body: {'reason': 'stored'},
     );
     expect(archivedBox.status, 200);
+    expect((archivedBox.json!['box'] as Map)['archiveReason'], 'stored');
+    final archivedBoxForOtherClient = await _call(
+      clientB,
+      server,
+      'GET',
+      '/api/v1/boxes/$firstBox',
+    );
+    expect(archivedBoxForOtherClient.status, 200);
+    expect(
+      (archivedBoxForOtherClient.json!['box'] as Map)['archiveReason'],
+      'stored',
+    );
 
     final invalidRestore = await _call(
       clientA,

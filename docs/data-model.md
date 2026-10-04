@@ -88,7 +88,7 @@ Box
 - qrId – unique permanent QR identifier
 - name – optional free-form Box name
 - status – `active` (default) or `archived`, stored as a stable string
-- archiveReason – nullable `sold`, `replaced`, `damaged` or `other`
+- archiveReason – nullable `sold`, `replaced`, `damaged`, `stored` or `other`
 - archivedAt – nullable archive timestamp
 - archiveNotes – optional context for archiving, separate from ordinary notes
 - temperatureZones – optional free-form temperature-zone note

@@ -521,6 +521,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
                                     'sold',
                                     'replaced',
                                     'damaged',
+                                    'stored',
                                     'other',
                                   ],
                                 );

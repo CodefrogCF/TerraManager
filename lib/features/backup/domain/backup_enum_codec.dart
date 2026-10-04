@@ -29,6 +29,7 @@ class BackupEnumCodec {
       BoxArchiveReason.sold => 'sold',
       BoxArchiveReason.replaced => 'replaced',
       BoxArchiveReason.damaged => 'damaged',
+      BoxArchiveReason.stored => 'stored',
       BoxArchiveReason.other => 'other',
     };
   }
@@ -38,6 +39,7 @@ class BackupEnumCodec {
       'sold' => BoxArchiveReason.sold,
       'replaced' => BoxArchiveReason.replaced,
       'damaged' => BoxArchiveReason.damaged,
+      'stored' => BoxArchiveReason.stored,
       'other' => BoxArchiveReason.other,
       _ => throw FormatException(
         'Unsupported BoxArchiveReason backup value: $value',

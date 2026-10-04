@@ -225,7 +225,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
       case _BoxAction.archive:
         final choice = await showArchiveDialog(
           context,
-          reasons: const ['sold', 'replaced', 'damaged', 'other'],
+          reasons: const ['sold', 'replaced', 'damaged', 'stored', 'other'],
         );
         if (choice == null) return;
         final saved = await widget.change(() async {

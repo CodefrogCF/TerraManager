@@ -97,6 +97,26 @@ void main() {
     settings.dispose();
   });
 
+  testWidgets('shows Stored separately from Other in archived Box list', (
+    tester,
+  ) async {
+    await createArchivedBox(
+      name: 'Stored enclosure',
+      reason: BoxArchiveReason.stored,
+      archivedAt: DateTime(2026, 9, 2),
+    );
+    await createArchivedBox(
+      name: 'Other enclosure',
+      reason: BoxArchiveReason.other,
+      archivedAt: DateTime(2026, 9, 3),
+    );
+
+    final settings = await pumpHistory(tester);
+    expect(find.text('Stored • 02.09.2026'), findsOneWidget);
+    expect(find.text('Other • 03.09.2026'), findsOneWidget);
+    settings.dispose();
+  });
+
   testWidgets('defaults to newest archived first '
       'and passes visible order to detail', (tester) async {
     final oldestId = await createArchivedBox(

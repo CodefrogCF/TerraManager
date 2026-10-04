@@ -12,6 +12,7 @@ import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animals_page.dart';
+import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_detail_page.dart';
 import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_reminder_page.dart';
 import 'package:terramanager/shared_client/feedings/presentation/widgets/shared_feeding_information.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
@@ -232,6 +233,89 @@ void main() {
     );
   });
 
+  testWidgets('shared schedule opens due and upcoming Animal details', (
+    tester,
+  ) async {
+    final settings = AppSettingsController();
+    addTearDown(settings.dispose);
+    await settings.setNextFeedingSummaryEnabled(true);
+    final animals = [
+      {..._animal, 'id': 7, 'commonName': 'Due'},
+      {..._animal, 'id': 8, 'commonName': 'Upcoming'},
+    ];
+    final api = await _client((request) async {
+      final path = request.url.path;
+      if (path == '/api/v1/animals/7' || path == '/api/v1/animals/8') {
+        final id = int.parse(path.split('/').last);
+        return http.Response(
+          jsonEncode({
+            'animal': animals.singleWhere((animal) => animal['id'] == id),
+          }),
+          200,
+        );
+      }
+      if (path.endsWith('/feedings')) {
+        return http.Response(jsonEncode({'feedings': []}), 200);
+      }
+      return http.Response('{}', 404);
+    });
+    addTearDown(api.close);
+    final now = DateTime.now().toUtc();
+    await tester.pumpWidget(
+      AppSettingsScope(
+        controller: settings,
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: SharedAnimalsPage(
+            api: api,
+            boxes: const [],
+            animals: animals,
+            reminders: [
+              {
+                'animalId': 7,
+                'dueAt': now
+                    .subtract(const Duration(days: 1))
+                    .toIso8601String(),
+              },
+              {
+                'animalId': 8,
+                'dueAt': now.add(const Duration(days: 1)).toIso8601String(),
+              },
+            ],
+            connected: true,
+            change: (_) async => true,
+            onReload: () async {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('shared-next-feeding-summary')));
+    await tester.pumpAndSettle();
+    final due = find.byKey(const Key('feeding-schedule-animal-7'));
+    final upcoming = find.byKey(const Key('feeding-schedule-animal-8'));
+    expect(tester.getTopLeft(due).dy, lessThan(tester.getTopLeft(upcoming).dy));
+
+    for (final id in [7, 8]) {
+      await tester.tap(find.byKey(Key('feeding-schedule-animal-$id')));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<SharedAnimalDetailPage>(find.byType(SharedAnimalDetailPage))
+            .id,
+        id,
+      );
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('feeding-schedule-page')), findsOneWidget);
+      expect(
+        tester.getTopLeft(due).dy,
+        lessThan(tester.getTopLeft(upcoming).dy),
+      );
+    }
+  });
+
   testWidgets(
     'next feeding preference controls list and grid without hiding due reminders',
     (tester) async {
@@ -301,7 +385,7 @@ void main() {
     },
   );
 
-  testWidgets('overview and schedule show the saved Berlin time zone', (
+  testWidgets('overview and schedule show Berlin time without a zone suffix', (
     tester,
   ) async {
     final settings = AppSettingsController();
@@ -343,14 +427,15 @@ void main() {
     final dueTile = tester.widget<ListTile>(
       find.byKey(const Key('shared-feeding-reminder-due-7')),
     );
-    expect((dueTile.subtitle as Text).data, contains('18:00 (Europe/Berlin)'));
+    expect((dueTile.subtitle as Text).data, contains('18:00'));
+    expect((dueTile.subtitle as Text).data, isNot(contains('Europe/Berlin')));
     final nextTile = tester.widget<ListTile>(
       find.descendant(
         of: find.byKey(const Key('shared-next-feeding-summary')),
         matching: find.byType(ListTile),
       ),
     );
-    expect((nextTile.subtitle as Text).data, contains('18:00 (Europe/Berlin)'));
+    expect((nextTile.subtitle as Text).data, contains('18:00'));
 
     await tester.tap(find.byKey(const Key('shared-next-feeding-summary')));
     await tester.pumpAndSettle();
@@ -359,10 +444,7 @@ void main() {
       final scheduleTile = tester.widget<ListTile>(
         find.byKey(Key('feeding-schedule-animal-$id')),
       );
-      expect(
-        (scheduleTile.subtitle as Text).data,
-        contains('18:00 (Europe/Berlin)'),
-      );
+      expect((scheduleTile.subtitle as Text).data, contains('18:00'));
     }
   });
 
@@ -397,7 +479,8 @@ void main() {
         matching: find.byType(ListTile),
       ),
     );
-    expect((dueTile.subtitle as Text).data, contains('18:00 (Europe/Berlin)'));
+    expect((dueTile.subtitle as Text).data, contains('18:00'));
+    expect((dueTile.subtitle as Text).data, isNot(contains('Europe/Berlin')));
   });
 
   testWidgets('reminder settings save only the reminder with a revision', (

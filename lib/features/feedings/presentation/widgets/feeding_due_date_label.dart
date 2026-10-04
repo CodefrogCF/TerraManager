@@ -11,25 +11,21 @@ String feedingDueDateLabel(
   String? timeZone,
 }) {
   final DateTime displayTime;
-  final String? zoneLabel;
   if (timeZone == null) {
     displayTime = dueAt.toLocal();
-    zoneLabel = null;
   } else if (FeedingWeekdaySchedule.isValidTimeZone(timeZone)) {
     displayTime = tz.TZDateTime.from(
       dueAt,
       timeZone == 'UTC' ? tz.UTC : tz.getLocation(timeZone),
     );
-    zoneLabel = timeZone;
   } else {
     // Invalid persisted data must not be presented as the viewer's local time.
     displayTime = dueAt.toUtc();
-    zoneLabel = 'UTC';
   }
 
   final material = MaterialLocalizations.of(context);
   final dateTime =
       '${material.formatMediumDate(displayTime)} '
       '${material.formatTimeOfDay(TimeOfDay.fromDateTime(displayTime))}';
-  return zoneLabel == null ? dateTime : '$dateTime ($zoneLabel)';
+  return dateTime;
 }

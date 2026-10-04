@@ -198,6 +198,7 @@
   "archived": "Archived",
   "boxArchiveReasonReplaced": "Replaced",
   "boxArchiveReasonDamaged": "Damaged",
+  "boxArchiveReasonStored": "Stored",
   "archiveReasonSold": "Sold",
   "archiveReasonTraded": "Traded",
   "archiveReasonDeceased": "Deceased",

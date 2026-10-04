@@ -65,6 +65,14 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => FeedingSchedulePage(
+          onSelectAnimal: (animalId) async {
+            for (final reminder in reminders) {
+              if (recordId(reminder.animal) == animalId) {
+                await _openAnimal(reminder.animal);
+                return;
+              }
+            }
+          },
           entries: [
             for (final reminder in reminders)
               FeedingScheduleEntry(

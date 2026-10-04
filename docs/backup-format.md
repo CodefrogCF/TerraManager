@@ -397,7 +397,7 @@ The backup format remains Version 2.
 | Field | Portable value |
 |---|---|
 | `status` | `active` or `archived` |
-| `archiveReason` | `sold`, `replaced`, `damaged`, `other`, or null |
+| `archiveReason` | `sold`, `replaced`, `damaged`, `stored`, `other`, or null |
 | `archivedAt` | ISO 8601 timestamp or null |
 | `archiveNotes` | Optional string or null |
 
@@ -414,6 +414,13 @@ invalid. Restore recreates every lifecycle field and preserves the Box QR
 identifier, other attributes and picture media just as it does for active
 Boxes. Compatibility here means that the new application reads old backups;
 old application versions do not understand the new lifecycle fields.
+
+`stored` is a new stable Box archive reason in Format 2. A client from before
+this value was introduced rejects a backup containing `"archiveReason":
+"stored"` as an unsupported enum during validation, before restoring data.
+It does not convert the value to `other`. Restore that backup with a client
+that supports `stored`; older backups and existing archive reasons retain
+their original meanings.
 
 ## Box Representation
 
@@ -925,6 +932,28 @@ compatibility with existing backup files.
 
 Unknown enum values must cause backup validation to fail instead of being
 silently replaced with default values.
+
+### BoxArchiveReason
+
+Backup Format Version 2 defines:
+
+```text
+sold
+replaced
+damaged
+stored
+other
+```
+
+Mapping:
+
+```text
+BoxArchiveReason.sold     -> "sold"
+BoxArchiveReason.replaced -> "replaced"
+BoxArchiveReason.damaged  -> "damaged"
+BoxArchiveReason.stored   -> "stored"
+BoxArchiveReason.other    -> "other"
+```
 
 ### AnimalStatus
 

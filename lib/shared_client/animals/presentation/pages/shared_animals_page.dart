@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
@@ -79,7 +80,9 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                 animalId: recordId(reminder.animal),
                 animalName: animalLabel(reminder.animal, order: nameOrder),
                 dueAt: reminder.dueAt,
-                timeZone: reminder.animal['feedingReminderTimeZone'] as String?,
+                timeZone: reminder.animal['feedingReminderWeekdays'] == null
+                    ? null
+                    : reminder.animal['feedingReminderTimeZone'] as String?,
               ),
           ],
         ),
@@ -156,12 +159,16 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
 
   bool _dueRemindersExpanded = true;
 
-  String _reminderDate(DateTime date, Map<String, dynamic> animal) =>
-      feedingDueDateLabel(
-        context,
-        date,
-        timeZone: animal['feedingReminderTimeZone'] as String?,
-      );
+  String _reminderDate(DateTime date, Map<String, dynamic> animal) {
+    if (animal['feedingReminderWeekdays'] == null) {
+      return DateFormat('dd.MM.yyyy HH:mm').format(date.toLocal());
+    }
+    return feedingDueDateLabel(
+      context,
+      date,
+      timeZone: animal['feedingReminderTimeZone'] as String?,
+    );
+  }
 
   Widget _dueReminderSummary(
     List<({Map<String, dynamic> animal, DateTime dueAt})> reminders,

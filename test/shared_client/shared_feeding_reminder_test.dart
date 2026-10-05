@@ -385,23 +385,18 @@ void main() {
     },
   );
 
-  testWidgets('overview and schedule show Berlin time without a zone suffix', (
-    tester,
-  ) async {
-    final settings = AppSettingsController();
-    await settings.setNextFeedingSummaryEnabled(true);
-    final api = SharedApiClient(
-      Uri.parse('https://192.168.1.117'),
-      MockClient((_) async => http.Response('{}', 404)),
-    );
-    addTearDown(settings.dispose);
-    addTearDown(api.close);
-    final animals = [
-      {..._animal, 'id': 7, 'feedingReminderTimeZone': 'Europe/Berlin'},
-      {..._animal, 'id': 8, 'feedingReminderTimeZone': 'Europe/Berlin'},
-    ];
-    await tester.pumpWidget(
-      AppSettingsScope(
+  testWidgets(
+    'overview and schedule follow the reminder mode after switching',
+    (tester) async {
+      final settings = AppSettingsController();
+      await settings.setNextFeedingSummaryEnabled(true);
+      final api = SharedApiClient(
+        Uri.parse('https://192.168.1.117'),
+        MockClient((_) async => http.Response('{}', 404)),
+      );
+      addTearDown(settings.dispose);
+      addTearDown(api.close);
+      Widget page(bool weekdays) => AppSettingsScope(
         controller: settings,
         child: MaterialApp(
           locale: const Locale('de'),
@@ -410,7 +405,17 @@ void main() {
           home: SharedAnimalsPage(
             api: api,
             boxes: const [],
-            animals: animals,
+            animals: <Map<String, dynamic>>[
+              for (final id in [7, 8])
+                {
+                  ..._animal,
+                  'id': id,
+                  'feedingReminderWeekdays': weekdays ? 1 : null,
+                  'feedingReminderIntervalDays': weekdays ? null : 7,
+                  // An old zone value must not select weekday formatting.
+                  'feedingReminderTimeZone': 'Europe/Berlin',
+                },
+            ],
             reminders: const [
               {'animalId': 7, 'dueAt': '2026-06-01T16:00:00Z'},
               {'animalId': 8, 'dueAt': '2027-06-07T16:00:00Z'},
@@ -420,33 +425,71 @@ void main() {
             onReload: () async {},
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    final dueTile = tester.widget<ListTile>(
-      find.byKey(const Key('shared-feeding-reminder-due-7')),
-    );
-    expect((dueTile.subtitle as Text).data, contains('18:00'));
-    expect((dueTile.subtitle as Text).data, isNot(contains('Europe/Berlin')));
-    final nextTile = tester.widget<ListTile>(
-      find.descendant(
-        of: find.byKey(const Key('shared-next-feeding-summary')),
-        matching: find.byType(ListTile),
-      ),
-    );
-    expect((nextTile.subtitle as Text).data, contains('18:00'));
-
-    await tester.tap(find.byKey(const Key('shared-next-feeding-summary')));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const Key('feeding-schedule-page')), findsOneWidget);
-    for (final id in [7, 8]) {
-      final scheduleTile = tester.widget<ListTile>(
-        find.byKey(Key('feeding-schedule-animal-$id')),
       );
-      expect((scheduleTile.subtitle as Text).data, contains('18:00'));
-    }
-  });
+      await tester.pumpWidget(page(true));
+      await tester.pumpAndSettle();
+
+      final dueTile = tester.widget<ListTile>(
+        find.byKey(const Key('shared-feeding-reminder-due-7')),
+      );
+      expect((dueTile.subtitle as Text).data, contains('18:00'));
+      expect((dueTile.subtitle as Text).data, contains('Mo'));
+      expect((dueTile.subtitle as Text).data, isNot(contains('Europe/Berlin')));
+      final nextTile = tester.widget<ListTile>(
+        find.descendant(
+          of: find.byKey(const Key('shared-next-feeding-summary')),
+          matching: find.byType(ListTile),
+        ),
+      );
+      expect((nextTile.subtitle as Text).data, contains('18:00'));
+      expect((nextTile.subtitle as Text).data, contains('Mo'));
+
+      await tester.tap(find.byKey(const Key('shared-next-feeding-summary')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('feeding-schedule-page')), findsOneWidget);
+      for (final id in [7, 8]) {
+        final scheduleTile = tester.widget<ListTile>(
+          find.byKey(Key('feeding-schedule-animal-$id')),
+        );
+        expect((scheduleTile.subtitle as Text).data, contains('18:00'));
+        expect((scheduleTile.subtitle as Text).data, contains('Mo'));
+      }
+
+      Navigator.of(
+        tester.element(find.byKey(const Key('feeding-schedule-page'))),
+      ).pop();
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(page(false));
+      await tester.pumpAndSettle();
+
+      final intervalDueTile = tester.widget<ListTile>(
+        find.byKey(const Key('shared-feeding-reminder-due-7')),
+      );
+      expect(
+        (intervalDueTile.subtitle as Text).data,
+        contains(RegExp(r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}')),
+      );
+      expect((intervalDueTile.subtitle as Text).data, isNot(contains('Mo')));
+      final intervalNextTile = tester.widget<ListTile>(
+        find.descendant(
+          of: find.byKey(const Key('shared-next-feeding-summary')),
+          matching: find.byType(ListTile),
+        ),
+      );
+      expect((intervalNextTile.subtitle as Text).data, contains('2027'));
+      expect((intervalNextTile.subtitle as Text).data, isNot(contains('Mo')));
+
+      await tester.tap(find.byKey(const Key('shared-next-feeding-summary')));
+      await tester.pumpAndSettle();
+      for (final id in [7, 8]) {
+        final scheduleTile = tester.widget<ListTile>(
+          find.byKey(Key('feeding-schedule-animal-$id')),
+        );
+        expect((scheduleTile.subtitle as Text).data, contains('202'));
+        expect((scheduleTile.subtitle as Text).data, isNot(contains('Mo')));
+      }
+    },
+  );
 
   testWidgets('Animal detail shows the saved Berlin due time', (tester) async {
     await tester.pumpWidget(

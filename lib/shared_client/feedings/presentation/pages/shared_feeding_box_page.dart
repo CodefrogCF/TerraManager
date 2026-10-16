@@ -122,6 +122,10 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(_fedAt),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
     );
     if (time == null || !mounted) return;
     final selected = DateTime(
@@ -325,7 +329,7 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
                               title: Text(context.l10n.dateAndTime),
                               subtitle: Text(
                                 '${MaterialLocalizations.of(context).formatMediumDate(_fedAt)} '
-                                '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(_fedAt))}',
+                                '${MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(_fedAt), alwaysUse24HourFormat: true)}',
                               ),
                               trailing: IconButton(
                                 onPressed: _saving ? null : _selectDateTime,

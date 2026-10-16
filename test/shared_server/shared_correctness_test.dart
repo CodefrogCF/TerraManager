@@ -441,5 +441,6 @@ void main() {
       );
       expect((await call('DELETE', '/api/v1/animals/$id')).$1, 200);
     },
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 }

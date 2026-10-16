@@ -229,8 +229,42 @@ void main() {
       await tester.scrollUntilVisible(find.text('Cracked glass'), 200);
       await tester.pumpAndSettle();
       expect(find.text('Cracked glass'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(AppBar),
+          matching: find.byKey(const Key('restore-box-button')),
+        ),
+        findsNothing,
+      );
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('restore-box-button')),
+        250,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      final restoreTop = tester.getTopLeft(
+        find.byKey(const Key('restore-box-button')),
+      );
+      final deleteTop = tester.getTopLeft(
+        find.byKey(const Key('permanent-delete-box-button')),
+      );
+      expect(restoreTop.dy, lessThan(deleteTop.dy));
       await tester.tap(find.byKey(const Key('restore-box-button')));
       await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const Key('restore-box-button')))
+            .onPressed,
+        isNull,
+      );
+      expect(
+        tester
+            .widget<OutlinedButton>(
+              find.byKey(const Key('permanent-delete-box-button')),
+            )
+            .onPressed,
+        isNull,
+      );
       await tester.tap(find.byKey(const Key('cancel-restore-box-button')));
       await tester.pumpAndSettle();
       expect((await boxes.getBoxById(id))!.status, BoxStatus.archived);

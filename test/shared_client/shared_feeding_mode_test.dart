@@ -136,6 +136,125 @@ void main() {
     expect(submission!.headers['Idempotency-Key'], isNotEmpty);
   });
 
+  testWidgets('manual 24-hour Feeding time validates and is saved', (
+    tester,
+  ) async {
+    http.Request? submission;
+    final api = SharedApiClient(
+      Uri.parse(origin),
+      MockClient((request) async {
+        if (request.url.path == '/api/v1/auth/login') {
+          return http.Response(jsonEncode(session), 200);
+        }
+        if (request.url.path == '/api/v1/boxes/7') {
+          return http.Response(
+            jsonEncode({
+              'box': {'id': 7, 'status': 'active', 'name': 'Main Box'},
+            }),
+            200,
+          );
+        }
+        if (request.url.path == '/api/v1/animals') {
+          return http.Response(
+            jsonEncode({
+              'animals': [animals['animals']![1]],
+            }),
+            200,
+          );
+        }
+        if (request.url.path == '/api/v1/feedings') {
+          submission = request;
+          return http.Response(
+            jsonEncode({
+              'feedings': [
+                {'id': 10, 'animalId': 2},
+              ],
+            }),
+            201,
+          );
+        }
+        return http.Response('{}', 404);
+      }),
+    );
+    addTearDown(api.close);
+    await api.login('hagen', 'password');
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SharedFeedingBoxPage(
+          api: api,
+          box: const {'id': 7, 'status': 'active', 'name': 'Main Box'},
+          change: (operation) async {
+            await operation();
+            return true;
+          },
+          onReload: () async {},
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const Key('shared-feeding-date-time')),
+        matching: find.byType(IconButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+    final dateDialog = find.byType(DatePickerDialog);
+    final dateText = MaterialLocalizations.of(tester.element(dateDialog))
+        .formatCompactDate(DateTime(2020, 1, 2));
+    await tester.enterText(
+      find.descendant(of: dateDialog, matching: find.byType(TextFormField)),
+      dateText,
+    );
+    await tester.tap(find.text('OK').last);
+    await tester.pumpAndSettle();
+
+    final timeDialog = find.byType(TimePickerDialog);
+    expect(timeDialog, findsOneWidget);
+    expect(
+      MediaQuery.of(tester.element(timeDialog)).alwaysUse24HourFormat,
+      isTrue,
+    );
+    await tester.tap(find.byIcon(Icons.keyboard_outlined));
+    await tester.pumpAndSettle();
+    final inputs = find.descendant(
+      of: timeDialog,
+      matching: find.byType(TextFormField),
+    );
+    await tester.enterText(inputs.first, '25');
+    await tester.enterText(inputs.last, '00');
+    await tester.tap(find.text('OK').last);
+    await tester.pumpAndSettle();
+    expect(timeDialog, findsOneWidget);
+    expect(
+      find.text(
+        MaterialLocalizations.of(tester.element(timeDialog)).invalidTimeLabel,
+      ),
+      findsOneWidget,
+    );
+
+    await tester.enterText(inputs.first, '19');
+    await tester.tap(find.text('OK').last);
+    await tester.pumpAndSettle();
+    expect(timeDialog, findsNothing);
+    final dateTile = tester.widget<ListTile>(
+      find.byKey(const Key('shared-feeding-date-time')),
+    );
+    expect((dateTile.subtitle! as Text).data, contains('19:00'));
+    await tester.tap(find.byKey(const Key('shared-feeding-save')));
+    await tester.pumpAndSettle();
+    expect(submission, isNotNull);
+    final body = jsonDecode(submission!.body) as Map<String, dynamic>;
+    final saved = DateTime.parse(body['fedAt'] as String).toLocal();
+    expect(
+      (saved.year, saved.month, saved.day, saved.hour, saved.minute),
+      (2020, 1, 2, 19, 0),
+    );
+  });
+
   testWidgets('retry after an uncertain response keeps its request key', (
     tester,
   ) async {

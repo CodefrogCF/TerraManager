@@ -604,6 +604,7 @@ void main() {
         }
       }
     },
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 
   test('current schema persists Box names and notes after reopening', () async {

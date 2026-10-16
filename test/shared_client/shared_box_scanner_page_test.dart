@@ -146,28 +146,98 @@ void main() {
     api.close();
   });
 
-  for (final status in ['missing', 'archived']) {
-    testWidgets('$status Box cannot be opened from a QR scan', (tester) async {
+  testWidgets('missing Box shows an error', (tester) async {
+    final api = SharedApiClient(
+      Uri.parse('https://192.168.1.117'),
+      MockClient((request) async {
+        expect(request.url.pathSegments.last, qrId);
+        return http.Response(
+          jsonEncode({
+            'error': {'code': 'not_found', 'message': 'Box not found.'},
+          }),
+          404,
+        );
+      }),
+    );
+    addTearDown(api.close);
+    late Future<void> Function(String) scan;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SharedBoxScannerPage(
+          api: api,
+          boxes: const [],
+          animals: const [],
+          change: (operation) async {
+            await operation();
+            return true;
+          },
+          onHandlerReady: (handler) => scan = handler,
+        ),
+      ),
+    );
+    await tester.pump();
+    await scan(qrId);
+    await tester.pump();
+    expect(find.byType(SharedBoxDetailPage), findsNothing);
+    expect(find.text('Box not found'), findsOneWidget);
+  });
+
+  testWidgets(
+    'archived QR can be cancelled or restored before Feeding callback',
+    (tester) async {
+      var archived = true;
+      var restores = 0;
+      var resolved = 0;
+      Map<String, dynamic>? resolvedBox;
+      var stops = 0;
+      var starts = 0;
       final api = SharedApiClient(
         Uri.parse('https://192.168.1.117'),
         MockClient((request) async {
-          expect(request.url.pathSegments.last, qrId);
-          if (status == 'missing') {
+          if (request.url.path == '/api/v1/auth/login') {
             return http.Response(
               jsonEncode({
-                'error': {'code': 'not_found', 'message': 'Box not found.'},
+                'user': {'username': 'carer', 'role': 'caregiver'},
+                'csrfToken': 'csrf',
               }),
-              404,
+              200,
             );
           }
-          return http.Response(
-            jsonEncode({
-              'box': {'id': 7, 'status': 'archived'},
-            }),
-            200,
-          );
+          if (request.method == 'GET' &&
+              request.url.pathSegments.contains('qr')) {
+            return http.Response(
+              jsonEncode({
+                'box': {
+                  'id': 7,
+                  'name': 'Old Box',
+                  'qrId': qrId,
+                  'status': archived ? 'archived' : 'active',
+                },
+              }),
+              200,
+            );
+          }
+          if (request.method == 'POST' &&
+              request.url.path == '/api/v1/boxes/7/restore') {
+            restores++;
+            archived = false;
+            return http.Response(
+              jsonEncode({
+                'box': {
+                  'id': 7,
+                  'name': 'Old Box',
+                  'qrId': qrId,
+                  'status': 'active',
+                },
+              }),
+              200,
+            );
+          }
+          return http.Response('{}', 404);
         }),
       );
+      addTearDown(api.close);
+      await api.login('carer', 'password');
       late Future<void> Function(String) scan;
       await tester.pumpWidget(
         MaterialApp(
@@ -180,24 +250,127 @@ void main() {
               return true;
             },
             onHandlerReady: (handler) => scan = handler,
+            stopScanner: () async => stops++,
+            startScanner: () async => starts++,
+            onBoxResolved: (_, box) async {
+              resolved++;
+              resolvedBox = box;
+              return false;
+            },
           ),
         ),
       );
       await tester.pump();
 
-      await scan(qrId);
+      final cancelled = scan(qrId);
       await tester.pump();
-
-      expect(find.byType(SharedBoxDetailPage), findsNothing);
+      await tester.pump(const Duration(milliseconds: 350));
       expect(
-        find.text(
-          status == 'missing' ? 'Box not found' : 'This Box is archived. Restore it from Archived Boxes before using it.',
-        ),
+        find.byKey(const Key('scanned-box-restore-dialog')),
         findsOneWidget,
       );
-      api.close();
-    });
-  }
+      expect(find.textContaining('Old Box · Box 7'), findsOneWidget);
+      await tester.tap(
+        find.byKey(const Key('cancel-scanned-box-restore-button')),
+      );
+      await tester.pumpAndSettle();
+      await cancelled;
+      expect(archived, isTrue);
+      expect(restores, 0);
+      expect(resolved, 0);
+      expect(stops, 0);
+
+      final restoredScan = scan(qrId);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.tap(
+        find.byKey(const Key('confirm-scanned-box-restore-button')),
+      );
+      await tester.pumpAndSettle();
+      await restoredScan;
+      expect(archived, isFalse);
+      expect(restores, 1);
+      expect(resolved, 1);
+      expect(resolvedBox?['status'], 'active');
+      expect(resolvedBox?['qrId'], qrId);
+      expect(stops, 1);
+      expect(starts, 1);
+      expect(find.byKey(const Key('shared-scanner-error')), findsNothing);
+    },
+  );
+
+  testWidgets('failed restore keeps archived QR out of the scan flow', (
+    tester,
+  ) async {
+    var resolved = 0;
+    final api = SharedApiClient(
+      Uri.parse('https://192.168.1.117'),
+      MockClient((request) async {
+        if (request.url.path == '/api/v1/auth/login') {
+          return http.Response(
+            jsonEncode({
+              'user': {'username': 'carer', 'role': 'caregiver'},
+              'csrfToken': 'csrf',
+            }),
+            200,
+          );
+        }
+        if (request.method == 'GET') {
+          return http.Response(
+            jsonEncode({
+              'box': {'id': 7, 'qrId': qrId, 'status': 'archived'},
+            }),
+            200,
+          );
+        }
+        return http.Response(
+          jsonEncode({
+            'error': {'code': 'conflict', 'message': 'Restore failed.'},
+          }),
+          409,
+        );
+      }),
+    );
+    addTearDown(api.close);
+    await api.login('carer', 'password');
+    late Future<void> Function(String) scan;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SharedBoxScannerPage(
+          api: api,
+          boxes: const [],
+          animals: const [],
+          change: (operation) async {
+            try {
+              await operation();
+              return true;
+            } catch (_) {
+              return false;
+            }
+          },
+          onHandlerReady: (handler) => scan = handler,
+          onBoxResolved: (_, _) async {
+            resolved++;
+            return false;
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+    final scanning = scan(qrId);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.tap(
+      find.byKey(const Key('confirm-scanned-box-restore-button')),
+    );
+    await tester.pumpAndSettle();
+    await scanning;
+    expect(
+      find.text('Failed to restore Box. It may no longer be archived.'),
+      findsOneWidget,
+    );
+    expect(resolved, 0);
+  });
 
   testWidgets('valid active QR opens server Box details', (tester) async {
     final api = SharedApiClient(

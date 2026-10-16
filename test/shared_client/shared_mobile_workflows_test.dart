@@ -54,6 +54,7 @@ Widget _app(
   Widget home,
   AppSettingsController settings, {
   NavigatorObserver? observer,
+  bool use24HourFormat = true,
 }) => AppSettingsScope(
   controller: settings,
   child: MaterialApp(
@@ -61,7 +62,8 @@ Widget _app(
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     builder: (context, child) => MediaQuery(
-      data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+      data: MediaQuery.of(context)
+          .copyWith(alwaysUse24HourFormat: use24HourFormat),
       child: child!,
     ),
     home: home,
@@ -428,6 +430,7 @@ void main() {
               },
             ),
             settings,
+            use24HourFormat: false,
           ),
         );
         await tester.pumpAndSettle();
@@ -440,6 +443,11 @@ void main() {
               .widget<TimePickerDialog>(find.byType(TimePickerDialog))
               .initialEntryMode,
           TimePickerEntryMode.input,
+        );
+        expect(
+          MediaQuery.of(tester.element(find.byType(TimePickerDialog)))
+              .alwaysUse24HourFormat,
+          isTrue,
         );
         final inputs = find.descendant(
           of: find.byType(TimePickerDialog),

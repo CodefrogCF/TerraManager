@@ -7,6 +7,7 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/qr/qr_validator.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../../boxes/presentation/scanned_box_restore_dialog.dart';
 import '../../../scanning/presentation/widgets/scanner_torch_button.dart';
 import 'feeding_box_animals_page.dart';
 
@@ -88,7 +89,8 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
     }
 
     try {
-      final box = await BoxRepository(widget.database).getBoxByQrId(value);
+      final repository = BoxRepository(widget.database);
+      var box = await repository.getBoxByQrId(value);
 
       if (!mounted) {
         return;
@@ -103,15 +105,40 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
       }
 
       if (box.status == BoxStatus.archived) {
-        setState(() {
-          _processing = false;
-          _error = context.l10n.archivedBoxScanned;
-        });
-        return;
+        final label = [
+          if (box.name?.trim().isNotEmpty == true) box.name!.trim(),
+          context.l10n.boxLabel(box.id),
+        ].join(' · ');
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (_) => ScannedBoxRestoreDialog(boxLabel: label),
+        );
+        if (!mounted) return;
+        if (confirmed != true) {
+          setState(() => _processing = false);
+          return;
+        }
+        try {
+          final restored = await repository.restoreBox(box.id);
+          box = restored ? await repository.getBoxById(box.id) : null;
+        } catch (_) {
+          box = null;
+        }
+        if (!mounted) return;
+        if (box == null ||
+            box.status != BoxStatus.active ||
+            box.qrId != value) {
+          setState(() {
+            _processing = false;
+            _error = context.l10n.failedToRestoreBox;
+          });
+          return;
+        }
       }
 
+      final activeBox = box;
       final animals = await AnimalRepository(widget.database)
-          .getAnimalsForBox(box.id);
+          .getAnimalsForBox(activeBox.id);
 
       if (!mounted) {
         return;
@@ -127,7 +154,7 @@ class _FeedingScannerPageState extends State<FeedingScannerPage> {
         MaterialPageRoute<bool>(
           builder: (_) => FeedingBoxAnimalsPage(
             database: widget.database,
-            box: box,
+            box: activeBox,
             animals: animals,
           ),
         ),

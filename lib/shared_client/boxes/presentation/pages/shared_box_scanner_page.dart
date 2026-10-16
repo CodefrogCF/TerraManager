@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:terramanager/core/qr/qr_validator.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
+import 'package:terramanager/features/boxes/presentation/scanned_box_restore_dialog.dart';
 import 'package:terramanager/shared_client/boxes/infrastructure/scanner_camera_cleanup_stub.dart'
     if (dart.library.js_interop) 'package:terramanager/shared_client/boxes/infrastructure/scanner_camera_cleanup_web.dart'
     as camera_cleanup;
@@ -122,11 +123,31 @@ class _SharedBoxScannerPageState extends State<SharedBoxScannerPage> {
     });
 
     try {
-      final box = await widget.api.boxByQrId(qrId);
+      var box = await widget.api.boxByQrId(qrId);
       if (!mounted || _closing) return;
       if (box['status'] == 'archived') {
-        setState(() => _error = context.l10n.archivedBoxScanned);
-        return;
+        if (box['id'] is! int) {
+          setState(() => _error = context.l10n.failedToScanQrCode);
+          return;
+        }
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (_) => ScannedBoxRestoreDialog(boxLabel: boxLabel(box)),
+        );
+        if (!mounted || _closing || confirmed != true) return;
+        Map<String, dynamic>? restoredBox;
+        final saved = await widget.change(() async {
+          restoredBox = await widget.api.restoreBox(box['id'] as int);
+        });
+        if (!mounted || _closing) return;
+        if (!saved ||
+            restoredBox?['status'] != 'active' ||
+            restoredBox?['id'] != box['id'] ||
+            restoredBox?['qrId'] != qrId) {
+          setState(() => _error = context.l10n.failedToRestoreBox);
+          return;
+        }
+        box = restoredBox!;
       }
       if (box['status'] != 'active' || box['id'] is! int) {
         setState(() => _error = context.l10n.failedToScanQrCode);

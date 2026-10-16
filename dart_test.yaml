@@ -1,0 +1,5 @@
+# SQLite-backed Shared Server suites can exceed the runner's 30-second default
+# under parallel load, especially on Windows. Keep the limit finite and avoid
+# saturating the machine with concurrent Flutter test suites.
+concurrency: 4
+timeout: 2m

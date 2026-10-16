@@ -233,6 +233,88 @@ void main() {
     );
   });
 
+  testWidgets('compact rows mark only active due Animals and refresh', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final settings = AppSettingsController();
+    final api = SharedApiClient(
+      Uri.parse('https://192.168.1.117'),
+      MockClient((_) async => http.Response('{}', 404)),
+    );
+    addTearDown(settings.dispose);
+    addTearDown(api.close);
+    final animals = [
+      {..._animal, 'id': 7, 'commonName': 'Due Animal'},
+      {..._animal, 'id': 8, 'commonName': 'Later Animal'},
+      {
+        ..._animal,
+        'id': 9,
+        'status': 'archived',
+        'commonName': 'Archived Animal',
+      },
+    ];
+    Widget page({
+      required List<Map<String, dynamic>> reminders,
+      bool archived = false,
+    }) => AppSettingsScope(
+      controller: settings,
+      child: MaterialApp(
+        locale: const Locale('de'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        home: SharedAnimalsPage(
+          api: api,
+          boxes: const [
+            {'id': 1, 'name': 'Box', 'status': 'active'},
+          ],
+          animals: animals,
+          reminders: reminders,
+          archived: archived,
+          connected: true,
+          change: (_) async => true,
+          onReload: () async {},
+        ),
+      ),
+    );
+    const dueReminders = [
+      {'animalId': 7, 'dueAt': '2020-01-01T12:00:00Z'},
+      {'animalId': 9, 'dueAt': '2020-01-01T12:00:00Z'},
+    ];
+    await tester.pumpWidget(page(reminders: dueReminders));
+    await tester.pumpAndSettle();
+
+    final dueTile = find.byKey(const Key('animal-list-item-7'));
+    expect(
+      find.descendant(
+        of: dueTile,
+        matching: find.byKey(const Key('shared-animal-due-marker-7')),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Fällig'), findsOneWidget);
+    expect(
+      find.byKey(const Key('animal-context-menu-button-7')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('shared-animal-due-marker-8')), findsNothing);
+    expect(find.byKey(const Key('animal-list-item-9')), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(page(reminders: const []));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('shared-animal-due-marker-7')), findsNothing);
+
+    await tester.pumpWidget(page(reminders: dueReminders, archived: true));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('animal-list-item-9')), findsOneWidget);
+    expect(find.byKey(const Key('shared-animal-due-marker-9')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('shared schedule opens due and upcoming Animal details', (
     tester,
   ) async {

@@ -6,6 +6,7 @@ import '../../../../core/database/enums/box_status.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/qr/qr_validator.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../scanned_box_restore_dialog.dart';
 import '../../../scanning/presentation/widgets/scanner_torch_button.dart';
 import 'box_detail_page.dart';
 
@@ -89,7 +90,8 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
     }
 
     try {
-      final box = await BoxRepository(widget.database).getBoxByQrId(value);
+      final repository = BoxRepository(widget.database);
+      var box = await repository.getBoxByQrId(value);
 
       if (!mounted) {
         return;
@@ -104,13 +106,38 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
       }
 
       if (box.status == BoxStatus.archived) {
-        setState(() {
-          _processing = false;
-          _error = context.l10n.archivedBoxScanned;
-        });
-        return;
+        final label = [
+          if (box.name?.trim().isNotEmpty == true) box.name!.trim(),
+          context.l10n.boxLabel(box.id),
+        ].join(' · ');
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (_) => ScannedBoxRestoreDialog(boxLabel: label),
+        );
+        if (!mounted) return;
+        if (confirmed != true) {
+          setState(() => _processing = false);
+          return;
+        }
+        try {
+          final restored = await repository.restoreBox(box.id);
+          box = restored ? await repository.getBoxById(box.id) : null;
+        } catch (_) {
+          box = null;
+        }
+        if (!mounted) return;
+        if (box == null ||
+            box.status != BoxStatus.active ||
+            box.qrId != value) {
+          setState(() {
+            _processing = false;
+            _error = context.l10n.failedToRestoreBox;
+          });
+          return;
+        }
       }
 
+      final activeBox = box;
       await _stopScanner();
 
       if (!mounted) {
@@ -118,7 +145,7 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
       }
 
       if (widget.onBoxScanned != null) {
-        final closeScanner = await widget.onBoxScanned!(box);
+        final closeScanner = await widget.onBoxScanned!(activeBox);
 
         if (!mounted) {
           return;
@@ -139,7 +166,8 @@ class _BoxScannerPageState extends State<BoxScannerPage> {
 
       await Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => BoxDetailPage(database: widget.database, box: box),
+          builder: (_) =>
+              BoxDetailPage(database: widget.database, box: activeBox),
         ),
       );
 

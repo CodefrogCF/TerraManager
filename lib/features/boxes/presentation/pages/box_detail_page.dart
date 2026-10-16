@@ -532,23 +532,7 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               key: const Key('box-detail-title'),
             ),
             actions: [
-              if (box.status == BoxStatus.archived)
-                IconButton(
-                  key: const Key('restore-box-button'),
-                  onPressed:
-                      _lifecycleActionInProgress || _switchingBox || _savingQr
-                      ? null
-                      : _restoreBox,
-                  icon: _restoringWrite
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.unarchive_outlined),
-                  tooltip: context.l10n.restoreBox,
-                )
-              else
+              if (box.status != BoxStatus.archived)
                 IconButton(
                   key: const Key('edit-box-button'),
                   onPressed: _switchingBox ? null : _openEditPage,
@@ -920,6 +904,24 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                     const SizedBox(height: 32),
                     const Divider(),
                     const SizedBox(height: 16),
+                    FilledButton.icon(
+                      key: const Key('restore-box-button'),
+                      onPressed:
+                          _lifecycleActionInProgress ||
+                              _switchingBox ||
+                              _savingQr
+                          ? null
+                          : _restoreBox,
+                      icon: _restoringWrite
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.restore),
+                      label: Text(context.l10n.restoreBox),
+                    ),
+                    const SizedBox(height: 12),
                     OutlinedButton.icon(
                       key: const Key('permanent-delete-box-button'),
                       style: OutlinedButton.styleFrom(

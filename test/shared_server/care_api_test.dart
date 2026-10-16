@@ -419,7 +419,7 @@ void main() {
     );
     expect(accepted.status, 201);
     expect(accepted.json!['feedings'], hasLength(1));
-  });
+  }, timeout: const Timeout(Duration(minutes: 2)));
 
   test(
     'shared reminders follow server feeding history and reject stale edits',

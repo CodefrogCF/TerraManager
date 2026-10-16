@@ -355,6 +355,10 @@ class _HistoryDialogState extends State<_HistoryDialog> {
       context: context,
       initialTime: TimeOfDay.fromDateTime(_date),
       initialEntryMode: TimePickerEntryMode.input,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        child: child!,
+      ),
     );
     if (time == null || !mounted) return;
     setState(() {
@@ -415,8 +419,7 @@ class _HistoryDialogState extends State<_HistoryDialog> {
             subtitle: Text(
               MaterialLocalizations.of(context).formatTimeOfDay(
                 TimeOfDay.fromDateTime(_date),
-                alwaysUse24HourFormat: MediaQuery.of(context)
-                    .alwaysUse24HourFormat,
+                alwaysUse24HourFormat: true,
               ),
             ),
             trailing: const Icon(Icons.schedule_outlined),

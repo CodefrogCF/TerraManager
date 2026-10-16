@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/enums/box_archive_reason.dart';
+import 'package:terramanager/core/database/enums/box_status.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_detail_page.dart';
@@ -159,7 +160,7 @@ void main() {
   for (final feeding in [false, true]) {
     for (final language in ['en', 'de']) {
       testWidgets(
-        '${feeding ? 'Feeding' : 'Box'} scanner rejects archived QR in $language and accepts it after restore',
+        '${feeding ? 'Feeding' : 'Box'} scanner offers restore for an archived QR in $language',
         (tester) async {
           final id = await boxes.createBoxWithGeneratedQrId();
           final qr = (await boxes.getBoxById(id))!.qrId;
@@ -171,51 +172,86 @@ void main() {
               ? FeedingScannerPage(
                   database: database,
                   onHandlerReady: (handler) => scan = handler,
-                  stopScanner: () async {
-                    stops++;
-                  },
-                  startScanner: () async {
-                    starts++;
-                  },
+                  stopScanner: () async => stops++,
+                  startScanner: () async => starts++,
                 )
               : BoxScannerPage(
                   database: database,
                   onHandlerReady: (handler) => scan = handler,
-                  stopScanner: () async {
-                    stops++;
-                  },
-                  startScanner: () async {
-                    starts++;
-                  },
+                  stopScanner: () async => stops++,
+                  startScanner: () async => starts++,
                 );
           await pumpPage(tester, page, language: language);
-          await scan(qr);
-          await tester.pumpAndSettle();
+
+          final cancelled = scan(qr);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 350));
           expect(
-            find.text(
-              lookupAppLocalizations(Locale(language)).archivedBoxScanned,
-            ),
+            find.byKey(const Key('scanned-box-restore-dialog')),
             findsOneWidget,
           );
+          expect(find.textContaining('Box $id'), findsOneWidget);
           expect(find.byType(BoxDetailPage), findsNothing);
           expect(find.byType(FeedingBoxAnimalsPage), findsNothing);
+          await tester.tap(
+            find.byKey(const Key('cancel-scanned-box-restore-button')),
+          );
+          await tester.pumpAndSettle();
+          await cancelled;
+          expect((await boxes.getBoxById(id))!.status, BoxStatus.archived);
           expect(stops, 0);
           expect(starts, 0);
-          expect(await database.select(database.feedingEvents).get(), isEmpty);
-          await boxes.restoreBox(id);
-          final opened = scan(qr);
+
+          final restoredScan = scan(qr);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 350));
+          await tester.tap(
+            find.byKey(const Key('confirm-scanned-box-restore-button')),
+          );
           await tester.pumpAndSettle();
           expect(
             find.byType(feeding ? FeedingBoxAnimalsPage : BoxDetailPage),
             findsOneWidget,
           );
+          expect((await boxes.getBoxById(id))!.status, BoxStatus.active);
+          expect((await boxes.getBoxById(id))!.qrId, qr);
+          expect(await database.select(database.feedingEvents).get(), isEmpty);
           expect(stops, 1);
           await tester.tap(find.byType(BackButton));
           await tester.pumpAndSettle();
-          await opened;
+          await restoredScan;
           expect(starts, 1);
         },
       );
     }
   }
+  testWidgets('failed scanner restore does not open the Box', (tester) async {
+    final id = await boxes.createBoxWithGeneratedQrId();
+    final qr = (await boxes.getBoxById(id))!.qrId;
+    await archive(id);
+    late Future<void> Function(String) scan;
+    await pumpPage(
+      tester,
+      BoxScannerPage(
+        database: database,
+        onHandlerReady: (handler) => scan = handler,
+        stopScanner: () async {},
+        startScanner: () async {},
+      ),
+    );
+    final scanning = scan(qr);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    await boxes.restoreBox(id);
+    await tester.tap(
+      find.byKey(const Key('confirm-scanned-box-restore-button')),
+    );
+    await tester.pumpAndSettle();
+    await scanning;
+    expect(find.byType(BoxDetailPage), findsNothing);
+    expect(
+      find.text(lookupAppLocalizations(const Locale('en')).failedToRestoreBox),
+      findsOneWidget,
+    );
+  });
 }

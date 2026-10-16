@@ -634,6 +634,9 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     final dueReminders = reminderEntries
         .where((entry) => !entry.dueAt.isAfter(now))
         .toList();
+    final dueAnimalIds = dueReminders
+        .map((entry) => recordId(entry.animal))
+        .toSet();
     final nextReminder = settings.nextFeedingSummaryEnabled
         ? reminderEntries
                   .where((entry) => entry.dueAt.isAfter(now))
@@ -790,7 +793,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
             : !_archived && settings.bigPictureModeEnabled
             ? _bigPictureAnimalGrid(
                 rows,
-                dueReminders.map((entry) => recordId(entry.animal)).toSet(),
+                dueAnimalIds,
                 settings.animalNameOrder,
                 dueReminders,
                 nextReminder,
@@ -890,7 +893,37 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                           boxLabel(box),
                       ].join(' · '),
                     ),
-                    trailing: menuButton,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (dueAnimalIds.contains(id)) ...[
+                          Container(
+                            key: Key('shared-animal-due-marker-$id'),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .errorContainer,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              context.l10n.due,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onErrorContainer,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                        ],
+                        ?menuButton,
+                      ],
+                    ),
                     onTap: () => _openAnimal(animal),
                   );
                   return OverviewContextMenu<_AnimalAction>(

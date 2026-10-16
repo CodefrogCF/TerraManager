@@ -124,6 +124,7 @@ void main() {
         await directory.delete(recursive: true);
       }
     },
+    timeout: const Timeout(Duration(minutes: 2)),
   );
 
   test(

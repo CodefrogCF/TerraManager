@@ -41,11 +41,39 @@ class SharedAnimalProfilePdfLoader {
             as int? ??
         pictures.firstOrNull?['mediaId'] as int?;
     final primary = primaryId == null ? null : await api.mediaBytes(primaryId);
-    final remaining = <Uint8List>[];
+    final gallery = <Uint8List>[];
     if (includeGallery) {
-      for (final picture in pictures) {
+      final chronologicalPictures = [...pictures]
+        ..sort((a, b) {
+          final first = DateTime.tryParse(a['capturedAt']?.toString() ?? '');
+          final second = DateTime.tryParse(b['capturedAt']?.toString() ?? '');
+          final capturedAt = first == null
+              ? (second == null ? 0 : -1)
+              : second == null
+              ? 1
+              : first.compareTo(second);
+          if (capturedAt != 0) return capturedAt;
+          final order = ((a['sortOrder'] as int?) ?? 0).compareTo(
+            (b['sortOrder'] as int?) ?? 0,
+          );
+          return order != 0
+              ? order
+              : ((a['associationId'] ?? a['mediaId']) as int).compareTo(
+                  (b['associationId'] ?? b['mediaId']) as int,
+                );
+        });
+      // Legacy primary pictures may not have a gallery capture date.
+      if (primary != null &&
+          !pictures.any((picture) => picture['mediaId'] == primaryId)) {
+        gallery.add(primary);
+      }
+      for (final picture in chronologicalPictures) {
         final mediaId = picture['mediaId'] as int;
-        if (mediaId != primaryId) remaining.add(await api.mediaBytes(mediaId));
+        gallery.add(
+          mediaId == primaryId && primary != null
+              ? primary
+              : await api.mediaBytes(mediaId),
+        );
       }
     }
     final box = boxes
@@ -89,7 +117,7 @@ class SharedAnimalProfilePdfLoader {
                 : null
           : boxLabel(box),
       primaryPicture: primary,
-      galleryPictures: remaining,
+      galleryPictures: gallery,
       feedings: feedings,
       shedding: shedding,
       weights: weights,

@@ -57,6 +57,13 @@ class LocalAnimalProfilePdfLoader {
         .getFeedingsForAnimal(animalId);
     final shedding = await SheddingRepository(database).getHistory(animalId);
     final weights = await AnimalWeightRepository(database).getHistory(animalId);
+    final chronologicalGallery = [...gallery]
+      ..sort((a, b) {
+        final capturedAt = a.capturedAt.compareTo(b.capturedAt);
+        if (capturedAt != 0) return capturedAt;
+        final order = a.sortOrder.compareTo(b.sortOrder);
+        return order != 0 ? order : a.associationId.compareTo(b.associationId);
+      });
 
     return AnimalProfilePdfContent.build(
       l10n: l10n,
@@ -102,8 +109,11 @@ class LocalAnimalProfilePdfLoader {
       primaryPicture: primary,
       galleryPictures: includeGallery
           ? [
-              for (final entry in gallery)
-                if (entry.media.id != primaryId) entry.media.data,
+              // Legacy primary pictures may not have a gallery capture date.
+              if (primary != null &&
+                  !gallery.any((entry) => entry.media.id == primaryId))
+                primary,
+              for (final entry in chronologicalGallery) entry.media.data,
             ]
           : const [],
       feedings: [

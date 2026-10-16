@@ -96,7 +96,10 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
       author: 'TerraManager',
       creator: 'TerraManager',
     );
-    final primary = _pdfImage(data.primaryPicture);
+    final primary = _pdfImage(
+      data.primaryPicture,
+      square: options.kind == AnimalProfilePdfKind.label,
+    );
     if (options.kind == AnimalProfilePdfKind.label) {
       _addLabel(document, data, options.labelWidthMm, font, primary);
     } else {
@@ -105,18 +108,29 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
     return document.save();
   }
 
-  static pw.MemoryImage? _pdfImage(Uint8List? bytes) {
+  static pw.MemoryImage? _pdfImage(Uint8List? bytes, {bool square = false}) {
     if (bytes == null || bytes.isEmpty) return null;
     final decoded = img.decodeImage(bytes);
     if (decoded == null) return null;
     final oriented = img.bakeOrientation(decoded);
-    final resized = oriented.width > 1400 || oriented.height > 1400
-        ? img.copyResize(
+    // Fix the square crop before layout so label width only changes its scale.
+    final side = math.min(oriented.width, oriented.height);
+    final prepared = square && oriented.width != oriented.height
+        ? img.copyCrop(
             oriented,
-            width: oriented.width >= oriented.height ? 1400 : null,
-            height: oriented.height > oriented.width ? 1400 : null,
+            x: (oriented.width - side) ~/ 2,
+            y: (oriented.height - side) ~/ 2,
+            width: side,
+            height: side,
           )
         : oriented;
+    final resized = prepared.width > 1400 || prepared.height > 1400
+        ? img.copyResize(
+            prepared,
+            width: prepared.width >= prepared.height ? 1400 : null,
+            height: prepared.height > prepared.width ? 1400 : null,
+          )
+        : prepared;
     return pw.MemoryImage(
       Uint8List.fromList(img.encodeJpg(resized, quality: 85)),
     );
@@ -134,6 +148,8 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
     final labelFields = (data.labelFields ?? data.fields)
         .where((field) => field.value != data.name)
         .toList(growable: false);
+    String labelText(AnimalProfilePdfField field) =>
+        field.label.isEmpty ? field.value : '${field.label}: ${field.value}';
     final textWidthMm =
         widthMm - (marginMm * 2) - imageWidthMm - (primary == null ? 0 : 4);
     final charactersPerLine = math.max(10, (textWidthMm * 2.835 / 5.2).floor());
@@ -149,8 +165,7 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
         lines(data.name) * 5 +
         labelFields.fold<double>(
           0,
-          (sum, field) =>
-              sum + 1.5 + lines('${field.label}: ${field.value}') * 4,
+          (sum, field) => sum + 1.5 + lines(labelText(field)) * 4,
         );
     final heightMm = math.max(imageWidthMm + 10, textHeightMm + 12);
     document.addPage(
@@ -167,8 +182,15 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
             if (primary != null) ...[
               pw.Container(
                 width: imageWidthMm * PdfPageFormat.mm,
-                height: imageWidthMm * PdfPageFormat.mm,
-                child: pw.Image(primary, fit: pw.BoxFit.cover),
+                height: (heightMm - marginMm * 2) * PdfPageFormat.mm,
+                alignment: pw.Alignment.center,
+                child: pw.SizedBox(
+                  width: imageWidthMm * PdfPageFormat.mm,
+                  height: imageWidthMm * PdfPageFormat.mm,
+                  child: pw.Center(
+                    child: pw.Image(primary, fit: pw.BoxFit.contain),
+                  ),
+                ),
               ),
               pw.SizedBox(width: 4 * PdfPageFormat.mm),
             ],
@@ -190,7 +212,7 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
                         bottom: 1.5 * PdfPageFormat.mm,
                       ),
                       child: pw.Text(
-                        '${field.label}: ${field.value}',
+                        labelText(field),
                         style: const pw.TextStyle(fontSize: 9),
                       ),
                     ),
@@ -254,10 +276,10 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
           ..._history(data.feedingTitle, data.feedings),
           ..._history(data.sheddingTitle, data.shedding),
           ..._history(data.weightTitle, data.weights),
-          if (includeGallery) ..._gallery(data),
         ],
       ),
     );
+    if (includeGallery) _addGallery(document, data, font);
   }
 
   static Iterable<pw.Widget> _field(AnimalProfilePdfField field) sync* {
@@ -274,20 +296,61 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
     }
   }
 
-  static Iterable<pw.Widget> _gallery(AnimalProfilePdfData data) sync* {
-    for (var index = 0; index < data.galleryPictures.length; index++) {
-      final picture = _pdfImage(data.galleryPictures[index]);
-      if (picture == null) continue;
-      yield pw.NewPage(freeSpace: 130 * PdfPageFormat.mm);
-      yield _heading(
-        '${data.galleryTitle} ${index + 1}/${data.galleryPictures.length}',
-      );
-      yield pw.Padding(
-        padding: pw.EdgeInsets.only(bottom: 6 * PdfPageFormat.mm),
-        child: pw.Container(
-          height: 100 * PdfPageFormat.mm,
-          alignment: pw.Alignment.centerLeft,
-          child: pw.Image(picture, fit: pw.BoxFit.contain),
+  static void _addGallery(
+    pw.Document document,
+    AnimalProfilePdfData data,
+    pw.Font font,
+  ) {
+    final pictures = <pw.MemoryImage>[
+      for (final bytes in data.galleryPictures) ?_pdfImage(bytes),
+    ];
+    const gap = 6 * PdfPageFormat.mm;
+    final imageSize =
+        (PdfPageFormat.a4.width - 24 * PdfPageFormat.mm - gap) / 2;
+    final pages = (pictures.length / 4).ceil();
+    pw.Widget cell(int index) => pw.Column(
+      children: [
+        pw.Container(
+          width: imageSize,
+          height: imageSize,
+          alignment: pw.Alignment.center,
+          child: pw.Image(pictures[index], fit: pw.BoxFit.contain),
+        ),
+        pw.SizedBox(height: 2 * PdfPageFormat.mm),
+        pw.Text(
+          '${index + 1}/${pictures.length}',
+          style: const pw.TextStyle(fontSize: 9),
+        ),
+      ],
+    );
+    for (var page = 0; page < pages; page++) {
+      final start = page * 4;
+      final end = math.min(start + 4, pictures.length);
+      document.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          margin: pw.EdgeInsets.all(12 * PdfPageFormat.mm),
+          theme: pw.ThemeData.withFont(base: font, bold: font),
+          build: (_) => pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+            children: [
+              _heading('${data.galleryTitle} ${page + 1}/$pages'),
+              pw.SizedBox(height: 4 * PdfPageFormat.mm),
+              for (var index = start; index < end; index += 2) ...[
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Expanded(child: cell(index)),
+                    pw.SizedBox(width: gap),
+                    pw.Expanded(
+                      child: index + 1 < end ? cell(index + 1) : pw.SizedBox(),
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: gap),
+              ],
+            ],
+          ),
         ),
       );
     }

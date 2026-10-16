@@ -40,10 +40,25 @@ class AnimalProfilePdfContent {
     }
 
     final fields = <AnimalProfilePdfField>[];
-    void add(String label, Object? value) {
+    final labelFields = <AnimalProfilePdfField>[];
+    void add(
+      String label,
+      Object? value, {
+      bool includeOnLabel = true,
+      bool showLabelCaption = true,
+      String? labelCaption,
+    }) {
       final text = value?.toString().trim();
       if (text != null && text.isNotEmpty) {
         fields.add(AnimalProfilePdfField(label, text));
+        if (includeOnLabel) {
+          labelFields.add(
+            AnimalProfilePdfField(
+              showLabelCaption ? labelCaption ?? label : '',
+              text,
+            ),
+          );
+        }
       }
     }
 
@@ -73,18 +88,19 @@ class AnimalProfilePdfContent {
     }
 
     add(l10n.commonName, animal['commonName']);
-    add(l10n.latinName, animal['latinName']);
-    add(l10n.animalCategory, category);
-    add(l10n.animalSubcategory, subcategory);
+    add(l10n.latinName, animal['latinName'], showLabelCaption: false);
+    add(l10n.animalCategory, category, includeOnLabel: false);
+    add(l10n.animalSubcategory, subcategory, includeOnLabel: false);
     add(l10n.sex, sex);
     if (readDate(animal['birthDate']) case final date?) {
       add(l10n.birthDateLowercase, formatDate(date));
     }
-    add(l10n.birthDateAccuracyLowercase, birthAccuracy);
-    add(l10n.box, box);
+    add(l10n.birthDateAccuracyLowercase, birthAccuracy, includeOnLabel: false);
+    add(l10n.box, box, includeOnLabel: false);
     add(
       l10n.daytimeTemperature,
       temperature(animal['tempMin'], animal['tempMax']),
+      labelCaption: l10n.animalPdfDayLabel,
     );
     add(
       l10n.nighttimeTemperature,
@@ -92,22 +108,32 @@ class AnimalProfilePdfContent {
         animal['nighttimeTemperatureMin'] ?? animal['nighttimeTemperature'],
         animal['nighttimeTemperatureMax'] ?? animal['nighttimeTemperature'],
       ),
+      labelCaption: l10n.animalPdfNightLabel,
     );
     add(l10n.humidity, humidity(animal['humidityMin'], animal['humidityMax']));
     add(l10n.originHabitat, animal['originHabitat']);
-    final labelFields = List<AnimalProfilePdfField>.of(fields);
-    add(l10n.restOrDormancyPeriods, animal['restOrDormancyPeriods']);
-    add(l10n.temperatureZones, animal['temperatureZones']);
-    add(l10n.notes, animal['notes']);
-    if (weights.isEmpty) add(l10n.weight, animal['weight']);
-    add(l10n.sheddingNotes, animal['sheddingNotes']);
+    add(
+      l10n.restOrDormancyPeriods,
+      animal['restOrDormancyPeriods'],
+      includeOnLabel: false,
+    );
+    add(
+      l10n.temperatureZones,
+      animal['temperatureZones'],
+      includeOnLabel: false,
+    );
+    add(l10n.notes, animal['notes'], includeOnLabel: false);
+    if (weights.isEmpty) {
+      add(l10n.weight, animal['weight'], includeOnLabel: false);
+    }
+    add(l10n.sheddingNotes, animal['sheddingNotes'], includeOnLabel: false);
     if (animal['status'] == 'archived') {
-      add(l10n.status, l10n.archived);
-      add(l10n.animalPdfArchiveReason, archiveReason);
+      add(l10n.status, l10n.archived, includeOnLabel: false);
+      add(l10n.animalPdfArchiveReason, archiveReason, includeOnLabel: false);
       if (readDate(animal['archivedAt']) case final date?) {
-        add(l10n.archiveDateLowercase, formatDate(date));
+        add(l10n.archiveDateLowercase, formatDate(date), includeOnLabel: false);
       }
-      add(l10n.archiveNote, animal['archiveNotes']);
+      add(l10n.archiveNote, animal['archiveNotes'], includeOnLabel: false);
     }
 
     List<AnimalProfilePdfEntry> events(

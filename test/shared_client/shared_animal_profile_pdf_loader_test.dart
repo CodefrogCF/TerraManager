@@ -51,8 +51,21 @@ void main() {
           },
           '/api/v1/animals/9/pictures' => {
             'pictures': [
-              {'mediaId': 7, 'isPrimary': true},
-              {'mediaId': 8, 'isPrimary': false},
+              {
+                'mediaId': 7,
+                'isPrimary': true,
+                'capturedAt': '2026-10-02T12:00:00Z',
+              },
+              {
+                'mediaId': 9,
+                'isPrimary': false,
+                'capturedAt': '2026-10-03T12:00:00Z',
+              },
+              {
+                'mediaId': 8,
+                'isPrimary': false,
+                'capturedAt': '2026-10-01T12:00:00Z',
+              },
             ],
           },
           '/api/v1/animals/9/feedings' => {
@@ -101,7 +114,7 @@ void main() {
     expect(mediaRequests, [7]);
 
     final withGallery = await loader.load(9, l10n, boxes, includeGallery: true);
-    expect(withGallery.galleryPictures.single, [8]);
-    expect(mediaRequests, [7, 7, 8]);
+    expect(withGallery.galleryPictures.map((bytes) => bytes.single), [8, 7, 9]);
+    expect(mediaRequests, [7, 7, 8, 9]);
   });
 }

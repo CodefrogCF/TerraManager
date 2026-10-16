@@ -13,7 +13,7 @@ import 'package:terramanager/features/animals/application/local_animal_profile_p
 import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 void main() {
-  test('Standalone loads the selected Animal and excludes the primary from gallery append', () async {
+  test('Standalone includes the primary at its capture date in the complete gallery', () async {
     final database = AppDatabase.test(NativeDatabase.memory());
     addTearDown(database.close);
     final boxId = await database
@@ -35,12 +35,22 @@ void main() {
       fileName: 'primary.png',
       mimeType: 'image/png',
       data: Uint8List.fromList([1]),
+      capturedAt: DateTime(2026, 10, 2),
     );
     await pictures.addAnimalPicture(
       animalId: animalId,
       fileName: 'other.png',
       mimeType: 'image/png',
       data: Uint8List.fromList([2]),
+      capturedAt: DateTime(2026, 10, 1),
+      makePrimary: false,
+    );
+    await pictures.addAnimalPicture(
+      animalId: animalId,
+      fileName: 'newer.png',
+      mimeType: 'image/png',
+      data: Uint8List.fromList([3]),
+      capturedAt: DateTime(2026, 10, 3),
       makePrimary: false,
     );
     await FeedingRepository(database)
@@ -66,6 +76,6 @@ void main() {
     expect(basic.fields.map((field) => field.value), contains('Forest'));
 
     final complete = await loader.load(animalId, l10n, includeGallery: true);
-    expect(complete.galleryPictures.single, [2]);
+    expect(complete.galleryPictures.map((bytes) => bytes.single), [2, 1, 3]);
   });
 }

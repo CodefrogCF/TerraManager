@@ -845,5 +845,15 @@
   },
   "rateTerraManager": "Rate TerraManager",
   "rateTerraManagerDescription": "Open Google Play to leave a voluntary review",
-  "failedToOpenStoreListing": "The Play Store listing could not be opened. Please try again later."
+  "failedToOpenStoreListing": "The Play Store listing could not be opened. Please try again later.",
+  "exportAnimalPdf": "Export Animal PDF",
+  "animalPdfLabel": "Terrarium label / display card",
+  "animalPdfHandover": "Complete A4 profile and history",
+  "animalPdfLabelWidth": "Label width: {width} mm",
+  "@animalPdfLabelWidth": {"placeholders": {"width": {"type": "int"}}},
+  "animalPdfIncludeGallery": "Append remaining gallery pictures",
+  "animalPdfSave": "Choose destination and save PDF",
+  "animalPdfSaved": "Animal PDF saved",
+  "animalPdfFailed": "Animal PDF could not be saved.",
+  "animalPdfArchiveReason": "Archive reason"
 }

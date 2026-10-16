@@ -7,11 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:terramanager/core/database/enums/birth_date_accuracy.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
+import 'package:terramanager/features/animals/presentation/widgets/animal_profile_pdf_export_button.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/l10n/app_localizations_labels.dart';
 import 'package:terramanager/shared_client/animals/presentation/animal_overview.dart';
+import 'package:terramanager/shared_client/animals/application/shared_animal_profile_pdf_loader.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
 import 'package:terramanager/shared_client/animals/presentation/widgets/shared_shedding_section.dart';
 import 'package:terramanager/shared_client/animals/presentation/widgets/shared_weight_section.dart';
@@ -426,6 +428,20 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
       appBar: AppBar(
         title: Text(sharedText(context, 'Animal details', 'Tierdetails')),
         actions: [
+          FutureBuilder<Map<String, dynamic>>(
+            future: _record,
+            builder: (context, snapshot) => snapshot.hasData
+                ? AnimalProfilePdfExportButton(
+                    loadData: (includeGallery) =>
+                        SharedAnimalProfilePdfLoader(widget.api).load(
+                          _id,
+                          context.l10n,
+                          _boxes,
+                          includeGallery: includeGallery,
+                        ),
+                  )
+                : const SizedBox.shrink(),
+          ),
           FutureBuilder<Map<String, dynamic>>(
             future: _record,
             builder: (context, snapshot) => snapshot.data?['status'] == 'active'

@@ -24,7 +24,9 @@ import '../../../boxes/presentation/box_selection_label.dart';
 import '../../../boxes/presentation/pages/box_detail_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../media/presentation/pages/picture_gallery_page.dart';
+import '../../application/local_animal_profile_pdf_loader.dart';
 import '../animal_display_names.dart';
+import '../widgets/animal_profile_pdf_export_button.dart';
 import '../widgets/animal_picture.dart';
 import '../shedding_entry_dialog.dart';
 import '../animal_restore_dialog.dart';
@@ -744,6 +746,15 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             appBar: AppBar(
               title: Text(context.l10n.animalDetails),
               actions: [
+                if (animal != null)
+                  AnimalProfilePdfExportButton(
+                    loadData: (includeGallery) =>
+                        LocalAnimalProfilePdfLoader(widget.database).load(
+                          _animalId,
+                          context.l10n,
+                          includeGallery: includeGallery,
+                        ),
+                  ),
                 if (animal != null)
                   IconButton(
                     key: const Key('feeding-history-button'),

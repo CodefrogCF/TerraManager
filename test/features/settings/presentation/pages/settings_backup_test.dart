@@ -19,6 +19,7 @@ import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 class FakeBackupFileGateway extends BackupFileGateway {
   PickedBackupFile? pickedFile;
@@ -126,10 +127,23 @@ void main() {
     await sourceDatabase.close();
   });
 
-  Widget buildApp({VoidCallback? onRestoreCompleted}) {
+  Widget buildApp({
+    VoidCallback? onRestoreCompleted,
+    Locale? locale,
+    TextScaler? textScaler,
+  }) {
     return AppSettingsScope(
       controller: settingsController,
       child: MaterialApp(
+        locale: locale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        builder: textScaler == null
+            ? null
+            : (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                child: child!,
+              ),
         home: SettingsPage(
           database: database,
           backupFileGateway: fileGateway,
@@ -139,6 +153,96 @@ void main() {
       ),
     );
   }
+
+  testWidgets('backup information title avoids an orphan on a narrow screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final sourceBackup = await BackupExportService(sourceDatabase).createBackup(
+      appVersion: '1.0.0',
+      themeMode: ThemeMode.system,
+      accent: settingsController.accent,
+    );
+    fileGateway.pickedFile = PickedBackupFile(
+      name: sourceBackup.fileName,
+      bytes: sourceBackup.bytes,
+    );
+    await tester.pumpWidget(buildApp(locale: const Locale('de')));
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('restore-backup-button')),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('restore-backup-button')));
+    await tester.pumpAndSettle();
+
+    final dialog = find.byKey(const Key('backup-info-dialog'));
+    expect(dialog, findsOneWidget);
+    final titleFinder = find.descendant(
+      of: dialog,
+      matching: find.byKey(const Key('backup-info-title')),
+    );
+    expect(titleFinder, findsOneWidget);
+    for (final width in [
+      280.0,
+      300.0,
+      320.0,
+      340.0,
+      360.0,
+      380.0,
+      400.0,
+      420.0,
+    ]) {
+      tester.view.physicalSize = Size(width, 640);
+      await tester.pumpAndSettle();
+      final title = tester.widget<Text>(titleFinder);
+      expect(title.data!.replaceAll('\n', ''), 'Sicherungsinformationen');
+      final context = tester.element(titleFinder);
+      final painter = TextPainter(
+        text: TextSpan(
+          text: title.data,
+          style: DefaultTextStyle.of(context).style,
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout(maxWidth: tester.getSize(titleFinder).width);
+      final lines = painter.computeLineMetrics();
+      final lastPosition = painter.getPositionForOffset(
+        Offset(0, lines.last.baseline),
+      );
+      final lastRange = painter.getLineBoundary(lastPosition);
+      final lastLine = title.data!
+          .substring(lastRange.start, lastRange.end)
+          .trim();
+      expect(
+        lastLine.length,
+        greaterThan(1),
+        reason: 'width=$width last="$lastLine"',
+      );
+      for (final line in lines) {
+        expect(
+          line.width,
+          lessThanOrEqualTo(tester.getSize(titleFinder).width + 0.1),
+          reason: 'Title overflows at width=$width',
+        );
+      }
+      painter.dispose();
+      expect(
+        find.byKey(const Key('backup-info-cancel-button')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('backup-info-continue-button')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    }
+  });
 
   Future<void> scrollToKey(WidgetTester tester, Key key) async {
     await tester.scrollUntilVisible(
@@ -168,6 +272,111 @@ void main() {
       'Condition was not reached after '
       '${step.inMilliseconds * maxPumps} ms.',
     );
+  }
+
+  for (final scenario in [
+    (
+      name: 'German enlarged portrait',
+      size: const Size(320, 700),
+      scale: 2.0,
+      locale: const Locale('de'),
+    ),
+    (
+      name: 'German enlarged landscape',
+      size: const Size(640, 360),
+      scale: 1.5,
+      locale: const Locale('de'),
+    ),
+    (
+      name: 'English enlarged portrait',
+      size: const Size(320, 700),
+      scale: 2.0,
+      locale: const Locale('en'),
+    ),
+  ]) {
+    testWidgets('backup information layout ${scenario.name}', (tester) async {
+      tester.view.physicalSize = scenario.size;
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final sourceBackup = await BackupExportService(sourceDatabase)
+          .createBackup(
+            appVersion: '1.0.0',
+            themeMode: ThemeMode.system,
+            accent: settingsController.accent,
+          );
+      fileGateway.pickedFile = PickedBackupFile(
+        name: sourceBackup.fileName,
+        bytes: sourceBackup.bytes,
+      );
+      await tester.pumpWidget(
+        buildApp(
+          locale: scenario.locale,
+          textScaler: TextScaler.linear(scenario.scale),
+        ),
+      );
+      await scrollToKey(tester, const Key('restore-backup-button'));
+      await tester.tap(find.byKey(const Key('restore-backup-button')));
+      await tester.pumpAndSettle();
+
+      final dialog = find.byKey(const Key('backup-info-dialog'));
+      final titleFinder = find.byKey(const Key('backup-info-title'));
+      expect(dialog, findsOneWidget);
+      expect(titleFinder, findsOneWidget);
+      final title = tester.widget<Text>(titleFinder);
+      final expectedTitle = scenario.locale.languageCode == 'de'
+          ? 'Sicherungsinformationen'
+          : 'Backup Information';
+      expect(title.data!.replaceAll('\n', ''), expectedTitle);
+      expect(title.semanticsLabel, expectedTitle);
+      if (scenario.locale.languageCode == 'en') {
+        expect(title.data, expectedTitle);
+      }
+
+      final context = tester.element(titleFinder);
+      final painter = TextPainter(
+        text: TextSpan(
+          text: title.data,
+          style: DefaultTextStyle.of(context).style,
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout(maxWidth: tester.getSize(titleFinder).width);
+      final lines = painter.computeLineMetrics();
+      final lastPosition = painter.getPositionForOffset(
+        Offset(0, lines.last.baseline),
+      );
+      final lastRange = painter.getLineBoundary(lastPosition);
+      final lastLine = title.data!
+          .substring(lastRange.start, lastRange.end)
+          .trim();
+      expect(lastLine.length, greaterThan(1));
+      for (final line in lines) {
+        expect(
+          line.width,
+          lessThanOrEqualTo(tester.getSize(titleFinder).width + 0.1),
+        );
+      }
+      painter.dispose();
+      expect(
+        find.byKey(const Key('backup-info-cancel-button')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('backup-info-continue-button')),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.byKey(const Key('backup-info-cancel-button')));
+      await tester.pumpAndSettle();
+      expect(dialog, findsNothing);
+      expect(
+        find.byKey(const Key('restore-confirmation-dialog')),
+        findsNothing,
+      );
+    });
   }
 
   testWidgets('creates and saves backup', (tester) async {

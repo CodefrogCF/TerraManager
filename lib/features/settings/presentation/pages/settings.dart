@@ -413,68 +413,129 @@ class _SettingsPageState extends State<SettingsPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          key: const Key('backup-info-dialog'),
-          title: Text(context.l10n.backupInformation),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _infoRow(
-                  context.l10n.created,
-                  _formatDateTime(backup.manifest.createdAt),
-                ),
-                _infoRow(context.l10n.appVersion, backup.manifest.appVersion),
-                _infoRow(
-                  context.l10n.backupFormat,
-                  backup.manifest.backupFormatVersion.toString(),
-                ),
-                _infoRow(
-                  context.l10n.databaseSchema,
-                  backup.manifest.databaseSchemaVersion.toString(),
-                ),
-                const Divider(),
-                _infoRow(
-                  context.l10n.navigationBoxes,
-                  backup.boxCount.toString(),
-                ),
-                _infoRow(
-                  context.l10n.navigationAnimals,
-                  backup.animalCount.toString(),
-                ),
-                _infoRow(
-                  context.l10n.feedingEvents,
-                  backup.feedingEventCount.toString(),
-                ),
-                _infoRow(
-                  context.l10n.pictures,
-                  backup.mediaFileCount.toString(),
-                ),
-              ],
+        return LayoutBuilder(
+          builder: (context, constraints) => AlertDialog(
+            key: const Key('backup-info-dialog'),
+            insetPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 24,
             ),
+            titlePadding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+            title: Text(
+              _backupInformationTitle(context, constraints.maxWidth - 64),
+              key: const Key('backup-info-title'),
+              semanticsLabel: context.l10n.backupInformation,
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _infoRow(
+                    context.l10n.created,
+                    _formatDateTime(backup.manifest.createdAt),
+                  ),
+                  _infoRow(context.l10n.appVersion, backup.manifest.appVersion),
+                  _infoRow(
+                    context.l10n.backupFormat,
+                    backup.manifest.backupFormatVersion.toString(),
+                  ),
+                  _infoRow(
+                    context.l10n.databaseSchema,
+                    backup.manifest.databaseSchemaVersion.toString(),
+                  ),
+                  const Divider(),
+                  _infoRow(
+                    context.l10n.navigationBoxes,
+                    backup.boxCount.toString(),
+                  ),
+                  _infoRow(
+                    context.l10n.navigationAnimals,
+                    backup.animalCount.toString(),
+                  ),
+                  _infoRow(
+                    context.l10n.feedingEvents,
+                    backup.feedingEventCount.toString(),
+                  ),
+                  _infoRow(
+                    context.l10n.pictures,
+                    backup.mediaFileCount.toString(),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                key: const Key('backup-info-cancel-button'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text(context.l10n.cancel),
+              ),
+              FilledButton(
+                key: const Key('backup-info-continue-button'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: Text(context.l10n.continueAction),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              key: const Key('backup-info-cancel-button'),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text(context.l10n.cancel),
-            ),
-            FilledButton(
-              key: const Key('backup-info-continue-button'),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: Text(context.l10n.continueAction),
-            ),
-          ],
         );
       },
     );
 
     return result ?? false;
+  }
+
+  String _backupInformationTitle(BuildContext context, double maxWidth) {
+    final title = context.l10n.backupInformation;
+    if (Localizations.localeOf(context).languageCode != 'de' ||
+        title.contains(' ')) {
+      return title;
+    }
+
+    final theme = Theme.of(context);
+    final style =
+        DialogTheme.of(context).titleTextStyle ??
+        (theme.useMaterial3
+            ? theme.textTheme.headlineSmall!
+            : theme.textTheme.titleLarge!);
+    bool fits(String line) {
+      final painter = TextPainter(
+        text: TextSpan(text: line, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      final result = painter.width <= maxWidth;
+      painter.dispose();
+      return result;
+    }
+
+    if (fits(title)) return title;
+
+    // Prefer the natural compound boundary when both parts fit.
+    const prefix = 'Sicherungs';
+    if (title.startsWith(prefix)) {
+      final suffix = title.substring(prefix.length);
+      if (fits(prefix) && fits(suffix)) return '$prefix\n$suffix';
+    }
+
+    final characters = title.runes.map(String.fromCharCode).toList();
+    for (var lineCount = 2; lineCount <= characters.length ~/ 2; lineCount++) {
+      final baseLength = characters.length ~/ lineCount;
+      final longerLines = characters.length % lineCount;
+      var offset = 0;
+      final lines = <String>[];
+      for (var index = 0; index < lineCount; index++) {
+        final length = baseLength + (index < longerLines ? 1 : 0);
+        lines.add(characters.skip(offset).take(length).join());
+        offset += length;
+      }
+      if (lines.every(fits)) return lines.join('\n');
+    }
+    return title;
   }
 
   Widget _infoRow(String label, String value) {

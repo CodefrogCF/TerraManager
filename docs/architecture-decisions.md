@@ -2380,3 +2380,119 @@ deferred to follow-up optimization rather than blocking Issues #203-#207. This
 decision does not claim bounded-memory behavior. Final distribution artifacts
 still follow the ordinary release checklist, including the pinned toolchain,
 production signing, size recording and release-candidate smoke tests.
+
+
+## ADR-037: Evaluate versioned Shared Care invalidation and SSE delivery
+
+### Status
+
+Proposed (2026-10-17), Issue #186. Pending real Raspberry Pi/current-Flutter
+measurements, trusted Caddy HTTPS and the agreed browser matrix. The production
+polling implementation is unchanged. Local prototype evidence is not an accepted
+production synchronization design.
+
+### Context
+
+The overview polls three lists every 15 seconds, nominally 12 data GETs/minute
+per active client. A visible Animal detail can add six reads per interval while
+the overview remains mounted. JSON lists and histories are fetched even without
+changes, and quiet refreshes replace UI state. Existing overview picture caching
+already avoids many unchanged image downloads and must be preserved.
+
+The server owns SQLite data. Browser state is transient. Same-origin secure
+cookies, CSRF mutation checks, role checks, expectedRevision conflicts, atomic
+group Feedings, idempotency, audit transactions and backup safety grants must
+retain their behavior.
+
+### Options
+
+| Option | Benefit | Cost / limitation |
+|---|---|---|
+| Existing polling | Simple, working baseline | Repeated full reads and interval latency |
+| Version/conditional polling | Small unchanged responses and cheap state checks | Requests and interval latency remain |
+| Long polling | Prompt updates through ordinary HTTP | Held requests, timeout/cancellation and renewal |
+| SSE | One-way invalidations over HTTP, browser event IDs/reconnect support | Lifecycle, authentication expiry, replay and connection bounds |
+| WebSocket | Bidirectional transport | Additional application protocol; writes already use HTTP |
+
+The Dart server can stream HttpResponse bodies and supports WebSocket upgrades.
+Caddy recognizes text/event-stream for immediate flushing. These documented
+capabilities require verification with the repository's actual gateway image,
+trusted certificates and supported browsers. Do not globally disable proxy
+buffering or change authentication just to make a prototype work.
+
+### Proposed direction
+
+First introduce a central transient synchronization controller and cheap
+version checks with targeted invalidation. Add SSE as the preferred notification
+transport if the measured results support it. Keep version polling as fallback.
+Continue all reads and commands through the authorized existing API.
+
+Use one feed per browser tab, not one per widget. Events carry minimal authorized
+resource hints, an epoch and a monotonically increasing revision. Publish only
+after a successful transaction commits. Cover all mutation routes, preferences
+and successful collection restore. Do not reuse CollectionOperationGate.generation:
+it advances on mutation admission for conservative backup safety and is not a
+committed-data cursor. Keep an application-applied cursor separate from received
+transport event IDs.
+
+For the current single server process, initially evaluate a bounded in-memory
+replay buffer. A foreign/old/future cursor or process/restore epoch change
+requires a snapshot/reconciliation. Persisting a change journal is optional
+future work unless the evaluation demonstrates a need. Snapshot subscription
+ordering and changes arriving during a refresh must be race-safe.
+
+Client dependencies include Feeding histories, latest Feeding/overview state,
+reminders, media associations and former/new Box assignments. Coalesce updates,
+retain unchanged objects, fetch visible stale resources and invalidate hidden
+ones. Preserve unsaved form fields, scroll/navigation context and the existing
+offline write policy. No full browser-page reload or browser collection database
+is introduced.
+
+Local clock-driven transitions still update Feeding due badges when time passes
+without a database write. Recompute on foreground resume and account for the
+existing schedule/time-zone semantics.
+
+### Reliability and security requirements
+
+- Authenticate the initial feed and revalidate open subscriptions on expiry and
+  account/session revocation; filter administrative/user-specific hints.
+- Use the existing same-origin cookie. Do not place secrets or CSRF tokens in URLs.
+- Reconcile after reconnect/foreground changes; apply backoff with jitter and
+  fall back without creating repeated login/reconnect loops.
+- Bound replay, connections and slow-consumer queues. Dispose timers and
+  subscriptions on disconnect.
+- Keep streaming connections outside long database transactions and exclusive
+  backup ownership. Restore publishes one reset after successful replacement.
+- Preserve role/CSRF/conflict checks, idempotent behavior and local data ownership.
+  Introduce no cloud broker, push provider or native-app permission.
+
+### Evaluation and provisional targets
+
+Use the [evaluation runbook](testing/shared-care-update-evaluation.md), its
+disposable real-API lab, sanitized real-Flutter HAR summaries and independent
+Pi resource samples. Compare 1/3/5/10 clients, overview/detail, idle/writes,
+identical fixtures and at least three repeats. Separate logical browser contexts
+from physical devices and lab DOM latency from real Flutter UI behavior.
+Report wire/upkeep traffic and Dart/Caddy resources separately.
+
+Targets to confirm:
+- p95 visible update latency <= 2 seconds with five LAN clients;
+- >= 90% fewer idle data requests and >= 80% fewer idle bytes including upkeep;
+- no data-list rebuild on unchanged versions or heartbeat;
+- automatic convergence after outage, restart and successful restore;
+- concrete CPU/RAM budgets derived from the Pi baseline, with bounded memory
+  and no growth across repeated reconnects.
+
+The test kit is intentionally outside production entry points. Its completed-
+request observer publishes only successful Feeding-create hints and cannot
+replace the eventual transactional production change publisher. The browser
+prototypes do not implement the production fallback/reconnect/restore protocol.
+
+### References
+
+- [HTML SSE specification](https://html.spec.whatwg.org/multipage/server-sent-events.html)
+- [Dart HttpResponse](https://api.dart.dev/dart-io/HttpResponse-class.html)
+- [Dart WebSocketTransformer](https://api.dart.dev/dart-io/WebSocketTransformer-class.html)
+- [Caddy streaming](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#streaming)
+- [HTTP conditional requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Conditional_requests)
+

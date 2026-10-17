@@ -1,0 +1,8 @@
+# Optional real-Flutter baseline gateway. Use with compose.yaml AFTER lab runs.
+services:
+  gateway:
+    image: "$TM186_WEB_IMAGE"
+    pull_policy: never
+    volumes:
+      - ./Caddyfile.flutter:/etc/caddy/Caddyfile:ro
+

@@ -1,0 +1,11 @@
+{
+    default_sni {$TM186_HOST}
+}
+https://{$TM186_HOST}:443 {
+    tls /certs/server.crt /certs/server.key
+    header X-Content-Type-Options nosniff
+    header Referrer-Policy no-referrer
+    header Cache-Control no-store
+    reverse_proxy lab:8080
+}
+

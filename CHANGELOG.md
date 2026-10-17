@@ -6,6 +6,13 @@ The project uses semantic versioning.
 
 ## [Unreleased]
 
+### Development
+
+- add a disposable Shared Care update evaluation kit for Issue #186, with
+  real-API polling workloads, version/long-poll/SSE/WebSocket prototypes,
+  sanitized HAR summaries, Raspberry Pi resource sampling and a proposed ADR;
+  keep production polling unchanged pending target-device measurements
+
 ### Changed
 
 - migrate Android compilation to AGP Built-in Kotlin without applying the

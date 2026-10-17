@@ -1,0 +1,40 @@
+name: tm186-evaluation
+services:
+  lab:
+    image: terramanager-update-evaluation:local
+    build:
+      context: ../../..
+      dockerfile: tool/evaluation/shared_updates/Dockerfile
+    platform: linux/arm64
+    command:
+      - --serve
+      - --bind
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --public-origin
+      - "$TM186_PUBLIC_ORIGIN"
+      - --animals
+      - "$TM186_ANIMALS"
+      - --history
+      - "$TM186_HISTORY"
+      - --assets
+      - /srv/web
+    read_only: true
+    tmpfs:
+      - /tmp:rw,size=512m,mode=1777
+    networks: [evaluation]
+  gateway:
+    image: caddy:2.11.4-alpine
+    depends_on: [lab]
+    environment:
+      TM186_HOST: "$TM186_HOST"
+    ports:
+      - "$TM186_BIND_IP:8443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - "$TM186_CERT_DIR:/certs:ro"
+    networks: [evaluation]
+networks:
+  evaluation:
+

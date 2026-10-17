@@ -302,6 +302,21 @@ flutter test test/platform/toolchain_quality_gates_test.dart
 Release validation is maintained separately in
 [release-checklist.md](release-checklist.md).
 
+## Shared Care update evaluation
+
+Issue #186 has a separate [measurement runbook](testing/shared-care-update-evaluation.md),
+disposable API/transport laboratory, sanitized HAR summarizer and Pi resource
+collector under `tool/evaluation/shared_updates/`. ADR-037 is proposed until
+the target-device and real-Flutter evidence is available. The evaluation entry
+point is excluded from production server builds.
+
+Run its focused checks with:
+
+```text
+flutter test test/shared_server/shared_updates_evaluation_test.dart
+python -m unittest discover -s tool/evaluation/shared_updates -p test_tools.py
+```
+
 ## Git Workflow
 
 Recommended workflow:

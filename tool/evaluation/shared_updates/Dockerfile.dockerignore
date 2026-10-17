@@ -1,0 +1,15 @@
+**
+!deploy/
+!deploy/server/
+!deploy/server/pubspec.yaml
+!deploy/server/pubspec.lock
+!lib/
+!lib/**
+!tool/
+!tool/evaluation/
+!tool/evaluation/shared_updates/
+!tool/evaluation/shared_updates/change_feed.dart
+!tool/evaluation/shared_updates/lab_server.dart
+!tool/evaluation/shared_updates/web/
+!tool/evaluation/shared_updates/web/index.html
+!tool/evaluation/shared_updates/web/client.js

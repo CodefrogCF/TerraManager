@@ -79,7 +79,6 @@ org.checkerframework:checker-qual:3.43.0=classpath
 org.glassfish.jaxb:jaxb-runtime:2.3.2=classpath
 org.glassfish.jaxb:txw2:2.3.2=classpath
 org.jdom:jdom2:2.0.6=classpath
-org.jetbrains.kotlin.android:org.jetbrains.kotlin.android.gradle.plugin:2.4.20=classpath
 org.jetbrains.kotlin:fus-statistics-gradle-plugin:2.4.20=classpath
 org.jetbrains.kotlin:kotlin-build-statistics:2.4.20=classpath
 org.jetbrains.kotlin:kotlin-build-tools-api:2.4.20=classpath

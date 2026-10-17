@@ -38,6 +38,7 @@ void main() {
       'flutter analyze',
       'flutter test',
       'flutter build apk --debug',
+      './gradlew verifyAndroidBuiltInKotlin',
       'dart compile js -O4 web/drift_worker.dart -o web/drift_worker.dart.js',
       'flutter build web --release',
     ];
@@ -63,7 +64,11 @@ void main() {
     );
     expect(
       gradleSettings,
-      contains('id("org.jetbrains.kotlin.android") version "2.4.20"'),
+      contains('classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20")'),
+    );
+    expect(
+      gradleSettings,
+      isNot(contains('id("org.jetbrains.kotlin.android")')),
     );
 
     expect(baseline, contains('Flutter 3.47.2'));
@@ -84,6 +89,7 @@ void main() {
     );
 
     expect(gradleProperties, contains('android.newDsl=false'));
-    expect(gradleProperties, contains('android.builtInKotlin=false'));
+    expect(gradleProperties, contains('android.builtInKotlin=true'));
+    expect(gradleProperties, isNot(contains('android.builtInKotlin=false')));
   });
 }

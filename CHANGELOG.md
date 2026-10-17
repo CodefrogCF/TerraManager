@@ -8,12 +8,23 @@ The project uses semantic versioning.
 
 ### Changed
 
+- migrate Android compilation to AGP Built-in Kotlin without applying the
+  external Android Kotlin plugin; retain Kotlin 2.4.20 and Java/Kotlin target
+  17, update compatible save/scanner plugins, and verify the effective plugin
+  state in CI; keep the Flutter-required `android.newDsl=false` opt-out as the
+  separately deferred part of Issue #212
 - update the Android build-tool declarations from Kotlin Gradle Plugin 2.4.0 to
   2.4.20 and Android Gradle Plugin 9.1.0 to 9.1.1 while retaining Gradle 9.3.1,
   Java 17 and the pinned Flutter 3.47.2 release toolchain
 - keep strict Android dependency locking as the verification boundary for the
   coordinated build-tool update; build/test-only scanner findings remain
   separate from the Android application runtime dependency graph
+
+## [1.15.3] - 2026-10-16
+
+### Added
+
+- 
 
 ## [1.15.1] - 2026-10-02
 

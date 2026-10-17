@@ -1,9 +1,10 @@
+import com.android.build.api.dsl.ApplicationExtension
 import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
     id("com.android.application")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    // AGP provides Built-in Kotlin; apply the Flutter plugin after Android.
     id("dev.flutter.flutter-gradle-plugin")
 }
 
@@ -63,7 +64,7 @@ if (releaseBuildRequested && releaseStoreFile?.isFile != true) {
 val releaseSigningConfigured =
     missingReleaseSigningValues.isEmpty() && releaseStoreFile?.isFile == true
 
-android {
+extensions.configure<ApplicationExtension> {
     namespace = "com.codefrog.terramanager"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
@@ -100,7 +101,7 @@ android {
         }
 
     buildTypes {
-        release {
+        getByName("release") {
             if (productionSigningConfig != null) {
                 signingConfig = productionSigningConfig
             }

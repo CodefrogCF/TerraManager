@@ -32,7 +32,7 @@ subprojects {
         // Engine artifacts are fixed by the pinned Flutter SDK, not by Pub plugins.
         ignoredDependencies.add("io.flutter:*")
         // Gradle can introduce this Kotlin transitive only after applying a lock.
-        // Its version follows the pinned Kotlin plugin declaration in settings.
+        // Its version follows the pinned Kotlin compiler classpath in settings.
         ignoredDependencies.add("org.jetbrains.kotlin:kotlin-stdlib-common")
     }
     buildscript {
@@ -52,4 +52,30 @@ tasks.register("resolveAndroidDependencyLocks") {
     group = "verification"
     description = "Resolve every Android project dependency report for lockfile updates."
     dependsOn(subprojects.map { "${it.path}:dependencies" })
+}
+
+tasks.register("verifyAndroidBuiltInKotlin") {
+    group = "verification"
+    description = "Verify that Android modules compile without the external Kotlin Android plugin."
+    doLast {
+        check(providers.gradleProperty("android.builtInKotlin").orNull == "true") {
+            "TerraManager requires android.builtInKotlin=true."
+        }
+        val androidProjects = subprojects.filter {
+            it.plugins.hasPlugin("com.android.application") ||
+                it.plugins.hasPlugin("com.android.library")
+        }
+        val legacyProjects = androidProjects.filter {
+            it.plugins.hasPlugin("org.jetbrains.kotlin.android") ||
+                it.plugins.hasPlugin("kotlin-android")
+        }
+        check(legacyProjects.isEmpty()) {
+            "External Kotlin Android plugin is still applied by: " +
+                legacyProjects.joinToString { it.path }
+        }
+        check(project(":app").extensions.findByName("kotlin") != null) {
+            "The app's Built-in Kotlin extension is missing."
+        }
+        logger.lifecycle("Built-in Kotlin verified in ${androidProjects.size} Android modules.")
+    }
 }

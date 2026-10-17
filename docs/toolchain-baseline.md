@@ -14,7 +14,7 @@ unrelated feature or release build.
 | Java | Eclipse Temurin 17 LTS | CI workflow and Android Java/Kotlin targets |
 | Android Gradle Plugin | 9.1.1 | `android/settings.gradle.kts` |
 | Gradle | 9.3.1 | `android/gradle/wrapper/gradle-wrapper.properties` |
-| Kotlin declaration | 2.4.20 | `android/settings.gradle.kts` |
+| AGP-hosted Kotlin compiler | 2.4.20 | Buildscript classpath in `android/settings.gradle.kts` |
 | CI host | Ubuntu 24.04 | `.github/workflows/quality-gates.yml` |
 
 Android `compileSdk`, `targetSdk`, `minSdk` and NDK values are obtained from
@@ -25,11 +25,18 @@ the same Flutter, Dart, Java, Gradle and dependency baseline before a release.
 The October 2026 build-tool hardening update keeps the existing Gradle 9.3.1
 and Java 17 baseline while moving the Kotlin Gradle Plugin to 2.4.20 and the
 Android Gradle Plugin to the 9.1.1 patch release. Kotlin 2.4.20 is the minimum
-project declaration accepted after the build-cache deserialization advisory;
+compiler version accepted after the build-cache deserialization advisory;
 strict Gradle lockfiles must be regenerated with the pinned Flutter 3.47.2 and
 Java 17 toolchain whenever either declaration changes. Scanner findings that
 exist only in Android build/test tooling are tracked separately from the
 application runtime graph and are not hidden with broad version overrides.
+
+The staged Issue #212 migration enables AGP Built-in Kotlin explicitly and
+removes the external `org.jetbrains.kotlin.android` plugin declaration. The
+settings buildscript retains Kotlin 2.4.20 on AGP's classpath using the supported
+version-selection mechanism. It does not apply the Android Kotlin plugin.
+`android.newDsl=false` remains necessary for Flutter 3.47.2 and is tracked as
+the separate remaining DSL migration.
 
 Dart is distributed with Flutter. Do not install or select an unrelated Dart
 SDK for this project.
@@ -62,7 +69,7 @@ in strict mode for every repository build project. Gradle-generated files are
 committed alongside the build configuration:
 
 - `android/settings-gradle.lockfile` records the settings/plugin classpath,
-  including the declared Android and Kotlin Gradle plugins;
+  including AGP and its explicitly selected Kotlin compiler classpath;
 - `android/app/gradle.lockfile` records the app's Debug, Profile, Release and
   test dependency configurations;
 - `android/gradle-locks/<plugin>.lockfile` records each included Flutter Android
@@ -116,7 +123,8 @@ dispatches. Third-party actions are pinned to complete commit hashes. The job:
 3. generates localization output;
 4. rejects formatting differences in `lib/` and `test/`;
 5. runs `flutter analyze` and the complete test suite;
-6. builds an Android Debug APK with strict Gradle locks, verifies the Android
+6. builds an Android Debug APK with strict Gradle locks, verifies effective
+   Built-in Kotlin usage with `verifyAndroidBuiltInKotlin`, verifies the Android
    source and lockfiles are unchanged, and builds a Web Release bundle.
 
 The separate `shared-care-server` job checks the server's Dart lockfile, builds
@@ -141,20 +149,32 @@ flutter build web --release
 
 ## Kotlin and Gradle compatibility warnings
 
-TerraManager's application module does not apply the Kotlin Gradle Plugin.
-However, the currently resolved `file_saver`,
-`flutter_image_compress_common` and `mobile_scanner` plugins still apply it.
-Flutter therefore reports that those plugins must migrate before a future
-Flutter version makes Built-in Kotlin mandatory.
+The [2026-10-17 readiness assessment](testing/android-built-in-kotlin-readiness-2026-10-17.md)
+records the original combined-scope blocker. The accepted staged scope enables
+Built-in Kotlin now and retains the new-DSL opt-out until Flutter supports it.
+See the [migration validation report](testing/android-built-in-kotlin-migration-2026-10-17.md)
+for the actual toolchain, dependency changes, executed checks and remaining gates.
 
-Until compatible plugin releases are available:
+`android.builtInKotlin=true` is explicit so Flutter's migrator does not restore
+the legacy disabled default. Neither the app nor the included Android plugin
+projects may apply `org.jetbrains.kotlin.android` / `kotlin-android`. Run:
 
-- keep `android.builtInKotlin=false` and `android.newDsl=false` in
-  `android/gradle.properties`;
-- do not suppress or reinterpret the warning as a successful migration;
-- check the three plugins during planned dependency upgrades;
-- enable Built-in Kotlin only after all resolved plugins are compatible and
-  Android builds and tests pass without the compatibility flags.
+```text
+cd android
+./gradlew verifyAndroidBuiltInKotlin
+```
+
+The resolved `file_saver` and `mobile_scanner` updates support Built-in Kotlin.
+`flutter_image_compress_common` 1.1.1 already selects its built-in path when
+the Kotlin extension is available. A source-only warning about its conditional
+legacy fallback does not by itself establish that KGP is actually applied;
+the verification task checks the effective Gradle plugin state.
+
+Keep `android.newDsl=false` until the pinned Flutter Gradle plugin no longer
+depends on legacy Android extensions and variants. The new DSL is a separate
+migration from Built-in Kotlin. Removing this flag in Flutter 3.47.2 still
+causes a legacy-extension configuration error; do not patch the Flutter SDK or
+Pub cache to hide that boundary.
 
 The current Flutter migration guidance explains that the compatibility flags
 are temporary and that plugins which apply the Kotlin Gradle Plugin must be

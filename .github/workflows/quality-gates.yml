@@ -81,6 +81,10 @@ jobs:
       - name: Build Android Debug APK
         run: flutter build apk --debug
 
+      - name: Verify Android Built-in Kotlin
+        working-directory: android
+        run: ./gradlew verifyAndroidBuiltInKotlin
+
       - name: Verify Android Gradle locks
         run: |
           git diff --exit-code -- android

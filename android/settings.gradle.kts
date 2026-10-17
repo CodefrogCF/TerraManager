@@ -18,6 +18,15 @@ pluginManagement {
 }
 
 buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // AGP hosts Kotlin compilation. Keep the existing compiler/security
+        // baseline on its classpath without applying the external Android KGP.
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.20")
+    }
     dependencyLocking {
         lockAllConfigurations()
         lockMode = LockMode.STRICT
@@ -27,7 +36,6 @@ buildscript {
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "9.1.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.4.20" apply false
 }
 
 include(":app")

@@ -2386,10 +2386,19 @@ production signing, size recording and release-candidate smoke tests.
 
 ### Status
 
-Proposed (2026-10-17), Issue #186. Pending real Raspberry Pi/current-Flutter
-measurements, trusted Caddy HTTPS and the agreed browser matrix. The production
-polling implementation is unchanged. Local prototype evidence is not an accepted
-production synchronization design.
+Architecture direction accepted (2026-10-18), Issue #186, following the operator's
+explicit choice to pursue SSE. Implementation and performance acceptance are pending.
+The ARM64 laboratory and trusted Caddy/Chrome
+HTTP/2 path have completed a five-client Raspberry Pi comparison. See the
+[target-device report](testing/shared-care-update-evaluation-pi-2026-10-17.md).
+The same disposable backend has also served the real Flutter UI: five logical
+Chrome clients measured 12 overview and 40 detail-stack data GETs/min/client.
+The earlier 36-read model omitted the gallery lookup. One Feeding update was
+observed in all five detail views. The remaining
+evidence includes per-trial RAM accounting, repeated trials and the agreed
+browser/lifecycle matrix. The production
+polling implementation is unchanged; the laboratory is not the production
+synchronization implementation.
 
 ### Context
 
@@ -2420,12 +2429,21 @@ capabilities require verification with the repository's actual gateway image,
 trusted certificates and supported browsers. Do not globally disable proxy
 buffering or change authentication just to make a prototype work.
 
-### Proposed direction
+### Decision
 
-First introduce a central transient synchronization controller and cheap
-version checks with targeted invalidation. Add SSE as the preferred notification
-transport if the measured results support it. Keep version polling as fallback.
+Use SSE as the preferred notification transport, targeted HTTP reads after
+invalidation and conditional/version polling as fallback. First introduce the
+committed revision contract and a central transient synchronization controller;
+then integrate the authenticated stream and recovery behavior.
 Continue all reads and commands through the authorized existing API.
+
+The pilot supports this choice: all five methods were exercised on the Pi;
+SSE eliminated idle data fetches and provided low laboratory update latency.
+Long polling and WebSockets were also fast; this single pass does not rank their
+latencies. One-way change hints fit the current HTTP command/read API without
+introducing a second command protocol. The real Flutter baseline measured 12
+overview and 40 detail-stack GETs/min/client; one write appeared after about
+12-13 seconds. These observations motivate the change, not a production pass.
 
 Use one feed per browser tab, not one per widget. Events carry minimal authorized
 resource hints, an epoch and a monotonically increasing revision. Publish only
@@ -2474,10 +2492,18 @@ Pi resource samples. Compare 1/3/5/10 clients, overview/detail, idle/writes,
 identical fixtures and at least three repeats. Separate logical browser contexts
 from physical devices and lab DOM latency from real Flutter UI behavior.
 Report wire/upkeep traffic and Dart/Caddy resources separately.
+The [focused SSE validation procedure](testing/shared-care-sse-validation.md)
+repeats polling and SSE three times with an alternating workload order. It adds
+PID 1 RSS and cumulative CPU ticks where Docker memory statistics are unavailable.
+This next five-client run does not replace the wider scale/browser/lifecycle matrix.
 
 Targets to confirm:
 - p95 visible update latency <= 2 seconds with five LAN clients;
-- >= 90% fewer idle data requests and >= 80% fewer idle bytes including upkeep;
+- >= 90% fewer idle data requests and >= 80% fewer idle bytes including upkeep
+  while the preferred notification transport is connected;
+- version-polling fallback at the existing 15-second interval uses at most four
+  unchanged-state version queries/minute/foreground client; record its separate
+  latency and request budget rather than applying the connected-SSE target;
 - no data-list rebuild on unchanged versions or heartbeat;
 - automatic convergence after outage, restart and successful restore;
 - concrete CPU/RAM budgets derived from the Pi baseline, with bounded memory

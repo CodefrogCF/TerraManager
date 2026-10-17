@@ -8,17 +8,23 @@ backup gate, database schema and Flutter pages are unchanged. The new server
 entry point always creates a fresh private scratch database and generated test
 account. It accepts no production database path and does not use TM_DATABASE_PATH.
 
-The local test report records executed checks separately. Raspberry Pi resource
-measurements, trusted Caddy HTTPS/browser tests and the final ADR decision remain
-pending until their evidence is collected.
+The local and target-device reports record executed checks separately. The ARM64
+Pi/Caddy/Chrome HTTP/2 pilot includes browser results and CPU/network samples.
+The real Flutter client was also exercised through the separate gateway; see the
+target-device report for the observed workload and measurement boundaries.
+Per-trial RAM accounting, repeated trials, the wider browser/lifecycle matrix
+and implementation acceptance remain pending. The operator selected the SSE
+architecture direction on 2026-10-18; ADR-037 records that decision separately.
 
 ## Workloads and measurements
 
 The normal overview has a 15-second timer and requests Boxes, Animals and
 reminders: a nominal 12 GET requests/minute/client. Animal details additionally
 request six resources when navigation context is present; the overview remains
-mounted. This gives a nominal 36 GETs/minute in that case. These are calculations
-from source, not measured Pi results.
+mounted. This gives a nominal 36 GETs/minute in that model. The real Flutter
+baseline measured 40: it also included one picture-list lookup per refresh,
+even with no pictures. The target-device report records that result
+and its diagnostic limits; the overview-only transport comparison is unaffected.
 
 The browser runner models those API paths and ordering with isolated browser
 contexts and the REAL SharedServerApi/SQLite operations on synthetic data.
@@ -67,6 +73,41 @@ specific directory after the process has stopped.
 
 LAN binding is refused without an explicit HTTPS public origin. Use Caddy and a
 trusted certificate for remote clients. Do not bypass certificate verification.
+
+### Windows controller certificate preparation
+
+The Node process making Playwright API requests and the automated browser must
+both trust the LAN certificate authority. A successful visit in a separately
+configured browser does not establish trust in a new automated Chrome profile.
+Check the public LAN CA certificate and its fingerprint against the certificate
+used for the Shared Care deployment. Use only the public CA certificate here.
+
+For Node, supply the public CA in PEM format to this PowerShell session before
+starting the runner:
+
+~~~powershell
+$env:NODE_EXTRA_CA_CERTS = 'C:\PRIVATE\TerraManager-LAN-CA.pem'
+~~~
+
+This adds a CA for the Node process; it does not configure browser trust. On a
+Windows Chrome controller, the operator can explicitly approve importing the
+same public CA into the current user's trusted root certificate store:
+
+~~~powershell
+Import-Certificate -FilePath 'C:\PRIVATE\TerraManager-LAN-CA.pem' `
+  -CertStoreLocation 'Cert:\CurrentUser\Root'
+~~~
+
+That trust-store change also affects other programs for this Windows user and
+requires the operator's approval. The runner never imports certificates itself.
+Before a timed trial, verify that both the Node HTTPS health request and a fresh
+automated browser can reach the test origin with certificate validation active.
+Record the public CA fingerprint, trust source and browser protocol with the
+test evidence.
+
+Reference: [Node additional CA certificates](https://nodejs.org/api/cli.html#node_extra_ca_certsfile).
+
+### Browser controller tools
 
 The browser runner uses Playwright 1.62.1 as an OPTIONAL external test tool.
 Install it in a private tooling directory outside the project, then expose that
@@ -180,9 +221,45 @@ docker compose -f tool/evaluation/shared_updates/compose.yaml logs lab
 ~~~
 
 The log reports the private credentials file path inside the lab container.
-Copy that specific file with docker compose cp into a private controller
-directory (mode 600 on Linux). Do not paste it into chat/issues or commit it.
-The credentials origin already points to the separate HTTPS gateway.
+The container mounts /tmp as tmpfs. Do not use docker cp or docker compose cp
+to export this file: Docker documents copying limitations for tmpfs mounts.
+Read it through docker exec in the running container instead. The following
+block can run from any directory on the Pi. It discovers the current random
+scratch path, requires exactly one credentials file, and only replaces the
+private host copy after a successful non-empty export. It prints no credentials.
+
+~~~sh
+(
+  set -eu
+  umask 077
+  install -d -m 700 "$HOME/tm186-private"
+  tm186_credentials_tmp="$(mktemp "$HOME/tm186-private/.credentials.XXXXXX")"
+  trap 'rm -f -- "$tm186_credentials_tmp"' EXIT
+
+  docker exec tm186-evaluation-lab-1 sh -eu -c '
+    set -- /tmp/tm186-*/credentials.json
+    if [ "$#" -ne 1 ] || [ ! -f "$1" ]; then
+      echo "Expected exactly one active lab credentials file." >&2
+      exit 1
+    fi
+    cat -- "$1"
+  ' > "$tm186_credentials_tmp"
+
+  test -s "$tm186_credentials_tmp"
+  chmod 600 "$tm186_credentials_tmp"
+  mv -f -- "$tm186_credentials_tmp" "$HOME/tm186-private/credentials.json"
+  printf '%s\n' 'OK: ~/tm186-private/credentials.json'
+)
+~~~
+
+If the block fails, keep the error output and inspect the current lab logs;
+do not transfer an older credentials file. No container restart is needed for
+this export. Copy ~/tm186-private/credentials.json from the Pi to the private
+browser-controller directory over your existing SSH/SCP connection. Do not
+paste its contents into chat/issues or commit it. The credentials origin
+already points to the separate HTTPS gateway.
+
+Reference: [Docker cp corner cases](https://docs.docker.com/reference/cli/docker/container/cp/#corner-cases).
 
 Run browsers on a laptop/controller so their CPU does not pollute Pi server
 measurements. Run the resource collector ON THE PI in parallel, using the
@@ -200,6 +277,22 @@ The collector records hardware metadata where available, Docker CPU/RAM/NetIO/
 BlockIO and optional host interface byte counters. CPU/RAM samples must be
 aligned with each report's time window. Docker CPU percentages can exceed 100%
 across cores. Synchronize Pi/controller clocks before aligning UTC samples.
+The configured sleep interval comes after Docker stats collection; inspect the
+recorded timestamps for the actual cadence. These are intermittent CPU samples,
+so brief bursts can be missed. Do not use their mean as an integrated CPU-time
+measurement or derive a precise CPU reduction from one pass.
+Treat Docker memory output of 0B / 0B as unavailable. Read-only process VmRSS and
+VmHWM values can supplement it, but process RSS excludes separate tmpfs/page-cache
+accounting and the lifetime high-water mark cannot be assigned to one trial.
+The collector's optional --process-stats mode now records PID 1 RSS/high-water
+and user/system CPU ticks through read-only docker exec probes, with separate
+timestamps and the process start-time identity. CPU deltas divided by the host's
+clock_ticks_per_second measure consumed process CPU time over the observed span;
+discard deltas across changed identities or counter resets. These are process
+metrics, not a reconstruction of total container memory. See the
+[focused validation procedure](shared-care-sse-validation.md).
+Sampling uses fixed deadlines and records skipped slots after overruns rather
+than adding the collection duration to every requested interval.
 NetIO is per container: summing gateway and backend double-counts
 internal traffic. Host interface counters include unrelated traffic (for example
 SSH); isolate or account for it. The evaluation image retains Dart/coreutils for
@@ -239,23 +332,75 @@ docker compose -f tool/evaluation/shared_updates/compose.yaml \
 ~~~
 
 Open the HTTPS test origin on port 8443 and log in with the private generated
-test credentials. This now runs the real Flutter UI against synthetic data:
+test credentials in a separate browser profile or private window. Cookies for
+the same host are shared across ports, so a separate profile keeps the test
+login separate from the production login on port 443. The automated runner
+already creates isolated browser contexts. See [RFC 6265 section 8.5](https://www.rfc-editor.org/rfc/rfc6265.html#section-8.5).
+This now runs the real Flutter UI against synthetic data:
 capture HAR/frame measurements and cross-client behavior here. The browser
 transport runner expects the lab root page, so use these as separate phases.
+
+For a repeatable automated network baseline, run the following on the browser
+controller with the same optional Playwright/Chrome and trusted-CA preparation:
+
+~~~sh
+node tool/evaluation/shared_updates/flutter_baseline.cjs \
+  --credentials /private/credentials.json \
+  --output /private/flutter-baseline.json \
+  --clients 5 --seconds 120 --observe-change
+~~~
+
+This helper signs in with separate browser contexts, activates Flutter semantics,
+and measures the Animal overview and Animal detail for the specified duration
+each. It verifies that the backend identifies itself as the disposable lab and
+refuses the laboratory HTML root page. The default fixture must be present.
+The optional --observe-change flag creates one synthetic Feeding for Animal 1,
+observes its changed Last Feeding semantics, and deletes the created record.
+Omit that flag for a read-only baseline. Generated sessions/audit entries remain
+in the temporary lab. Production credentials or data must not be used.
+
+Reports contain route/status counts, normalized numeric IDs, browser Resource
+Timing body/transfer sizes, visibility/focus snapshots, page errors and main-frame
+navigation counts. They contain no credentials, headers, cookies or record bodies.
+Retain the failureEvents detail: post-header ERR_ABORTED events occurred in the
+control run despite HTTP-200 responses and a working UI. They are not silently
+discarded or automatically equated with application-visible failures. Likewise,
+framenavigated includes same-document Flutter routes; use mainDocumentRequests
+and navigation timing entries to identify document reloads.
+Resource Timing is not a complete LAN-byte measurement. Semantic update detection
+is not a paint timestamp or Flutter frame/rebuild count. One write observed by
+five clients is a small correlated sample, not a latency percentile distribution.
+Collect Pi CPU/RAM independently during any run that needs resource attribution.
+
 Return the test gateway to its default lab page when needed:
 
 ~~~sh
 docker compose -f tool/evaluation/shared_updates/compose.yaml up -d --no-deps gateway
 ~~~
 
-The override is prepared and syntax-checked; runtime Web-image/Caddy validation
-on the target Pi is still required. Add synthetic media/large histories through
+The first completed run recorded 120 overview and 400 detail-stack HTTP-200
+data GET responses across five clients in separate 120-second windows
+(12 and 40 GETs/min/client). Browser cancellation events were retained and
+examined in a separate short control; this is not a zero-network-error claim.
+The [target-device report](shared-care-update-evaluation-pi-2026-10-17.md) records
+the one-write semantics observation and all measurement limits.
+
+The override has run on the target Pi with the existing Web image and trusted
+Chrome HTTP/2. Record an immutable image ID/digest for repeatable build provenance.
+Add synthetic media/large histories through
 the normal test UI if those belong to a case; the default seed contains no media.
 
 ## Decision and completion gates
 
-Provisional direction: central targeted invalidation + version polling fallback,
-then SSE for change delivery. See ADR-037 and the follow-up issue drafts.
+The [Raspberry Pi pilot report](shared-care-update-evaluation-pi-2026-10-17.md)
+records the completed five-client transport comparison and its resource-data
+limitations. Keep this target-device evidence separate from the earlier local
+Windows laboratory results.
+
+Selected direction (2026-10-18): committed revisions, central targeted invalidation,
+SSE notifications and conditional/version polling fallback. See ADR-037 and the
+follow-up issue drafts. The architectural choice does not mark outstanding
+measurements or the production implementation complete.
 
 Targets to validate (not achieved claims):
 - at least 95% of updates visible within 2 seconds with five LAN clients;
@@ -265,6 +410,7 @@ Targets to validate (not achieved claims):
 - CPU/RAM budgets defined after the Pi baseline and bounded queues/connections.
 
 Issue #186 remains open until actual Pi/current-Flutter measurements, browser/
-Caddy evidence, the final ADR decision and follow-up issue scope are recorded.
+Caddy evidence and focused follow-up issue scope are recorded and the remaining
+evaluation evidence is reviewed. The architecture decision is now recorded.
 A local loopback prototype run alone does not satisfy those completion gates.
 

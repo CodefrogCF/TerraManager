@@ -1,0 +1,4756 @@
+{
+  "schema": 1,
+  "kind": "real-flutter-disposable-lab-network-baseline",
+  "createdAt": "2026-10-17T21:53:16.210Z",
+  "browser": "155.0.8059.84",
+  "clients": 5,
+  "secondsPerView": 120,
+  "views": [
+    {
+      "view": "animals-overview",
+      "startedAt": "2026-10-17T21:53:40.646Z",
+      "configuredSeconds": 120,
+      "clients": [
+        {
+          "client": 1,
+          "start": {
+            "performanceMs": 23778.40000000596,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120024.79999999702,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 51.3999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.6000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.69999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.3999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.199999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 39.6000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 41.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 15,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 21,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 6.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.099999994039536,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 11,
+          "pageErrors": 0,
+          "mainFrameNavigations": 3
+        },
+        {
+          "client": 2,
+          "start": {
+            "performanceMs": 19823.90000000596,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120028.79999999702,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 17.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 50.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 53.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 54.19999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 45.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 46.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 18.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 55.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 24.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 20,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 19.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.20000000298023,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 10,
+          "pageErrors": 0,
+          "mainFrameNavigations": 3
+        },
+        {
+          "client": 3,
+          "start": {
+            "performanceMs": 15113.10000000894,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120030.89999999106,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 12.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 41.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 44.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 14,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.3999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 12.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 19.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 14.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.8999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.8999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 47.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 17.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 54.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 55.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 46,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 9,
+          "pageErrors": 0,
+          "mainFrameNavigations": 3
+        },
+        {
+          "client": 4,
+          "start": {
+            "performanceMs": 11255.89999999106,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120035,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.699999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50.80000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 20.30000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 52.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 14.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 47.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 22,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 13.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 55.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 54.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 14.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 22.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 39.8999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 40.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 14.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 51.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.79999999701977,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 16,
+          "pageErrors": 0,
+          "mainFrameNavigations": 3
+        },
+        {
+          "client": 5,
+          "start": {
+            "performanceMs": 6859.5,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120039.70000000298,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 14.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 52.3999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 17.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 55.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 41.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 8.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.3999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.69999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 20,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 55.3999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 15,
+          "pageErrors": 0,
+          "mainFrameNavigations": 3
+        }
+      ],
+      "finishedAt": "2026-10-17T21:55:40.672Z",
+      "measuredWallMs": 120015
+    },
+    {
+      "view": "animal-detail",
+      "startedAt": "2026-10-17T21:55:43.700Z",
+      "configuredSeconds": 120,
+      "clients": [
+        {
+          "client": 1,
+          "start": {
+            "performanceMs": 146830.60000000894,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120034.69999998808,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 16.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 67.59999999403954,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 73,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 38,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 7.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 17,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 47.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 6.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 6.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 6.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.3999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 17.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.8999999910593,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 23,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.699999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 51.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.699999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 41.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.300000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 6.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 45,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 16.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 43,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.199999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 18.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 51.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 10,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 43.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.30000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.100000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 44.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 16.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 47.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 47.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 10.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 40.6000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.099999994039536,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/feedings": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/weights": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/shedding": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/pictures": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 21,
+          "pageErrors": 0,
+          "mainFrameNavigations": 4
+        },
+        {
+          "client": 2,
+          "start": {
+            "performanceMs": 142874.30000001192,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120051.79999999702,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 7.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 45.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 45.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 8.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 47.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 46.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.699999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 43.19999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 10.100000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 16.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 51.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.300000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 38.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 18,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 67.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 67.6000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.699999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 43.69999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 8.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 10,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 41.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 14.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 48.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 41.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51.19999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 51.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 6,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.100000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.300000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 42,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 55.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 56,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 8.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 6.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 6.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 7.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/feedings": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/weights": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/shedding": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/pictures": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 19,
+          "pageErrors": 0,
+          "mainFrameNavigations": 4
+        },
+        {
+          "client": 3,
+          "start": {
+            "performanceMs": 138162.30000001192,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120067,
+            "resources": [
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.100000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 6.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 8.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 43.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 7.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 51,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 43.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 42.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 19.100000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 52.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 45.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 13.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 60.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 60.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 40.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 17.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 20.80000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.699999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 68.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 68.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 41.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 6.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.399999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 39.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 24.30000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 43.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 6.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 13.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 58.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 58.5,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/animals/:id": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/feedings": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/weights": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/shedding": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/boxes": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/animals/:id/pictures": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 22,
+          "pageErrors": 0,
+          "mainFrameNavigations": 4
+        },
+        {
+          "client": 4,
+          "start": {
+            "performanceMs": 134304.5,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120093.39999999106,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 50.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.199999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.100000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.30000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 6.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50.69999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 54.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 43.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 16.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 46.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 7.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.199999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.30000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 55,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 55.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 39.6000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 7.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 13.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 60.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 62.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 42.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.199999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 47.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 15.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 52.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 7.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.300000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 40.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 52.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 42.6000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.700000002980232,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/feedings": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/weights": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/shedding": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/pictures": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 23,
+          "pageErrors": 0,
+          "mainFrameNavigations": 4
+        },
+        {
+          "client": 5,
+          "start": {
+            "performanceMs": 129907.59999999404,
+            "visibility": "visible",
+            "focused": true,
+            "navigationEntries": 1
+          },
+          "end": {
+            "visibility": "visible",
+            "focused": true,
+            "observedMs": 120134,
+            "resources": [
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 53.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 53.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 6.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.300000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 45.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.800000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 50.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 39.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 5.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 16,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 49.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.100000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 46.70000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 20,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 57.20000000298023,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 26.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.600000008940697,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.0999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 41.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 16.899999991059303,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 55,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 55.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 45.80000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 11.599999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 50.29999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 24.299999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5999999940395355,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 4.4000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.300000011920929,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 44.69999998807907,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 8.700000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 9.900000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 49.1000000089407,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 51.30000001192093,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 8,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 5.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 4.799999997019768,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 42.79999999701977,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 9.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 10.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 48.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/reminders",
+                "encodedBodyBytes": 9607,
+                "decodedBodyBytes": 9607,
+                "transferBytes": 9907,
+                "durationMs": 50.099999994039536,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id",
+                "encodedBodyBytes": 976,
+                "decodedBodyBytes": 976,
+                "transferBytes": 1276,
+                "durationMs": 9.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/feedings",
+                "encodedBodyBytes": 1945,
+                "decodedBodyBytes": 1945,
+                "transferBytes": 2245,
+                "durationMs": 6.200000002980232,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/weights",
+                "encodedBodyBytes": 14,
+                "decodedBodyBytes": 14,
+                "transferBytes": 314,
+                "durationMs": 6.699999988079071,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/shedding",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 4.9000000059604645,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/boxes",
+                "encodedBodyBytes": 1981,
+                "decodedBodyBytes": 1981,
+                "transferBytes": 2281,
+                "durationMs": 5.5,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals",
+                "encodedBodyBytes": 101389,
+                "decodedBodyBytes": 101389,
+                "transferBytes": 101689,
+                "durationMs": 39.400000005960464,
+                "protocol": "h2"
+              },
+              {
+                "route": "/api/v1/animals/:id/pictures",
+                "encodedBodyBytes": 15,
+                "decodedBodyBytes": 15,
+                "transferBytes": 315,
+                "durationMs": 11.599999994039536,
+                "protocol": "h2"
+              }
+            ]
+          },
+          "routes": {
+            "/api/v1/boxes": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/animals": {
+              "responses": 16,
+              "statuses": {
+                "200": 16
+              }
+            },
+            "/api/v1/reminders": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/feedings": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/weights": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/shedding": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            },
+            "/api/v1/animals/:id/pictures": {
+              "responses": 8,
+              "statuses": {
+                "200": 8
+              }
+            }
+          },
+          "failedRequests": 22,
+          "pageErrors": 0,
+          "mainFrameNavigations": 4
+        }
+      ],
+      "finishedAt": "2026-10-17T21:57:43.725Z",
+      "measuredWallMs": 120020
+    }
+  ],
+  "changeObservation": {
+    "writes": 1,
+    "status": 201,
+    "writeStartedAt": "2026-10-17T21:57:43.937Z",
+    "writeStartToFlutterSemanticsMs": [
+      11961,
+      12271,
+      12580,
+      12881,
+      13153
+    ]
+  },
+  "limits": [
+    "One warm run; logical Chrome contexts on one controller, not separate physical devices.",
+    "Real release Flutter UI with semantics enabled; this is not a Flutter rebuild/frame measurement.",
+    "Synthetic fixture without media; startup, login and view transitions are outside idle windows.",
+    "Resource Timing body/transfer sizes exclude TLS/TCP overhead and are not full LAN bandwidth.",
+    "Optional update observation is one synthetic Feeding and correlated observations, not a percentile distribution.",
+    "No Pi resource time series is collected by this helper."
+  ],
+  "completedAt": "2026-10-17T21:57:57.098Z",
+  "status": "complete",
+  "cleanup": {
+    "syntheticFeedings": 1,
+    "statuses": [
+      200
+    ]
+  }
+}

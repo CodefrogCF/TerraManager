@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:uuid/uuid.dart';
@@ -43,6 +44,10 @@ class CommittedChanges {
   static const cursorHeader = 'X-Shared-Care-Cursor';
   static const beforeHeader = 'X-Shared-Care-Cursor-Before';
   final int capacity;
+  // Synchronous, unpaused subscribers only mark their bounded writer dirty.
+  // No per-subscriber event history is retained here.
+  final _notifications = StreamController<void>.broadcast(sync: true);
+  Stream<void> get notifications => _notifications.stream;
   final Queue<CommittedChange> _history = Queue();
   String _epoch = const Uuid().v4();
   int _revision = 0;
@@ -55,6 +60,7 @@ class CommittedChanges {
     while (_history.length > capacity) {
       _history.removeFirst();
     }
+    _notifications.add(null);
   }
 
   /// Called once after successful collection replacement, before its reply.
@@ -62,6 +68,7 @@ class CommittedChanges {
     _epoch = const Uuid().v4();
     _revision = 0;
     _history.clear();
+    _notifications.add(null);
   }
 
   String cursor({

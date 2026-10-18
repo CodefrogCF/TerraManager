@@ -149,6 +149,61 @@ Collection restore does not replace accounts or their preference revisions.
 Collection hints cover writes through SharedServerApi; out-of-process database
 editing is outside this process-local synchronization contract.
 
+## SSE delivery (Issue #228)
+
+`GET /api/v1/changes/events` uses the existing session cookie and the same origin
+and fetch-site checks as `/changes`. URLs accept no query parameters. Cookies,
+passwords and CSRF values never appear in URLs or frames. No CORS allowance is
+added. A rejected admission returns the normal JSON 401/403 before streaming;
+connection exhaustion returns 429 with `Retry-After: 15`.
+
+A successful response is `text/event-stream; charset=utf-8`, private/no-store,
+`Vary: Cookie`, nosniff. It has no collection read lease or backup gate ownership.
+The Dart HTTP/1.1 upstream is dedicated and close-delimited: socket ownership
+lets the server observe an idle peer FIN. Caddy translates this upstream response
+for browser HTTP/2 while preserving cancellation and automatic SSE flushing.
+Keep its default cancellation behavior: do not add `flush_interval -1`,
+`response_buffers`, or response compression to the API route.
+
+Each `changes` event has an `id` equal to the audience-scoped `cursor` and a JSON
+`data` document with the same fields and authorization filtering as `/changes`.
+`Last-Event-ID` is optional and bounded to 200 characters. Missing, invalid,
+foreign, future, expired and old-epoch cursors receive the established reset
+semantics. The initial frame without a cursor is a reset. Replay never contains
+collection field values or another account's preference revision. A frame above
+64 KiB is replaced by a small reset with reason `replay_too_large`.
+
+Defaults: 32 connections/server, eight/account identity; the existing 128-commit
+FIFO; at most one in-flight frame and one dirty bit per writer; a two-second
+write deadline. Multiple commits while a writer is busy coalesce. Rebuild the
+next frame from bounded history, or reset after a history gap. There is no queue
+per committed event. A 15-second comment heartbeat keeps the path active and
+rechecks authentication. Account/session changes trigger immediate revalidation;
+a timer also revalidates at the session deadline. Revocation, deactivation,
+password/role changes and deletion terminate affected subscriptions. A live
+stream sends `auth-required` with an empty object before closing when possible;
+transport failure may instead close the socket directly. Timers, subscriptions,
+write deadlines and connection reservations are released on disconnect/shutdown.
+
+The browser uses a separate, injectable native `EventSource` port rather than
+buffered JSON requests. Its same-origin check prevents credentialed cross-origin
+connections. It exposes connection/error/authentication states and
+`lastReceivedId`. A received hint wakes #227's `reconcile()` from its existing
+application-applied cursor. Only successful authoritative reads advance that
+cursor; a transport event cannot acknowledge data. Native retry is closed on
+errors, preventing an unauthorized source from repeatedly reconnecting.
+
+The home adapter starts streaming after initial loading and stops for logout,
+background/backup pause and disposal. While open and synchronized it skips the
+interim 15-second query. Unsupported/failed streaming and unsuccessful reads
+retain that conditional query as a safety net. Foreground re-entry can start a
+fresh source. Jitter/backoff, richer lifecycle policy, gradual recovery from
+fallback and deterministic replay/recovery orchestration remain #229.
+
+A successful collection replacement emits an epoch reset to open streams. Failed
+restore and export emit no collection reset. This transport requires no schema,
+backup-format, permission or cloud-service change.
+
 ## Verification
 
 Tests cover bounded/foreign/future/epoch cursors, audience filtering, conditional

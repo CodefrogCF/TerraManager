@@ -80,14 +80,19 @@ events to #227 and connection-state signals to #229.
 
 ### Acceptance criteria
 
-- [ ] Use the existing Secure/HttpOnly/SameSite cookie; check origin and permissions. Put no password, cookie or CSRF value in stream URLs or event payloads.
-- [ ] Deliver minimal authorized hints and reset semantics; filter private preferences and administrative resources for the current audience.
-- [ ] Revalidate open sessions on expiry/revocation and stop unauthorized subscriptions without login/reconnect loops.
-- [ ] Provide a testable browser EventSource adapter, independently of buffered JSON requests; handle fragmented delivery and expose transport IDs without treating them as applied data.
-- [ ] Bound connections, replay and slow-consumer queues; cancel timers/subscriptions and release stream slots after disconnect, including through Caddy.
-- [ ] Keep streams outside collection transactions and exclusive backup ownership; deliver a reset after successful replacement and none after a failed restore.
-- [ ] Verify trusted HTTPS, Caddy flushing and supported HTTP/browser paths; retain automated reconnect/disconnect resource tests.
-- [ ] Feed the production measurements in #230; the existing laboratory prototype is not this implementation.
+- [x] Use the existing Secure/HttpOnly/SameSite cookie; check origin and permissions. Put no password, cookie or CSRF value in stream URLs or event payloads.
+- [x] Deliver minimal authorized hints and reset semantics; filter private preferences and administrative resources for the current audience.
+- [x] Revalidate open sessions on expiry/revocation and stop unauthorized subscriptions without login/reconnect loops.
+- [x] Provide a testable browser EventSource adapter, independently of buffered JSON requests; handle fragmented delivery and expose transport IDs without treating them as applied data.
+- [x] Bound connections, replay and slow-consumer queues; cancel timers/subscriptions and release stream slots after disconnect, including through Caddy.
+- [x] Keep streams outside collection transactions and exclusive backup ownership; deliver a reset after successful replacement and none after a failed restore.
+- [x] Verify trusted HTTPS, Caddy flushing and supported HTTP/browser paths; retain automated reconnect/disconnect resource tests.
+- [x] Feed the production measurements in #230; the existing laboratory prototype is not this implementation.
+
+Implementation and local evidence:
+[#228 validation](shared-care-sse-delivery-validation-2026-10-18.md).
+Chrome/Edge, explicit local test-certificate trust and HTTP/1.1/HTTP/2 are covered.
+Physical-browser/OS-trust and Pi performance acceptance remain in #230.
 
 ### Scope boundary
 

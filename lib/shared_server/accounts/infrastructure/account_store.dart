@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -21,6 +22,9 @@ export 'package:terramanager/shared_server/authentication/domain/care_session.da
 class AccountStore {
   static const sessionLifetime = Duration(hours: 12);
 
+  // null means revalidate all open sessions; an ID is a private preference hint.
+  final _notifications = StreamController<int?>.broadcast(sync: true);
+  Stream<int?> get notifications => _notifications.stream;
   final Database _db;
   final Random _random = Random.secure();
 
@@ -87,7 +91,10 @@ class AccountStore {
     }
   }
 
-  void close() => _db.close();
+  void close() {
+    unawaited(_notifications.close());
+    _db.close();
+  }
 
   Map<String, Object> preferences(int accountId) {
     final rows = _db.select(
@@ -121,6 +128,7 @@ class AccountStore {
       'revision = account_preferences.revision + 1',
       [accountId, jsonEncode(updated)],
     );
+    _notifications.add(accountId);
     return updated;
   }
 
@@ -283,6 +291,7 @@ class AccountStore {
       _db.execute('DELETE FROM sessions WHERE token_hash = ?', [
         _tokenHash(token),
       ]);
+      _notifications.add(null);
     }
   }
 
@@ -437,6 +446,7 @@ class AccountStore {
     try {
       final result = action();
       _db.execute('COMMIT');
+      _notifications.add(null);
       return result;
     } catch (_) {
       _db.execute('ROLLBACK');

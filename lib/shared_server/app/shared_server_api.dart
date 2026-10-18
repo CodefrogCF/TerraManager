@@ -15,6 +15,7 @@ import 'package:terramanager/shared_server/authentication/infrastructure/http/se
 import 'package:terramanager/shared_server/backups/infrastructure/http/backup_handler.dart';
 import 'package:terramanager/shared_server/changes/application/committed_changes.dart';
 import 'package:terramanager/shared_server/changes/infrastructure/http/changes_handler.dart';
+import 'package:terramanager/shared_server/changes/infrastructure/http/change_stream_handler.dart';
 import 'package:terramanager/shared_server/collection/application/collection_operation_gate.dart';
 import 'package:terramanager/shared_server/collection/infrastructure/http/care_api.dart';
 import 'package:terramanager/shared_server/collection/infrastructure/http/collection_handler.dart';
@@ -42,6 +43,7 @@ class SharedServerApi {
     onRestored: changes.reset,
   );
   late final _changesHandler = ChangesHandler(changes, accounts, _gate);
+  late final changeStreams = ChangeStreamHandler(changes, accounts, sessions);
   late final _rejectedAudit = RejectedAdministrationAudit(_database, accounts);
 
   SharedServerApi({
@@ -91,7 +93,10 @@ class SharedServerApi {
       address ?? InternetAddress.loopbackIPv4,
       port,
     );
-    server.listen((request) => unawaited(handle(request)));
+    server.listen(
+      (request) => unawaited(handle(request)),
+      onDone: () => changeStreams.close(),
+    );
     return server;
   }
 
@@ -108,7 +113,8 @@ class SharedServerApi {
     }
     if (!path.startsWith('/api/v1/auth/') &&
         !path.startsWith('/api/v1/admin/') &&
-        path != '/api/v1/changes') {
+        path != '/api/v1/changes' &&
+        path != '/api/v1/changes/events') {
       await _collectionHandler.handle(request);
       return;
     }
@@ -127,6 +133,10 @@ class SharedServerApi {
       }
       if (path == '/api/v1/auth/session' && request.method == 'GET') {
         await _authentication.session(request, current);
+        return;
+      }
+      if (path == '/api/v1/changes/events' && request.method == 'GET') {
+        await changeStreams.handle(request, current);
         return;
       }
       if (path == '/api/v1/changes' && request.method == 'GET') {

@@ -1,4 +1,5 @@
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
+import 'package:terramanager/shared_client/changes/application/shared_change_stream.dart';
 
 import 'dart:async';
 
@@ -24,6 +25,36 @@ class SharedCareHome extends StatefulWidget {
 class _SharedCareHomeState extends State<SharedCareHome>
     with WidgetsBindingObserver {
   Timer? _refreshTimer;
+  int _streamHintVersion = 0;
+  void _syncStream() {
+    if (_session != null && _initialLoaded && _foreground && !_backupBusy) {
+      widget.api.changeStream.start();
+    } else {
+      widget.api.changeStream.stop(clearReceived: _session == null);
+    }
+  }
+
+  void _onStreamChanged() {
+    final stream = widget.api.changeStream;
+    if (stream.state == SharedStreamState.authRequired) {
+      _error = const SharedApiException(
+        401,
+        'unauthorized',
+        'Your session expired. Please sign in again.',
+      );
+      widget.api.expireStreamSession();
+      return;
+    }
+    if (stream.hintVersion != _streamHintVersion) {
+      _streamHintVersion = stream.hintVersion;
+      // Reconcile from the successfully applied cursor, not lastReceivedId.
+      unawaited(_pollChanges());
+    } else if (stream.state == SharedStreamState.failed) {
+      // One authoritative request also detects an initial 401; no login loop.
+      unawaited(_pollChanges());
+    }
+  }
+
   SharedSession? _session;
   List<Map<String, dynamic>> _boxes = const [];
   List<Map<String, dynamic>> _animals = const [];
@@ -127,10 +158,16 @@ class _SharedCareHomeState extends State<SharedCareHome>
       );
     }
     widget.api.refresh.clock.addListener(_clockChanged);
+    widget.api.changeStream.addListener(_onStreamChanged);
     unawaited(_bootstrap());
     widget.api.addListener(_onApiChanged);
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (_foreground && _session != null && !_busy && !_backupBusy) {
+      if (_foreground &&
+          _session != null &&
+          !_busy &&
+          !_backupBusy &&
+          (widget.api.changeStream.state != SharedStreamState.open ||
+              !_connected)) {
         unawaited(_pollChanges());
       }
     });
@@ -139,6 +176,8 @@ class _SharedCareHomeState extends State<SharedCareHome>
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    widget.api.changeStream.removeListener(_onStreamChanged);
+    widget.api.changeStream.stop();
     for (final s in _subscriptions) {
       s.dispose();
     }
@@ -153,6 +192,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
     _foreground = state == AppLifecycleState.resumed;
     widget.api.refresh.paused = !_foreground || _backupBusy;
     if (_foreground) widget.api.refresh.reconcileClock();
+    _syncStream();
     if (_foreground && _session != null && !_busy && !_backupBusy) {
       unawaited(_pollChanges());
     }
@@ -162,6 +202,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
     if (_session != null && widget.api.session == null) {
       widget.api.refresh.reset(invalidate: false);
       _session = null;
+      widget.api.changeStream.stop(clearReceived: true);
       _initialLoaded = false;
       _boxes = const [];
       _animals = const [];
@@ -177,6 +218,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
     if (_backupBusy == busy) return;
     _backupBusy = busy;
     widget.api.refresh.paused = busy || !_foreground;
+    _syncStream();
     if (busy) {
       // Ignore a refresh that began before the exclusive backup operation.
       _refreshVersion++;
@@ -313,6 +355,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
       });
     } finally {
       if (version == _refreshVersion) _refreshing = false;
+      if (mounted) _syncStream();
     }
   }
 

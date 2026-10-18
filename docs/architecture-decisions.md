@@ -2387,8 +2387,9 @@ production signing, size recording and release-candidate smoke tests.
 ### Status
 
 Architecture direction accepted (2026-10-18), Issue #186, following the operator's
-explicit choice to pursue SSE. The committed revision API from #226 is implemented;
-client/controller, streaming, recovery and production performance acceptance remain.
+explicit choice to pursue SSE. The revision API (#226), targeted refresh (#227)
+and authenticated streaming (#228) are implemented. Recovery policy (#229) and
+production performance acceptance (#230) remain.
 The ARM64 laboratory and trusted Caddy/Chrome
 HTTP/2 path have completed a five-client Raspberry Pi comparison. See the
 [target-device report](testing/shared-care-update-evaluation-pi-2026-10-17.md).
@@ -2564,12 +2565,37 @@ picture metadata. Detail refreshes retain the mounted subtree and scroll state;
 forms retain their own drafts and conflict revisions. Clock deadlines update due
 states without a database change or network read.
 
-During this stage one home adapter queries the conditional endpoint every 15
-seconds and after successful commands. It retains the existing background/backup
-pause and foreground reconciliation hooks. This is the interim source before
-#228 EventSource delivery and #229 connection/retry/fallback policy. It does not
-claim the connected-SSE latency target. Cursor recovery, controller tests and
+The initial #227 adapter used a 15-second conditional query and command
+acknowledgements. With #228, one EventSource now wakes reconciliation and idle
+queries are skipped while the stream is open and synchronized. The existing
+background/backup pause hooks and 15-second conditional safety net remain until
+#229 supplies the complete connection/retry/fallback policy. This does not claim
+the connected-SSE target on the Raspberry Pi. Cursor recovery, controller tests and
 validation boundaries are recorded in the [#227 validation report](testing/shared-care-targeted-refresh-validation-2026-10-18.md).
+
+### Authenticated streaming (Issue #228)
+
+The production `/api/v1/changes/events` handler uses the #226 audience-filtered
+contract and cookie/origin authorization. It observes committed collection
+notifications and account-local preference/session notifications. The endpoint
+holds no database transaction or exclusive backup lease. A dedicated detached
+HTTP/1.1 socket observes idle disconnects, including cancellation through Caddy.
+Caddy's built-in event-stream flushing is sufficient; `flush_interval -1` would
+retain abandoned upstream requests and is deliberately avoided.
+
+The handler caps connections (32 total/eight per account), frame size (64 KiB),
+retained replay (existing FIFO) and writes (one active frame plus one dirty bit,
+two-second deadline). Session changes and expiry revalidate subscriptions.
+Received browser IDs remain transport metadata; #227 reconciles authoritative
+reads using its applied cursor. Browser error handling closes native retry and
+exposes state for #229. The existing conditional safety net remains available.
+
+The [#228 validation report](testing/shared-care-sse-delivery-validation-2026-10-18.md)
+records production-handler/widget tests and the real compiled adapter behind
+Caddy in local Chrome/Edge HTTPS, with repeated idle disconnects over HTTP/1.1
+and HTTP/2. Test-certificate trust/pinning is explicit; this is not Pi performance,
+a mobile-browser matrix, or #229 recovery acceptance. #230 must measure the
+integrated Flutter UI and resource budgets on the Raspberry Pi.
 
 ### References
 

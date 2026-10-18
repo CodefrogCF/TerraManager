@@ -1,4 +1,8 @@
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
+import 'package:terramanager/shared_client/changes/application/shared_change_stream.dart';
+import 'package:terramanager/shared_client/changes/domain/shared_event_source_port.dart';
+import 'package:terramanager/shared_client/changes/infrastructure/shared_event_source_stub.dart'
+    if (dart.library.js_interop) 'package:terramanager/shared_client/changes/infrastructure/shared_event_source_web.dart';
 import 'package:terramanager/shared_client/administration/accounts/infrastructure/api/shared_accounts_api.dart';
 import 'package:terramanager/shared_client/administration/audit/infrastructure/api/shared_audit_api.dart';
 import 'package:terramanager/shared_client/animals/infrastructure/api/shared_animals_api.dart';
@@ -32,7 +36,20 @@ class SharedApiClient extends SharedApiTransport
         SharedCareHistoryApi,
         SharedMediaApi,
         SharedBackupsApi {
-  SharedApiClient(super.origin, super.client);
+  SharedApiClient(super.origin, super.client, {this.eventSource});
+  final SharedEventSourcePort? eventSource;
+  late final changeStream = SharedChangeStream(
+    origin.resolve('/api/v1/changes/events'),
+    eventSource ?? createSharedEventSource(),
+  );
+
+  /// A terminal authenticated stream event expires this tab's transient session.
+  void expireStreamSession() {
+    changeStream.stop(clearReceived: true);
+    sessionState = null;
+    notifyListeners();
+  }
+
   late final refresh = SharedRefreshController(queryChanges: queryChanges);
 
   /// Media IDs are immutable within an epoch; restore may reuse those IDs.
@@ -48,6 +65,7 @@ class SharedApiClient extends SharedApiTransport
 
   @override
   void close() {
+    changeStream.dispose();
     refresh.dispose();
     super.close();
   }

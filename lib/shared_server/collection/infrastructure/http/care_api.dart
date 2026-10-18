@@ -10,6 +10,8 @@ import 'package:terramanager/shared_server/animals/application/animal_operations
 import 'package:terramanager/shared_server/animals/infrastructure/http/animal_handler.dart';
 import 'package:terramanager/shared_server/animals/infrastructure/http/animal_history_handler.dart';
 import 'package:terramanager/shared_server/authentication/infrastructure/http/care_authenticator.dart';
+import 'package:terramanager/shared_server/changes/application/care_change_hints.dart';
+import 'package:terramanager/shared_server/changes/application/committed_changes.dart';
 import 'package:terramanager/shared_server/boxes/application/box_operations.dart';
 import 'package:terramanager/shared_server/boxes/infrastructure/http/box_handler.dart';
 import 'package:terramanager/shared_server/feedings/application/feeding_operations.dart';
@@ -32,6 +34,8 @@ class CareApi {
   final AppDatabase database;
   final CareAuthenticator authenticator;
   final CareAuditWriter? audit;
+  final CommittedChanges? changes;
+  final String? Function(HttpRequest)? cursorForRequest;
 
   late final _feedingOperations = FeedingOperations(database);
   late final _mediaHandler = MediaHandler(MediaOperations(database));
@@ -51,7 +55,13 @@ class CareApi {
   late final _feedingHandler = FeedingHandler(operations: _feedingOperations);
   late final _reminderOperations = FeedingReminderOperations(database);
 
-  CareApi({required this.database, required this.authenticator, this.audit});
+  CareApi({
+    required this.database,
+    required this.authenticator,
+    this.audit,
+    this.changes,
+    this.cursorForRequest,
+  });
 
   void clearRequestCache() => _feedingOperations.clearRequestCache();
 
@@ -71,7 +81,14 @@ class CareApi {
       if (!await authenticator.isAuthenticated(request)) {
         throw const ApiProblem(401, 'unauthorized', 'Authentication required.');
       }
+      final before = cursorForRequest?.call(request);
       final reply = await _auditedDispatch(request);
+      final after = cursorForRequest?.call(request);
+      if (before != null && after != null) {
+        request.response.headers.set(CommittedChanges.beforeHeader, before);
+        request.response.headers.set(CommittedChanges.cursorHeader, after);
+        request.response.headers.set(HttpHeaders.varyHeader, 'Cookie');
+      }
       await _send(request.response, reply);
     } on ApiProblem catch (problem) {
       await _send(
@@ -142,19 +159,29 @@ class CareApi {
   }
 
   Future<ApiReply> _auditedDispatch(HttpRequest request) async {
-    if (audit == null ||
+    if ((audit == null && changes == null) ||
         const {'GET', 'HEAD', 'OPTIONS'}.contains(request.method)) {
       return _dispatch(request);
     }
+    late final ApiReply committed;
+    Map<String, Iterable<int>?> resources = {};
     try {
-      return await database.transaction(() async {
+      committed = await database.transaction(() async {
+        final hints = changes == null
+            ? null
+            : await CareChangeHints.capture(database, request);
         final reply = await _dispatch(request);
         if (reply.status >= 400) throw _RejectedReply(reply);
-        await audit!(request, reply.status, reply.body, reply.replayed);
+        if (audit != null) {
+          await audit!(request, reply.status, reply.body, reply.replayed);
+        }
+        resources = hints?.complete(reply) ?? {};
         return reply;
       });
     } on _RejectedReply catch (rejected) {
-      await audit!(request, rejected.reply.status, null, false);
+      if (audit != null) {
+        await audit!(request, rejected.reply.status, null, false);
+      }
       return rejected.reply;
     } catch (error) {
       // Cached Feeding replies must never outlive a rolled-back transaction.
@@ -175,9 +202,13 @@ class CareApi {
                     error.resultCode == SqlError.SQLITE_LOCKED)
           ? 409
           : 500;
-      await audit!(request, status, null, false);
+      if (audit != null) await audit!(request, status, null, false);
       rethrow;
     }
+    // Neither dispatch success nor the audit callback proves a commit. Publish
+    // only once the outermost API transaction has completed successfully.
+    changes?.publish(resources);
+    return committed;
   }
 
   Future<ApiReply> _dispatch(HttpRequest request) async {

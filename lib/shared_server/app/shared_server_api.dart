@@ -13,6 +13,8 @@ import 'package:terramanager/shared_server/audit/infrastructure/http/audit_handl
 import 'package:terramanager/shared_server/authentication/infrastructure/http/authentication_handler.dart';
 import 'package:terramanager/shared_server/authentication/infrastructure/http/session_authenticator.dart';
 import 'package:terramanager/shared_server/backups/infrastructure/http/backup_handler.dart';
+import 'package:terramanager/shared_server/changes/application/committed_changes.dart';
+import 'package:terramanager/shared_server/changes/infrastructure/http/changes_handler.dart';
 import 'package:terramanager/shared_server/collection/application/collection_operation_gate.dart';
 import 'package:terramanager/shared_server/collection/infrastructure/http/care_api.dart';
 import 'package:terramanager/shared_server/collection/infrastructure/http/collection_handler.dart';
@@ -25,43 +27,58 @@ class SharedServerApi {
   final AppDatabase _database;
   final AccountStore accounts;
   final SessionAuthenticator sessions;
-  final CareApi _care;
+  late final CareApi _care;
+  final CommittedChanges changes;
   final CollectionOperationGate _gate = CollectionOperationGate();
   late final _authentication = AuthenticationHandler(accounts);
   late final _preferences = PreferencesHandler(accounts);
   late final _collectionHandler = CollectionHandler(_care, sessions, _gate);
   late final _accountAdministration = AccountAdministrationHandler(accounts);
   late final _audit = AuditHandler(_database, accounts, _gate);
-  late final _backupHandler = BackupHandler(_database, _care, _gate);
+  late final _backupHandler = BackupHandler(
+    _database,
+    _care,
+    _gate,
+    onRestored: changes.reset,
+  );
+  late final _changesHandler = ChangesHandler(changes, accounts, _gate);
   late final _rejectedAudit = RejectedAdministrationAudit(_database, accounts);
 
   SharedServerApi({
     required AppDatabase database,
     required this.accounts,
     required Uri publicUrl,
+    CommittedChanges? changes,
   }) : _database = database,
        sessions = SessionAuthenticator(accounts, publicUrl),
-       _care = CareApi(
-         database: database,
-         authenticator: SessionAuthenticator(accounts, publicUrl),
-         audit: (request, status, reply, replayed) async {
-           final actor = SessionAuthenticator(
-             accounts,
-             publicUrl,
-           ).session(request)?.account;
-           if (actor == null) throw StateError('Audit actor is unavailable.');
-           for (final event in collectionAuditEvents(
-             actor.auditActor,
-             request.method,
-             request.uri.pathSegments.skip(2).toList(),
-             status,
-             reply,
-             replayed: replayed,
-           )) {
-             await CollectionAuditLog(database).record(event);
-           }
-         },
-       );
+       changes = changes ?? CommittedChanges() {
+    _care = CareApi(
+      database: database,
+      authenticator: sessions,
+      changes: this.changes,
+      cursorForRequest: (request) {
+        final current = sessions.session(request);
+        return current == null ? null : _changesHandler.cursor(current);
+      },
+      audit: (request, status, reply, replayed) async {
+        final actor = SessionAuthenticator(
+          accounts,
+          publicUrl,
+        ).session(request)?.account;
+        if (actor == null) throw StateError('Audit actor is unavailable.');
+        for (final event in collectionAuditEvents(
+          actor.auditActor,
+          request.method,
+          request.uri.pathSegments.skip(2).toList(),
+          status,
+          reply,
+          replayed: replayed,
+        )) {
+          await CollectionAuditLog(database).record(event);
+        }
+      },
+    );
+  }
 
   Future<HttpServer> serve({InternetAddress? address, int port = 0}) async {
     if (!accounts.hasAccounts) {
@@ -90,7 +107,8 @@ class SharedServerApi {
       return;
     }
     if (!path.startsWith('/api/v1/auth/') &&
-        !path.startsWith('/api/v1/admin/')) {
+        !path.startsWith('/api/v1/admin/') &&
+        path != '/api/v1/changes') {
       await _collectionHandler.handle(request);
       return;
     }
@@ -109,6 +127,10 @@ class SharedServerApi {
       }
       if (path == '/api/v1/auth/session' && request.method == 'GET') {
         await _authentication.session(request, current);
+        return;
+      }
+      if (path == '/api/v1/changes' && request.method == 'GET') {
+        await _changesHandler.handle(request, current);
         return;
       }
       if (path == '/api/v1/auth/preferences') {

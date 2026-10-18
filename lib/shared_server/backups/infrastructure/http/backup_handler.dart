@@ -16,12 +16,13 @@ import 'package:terramanager/shared_server/shared/infrastructure/http/api_reques
 import 'package:terramanager/shared_server/shared/infrastructure/http/api_response.dart';
 
 class BackupHandler {
-  BackupHandler(AppDatabase database, this._care, this._gate)
+  BackupHandler(AppDatabase database, this._care, this._gate, {this.onRestored})
     : _backups = SharedPortableBackups(database) {
     operations = SharedBackupOperations(database, _backups);
   }
   final CareApi _care;
   final CollectionOperationGate _gate;
+  final void Function()? onRestored;
   final SharedPortableBackups _backups;
   late final SharedBackupOperations operations;
   final Map<String, _SafetyGrant> _safetyGrants = {};
@@ -201,6 +202,7 @@ class BackupHandler {
         final reply = await operations.restore(validated, current.account);
         _care.clearRequestCache();
         _safetyGrants.clear();
+        onRestored?.call();
         await sendApiResponse(request.response, reply.status, reply.body!);
       } finally {
         _gate.leaveExclusive();

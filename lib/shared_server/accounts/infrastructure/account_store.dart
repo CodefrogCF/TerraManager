@@ -59,6 +59,14 @@ class AccountStore {
         )
       ''');
       if (!db
+          .select('PRAGMA table_info(account_preferences)')
+          .any((row) => row['name'] == 'revision')) {
+        db.execute(
+          'ALTER TABLE account_preferences '
+          'ADD COLUMN revision INTEGER NOT NULL DEFAULT 0',
+        );
+      }
+      if (!db
           .select('PRAGMA table_info(accounts)')
           .any((row) => row['name'] == 'audit_id')) {
         db.execute('ALTER TABLE accounts ADD COLUMN audit_id TEXT');
@@ -102,13 +110,26 @@ class AccountStore {
   ) {
     final valid = validateAccountPreferences(patch);
     // Synchronous SQLite read/merge/write cannot interleave with another request.
-    final updated = {...preferences(accountId), ...valid};
+    final previous = preferences(accountId);
+    final updated = {...previous, ...valid};
+    if (updated.entries.every((entry) => previous[entry.key] == entry.value)) {
+      return previous;
+    }
     _db.execute(
-      'INSERT INTO account_preferences (account_id, preferences_json) VALUES (?, ?) '
-      'ON CONFLICT(account_id) DO UPDATE SET preferences_json = excluded.preferences_json',
+      'INSERT INTO account_preferences (account_id, preferences_json, revision) VALUES (?, ?, 1) '
+      'ON CONFLICT(account_id) DO UPDATE SET preferences_json = excluded.preferences_json, '
+      'revision = account_preferences.revision + 1',
       [accountId, jsonEncode(updated)],
     );
     return updated;
+  }
+
+  int preferencesRevision(int accountId) {
+    final rows = _db.select(
+      'SELECT revision FROM account_preferences WHERE account_id = ?',
+      [accountId],
+    );
+    return rows.isEmpty ? 0 : rows.single['revision'] as int;
   }
 
   List<Map<String, Object?>> readAudit(AuditQuery query) => [

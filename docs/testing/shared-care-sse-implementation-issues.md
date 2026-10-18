@@ -1,126 +1,141 @@
-# Implementation issue drafts following #186
+# Consolidated Shared Care implementation issues
 
-SSE was selected on 2026-10-18. These are copyable drafts; no GitHub issues have
-been created. Performance figures below are acceptance targets, not claims that
-the production implementation already meets them. The current real Flutter
-baseline is approximately 12 overview / 40 detail-stack GETs per minute/client.
-The [corrected three-repetition Pi lab](shared-care-sse-comparison-2026-10-18.md)
-completed with 173-180 ms SSE p95, zero idle data GETs and about 99.98% fewer idle
-received body bytes. These are lab results; production targets remain below.
+Use the existing issues #226-#230. Their bodies below separate server state,
+client refresh, streaming, connection policy and production validation.
+Checkboxes are left open for the operator to update after applying the code.
 
-## 1. Shared Care: publish committed resource revisions and conditional change queries
+## #226 — Shared Care: publish committed resource revisions and conditional change queries
 
-**Scope:** Shared Care server and API contract
+**Scope:** Shared Care server, change-query contract and conditional API reader
 **Priority:** High
 **Type:** Feature / architecture
 
 ### Description
 
-Introduce the committed-change contract needed by the synchronization controller
-and SSE. Expose an authenticated conditional revision query that also serves as
-the polling fallback. Keep the existing backup-safety generation separate.
+Provide committed revisions and minimal resource invalidations as the foundation
+for #227-#229. Keep synchronization revisions separate from the existing backup
+safety generation. Personal preference updates must remain private to their owner.
 
 ### Acceptance criteria
 
-- [ ] Define epoch/revision, affected resource identifiers, user-scoped hints and snapshot/revision consistency.
-- [ ] Publish only after a successful commit; failed or rolled-back writes publish no change.
-- [ ] Cover Animals, Boxes, Feedings, weights, shedding, media, archive/restore/deletion, preferences and successful collection replacement.
-- [ ] Grouped operations publish a consistent committed change; idempotent replay does not invent another data change.
-- [ ] Keep a bounded replay window and explicit reset semantics for missing, old, foreign or future cursors and server/restore epoch changes.
-- [ ] Support authenticated HTTP 304 before JSON decoding. Unchanged fallback uses at most four revision queries/minute/foreground tab at the 15-second interval.
-- [ ] Preserve existing authentication, roles, CSRF, expectedRevision conflicts, audit atomicity, backup gates and local data ownership.
-- [ ] Test concurrent commits, snapshot races, grouped/idempotent operations, rollback and collection replacement.
+- [ ] Publish exactly once after the outer data/audit transaction commits; rejected or rolled-back writes publish nothing.
+- [ ] Cover Animals, Boxes, reminders, Feedings, weights, shedding, media, primary-picture changes, archive/restore/deletion and successful collection replacement.
+- [ ] Grouped Feedings produce one consistent hint; Feeding and picture idempotency replays produce no additional revision.
+- [ ] Define opaque audience-scoped cursors, restart/restore epochs, bounded replay and explicit reset semantics for missing, invalid, foreign, future and expired cursors.
+- [ ] Track private preference revisions without advancing another account's cursor; preserve existing preferences when upgrading the private account database.
+- [ ] Provide an authenticated conditional change query with ETag and bodyless HTTP 304; validate origin, session and audience before returning 304. The API reader handles 304 before JSON decoding.
+- [ ] Define resource-ID semantics and snapshot/read-fence consistency so #227 can reconcile concurrent changes without prematurely advancing its applied cursor.
+- [ ] Preserve roles, CSRF, expectedRevision conflicts, audit atomicity, backup gates, portable backup compatibility and local data ownership.
+- [ ] Test concurrency, commit visibility, snapshot races, grouped/idempotent operations, rollback, account migration and successful/failed restore.
 
-## 2. Shared Care: replace screen polling with a central targeted refresh controller
+### Scope boundary
 
-**Scope:** Shared Care Flutter client
+UI refresh orchestration belongs to #227, streaming to #228 and the 15-second
+fallback schedule to #229. These features are not required to expose this API.
+
+## #227 — Shared Care: replace screen polling with a central targeted refresh controller
+
+**Scope:** Shared Care Flutter state and refresh orchestration
 **Priority:** High
 **Type:** Feature / performance
 
 ### Description
 
-Create one transient synchronization controller per signed-in browser tab. Use
-revision changes to refresh affected visible resources and mark hidden resources
-stale. Remove independent screen polling after equivalent recovery is available.
+Build one transient synchronization controller per signed-in browser tab using
+the contract from #226. Refresh affected visible resources, mark hidden resources
+stale and preserve unchanged UI state. Keep transport and connection policy
+behind an interface for #228 and #229.
 
 ### Acceptance criteria
 
-- [ ] Define dependencies between latest Feeding, histories, reminders, Animal/Box lists, galleries and former/new Box assignments.
-- [ ] Coalesce bursts and local command acknowledgements with stream hints while retaining changes from another device using the same account.
-- [ ] Unchanged revisions and heartbeats cause zero collection-data GETs and no data-dependent list replacement.
-- [ ] Unchanged Animal details do not reload gallery metadata on every refresh; retain existing image caching.
-- [ ] Preserve scroll position, route context, selected Animal, unsaved forms and the existing offline-write policy.
-- [ ] Recompute clock-driven Feeding due states on schedule/resume without waiting for a database write.
-- [ ] Apply a revision only after the corresponding reads succeed; reconcile changes arriving during an outstanding refresh.
-- [ ] Add deterministic controller/widget coverage for invalidation, no-change cases, overlapping refreshes and gallery preservation.
+- [ ] Define dependencies for Animal/Box lists and details, latest Feeding, histories, reminders, galleries and old/new Box assignments.
+- [ ] Coalesce invalidations and overlapping refreshes; retain changes from another device signed in to the same account when coalescing local acknowledgements.
+- [ ] Apply a cursor only after its required reads succeed; reconcile changes arriving during initial loading or an outstanding refresh.
+- [ ] Unchanged revisions and heartbeats cause no collection-data GETs or data-dependent list replacement.
+- [ ] Feeding-only updates retain gallery metadata and image caches; invalidate pictures only when their dependencies change.
+- [ ] Preserve scroll, route, selection and unsaved forms; replace independent screen polling once the shared refresh source provides equivalent update coverage.
+- [ ] Update clock-driven Feeding due states without database writes; expose a resume/reconcile operation for #229.
+- [ ] Add deterministic controller/widget tests for dependencies, burst coalescing, failed/overlapping reads and stable unchanged state.
 
-## 3. Shared Care: deliver authenticated change notifications through SSE
+### Scope boundary
 
-**Scope:** Dart server, browser transport and Caddy integration
+This controller owns resource freshness and the application-applied cursor.
+EventSource delivery belongs to #228; retry, fallback switching and browser
+lifecycle scheduling belong to #229.
+
+## #228 — Shared Care: deliver authenticated change notifications through SSE
+
+**Scope:** Dart stream endpoint, browser EventSource adapter and Caddy integration
 **Priority:** High
 **Type:** Feature
 
 ### Description
 
-Use one same-origin SSE connection per browser tab to deliver committed change
-hints. Keep commands and data reads on the existing authorized HTTP API.
+Deliver #226 change hints through one same-origin SSE connection per browser tab.
+Keep commands and authoritative reads on the existing HTTP API. Provide transport
+events to #227 and connection-state signals to #229.
 
 ### Acceptance criteria
 
-- [ ] Use the existing secure session cookie; keep credentials and CSRF tokens out of stream URLs and event payloads.
-- [ ] Filter collection, account and administrative hints according to the subscriber's permissions.
-- [ ] Revalidate open subscriptions on expiry/revocation; terminate unauthorized subscriptions without reconnect/login loops.
-- [ ] Provide a browser EventSource adapter behind a testable Dart interface, independently of the buffered JSON transport.
-- [ ] Bound active connections, replay retention and slow-consumer queues; release resources on disconnect.
-- [ ] Keep long-lived streams outside collection transactions and exclusive backup ownership; publish reset only after successful restore.
-- [ ] Verify trusted HTTPS and streaming through the existing Caddy gateway.
-- [ ] With five LAN clients, target p95 visible update latency <= 2 seconds, >= 90% fewer idle data GETs and >= 80% fewer idle received bytes including upkeep versus polling.
-- [ ] Keep laboratory DOM, actual Flutter semantics/frame measurements and physical-browser results distinct.
+- [ ] Use the existing Secure/HttpOnly/SameSite cookie; check origin and permissions. Put no password, cookie or CSRF value in stream URLs or event payloads.
+- [ ] Deliver minimal authorized hints and reset semantics; filter private preferences and administrative resources for the current audience.
+- [ ] Revalidate open sessions on expiry/revocation and stop unauthorized subscriptions without login/reconnect loops.
+- [ ] Provide a testable browser EventSource adapter, independently of buffered JSON requests; handle fragmented delivery and expose transport IDs without treating them as applied data.
+- [ ] Bound connections, replay and slow-consumer queues; cancel timers/subscriptions and release stream slots after disconnect, including through Caddy.
+- [ ] Keep streams outside collection transactions and exclusive backup ownership; deliver a reset after successful replacement and none after a failed restore.
+- [ ] Verify trusted HTTPS, Caddy flushing and supported HTTP/browser paths; retain automated reconnect/disconnect resource tests.
+- [ ] Feed the production measurements in #230; the existing laboratory prototype is not this implementation.
 
-## 4. Shared Care: reconcile SSE reconnects, browser lifecycle and polling fallback
+### Scope boundary
 
-**Scope:** Shared Care synchronization lifecycle and recovery
+The adapter provides streaming and connection/error signals. Application retry
+backoff, foreground policy, replay reconciliation and fallback switching belong
+to #229.
+
+## #229 — Shared Care: reconcile SSE reconnects, browser lifecycle and polling fallback
+
+**Scope:** Synchronization connection policy, browser lifecycle and recovery
 **Priority:** High
 **Type:** Reliability
 
 ### Description
 
-Recover authoritative collection state after disconnects, foreground resume,
-server restart and restore, while preserving edits and preventing duplicate
-subscriptions. Use conditional/version polling when streaming is unavailable.
+Coordinate #227 and #228 so authoritative state converges after outages, resume,
+restart and restore. Use #226 conditional queries when streaming is unavailable,
+without duplicate subscriptions or overlapping polling/refresh loops.
 
 ### Acceptance criteria
 
-- [ ] Keep transport-received event IDs separate from the application-applied cursor.
-- [ ] Reconcile on reconnect/resume; replay retained changes or reset/reload after gaps, unknown cursors and epoch changes.
-- [ ] Handle restored/reused record/media IDs and changes arriving during initial snapshot loading.
-- [ ] Use bounded retry backoff with jitter and prevent reconnect storms across tabs.
-- [ ] Permit at most one active SSE connection or one fallback polling schedule per tab; avoid overlapping refresh loops.
-- [ ] Fallback uses at most four unchanged version queries/minute/foreground tab; report its separate latency budget.
-- [ ] Reduce hidden-tab work and reconcile promptly on resume without overwriting unsaved forms.
-- [ ] Test outages, duplicate/out-of-order events, several tabs, login/logout, account revocation and successful/failed restore.
+- [ ] Keep transport-received IDs separate from #227's application-applied cursor; reconcile from successfully applied state after reconnect/resume.
+- [ ] Replay retained hints or reconcile after gaps, foreign/future cursors and epoch changes, including reused record/media IDs after restore.
+- [ ] Handle changes arriving during connection setup, initial snapshot loading and outstanding reads.
+- [ ] Use bounded retry backoff with jitter; prevent reconnect storms and repeated login attempts after expiry/revocation.
+- [ ] Maintain at most one active SSE connection or one fallback polling schedule per tab. At a 15-second interval, unchanged fallback uses at most four conditional revision queries/minute/foreground tab.
+- [ ] Reduce hidden-tab work, reconcile on resume and restore SSE gradually after fallback; trigger #227's clock-dependent refresh as needed.
+- [ ] Preserve unsaved edits, authentication, conflicts and the existing connected-state write policy; add no offline write queue.
+- [ ] Test outages, duplicate/out-of-order events, several tabs, login/logout, revocation and successful/failed restore with deterministic scheduling.
 
-## 5. Shared Care: validate SSE performance and resource bounds on Raspberry Pi
+## #230 — Shared Care: validate SSE performance and resource bounds on Raspberry Pi
 
-**Scope:** Performance evaluation and regression coverage
+**Scope:** Production Flutter/device performance and regression acceptance
 **Priority:** Medium
 **Type:** Testing / performance
 
 ### Description
 
-Validate the production implementation against the recorded polling baseline.
-Keep the comparative pilot, actual Flutter measurements and reliability results
-separate, with reproducible workloads and explicit uncertainty.
+Validate the integrated #226-#229 implementation against the recorded real Flutter
+polling baseline. Retain the completed laboratory comparison as reference evidence,
+with its limits: five logical clients, laboratory DOM, and no demonstrated
+per-mode RAM saving or long-term memory bound.
 
 ### Acceptance criteria
 
-- [ ] Repeat polling/SSE at five clients first; then cover 1/3/5/10 clients, overview/details, idle/writes, with at least three repetitions per relevant case.
-- [ ] Confirm p95 visible update <= 2 seconds, >= 90% fewer idle data GETs and >= 80% fewer received bytes including upkeep while SSE is connected.
-- [ ] Report per-trial p50/p95 and repetitions separately; avoid treating correlated client observations as independent trials.
-- [ ] Record Dart/Caddy cumulative process CPU and sampled RSS separately, including coverage, restart identity and resource-sampler overhead.
-- [ ] Validate proposed same-fixture budgets after warmup: Dart/Caddy mean idle CPU <= 0.10/0.10% of one core, write-window CPU <= 1.50/0.25%, maximum sampled PID 1 RSS <= 256/80 MiB. These have headroom above the lab observations and are not production passes.
-- [ ] Run the fixed workload for 30 minutes and at least 100 reconnects after warmup; investigate a final warm 10-minute median RSS > 10% above the initial warm 10-minute median. Verify bounded queues and distinguish login/setup from connected operation.
-- [ ] Include stream upkeep, resynchronization, fallback and physical browser background/foreground behavior.
-- [ ] Retain the independent control reproducing ERR_ABORTED after complete no-store/manual-stream reads; classify remaining actual Flutter terminal events using body/application outcomes, without assuming every event is harmless.
-- [ ] Capture real Flutter data-dependent build/frame behavior, preserving the distinction from laboratory DOM and semantic timestamps.
-- [ ] Keep sanitized evidence and reproduction commands; exclude credentials, cookies, personal collection bodies and original HAR captures.
+- [ ] Measure real Flutter API traffic and data-dependent build/frame behavior; keep laboratory DOM and semantics timestamps separate from paint/frame measurements.
+- [ ] Repeat identical overview/detail, idle/write workloads at 1/3/5/10 clients with at least three repetitions; record physical desktop/mobile browsers, several tabs and trusted HTTPS.
+- [ ] With five connected LAN clients, confirm p95 visible update <= 2 seconds, >= 90% fewer idle data GETs and >= 80% fewer idle received bytes including upkeep versus polling.
+- [ ] Include stream upkeep, resynchronization and fallback traffic; report per-trial p50/p95 without treating correlated clients as independent repetitions.
+- [ ] Record Dart/Caddy process CPU and RSS separately, with probe coverage and process identity. Proposed same-fixture warm budgets: idle CPU <= 0.10/0.10% of one core, write-window CPU <= 1.50/0.25%, sampled RSS <= 256/80 MiB. Validate these proposed budgets during integration.
+- [ ] After warmup, run the fixed workload for 30 minutes and at least 100 reconnects. Investigate a final warm 10-minute median RSS > 10% above the initial warm 10-minute median; verify bounded queues and separate login/setup costs.
+- [ ] Validate background/foreground, outage, session expiry and restore behavior on physical browsers, alongside #229's deterministic recovery tests.
+- [ ] Classify actual Flutter terminal request failures using body/application outcomes. Retain the independent complete-body/no-store ERR_ABORTED control without assuming every earlier abort was harmless.
+- [ ] Keep reproducible sanitized evidence and update ADR budgets/tolerances; exclude credentials, cookies, personal collection bodies and original HAR captures.

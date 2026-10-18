@@ -6,6 +6,14 @@ The project uses semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- expose authenticated committed Shared Care revisions, bounded resource hints,
+  private preference revisions and conditional HTTP 304 queries as the server/API
+  foundation for targeted refresh and SSE — Issue #226
+- define restart/restore cursor resets and read-consistency fences while retaining
+  atomic audit writes, conflict checks and the separate backup safety generation
+
 ### Development
 
 - add a disposable Shared Care update evaluation kit for Issue #186, with

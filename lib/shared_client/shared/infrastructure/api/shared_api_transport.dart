@@ -59,6 +59,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
     Uint8List? bytes,
     Duration timeout = const Duration(minutes: 2),
     Map<String, String> extraHeaders = const {},
+    bool allowNotModified = false,
   }) async {
     final headers = <String, String>{...extraHeaders};
     if (bytes != null) {
@@ -87,6 +88,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
       _session = null;
       notifyListeners();
     }
+    if (allowNotModified && response.statusCode == 304) return response;
     if (response.statusCode < 200 || response.statusCode >= 300) {
       try {
         final payload = jsonDecode(response.body);

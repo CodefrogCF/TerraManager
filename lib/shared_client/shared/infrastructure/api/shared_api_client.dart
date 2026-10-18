@@ -3,6 +3,7 @@ import 'package:terramanager/shared_client/administration/audit/infrastructure/a
 import 'package:terramanager/shared_client/animals/infrastructure/api/shared_animals_api.dart';
 import 'package:terramanager/shared_client/authentication/infrastructure/api/shared_authentication_api.dart';
 import 'package:terramanager/shared_client/backups/infrastructure/api/shared_backups_api.dart';
+import 'package:terramanager/shared_client/changes/infrastructure/api/shared_changes_api.dart';
 import 'package:terramanager/shared_client/boxes/infrastructure/api/shared_boxes_api.dart';
 import 'package:terramanager/shared_client/care_history/infrastructure/api/shared_care_history_api.dart';
 import 'package:terramanager/shared_client/feedings/infrastructure/api/shared_feedings_api.dart';
@@ -12,12 +13,15 @@ import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_
 
 export 'package:terramanager/shared_client/authentication/domain/shared_session.dart';
 export 'package:terramanager/shared_client/backups/domain/shared_backup_file.dart';
+export 'package:terramanager/shared_client/changes/infrastructure/api/shared_changes_api.dart'
+    show SharedChangeQuery;
 export 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_exception.dart';
 
 /// Composes feature API operations over one authenticated, transient transport.
 class SharedApiClient extends SharedApiTransport
     with
         SharedAuthenticationApi,
+        SharedChangesApi,
         SharedSettingsApi,
         SharedAccountsApi,
         SharedAuditApi,

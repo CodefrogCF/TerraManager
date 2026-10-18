@@ -2387,7 +2387,8 @@ production signing, size recording and release-candidate smoke tests.
 ### Status
 
 Architecture direction accepted (2026-10-18), Issue #186, following the operator's
-explicit choice to pursue SSE. Production implementation and performance acceptance are pending.
+explicit choice to pursue SSE. The committed revision API from #226 is implemented;
+client/controller, streaming, recovery and production performance acceptance remain.
 The ARM64 laboratory and trusted Caddy/Chrome
 HTTP/2 path have completed a five-client Raspberry Pi comparison. See the
 [target-device report](testing/shared-care-update-evaluation-pi-2026-10-17.md).
@@ -2523,8 +2524,28 @@ Targets to confirm in production (connected-lab latency/traffic passed):
 
 The test kit is intentionally outside production entry points. Its completed-
 request observer publishes only successful Feeding-create hints and cannot
-replace the eventual transactional production change publisher. The browser
+replace the transactional production change contract below. The browser
 prototypes do not implement the production fallback/reconnect/restore protocol.
+
+### Committed revision API (Issue #226)
+
+The [change contract](shared-care-change-contract.md) defines authenticated
+conditional queries, opaque audience-scoped cursors and read-consistency fences.
+Collection revisions advance after the outer collection/audit transaction commits;
+failed writes and idempotent replays publish nothing. A bounded process-local
+buffer retains minimal resource hints. Restart or successful restore changes
+the epoch and requires reconciliation; failed restore keeps the epoch.
+
+Private preferences use a separate persistent account-store revision. They do
+not advance another account's cursor or the collection revision. Caregiver
+queries omit administrative hints. Immutable account identity prevents cursor
+reuse if a deleted account's numeric ID is later reused.
+
+The conditional API reader handles bodyless HTTP 304 before JSON decoding and
+does not advance an application-applied cursor. The #227 controller owns apply
+consistency; #228 delivers streams; #229 owns connection policy and fallback
+scheduling. See the [issue review](testing/shared-care-sse-issue-review-2026-10-18.md)
+and [consolidated #226-#230 bodies](testing/shared-care-sse-implementation-issues.md).
 
 ### References
 

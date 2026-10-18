@@ -1,0 +1,41 @@
+# Issue #230: current production Flutter UI + production API/SSE, disposable data.
+# Never combine with deploy/compose.yaml or mount deploy/data here.
+name: tm230-acceptance
+services:
+  lab:
+    image: terramanager-integrated-acceptance:${TM230_VERSION:?Set TM230_VERSION}
+    build:
+      context: ../../..
+      dockerfile: tool/evaluation/shared_updates/Dockerfile
+    platform: linux/arm64
+    command:
+      - --serve
+      - --integrated
+      - --bind
+      - 0.0.0.0
+      - --port
+      - '8080'
+      - --public-origin
+      - https://${TM230_HOST:?Set TM230_HOST}:8443
+      - --animals
+      - '100'
+      - --history
+      - '20'
+    read_only: true
+    tmpfs:
+      - /tmp:rw,size=512m,mode=1777
+    networks: [acceptance]
+  gateway:
+    image: ${TM230_WEB_IMAGE:?Set TM230_WEB_IMAGE}
+    pull_policy: never
+    depends_on: [lab]
+    environment:
+      TM186_HOST: ${TM230_HOST:?Set TM230_HOST}
+    ports:
+      - ${TM230_HOST}:8443:443
+    volumes:
+      - ./Caddyfile.flutter:/etc/caddy/Caddyfile:ro
+      - ${TM230_CERT_DIR:?Set TM230_CERT_DIR}:/certs:ro
+    networks: [acceptance]
+networks:
+  acceptance:

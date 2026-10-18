@@ -150,3 +150,5 @@ per-mode RAM saving or long-term memory bound.
 - [ ] Validate background/foreground, outage, session expiry and restore behavior on physical browsers, alongside #229's deterministic recovery tests.
 - [ ] Classify actual Flutter terminal request failures using body/application outcomes. Retain the independent complete-body/no-store ERR_ABORTED control without assuming every earlier abort was harmless.
 - [ ] Keep reproducible sanitized evidence and update ADR budgets/tolerances; exclude credentials, cookies, personal collection bodies and original HAR captures.
+
+Preparation is available in the [integrated acceptance runbook](shared-care-integrated-acceptance.md): a disposable fixture with the current production API/SSE, the installed Flutter web image, process capture and repeated real-UI workloads. This preparation does not mark any Pi performance or physical-browser criterion passed.

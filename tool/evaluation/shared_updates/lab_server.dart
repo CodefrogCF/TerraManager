@@ -28,6 +28,8 @@ class UpdateEvaluationLab {
     this.sessions,
     this.assets,
     this.fixture,
+    this.integrated,
+    this.fixtureId,
   );
 
   final HttpServer server;
@@ -38,6 +40,8 @@ class UpdateEvaluationLab {
   final SessionAuthenticator sessions;
   final Directory assets;
   final Map<String, int> fixture;
+  final bool integrated;
+  final String fixtureId;
   final feed = EvaluationChangeFeed();
   final Map<String, int> requests = {};
   final Set<Future<void> Function()> _disconnect = {};
@@ -52,6 +56,7 @@ class UpdateEvaluationLab {
     String bind = '127.0.0.1',
     int port = 0,
     Uri? publicOrigin,
+    bool integrated = false,
   }) async {
     if (animalCount < 1 ||
         animalCount > 10000 ||
@@ -86,7 +91,26 @@ class UpdateEvaluationLab {
       final password = base64UrlEncode(
         List.generate(30, (_) => random.nextInt(256)),
       );
-      await accounts.createInitialAdministrator('evaluation-admin', password);
+      final administrator = await accounts.createInitialAdministrator(
+        'evaluation-admin',
+        password,
+      );
+      final clientAccounts = <Map<String, String>>[];
+      if (integrated) {
+        for (var i = 1; i <= 3; i++) {
+          final username = 'evaluation-client-$i';
+          await accounts.createAccount(
+            username,
+            password,
+            CareRole.caregiver,
+            actor: administrator,
+          );
+          clientAccounts.add({'username': username, 'password': password});
+        }
+      }
+      final fixtureId = base64UrlEncode(
+        List.generate(24, (_) => random.nextInt(256)),
+      );
       database = await openServerDatabase(
         File('${directory.path}/collection.sqlite'),
       );
@@ -121,12 +145,19 @@ class UpdateEvaluationLab {
           'boxes': 5,
           'feedings': animalCount * historyPerAnimal,
         },
+        integrated,
+        fixtureId,
       );
       await File('${directory.path}/credentials.json').writeAsString(
         jsonEncode({
           'origin': origin.origin,
           'username': 'evaluation-admin',
           'password': password,
+          if (integrated) ...{
+            'kind': 'disposable-integrated-shared-care',
+            'fixtureId': fixtureId,
+            'clients': clientAccounts,
+          },
         }),
       );
       server.listen((request) => unawaited(lab._handle(request)));
@@ -184,7 +215,7 @@ class UpdateEvaluationLab {
   Future<void> _handle(HttpRequest request) async {
     final path = request.uri.path;
     requests.update(
-      '${request.method} $path',
+      '${request.method} ${path.replaceAll(RegExp(r'/\d+(?=/|$)'), '/:id')}',
       (value) => value + 1,
       ifAbsent: () => 1,
     );
@@ -193,7 +224,8 @@ class UpdateEvaluationLab {
         await api.handle(request);
         // This wrapper observes the completed real API request, after commit and
         // response delivery. It is NOT a production transactional change hook.
-        if (path == '/api/v1/feedings' &&
+        if (!integrated &&
+            path == '/api/v1/feedings' &&
             request.method == 'POST' &&
             request.response.statusCode >= 200 &&
             request.response.statusCode < 300) {
@@ -206,7 +238,7 @@ class UpdateEvaluationLab {
         '/evaluation/client.js' => 'client.js',
         _ => null,
       };
-      if (file != null && request.method == 'GET') {
+      if (!integrated && file != null && request.method == 'GET') {
         request.response.headers.contentType = ContentType.parse(
           file.endsWith('.js')
               ? 'text/javascript; charset=utf-8'
@@ -228,18 +260,32 @@ class UpdateEvaluationLab {
         });
         return;
       }
+      if (integrated &&
+          !{'/evaluation/state', '/evaluation/metrics'}.contains(path)) {
+        await sendApiResponse(request.response, 404, {'error': 'not_found'});
+        return;
+      }
       switch (path) {
         case '/evaluation/state':
           await sendApiResponse(request.response, 200, {
-            'cursor': feed.cursor,
+            if (!integrated) 'cursor': feed.cursor,
+            if (integrated) 'fixtureId': fixtureId,
             'fixture': fixture,
-            'kind': 'disposable-transport-lab',
+            'kind': integrated
+                ? 'disposable-integrated-shared-care'
+                : 'disposable-transport-lab',
             'timeUtc': DateTime.now().toUtc().toIso8601String(),
           });
         case '/evaluation/metrics':
           await sendApiResponse(request.response, 200, {
             'requests': requests,
-            'streams': _streams,
+            'streams': integrated
+                ? api.changeStreams.activeConnections
+                : _streams,
+            if (integrated)
+              'maximumConnections': api.changeStreams.maximumConnections,
+            if (integrated)
+              'maximumPerAccount': api.changeStreams.maximumPerAccount,
           });
         case '/evaluation/changes':
           await _changes(request);
@@ -459,7 +505,11 @@ class UpdateEvaluationLab {
     for (final disconnect in _disconnect.toList()) {
       await disconnect();
     }
+    api.changeStreams.close();
     await server.close(force: true);
+    while (api.changeStreams.activeConnections != 0) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
     await feed.close();
     await database.close();
     accounts.close();
@@ -482,7 +532,7 @@ Future<void> main(List<String> args) async {
     stdout.writeln(
       'Disposable Shared Care evaluation server. --serve [--bind ADDRESS] '
       '[--port PORT] [--public-origin HTTPS_ORIGIN] [--animals N] [--history N] '
-      '[--scratch-parent PATH] [--assets PATH]',
+      '[--scratch-parent PATH] [--assets PATH] [--integrated]',
     );
     return;
   }
@@ -506,13 +556,16 @@ Future<void> main(List<String> args) async {
     animalCount: int.parse(option('--animals', '100')),
     historyPerAnimal: int.parse(option('--history', '20')),
     publicOrigin: publicText.isEmpty ? null : Uri.parse(publicText),
+    integrated: args.contains('--integrated'),
   );
   stdout.writeln(
     jsonEncode({
       'listenerPort': lab.server.port,
       'credentialsFile': '${lab.directory.path}/credentials.json',
       'fixture': lab.fixture,
-      'warning': 'DISPOSABLE LAB; NO PRODUCTION DATABASE; NOT THE FLUTTER UI',
+      'warning': lab.integrated
+          ? 'DISPOSABLE DATA; PRODUCTION API/SSE; FLUTTER SERVED BY GATEWAY'
+          : 'DISPOSABLE LAB; NO PRODUCTION DATABASE; NOT THE FLUTTER UI',
     }),
   );
   var shuttingDown = false;

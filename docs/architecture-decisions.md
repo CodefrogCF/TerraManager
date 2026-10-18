@@ -2547,6 +2547,30 @@ consistency; #228 delivers streams; #229 owns connection policy and fallback
 scheduling. See the [issue review](testing/shared-care-sse-issue-review-2026-10-18.md)
 and [consolidated #226-#230 bodies](testing/shared-care-sse-implementation-issues.md).
 
+### Targeted refresh controller (Issue #227)
+
+One transient controller is owned by the signed-in tab's API client. Mounted
+consumers declare resource/owner dependencies and current route visibility.
+Hints are coalesced; hidden consumers retain stale flags until they return.
+Required visible reads must succeed before the application cursor advances.
+A post-read conditional query reconciles commits that crossed those reads.
+A failed read preserves both its dirty flags and the previous applied cursor.
+No command acknowledgement suppresses events based on the signed-in account.
+
+Animal/Box lists and details, Feeding/Weight/Shedding history, reminder data,
+owner galleries and account preferences use this controller. Immutable media
+IDs continue to use the existing image caches. Feeding hints do not invalidate
+picture metadata. Detail refreshes retain the mounted subtree and scroll state;
+forms retain their own drafts and conflict revisions. Clock deadlines update due
+states without a database change or network read.
+
+During this stage one home adapter queries the conditional endpoint every 15
+seconds and after successful commands. It retains the existing background/backup
+pause and foreground reconciliation hooks. This is the interim source before
+#228 EventSource delivery and #229 connection/retry/fallback policy. It does not
+claim the connected-SSE latency target. Cursor recovery, controller tests and
+validation boundaries are recorded in the [#227 validation report](testing/shared-care-targeted-refresh-validation-2026-10-18.md).
+
 ### References
 
 - [HTML SSE specification](https://html.spec.whatwg.org/multipage/server-sent-events.html)

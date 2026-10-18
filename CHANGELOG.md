@@ -1,1938 +1,1943 @@
-# Changelog
-
-All notable changes to TerraManager are documented in this file.
-
-The project uses semantic versioning.
-
-## [Unreleased]
-
-### Added
-
-- expose authenticated committed Shared Care revisions, bounded resource hints,
-  private preference revisions and conditional HTTP 304 queries as the server/API
-  foundation for targeted refresh and SSE — Issue #226
-- define restart/restore cursor resets and read-consistency fences while retaining
-  atomic audit writes, conflict checks and the separate backup safety generation
-
-### Development
-
-- add a disposable Shared Care update evaluation kit for Issue #186, with
-  real-API polling workloads, version/long-poll/SSE/WebSocket prototypes,
-  sanitized HAR summaries, Raspberry Pi resource sampling and a proposed ADR;
-  keep production polling unchanged pending target-device measurements
-
-### Changed
-
-- migrate Android compilation to AGP Built-in Kotlin without applying the
-  external Android Kotlin plugin; retain Kotlin 2.4.20 and Java/Kotlin target
-  17, update compatible save/scanner plugins, and verify the effective plugin
-  state in CI; keep the Flutter-required `android.newDsl=false` opt-out as the
-  separately deferred part of Issue #212
-- update the Android build-tool declarations from Kotlin Gradle Plugin 2.4.0 to
-  2.4.20 and Android Gradle Plugin 9.1.0 to 9.1.1 while retaining Gradle 9.3.1,
-  Java 17 and the pinned Flutter 3.47.2 release toolchain
-- keep strict Android dependency locking as the verification boundary for the
-  coordinated build-tool update; build/test-only scanner findings remain
-  separate from the Android application runtime dependency graph
-
-## [1.15.3] - 2026-10-16
-
-### Added
-
-- 
-
-## [1.15.1] - 2026-10-02
-
-### Added
-
-- allow each Animal to choose fixed weekdays, a time and a time zone for its
-  feeding reminder while keeping existing interval reminders compatible
-- open a chronological list of all active feeding appointments from the
-  optional Next Feeding card in standalone and Shared Care
-
-## [1.15.0] - 2026-10-02
-
-### Added
-
-- add optional password-protected portable backups to standalone and Shared
-  Care with Argon2id, framed AES-256-GCM authentication, fresh salt/nonce
-  material and encrypted pre-restore safety copies — Issues #203-#207
-- keep the existing portable ZIP as the authenticated container payload and
-  continue to import supported unencrypted Backup Format 1 and 2 archives
-- add QR-based Box selection beside the New Animal dropdown in standalone and
-  Shared Care; preserve the draft and create only on explicit Save
-- reuse standalone picture cropping, orientation normalization and WebP
-  processing for Shared Care Animal and Box uploads, including cancellation,
-  upload limits and busy/error handling
-- expose independent Weight and Shedding detail-visibility controls in Shared
-  Care Edit Animal without deleting or changing the underlying history
-- navigate ordered Animal and Box galleries in the common fullscreen viewer
-  with Previous/Next, keyboard arrows, position counters and horizontal swipes
-  at normal scale while preserving zoomed panning
-- prepare localized, feature-focused standalone Play Store screenshots with
-  synthetic demonstration data and reusable editable sources — Issues #180 and
-  #181
-- offer an optional Android Settings link to rate TerraManager, preferring the
-  Play Store app with an HTTPS browser fallback and without automatic prompts,
-  telemetry, a new permission or a new dependency — Issue #182
-
-### Changed
-
-- organize Shared Care client pages, widgets and API methods by feature and
-  split server routing, application commands, authentication and persistence
-  modules without changing API contracts, collection schema, portable backups
-  or visible workflows; retain previous import paths as compatibility exports —
-  Issue #185
-- remove redundant Rename entries from Shared Care Box and Animal menus;
-  validated name changes remain available through Edit and standalone menus are
-  unchanged
-- keep Shared Care password processing client-side for portable backup
-  protection; the password is not persisted and is not sent to the Shared Care
-  server
-- spool native protected exports as ciphertext and authenticate protected
-  imports before restore validation; handled temporary encrypted spools are
-  removed after success or failure
-
-### Fixed
-
-- serialize Shared Care browser-history changes so a delayed context-menu Back
-  event cannot dismiss the next duplicate, archive or picture-deletion dialog
-- open Shared Care Animal and Box archives as real routes and retain thumbnail
-  lists, archive reason/date and independent date/name sorting in normal and Big
-  Picture presentation
-- offer separate date and freely editable hour/minute controls for Shared Care
-  Feeding, Weight and Shedding history entries
-- avoid exposing raw standalone backup failure details through application logs
-  and clear failed Web authentication buffers that may contain compacted
-  plaintext
-
-### Security and compatibility
-
-- wrong passwords and authenticated data manipulation fail before collection
-  replacement; the UI intentionally does not claim to distinguish those states
-- native protected temporary backup files contain encrypted container data, not
-  a plaintext portable ZIP
-- large protected browser operations can still take several minutes and use
-  substantial memory; bounded-memory optimization is tracked separately and is
-  not claimed by this release
-- Database Schema Version 16 and Portable Backup Format Version 2 remain current;
-  the encrypted container is an optional outer envelope and older unencrypted
-  backups remain supported
-
-### Testing
-
-- extend password-protected backup regression coverage for fresh salt/nonce
-  material, authenticated header/ciphertext changes, wrong passwords, password
-  non-persistence and encrypted native spool cleanup
-- validate large protected backup paths on a physical Galaxy S22 in supported
-  standalone browsers and through Shared Care, while documenting the remaining
-  browser-memory limitation
-- retain release-candidate evidence separately from the deferred large-operation
-  memory optimization
-
-## [1.14.1] - 2026-09-27
-
-### Added
-
-- persist server-owned audit metadata for authenticated Shared Care collection
-  and account changes — Issue #177
-- retain stable actor identifiers and username/role snapshots without storing
-  notes, pictures, passwords or session tokens; commit mutations and audit
-  records together and retain audit history for 365 days
-- add the Shared Care Manage accounts screen with username/role editing,
-  optional password reset, deactivation/reactivation and confirmed removal —
-  Issue #178
-- revoke affected sessions after account changes, protect the last active
-  administrator and retain previous audit attribution after account removal
-- add an administrator-only Audit viewer under Shared server Settings with
-  merged collection/account events, date/name/action filters, seek pagination
-  and responsive localized states — Issue #179
-- allow administrators to initialize a genuinely empty Shared Care collection
-  from a portable backup without downloading an empty safety copy; populated
-  collections retain the safety-token requirement — Issue #176
-- show current Animal thumbnails in QR Feeding Mode for standalone and Shared
-  Care, with the existing fallback for missing pictures
-
-### Changed
-
-- connect Shared Care detail, scanner and dialog routes to browser Back history
-  so Android edge-back and in-app Back return within the interface without a
-  duplicate route pop
-- store Shared Care appearance, language, sorting and other personal display
-  preferences per account in the server account database, with explicit
-  defaults and isolation across login changes
-- keep personal account preferences outside portable collection backups so they
-  follow the signed-in account rather than the collection
-
-### Fixed
-
-- export care-event and metadata timestamps with explicit UTC offsets and use the
-  original IANA time zone when importing legacy Shared Care values, including
-  DST-sensitive event times and date-only birth dates
-- restrict Shared Care permanent collection and picture deletion to
-  administrators in both API and UI while preserving caregiver create, edit and
-  archive workflows
-- keep Box and Animal duplication dialogs open until confirmed success, select
-  Animal name and destination together, prevent repeated submission and expose
-  validation, permission and connection feedback
-- use the active account's Animal-name order and fallback consistently in every
-  Next Feeding overview, including compact presentation
-
-### Security and compatibility
-
-- audit entries deliberately omit free-text notes, pictures, passwords and
-  session tokens and remain separate from portable collection backups
-- account administration and audit metadata remain server-owned; standalone
-  Database Schema Version 16 and Portable Backup Format Version 2 are unchanged
-
-### Testing
-
-- cover administrator/caregiver authorization, final-administrator protection,
-  session revocation and retained audit attribution
-- cover audit rollback behavior, filtered/paginated audit viewing and empty
-  initial collection restore
-- cover time-zone round trips, permanent-delete permissions, guarded duplication
-  and per-account preference isolation
-
-## [1.13.0] - 2026-09-26
-
-### Added
-
-- add a short, skippable guided introduction on the first launch of an empty
-  standalone collection covering Boxes, Animals, feeding/reminders and QR
-  workflows
-- allow the standalone introduction to be replayed from Settings; it never
-  creates sample collection data
-- add the browser-local Show next feeding toggle above Big Picture Mode in
-  Shared Care Settings
-- respect that toggle in compact and Big Picture Animal overviews without
-  hiding active due reminders
-
-### Changed
-
-- keep onboarding navigation inside the introduction itself; Back/Next move
-  between steps and Finish/Skip closes the tour without changing the current
-  primary page
-- align Shared Care overview controls more closely with standalone workflows and
-  keep Big Picture Mode in Settings
-- reuse Shared Care overview pictures while scrolling, sorting, switching
-  layouts and polling unchanged media IDs — Issue #184
-- renew the picture snapshot when an overview opens, after returning from
-  details or after manual Reload
-- limit the Shared Care overview cache to 128 entries and 32 MiB of compressed
-  pictures, with four concurrent loads and aspect-preserving thumbnail decoding
-- clear overview picture caches and evict decoded entries when leaving the
-  overview or signing out
-
-### Testing
-
-- cover guided-start presentation and replay behavior without sample-data side
-  effects
-- cover actual Shared Care media request counts for Box and Animal list/grid
-  navigation, polling, changed pictures, Reload and detail return
-- cover cache deduplication, eviction, failed loads and late asynchronous results
-- cover localized Settings control order and next-feeding presentation
-
-Database Schema Version 16 and Portable Backup Format Version 2 remain current.
-The release requires no additional device permission or external service.
-
-## [1.11.0] - 2026-09-24
-
-### Added
-
-- introduce optional Shared Care LAN Web mode backed by a self-hosted Dart
-  server that owns one authoritative SQLite collection for participating
-  caregivers
-- add a separate Shared Care browser client that reads and changes the shared
-  collection only through the authenticated same-origin API instead of opening a
-  local collection database or queuing offline edits
-- provide local Shared Care accounts and authenticated collection operations for
-  Boxes, Animals, care history, media and portable collection backup/restore
-- add browser-based Box QR lookup for supported browsers; camera frames remain
-  on the scanning device and only a validated TerraManager Box identifier is
-  sent to the operator's server
-- add an Android Settings entry that opens the configured Shared Care server in
-  the system browser while keeping the Android standalone collection independent
-- document self-hosted Raspberry Pi/LAN deployment, trusted HTTPS and the
-  separation between portable collection backups and server-owned accounts
-
-### Changed
-
-- keep standalone Android and standalone Web local-first and independent from a
-  Shared Care installation; opening Shared Care does not synchronize or replace
-  either standalone collection
-- make server unavailability an explicit Shared Care connection state rather
-  than creating divergent offline edits
-- keep server account/session data outside portable collection backups; host
-  backups remain the operator's responsibility for that server-owned data
-
-### Privacy and compatibility
-
-- Shared Care communicates only with the user/operator configured self-hosted
-  server; TerraManager does not introduce a developer-operated cloud service
-- browser QR scanning does not upload camera frames to the server
-- standalone Database Schema Version 16 and Portable Backup Format Version 2
-  remain current
-
-## [1.10.4] - 2026-09-22
-
-### Changed
-
-- omit the Sex row from Animal details when no sex is stored or the stored value
-  is `unknown`
-- keep explicit Male, Female and Other values visible with their localized labels
-
-### Fixed
-
-- close the QR scanner and Edit Animal exactly once after a successful Rehouse
-  operation
-- prevent the Rehouse callback from popping an additional navigation route
-
-### Testing
-
-- cover Animal-detail sex visibility for unset, Unknown and explicit values
-- cover successful QR Rehouse navigation without duplicate route removal
-
-Database Schema Version 16 and Portable Backup Format Version 2 remain current.
-The release introduces no new device permission.
-
-## [1.10.3] - 2026-09-21
-
-### Added
-
-- add QR-based Rehouse Mode to Edit Animal
-- allow an active destination Box to be selected with the existing QR scanner
-- show an explicit confirmation before assigning the Animal to the scanned Box
-
-### Changed
-
-- make the Box scanner reusable through a resolved-Box callback and
-  workflow-specific title
-- perform Animal reassignment through one atomic repository operation
-- close Edit Animal after a successful reassignment so the previous Box
-  assignment cannot remain visible
-
-### Validation
-
-- accept only an existing active destination Box
-- reject unknown, archived and current Box identifiers
-- reject reassignment when the Animal is no longer active
-- keep the existing Animal assignment unchanged when validation or persistence
-  fails
-
-### Privacy
-
-- process QR identifiers and Box resolution locally
-- reuse the existing camera permission and scanner implementation
-- require no additional storage, media, network or background permission
-
-### Testing
-
-- cover valid reassignment, same-Box rejection, archived and unknown Boxes,
-  inactive Animals and transactional failure
-- cover confirmation, cancellation and successful scanner navigation
-
-Database Schema Version 16 and Portable Backup Format Version 2 remain
-unchanged.
-
-## [1.10.2] - 2026-09-21
-
-### Added
-
-- add Restore actions to archived Animal and Box context menus
-- allow an archived Animal to be restored directly after selecting an active
-  Box
-- allow an archived Box to be restored directly after confirmation
-- add per-Animal controls for showing or hiding Weight and Shedding information
-  on Animal details
-- add an optional next-feeding summary to the Animal Overview
-
-### Changed
-
-- allow an existing Animal birth date to be cleared
-- clear birth-date accuracy when the associated birth date is removed
-- keep due feeding reminders unchanged while optionally showing the next
-  upcoming, not-yet-due feeding
-- persist `showWeightOnDetail` and `showSheddingOnDetail` on every Animal
-- include the Animal detail-visibility fields and the next-feeding-summary
-  setting in Portable Backup Format Version 2
-- advance the local database to Schema Version 16
-
-### Compatibility
-
-- default both Animal detail-visibility fields to `true` for existing databases
-  and older backups
-- default `nextFeedingSummaryEnabled` to `false` when it is absent from an older
-  backup
-- retain Backup Format Version 2 because all new backup fields are additive
-
-### Testing
-
-- cover direct archive Restore actions for Animals and Boxes
-- cover birth-date removal and associated accuracy cleanup
-- cover Schema Version 15 to Version 16 migration
-- cover detail-visibility persistence, backup export and restore
-- cover next-feeding calculation, presentation, persistence and backup
-  compatibility
-
-Database Schema Version 16 is current. Portable Backup Format Version 2 remains
-current and backward compatible.
-
-## [1.10.1] - 2026-09-21
-
-### Added
-
-- add a dedicated Box History page aligned with Animal History
-- add archive sorting by newest or oldest archive date
-- add archive sorting by ascending or descending displayed name
-- add persistent local sort preferences for Animal History and Box History
-- show Box thumbnails, labels and archive information in Box History
-- expose the existing Duplicate action from archived Box entries
-
-### Changed
-
-- align Animal and Box archive presentation and interaction patterns
-- keep archive sort preferences local to the current installation
-- consolidate project and release documentation around authoritative shared
-  documents and one release checklist
-
-### Compatibility
-
-- archive sort preferences affect presentation only
-- archive sort preferences are not part of portable backup data
-- no database schema or portable backup format change is required
-
-### Testing
-
-- cover all archive sort directions and deterministic missing-value placement
-- cover local archive sort persistence
-- cover Box History thumbnails, details and Duplicate actions
-
-Database Schema Version 15 and Portable Backup Format Version 2 remain
-unchanged.
-
-## [1.10.0] - 2026-09-20
-
-### Added
-
-- add an optional Big Picture Mode for Box and Animal overviews
-- support Big Picture Mode in flat and category-grouped Animal views
-- add a due-feeding indicator to the primary Animals navigation item
-- replace the legacy free-form Animal shedding note with timestamped shedding
-  history containing an optional note per event
-- add quick shedding entry and shedding-history access to Animal details and
-  Edit Animal
-- add reverse-chronological shedding history with create, edit and confirmed
-  delete actions
-
-### Changed
-
-- make the first Latest Feeding sort selection show the oldest latest feeding
-  first
-- persist Big Picture Mode between application restarts
-- include `bigPictureModeEnabled` in Portable Backup Format Version 2
-- migrate every non-empty legacy `Animal.sheddingNotes` value to one
-  `SheddingEvent` using the Animal's existing `updatedAt` timestamp, then clear
-  the legacy field
-- stop New Animal, Edit Animal and Animal duplication from creating or copying
-  legacy shedding-note values
-- retain `Animal.sheddingNotes` only for database and portable-backup
-  compatibility with earlier TerraManager versions
-- preserve complete shedding history while Animals are archived and through
-  Portable Backup Format Version 2 export and restore
-- advance the local database to Schema Version 15 with the `SheddingEvents`
-  table
-
-### Compatibility
-
-- default `bigPictureModeEnabled` to `false` when it is absent from an older
-  backup
-- restore older Animal records without `sheddingHistory` as an empty history
-- continue to accept compatible legacy `sheddingNotes` values during migration
-  and restore
-- retain Backup Format Version 2 because the new data is additive
-
-### Testing
-
-- cover Big Picture Mode in Box, flat Animal and grouped Animal overviews
-- cover Big Picture Mode persistence and backup round trips
-- cover the primary-navigation due indicator
-- cover the initial Latest Feeding sort direction
-- cover shedding-history repository ordering, creation, editing and deletion
-- cover direct Version 14 to Version 15 migration and legacy-note conversion
-- cover shedding-history backup export and restore
-- verify that archived Animals retain their shedding history
-- verify that New Animal and duplication no longer create or copy legacy
-  shedding-note values
-
-Database Schema Version 15 is current. Portable Backup Format Version 2 remains
-current and backward compatible.
-
-## [1.8.0 - 1.9.4]
-
-### Added
-
-- add an independent, persistent Animal Overview category-group toggle directly
-  beside the sort control
-- add shared side-by-side minimum and maximum controls for daytime temperature,
-  nighttime temperature and humidity in New Animal and Edit Animal
-- show the next scheduled feeding directly below Latest Feeding while an active
-  reminder is not yet due
-- add positive numeric Animal weights in grams with timestamped history and a
-  reverse-chronological history view
-- add a quick weight action beside Weight History on Animal details and add or
-  edit or delete measurement actions inside the history view
-- add a responsive German and English GitHub Pages homepage with shared
-  localized content, download links, guides, support, local Privacy Policy and
-  license access
-- add a CSS-based device mockup and complete link-preview, favicon and page
-  metadata without trackers, cookies, external scripts or web fonts
-- show localized plural category and subcategory headings in grouped Animal
-  Overview views
-- add an optional bounded nighttime temperature to Animal profiles, details,
-  duplication and portable backups
-- make the assigned Box label on Animal details open the corresponding Box,
-  including its optional name
-- add persistent ascending and descending Box volume sorting based on complete
-  width × height × depth values
-
-### Changed
-
-- remove Category from the Animal sort menu and apply creation time, displayed
-  name, age and latest-feeding sorting inside every final category group
-- migrate legacy Category sort preferences to enabled category grouping with
-  the equivalent displayed-name direction
-- move the immutable Box QR identifier and its explanation below Notes and
-  directly above Save and Archive in Edit Box
-- label daytime and nighttime temperature explicitly on Animal details, format
-  both ranges with one locale-aware decimal place and keep `°C` on values only
-- arrange Additional characteristics consistently as birth date, accuracy,
-  sex, weight, origin, nighttime temperature, rest periods, shedding notes and
-  notes
-- replace the single nighttime-temperature input with independent optional
-  minimum and maximum values and migrate an existing value to both bounds
-- migrate only unambiguous legacy gram values into weight history while
-  retaining other legacy text until the user replaces it
-- duplicate only an Animal's current weight as a fresh measurement and retain
-  complete weight history through archive and portable backup workflows
-- advance the local database to Schema Version 14 with nullable nighttime
-  bounds and the `AnimalWeightEntries` table
-- place only active due feeding reminders above the Animal picture and move
-  Latest Feeding directly below the Animal names
-- keep unnamed Boxes after every named Box in both alphabetical directions
-  while retaining natural number ordering and deterministic ties
-- rename Animal temperature inputs to minimum and maximum daytime temperature
-- advance the local database to Schema Version 13; existing Animals receive a
-  null nighttime temperature
-
-### Privacy
-
-- keep the v1.9.1 overview and Edit Box refinements local without database
-  changes or new device, storage, media or network permissions
-- keep v1.9.0 form, feeding and weight-history data entirely local without new
-  device, storage, media or network permissions
-- keep all v1.8.0 data, sorting and navigation local without adding device,
-  storage, media or network permissions
-
-### Testing
-
-- cover the independent category toggle, all regular sort directions inside
-  grouped views, legacy preference migration, backup compatibility, flattened
-  contextual navigation and the responsive Edit Box field order
-- cover paired form layouts, range validation, Additional-characteristic order,
-  localized detail temperatures, future feeding display, weight-history create,
-  edit and delete rules, duplication, migration, backup validation and restore
-  compatibility
-- cover English and German plural taxonomy headings, due-reminder visibility,
-  Box links, nighttime-temperature persistence, migration, duplication and
-  backup compatibility, unnamed-Box ordering and volume sorting
-
-Database Schema Version 14 is current. Portable Backup Format Version 2 remains
-current and backward compatible.
-
-## [1.7.2] - 2026-09-16
-
-### Added
-
-- add ordered picture histories to Animal and Box details, including local
-  capture/import timestamps, full-screen viewing, selectable primary images
-  and confirmed individual deletion
-- preserve complete galleries, ordering and primary selection in Portable
-  Backup Format Version 2
-
-### Changed
-
-- retain earlier pictures when a new Animal or Box picture is selected
-- duplicate complete picture galleries with independent MediaAssets
-- advance the local database to Schema Version 12 and migrate each existing
-  persistent single picture into a one-entry gallery
-- consolidate current documentation in the central guides, changelog and
-  roadmap instead of maintaining per-release and per-issue files
-
-### Privacy
-
-- keep gallery storage, viewing and management local and reuse the existing
-  user-initiated Camera and Gallery selection without adding device permissions
-
-### Testing
-
-- cover direct v11 migration, stable gallery ordering, primary selection,
-  isolated deletion, full-screen presentation and backup round trips
-- remove version-specific documentation tests together with the retired
-  per-release files and retain one central public-documentation regression
-
-Portable Backup Format Version 2 remains current and backward compatible.
-
-## [1.7.1] - 2026-09-15
-
-### Changed
-
-- move the optional temperature-zone note from Animal forms and details to the
-  owning Box, directly above ordinary Box notes
-- advance the local database to Schema Version 11 and transfer the first
-  non-empty legacy Animal temperature-zone value by Animal ID to its assigned
-  Box when that Box has no value
-- extend Portable Backup Format Version 2 with Box temperature zones while
-  retaining Format 1 and older Format 2 restore compatibility
-- shorten the individual Box QR export description and separate the three QR
-  export actions with the standard Settings dividers
-- advance the release version to `1.7.1+65`
-
-### Testing
-
-- preserve the released Schema Version 10 snapshot and cover direct populated
-  v10 to v11 migration, deterministic value selection and foreign keys
-- cover Box temperature-zone create, edit, detail, duplication and backup
-  behavior, including legacy Animal-value transfer during restore
-- keep migration and backup tests independent from a hard-coded current schema
-  number
-- verify that Android and iOS permission declarations remain unchanged
-
-Database Schema Version 11 is current. Portable Backup Format Version 2 remains
-current and backward compatible.
-
-## [1.7.0] - 2026-09-15
-
-### Added
-
-- add required Animal categories and optional category-specific subcategories
-  to New Animal and Edit Animal, with localized labels and stable stored values
-- display saved taxonomy on Animal details and preserve it during duplication
-- add a Category criterion to Animal Overview that groups visible Animals under
-  accessible category and conditional subcategory headings
-
-### Changed
-
-- advance the local database to Schema Version 10; existing Animals migrate to
-  category `other` without a subcategory
-- extend Portable Backup Format Version 2 with category and optional
-  subcategory while retaining Format 1 and older Format 2 restore compatibility
-- sort category groups in the complete taxonomy order and reverse only the
-  primary group order when the active criterion is selected again
-- keep subcategories and Animals A–Z inside groups using localized headings,
-  natural number ordering and deterministic ID tie breaking
-- advance the release version to `1.7.0+64`
-
-### Testing
-
-- cover compatible taxonomy controls, incompatible-value clearing, New/Edit
-  persistence, details and duplication
-- verify populated v9 to v10 migration and fallback taxonomy values
-- cover taxonomy backup export, validation, restore and legacy defaults
-- cover complete category grouping, optional headings, reverse primary order,
-  natural name sorting, persistence and flattened contextual navigation
-
-Database Schema Version 10 is current. Portable Backup Format Version 2 remains
-current and backward compatible.
-
-## [1.6.1] - 2026-09-15
-
-### Added
-
-- show stored pictures as thumbnails in Animal History, with the existing
-  fallback for missing or invalid media and localized accessibility labels
-- bundle a complete German privacy policy alongside the synchronized English
-  policy and public privacy pages
-
-### Changed
-
-- simplify PDF QR sizing to the accessible integer slider from 6 mm to 20 mm
-  while preserving the 15 mm default and generated document layout
-- make Weight a multiline free-form field in New Animal and Edit Animal while
-  preserving its existing database and backup representation
-- present localized English or German legal information entirely offline and
-  retain the unchanged authoritative English GPL-3.0-or-later text
-- replace paired overview sort entries with one entry per criterion; selecting
-  the active criterion reverses its direction while stored enum and backup
-  values remain compatible
-- advance the release version to `1.6.1+63`
-
-### Testing
-
-- cover archived Animal thumbnails, fallback behavior, accessibility and
-  contextual detail ordering
-- cover slider-only PDF sizing and unchanged individual PNG and ZIP paths
-- cover multiline Weight persistence in both forms and Animal details
-- verify English, German, system-selected and unsupported-language legal
-  content paths without network access
-- cover sort defaults, repeated-selection reversal, persistence and contextual
-  detail navigation
-
-Database Schema Version 9 and Portable Backup Format Version 2 remain
-unchanged.
-
-## [1.6.0] - 2026-09-15
-
-### Added
-
-- add one shared Settings selection workflow for active and archived Box QR
-  codes, with all Boxes selected initially and individual opt-out
-- save the selected QR codes as individual PNG images or one ZIP archive
-- generate paginated A4 PDF sheets containing the selected QR codes, Box names
-  and stable Box numbers
-- choose the printed QR size from 6 mm to 20 mm with 6, 10, 15 and 20 mm
-  presets
-
-### Changed
-
-- generate ZIP archives and vector PDF documents completely on-device before
-  opening the operating-system save dialog
-- prevent incomplete ZIP or PDF output when generation fails and treat a
-  cancelled destination dialog as cancellation
-- document the local QR export paths and unchanged permission boundary in the
-  bundled and public privacy notices
-- advance the release version to `1.6.0+62`
-
-### Testing
-
-- cover shared active/archived Box selection, select-all, clear, cancellation
-  and empty-database behavior
-- cover individual PNG, ZIP and PDF Settings integration plus generation and
-  save failures
-- verify exact A4 layout bounds, page breaks, labels, long and duplicate names
-  and stable QR payloads
-- decode the smallest 6 mm vector layout from a 600 DPI raster simulation
-- verify that the document exports add no storage, media or network permission
-
-Database Schema Version 9 and Portable Backup Format Version 2 remain
-unchanged.
-
-## [1.5.0] - 2026-09-15
-
-### Added
-
-- add localized context menus to active Animal and Box overview entries,
-  opened by long press or secondary click
-- expose Create Feeding, Rename, Edit, Archive and Duplicate quick actions for
-  active Animals
-- expose Rename, Edit, Duplicate and Archive quick actions for active Boxes
-- allow archived Animals to be duplicated from Animal History
-- duplicate Boxes and Animals as independent active records while retaining
-  their reusable profile data and copying picture media
-
-### Changed
-
-- assign every duplicated Box a new database ID and permanent QR identifier
-- assign every duplicated Animal a new database ID and selected active Box,
-  without copying lifecycle metadata or feeding history
-- keep quick-action dialogs synchronized with the existing archive, validation
-  and overview refresh behavior
-- advance the release version to `1.5.0+60`
-
-### Testing
-
-- cover touch and pointer context-menu access plus every active quick action
-- cover independent identifiers, copied media and active lifecycle state for
-  duplicated records
-- verify that duplicated Animals omit feeding history and remain independent
-  of their source record
-- preserve duplicated records and pictures through current backup export
-
-Database Schema Version 9 and Portable Backup Format Version 2 remain
-unchanged.
-
-## [1.4.0] - 2026-09-14
-
-### Added
-
-- show optional Box names together with the stable Box number in New Animal and
-  Edit Animal assignment choices
-- add the localized `Hermaphrodite / other` Animal sex value with the stable
-  portable value `other`
-- add an expandable Additional characteristics section to both Animal forms
-  for origin or habitat, weight, shedding notes, rest or dormancy periods and
-  temperature zones
-- display only populated additional characteristics on Animal details
-- add an offline License entry directly below Privacy Policy in Settings,
-  backed by the authoritative repository `LICENSE` file
-
-### Changed
-
-- sort names containing numbers naturally in Box and Animal overviews, so
-  names 1 through 10 follow numeric order
-- restrict humidity to 0–100 percent and temperature to the documented
-  realistic range while retaining minimum/maximum ordering validation
-- advance the release version to `1.4.0+59`
-- advance the local database to Schema Version 9 with five nullable Animal
-  profile columns; existing records migrate with all five values empty
-- extend Portable Backup Format Version 2 with the same optional fields while
-  retaining restore compatibility with older Format 1 and Format 2 backups
-
-### Testing
-
-- cover natural sorting, named Box choices, environmental limits and the new
-  sex codec in repository, widget, localization and backup regressions
-- cover creation, editing, clearing and conditional detail rendering of all
-  five optional Animal characteristics
-- verify populated and legacy backup round trips plus invalid non-text profile
-  values
-- verify the populated v8 to v9 migration preserves existing records and
-  initializes every additional characteristic to `null`
-- cover Settings navigation, complete offline license rendering, large
-  accessibility text and direct bundling of `LICENSE`
-
-Database Schema Version 9 and Portable Backup Format Version 2 are the v1.4.0
-compatibility baseline.
-
-## [1.3.0] - 2026-09-14
-
-### Added
-
-- added horizontal swipe navigation between the adjacent Box Overview, Animal
-  Overview and Settings primary pages
-- added localized semantics for the current primary page and navigation region
-- added `Ctrl+Page Up` and `Ctrl+Page Down` as keyboard-compatible primary-page
-  navigation
-
-### Changed
-
-- keep all primary pages in one state-preserving shell so overview scroll
-  positions, selected sorting and Settings state survive swipe and tap changes
-- keep the visible navigation indicator synchronized with swipe, keyboard and
-  navigation-bar selection
-- give the Box and Animal overview action buttons independent Hero identities
-  while both pages remain alive in the shared shell
-- refresh the Animal Overview immediately after an Animal is created directly
-  from Box details, while preserving the overview state
-- advanced the release version to `1.3.0+55`
-
-### Testing
-
-- added root-navigation widget coverage for both swipe directions, boundaries,
-  navigation-bar taps, keyboard access and localized semantics
-- covered scroll and sorting retention, vertical Settings scrolling, open
-  dropdown interaction, platform Back and independent contextual detail swipes
-- added an integrated regression for creating an Animal from Box details after
-  the Animal Overview has already loaded
-- completed the v1.3.0 automated regression and documented the release-owner
-  build, signature and Google Play publication workflow
-
-Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
-
-## [1.2.0] - 2026-09-13
-
-### Added
-
-- added an Archive Box action to Edit Box with a required localized reason,
-  optional archive note and explicit confirmation
-- added an Archived Boxes entry point and a confirmed Restore Box action
-- display archive reason, timestamp and notes on archived Box details
-- added localized archived-QR results in both the Box and Feeding Mode scanners
-
-### Changed
-
-- filter active Box overviews and all Animal assignment choices to active Boxes
-- recheck assigned active Animals transactionally before archiving and name
-  blocking Animals in the explanation dialog; Animal lifecycle stays unchanged
-- protect creation, reassignment and restoration of Animals from stale archived
-  Box choices with transactional repository checks
-- reject backups assigning active Animals to archived Boxes
-- preserve the permanent QR identifier and stored Box data across archive and
-  restore; restore clears archive metadata and makes the Box available again
-- return to the originating overview after archive or restore, including after
-  contextual detail swiping, and prevent repeated lifecycle submissions
-- explain that unsaved Edit Box changes are discarded when archive is confirmed
-- remove direct Box deletion from Edit Box; permanent deletion is available only
-  at the bottom of archived Box details, matching the Animal archive workflow
-- use the Box archive symbol consistently for the Box Overview navigation and
-  Box thumbnails without pictures
-- move Archive Animal from active Animal details to the bottom of Edit Animal;
-  unsaved edits are explicitly disclosed before archive confirmation
-
-### Testing
-
-- added repository coverage for blocked and successful archive, restore,
-  duplicate operations, and competing assignment/archive transactions
-- added UI coverage for confirmations, blocking Animal names, active/archive
-  lists, contextual navigation, stale forms and all assignment controls
-- added English/German scanner regression and a narrow German dialog check
-- added repository and UI coverage for archived-only permanent Box deletion
-- removed the brittle hard-coded application-version assertion from release
-  documentation tests; final release-validation documentation tests remain
-  in place
-- completed the v1.2.0 migration, lifecycle, QR, backup and full-suite
-  regression with 554 passing tests
-- built and verified the production-signed Android APK and App Bundle and the
-  Web release from the same `1.2.0+54` source state
-
-### Release
-
-- advanced the release version to `1.2.0+54`
-- added the final v1.2.0 validation, compatibility, signature and artifact-hash
-  record
-- completed the Box Lifecycle & History milestone
-
-Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
-
-## [1.1.2] - 2026-09-13
-
-### Added
-
-- added persistent Box lifecycle fields: active/archived status,
-  archive reason, archive timestamp and optional archive notes
-- added English and German labels for Sold, Replaced, Damaged and Other Box
-  archive reasons; database and backup values remain language independent
-
-### Compatibility
-
-- corrected stale SQL definitions in the Version 5–7 schema snapshots from
-  the existing historical models so regeneration retains reminder fields and
-  Box names
-- Database Schema Version 8 adds Box lifecycle columns while retaining all
-  existing records; existing Boxes remain active with empty archive metadata
-- Backup Format Version 2 includes all Box lifecycle fields; older Format 1
-  and Format 2 backups without these fields restore Boxes as active
-- backup validation rejects unknown lifecycle values, incomplete archived Box
-  metadata and archive metadata on active Boxes
-- archived records retain their permanent QR identifier, name, dimensions,
-  picture and ordinary notes
-
-### Testing
-
-- added file-backed restart and Version 7 to Version 8 data-preservation tests
-- extended generated schema verification through Version 8
-- added complete backup export/validation/restore round trips with archived
-  Box pictures, legacy backup restore and invalid lifecycle coverage
-- added English and German Box archive-reason label coverage
-
-This issue establishes persistence and backup support. Box archive/restore
-actions and archive navigation are separate workflow work.
-
-## [1.1.1] - 2026-09-13
-
-### Added
-
-- added an optional free-form name to New Box and Edit Box
-- added ascending and descending alphabetical Box-name sorting to the Box
-  Overview
-- added the optional Box name to current portable backups without changing
-  Backup Format Version 2
-
-### Changed
-
-- display a named Box with its name as the primary overview label while keeping
-  its generated Box number visible underneath
-- display non-empty Box names prominently on Box details
-- place unnamed Boxes after named Boxes in both alphabetical directions and
-  use the Box ID as the deterministic tie-breaker
-- advanced the development version to `1.1.1+51`
-
-### Compatibility
-
-- added nullable `Box.name` in Database Schema Version 7 with a
-  data-preserving Version 6 to Version 7 migration
-- kept existing Boxes unnamed until the user explicitly assigns a name
-- kept Backup Format Version 2 backward compatible; backups without `name`
-  restore with an empty Box name
-- preserved the existing ascending and descending Box-number sort options and
-  their legacy settings mappings
-
-### Testing
-
-- added repository and widget coverage for creating, editing, clearing and
-  displaying optional Box names
-- added deterministic alphabetical sorting and persisted setting coverage
-- added schema migration, persistence, backup export, validation and restore
-  coverage for Box names
-
-## [1.1.0] - 2026-09-12
-
-### Added
-
-- added an enabled-by-default checkbox for creating a safety backup during
-  destructive Restore confirmation
-- added an About TerraManager dialog under Legal & Privacy with the installed
-  version, build number and developer information
-- added a dedicated Feeding Reminder action to active Animal details so an
-  existing Animal's reminder can be configured without opening Edit Animal
-- added a targeted repository operation for updating only an active Animal's
-  reminder interval and baseline
-- added current Animal picture thumbnails to the assigned-Animal list on Box
-  details, with the existing Animal fallback icon when no usable picture is
-  available
-- added optional multiline Box notes to New Box and Edit Box
-- added a non-empty Box notes section to Box details
-
-### Changed
-
-- made the pre-restore safety backup optional for the current operation so an
-  empty database can be restored without creating an unnecessary archive
-- kept backup validation, explicit confirmation, settings rollback and
-  transactional database replacement unchanged when the safety backup is
-  disabled
-- replaced the accent-color chip group with one compact localized dropdown
-  while preserving immediate application and existing preference persistence
-- made the Latest Feeding card on Animal details open the complete feeding
-  history directly
-- removed reminder controls from Edit Animal while preserving the Animal's
-  current reminder configuration during ordinary detail changes
-- refreshed the Animal-detail reminder state immediately after its dedicated
-  configuration is saved
-- moved the Box QR code, permanent identifier and remaining export action into
-  one section at the bottom of Box details so Box information and assigned
-  Animals appear first
-- moved QR export from the Box-detail app bar into the QR section
-- added nullable `Box.notes` in Database Schema Version 6 with a data-preserving
-  Version 5 to Version 6 migration
-- extended Backup Format Version 2 with backward-compatible optional Box notes;
-  backups without the field restore with empty notes
-- moved Box deletion from the Box-detail app bar to a dedicated destructive
-  action at the bottom of Edit Box
-- distinguished saved and deleted Edit Box results so successful deletion
-  closes the stale detail route and refreshes the originating overview
-- disabled saving, picture changes and navigation while Box deletion is in
-  progress to prevent conflicting actions
-- prepared release version `1.1.0+50`
-
-### Removed
-
-- removed QR printing from Box details
-- removed the obsolete QR print service and its `printing` and `pdf`
-  dependencies
-- removed print-only localization and automated tests
-
-### Testing
-
-- added application-service coverage proving disabled safety backups skip both
-  creation results and file persistence
-- added Settings widget coverage for the enabled default and an empty-database
-  Restore with the option disabled
-- added Settings widget coverage for compact accent selection and installed
-  application information
-- added repository and widget coverage for dedicated reminder activation,
-  validation, interval updates, disabling and archived-Animal protection
-- added Animal-detail coverage for Latest Feeding history navigation and the
-  dedicated reminder action
-- verified that ordinary Animal edits hide and preserve existing reminder
-  configuration
-- added Box-detail widget coverage for assigned Animals with no picture, a
-  stored picture and invalid image data
-- added Box-detail layout coverage for the revised information order, QR
-  export and absence of the removed Print action
-- updated contextual-navigation coverage so QR export still targets the
-  currently displayed Box after swiping
-- added repository and widget coverage for creating, editing, clearing and
-  conditionally displaying Box notes
-- added schema migration, persistence, backup export, validation and restore
-  coverage for Box notes
-- moved Box deletion confirmation, cancellation and assigned-Animal protection
-  coverage through the Edit Box workflow
-- added coverage for the bottom destructive action and deletion after
-  contextual Box-detail swiping
-
-### Validated
-
-- `flutter analyze` without issues
-- revised Box-detail order, QR export and removed printing workflow through
-  manual testing
-- optional Box note creation, editing, clearing, display, backup and restore
-  workflows through manual testing
-- complete automated test suite
-- Edit Box deletion confirmation, cancellation, assigned-Animal protection and
-  overview return through manual testing
-- complete automated and manual validation
-- completed the v1.1.0 automated, migration, backup and Android/Web manual
-  regression
-- completed supported release builds, production-signature verification and
-  the final Quality gates run
-- recorded final release artifact hashes for the APK and Android App Bundle
-- prepared the v1.1.0 regression, compatibility and release checklist
-
-## [1.0.0] - 2026-09-09
-
-### Added
-
-- added a GitHub Actions quality-gate workflow for locked dependency
-  resolution, localization generation, formatting, analysis, complete tests,
-  Android Debug and Web Release builds
-- added a documented Flutter 3.47.2, Dart 3.13, Java 17, Android Gradle Plugin
-  9.1.0 and Gradle 9.3.1 baseline with an explicit upgrade procedure
-- added the final v1.0.0 regression, compatibility, artifact-verification and
-  publication checklist
-- added the complete GNU General Public License under the
-  `GPL-3.0-or-later` identifier
-- added public privacy and permission documentation for local data, camera,
-  gallery, file, printing and Web-hosting behaviour
-- added Android and Web installation, update, artifact-verification and
-  pre-v1.0 transition guidance
-- added support, private-first security-reporting and contribution policies
-
-### Changed
-
-- adopted `com.codefrog.terramanager` as the permanent application identifier
-  and Android namespace
-- replaced remaining Flutter placeholder names in the prepared platform
-  projects with TerraManager identity
-- replaced placeholder Web title, description and installation metadata
-- replaced the default Flutter Web icons and favicon with TerraManager artwork
-- configured Android Release builds to use a dedicated production signing
-  configuration instead of the debug signing key
-- added ignored local-property and environment-variable credential sources for
-  Android release signing
-- made Release builds fail with a clear configuration error when credentials
-  or the configured keystore are missing while keeping Debug builds independent
-  of release secrets
-- corrected the recorded final publication actions for the completed v0.11.0
-  and v0.12.0 releases
-- linked public project documentation from the project overview
-- replaced the ambiguous Scan another Box Quick Feeding action with an
-  explicit Scan a different Box cancellation action
-- clarified that this action discards the unsaved Box-specific feeding form,
-  returns to Feeding Mode and restarts the scanner without creating events
-- made overview sort widget tests target stable menu-item keys instead of text
-  render positions
-- advanced the release version to `1.0.0+39`
-
-### Compatibility
-
-- Android installations using the previous
-  `com.example.flutter_application_1` identifier cannot be updated in place;
-  users must export a backup in v0.14.1 and restore it into the new application
-- debug-signed permanent-ID builds through `0.14.2+34` cannot be updated in
-  place by the production-signed build; the existing backup, uninstall,
-  install and restore transition must be used once more
-- every later directly distributed Android update must use the same production
-  signing certificate introduced with `0.14.3+35`
-- Database Schema Version 5 and Portable Backup Format Version 2 remain
-  unchanged
-- CI builds an unsigned Android Debug APK; production-signed APK and AAB
-  artifacts remain part of the protected local release workflow
-- the temporary Built-in Kotlin compatibility flags remain enabled because
-  three resolved plugins still apply the Kotlin Gradle Plugin
-- v1.0.0 establishes the stable MVP feature and compatibility baseline for
-  Android and Web
-- iOS, macOS, Linux and Windows identity metadata is prepared but those
-  platforms are not newly validated or promoted to supported status
-
-### Testing
-
-- added static regression coverage for Android application identity
-- added Web manifest, page metadata and icon-dimension coverage
-- added a cross-platform placeholder identity regression check
-- added static regression coverage for the production signing configuration,
-  supported credential sources and ignored secret files
-- added static regression coverage for the public licence, documentation,
-  production permission statement and corrected historical release records
-- added localized cancellation and scanner-resume coverage for the Scan a
-  different Box action, including protection against accidental FeedingEvents
-- added static regression coverage for the pinned CI workflow, toolchain
-  baseline, dependency lock and protected production-signing boundary
-- removed hit-test warnings from the Animal and Box sort-menu widget tests
-- added static regression coverage for the v1.0.0 version, release checklist,
-  compatibility declarations and final publication commands
-
-### Validated
-
-- Android Debug and pre-production Release builds with the permanent
-  application identity
-- installation, startup and manual regression on a physical Android device
-- Web build and TerraManager installation metadata
-- `flutter analyze` without issues and the complete suite with 440 passing
-  tests
-- production-signed APK and AAB construction with the private key stored
-  outside version control
-- APK Signature Scheme v2 verification with the expected RSA 4096-bit
-  production certificate
-- AAB signature verification and SHA-256 release-artifact checksums
-- backup, uninstall, production installation and restore transition on a
-  physical Android device
-
-## [0.14.1] - 2026-09-09
-
-### Changed
-
-- feeding reminders now use the latest FeedingEvent whenever feeding history
-  exists, even when that event predates the reminder baseline
-- the reminder baseline is now used only for Animals without FeedingEvents
-- the Box Overview sort menu now contains only ascending and descending natural
-  Box-number ordering
-- ascending Box number is the new default ordering
-
-### Compatibility
-
-- existing `createdOldestFirst` Box preferences map to `labelAscending`
-- existing `createdNewestFirst` Box preferences map to `labelDescending`
-- legacy Box sort values remain valid during backup validation and restore
-- new backups write only `labelAscending` or `labelDescending`
-- Database Schema Version 5 and Portable Backup Format Version 2 remain
-  unchanged
-
-### Testing
-
-- updated reminder tests for feedings that predate reminder activation
-- retained baseline fallback coverage after deleting the final FeedingEvent
-- reduced Box sorting unit and widget coverage to the two supported directions
-- added local-settings migration and legacy-backup mapping coverage
-
-### Validated
-
-- `flutter analyze` without issues
-- complete automated test suite with 433 passing tests
-- successful Android and Web builds
-- corrected reminder behavior for Animals with and without feeding history
-- ascending and descending Box-number sorting, including persistence
-- legacy Box sort preference and backup compatibility
-- manual regression on a physical Android device
-
-## [0.14.0] - 2026-09-09
-
-### Added
-
-- localized Animal Overview sorting by creation time, displayed name, age or
-  latest FeedingEvent in both relevant directions
-- deterministic handling for Animals without a birth date or FeedingEvent
-- localized Box Overview sorting by creation time or natural Box number in
-  ascending and descending directions
-- a checked sort menu in the Box Overview app bar
-- Add Animal action below both empty and populated assigned-Animal sections on
-  Box details
-- optional initial Box selection for the existing New Animal workflow
-
-### Changed
-
-- the Animal name sort follows the currently preferred displayed primary name
-- Animals without a birth date remain last for both age directions; never-fed
-  Animals appear first for oldest-feeding-first and last for newest-first
-- Animal Overview reminder calculation and FeedingEvent sorting share one bulk
-  latest-feeding lookup instead of querying per Animal
-- contextual Animal detail navigation now receives the exact visible sorted
-  order
-- the selected Box order is applied immediately and persisted between
-  application restarts
-- contextual Box detail navigation now receives the exact visible sorted order
-- replaced raw English Animal sex values with Male, Female and Unknown
-- removed the duplicate Unknown entry from the New Animal and Edit Animal sex
-  selectors
-- made Unknown the explicit default for newly created Animals and the UI
-  fallback for legacy Animals without a stored sex value
-- replaced raw English birth-date-accuracy values with Exact, Month known and
-  Year known
-- kept the existing localized German sex and birth-date-accuracy labels
-- direct Animal creation returns to the originating Box and refreshes its
-  assigned-Animal list immediately after saving
-- repeated Add Animal actions are blocked while the creation route is open
-
-### Compatibility
-
-- Animal sorting is a UI preference and requires no database migration
-- portable backups include the optional `animalSortOrder` setting; older
-  backups default to oldest-created Animal first
-- Box sorting is a UI preference and requires no database migration
-- portable backups include the optional `boxSortOrder` setting; older backups
-  default to oldest-created Box first
-- persisted Sex and BirthDateAccuracy enum values remain unchanged
-- legacy nullable Animal sex values display as Unknown
-- no database or portable-backup migration is required
-
-### Testing
-
-- added deterministic Animal creation-time, displayed-name, age and
-  latest-feeding sorting unit tests
-- added Animal Overview selection, persistence and contextual-navigation
-  coverage
-- extended settings export, validation, restore and legacy-default tests for
-  Animal sorting
-- added deterministic creation-time and natural-number sorting unit tests
-- added Box Overview selection, persistence and contextual-navigation coverage
-- extended settings export, validation, restore and legacy-default tests for
-  Box sorting
-- added New Animal and Edit Animal option-list regression coverage
-- added legacy missing-sex detail presentation coverage
-- extended English and German localization expectations
-- added New Animal preselection and editability coverage
-- added empty, populated, save, cancel and refresh coverage for direct Animal
-  creation from Box details
-
-### Validated
-
-- `flutter analyze` without issues
-- complete automated test suite
-- successful application build for the current development version
-- all eight Animal Overview sort modes and their immediate list ordering
-- deterministic placement of Animals without birth dates or FeedingEvents
-- Animal name sorting with both Common-name-first and Latin-name-first display
-- persistent Animal sorting after changing the selection
-- contextual Animal detail navigation following the visible sorted order
-- Animal sort-order backup, restore and legacy-backup fallback coverage
-- all four Box Overview sort modes and their immediate list ordering
-- persistent Box sorting after changing the selection
-- contextual Box detail navigation following the visible sorted order
-- Box sort-order backup, restore and legacy-backup fallback coverage
-- New Animal and Edit Animal sex selections without duplicate options
-- localized sex and birth-date-accuracy labels in English and German
-- legacy missing-sex presentation and normal Animal detail rendering
-- direct Animal creation from empty and populated Box details
-- originating Box preselection, editable reassignment, cancellation and
-  immediate assignment-list refresh
-- manual regression, including Box and Animal Overview sorting, on a physical
-  Android device
-
-## [0.13.0] - 2026-09-08
-
-### Added
-
-- optional per-Animal feeding reminder configuration in the new and edited
-  Animal workflows
-- localized English and German controls for enabling reminders and entering a
-  positive whole-day interval
-- persisted reminder baseline captured at the time a reminder is enabled
-- database schema Version 5 with nullable reminder interval and baseline
-  columns on Animals
-- portable backup export, validation and restore for reminder configuration
-- centralized feeding-reminder calculation with an injectable clock
-- efficient bulk lookup of the latest FeedingEvent for all configured active
-  Animals
-- due-state results containing the relevant Animal, reference timestamp and
-  calculated due timestamp
-- non-modal Feeding Reminder summary in the Animal Overview
-- due markers on affected Animal list entries
-- due and scheduled reminder status cards on Animal details
-- localized English and German reminder counts, states and due-date labels
-
-### Changed
-
-- Animal archive and restore operations retain reminder configuration
-- Animal repository writes reject incomplete or non-positive reminder
-  configurations
-- reminder calculations use the later of the configured baseline and latest
-  FeedingEvent
-- reminder timestamps are normalized to the injected clock's UTC or local
-  representation so calculations remain consistent across platform time zones
-- reminder states are recalculated from current feeding history after event
-  creation, editing or deletion
-- an Animal is considered due at the exact due timestamp and remains due after
-  it
-- due reminder results are ordered by due timestamp, with the most overdue
-  Animal first
-- reminder presentation refreshes after FeedingEvent creation, editing or
-  deletion and after Quick Feeding submissions
-- reminder entries open the corresponding Animal, whose reminder status card
-  links directly to the existing feeding history workflow
-
-### Compatibility
-
-- existing databases migrate from schema Version 4 to Version 5 without
-  changing existing Animal data
-- existing Animals receive disabled reminders because both new columns default
-  to `null`
-- portable backup exports remain at Backup Format Version 2
-- older backups without reminder fields remain restorable and produce disabled
-  reminders
-- reminder calculation adds no persisted derived state and requires no further
-  schema or backup-format migration
-
-### Testing
-
-- added repository persistence and lifecycle-retention coverage
-- added schema Version 4 to Version 5 migration coverage
-- added new and edited Animal form validation and persistence coverage
-- extended backup model, export, validation and restore round-trip coverage
-- added deterministic reminder tests for no, one and multiple FeedingEvents
-- added exact-boundary, archived/disabled Animal and due-order coverage
-- added reminder recalculation coverage after FeedingEvent creation, editing and
-  deletion
-- verified reminder calculation from restored backup data
-- added reminder widget coverage for empty, due, ordered, localized and updated
-  states
-- added Quick Feeding change-notification coverage
-
-### Validated
-
-- complete Dart formatting, static-analysis and automated-test regression
-- focused schema migration, current/legacy backup and feeding-reminder tests
-- Android debug APK, Android release APK and Web release builds
-- reminder workflows and general regression on a physical Android device
-- reminder workflows and general regression in a Chromium-based browser
-- English and German reminder configuration, validation and status text
-- Version 4 to Version 5 upgrade and reminder backup compatibility
-
-## [0.12.0] - 2026-09-08
-
-### Added
-
-- shared free-form picture cropping screen for Android and Web
-- picture cropping after Camera and Gallery selection in new and edited Box and
-  Animal forms
-- localized cropping instructions, confirmation and error states
-- injectable picture-selection flow for focused form tests
-- shared WebP picture optimizer for newly selected and captured Box and Animal
-  pictures
-- bounded image dimensions and configurable compression parameters
-- localized picture-processing progress in all new and edited Box and Animal
-  forms
-- shared backup-media format mapping for legacy pictures and normalized WebP
-  media
-
-### Changed
-
-- selected pictures reach the form preview and persistent `MediaAssets` storage
-  only after the crop is confirmed
-- cancelling the crop keeps the current picture and form state unchanged
-- source image orientation is normalized before the crop is calculated
-- confirmed crops are resized to a maximum 1920-pixel longest edge and encoded
-  as WebP with quality 82 before reaching form previews and `MediaAssets`
-- new picture filenames and MIME metadata are normalized to `.webp` and
-  `image/webp`
-- picture actions and form saving are blocked while normalization is running
-- repeated processing and save calls are ignored to prevent duplicate media
-  records
-- Box and Animal picture replacement now commits the normalized media, record
-  reference and old-media cleanup atomically
-- backup export preserves matching legacy extensions and uses known MIME
-  metadata to resolve stale filenames
-- backup restore recreates the filename, MIME type and original bytes for mixed
-  legacy and WebP media without recompression
-
-### Compatibility
-
-- database schema remains at Version 4
-- portable backup exports remain at Backup Format Version 2
-- cropped pictures use the existing media persistence and backup flow
-- existing stored pictures remain unchanged and continue to support their
-  original formats
-- WebP pictures use the existing Backup Format Version 2 media paths
-- mixed PNG, JPEG and WebP archives remain supported without changing Backup
-  Format Version 2
-- no database or backup-format migration is required
-
-### Testing
-
-- added cropping-screen interaction and navigation tests
-- added cropped-byte persistence tests for new and edited Boxes and Animals
-- added cancellation coverage for existing Box and Animal pictures
-- added focused optimizer tests for landscape and portrait resizing, no-upscale
-  behavior, WebP metadata and invalid encoder output
-- added delayed-processing and duplicate-submission coverage for all four Box
-  and Animal picture workflows
-- added failure-preservation tests for existing Box and Animal pictures
-- added PNG and WebP display coverage for overview thumbnails, detail pictures
-  and the full-screen viewer
-- added mixed-media export, validation and restore coverage
-- added focused backup-media extension, MIME and fallback mapping tests
-
-### Measured
-
-- a backup with 44 Boxes, 45 Animals, 20 FeedingEvents and 67 pictures decreased
-  from approximately 140 MB to 22.7 MB after normalization, a reduction of
-  about 83.8%
-
-### Validated
-
-- complete static analysis and automated test suite
-- Android debug and release APK builds
-- Web release build
-- Android and Web regression testing
-- Camera and Gallery cropping for new and edited Boxes and Animals
-- portrait and landscape orientation handling
-- normalized WebP persistence in overview, detail and full-screen views
-- legacy picture display without automatic conversion
-- mixed legacy and WebP backup export and restore across Android and Web
-
-## [0.11.0] - 2026-09-07
-
-### Added
-
-- context-sensitive Add Picture and Change Picture actions for new and edited
-  Box and Animal pictures
-- shared Camera and Gallery source menu across all Box and Animal forms
-- iOS photo-library usage description for future platform validation
-- camera-light controls for the Box scanner and QR Feeding Mode scanner
-- localized camera-light actions with a shared scanner control
-- persistent setting for displaying either the common or Latin Animal name
-  first
-- reusable Animal display-name mapping shared by overview, history, detail,
-  Box-assignment and quick-feeding views
-- stable Animal name-order values in portable backup settings
-
-### Changed
-
-- unsupported camera picture sources are disabled inside the source menu
-  without blocking Gallery use
-- captured pictures use the existing persistent `MediaAssets` storage and
-  portable backup flow
-- scanner camera-light controls are hidden when the active camera does not
-  provide a torch
-- Animal name-order changes are applied immediately without restarting the app
-- newly created backups include the preferred Animal name order in
-  `settings.json`
-
-### Compatibility
-
-- database schema remains at Version 4
-- portable backup exports remain at Backup Format Version 2
-- backups without an Animal name-order field remain restorable and default to
-  common name first
-- no database or backup-format migration is required
-
-### Validated
-
-- complete automated test suite
-- Android debug and release APK builds
-- Web release build
-- Android and Web regression testing
-- immediate Animal name-order changes, persistence and backup restore
-- camera-light controls in both QR scanners
-- Camera and Gallery picture selection for new and edited Boxes and Animals
-- compact Add Picture and Change Picture workflows
-- picture persistence and portable backup restore
-
-### Testing
-
-- added camera/gallery source mapping and unsupported-source widget tests
-- added creation and editing form coverage for both Box and Animal picture
-  actions
-- added camera-light state, action and failure-handling widget tests
-- extended both scanner-page tests with the shared camera-light control
-- added display-name mapping tests
-- added preference persistence, fallback and Settings UI tests
-- extended backup codec, export and restore coverage for the new preference
-
-## [0.10.0] - Localization
-
-### Added
-
-- Flutter localization generation based on ARB resources
-- English localization template for all user-visible application text
-- complete German application translations
-- persistent `System`, `English` and `Deutsch` language selection in Settings
-- stable application-language values for portable backup and restore
-- localized backup-validation messages
-
-### Changed
-
-- user-visible text is now resolved through generated Flutter localizations
-- language changes are applied immediately without restarting the application
-- the default language setting follows the operating-system locale
-- unsupported system locales fall back to English
-- newly created backups include the selected application language in
-  `settings.json`
-- backup restore applies the stored language together with theme and accent
-
-### Compatibility
-
-- database schema remains at Version 4
-- portable backup exports remain at Backup Format Version 2
-- the language field is an additive application-setting field and does not
-  require a new backup format version
-- backups created before language selection was introduced remain restorable
-- a missing language field is interpreted as `System`
-- no database or backup migration is required for v0.10.0
-
-### Validated
-
-- complete English and German application interfaces
-- immediate language changes through Settings
-- persistence of manual language selections across application restarts
-- system-language selection and English fallback behavior
-- language-setting backup and restore
-- restore compatibility for backups without a language field
-
-### Testing
-
-- added localization catalog and generated-message tests
-- added application locale, immediate-switch and restart-persistence tests
-- added Settings language-selection tests
-- added language preference persistence and fallback tests
-- added backup encoding, validation, export and restore tests for language
-- completed the full automated test suite with 333 passing tests
-
-## [0.9.0] - Feeding Workflow & Media
-
-### Added
-
-- full-screen viewer for Box and Animal detail pictures
-- picture zooming and panning with a scale range from 1x to 5x
-- dedicated QR Feeding Mode entry point from the Box Overview
-- Box QR scanning that resolves the currently assigned active Animals
-- empty state for scanned Boxes without active Animals
-- quick feeding form with one- or multi-Animal selection
-- current date and time as the default feeding timestamp
-- optional shared notes for quick feeding entries
-- atomic creation of one FeedingEvent per selected Animal
-
-### Changed
-
-- Box and Animal detail pictures are now interactive and open in a separate
-  full-screen route
-- all active Animals assigned to a scanned Box are selected by default for a
-  minimal-tap feeding workflow
-- the Feeding Mode scanner resumes immediately after saving or cancelling a
-  Box-specific feeding workflow
-- normal Box QR scanning remains separate and unchanged
-
-### Reliability
-
-- grouped feeding inserts run inside one database transaction
-- a failed insert rolls back the complete grouped feeding
-- empty and duplicate Animal ID collections are rejected by the repository
-- save controls are disabled while a grouped feeding is being written
-- repeated save submissions do not create duplicate FeedingEvents
-
-### Compatibility
-
-- database schema remains at Version 4
-- portable backup exports remain at Backup Format Version 2
-- quick feeding entries use the existing FeedingEvent data model and appear in
-  the existing feeding history
-- no data or backup migration is required for v0.9.0
-
-### Validated
-
-- full-screen Box and Animal picture viewing
-- picture zooming, panning and close/Back navigation
-- dedicated Feeding Mode entry and Box QR resolution
-- active-Animal filtering and Boxes without active Animals
-- single- and multi-Animal feeding entries
-- default and manually selected feeding timestamps
-- optional notes and existing feeding-history integration
-- transactional rollback and duplicate-submission protection
-- scanner restart after saving and cancelling
-- existing normal Box scanner workflow
-
-### Testing
-
-- added full-screen picture viewer and detail-picture interaction tests
-- added Feeding Mode entry-point and scanner tests
-- added atomic FeedingRepository batch tests
-- added quick feeding selection, history and scanner-resume tests
-- completed the full automated test suite with 321 passing tests
-
-## [0.8.0] - Contextual Navigation
-
-### Added
-
-- reusable `DetailNavigationContext` for ordered Animal and Box collections
-- navigation sources for Active Animals, Animal History, Box-specific Animals and Box Overview
-- horizontal swipe navigation between contextual Animal detail records
-- horizontal swipe navigation between contextual Box detail records
-- first and last record navigation boundaries
-
-### Changed
-
-- Animal detail actions continue to target the currently displayed Animal after swiping
-- Box edit, delete and QR actions continue to target the currently displayed Box after swiping
-- Animal detail navigation is disabled if an edited Animal leaves its original source collection
-- missing adjacent Boxes are removed safely from the in-memory navigation context
-- normal detail navigation without swipe context remains supported
-
-### Compatibility
-
-- database schema remains at Version 4
-- portable backup exports remain at Backup Format Version 2
-- no data or backup migration is required for v0.8.0
-
-### Validated
-
-- contextual Animal navigation on Android and Web
-- contextual Box navigation on Android and Web
-- Active Animal, Animal History and Box-specific Animal source ordering
-- first and last record boundaries
-- edit, delete and QR actions after contextual navigation
-- Back navigation to the originating overview
-- normal detail navigation without a swipe context
-
-### Testing
-
-- added contextual navigation model tests
-- added Active Animal, Animal History and Box-specific Animal swipe tests
-- added Box Overview swipe tests
-- added boundary, edit, deletion, QR action and missing-record regression coverage
-- completed the full automated test suite with 299 passing tests
-
-## [0.7.1] - Maintenance
-
-### Fixed
-
-- preserve Box Overview scroll position after returning from Box details
-- preserve Box Overview scroll position after returning from Box scanner and successful Box creation refreshes
-
-## [0.7.0] - Editing & Overview
-
-### Added
-
-- optional Box width, height and depth
-- persistent Box pictures backed by `MediaAssets`
-- Box editing workflow
-- human-readable Box labels (`Box N`) while preserving permanent QR identifiers
-- Animal and Box thumbnails in overview lists
-- FeedingEvent editing
-- FeedingEvent deletion with confirmation
-- Backup Format Version 2
-- portable Box dimensions and Box pictures in backups
-- `media/boxes/` archive media support
-
-### Changed
-
-- Box QR identifiers remain immutable when Box metadata is edited
-- Latest Feeding is recalculated after FeedingEvent edits and deletions
-- Animal Overview preserves its scroll position after detail/history navigation
-- archived-Animal restore dialogs use human-readable Box labels
-- safety backups include Box dimensions and Box pictures
-- current backups are created as Backup Format Version 2
-- restore continues to accept Backup Format Version 1
-
-### Data Migration
-
-- database schema upgraded from version 3 to version 4
-- added nullable `Box.widthCm`
-- added nullable `Box.heightCm`
-- added nullable `Box.depthCm`
-- added nullable `Box.pictureMediaId` referencing `MediaAssets`
-- existing Boxes, Animals, FeedingEvents and media remain preserved
-
-### Backup Compatibility
-
-- Backup Format Version 2 is the current export format
-- Backup Format Version 1 remains supported for restore
-- Version 1 Box records restore with dimensions and Box picture fields set to `null`
-- Box and Animal pictures are restored as new local `MediaAssets`
-- permanent Box QR identifiers remain unchanged
-- generated QR images remain excluded from backups
-
-### Validated
-
-- Android regression validation
-- Web regression validation
-- Backup Format Version 2 export and restore
-- Backup Format Version 1 restore compatibility
-- Android → Web Version 2 restore
-- Web → Android Version 2 restore
-- Box and Animal picture backup/restore
-- pre-restore safety backup with Box dimensions and pictures
-
-### Testing
-
-- added schema v3 → v4 migration tests
-- added Box media lifecycle tests
-- added Box edit workflow tests
-- added overview thumbnail tests
-- added FeedingEvent edit and delete tests
-- added overview scroll-position regression tests
-- added Backup Format Version 2 export, validation and restore tests
-- completed full automated and manual regression validation
-
-## [0.6.0] - Backup & Restore
-
-### Added
-
-- portable versioned `.tmbackup` backup format
-- backup manifest with application version, backup format version and database schema version
-- Box, Animal and FeedingEvent backup export
-- appearance settings backup export
-- Animal picture backup support
-- backup archive validation before restore
-- validation of record IDs and relationships
-- lifecycle invariant validation
-- QR identifier validation
-- enum and settings validation
-- media reference validation
-- archive path traversal protection
-- duplicate archive entry protection
-- backup information and confirmation dialogs
-- automatic pre-restore safety backup
-- full replacement restore workflow
-- persistent `MediaAssets` storage for Animal pictures
-- `Animal.pictureMediaId` relationship
-- legacy Animal picture migration
-- Android and Web backup file selection
-- user-selectable backup destination on Android
-
-### Changed
-
-- Animal pictures are now stored persistently in Drift/SQLite instead of relying on temporary `image_picker` paths
-- restored Animal pictures are stored as `MediaAssets`
-- restored Animals reference pictures through `pictureMediaId`
-- portable backups no longer depend on local picture paths
-- backup restore media handling is now part of the transactional database replacement
-- Android backup saving now uses a user-selectable system file destination
-- backup format version remains independent from database schema version
-
-### Data Migration
-
-- database schema upgraded from version 2 to version 3
-- added `MediaAssets` table
-- added nullable `Animal.pictureMediaId`
-- existing Animal data is preserved
-- existing `picturePath` values are preserved during schema migration
-- readable legacy Animal pictures are migrated to persistent `MediaAssets` after startup
-- unreadable legacy picture paths are retained without causing startup failure
-
-### Backup Compatibility
-
-- Backup Format Version 1 remains current
-- backups created from database schema version 2 remain restorable
-- generated QR images remain excluded from backups
-- permanent Box QR identifiers are preserved unchanged
-- internal `MediaAsset` IDs are not part of the portable backup format
-
-### Validated
-
-- Android backup
-- Android restore
-- Web backup
-- Web restore
-- Android → Web restore
-- Web → Android restore
-- persistent Animal pictures after Android application restart
-- persistent Animal pictures after Web browser reload
-- safety backup restore including Animal pictures
-
-### Testing
-
-- added backup format tests
-- added backup export tests
-- added backup validation tests
-- added transactional restore tests
-- added persistent media repository tests
-- added database schema v2 → v3 migration tests
-- added legacy picture migration tests
-- added Settings backup and restore widget tests
-- added cross-platform manual backup and restore validation
-- completed full regression test suite
-
-## [0.5.0] - Usability & Settings
-
-### Added
-
-- assigned animals on the box detail screen
-- safe deletion workflow for empty boxes
-- deletion protection for boxes containing active animals
-- animal lifecycle with active and archived states
-- archive reasons, dates and optional archive notes
-- dedicated Animal History view
-- restore workflow for archived animals
-- permanent deletion of archived animals
-- latest feeding information on animal details
-- persistent System, Light and Dark appearance settings
-- selectable application accent colors
-
-### Changed
-
-- animal overview now displays active animals only
-- box details only display active assigned animals
-- archived animals are no longer associated with an active box
-- animal detail refreshes latest feeding information after returning from feeding history
-- application theme is generated dynamically from the selected accent color
-- UI appearance preferences are stored separately from domain data
-
-### Data Migration
-
-- database schema upgraded from version 1 to version 2
-- existing animals are migrated as active
-- existing box assignments are preserved
-- existing feeding history is preserved
-
-### Testing
-
-- added Drift schema migration tests
-- added migration data-integrity tests
-- added animal lifecycle repository tests
-- added animal lifecycle widget tests
-- added Animal History tests
-- added latest-feeding tests
-- added persistent settings and theme tests
-- completed Android regression validation
-- completed Web regression validation
-
-## [0.4.0] - Platform Support
-
-### Added
-
-- Android platform validation
-- Web platform validation
-- SQLite WASM database support for Web
-- persistent Web database storage
-- platform-aware QR image storage
-- Android gallery storage for QR images
-
-### Validated
-
-- Android debug build
-- Android release build
-- Android database persistence
-- Android image handling
-- Android camera access
-- Android QR scanning
-- Android QR printing
-- Web application build
-- Web database persistence
-- Web image handling
-- Web camera access
-- Web QR scanning
-- Web QR download
-- Web QR printing
-
-### Known Limitations
-
-- iOS has not yet been validated
-- Web data can be removed when browser site data is cleared
-- Web camera, download and printing behavior depends on browser capabilities
-
-## [0.3.0] - QR Code
-
-### Added
-
-- automatic box QR ID generation
-- UUID-based QR identifiers
-- QR code display
-- QR code PNG export
-- local QR image storage
-- QR printing
-- QR scanning
-- TerraManager QR validation
-- unknown QR handling
-- invalid QR handling
-
-## [0.2.0] - User Interface
-
-### Added
-
-- application navigation
-- box overview
-- box detail screen
-- animal overview
-- animal detail screen
-- animal editing
-- new box workflow
-- new animal workflow
-- feeding history
-- animal notes
-- animal picture support
-
-## [0.1.0] - Foundation
-
-### Added
-
-- Flutter project foundation
-- Drift/SQLite database
-- Box data model
-- Animal data model
-- FeedingEvent data model
-- Box → Animal relationship
-- Animal → FeedingEvent relationship
-- Sex enum and converter
-- birth date accuracy support
-- repository layer
-- database tests
-- repository tests
-- initial Material 3 theme
+# Changelog
+
+All notable changes to TerraManager are documented in this file.
+
+The project uses semantic versioning.
+
+## [Unreleased]
+
+### Added
+
+- coordinate Shared Care resource freshness in one transient tab controller;
+  coalesce committed invalidations, defer hidden reads, preserve unchanged
+  galleries/forms/scroll state and update due markers from the clock — Issue #227
+- expose authenticated committed Shared Care revisions, bounded resource hints,
+  private preference revisions and conditional HTTP 304 queries as the server/API
+  foundation for targeted refresh and SSE — Issue #226
+- define restart/restore cursor resets and read-consistency fences while retaining
+  atomic audit writes, conflict checks and the separate backup safety generation
+
+### Development
+
+- keep committed-change hint capture independent of `HttpRequest` in the server
+  application layer, restoring the Shared Care architecture CI gate
+- add a disposable Shared Care update evaluation kit for Issue #186, with
+  real-API polling workloads, version/long-poll/SSE/WebSocket prototypes,
+  sanitized HAR summaries, Raspberry Pi resource sampling and a proposed ADR;
+  keep production polling unchanged pending target-device measurements
+
+### Changed
+
+- migrate Android compilation to AGP Built-in Kotlin without applying the
+  external Android Kotlin plugin; retain Kotlin 2.4.20 and Java/Kotlin target
+  17, update compatible save/scanner plugins, and verify the effective plugin
+  state in CI; keep the Flutter-required `android.newDsl=false` opt-out as the
+  separately deferred part of Issue #212
+- update the Android build-tool declarations from Kotlin Gradle Plugin 2.4.0 to
+  2.4.20 and Android Gradle Plugin 9.1.0 to 9.1.1 while retaining Gradle 9.3.1,
+  Java 17 and the pinned Flutter 3.47.2 release toolchain
+- keep strict Android dependency locking as the verification boundary for the
+  coordinated build-tool update; build/test-only scanner findings remain
+  separate from the Android application runtime dependency graph
+
+## [1.15.3] - 2026-10-16
+
+### Added
+
+- 
+
+## [1.15.1] - 2026-10-02
+
+### Added
+
+- allow each Animal to choose fixed weekdays, a time and a time zone for its
+  feeding reminder while keeping existing interval reminders compatible
+- open a chronological list of all active feeding appointments from the
+  optional Next Feeding card in standalone and Shared Care
+
+## [1.15.0] - 2026-10-02
+
+### Added
+
+- add optional password-protected portable backups to standalone and Shared
+  Care with Argon2id, framed AES-256-GCM authentication, fresh salt/nonce
+  material and encrypted pre-restore safety copies — Issues #203-#207
+- keep the existing portable ZIP as the authenticated container payload and
+  continue to import supported unencrypted Backup Format 1 and 2 archives
+- add QR-based Box selection beside the New Animal dropdown in standalone and
+  Shared Care; preserve the draft and create only on explicit Save
+- reuse standalone picture cropping, orientation normalization and WebP
+  processing for Shared Care Animal and Box uploads, including cancellation,
+  upload limits and busy/error handling
+- expose independent Weight and Shedding detail-visibility controls in Shared
+  Care Edit Animal without deleting or changing the underlying history
+- navigate ordered Animal and Box galleries in the common fullscreen viewer
+  with Previous/Next, keyboard arrows, position counters and horizontal swipes
+  at normal scale while preserving zoomed panning
+- prepare localized, feature-focused standalone Play Store screenshots with
+  synthetic demonstration data and reusable editable sources — Issues #180 and
+  #181
+- offer an optional Android Settings link to rate TerraManager, preferring the
+  Play Store app with an HTTPS browser fallback and without automatic prompts,
+  telemetry, a new permission or a new dependency — Issue #182
+
+### Changed
+
+- organize Shared Care client pages, widgets and API methods by feature and
+  split server routing, application commands, authentication and persistence
+  modules without changing API contracts, collection schema, portable backups
+  or visible workflows; retain previous import paths as compatibility exports —
+  Issue #185
+- remove redundant Rename entries from Shared Care Box and Animal menus;
+  validated name changes remain available through Edit and standalone menus are
+  unchanged
+- keep Shared Care password processing client-side for portable backup
+  protection; the password is not persisted and is not sent to the Shared Care
+  server
+- spool native protected exports as ciphertext and authenticate protected
+  imports before restore validation; handled temporary encrypted spools are
+  removed after success or failure
+
+### Fixed
+
+- serialize Shared Care browser-history changes so a delayed context-menu Back
+  event cannot dismiss the next duplicate, archive or picture-deletion dialog
+- open Shared Care Animal and Box archives as real routes and retain thumbnail
+  lists, archive reason/date and independent date/name sorting in normal and Big
+  Picture presentation
+- offer separate date and freely editable hour/minute controls for Shared Care
+  Feeding, Weight and Shedding history entries
+- avoid exposing raw standalone backup failure details through application logs
+  and clear failed Web authentication buffers that may contain compacted
+  plaintext
+
+### Security and compatibility
+
+- wrong passwords and authenticated data manipulation fail before collection
+  replacement; the UI intentionally does not claim to distinguish those states
+- native protected temporary backup files contain encrypted container data, not
+  a plaintext portable ZIP
+- large protected browser operations can still take several minutes and use
+  substantial memory; bounded-memory optimization is tracked separately and is
+  not claimed by this release
+- Database Schema Version 16 and Portable Backup Format Version 2 remain current;
+  the encrypted container is an optional outer envelope and older unencrypted
+  backups remain supported
+
+### Testing
+
+- extend password-protected backup regression coverage for fresh salt/nonce
+  material, authenticated header/ciphertext changes, wrong passwords, password
+  non-persistence and encrypted native spool cleanup
+- validate large protected backup paths on a physical Galaxy S22 in supported
+  standalone browsers and through Shared Care, while documenting the remaining
+  browser-memory limitation
+- retain release-candidate evidence separately from the deferred large-operation
+  memory optimization
+
+## [1.14.1] - 2026-09-27
+
+### Added
+
+- persist server-owned audit metadata for authenticated Shared Care collection
+  and account changes — Issue #177
+- retain stable actor identifiers and username/role snapshots without storing
+  notes, pictures, passwords or session tokens; commit mutations and audit
+  records together and retain audit history for 365 days
+- add the Shared Care Manage accounts screen with username/role editing,
+  optional password reset, deactivation/reactivation and confirmed removal —
+  Issue #178
+- revoke affected sessions after account changes, protect the last active
+  administrator and retain previous audit attribution after account removal
+- add an administrator-only Audit viewer under Shared server Settings with
+  merged collection/account events, date/name/action filters, seek pagination
+  and responsive localized states — Issue #179
+- allow administrators to initialize a genuinely empty Shared Care collection
+  from a portable backup without downloading an empty safety copy; populated
+  collections retain the safety-token requirement — Issue #176
+- show current Animal thumbnails in QR Feeding Mode for standalone and Shared
+  Care, with the existing fallback for missing pictures
+
+### Changed
+
+- connect Shared Care detail, scanner and dialog routes to browser Back history
+  so Android edge-back and in-app Back return within the interface without a
+  duplicate route pop
+- store Shared Care appearance, language, sorting and other personal display
+  preferences per account in the server account database, with explicit
+  defaults and isolation across login changes
+- keep personal account preferences outside portable collection backups so they
+  follow the signed-in account rather than the collection
+
+### Fixed
+
+- export care-event and metadata timestamps with explicit UTC offsets and use the
+  original IANA time zone when importing legacy Shared Care values, including
+  DST-sensitive event times and date-only birth dates
+- restrict Shared Care permanent collection and picture deletion to
+  administrators in both API and UI while preserving caregiver create, edit and
+  archive workflows
+- keep Box and Animal duplication dialogs open until confirmed success, select
+  Animal name and destination together, prevent repeated submission and expose
+  validation, permission and connection feedback
+- use the active account's Animal-name order and fallback consistently in every
+  Next Feeding overview, including compact presentation
+
+### Security and compatibility
+
+- audit entries deliberately omit free-text notes, pictures, passwords and
+  session tokens and remain separate from portable collection backups
+- account administration and audit metadata remain server-owned; standalone
+  Database Schema Version 16 and Portable Backup Format Version 2 are unchanged
+
+### Testing
+
+- cover administrator/caregiver authorization, final-administrator protection,
+  session revocation and retained audit attribution
+- cover audit rollback behavior, filtered/paginated audit viewing and empty
+  initial collection restore
+- cover time-zone round trips, permanent-delete permissions, guarded duplication
+  and per-account preference isolation
+
+## [1.13.0] - 2026-09-26
+
+### Added
+
+- add a short, skippable guided introduction on the first launch of an empty
+  standalone collection covering Boxes, Animals, feeding/reminders and QR
+  workflows
+- allow the standalone introduction to be replayed from Settings; it never
+  creates sample collection data
+- add the browser-local Show next feeding toggle above Big Picture Mode in
+  Shared Care Settings
+- respect that toggle in compact and Big Picture Animal overviews without
+  hiding active due reminders
+
+### Changed
+
+- keep onboarding navigation inside the introduction itself; Back/Next move
+  between steps and Finish/Skip closes the tour without changing the current
+  primary page
+- align Shared Care overview controls more closely with standalone workflows and
+  keep Big Picture Mode in Settings
+- reuse Shared Care overview pictures while scrolling, sorting, switching
+  layouts and polling unchanged media IDs — Issue #184
+- renew the picture snapshot when an overview opens, after returning from
+  details or after manual Reload
+- limit the Shared Care overview cache to 128 entries and 32 MiB of compressed
+  pictures, with four concurrent loads and aspect-preserving thumbnail decoding
+- clear overview picture caches and evict decoded entries when leaving the
+  overview or signing out
+
+### Testing
+
+- cover guided-start presentation and replay behavior without sample-data side
+  effects
+- cover actual Shared Care media request counts for Box and Animal list/grid
+  navigation, polling, changed pictures, Reload and detail return
+- cover cache deduplication, eviction, failed loads and late asynchronous results
+- cover localized Settings control order and next-feeding presentation
+
+Database Schema Version 16 and Portable Backup Format Version 2 remain current.
+The release requires no additional device permission or external service.
+
+## [1.11.0] - 2026-09-24
+
+### Added
+
+- introduce optional Shared Care LAN Web mode backed by a self-hosted Dart
+  server that owns one authoritative SQLite collection for participating
+  caregivers
+- add a separate Shared Care browser client that reads and changes the shared
+  collection only through the authenticated same-origin API instead of opening a
+  local collection database or queuing offline edits
+- provide local Shared Care accounts and authenticated collection operations for
+  Boxes, Animals, care history, media and portable collection backup/restore
+- add browser-based Box QR lookup for supported browsers; camera frames remain
+  on the scanning device and only a validated TerraManager Box identifier is
+  sent to the operator's server
+- add an Android Settings entry that opens the configured Shared Care server in
+  the system browser while keeping the Android standalone collection independent
+- document self-hosted Raspberry Pi/LAN deployment, trusted HTTPS and the
+  separation between portable collection backups and server-owned accounts
+
+### Changed
+
+- keep standalone Android and standalone Web local-first and independent from a
+  Shared Care installation; opening Shared Care does not synchronize or replace
+  either standalone collection
+- make server unavailability an explicit Shared Care connection state rather
+  than creating divergent offline edits
+- keep server account/session data outside portable collection backups; host
+  backups remain the operator's responsibility for that server-owned data
+
+### Privacy and compatibility
+
+- Shared Care communicates only with the user/operator configured self-hosted
+  server; TerraManager does not introduce a developer-operated cloud service
+- browser QR scanning does not upload camera frames to the server
+- standalone Database Schema Version 16 and Portable Backup Format Version 2
+  remain current
+
+## [1.10.4] - 2026-09-22
+
+### Changed
+
+- omit the Sex row from Animal details when no sex is stored or the stored value
+  is `unknown`
+- keep explicit Male, Female and Other values visible with their localized labels
+
+### Fixed
+
+- close the QR scanner and Edit Animal exactly once after a successful Rehouse
+  operation
+- prevent the Rehouse callback from popping an additional navigation route
+
+### Testing
+
+- cover Animal-detail sex visibility for unset, Unknown and explicit values
+- cover successful QR Rehouse navigation without duplicate route removal
+
+Database Schema Version 16 and Portable Backup Format Version 2 remain current.
+The release introduces no new device permission.
+
+## [1.10.3] - 2026-09-21
+
+### Added
+
+- add QR-based Rehouse Mode to Edit Animal
+- allow an active destination Box to be selected with the existing QR scanner
+- show an explicit confirmation before assigning the Animal to the scanned Box
+
+### Changed
+
+- make the Box scanner reusable through a resolved-Box callback and
+  workflow-specific title
+- perform Animal reassignment through one atomic repository operation
+- close Edit Animal after a successful reassignment so the previous Box
+  assignment cannot remain visible
+
+### Validation
+
+- accept only an existing active destination Box
+- reject unknown, archived and current Box identifiers
+- reject reassignment when the Animal is no longer active
+- keep the existing Animal assignment unchanged when validation or persistence
+  fails
+
+### Privacy
+
+- process QR identifiers and Box resolution locally
+- reuse the existing camera permission and scanner implementation
+- require no additional storage, media, network or background permission
+
+### Testing
+
+- cover valid reassignment, same-Box rejection, archived and unknown Boxes,
+  inactive Animals and transactional failure
+- cover confirmation, cancellation and successful scanner navigation
+
+Database Schema Version 16 and Portable Backup Format Version 2 remain
+unchanged.
+
+## [1.10.2] - 2026-09-21
+
+### Added
+
+- add Restore actions to archived Animal and Box context menus
+- allow an archived Animal to be restored directly after selecting an active
+  Box
+- allow an archived Box to be restored directly after confirmation
+- add per-Animal controls for showing or hiding Weight and Shedding information
+  on Animal details
+- add an optional next-feeding summary to the Animal Overview
+
+### Changed
+
+- allow an existing Animal birth date to be cleared
+- clear birth-date accuracy when the associated birth date is removed
+- keep due feeding reminders unchanged while optionally showing the next
+  upcoming, not-yet-due feeding
+- persist `showWeightOnDetail` and `showSheddingOnDetail` on every Animal
+- include the Animal detail-visibility fields and the next-feeding-summary
+  setting in Portable Backup Format Version 2
+- advance the local database to Schema Version 16
+
+### Compatibility
+
+- default both Animal detail-visibility fields to `true` for existing databases
+  and older backups
+- default `nextFeedingSummaryEnabled` to `false` when it is absent from an older
+  backup
+- retain Backup Format Version 2 because all new backup fields are additive
+
+### Testing
+
+- cover direct archive Restore actions for Animals and Boxes
+- cover birth-date removal and associated accuracy cleanup
+- cover Schema Version 15 to Version 16 migration
+- cover detail-visibility persistence, backup export and restore
+- cover next-feeding calculation, presentation, persistence and backup
+  compatibility
+
+Database Schema Version 16 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
+## [1.10.1] - 2026-09-21
+
+### Added
+
+- add a dedicated Box History page aligned with Animal History
+- add archive sorting by newest or oldest archive date
+- add archive sorting by ascending or descending displayed name
+- add persistent local sort preferences for Animal History and Box History
+- show Box thumbnails, labels and archive information in Box History
+- expose the existing Duplicate action from archived Box entries
+
+### Changed
+
+- align Animal and Box archive presentation and interaction patterns
+- keep archive sort preferences local to the current installation
+- consolidate project and release documentation around authoritative shared
+  documents and one release checklist
+
+### Compatibility
+
+- archive sort preferences affect presentation only
+- archive sort preferences are not part of portable backup data
+- no database schema or portable backup format change is required
+
+### Testing
+
+- cover all archive sort directions and deterministic missing-value placement
+- cover local archive sort persistence
+- cover Box History thumbnails, details and Duplicate actions
+
+Database Schema Version 15 and Portable Backup Format Version 2 remain
+unchanged.
+
+## [1.10.0] - 2026-09-20
+
+### Added
+
+- add an optional Big Picture Mode for Box and Animal overviews
+- support Big Picture Mode in flat and category-grouped Animal views
+- add a due-feeding indicator to the primary Animals navigation item
+- replace the legacy free-form Animal shedding note with timestamped shedding
+  history containing an optional note per event
+- add quick shedding entry and shedding-history access to Animal details and
+  Edit Animal
+- add reverse-chronological shedding history with create, edit and confirmed
+  delete actions
+
+### Changed
+
+- make the first Latest Feeding sort selection show the oldest latest feeding
+  first
+- persist Big Picture Mode between application restarts
+- include `bigPictureModeEnabled` in Portable Backup Format Version 2
+- migrate every non-empty legacy `Animal.sheddingNotes` value to one
+  `SheddingEvent` using the Animal's existing `updatedAt` timestamp, then clear
+  the legacy field
+- stop New Animal, Edit Animal and Animal duplication from creating or copying
+  legacy shedding-note values
+- retain `Animal.sheddingNotes` only for database and portable-backup
+  compatibility with earlier TerraManager versions
+- preserve complete shedding history while Animals are archived and through
+  Portable Backup Format Version 2 export and restore
+- advance the local database to Schema Version 15 with the `SheddingEvents`
+  table
+
+### Compatibility
+
+- default `bigPictureModeEnabled` to `false` when it is absent from an older
+  backup
+- restore older Animal records without `sheddingHistory` as an empty history
+- continue to accept compatible legacy `sheddingNotes` values during migration
+  and restore
+- retain Backup Format Version 2 because the new data is additive
+
+### Testing
+
+- cover Big Picture Mode in Box, flat Animal and grouped Animal overviews
+- cover Big Picture Mode persistence and backup round trips
+- cover the primary-navigation due indicator
+- cover the initial Latest Feeding sort direction
+- cover shedding-history repository ordering, creation, editing and deletion
+- cover direct Version 14 to Version 15 migration and legacy-note conversion
+- cover shedding-history backup export and restore
+- verify that archived Animals retain their shedding history
+- verify that New Animal and duplication no longer create or copy legacy
+  shedding-note values
+
+Database Schema Version 15 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
+## [1.8.0 - 1.9.4]
+
+### Added
+
+- add an independent, persistent Animal Overview category-group toggle directly
+  beside the sort control
+- add shared side-by-side minimum and maximum controls for daytime temperature,
+  nighttime temperature and humidity in New Animal and Edit Animal
+- show the next scheduled feeding directly below Latest Feeding while an active
+  reminder is not yet due
+- add positive numeric Animal weights in grams with timestamped history and a
+  reverse-chronological history view
+- add a quick weight action beside Weight History on Animal details and add or
+  edit or delete measurement actions inside the history view
+- add a responsive German and English GitHub Pages homepage with shared
+  localized content, download links, guides, support, local Privacy Policy and
+  license access
+- add a CSS-based device mockup and complete link-preview, favicon and page
+  metadata without trackers, cookies, external scripts or web fonts
+- show localized plural category and subcategory headings in grouped Animal
+  Overview views
+- add an optional bounded nighttime temperature to Animal profiles, details,
+  duplication and portable backups
+- make the assigned Box label on Animal details open the corresponding Box,
+  including its optional name
+- add persistent ascending and descending Box volume sorting based on complete
+  width × height × depth values
+
+### Changed
+
+- remove Category from the Animal sort menu and apply creation time, displayed
+  name, age and latest-feeding sorting inside every final category group
+- migrate legacy Category sort preferences to enabled category grouping with
+  the equivalent displayed-name direction
+- move the immutable Box QR identifier and its explanation below Notes and
+  directly above Save and Archive in Edit Box
+- label daytime and nighttime temperature explicitly on Animal details, format
+  both ranges with one locale-aware decimal place and keep `°C` on values only
+- arrange Additional characteristics consistently as birth date, accuracy,
+  sex, weight, origin, nighttime temperature, rest periods, shedding notes and
+  notes
+- replace the single nighttime-temperature input with independent optional
+  minimum and maximum values and migrate an existing value to both bounds
+- migrate only unambiguous legacy gram values into weight history while
+  retaining other legacy text until the user replaces it
+- duplicate only an Animal's current weight as a fresh measurement and retain
+  complete weight history through archive and portable backup workflows
+- advance the local database to Schema Version 14 with nullable nighttime
+  bounds and the `AnimalWeightEntries` table
+- place only active due feeding reminders above the Animal picture and move
+  Latest Feeding directly below the Animal names
+- keep unnamed Boxes after every named Box in both alphabetical directions
+  while retaining natural number ordering and deterministic ties
+- rename Animal temperature inputs to minimum and maximum daytime temperature
+- advance the local database to Schema Version 13; existing Animals receive a
+  null nighttime temperature
+
+### Privacy
+
+- keep the v1.9.1 overview and Edit Box refinements local without database
+  changes or new device, storage, media or network permissions
+- keep v1.9.0 form, feeding and weight-history data entirely local without new
+  device, storage, media or network permissions
+- keep all v1.8.0 data, sorting and navigation local without adding device,
+  storage, media or network permissions
+
+### Testing
+
+- cover the independent category toggle, all regular sort directions inside
+  grouped views, legacy preference migration, backup compatibility, flattened
+  contextual navigation and the responsive Edit Box field order
+- cover paired form layouts, range validation, Additional-characteristic order,
+  localized detail temperatures, future feeding display, weight-history create,
+  edit and delete rules, duplication, migration, backup validation and restore
+  compatibility
+- cover English and German plural taxonomy headings, due-reminder visibility,
+  Box links, nighttime-temperature persistence, migration, duplication and
+  backup compatibility, unnamed-Box ordering and volume sorting
+
+Database Schema Version 14 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
+## [1.7.2] - 2026-09-16
+
+### Added
+
+- add ordered picture histories to Animal and Box details, including local
+  capture/import timestamps, full-screen viewing, selectable primary images
+  and confirmed individual deletion
+- preserve complete galleries, ordering and primary selection in Portable
+  Backup Format Version 2
+
+### Changed
+
+- retain earlier pictures when a new Animal or Box picture is selected
+- duplicate complete picture galleries with independent MediaAssets
+- advance the local database to Schema Version 12 and migrate each existing
+  persistent single picture into a one-entry gallery
+- consolidate current documentation in the central guides, changelog and
+  roadmap instead of maintaining per-release and per-issue files
+
+### Privacy
+
+- keep gallery storage, viewing and management local and reuse the existing
+  user-initiated Camera and Gallery selection without adding device permissions
+
+### Testing
+
+- cover direct v11 migration, stable gallery ordering, primary selection,
+  isolated deletion, full-screen presentation and backup round trips
+- remove version-specific documentation tests together with the retired
+  per-release files and retain one central public-documentation regression
+
+Portable Backup Format Version 2 remains current and backward compatible.
+
+## [1.7.1] - 2026-09-15
+
+### Changed
+
+- move the optional temperature-zone note from Animal forms and details to the
+  owning Box, directly above ordinary Box notes
+- advance the local database to Schema Version 11 and transfer the first
+  non-empty legacy Animal temperature-zone value by Animal ID to its assigned
+  Box when that Box has no value
+- extend Portable Backup Format Version 2 with Box temperature zones while
+  retaining Format 1 and older Format 2 restore compatibility
+- shorten the individual Box QR export description and separate the three QR
+  export actions with the standard Settings dividers
+- advance the release version to `1.7.1+65`
+
+### Testing
+
+- preserve the released Schema Version 10 snapshot and cover direct populated
+  v10 to v11 migration, deterministic value selection and foreign keys
+- cover Box temperature-zone create, edit, detail, duplication and backup
+  behavior, including legacy Animal-value transfer during restore
+- keep migration and backup tests independent from a hard-coded current schema
+  number
+- verify that Android and iOS permission declarations remain unchanged
+
+Database Schema Version 11 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
+## [1.7.0] - 2026-09-15
+
+### Added
+
+- add required Animal categories and optional category-specific subcategories
+  to New Animal and Edit Animal, with localized labels and stable stored values
+- display saved taxonomy on Animal details and preserve it during duplication
+- add a Category criterion to Animal Overview that groups visible Animals under
+  accessible category and conditional subcategory headings
+
+### Changed
+
+- advance the local database to Schema Version 10; existing Animals migrate to
+  category `other` without a subcategory
+- extend Portable Backup Format Version 2 with category and optional
+  subcategory while retaining Format 1 and older Format 2 restore compatibility
+- sort category groups in the complete taxonomy order and reverse only the
+  primary group order when the active criterion is selected again
+- keep subcategories and Animals A–Z inside groups using localized headings,
+  natural number ordering and deterministic ID tie breaking
+- advance the release version to `1.7.0+64`
+
+### Testing
+
+- cover compatible taxonomy controls, incompatible-value clearing, New/Edit
+  persistence, details and duplication
+- verify populated v9 to v10 migration and fallback taxonomy values
+- cover taxonomy backup export, validation, restore and legacy defaults
+- cover complete category grouping, optional headings, reverse primary order,
+  natural name sorting, persistence and flattened contextual navigation
+
+Database Schema Version 10 is current. Portable Backup Format Version 2 remains
+current and backward compatible.
+
+## [1.6.1] - 2026-09-15
+
+### Added
+
+- show stored pictures as thumbnails in Animal History, with the existing
+  fallback for missing or invalid media and localized accessibility labels
+- bundle a complete German privacy policy alongside the synchronized English
+  policy and public privacy pages
+
+### Changed
+
+- simplify PDF QR sizing to the accessible integer slider from 6 mm to 20 mm
+  while preserving the 15 mm default and generated document layout
+- make Weight a multiline free-form field in New Animal and Edit Animal while
+  preserving its existing database and backup representation
+- present localized English or German legal information entirely offline and
+  retain the unchanged authoritative English GPL-3.0-or-later text
+- replace paired overview sort entries with one entry per criterion; selecting
+  the active criterion reverses its direction while stored enum and backup
+  values remain compatible
+- advance the release version to `1.6.1+63`
+
+### Testing
+
+- cover archived Animal thumbnails, fallback behavior, accessibility and
+  contextual detail ordering
+- cover slider-only PDF sizing and unchanged individual PNG and ZIP paths
+- cover multiline Weight persistence in both forms and Animal details
+- verify English, German, system-selected and unsupported-language legal
+  content paths without network access
+- cover sort defaults, repeated-selection reversal, persistence and contextual
+  detail navigation
+
+Database Schema Version 9 and Portable Backup Format Version 2 remain
+unchanged.
+
+## [1.6.0] - 2026-09-15
+
+### Added
+
+- add one shared Settings selection workflow for active and archived Box QR
+  codes, with all Boxes selected initially and individual opt-out
+- save the selected QR codes as individual PNG images or one ZIP archive
+- generate paginated A4 PDF sheets containing the selected QR codes, Box names
+  and stable Box numbers
+- choose the printed QR size from 6 mm to 20 mm with 6, 10, 15 and 20 mm
+  presets
+
+### Changed
+
+- generate ZIP archives and vector PDF documents completely on-device before
+  opening the operating-system save dialog
+- prevent incomplete ZIP or PDF output when generation fails and treat a
+  cancelled destination dialog as cancellation
+- document the local QR export paths and unchanged permission boundary in the
+  bundled and public privacy notices
+- advance the release version to `1.6.0+62`
+
+### Testing
+
+- cover shared active/archived Box selection, select-all, clear, cancellation
+  and empty-database behavior
+- cover individual PNG, ZIP and PDF Settings integration plus generation and
+  save failures
+- verify exact A4 layout bounds, page breaks, labels, long and duplicate names
+  and stable QR payloads
+- decode the smallest 6 mm vector layout from a 600 DPI raster simulation
+- verify that the document exports add no storage, media or network permission
+
+Database Schema Version 9 and Portable Backup Format Version 2 remain
+unchanged.
+
+## [1.5.0] - 2026-09-15
+
+### Added
+
+- add localized context menus to active Animal and Box overview entries,
+  opened by long press or secondary click
+- expose Create Feeding, Rename, Edit, Archive and Duplicate quick actions for
+  active Animals
+- expose Rename, Edit, Duplicate and Archive quick actions for active Boxes
+- allow archived Animals to be duplicated from Animal History
+- duplicate Boxes and Animals as independent active records while retaining
+  their reusable profile data and copying picture media
+
+### Changed
+
+- assign every duplicated Box a new database ID and permanent QR identifier
+- assign every duplicated Animal a new database ID and selected active Box,
+  without copying lifecycle metadata or feeding history
+- keep quick-action dialogs synchronized with the existing archive, validation
+  and overview refresh behavior
+- advance the release version to `1.5.0+60`
+
+### Testing
+
+- cover touch and pointer context-menu access plus every active quick action
+- cover independent identifiers, copied media and active lifecycle state for
+  duplicated records
+- verify that duplicated Animals omit feeding history and remain independent
+  of their source record
+- preserve duplicated records and pictures through current backup export
+
+Database Schema Version 9 and Portable Backup Format Version 2 remain
+unchanged.
+
+## [1.4.0] - 2026-09-14
+
+### Added
+
+- show optional Box names together with the stable Box number in New Animal and
+  Edit Animal assignment choices
+- add the localized `Hermaphrodite / other` Animal sex value with the stable
+  portable value `other`
+- add an expandable Additional characteristics section to both Animal forms
+  for origin or habitat, weight, shedding notes, rest or dormancy periods and
+  temperature zones
+- display only populated additional characteristics on Animal details
+- add an offline License entry directly below Privacy Policy in Settings,
+  backed by the authoritative repository `LICENSE` file
+
+### Changed
+
+- sort names containing numbers naturally in Box and Animal overviews, so
+  names 1 through 10 follow numeric order
+- restrict humidity to 0–100 percent and temperature to the documented
+  realistic range while retaining minimum/maximum ordering validation
+- advance the release version to `1.4.0+59`
+- advance the local database to Schema Version 9 with five nullable Animal
+  profile columns; existing records migrate with all five values empty
+- extend Portable Backup Format Version 2 with the same optional fields while
+  retaining restore compatibility with older Format 1 and Format 2 backups
+
+### Testing
+
+- cover natural sorting, named Box choices, environmental limits and the new
+  sex codec in repository, widget, localization and backup regressions
+- cover creation, editing, clearing and conditional detail rendering of all
+  five optional Animal characteristics
+- verify populated and legacy backup round trips plus invalid non-text profile
+  values
+- verify the populated v8 to v9 migration preserves existing records and
+  initializes every additional characteristic to `null`
+- cover Settings navigation, complete offline license rendering, large
+  accessibility text and direct bundling of `LICENSE`
+
+Database Schema Version 9 and Portable Backup Format Version 2 are the v1.4.0
+compatibility baseline.
+
+## [1.3.0] - 2026-09-14
+
+### Added
+
+- added horizontal swipe navigation between the adjacent Box Overview, Animal
+  Overview and Settings primary pages
+- added localized semantics for the current primary page and navigation region
+- added `Ctrl+Page Up` and `Ctrl+Page Down` as keyboard-compatible primary-page
+  navigation
+
+### Changed
+
+- keep all primary pages in one state-preserving shell so overview scroll
+  positions, selected sorting and Settings state survive swipe and tap changes
+- keep the visible navigation indicator synchronized with swipe, keyboard and
+  navigation-bar selection
+- give the Box and Animal overview action buttons independent Hero identities
+  while both pages remain alive in the shared shell
+- refresh the Animal Overview immediately after an Animal is created directly
+  from Box details, while preserving the overview state
+- advanced the release version to `1.3.0+55`
+
+### Testing
+
+- added root-navigation widget coverage for both swipe directions, boundaries,
+  navigation-bar taps, keyboard access and localized semantics
+- covered scroll and sorting retention, vertical Settings scrolling, open
+  dropdown interaction, platform Back and independent contextual detail swipes
+- added an integrated regression for creating an Animal from Box details after
+  the Animal Overview has already loaded
+- completed the v1.3.0 automated regression and documented the release-owner
+  build, signature and Google Play publication workflow
+
+Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
+
+## [1.2.0] - 2026-09-13
+
+### Added
+
+- added an Archive Box action to Edit Box with a required localized reason,
+  optional archive note and explicit confirmation
+- added an Archived Boxes entry point and a confirmed Restore Box action
+- display archive reason, timestamp and notes on archived Box details
+- added localized archived-QR results in both the Box and Feeding Mode scanners
+
+### Changed
+
+- filter active Box overviews and all Animal assignment choices to active Boxes
+- recheck assigned active Animals transactionally before archiving and name
+  blocking Animals in the explanation dialog; Animal lifecycle stays unchanged
+- protect creation, reassignment and restoration of Animals from stale archived
+  Box choices with transactional repository checks
+- reject backups assigning active Animals to archived Boxes
+- preserve the permanent QR identifier and stored Box data across archive and
+  restore; restore clears archive metadata and makes the Box available again
+- return to the originating overview after archive or restore, including after
+  contextual detail swiping, and prevent repeated lifecycle submissions
+- explain that unsaved Edit Box changes are discarded when archive is confirmed
+- remove direct Box deletion from Edit Box; permanent deletion is available only
+  at the bottom of archived Box details, matching the Animal archive workflow
+- use the Box archive symbol consistently for the Box Overview navigation and
+  Box thumbnails without pictures
+- move Archive Animal from active Animal details to the bottom of Edit Animal;
+  unsaved edits are explicitly disclosed before archive confirmation
+
+### Testing
+
+- added repository coverage for blocked and successful archive, restore,
+  duplicate operations, and competing assignment/archive transactions
+- added UI coverage for confirmations, blocking Animal names, active/archive
+  lists, contextual navigation, stale forms and all assignment controls
+- added English/German scanner regression and a narrow German dialog check
+- added repository and UI coverage for archived-only permanent Box deletion
+- removed the brittle hard-coded application-version assertion from release
+  documentation tests; final release-validation documentation tests remain
+  in place
+- completed the v1.2.0 migration, lifecycle, QR, backup and full-suite
+  regression with 554 passing tests
+- built and verified the production-signed Android APK and App Bundle and the
+  Web release from the same `1.2.0+54` source state
+
+### Release
+
+- advanced the release version to `1.2.0+54`
+- added the final v1.2.0 validation, compatibility, signature and artifact-hash
+  record
+- completed the Box Lifecycle & History milestone
+
+Database Schema Version 8 and Portable Backup Format Version 2 remain unchanged.
+
+## [1.1.2] - 2026-09-13
+
+### Added
+
+- added persistent Box lifecycle fields: active/archived status,
+  archive reason, archive timestamp and optional archive notes
+- added English and German labels for Sold, Replaced, Damaged and Other Box
+  archive reasons; database and backup values remain language independent
+
+### Compatibility
+
+- corrected stale SQL definitions in the Version 5–7 schema snapshots from
+  the existing historical models so regeneration retains reminder fields and
+  Box names
+- Database Schema Version 8 adds Box lifecycle columns while retaining all
+  existing records; existing Boxes remain active with empty archive metadata
+- Backup Format Version 2 includes all Box lifecycle fields; older Format 1
+  and Format 2 backups without these fields restore Boxes as active
+- backup validation rejects unknown lifecycle values, incomplete archived Box
+  metadata and archive metadata on active Boxes
+- archived records retain their permanent QR identifier, name, dimensions,
+  picture and ordinary notes
+
+### Testing
+
+- added file-backed restart and Version 7 to Version 8 data-preservation tests
+- extended generated schema verification through Version 8
+- added complete backup export/validation/restore round trips with archived
+  Box pictures, legacy backup restore and invalid lifecycle coverage
+- added English and German Box archive-reason label coverage
+
+This issue establishes persistence and backup support. Box archive/restore
+actions and archive navigation are separate workflow work.
+
+## [1.1.1] - 2026-09-13
+
+### Added
+
+- added an optional free-form name to New Box and Edit Box
+- added ascending and descending alphabetical Box-name sorting to the Box
+  Overview
+- added the optional Box name to current portable backups without changing
+  Backup Format Version 2
+
+### Changed
+
+- display a named Box with its name as the primary overview label while keeping
+  its generated Box number visible underneath
+- display non-empty Box names prominently on Box details
+- place unnamed Boxes after named Boxes in both alphabetical directions and
+  use the Box ID as the deterministic tie-breaker
+- advanced the development version to `1.1.1+51`
+
+### Compatibility
+
+- added nullable `Box.name` in Database Schema Version 7 with a
+  data-preserving Version 6 to Version 7 migration
+- kept existing Boxes unnamed until the user explicitly assigns a name
+- kept Backup Format Version 2 backward compatible; backups without `name`
+  restore with an empty Box name
+- preserved the existing ascending and descending Box-number sort options and
+  their legacy settings mappings
+
+### Testing
+
+- added repository and widget coverage for creating, editing, clearing and
+  displaying optional Box names
+- added deterministic alphabetical sorting and persisted setting coverage
+- added schema migration, persistence, backup export, validation and restore
+  coverage for Box names
+
+## [1.1.0] - 2026-09-12
+
+### Added
+
+- added an enabled-by-default checkbox for creating a safety backup during
+  destructive Restore confirmation
+- added an About TerraManager dialog under Legal & Privacy with the installed
+  version, build number and developer information
+- added a dedicated Feeding Reminder action to active Animal details so an
+  existing Animal's reminder can be configured without opening Edit Animal
+- added a targeted repository operation for updating only an active Animal's
+  reminder interval and baseline
+- added current Animal picture thumbnails to the assigned-Animal list on Box
+  details, with the existing Animal fallback icon when no usable picture is
+  available
+- added optional multiline Box notes to New Box and Edit Box
+- added a non-empty Box notes section to Box details
+
+### Changed
+
+- made the pre-restore safety backup optional for the current operation so an
+  empty database can be restored without creating an unnecessary archive
+- kept backup validation, explicit confirmation, settings rollback and
+  transactional database replacement unchanged when the safety backup is
+  disabled
+- replaced the accent-color chip group with one compact localized dropdown
+  while preserving immediate application and existing preference persistence
+- made the Latest Feeding card on Animal details open the complete feeding
+  history directly
+- removed reminder controls from Edit Animal while preserving the Animal's
+  current reminder configuration during ordinary detail changes
+- refreshed the Animal-detail reminder state immediately after its dedicated
+  configuration is saved
+- moved the Box QR code, permanent identifier and remaining export action into
+  one section at the bottom of Box details so Box information and assigned
+  Animals appear first
+- moved QR export from the Box-detail app bar into the QR section
+- added nullable `Box.notes` in Database Schema Version 6 with a data-preserving
+  Version 5 to Version 6 migration
+- extended Backup Format Version 2 with backward-compatible optional Box notes;
+  backups without the field restore with empty notes
+- moved Box deletion from the Box-detail app bar to a dedicated destructive
+  action at the bottom of Edit Box
+- distinguished saved and deleted Edit Box results so successful deletion
+  closes the stale detail route and refreshes the originating overview
+- disabled saving, picture changes and navigation while Box deletion is in
+  progress to prevent conflicting actions
+- prepared release version `1.1.0+50`
+
+### Removed
+
+- removed QR printing from Box details
+- removed the obsolete QR print service and its `printing` and `pdf`
+  dependencies
+- removed print-only localization and automated tests
+
+### Testing
+
+- added application-service coverage proving disabled safety backups skip both
+  creation results and file persistence
+- added Settings widget coverage for the enabled default and an empty-database
+  Restore with the option disabled
+- added Settings widget coverage for compact accent selection and installed
+  application information
+- added repository and widget coverage for dedicated reminder activation,
+  validation, interval updates, disabling and archived-Animal protection
+- added Animal-detail coverage for Latest Feeding history navigation and the
+  dedicated reminder action
+- verified that ordinary Animal edits hide and preserve existing reminder
+  configuration
+- added Box-detail widget coverage for assigned Animals with no picture, a
+  stored picture and invalid image data
+- added Box-detail layout coverage for the revised information order, QR
+  export and absence of the removed Print action
+- updated contextual-navigation coverage so QR export still targets the
+  currently displayed Box after swiping
+- added repository and widget coverage for creating, editing, clearing and
+  conditionally displaying Box notes
+- added schema migration, persistence, backup export, validation and restore
+  coverage for Box notes
+- moved Box deletion confirmation, cancellation and assigned-Animal protection
+  coverage through the Edit Box workflow
+- added coverage for the bottom destructive action and deletion after
+  contextual Box-detail swiping
+
+### Validated
+
+- `flutter analyze` without issues
+- revised Box-detail order, QR export and removed printing workflow through
+  manual testing
+- optional Box note creation, editing, clearing, display, backup and restore
+  workflows through manual testing
+- complete automated test suite
+- Edit Box deletion confirmation, cancellation, assigned-Animal protection and
+  overview return through manual testing
+- complete automated and manual validation
+- completed the v1.1.0 automated, migration, backup and Android/Web manual
+  regression
+- completed supported release builds, production-signature verification and
+  the final Quality gates run
+- recorded final release artifact hashes for the APK and Android App Bundle
+- prepared the v1.1.0 regression, compatibility and release checklist
+
+## [1.0.0] - 2026-09-09
+
+### Added
+
+- added a GitHub Actions quality-gate workflow for locked dependency
+  resolution, localization generation, formatting, analysis, complete tests,
+  Android Debug and Web Release builds
+- added a documented Flutter 3.47.2, Dart 3.13, Java 17, Android Gradle Plugin
+  9.1.0 and Gradle 9.3.1 baseline with an explicit upgrade procedure
+- added the final v1.0.0 regression, compatibility, artifact-verification and
+  publication checklist
+- added the complete GNU General Public License under the
+  `GPL-3.0-or-later` identifier
+- added public privacy and permission documentation for local data, camera,
+  gallery, file, printing and Web-hosting behaviour
+- added Android and Web installation, update, artifact-verification and
+  pre-v1.0 transition guidance
+- added support, private-first security-reporting and contribution policies
+
+### Changed
+
+- adopted `com.codefrog.terramanager` as the permanent application identifier
+  and Android namespace
+- replaced remaining Flutter placeholder names in the prepared platform
+  projects with TerraManager identity
+- replaced placeholder Web title, description and installation metadata
+- replaced the default Flutter Web icons and favicon with TerraManager artwork
+- configured Android Release builds to use a dedicated production signing
+  configuration instead of the debug signing key
+- added ignored local-property and environment-variable credential sources for
+  Android release signing
+- made Release builds fail with a clear configuration error when credentials
+  or the configured keystore are missing while keeping Debug builds independent
+  of release secrets
+- corrected the recorded final publication actions for the completed v0.11.0
+  and v0.12.0 releases
+- linked public project documentation from the project overview
+- replaced the ambiguous Scan another Box Quick Feeding action with an
+  explicit Scan a different Box cancellation action
+- clarified that this action discards the unsaved Box-specific feeding form,
+  returns to Feeding Mode and restarts the scanner without creating events
+- made overview sort widget tests target stable menu-item keys instead of text
+  render positions
+- advanced the release version to `1.0.0+39`
+
+### Compatibility
+
+- Android installations using the previous
+  `com.example.flutter_application_1` identifier cannot be updated in place;
+  users must export a backup in v0.14.1 and restore it into the new application
+- debug-signed permanent-ID builds through `0.14.2+34` cannot be updated in
+  place by the production-signed build; the existing backup, uninstall,
+  install and restore transition must be used once more
+- every later directly distributed Android update must use the same production
+  signing certificate introduced with `0.14.3+35`
+- Database Schema Version 5 and Portable Backup Format Version 2 remain
+  unchanged
+- CI builds an unsigned Android Debug APK; production-signed APK and AAB
+  artifacts remain part of the protected local release workflow
+- the temporary Built-in Kotlin compatibility flags remain enabled because
+  three resolved plugins still apply the Kotlin Gradle Plugin
+- v1.0.0 establishes the stable MVP feature and compatibility baseline for
+  Android and Web
+- iOS, macOS, Linux and Windows identity metadata is prepared but those
+  platforms are not newly validated or promoted to supported status
+
+### Testing
+
+- added static regression coverage for Android application identity
+- added Web manifest, page metadata and icon-dimension coverage
+- added a cross-platform placeholder identity regression check
+- added static regression coverage for the production signing configuration,
+  supported credential sources and ignored secret files
+- added static regression coverage for the public licence, documentation,
+  production permission statement and corrected historical release records
+- added localized cancellation and scanner-resume coverage for the Scan a
+  different Box action, including protection against accidental FeedingEvents
+- added static regression coverage for the pinned CI workflow, toolchain
+  baseline, dependency lock and protected production-signing boundary
+- removed hit-test warnings from the Animal and Box sort-menu widget tests
+- added static regression coverage for the v1.0.0 version, release checklist,
+  compatibility declarations and final publication commands
+
+### Validated
+
+- Android Debug and pre-production Release builds with the permanent
+  application identity
+- installation, startup and manual regression on a physical Android device
+- Web build and TerraManager installation metadata
+- `flutter analyze` without issues and the complete suite with 440 passing
+  tests
+- production-signed APK and AAB construction with the private key stored
+  outside version control
+- APK Signature Scheme v2 verification with the expected RSA 4096-bit
+  production certificate
+- AAB signature verification and SHA-256 release-artifact checksums
+- backup, uninstall, production installation and restore transition on a
+  physical Android device
+
+## [0.14.1] - 2026-09-09
+
+### Changed
+
+- feeding reminders now use the latest FeedingEvent whenever feeding history
+  exists, even when that event predates the reminder baseline
+- the reminder baseline is now used only for Animals without FeedingEvents
+- the Box Overview sort menu now contains only ascending and descending natural
+  Box-number ordering
+- ascending Box number is the new default ordering
+
+### Compatibility
+
+- existing `createdOldestFirst` Box preferences map to `labelAscending`
+- existing `createdNewestFirst` Box preferences map to `labelDescending`
+- legacy Box sort values remain valid during backup validation and restore
+- new backups write only `labelAscending` or `labelDescending`
+- Database Schema Version 5 and Portable Backup Format Version 2 remain
+  unchanged
+
+### Testing
+
+- updated reminder tests for feedings that predate reminder activation
+- retained baseline fallback coverage after deleting the final FeedingEvent
+- reduced Box sorting unit and widget coverage to the two supported directions
+- added local-settings migration and legacy-backup mapping coverage
+
+### Validated
+
+- `flutter analyze` without issues
+- complete automated test suite with 433 passing tests
+- successful Android and Web builds
+- corrected reminder behavior for Animals with and without feeding history
+- ascending and descending Box-number sorting, including persistence
+- legacy Box sort preference and backup compatibility
+- manual regression on a physical Android device
+
+## [0.14.0] - 2026-09-09
+
+### Added
+
+- localized Animal Overview sorting by creation time, displayed name, age or
+  latest FeedingEvent in both relevant directions
+- deterministic handling for Animals without a birth date or FeedingEvent
+- localized Box Overview sorting by creation time or natural Box number in
+  ascending and descending directions
+- a checked sort menu in the Box Overview app bar
+- Add Animal action below both empty and populated assigned-Animal sections on
+  Box details
+- optional initial Box selection for the existing New Animal workflow
+
+### Changed
+
+- the Animal name sort follows the currently preferred displayed primary name
+- Animals without a birth date remain last for both age directions; never-fed
+  Animals appear first for oldest-feeding-first and last for newest-first
+- Animal Overview reminder calculation and FeedingEvent sorting share one bulk
+  latest-feeding lookup instead of querying per Animal
+- contextual Animal detail navigation now receives the exact visible sorted
+  order
+- the selected Box order is applied immediately and persisted between
+  application restarts
+- contextual Box detail navigation now receives the exact visible sorted order
+- replaced raw English Animal sex values with Male, Female and Unknown
+- removed the duplicate Unknown entry from the New Animal and Edit Animal sex
+  selectors
+- made Unknown the explicit default for newly created Animals and the UI
+  fallback for legacy Animals without a stored sex value
+- replaced raw English birth-date-accuracy values with Exact, Month known and
+  Year known
+- kept the existing localized German sex and birth-date-accuracy labels
+- direct Animal creation returns to the originating Box and refreshes its
+  assigned-Animal list immediately after saving
+- repeated Add Animal actions are blocked while the creation route is open
+
+### Compatibility
+
+- Animal sorting is a UI preference and requires no database migration
+- portable backups include the optional `animalSortOrder` setting; older
+  backups default to oldest-created Animal first
+- Box sorting is a UI preference and requires no database migration
+- portable backups include the optional `boxSortOrder` setting; older backups
+  default to oldest-created Box first
+- persisted Sex and BirthDateAccuracy enum values remain unchanged
+- legacy nullable Animal sex values display as Unknown
+- no database or portable-backup migration is required
+
+### Testing
+
+- added deterministic Animal creation-time, displayed-name, age and
+  latest-feeding sorting unit tests
+- added Animal Overview selection, persistence and contextual-navigation
+  coverage
+- extended settings export, validation, restore and legacy-default tests for
+  Animal sorting
+- added deterministic creation-time and natural-number sorting unit tests
+- added Box Overview selection, persistence and contextual-navigation coverage
+- extended settings export, validation, restore and legacy-default tests for
+  Box sorting
+- added New Animal and Edit Animal option-list regression coverage
+- added legacy missing-sex detail presentation coverage
+- extended English and German localization expectations
+- added New Animal preselection and editability coverage
+- added empty, populated, save, cancel and refresh coverage for direct Animal
+  creation from Box details
+
+### Validated
+
+- `flutter analyze` without issues
+- complete automated test suite
+- successful application build for the current development version
+- all eight Animal Overview sort modes and their immediate list ordering
+- deterministic placement of Animals without birth dates or FeedingEvents
+- Animal name sorting with both Common-name-first and Latin-name-first display
+- persistent Animal sorting after changing the selection
+- contextual Animal detail navigation following the visible sorted order
+- Animal sort-order backup, restore and legacy-backup fallback coverage
+- all four Box Overview sort modes and their immediate list ordering
+- persistent Box sorting after changing the selection
+- contextual Box detail navigation following the visible sorted order
+- Box sort-order backup, restore and legacy-backup fallback coverage
+- New Animal and Edit Animal sex selections without duplicate options
+- localized sex and birth-date-accuracy labels in English and German
+- legacy missing-sex presentation and normal Animal detail rendering
+- direct Animal creation from empty and populated Box details
+- originating Box preselection, editable reassignment, cancellation and
+  immediate assignment-list refresh
+- manual regression, including Box and Animal Overview sorting, on a physical
+  Android device
+
+## [0.13.0] - 2026-09-08
+
+### Added
+
+- optional per-Animal feeding reminder configuration in the new and edited
+  Animal workflows
+- localized English and German controls for enabling reminders and entering a
+  positive whole-day interval
+- persisted reminder baseline captured at the time a reminder is enabled
+- database schema Version 5 with nullable reminder interval and baseline
+  columns on Animals
+- portable backup export, validation and restore for reminder configuration
+- centralized feeding-reminder calculation with an injectable clock
+- efficient bulk lookup of the latest FeedingEvent for all configured active
+  Animals
+- due-state results containing the relevant Animal, reference timestamp and
+  calculated due timestamp
+- non-modal Feeding Reminder summary in the Animal Overview
+- due markers on affected Animal list entries
+- due and scheduled reminder status cards on Animal details
+- localized English and German reminder counts, states and due-date labels
+
+### Changed
+
+- Animal archive and restore operations retain reminder configuration
+- Animal repository writes reject incomplete or non-positive reminder
+  configurations
+- reminder calculations use the later of the configured baseline and latest
+  FeedingEvent
+- reminder timestamps are normalized to the injected clock's UTC or local
+  representation so calculations remain consistent across platform time zones
+- reminder states are recalculated from current feeding history after event
+  creation, editing or deletion
+- an Animal is considered due at the exact due timestamp and remains due after
+  it
+- due reminder results are ordered by due timestamp, with the most overdue
+  Animal first
+- reminder presentation refreshes after FeedingEvent creation, editing or
+  deletion and after Quick Feeding submissions
+- reminder entries open the corresponding Animal, whose reminder status card
+  links directly to the existing feeding history workflow
+
+### Compatibility
+
+- existing databases migrate from schema Version 4 to Version 5 without
+  changing existing Animal data
+- existing Animals receive disabled reminders because both new columns default
+  to `null`
+- portable backup exports remain at Backup Format Version 2
+- older backups without reminder fields remain restorable and produce disabled
+  reminders
+- reminder calculation adds no persisted derived state and requires no further
+  schema or backup-format migration
+
+### Testing
+
+- added repository persistence and lifecycle-retention coverage
+- added schema Version 4 to Version 5 migration coverage
+- added new and edited Animal form validation and persistence coverage
+- extended backup model, export, validation and restore round-trip coverage
+- added deterministic reminder tests for no, one and multiple FeedingEvents
+- added exact-boundary, archived/disabled Animal and due-order coverage
+- added reminder recalculation coverage after FeedingEvent creation, editing and
+  deletion
+- verified reminder calculation from restored backup data
+- added reminder widget coverage for empty, due, ordered, localized and updated
+  states
+- added Quick Feeding change-notification coverage
+
+### Validated
+
+- complete Dart formatting, static-analysis and automated-test regression
+- focused schema migration, current/legacy backup and feeding-reminder tests
+- Android debug APK, Android release APK and Web release builds
+- reminder workflows and general regression on a physical Android device
+- reminder workflows and general regression in a Chromium-based browser
+- English and German reminder configuration, validation and status text
+- Version 4 to Version 5 upgrade and reminder backup compatibility
+
+## [0.12.0] - 2026-09-08
+
+### Added
+
+- shared free-form picture cropping screen for Android and Web
+- picture cropping after Camera and Gallery selection in new and edited Box and
+  Animal forms
+- localized cropping instructions, confirmation and error states
+- injectable picture-selection flow for focused form tests
+- shared WebP picture optimizer for newly selected and captured Box and Animal
+  pictures
+- bounded image dimensions and configurable compression parameters
+- localized picture-processing progress in all new and edited Box and Animal
+  forms
+- shared backup-media format mapping for legacy pictures and normalized WebP
+  media
+
+### Changed
+
+- selected pictures reach the form preview and persistent `MediaAssets` storage
+  only after the crop is confirmed
+- cancelling the crop keeps the current picture and form state unchanged
+- source image orientation is normalized before the crop is calculated
+- confirmed crops are resized to a maximum 1920-pixel longest edge and encoded
+  as WebP with quality 82 before reaching form previews and `MediaAssets`
+- new picture filenames and MIME metadata are normalized to `.webp` and
+  `image/webp`
+- picture actions and form saving are blocked while normalization is running
+- repeated processing and save calls are ignored to prevent duplicate media
+  records
+- Box and Animal picture replacement now commits the normalized media, record
+  reference and old-media cleanup atomically
+- backup export preserves matching legacy extensions and uses known MIME
+  metadata to resolve stale filenames
+- backup restore recreates the filename, MIME type and original bytes for mixed
+  legacy and WebP media without recompression
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- cropped pictures use the existing media persistence and backup flow
+- existing stored pictures remain unchanged and continue to support their
+  original formats
+- WebP pictures use the existing Backup Format Version 2 media paths
+- mixed PNG, JPEG and WebP archives remain supported without changing Backup
+  Format Version 2
+- no database or backup-format migration is required
+
+### Testing
+
+- added cropping-screen interaction and navigation tests
+- added cropped-byte persistence tests for new and edited Boxes and Animals
+- added cancellation coverage for existing Box and Animal pictures
+- added focused optimizer tests for landscape and portrait resizing, no-upscale
+  behavior, WebP metadata and invalid encoder output
+- added delayed-processing and duplicate-submission coverage for all four Box
+  and Animal picture workflows
+- added failure-preservation tests for existing Box and Animal pictures
+- added PNG and WebP display coverage for overview thumbnails, detail pictures
+  and the full-screen viewer
+- added mixed-media export, validation and restore coverage
+- added focused backup-media extension, MIME and fallback mapping tests
+
+### Measured
+
+- a backup with 44 Boxes, 45 Animals, 20 FeedingEvents and 67 pictures decreased
+  from approximately 140 MB to 22.7 MB after normalization, a reduction of
+  about 83.8%
+
+### Validated
+
+- complete static analysis and automated test suite
+- Android debug and release APK builds
+- Web release build
+- Android and Web regression testing
+- Camera and Gallery cropping for new and edited Boxes and Animals
+- portrait and landscape orientation handling
+- normalized WebP persistence in overview, detail and full-screen views
+- legacy picture display without automatic conversion
+- mixed legacy and WebP backup export and restore across Android and Web
+
+## [0.11.0] - 2026-09-07
+
+### Added
+
+- context-sensitive Add Picture and Change Picture actions for new and edited
+  Box and Animal pictures
+- shared Camera and Gallery source menu across all Box and Animal forms
+- iOS photo-library usage description for future platform validation
+- camera-light controls for the Box scanner and QR Feeding Mode scanner
+- localized camera-light actions with a shared scanner control
+- persistent setting for displaying either the common or Latin Animal name
+  first
+- reusable Animal display-name mapping shared by overview, history, detail,
+  Box-assignment and quick-feeding views
+- stable Animal name-order values in portable backup settings
+
+### Changed
+
+- unsupported camera picture sources are disabled inside the source menu
+  without blocking Gallery use
+- captured pictures use the existing persistent `MediaAssets` storage and
+  portable backup flow
+- scanner camera-light controls are hidden when the active camera does not
+  provide a torch
+- Animal name-order changes are applied immediately without restarting the app
+- newly created backups include the preferred Animal name order in
+  `settings.json`
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- backups without an Animal name-order field remain restorable and default to
+  common name first
+- no database or backup-format migration is required
+
+### Validated
+
+- complete automated test suite
+- Android debug and release APK builds
+- Web release build
+- Android and Web regression testing
+- immediate Animal name-order changes, persistence and backup restore
+- camera-light controls in both QR scanners
+- Camera and Gallery picture selection for new and edited Boxes and Animals
+- compact Add Picture and Change Picture workflows
+- picture persistence and portable backup restore
+
+### Testing
+
+- added camera/gallery source mapping and unsupported-source widget tests
+- added creation and editing form coverage for both Box and Animal picture
+  actions
+- added camera-light state, action and failure-handling widget tests
+- extended both scanner-page tests with the shared camera-light control
+- added display-name mapping tests
+- added preference persistence, fallback and Settings UI tests
+- extended backup codec, export and restore coverage for the new preference
+
+## [0.10.0] - Localization
+
+### Added
+
+- Flutter localization generation based on ARB resources
+- English localization template for all user-visible application text
+- complete German application translations
+- persistent `System`, `English` and `Deutsch` language selection in Settings
+- stable application-language values for portable backup and restore
+- localized backup-validation messages
+
+### Changed
+
+- user-visible text is now resolved through generated Flutter localizations
+- language changes are applied immediately without restarting the application
+- the default language setting follows the operating-system locale
+- unsupported system locales fall back to English
+- newly created backups include the selected application language in
+  `settings.json`
+- backup restore applies the stored language together with theme and accent
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- the language field is an additive application-setting field and does not
+  require a new backup format version
+- backups created before language selection was introduced remain restorable
+- a missing language field is interpreted as `System`
+- no database or backup migration is required for v0.10.0
+
+### Validated
+
+- complete English and German application interfaces
+- immediate language changes through Settings
+- persistence of manual language selections across application restarts
+- system-language selection and English fallback behavior
+- language-setting backup and restore
+- restore compatibility for backups without a language field
+
+### Testing
+
+- added localization catalog and generated-message tests
+- added application locale, immediate-switch and restart-persistence tests
+- added Settings language-selection tests
+- added language preference persistence and fallback tests
+- added backup encoding, validation, export and restore tests for language
+- completed the full automated test suite with 333 passing tests
+
+## [0.9.0] - Feeding Workflow & Media
+
+### Added
+
+- full-screen viewer for Box and Animal detail pictures
+- picture zooming and panning with a scale range from 1x to 5x
+- dedicated QR Feeding Mode entry point from the Box Overview
+- Box QR scanning that resolves the currently assigned active Animals
+- empty state for scanned Boxes without active Animals
+- quick feeding form with one- or multi-Animal selection
+- current date and time as the default feeding timestamp
+- optional shared notes for quick feeding entries
+- atomic creation of one FeedingEvent per selected Animal
+
+### Changed
+
+- Box and Animal detail pictures are now interactive and open in a separate
+  full-screen route
+- all active Animals assigned to a scanned Box are selected by default for a
+  minimal-tap feeding workflow
+- the Feeding Mode scanner resumes immediately after saving or cancelling a
+  Box-specific feeding workflow
+- normal Box QR scanning remains separate and unchanged
+
+### Reliability
+
+- grouped feeding inserts run inside one database transaction
+- a failed insert rolls back the complete grouped feeding
+- empty and duplicate Animal ID collections are rejected by the repository
+- save controls are disabled while a grouped feeding is being written
+- repeated save submissions do not create duplicate FeedingEvents
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- quick feeding entries use the existing FeedingEvent data model and appear in
+  the existing feeding history
+- no data or backup migration is required for v0.9.0
+
+### Validated
+
+- full-screen Box and Animal picture viewing
+- picture zooming, panning and close/Back navigation
+- dedicated Feeding Mode entry and Box QR resolution
+- active-Animal filtering and Boxes without active Animals
+- single- and multi-Animal feeding entries
+- default and manually selected feeding timestamps
+- optional notes and existing feeding-history integration
+- transactional rollback and duplicate-submission protection
+- scanner restart after saving and cancelling
+- existing normal Box scanner workflow
+
+### Testing
+
+- added full-screen picture viewer and detail-picture interaction tests
+- added Feeding Mode entry-point and scanner tests
+- added atomic FeedingRepository batch tests
+- added quick feeding selection, history and scanner-resume tests
+- completed the full automated test suite with 321 passing tests
+
+## [0.8.0] - Contextual Navigation
+
+### Added
+
+- reusable `DetailNavigationContext` for ordered Animal and Box collections
+- navigation sources for Active Animals, Animal History, Box-specific Animals and Box Overview
+- horizontal swipe navigation between contextual Animal detail records
+- horizontal swipe navigation between contextual Box detail records
+- first and last record navigation boundaries
+
+### Changed
+
+- Animal detail actions continue to target the currently displayed Animal after swiping
+- Box edit, delete and QR actions continue to target the currently displayed Box after swiping
+- Animal detail navigation is disabled if an edited Animal leaves its original source collection
+- missing adjacent Boxes are removed safely from the in-memory navigation context
+- normal detail navigation without swipe context remains supported
+
+### Compatibility
+
+- database schema remains at Version 4
+- portable backup exports remain at Backup Format Version 2
+- no data or backup migration is required for v0.8.0
+
+### Validated
+
+- contextual Animal navigation on Android and Web
+- contextual Box navigation on Android and Web
+- Active Animal, Animal History and Box-specific Animal source ordering
+- first and last record boundaries
+- edit, delete and QR actions after contextual navigation
+- Back navigation to the originating overview
+- normal detail navigation without a swipe context
+
+### Testing
+
+- added contextual navigation model tests
+- added Active Animal, Animal History and Box-specific Animal swipe tests
+- added Box Overview swipe tests
+- added boundary, edit, deletion, QR action and missing-record regression coverage
+- completed the full automated test suite with 299 passing tests
+
+## [0.7.1] - Maintenance
+
+### Fixed
+
+- preserve Box Overview scroll position after returning from Box details
+- preserve Box Overview scroll position after returning from Box scanner and successful Box creation refreshes
+
+## [0.7.0] - Editing & Overview
+
+### Added
+
+- optional Box width, height and depth
+- persistent Box pictures backed by `MediaAssets`
+- Box editing workflow
+- human-readable Box labels (`Box N`) while preserving permanent QR identifiers
+- Animal and Box thumbnails in overview lists
+- FeedingEvent editing
+- FeedingEvent deletion with confirmation
+- Backup Format Version 2
+- portable Box dimensions and Box pictures in backups
+- `media/boxes/` archive media support
+
+### Changed
+
+- Box QR identifiers remain immutable when Box metadata is edited
+- Latest Feeding is recalculated after FeedingEvent edits and deletions
+- Animal Overview preserves its scroll position after detail/history navigation
+- archived-Animal restore dialogs use human-readable Box labels
+- safety backups include Box dimensions and Box pictures
+- current backups are created as Backup Format Version 2
+- restore continues to accept Backup Format Version 1
+
+### Data Migration
+
+- database schema upgraded from version 3 to version 4
+- added nullable `Box.widthCm`
+- added nullable `Box.heightCm`
+- added nullable `Box.depthCm`
+- added nullable `Box.pictureMediaId` referencing `MediaAssets`
+- existing Boxes, Animals, FeedingEvents and media remain preserved
+
+### Backup Compatibility
+
+- Backup Format Version 2 is the current export format
+- Backup Format Version 1 remains supported for restore
+- Version 1 Box records restore with dimensions and Box picture fields set to `null`
+- Box and Animal pictures are restored as new local `MediaAssets`
+- permanent Box QR identifiers remain unchanged
+- generated QR images remain excluded from backups
+
+### Validated
+
+- Android regression validation
+- Web regression validation
+- Backup Format Version 2 export and restore
+- Backup Format Version 1 restore compatibility
+- Android → Web Version 2 restore
+- Web → Android Version 2 restore
+- Box and Animal picture backup/restore
+- pre-restore safety backup with Box dimensions and pictures
+
+### Testing
+
+- added schema v3 → v4 migration tests
+- added Box media lifecycle tests
+- added Box edit workflow tests
+- added overview thumbnail tests
+- added FeedingEvent edit and delete tests
+- added overview scroll-position regression tests
+- added Backup Format Version 2 export, validation and restore tests
+- completed full automated and manual regression validation
+
+## [0.6.0] - Backup & Restore
+
+### Added
+
+- portable versioned `.tmbackup` backup format
+- backup manifest with application version, backup format version and database schema version
+- Box, Animal and FeedingEvent backup export
+- appearance settings backup export
+- Animal picture backup support
+- backup archive validation before restore
+- validation of record IDs and relationships
+- lifecycle invariant validation
+- QR identifier validation
+- enum and settings validation
+- media reference validation
+- archive path traversal protection
+- duplicate archive entry protection
+- backup information and confirmation dialogs
+- automatic pre-restore safety backup
+- full replacement restore workflow
+- persistent `MediaAssets` storage for Animal pictures
+- `Animal.pictureMediaId` relationship
+- legacy Animal picture migration
+- Android and Web backup file selection
+- user-selectable backup destination on Android
+
+### Changed
+
+- Animal pictures are now stored persistently in Drift/SQLite instead of relying on temporary `image_picker` paths
+- restored Animal pictures are stored as `MediaAssets`
+- restored Animals reference pictures through `pictureMediaId`
+- portable backups no longer depend on local picture paths
+- backup restore media handling is now part of the transactional database replacement
+- Android backup saving now uses a user-selectable system file destination
+- backup format version remains independent from database schema version
+
+### Data Migration
+
+- database schema upgraded from version 2 to version 3
+- added `MediaAssets` table
+- added nullable `Animal.pictureMediaId`
+- existing Animal data is preserved
+- existing `picturePath` values are preserved during schema migration
+- readable legacy Animal pictures are migrated to persistent `MediaAssets` after startup
+- unreadable legacy picture paths are retained without causing startup failure
+
+### Backup Compatibility
+
+- Backup Format Version 1 remains current
+- backups created from database schema version 2 remain restorable
+- generated QR images remain excluded from backups
+- permanent Box QR identifiers are preserved unchanged
+- internal `MediaAsset` IDs are not part of the portable backup format
+
+### Validated
+
+- Android backup
+- Android restore
+- Web backup
+- Web restore
+- Android → Web restore
+- Web → Android restore
+- persistent Animal pictures after Android application restart
+- persistent Animal pictures after Web browser reload
+- safety backup restore including Animal pictures
+
+### Testing
+
+- added backup format tests
+- added backup export tests
+- added backup validation tests
+- added transactional restore tests
+- added persistent media repository tests
+- added database schema v2 → v3 migration tests
+- added legacy picture migration tests
+- added Settings backup and restore widget tests
+- added cross-platform manual backup and restore validation
+- completed full regression test suite
+
+## [0.5.0] - Usability & Settings
+
+### Added
+
+- assigned animals on the box detail screen
+- safe deletion workflow for empty boxes
+- deletion protection for boxes containing active animals
+- animal lifecycle with active and archived states
+- archive reasons, dates and optional archive notes
+- dedicated Animal History view
+- restore workflow for archived animals
+- permanent deletion of archived animals
+- latest feeding information on animal details
+- persistent System, Light and Dark appearance settings
+- selectable application accent colors
+
+### Changed
+
+- animal overview now displays active animals only
+- box details only display active assigned animals
+- archived animals are no longer associated with an active box
+- animal detail refreshes latest feeding information after returning from feeding history
+- application theme is generated dynamically from the selected accent color
+- UI appearance preferences are stored separately from domain data
+
+### Data Migration
+
+- database schema upgraded from version 1 to version 2
+- existing animals are migrated as active
+- existing box assignments are preserved
+- existing feeding history is preserved
+
+### Testing
+
+- added Drift schema migration tests
+- added migration data-integrity tests
+- added animal lifecycle repository tests
+- added animal lifecycle widget tests
+- added Animal History tests
+- added latest-feeding tests
+- added persistent settings and theme tests
+- completed Android regression validation
+- completed Web regression validation
+
+## [0.4.0] - Platform Support
+
+### Added
+
+- Android platform validation
+- Web platform validation
+- SQLite WASM database support for Web
+- persistent Web database storage
+- platform-aware QR image storage
+- Android gallery storage for QR images
+
+### Validated
+
+- Android debug build
+- Android release build
+- Android database persistence
+- Android image handling
+- Android camera access
+- Android QR scanning
+- Android QR printing
+- Web application build
+- Web database persistence
+- Web image handling
+- Web camera access
+- Web QR scanning
+- Web QR download
+- Web QR printing
+
+### Known Limitations
+
+- iOS has not yet been validated
+- Web data can be removed when browser site data is cleared
+- Web camera, download and printing behavior depends on browser capabilities
+
+## [0.3.0] - QR Code
+
+### Added
+
+- automatic box QR ID generation
+- UUID-based QR identifiers
+- QR code display
+- QR code PNG export
+- local QR image storage
+- QR printing
+- QR scanning
+- TerraManager QR validation
+- unknown QR handling
+- invalid QR handling
+
+## [0.2.0] - User Interface
+
+### Added
+
+- application navigation
+- box overview
+- box detail screen
+- animal overview
+- animal detail screen
+- animal editing
+- new box workflow
+- new animal workflow
+- feeding history
+- animal notes
+- animal picture support
+
+## [0.1.0] - Foundation
+
+### Added
+
+- Flutter project foundation
+- Drift/SQLite database
+- Box data model
+- Animal data model
+- FeedingEvent data model
+- Box → Animal relationship
+- Animal → FeedingEvent relationship
+- Sex enum and converter
+- birth date accuracy support
+- repository layer
+- database tests
+- repository tests
+- initial Material 3 theme

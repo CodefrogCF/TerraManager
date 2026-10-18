@@ -1,3 +1,5 @@
+import 'fake_change_response.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -401,6 +403,17 @@ void main() {
       var archives = 0;
       final backend = MockClient((request) async {
         switch (request.url.path) {
+          case '/api/v1/changes':
+            return fakeChangeResponse(
+              request,
+              jsonEncode(boxes),
+              resources: {'boxes': null},
+            );
+          case '/api/v1/auth/preferences':
+            return http.Response(
+              jsonEncode({'preferences': _session['preferences']}),
+              200,
+            );
           case '/api/v1/auth/session':
             return http.Response(jsonEncode(_session), 200);
           case '/api/v1/boxes':

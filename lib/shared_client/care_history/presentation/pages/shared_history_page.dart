@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/shared_client/shared/application/shared_change.dart';
@@ -30,11 +33,58 @@ class SharedHistoryPage extends StatefulWidget {
 
 class _SharedHistoryPageState extends State<SharedHistoryPage> {
   late Future<List<Map<String, dynamic>>> _entries;
+  late final SharedRefreshSubscription _refresh;
+  int _refreshes = 0;
+  ModalRoute<dynamic>? _route;
+  String get _resource => switch (widget.kind) {
+    SharedHistoryKind.feedings => 'feedingHistories',
+    SharedHistoryKind.weights => 'weightHistories',
+    SharedHistoryKind.shedding => 'sheddingHistories',
+  };
+  Future<List<Map<String, dynamic>>> _read() => switch (widget.kind) {
+    SharedHistoryKind.feedings => widget.api.feedings(widget.animalId),
+    SharedHistoryKind.weights => widget.api.weights(widget.animalId),
+    SharedHistoryKind.shedding => widget.api.shedding(widget.animalId),
+  };
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+    scheduleMicrotask(() {
+      if (mounted) {
+        unawaited(
+          widget.api.refresh.refreshVisible().catchError((Object _) {}),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _refresh.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
     _reload();
+    _refresh = widget.api.refresh.watch(
+      dependencies: () => {
+        _resource: {widget.animalId},
+      },
+      isVisible: () => mounted && (_route?.isCurrent ?? true),
+      refresh: (_) async {
+        await _entries.catchError((Object _) => <Map<String, dynamic>>[]);
+        final entries = await _read();
+        if (mounted) {
+          setState(() {
+            _entries = Future.value(entries);
+            _refreshes++;
+          });
+        }
+      },
+    );
     if (widget.createOnOpen && widget.active) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && widget.api.connected) _edit();
@@ -80,6 +130,7 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
       builder: (context) => _HistoryDialog(kind: widget.kind, initial: initial),
     );
     if (input == null) return;
+    final previousRefreshes = _refreshes;
     final saved = await widget.change(() async {
       final id = initial?['id'] as int?;
       switch (widget.kind) {
@@ -124,7 +175,12 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
     });
     if (!mounted) return;
     if (saved) {
-      _reload();
+      if (_refreshes == previousRefreshes) {
+        _refresh.markStale();
+        try {
+          await widget.api.refresh.refreshVisible();
+        } catch (_) {}
+      }
     } else {
       _showFailure();
     }
@@ -149,6 +205,7 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
     );
     if (confirmed != true) return;
     final id = entry['id'] as int;
+    final previousRefreshes = _refreshes;
     final saved = await widget.change(() async {
       switch (widget.kind) {
         case SharedHistoryKind.feedings:
@@ -161,7 +218,12 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
     });
     if (!mounted) return;
     if (saved) {
-      _reload();
+      if (_refreshes == previousRefreshes) {
+        _refresh.markStale();
+        try {
+          await widget.api.refresh.refreshVisible();
+        } catch (_) {}
+      }
     } else {
       _showFailure();
     }
@@ -199,7 +261,7 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
         child: FutureBuilder<List<Map<String, dynamic>>>(
           future: _entries,
           builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
+            if (!snapshot.hasData && !snapshot.hasError) {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {

@@ -169,7 +169,11 @@ class CareApi {
       committed = await database.transaction(() async {
         final hints = changes == null
             ? null
-            : await CareChangeHints.capture(database, request);
+            : await CareChangeHints.capture(
+                database,
+                request.uri.pathSegments.skip(2).toList(),
+                request.method,
+              );
         final reply = await _dispatch(request);
         if (reply.status >= 400) throw _RejectedReply(reply);
         if (audit != null) {

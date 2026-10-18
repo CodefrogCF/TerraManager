@@ -1,3 +1,5 @@
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -10,11 +12,13 @@ class SharedFeedingInformation extends StatelessWidget {
   const SharedFeedingInformation({
     super.key,
     required this.entries,
+    this.refresh,
     required this.animal,
     required this.due,
     required this.onRetry,
     required this.onHistory,
   });
+  final SharedRefreshController? refresh;
   final Future<List<Map<String, dynamic>>> entries;
   final Map<String, dynamic> animal;
   final bool due;
@@ -76,6 +80,7 @@ class SharedFeedingInformation extends StatelessWidget {
         final overdue = next != null && !next.isAfter(DateTime.now());
         if (due) {
           if (!overdue || animal['status'] != 'active') {
+            refresh?.scheduleDueTimes([?next], owner: 'animal-${animal['id']}');
             return const SizedBox.shrink();
           }
           return Card(

@@ -1,3 +1,5 @@
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -33,7 +35,67 @@ class _SharedCareHomeState extends State<SharedCareHome>
   bool _backupBusy = false;
   int _refreshVersion = 0;
   int _page = 0;
+  bool _initialLoaded = false;
   bool _foreground = true;
+  ModalRoute<dynamic>? _route;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+  }
+
+  final _subscriptions = <SharedRefreshSubscription>[];
+
+  Future<void> _readCollection(String kind) async {
+    final values = await switch (kind) {
+      'boxes' => widget.api.boxes(),
+      'animals' => widget.api.animals(),
+      _ => widget.api.reminders(),
+    };
+    if (!mounted || _session == null) return;
+    setState(() {
+      switch (kind) {
+        case 'boxes':
+          _boxes = values;
+        case 'animals':
+          _animals = values;
+        default:
+          _reminders = values;
+          _scheduleDueTimes();
+      }
+    });
+  }
+
+  void _scheduleDueTimes() => widget.api.refresh.scheduleDueTimes(
+    _reminders
+        .map((r) => DateTime.tryParse(r['dueAt'] as String? ?? ''))
+        .whereType<DateTime>(),
+  );
+  void _clockChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _pollChanges() async {
+    if (_session == null || _backupBusy || !_foreground) return;
+    try {
+      await widget.api.refresh.reconcile();
+      if (mounted && (_busy || !_connected || _error != null)) {
+        setState(() {
+          _busy = false;
+          _connected = true;
+          _error = null;
+        });
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _connected = false;
+          _error = error;
+        });
+      }
+    }
+  }
 
   Widget _animalsNavigationIcon({required bool selected}) => Badge(
     key: Key(
@@ -50,11 +112,26 @@ class _SharedCareHomeState extends State<SharedCareHome>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    for (final kind in ['boxes', 'animals', 'reminders']) {
+      _subscriptions.add(
+        widget.api.refresh.watch(
+          dependencies: () => {kind: null},
+          isVisible: () =>
+              mounted &&
+              _session != null &&
+              !_backupBusy &&
+              (widget.api.refresh.hasVisibleDemand(kind) ||
+                  (kind != 'boxes' && (_route?.isCurrent ?? true))),
+          refresh: (_) => _readCollection(kind),
+        ),
+      );
+    }
+    widget.api.refresh.clock.addListener(_clockChanged);
     unawaited(_bootstrap());
     widget.api.addListener(_onApiChanged);
     _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
       if (_foreground && _session != null && !_busy && !_backupBusy) {
-        unawaited(_refresh(quiet: true));
+        unawaited(_pollChanges());
       }
     });
   }
@@ -62,6 +139,10 @@ class _SharedCareHomeState extends State<SharedCareHome>
   @override
   void dispose() {
     _refreshTimer?.cancel();
+    for (final s in _subscriptions) {
+      s.dispose();
+    }
+    widget.api.refresh.clock.removeListener(_clockChanged);
     WidgetsBinding.instance.removeObserver(this);
     widget.api.removeListener(_onApiChanged);
     super.dispose();
@@ -70,14 +151,18 @@ class _SharedCareHomeState extends State<SharedCareHome>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _foreground = state == AppLifecycleState.resumed;
+    widget.api.refresh.paused = !_foreground || _backupBusy;
+    if (_foreground) widget.api.refresh.reconcileClock();
     if (_foreground && _session != null && !_busy && !_backupBusy) {
-      unawaited(_refresh(quiet: true));
+      unawaited(_pollChanges());
     }
   }
 
   void _onApiChanged() {
     if (_session != null && widget.api.session == null) {
+      widget.api.refresh.reset(invalidate: false);
       _session = null;
+      _initialLoaded = false;
       _boxes = const [];
       _animals = const [];
       _reminders = const [];
@@ -91,6 +176,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
   void _onBackupBusyChanged(bool busy) {
     if (_backupBusy == busy) return;
     _backupBusy = busy;
+    widget.api.refresh.paused = busy || !_foreground;
     if (busy) {
       // Ignore a refresh that began before the exclusive backup operation.
       _refreshVersion++;
@@ -103,6 +189,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
     try {
       final session = await widget.api.restoreSession();
       if (!mounted) return;
+      widget.api.refresh.reset(invalidate: false);
       setState(() => _session = session);
       if (session != null) {
         await _refresh();
@@ -127,6 +214,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
     try {
       final session = await widget.api.login(username, password);
       if (!mounted) return;
+      widget.api.refresh.reset(invalidate: false);
       setState(() => _session = session);
       await _refresh();
     } catch (error) {
@@ -167,6 +255,29 @@ class _SharedCareHomeState extends State<SharedCareHome>
   Future<void> _refresh({bool quiet = false}) async {
     if (_session == null) return;
     if (quiet && (_refreshing || _backupBusy)) return;
+    if (_initialLoaded) {
+      if (_backupBusy) return;
+      if (!quiet && mounted) {
+        setState(() {
+          _busy = true;
+          _error = null;
+        });
+      }
+      widget.api.refresh.invalidate(SharedInvalidation({}, true));
+      try {
+        await widget.api.refresh.refreshVisible();
+        await _pollChanges();
+      } catch (error) {
+        if (mounted) {
+          setState(() {
+            _busy = false;
+            _connected = false;
+            _error = error;
+          });
+        }
+      }
+      return;
+    }
     final version = ++_refreshVersion;
     _refreshing = true;
     if (!quiet && mounted) {
@@ -183,9 +294,11 @@ class _SharedCareHomeState extends State<SharedCareHome>
       ]);
       if (!mounted || version != _refreshVersion) return;
       setState(() {
+        _initialLoaded = true;
         _boxes = results[0];
         _animals = results[1];
         _reminders = results[2];
+        _scheduleDueTimes();
         _busy = false;
         _connected = true;
         _error = null;
@@ -213,7 +326,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
     _refreshing = false;
     try {
       await operation();
-      await _refresh();
+      await _pollChanges();
       // A successful API response confirms the write even if the follow-up
       // reload fails. The collection remains disabled until it reloads.
       return true;
@@ -326,7 +439,11 @@ class _SharedCareHomeState extends State<SharedCareHome>
         connected: _connected && widget.api.connected,
         actionsEnabled: canChange,
         onLogout: _logout,
-        onRestored: _refresh,
+        onRestored: () async {
+          _initialLoaded = false;
+          widget.api.refresh.reset();
+          await _refresh();
+        },
         onBackupBusyChanged: _onBackupBusyChanged,
       ),
     };

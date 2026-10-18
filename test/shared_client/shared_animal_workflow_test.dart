@@ -1,3 +1,5 @@
+import 'fake_change_response.dart';
+
 import 'dart:convert';
 
 import 'package:drift/native.dart';
@@ -90,6 +92,15 @@ void main() {
       final api = await _client((request) async {
         methods.add(request.method);
         final path = request.url.path;
+        if (path == '/api/v1/changes') {
+          return fakeChangeResponse(
+            request,
+            jsonEncode(animal),
+            resources: {
+              'animals': [9],
+            },
+          );
+        }
         if (path == '/api/v1/animals/9') {
           if (request.method == 'PUT') {
             animal = {

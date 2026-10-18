@@ -1,3 +1,4 @@
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_archive_records.dart';
 
 import 'dart:async';
@@ -55,8 +56,7 @@ class SharedAnimalDetailPage extends StatefulWidget {
   State<SharedAnimalDetailPage> createState() => _SharedAnimalDetailPageState();
 }
 
-class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
-    with WidgetsBindingObserver {
+class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
   late int _id;
   SharedDetailNavigationContext? _navigationContext;
   late Future<Map<String, dynamic>> _record;
@@ -64,16 +64,15 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
   late Future<List<Map<String, dynamic>>?> _weights;
   late Future<List<Map<String, dynamic>>?> _shedding;
   late List<Map<String, dynamic>> _boxes;
-  Timer? _timer;
-  bool _foreground = true;
-  bool _polling = false;
+  late final SharedRefreshSubscription _refresh;
+  ModalRoute<dynamic>? _route;
   bool _switching = false;
   String? _navigationError;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    widget.api.refresh.clock.addListener(_clockChanged);
     _id = widget.id;
     _navigationContext = widget.navigationContext;
     _boxes = widget.boxes;
@@ -81,77 +80,100 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     _feedings = widget.api.feedings(_id);
     _weights = _optionalHistory(() => widget.api.weights(_id));
     _shedding = _optionalHistory(() => widget.api.shedding(_id));
-    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
-      unawaited(_refreshVisible());
+    _refresh = widget.api.refresh.watch(
+      dependencies: () => {
+        'animals': _navigationContext == null ? {_id} : null,
+        'boxes': null,
+        'feedingHistories': {_id},
+        'weightHistories': {_id},
+        'sheddingHistories': {_id},
+        'reminders': {_id},
+      },
+      isVisible: () => mounted && !_switching && (_route?.isCurrent ?? true),
+      refresh: _refreshChanged,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+    scheduleMicrotask(() {
+      if (mounted) {
+        unawaited(
+          widget.api.refresh.refreshVisible().catchError((Object _) {}),
+        );
+      }
     });
+  }
+
+  void _clockChanged() {
+    if (mounted && (_route?.isCurrent ?? true)) setState(() {});
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    WidgetsBinding.instance.removeObserver(this);
+    _refresh.dispose();
+    widget.api.refresh.clock.removeListener(_clockChanged);
+    widget.api.refresh.clearDueTimes('animal-$_id');
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    _foreground = state == AppLifecycleState.resumed;
-    if (_foreground) unawaited(_refreshVisible());
-  }
+  Future<void> _refreshVisible() =>
+      widget.api.refresh.reconcile().catchError((Object _) {});
 
-  Future<void> _refreshVisible() async {
-    if (!mounted ||
-        !_foreground ||
-        _polling ||
-        _switching ||
-        ModalRoute.of(context)?.isCurrent != true) {
-      return;
-    }
-    _polling = true;
+  Future<void> _refreshChanged(SharedInvalidation change) async {
     final id = _id;
+    var readingRecord = false;
     try {
-      final animal = await widget.api.animal(id);
-      final feedings = await widget.api.feedings(id);
-      final weights = await _optionalHistory(() => widget.api.weights(id));
-      final shedding = await _optionalHistory(() => widget.api.shedding(id));
-      final boxes = await widget.api.boxes();
+      // Await the initial requests before starting a replacement read.
+      await Future.wait([_record, _feedings, _weights, _shedding])
+          .catchError((Object _) => <Object?>[]);
+      readingRecord =
+          change.affects('animals', id) || change.affects('reminders', id);
+      final animal = readingRecord
+          ? await widget.api.animal(id)
+          : await _record;
+      readingRecord = false;
+      final feedings = change.affects('feedingHistories', id)
+          ? await widget.api.feedings(id)
+          : null;
+      final weights = change.affects('weightHistories', id)
+          ? await widget.api.weights(id)
+          : null;
+      final shedding = change.affects('sheddingHistories', id)
+          ? await widget.api.shedding(id)
+          : null;
+      final boxes = change.affects('boxes') ? await widget.api.boxes() : null;
       final navigation = _navigationContext;
-      final animals = navigation == null ? null : await widget.api.animals();
+      final animals = navigation != null && change.affects('animals')
+          ? await widget.api.animals()
+          : null;
+      final updated = navigation == null || animals == null
+          ? navigation
+          : navigation.withRecords(_orderedAnimalIds(navigation, animals));
       if (navigation != null &&
-          ((animal['status'] == 'archived') != navigation.archived ||
+          (updated == null ||
+              (animal['status'] == 'archived') != navigation.archived ||
               (navigation.source == SharedDetailSource.boxAnimals &&
                   animal['boxId'] != navigation.sourceBoxId))) {
         if (mounted && id == _id) leaveRemovedSharedDetail(context);
         return;
       }
-      final updatedNavigation = navigation == null || animals == null
-          ? null
-          : navigation.withRecords(_orderedAnimalIds(navigation, animals));
-      if (navigation != null && updatedNavigation == null) {
-        if (mounted && id == _id) leaveRemovedSharedDetail(context);
-        return;
-      }
-      if (mounted &&
-          id == _id &&
-          _foreground &&
-          ModalRoute.of(context)?.isCurrent == true) {
-        setState(() {
+      if (!mounted || id != _id) return;
+      setState(() {
+        if (change.affects('animals', id) || change.affects('reminders', id)) {
           _record = Future.value(animal);
-          _feedings = Future.value(feedings);
-          _weights = Future.value(weights);
-          _shedding = Future.value(shedding);
-          _boxes = boxes;
-          if (updatedNavigation != null) _navigationContext = updatedNavigation;
-        });
-      }
+        }
+        if (feedings != null) _feedings = Future.value(feedings);
+        if (weights != null) _weights = Future.value(weights);
+        if (shedding != null) _shedding = Future.value(shedding);
+        if (boxes != null) _boxes = boxes;
+        _navigationContext = updated;
+      });
     } on SharedApiException catch (error) {
-      if (error.status == 404 && mounted && id == _id) {
-        leaveRemovedSharedDetail(context);
-      }
-    } catch (_) {
-      // Keep the last readable record; the page's manual reload reports errors.
-    } finally {
-      _polling = false;
+      if (error.status != 404 || !readingRecord) rethrow;
+      if (mounted && id == _id) leaveRemovedSharedDetail(context);
     }
   }
 
@@ -195,6 +217,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
   Future<void> _switchAdjacent({required bool next}) async {
     final navigation = _navigationContext;
     if (navigation == null || _switching) return;
+    final originalId = _id;
     setState(() => _switching = true);
     try {
       final animals = await widget.api.animals();
@@ -276,7 +299,13 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
         });
       }
     } finally {
-      if (mounted) setState(() => _switching = false);
+      if (mounted) {
+        setState(() => _switching = false);
+        if (_id != originalId) _refresh.markStale();
+        unawaited(
+          widget.api.refresh.refreshVisible().catchError((Object _) {}),
+        );
+      }
     }
   }
 
@@ -342,7 +371,6 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
       ),
     );
     if (mounted) {
-      _reload();
       unawaited(_refreshVisible());
     }
   }
@@ -383,7 +411,6 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
         ),
       );
       if (mounted) {
-        _reload();
         unawaited(_refreshVisible());
       }
     } catch (_) {
@@ -402,7 +429,6 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
       ),
     );
     if (mounted) {
-      _reload();
       unawaited(_refreshVisible());
     }
   }
@@ -414,8 +440,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
     final saved = await widget.change(action);
     if (!mounted) return false;
     if (saved) {
-      if (clearNavigation) _navigationContext = null;
-      _reload();
+      if (clearNavigation) setState(() => _navigationContext = null);
     } else {
       showSharedDetailFailure(context);
     }
@@ -499,7 +524,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
           child: FutureBuilder<Map<String, dynamic>>(
             future: _record,
             builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
+              if (!snapshot.hasData && !snapshot.hasError) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) return SharedLoadFailure(onRetry: _reload);
@@ -524,6 +549,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                         ),
                       ),
                     SharedFeedingInformation(
+                      refresh: widget.api.refresh,
                       entries: _feedings,
                       animal: animal,
                       due: true,
@@ -540,7 +566,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                         recordId: _id,
                         active: active,
                         change: _change,
-                        onChanged: _reload,
+                        onChanged: () => unawaited(_refreshVisible()),
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -569,6 +595,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage>
                       ),
                     const SizedBox(height: 8),
                     SharedFeedingInformation(
+                      refresh: widget.api.refresh,
                       entries: _feedings,
                       animal: animal,
                       due: false,

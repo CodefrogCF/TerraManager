@@ -1,3 +1,5 @@
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -40,6 +42,28 @@ class SharedPictureGallery extends StatefulWidget {
 class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   late Future<List<Map<String, dynamic>>> _pictures;
   late final PictureSelectionFlow _pictureSelectionFlow;
+  late final SharedRefreshSubscription _refresh;
+  ModalRoute<dynamic>? _route;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+    scheduleMicrotask(() {
+      if (mounted) {
+        unawaited(
+          widget.api.refresh.refreshVisible().catchError((Object _) {}),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _refresh.dispose();
+    super.dispose();
+  }
+
+  int _refreshes = 0;
   bool _adding = false;
   ({SelectedPicture picture, String requestId})? _pendingUpload;
 
@@ -64,6 +88,27 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   void initState() {
     super.initState();
     _pictures = widget.api.pictures(widget.kind, widget.recordId);
+    _refresh = widget.api.refresh.watch(
+      dependencies: () => {
+        widget.kind == 'animals' ? 'animalPictures' : 'boxPictures': {
+          widget.recordId,
+        },
+      },
+      isVisible: () => mounted && (_route?.isCurrent ?? true),
+      refresh: (_) async {
+        await _pictures.catchError((Object _) => <Map<String, dynamic>>[]);
+        final pictures = await widget.api.pictures(
+          widget.kind,
+          widget.recordId,
+        );
+        if (mounted) {
+          setState(() {
+            _pictures = Future.value(pictures);
+            _refreshes++;
+          });
+        }
+      },
+    );
     _pictureSelectionFlow =
         widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
   }
@@ -71,6 +116,22 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   void _reload() => setState(() {
     _pictures = widget.api.pictures(widget.kind, widget.recordId);
   });
+
+  Future<void> _acknowledgeChange(int previousRefreshes) async {
+    // Reconcile every commit, including another device using the same account.
+    // If SharedChange already refreshed this gallery, reuse that result.
+    try {
+      await widget.api.refresh.reconcile();
+    } catch (_) {}
+    if (!mounted) return;
+    if (_refreshes == previousRefreshes) {
+      _refresh.markStale();
+      try {
+        await widget.api.refresh.refreshVisible();
+      } catch (_) {}
+    }
+    if (mounted) widget.onChanged();
+  }
 
   void _uploadFailure([String? message]) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -107,6 +168,7 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
   };
 
   Future<void> _upload(SelectedPicture picture, String requestId) async {
+    final previousRefreshes = _refreshes;
     try {
       await widget.api.addPicture(
         widget.kind,
@@ -118,8 +180,7 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
       );
       if (!mounted) return;
       setState(() => _pendingUpload = null);
-      _reload();
-      widget.onChanged();
+      await _acknowledgeChange(previousRefreshes);
     } on SharedConnectionException {
       if (!mounted) return;
       setState(() => _pendingUpload = (picture: picture, requestId: requestId));
@@ -212,6 +273,7 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
     if (action == 'delete' && !await confirmPermanentDeletion(context)) {
       return;
     }
+    final previousRefreshes = _refreshes;
     final saved = await widget.change(() async {
       if (action == 'primary') {
         await widget.api.setPrimaryPicture(
@@ -225,8 +287,7 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
     });
     if (!mounted) return;
     if (saved) {
-      _reload();
-      widget.onChanged();
+      await _acknowledgeChange(previousRefreshes);
     } else {
       showSharedDetailFailure(context);
     }

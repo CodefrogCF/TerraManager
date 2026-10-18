@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
@@ -23,9 +21,9 @@ class CareChangeHints {
 
   static Future<CareChangeHints> capture(
     AppDatabase database,
-    HttpRequest request,
+    List<String> path,
+    String method,
   ) async {
-    final path = request.uri.pathSegments.skip(2).toList();
     final id = path.length > 1 ? int.tryParse(path[1]) : null;
     final animal = path.firstOrNull == 'animals' && id != null
         ? await AnimalRepository(database).getAnimalById(id)
@@ -38,7 +36,7 @@ class CareChangeHints {
         : null;
     return CareChangeHints._(
       path,
-      request.method,
+      method,
       animal?.boxId,
       feeding?.animalId,
       animal?.pictureMediaId ?? box?.pictureMediaId,

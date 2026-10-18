@@ -116,6 +116,12 @@ void main() {
       if (request.url.path == '/api/v1/auth/session') {
         return http.Response(jsonEncode(_session), 200);
       }
+      if (request.url.path == '/api/v1/changes') {
+        return _changes(request, boxName);
+      }
+      if (request.url.path == '/api/v1/auth/preferences') {
+        return http.Response('{"preferences":{}}', 200);
+      }
       if (request.url.path == '/api/v1/boxes') {
         reads++;
         return http.Response(
@@ -163,6 +169,7 @@ void main() {
     tester,
   ) async {
     var boxReads = 0;
+    var changeQueries = 0;
     final backupResponse = Completer<http.Response>();
     final backend = MockClient((request) async {
       switch (request.url.path) {
@@ -175,6 +182,11 @@ void main() {
           return http.Response(jsonEncode({'animals': []}), 200);
         case '/api/v1/reminders':
           return http.Response(jsonEncode({'reminders': []}), 200);
+        case '/api/v1/changes':
+          changeQueries++;
+          return _changes(request, 'one');
+        case '/api/v1/auth/preferences':
+          return http.Response('{"preferences":{}}', 200);
         case '/api/v1/admin/accounts':
           return http.Response(jsonEncode({'accounts': []}), 200);
         case '/api/v1/admin/backups':
@@ -224,6 +236,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.pump(const Duration(seconds: 16));
     await tester.pumpAndSettle();
+    expect(changeQueries, greaterThan(0));
+    // A hidden Box list stays dirty until the user returns to it.
+    expect(boxReads, readsBeforeWait);
+    await tester.tap(find.byIcon(Icons.inventory_2_outlined));
+    await tester.pumpAndSettle();
     expect(boxReads, greaterThan(readsBeforeWait));
   });
 }
@@ -233,3 +250,21 @@ const _session = {
   'csrfToken': 'csrf-secret',
   'expiresAt': '2026-09-24T08:00:00Z',
 };
+
+http.Response _changes(http.Request request, String cursor) {
+  if (request.url.queryParameters['since'] == cursor) {
+    return http.Response('', 304, headers: {'x-shared-care-cursor': cursor});
+  }
+  return http.Response(
+    jsonEncode({
+      'cursor': cursor,
+      'reset': true,
+      'epoch': 'test',
+      'revision': 0,
+      'preferencesRevision': 0,
+      'preferencesChanged': false,
+      'changes': [],
+    }),
+    200,
+  );
+}

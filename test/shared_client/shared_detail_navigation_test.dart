@@ -1,3 +1,5 @@
+import 'fake_change_response.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -448,6 +450,15 @@ void main() {
           'status': archived ? 'archived' : 'active',
           'boxId': 10,
         };
+        if (path == '/api/v1/changes') {
+          return fakeChangeResponse(
+            request,
+            '$archived',
+            resources: {
+              'animals': [1],
+            },
+          );
+        }
         if (path == '/api/v1/animals') return _ok('animals', [animal]);
         if (path == '/api/v1/animals/1') return _ok('animal', animal);
         if (path == '/api/v1/boxes') {
@@ -505,7 +516,7 @@ void main() {
     );
     expect(find.text('First'), findsWidgets);
     archived = true;
-    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await api.refresh.reconcile();
     await tester.pumpAndSettle();
     expect(find.text('Open detail'), findsOneWidget);
     expect(find.byType(SharedAnimalDetailPage), findsNothing);

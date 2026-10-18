@@ -2,6 +2,10 @@ import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 
 mixin SharedSettingsApi on SharedApiTransport {
+  Future<Map<String, dynamic>> preferences() async => readApiObject(
+    await requestJson('GET', '/api/v1/auth/preferences'),
+    'preferences',
+  );
   Future<Map<String, dynamic>> updatePreferences(
     Map<String, Object> patch,
   ) async => readApiObject(

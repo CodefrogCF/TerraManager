@@ -1,3 +1,4 @@
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_archive_records.dart';
 
 import 'dart:async';
@@ -48,90 +49,88 @@ class SharedBoxDetailPage extends StatefulWidget {
   State<SharedBoxDetailPage> createState() => _SharedBoxDetailPageState();
 }
 
-class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
-    with WidgetsBindingObserver {
+class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
   late int _id;
   SharedDetailNavigationContext? _navigationContext;
   late Future<Map<String, dynamic>> _record;
   late List<Map<String, dynamic>> _animals;
-  Timer? _timer;
-  bool _foreground = true;
-  bool _polling = false;
+  late final SharedRefreshSubscription _refresh;
+  ModalRoute<dynamic>? _route;
   bool _switching = false;
   String? _navigationError;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _id = widget.id;
     _navigationContext = widget.navigationContext;
     _animals = widget.animals;
     _record = widget.api.box(_id);
-    _timer = Timer.periodic(const Duration(seconds: 15), (_) {
-      unawaited(_refreshVisible());
+    _refresh = widget.api.refresh.watch(
+      dependencies: () => {
+        'boxes': _navigationContext == null ? {_id} : null,
+        'animals': null,
+      },
+      isVisible: () => mounted && !_switching && (_route?.isCurrent ?? true),
+      refresh: _refreshChanged,
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+    scheduleMicrotask(() {
+      if (mounted) {
+        unawaited(
+          widget.api.refresh.refreshVisible().catchError((Object _) {}),
+        );
+      }
     });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
-    WidgetsBinding.instance.removeObserver(this);
+    _refresh.dispose();
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    _foreground = state == AppLifecycleState.resumed;
-    if (_foreground) unawaited(_refreshVisible());
-  }
+  Future<void> _refreshVisible() =>
+      widget.api.refresh.reconcile().catchError((Object _) {});
 
-  Future<void> _refreshVisible() async {
-    if (!mounted ||
-        !_foreground ||
-        _polling ||
-        _switching ||
-        ModalRoute.of(context)?.isCurrent != true) {
-      return;
-    }
-    _polling = true;
+  Future<void> _refreshChanged(SharedInvalidation change) async {
     final id = _id;
+    var readingRecord = false;
     try {
-      final box = await widget.api.box(id);
-      final animals = await widget.api.animals();
+      await _record.catchError((Object _) => <String, dynamic>{});
+      readingRecord = change.affects('boxes', id);
+      final box = readingRecord ? await widget.api.box(id) : await _record;
+      readingRecord = false;
+      final animals = change.affects('animals')
+          ? await widget.api.animals()
+          : null;
       final navigation = _navigationContext;
-      final boxes = navigation == null ? null : await widget.api.boxes();
-      if (navigation != null &&
-          (box['status'] == 'archived') != navigation.archived) {
-        if (mounted && id == _id) leaveRemovedSharedDetail(context);
-        return;
-      }
-      final updatedNavigation = navigation == null || boxes == null
-          ? null
+      final boxes = navigation != null && change.affects('boxes')
+          ? await widget.api.boxes()
+          : null;
+      final updated = navigation == null || boxes == null
+          ? navigation
           : navigation.withRecords(_orderedBoxIds(navigation, boxes));
-      if (navigation != null && updatedNavigation == null) {
+      if (navigation != null &&
+          (updated == null ||
+              (box['status'] == 'archived') != navigation.archived)) {
         if (mounted && id == _id) leaveRemovedSharedDetail(context);
         return;
       }
-      if (mounted &&
-          id == _id &&
-          _foreground &&
-          ModalRoute.of(context)?.isCurrent == true) {
-        setState(() {
-          _record = Future.value(box);
-          _animals = animals;
-          if (updatedNavigation != null) _navigationContext = updatedNavigation;
-        });
-      }
+      if (!mounted || id != _id) return;
+      setState(() {
+        if (change.affects('boxes', id)) _record = Future.value(box);
+        if (animals != null) _animals = animals;
+        _navigationContext = updated;
+      });
     } on SharedApiException catch (error) {
-      if (error.status == 404 && mounted && id == _id) {
-        leaveRemovedSharedDetail(context);
-      }
-      // Other failures keep the last readable record.
-    } catch (_) {
-      // Keep the last readable record; the page's manual reload reports errors.
-    } finally {
-      _polling = false;
+      if (error.status != 404 || !readingRecord) rethrow;
+      if (mounted && id == _id) leaveRemovedSharedDetail(context);
     }
   }
 
@@ -154,6 +153,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
   Future<void> _switchAdjacent({required bool next}) async {
     final navigation = _navigationContext;
     if (navigation == null || _switching) return;
+    final originalId = _id;
     setState(() => _switching = true);
     try {
       final boxes = await widget.api.boxes();
@@ -223,7 +223,13 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
         });
       }
     } finally {
-      if (mounted) setState(() => _switching = false);
+      if (mounted) {
+        setState(() => _switching = false);
+        if (_id != originalId) _refresh.markStale();
+        unawaited(
+          widget.api.refresh.refreshVisible().catchError((Object _) {}),
+        );
+      }
     }
   }
 
@@ -254,7 +260,6 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
         ),
       );
       if (mounted) {
-        _reload();
         unawaited(_refreshVisible());
       }
     } catch (_) {
@@ -269,8 +274,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
     final saved = await widget.change(action);
     if (!mounted) return false;
     if (saved) {
-      if (clearNavigation) _navigationContext = null;
-      _reload();
+      if (clearNavigation) setState(() => _navigationContext = null);
     } else {
       showSharedDetailFailure(context);
     }
@@ -322,7 +326,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
           child: FutureBuilder<Map<String, dynamic>>(
             future: _record,
             builder: (context, snapshot) {
-              if (snapshot.connectionState != ConnectionState.done) {
+              if (!snapshot.hasData && !snapshot.hasError) {
                 return const Center(child: CircularProgressIndicator());
               }
               if (snapshot.hasError) {
@@ -367,7 +371,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage>
                         recordId: _id,
                         active: active,
                         change: _change,
-                        onChanged: _reload,
+                        onChanged: () => unawaited(_refreshVisible()),
                       ),
                     ),
                     const SizedBox(height: 12),

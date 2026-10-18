@@ -1,3 +1,5 @@
+import 'fake_change_response.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -27,6 +29,14 @@ void main() {
           throw http.ClientException('offline');
         }
         switch (request.url.path) {
+          case '/api/v1/changes':
+            return fakeChangeResponse(
+              request,
+              jsonEncode(boxes),
+              resources: {'boxes': null},
+            );
+          case '/api/v1/auth/preferences':
+            return http.Response('{"preferences":{}}', 200);
           case '/api/v1/auth/session':
             if (signedIn) return http.Response(jsonEncode(_session), 200);
             return http.Response(

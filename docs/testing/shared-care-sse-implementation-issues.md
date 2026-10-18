@@ -39,6 +39,9 @@ fallback schedule to #229. These features are not required to expose this API.
 **Priority:** High
 **Type:** Feature / performance
 
+Implementation is included in the #227 source delivery. See the
+[validation and integration boundary](shared-care-targeted-refresh-validation-2026-10-18.md).
+
 ### Description
 
 Build one transient synchronization controller per signed-in browser tab using
@@ -48,14 +51,14 @@ behind an interface for #228 and #229.
 
 ### Acceptance criteria
 
-- [ ] Define dependencies for Animal/Box lists and details, latest Feeding, histories, reminders, galleries and old/new Box assignments.
-- [ ] Coalesce invalidations and overlapping refreshes; retain changes from another device signed in to the same account when coalescing local acknowledgements.
-- [ ] Apply a cursor only after its required reads succeed; reconcile changes arriving during initial loading or an outstanding refresh.
-- [ ] Unchanged revisions and heartbeats cause no collection-data GETs or data-dependent list replacement.
-- [ ] Feeding-only updates retain gallery metadata and image caches; invalidate pictures only when their dependencies change.
-- [ ] Preserve scroll, route, selection and unsaved forms; replace independent screen polling once the shared refresh source provides equivalent update coverage.
-- [ ] Update clock-driven Feeding due states without database writes; expose a resume/reconcile operation for #229.
-- [ ] Add deterministic controller/widget tests for dependencies, burst coalescing, failed/overlapping reads and stable unchanged state.
+- [x] Define dependencies for Animal/Box lists and details, latest Feeding, histories, reminders, galleries and old/new Box assignments.
+- [x] Coalesce invalidations and overlapping refreshes; retain changes from another device signed in to the same account when coalescing local acknowledgements.
+- [x] Apply a cursor only after its required reads succeed; reconcile changes arriving during initial loading or an outstanding refresh.
+- [x] Unchanged revisions and heartbeats cause no collection-data GETs or data-dependent list replacement.
+- [x] Feeding-only updates retain gallery metadata and image caches; invalidate pictures only when their dependencies change.
+- [x] Preserve scroll, route, selection and unsaved forms; replace independent screen polling once the shared refresh source provides equivalent update coverage.
+- [x] Update clock-driven Feeding due states without database writes; expose a resume/reconcile operation for #229.
+- [x] Add deterministic controller/widget tests for dependencies, burst coalescing, failed/overlapping reads and stable unchanged state.
 
 ### Scope boundary
 

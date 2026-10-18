@@ -1,3 +1,4 @@
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
@@ -11,10 +12,22 @@ import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_
 /// Shared Care never reads browser preferences or silently imports another user.
 class SharedAccountSettings extends AppSettingsController {
   SharedAccountSettings(this.api) {
+    _refresh = api.refresh.watch(
+      dependencies: () => {'preferences': null},
+      isVisible: () => !_disposed && _owner != null,
+      refresh: (_) async {
+        // Serialize with local preference writes; preserve both devices' patches.
+        await _pending;
+        final owner = _owner;
+        final stored = await api.preferences();
+        if (!_disposed && identical(owner, _owner)) applyStoredSettings(stored);
+      },
+    );
     api.addListener(_sessionChanged);
     _sessionChanged();
   }
   final SharedApiClient api;
+  late final SharedRefreshSubscription _refresh;
   SharedSession? _owner;
   Future<void> _pending = Future.value();
   bool _disposed = false;
@@ -116,6 +129,7 @@ class SharedAccountSettings extends AppSettingsController {
   @override
   void dispose() {
     _disposed = true;
+    _refresh.dispose();
     api.removeListener(_sessionChanged);
     super.dispose();
   }

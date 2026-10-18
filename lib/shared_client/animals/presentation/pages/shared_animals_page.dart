@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
@@ -58,6 +61,38 @@ class SharedAnimalsPage extends StatefulWidget {
 
 class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   late SharedOverviewImageCache _images;
+  late int _mediaGeneration;
+  void _synchronizeMediaGeneration() {
+    final generation = widget.api.refresh.mediaGeneration;
+    if (_mediaGeneration == generation) return;
+    _mediaGeneration = generation;
+    _images.clear();
+  }
+
+  SharedRefreshDemand? _demand;
+  ModalRoute<dynamic>? _route;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _route = ModalRoute.of(context);
+    _synchronizeMediaGeneration();
+    _demand ??= widget.api.refresh.observe({
+      'animals',
+      'boxes',
+      'reminders',
+    }, () => mounted && (_route?.isCurrent ?? true));
+    scheduleMicrotask(() {
+      if (mounted) {
+        unawaited(
+          widget.api.refresh.refreshVisible().catchError((Object _) {}),
+        );
+      }
+    });
+  }
+
+  void _clockChanged() {
+    if (mounted) setState(() {});
+  }
 
   Future<void> _openFeedingSchedule(
     List<({Map<String, dynamic> animal, DateTime dueAt})> reminders,
@@ -94,16 +129,29 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   void initState() {
     super.initState();
     _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
+    _mediaGeneration = widget.api.refresh.mediaGeneration;
+    widget.api.refresh.clock.addListener(_clockChanged);
   }
 
   @override
   void didUpdateWidget(covariant SharedAnimalsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _archiveData?.value = _archiveSnapshot;
+    final archive = _archiveData;
+    if (archive != null) {
+      final snapshot = _archiveSnapshot;
+      // The archive is a sibling route, so notify it after this build completes.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && identical(_archiveData, archive)) {
+          archive.value = snapshot;
+        }
+      });
+    }
     if (oldWidget.api != widget.api) {
       _images.dispose();
       _images = SharedOverviewImageCache(loadBytes: widget.api.mediaBytes);
+      _mediaGeneration = widget.api.refresh.mediaGeneration;
     } else {
+      _synchronizeMediaGeneration();
       _images.retain(
         widget.animals
             .map((record) => record['pictureMediaId'])
@@ -114,6 +162,8 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
 
   @override
   void dispose() {
+    _demand?.dispose();
+    widget.api.refresh.clock.removeListener(_clockChanged);
     _images.dispose();
     _archiveData?.dispose();
     _archiveData = null;

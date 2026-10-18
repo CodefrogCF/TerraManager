@@ -56,6 +56,44 @@ function validateResult(report, trial, plan) {
   return result;
 }
 
+function classifyBenchmarkFailure(message) {
+  const value = String(message);
+  const streams = value.match(/lab_streams_not_idle(?: count=\d+)?/);
+  if (streams) return streams[0];
+  for (const label of ['lab_health_login_failed', 'lab_health_not_lab', 'lab_health_metrics_failed']) {
+    if (value.includes(label)) return label;
+  }
+  if (value.includes('SSE connection failed')) return 'sse_start_failed';
+  return null;
+}
+
+async function assertLabIdle(credentials, options = {}) {
+  const requestApi = options.requestApi || require('playwright').request;
+  const context = await requestApi.newContext({timeout: 5000});
+  try {
+    const login = await context.post(credentials.origin + '/api/v1/auth/login', {
+      data: {username: credentials.username, password: credentials.password}, headers: {Origin: credentials.origin}});
+    if (login.status() !== 200) throw Error('lab_health_login_failed');
+    const state = await context.get(credentials.origin + '/evaluation/state');
+    if (state.status() !== 200 || (await state.json()).kind !== 'disposable-transport-lab') throw Error('lab_health_not_lab');
+    const deadline = Date.now() + (options.maxWaitMs ?? 5000);
+    let streams;
+    do {
+      const metrics = await context.get(credentials.origin + '/evaluation/metrics');
+      if (metrics.status() !== 200) throw Error('lab_health_metrics_failed');
+      streams = (await metrics.json()).streams;
+      if (!Number.isInteger(streams) || streams < 0) throw Error('lab_health_metrics_failed');
+      if (streams === 0) return;
+      if (Date.now() >= deadline) break;
+      await new Promise(resolve => setTimeout(resolve, options.pollMs ?? 250));
+    } while (Date.now() <= deadline);
+    throw Error('lab_streams_not_idle count=' + streams);
+  } catch (error) {
+    // Preserve allowlisted categories, never arbitrary APIRequestContext logs.
+    throw Error(classifyBenchmarkFailure(error.message) || 'lab_health_unavailable');
+  } finally { await context.dispose(); }
+}
+
 async function main(argv) {
   const args = parseArgs(argv);
   const plan = makePlan({clients: Number(args.clients || 5), seconds: Number(args.seconds || 120),
@@ -85,6 +123,7 @@ async function main(argv) {
   const save = () => fs.writeFileSync(path.join(directory, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   save();
   try {
+    await assertLabIdle(credentials);
     for (const trial of plan.trials) {
       const filename = String(trial.number).padStart(2, '0') + '-r' + trial.repetition + '-' + trial.phase + '-' + trial.mode + '.json';
       console.log('START ' + trial.number + '/' + plan.trials.length + ' ' + trial.phase + ' ' + trial.mode + ' ' + new Date().toISOString());
@@ -100,16 +139,18 @@ async function main(argv) {
             '--channel', args.channel || 'chrome', '--head', args.head || 'unrecorded'],
           {env: process.env, stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true});
           // Do not forward Playwright logs: request diagnostics can contain secrets.
-          let httpStatus = null;
+          let httpStatus = null, failureKind = null;
           child.stderr.on('data', chunk => {
             const match = String(chunk).match(/\bHTTP (\d{3})\b/);
             if (match) httpStatus = match[1];
+            failureKind = classifyBenchmarkFailure(chunk) || failureKind;
           });
           child.on('error', () => reject(Error('Could not start benchmark process')));
-          child.on('close', code => code === 0 ? resolve() : reject(Error('Benchmark failed, exit=' + code + (httpStatus ? ', HTTP ' + httpStatus : ''))));
+          child.on('close', code => code === 0 ? resolve() : reject(Error('Benchmark failed, exit=' + code + (httpStatus ? ', HTTP ' + httpStatus : '') + (failureKind ? ', ' + failureKind : ''))));
         });
         const report = JSON.parse(fs.readFileSync(path.join(directory, filename), 'utf8'));
         const result = validateResult(report, trial, plan);
+        await assertLabIdle(credentials);
         manifest.completed.push({...trial, file: filename, browser: report.browserVersion, result});
         save();
         console.log('DONE trial=' + trial.number + ' requests=' + result.requests + ' writes=' + result.writes + ' p95ms=' + result.writeStartToLabDomP95Ms);
@@ -121,13 +162,14 @@ async function main(argv) {
   } catch (error) {
     manifest.status = 'failed';
     manifest.failedAfterCompletedTrials = manifest.completed.length;
+    manifest.failureKind = classifyBenchmarkFailure(error.message) || 'comparison_failed';
     save();
     throw error;
   }
   console.log('REPORT_DIRECTORY ' + directory);
 }
 
-module.exports = {makePlan, parseArgs, validateResult};
+module.exports = {makePlan, parseArgs, validateResult, assertLabIdle, classifyBenchmarkFailure};
 if (require.main === module) main(process.argv.slice(2)).catch(error => {
   console.error(String(error.message).split('\n')[0]); process.exitCode = 1;
 });

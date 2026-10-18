@@ -10,6 +10,11 @@ Flutter overview/detail baseline and one cross-client update observation also co
 The operator accepted SSE as the architectural direction on 2026-10-18.
 Repeated/browser/lifecycle evidence and production acceptance remain outstanding.
 
+Later repeated testing found retained SSE stream slots in the laboratory. The
+[disconnect correction record](shared-care-sse-disconnect-correction-2026-10-18.md)
+documents the failed run and correction. The browser observations below remain
+exploratory evidence; resource comparisons need a fresh run with correct cleanup.
+
 ## Setup and provenance
 
 - Raspberry Pi 5 Model B Rev 1.0, 4 GB model, Linux/aarch64, four CPUs.

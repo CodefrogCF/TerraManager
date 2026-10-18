@@ -16,6 +16,11 @@ Per-trial RAM accounting, repeated trials, the wider browser/lifecycle matrix
 and implementation acceptance remain pending. The operator selected the SSE
 architecture direction on 2026-10-18; ADR-037 records that decision separately.
 
+The first repeated polling/SSE run exposed retained laboratory SSE slots and
+stopped after nine windows. Apply the
+[disconnect correction](shared-care-sse-disconnect-correction-2026-10-18.md)
+and recreate the disposable lab before collecting further comparison results.
+
 ## Workloads and measurements
 
 The normal overview has a 15-second timer and requests Boxes, Animals and

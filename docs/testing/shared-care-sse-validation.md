@@ -15,6 +15,28 @@ The existing version-polling pilot remains fallback evidence. These repeats
 do not implement production SSE, replace the real Flutter baseline, validate
 the known extra gallery lookup, or complete the wider client/browser matrix.
 
+## Disconnect correction and the first repeated run
+
+The first repeated run stopped after nine completed windows when the laboratory
+held 32 stream slots after the clients had disconnected. That resource comparison
+must be repeated with a fresh lab. See the
+[failure/correction record](shared-care-sse-disconnect-correction-2026-10-18.md).
+
+After applying the correction on the Pi, use this once to stop the matching old
+sampler, rebuild/recreate only the disposable lab, export its new private test
+credentials, and start a fresh resource capture:
+
+~~~sh
+TM186_HOST=192.168.1.117 TM186_INTERFACE=wlan0 \
+TM186_PREVIOUS_RUN="$HOME/tm186-private/sse-20261017T221930Z" \
+  bash tool/evaluation/shared_updates/restart_sse_validation.sh
+~~~
+
+Recreating the lab resets its synthetic data and changes the generated test
+password. Transfer ~/tm186-private/credentials.json to the controller's private
+credentials file before starting the next browser run. Do not publish it.
+The previous host-side resource directory is retained.
+
 ## Pi: switch only the separate gateway and start resources
 
 Apply this ZIP to the Pi checkout first. The following block switches the 8443
@@ -50,8 +72,10 @@ node tool/evaluation/shared_updates/run_sse_comparison.cjs \
 ~~~
 
 The output directory must not exist. Individual trial files and manifest.json
-are saved after each completed trial. The controller stops on failed/missing
-observations or failed cleanup. Do not concatenate a later attempt into the same
+are saved after each completed trial. The controller checks for zero active lab
+streams before the first window and after every completed child, waiting at most
+five seconds for cleanup. It stops on failed/missing observations, failed cleanup
+or residual streams. Do not concatenate a later attempt into the same
 run. The runner never forwards Playwright request logs, which can contain secrets.
 
 ## Interpretation and remaining gates

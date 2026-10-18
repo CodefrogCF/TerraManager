@@ -317,6 +317,17 @@ class UpdateEvaluationLab {
       charset: 'utf-8',
     );
     response.headers.set('Cache-Control', 'no-store');
+    // A dedicated close-delimited connection lets us observe a peer FIN even
+    // while no event is being written. HttpResponse.done alone does not do so.
+    response.persistentConnection = false;
+    response.headers.chunkedTransferEncoding = false;
+    late final Socket socket;
+    try {
+      socket = await response.detachSocket();
+    } catch (_) {
+      _streams--;
+      rethrow;
+    }
     var previous =
         request.headers.value('Last-Event-ID') ??
         request.uri.queryParameters['after'];
@@ -327,11 +338,22 @@ class UpdateEvaluationLab {
     Future<void> disconnect() async {
       if (closed) return;
       closed = true;
-      try {
-        await response.close();
-      } catch (_) {}
       if (!done.isCompleted) done.complete();
+      socket.destroy();
     }
+
+    final incoming = socket.listen(
+      (_) {},
+      onDone: () => unawaited(disconnect()),
+      onError: (Object error, StackTrace stack) => unawaited(disconnect()),
+      cancelOnError: true,
+    );
+    socket.done
+        .then<void>(
+          (_) => disconnect(),
+          onError: (Object error, StackTrace stack) => disconnect(),
+        )
+        .ignore();
 
     Future<void> send() async {
       if (closed) return;
@@ -344,22 +366,24 @@ class UpdateEvaluationLab {
         do {
           dirty = false;
           if (!_authenticated(request)) {
-            response.write('event: session-expired\ndata: {}\n\n');
-            await response.flush().timeout(const Duration(seconds: 2));
+            socket.add(utf8.encode('event: session-expired\ndata: {}\n\n'));
+            await socket.flush().timeout(const Duration(seconds: 2));
             await disconnect();
             break;
           }
           final update = feed.since(previous);
           final next = update['cursor'] as String;
           if (next != previous || update['reset'] == true) {
-            response.write(
-              'id: $next\nevent: changes\ndata: ${jsonEncode(update)}\n\n',
+            socket.add(
+              utf8.encode(
+                'id: $next\nevent: changes\ndata: ${jsonEncode(update)}\n\n',
+              ),
             );
             previous = next;
           } else {
-            response.write(': heartbeat\n\n');
+            socket.add(utf8.encode(': heartbeat\n\n'));
           }
-          await response.flush().timeout(const Duration(seconds: 2));
+          await socket.flush().timeout(const Duration(seconds: 2));
         } while (dirty && !closed);
       } catch (_) {
         await disconnect();
@@ -380,6 +404,8 @@ class UpdateEvaluationLab {
     } finally {
       timer.cancel();
       await subscription.cancel();
+      await incoming.cancel();
+      socket.destroy();
       _disconnect.remove(disconnect);
       _streams--;
     }

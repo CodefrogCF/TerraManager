@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -265,6 +266,79 @@ void main() {
       final payload = jsonDecode(data.substring(6)) as Map<String, dynamic>;
       expect(payload['revision'], 1);
       expect(payload['events'], hasLength(1));
+    });
+
+    test('SSE sends a complete expiry event after session revocation', () async {
+      final streamingClient = HttpClient();
+      addTearDown(() => streamingClient.close(force: true));
+      final request = await streamingClient.getUrl(
+        Uri.parse(
+          'http://127.0.0.1:${lab.server.port}/evaluation/events?after=${Uri.encodeComponent(lab.feed.cursor)}',
+        ),
+      );
+      request.headers.set('Cookie', cookie);
+      final response = await request.close();
+      final lines = StreamIterator(
+        response.transform(utf8.decoder).transform(const LineSplitter()),
+      );
+      addTearDown(lines.cancel);
+      while (await lines.moveNext().timeout(const Duration(seconds: 2))) {
+        if (lines.current == ': heartbeat') break;
+      }
+      expect((await call('POST', '/api/v1/auth/logout')).$1, 200);
+      lab.feed.publish();
+      final expiry = () async {
+        var event = false;
+        var data = false;
+        while (await lines.moveNext()) {
+          if (lines.current == 'event: session-expired') event = true;
+          if (event && lines.current == 'data: {}') data = true;
+          if (event && data && lines.current.isEmpty) return true;
+        }
+        return false;
+      }();
+      expect(await expiry.timeout(const Duration(seconds: 2)), isTrue);
+    });
+
+    test('SSE disconnects release connection slots across repeated clients', () async {
+      for (var attempt = 0; attempt < 40; attempt++) {
+        final socket = await Socket.connect('127.0.0.1', lab.server.port);
+        addTearDown(socket.destroy);
+        socket.write(
+          'GET /evaluation/events?after=${Uri.encodeComponent(lab.feed.cursor)} HTTP/1.1\r\n'
+          'Host: localhost:${lab.server.port}\r\n'
+          'Cookie: $cookie\r\n\r\n',
+        );
+        final lines = StreamIterator(
+          socket
+              .cast<List<int>>()
+              .transform(utf8.decoder)
+              .transform(const LineSplitter()),
+        );
+        addTearDown(lines.cancel);
+        final heartbeat = () async {
+          while (await lines.moveNext()) {
+            if (lines.current == ': heartbeat') return true;
+          }
+          return false;
+        }();
+        expect(await heartbeat.timeout(const Duration(seconds: 2)), isTrue);
+        expect((await call('GET', '/evaluation/metrics')).$2!['streams'], 1);
+        socket.destroy();
+        final deadline = DateTime.now().add(const Duration(seconds: 2));
+        var streams = -1;
+        do {
+          streams =
+              (await call('GET', '/evaluation/metrics')).$2!['streams'] as int;
+          if (streams == 0) break;
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        } while (DateTime.now().isBefore(deadline));
+        expect(
+          streams,
+          0,
+          reason: 'Disconnected SSE slot leaked at attempt $attempt',
+        );
+      }
     });
   });
 }

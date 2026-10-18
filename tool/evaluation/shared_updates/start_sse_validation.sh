@@ -13,8 +13,8 @@
   export TM186_ANIMALS=100
   export TM186_HISTORY=20
 
-  docker compose -f tool/evaluation/shared_updates/compose.yaml config --quiet
-  docker compose -f tool/evaluation/shared_updates/compose.yaml \
+  docker compose -p tm186-evaluation -f tool/evaluation/shared_updates/compose.yaml config --quiet
+  docker compose -p tm186-evaluation -f tool/evaluation/shared_updates/compose.yaml \
     up -d --no-deps --no-build gateway
 
   tm186_run_dir="$HOME/tm186-private/sse-$(date -u +%Y%m%dT%H%M%SZ)"
@@ -24,6 +24,8 @@
     > "$tm186_run_dir/image-identities.txt"
   git rev-parse HEAD > "$tm186_run_dir/source-head.txt"
   sha256sum tool/evaluation/shared_updates/sample_resources.py \
+    tool/evaluation/shared_updates/lab_server.dart \
+    tool/evaluation/shared_updates/run_sse_comparison.cjs \
     tool/evaluation/shared_updates/browser_benchmark.cjs \
     tool/evaluation/shared_updates/web/client.js \
     > "$tm186_run_dir/source-sha256.txt"

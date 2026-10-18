@@ -106,6 +106,8 @@ void main() {
     final api = SharedApiClient(
       Uri.parse('https://localhost'),
       MockClient(backend.handle),
+      syncNow: tester.binding.clock.now,
+      syncRandom: () => 0,
     );
     await api.login('carer', 'password');
     final settings = AppSettingsController();
@@ -266,6 +268,8 @@ void main() {
       final api = SharedApiClient(
         Uri.parse('https://localhost'),
         MockClient(backend.handle),
+        syncNow: tester.binding.clock.now,
+        syncRandom: () => 0,
       );
       await tester.pumpWidget(SharedCareApp(api: api));
       await tester.pumpAndSettle();
@@ -292,6 +296,8 @@ void main() {
         final api = SharedApiClient(
           Uri.parse('https://localhost'),
           MockClient(backend.handle),
+          syncNow: tester.binding.clock.now,
+          syncRandom: () => 0,
         );
         await tester.pumpWidget(SharedCareApp(api: api));
         await tester.pumpAndSettle();

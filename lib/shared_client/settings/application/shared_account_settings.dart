@@ -17,10 +17,16 @@ class SharedAccountSettings extends AppSettingsController {
       isVisible: () => !_disposed && _owner != null,
       refresh: (_) async {
         // Serialize with local preference writes; preserve both devices' patches.
+        final generation = api.refresh.generation;
         await _pending;
+        if (generation != api.refresh.generation || api.refresh.paused) return;
         final owner = _owner;
         final stored = await api.preferences();
-        if (!_disposed && identical(owner, _owner)) applyStoredSettings(stored);
+        if (!_disposed &&
+            identical(owner, _owner) &&
+            generation == api.refresh.generation) {
+          applyStoredSettings(stored);
+        }
       },
     );
     api.addListener(_sessionChanged);

@@ -75,9 +75,14 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
       },
       isVisible: () => mounted && (_route?.isCurrent ?? true),
       refresh: (_) async {
+        final generation = widget.api.refresh.generation;
         await _entries.catchError((Object _) => <Map<String, dynamic>>[]);
+        if (generation != widget.api.refresh.generation ||
+            widget.api.refresh.paused) {
+          return;
+        }
         final entries = await _read();
-        if (mounted) {
+        if (mounted && generation == widget.api.refresh.generation) {
           setState(() {
             _entries = Future.value(entries);
             _refreshes++;

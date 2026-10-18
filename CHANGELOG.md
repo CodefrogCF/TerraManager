@@ -16,6 +16,14 @@ The project uses semantic versioning.
 
 ### Added
 
+- reconcile Shared Care after reconnect, resume, restart and restore; coordinate
+  one SSE connection or conditional fallback schedule with capped jittered retry,
+  liveness deadlines and terminal authentication handling — Issue #229
+- protect pending reads and unconfirmed saves across lifecycle/session changes;
+  preserve unsaved drafts during network recovery and invalidate reused media
+  identities after collection replacement
+
+
 - deliver authenticated Shared Care change hints through one same-origin SSE
   connection per tab; revalidate sessions, bound replay/writers/connections and
   retain targeted HTTP reads with separate received/applied cursors — Issue #228

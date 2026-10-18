@@ -19,8 +19,8 @@ for (const key of ['fixture', 'adapter', 'caddy', 'cert', 'key', 'ca', 'output']
   if (!args[key]) throw Error('Missing argument: ' + key);
 }
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-async function until(read, check, description) {
-  const end = Date.now() + 10000;
+async function until(read, check, description, timeoutMilliseconds = 10000) {
+  const end = Date.now() + timeoutMilliseconds;
   while (Date.now() < end) {
     const result = await read();
     if (check(result)) return result;
@@ -156,6 +156,15 @@ function child(command, argv, options = {}) {
       const fragment = await page.evaluate(() => JSON.parse(window.tmSseSmoke.events)[0]);
       assert.deepEqual(fragment, {event: 'changes', data: {note: 'Äö🦎'}, id: 'fragment-1'});
       await page.evaluate(() => window.tmSseSmoke.stop());
+      if (args.heartbeat === 'true') {
+        await page.evaluate(() => window.tmSseSmoke.start('/api/v1/changes/events'));
+        await until(eventCount, n => n === 1, 'initial frame before keepalive');
+        await until(() => page.evaluate(() => JSON.parse(window.tmSseSmoke.events).some(e => e.event === 'keepalive')),
+          value => value, 'observable periodic keepalive through Caddy', 25000);
+        await page.evaluate(() => window.tmSseSmoke.stop()); await openStreams(0);
+        records.push({kind: 'observable-keepalive', browser: channel, intervalSeconds: 15,
+          receivedWithoutCollectionWrite: true, remainingStreams: 0});
+      }
       const protocol = await page.evaluate(() => performance.getEntriesByType('resource').find(e => e.name.endsWith('/fixture/adapter.js'))?.nextHopProtocol);
       records.push({kind: 'browser-adapter', browser: channel, version: browser.version(),
         protocol, commitAndDisconnectRepetitions: 8, fragmentedUtf8: true, remainingStreams: 0});

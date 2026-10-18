@@ -177,8 +177,11 @@ Defaults: 32 connections/server, eight/account identity; the existing 128-commit
 FIFO; at most one in-flight frame and one dirty bit per writer; a two-second
 write deadline. Multiple commits while a writer is busy coalesce. Rebuild the
 next frame from bounded history, or reset after a history gap. There is no queue
-per committed event. A 15-second comment heartbeat keeps the path active and
-rechecks authentication. Account/session changes trigger immediate revalidation;
+per committed event. A 15-second `keepalive` event with empty JSON data, without an `id` field,
+keeps the path active, rechecks authentication and lets #229 observe liveness.
+Unchanged non-periodic checks can still send comments. The browser may expose
+its previously received ID on a keepalive MessageEvent; the client ignores that
+ID and never treats keepalive as a data hint. Account/session changes trigger immediate revalidation;
 a timer also revalidates at the session deadline. Revocation, deactivation,
 password/role changes and deletion terminate affected subscriptions. A live
 stream sends `auth-required` with an empty object before closing when possible;
@@ -193,12 +196,44 @@ application-applied cursor. Only successful authoritative reads advance that
 cursor; a transport event cannot acknowledge data. Native retry is closed on
 errors, preventing an unauthorized source from repeatedly reconnecting.
 
-The home adapter starts streaming after initial loading and stops for logout,
-background/backup pause and disposal. While open and synchronized it skips the
-interim 15-second query. Unsupported/failed streaming and unsuccessful reads
-retain that conditional query as a safety net. Foreground re-entry can start a
-fresh source. Jitter/backoff, richer lifecycle policy, gradual recovery from
-fallback and deterministic replay/recovery orchestration remain #229.
+#229 now owns the connection policy. Its initial snapshot queries revisions
+before required reads, applies them, then queries again before opening SSE.
+Open/reopen always reconciles from #227's application-applied cursor. Reset,
+replay-gap, foreign/future cursor and epoch-change responses keep the same
+conservative invalidation semantics. Received event IDs never become data cursors.
+
+One controller/timer per tab coordinates streaming or conditional fallback.
+Connection setup is bounded to eight seconds; missing observable activity for
+45 seconds closes a silent stream. Healthy keepalives perform no data GET and
+produce no resource invalidation. Failed probes back off with jitter in
+22.5–30, 45–60 and 90–120 second windows, capped at 120 seconds. Thirty seconds
+of healthy activity resets failure history. A successful authoritative HTTP
+query after the previous failure must precede a new probe. The fallback timer
+is cancelled before starting EventSource. Failed/rejected native sources close
+the browser's implicit retry.
+
+Unchanged fallback uses a single conditional query every 15 seconds (four per
+minute); commands, explicit reloads, reconnect reconciliation and changed-data
+post-read fences are accounted separately. There is no polling timer while SSE
+is open/connecting. The same one-shot timer instead watches liveness/setup.
+Hidden tabs and backup ownership stop the source and cancel scheduled work.
+Resume checks the local due clock and reconciles before reconnecting, retaining
+backoff. Failed restore retains the cursor; only successful local replacement
+resets the scope and media identity before resuming reads.
+
+Already-started HTTP reads drain without parallel replacement requests. Scope
+and lifecycle generations reject late state/cursor application, retain dirty
+work when interrupted, and isolate a new login. Late 401 responses cannot clear
+a newer session. A `foreign_cursor` triggers session verification through the
+existing authenticated session endpoint, without decoding the opaque cursor:
+shared browser cookies may have changed account in another tab. Actual session
+changes clear old cached home data and return protected routes to the root.
+Network recovery preserves mounted forms and their drafts; it queues no writes.
+A failed command remains unconfirmed until authoritative reads recover.
+
+See the [#229 validation report](testing/shared-care-recovery-validation-2026-10-18.md)
+for deterministic scheduling, session/restore cases and browser/gateway checks.
+Target-device and long-term performance acceptance remain #230.
 
 A successful collection replacement emits an epoch reset to open streams. Failed
 restore and export emit no collection reset. This transport requires no schema,

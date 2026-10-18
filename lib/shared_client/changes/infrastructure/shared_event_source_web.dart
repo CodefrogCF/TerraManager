@@ -38,7 +38,7 @@ class _BrowserSource implements SharedEventSourcePort {
 
     listen('open', (_) => onOpen());
     listen('error', (_) => onError());
-    for (final name in ['changes', 'auth-required']) {
+    for (final name in ['changes', 'auth-required', 'keepalive']) {
       listen(name, (event) {
         final message = event as web.MessageEvent;
         final data = message.data;

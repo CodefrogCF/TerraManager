@@ -87,6 +87,7 @@ class ChangeStreamHandler {
     var closed = false;
     CoalescingStreamWriter? writer;
     var previous = after;
+    var keepaliveDue = false;
     void disconnect() {
       if (closed) return;
       closed = true;
@@ -129,6 +130,8 @@ class ChangeStreamHandler {
           .ignore();
 
       Future<void> send() async {
+        final emitKeepalive = keepaliveDue;
+        keepaliveDue = false;
         // Re-read before every frame: revocation never sends another hint.
         final current = sessions.session(request);
         if (current == null ||
@@ -166,7 +169,13 @@ class ChangeStreamHandler {
           await socket.flush();
           previous = next; // Transport delivery only, never a data-read acknowledgment.
         } else {
-          socket!.add(utf8.encode(': keepalive\n\n'));
+          socket!.add(
+            utf8.encode(
+              emitKeepalive
+                  ? 'event: keepalive\ndata: {}\n\n'
+                  : ': keepalive\n\n',
+            ),
+          );
           await socket.flush();
         }
       }
@@ -180,7 +189,10 @@ class ChangeStreamHandler {
       account = accounts.notifications.listen((id) {
         if (id == null || id == initial.account.id) writer!.request();
       }, onDone: disconnect);
-      beat = Timer.periodic(heartbeat, (_) => writer!.request());
+      beat = Timer.periodic(heartbeat, (_) {
+        keepaliveDue = true;
+        writer!.request();
+      });
       final remaining = initial.expiresAt.difference(DateTime.now().toUtc());
       expiry = Timer(
         remaining.isNegative ? Duration.zero : remaining,

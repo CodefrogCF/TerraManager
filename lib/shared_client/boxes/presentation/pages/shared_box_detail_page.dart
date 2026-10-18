@@ -100,22 +100,32 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
 
   Future<void> _refreshChanged(SharedInvalidation change) async {
     final id = _id;
+    final generation = widget.api.refresh.generation;
+    bool current() =>
+        mounted &&
+        generation == widget.api.refresh.generation &&
+        !widget.api.refresh.paused;
     var readingRecord = false;
     try {
       await _record.catchError((Object _) => <String, dynamic>{});
+      if (!current()) return;
       readingRecord = change.affects('boxes', id);
       final box = readingRecord ? await widget.api.box(id) : await _record;
+      if (!current()) return;
       readingRecord = false;
       final animals = change.affects('animals')
           ? await widget.api.animals()
           : null;
+      if (!current()) return;
       final navigation = _navigationContext;
       final boxes = navigation != null && change.affects('boxes')
           ? await widget.api.boxes()
           : null;
+      if (!current()) return;
       final updated = navigation == null || boxes == null
           ? navigation
           : navigation.withRecords(_orderedBoxIds(navigation, boxes));
+      if (generation != widget.api.refresh.generation) return;
       if (navigation != null &&
           (updated == null ||
               (box['status'] == 'archived') != navigation.archived)) {
@@ -129,6 +139,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
         _navigationContext = updated;
       });
     } on SharedApiException catch (error) {
+      if (generation != widget.api.refresh.generation) return;
       if (error.status != 404 || !readingRecord) rethrow;
       if (mounted && id == _id) leaveRemovedSharedDetail(context);
     }

@@ -15,6 +15,141 @@ void main() {
     'expiresAt': '2026-09-24T08:00:00Z',
   };
 
+  for (final surface in ['json', 'binary', 'download']) {
+    test(
+      'a late $surface 401 cannot revoke the next authenticated session',
+      () async {
+        final entered = Completer<void>();
+        final lateReply = Completer<http.Response>();
+        var logins = 0;
+        final api = SharedApiClient(
+          Uri.parse(origin),
+          MockClient((request) async {
+            if (request.url.path == '/api/v1/auth/login') {
+              return http.Response(
+                jsonEncode({...session, 'csrfToken': 'csrf-${++logins}'}),
+                200,
+              );
+            }
+            entered.complete();
+            return lateReply.future;
+          }),
+        );
+        addTearDown(api.close);
+        await api.login('first', 'password');
+        final Future<Object?> pending = switch (surface) {
+          'json' => api.animals(),
+          'binary' => api.queryChanges(),
+          _ => api.exportBackupTo((bytes) async {
+            await bytes.drain<void>();
+            return true;
+          }),
+        };
+        final checked = expectLater(
+          pending,
+          throwsA(
+            isA<SharedApiException>().having((e) => e.status, 'status', 401),
+          ),
+        );
+        await entered.future;
+        await api.login('second', 'password');
+        final owner = api.session;
+        lateReply.complete(
+          http.Response(
+            jsonEncode({
+              'error': {'code': 'unauthorized', 'message': 'Expired'},
+            }),
+            401,
+          ),
+        );
+        await checked;
+        expect(identical(api.session, owner), true);
+        expect(api.session!.csrfToken, 'csrf-2');
+      },
+    );
+  }
+
+  test('foreign audience reconciles shared-cookie account changes without reading cursor internals', () async {
+    var owner = 'first', sessionReads = 0;
+    final api = SharedApiClient(
+      Uri.parse(origin),
+      MockClient((request) async {
+        if (request.url.path == '/api/v1/auth/login' ||
+            request.url.path == '/api/v1/auth/session') {
+          if (request.url.path.endsWith('/session')) sessionReads++;
+          return http.Response(
+            jsonEncode({
+              'user': {'username': owner, 'role': 'caregiver'},
+              'csrfToken': 'csrf-$owner',
+            }),
+            200,
+          );
+        }
+        return http.Response(
+          jsonEncode({
+            'cursor': 'opaque',
+            'epoch': 'e',
+            'revision': 0,
+            'preferencesRevision': 0,
+            'reset': true,
+            'reason': 'foreign_cursor',
+            'preferencesChanged': true,
+            'changes': [],
+          }),
+          200,
+        );
+      }),
+    );
+    addTearDown(api.close);
+    await api.login('first', 'password');
+    final before = api.session;
+    owner = 'second';
+    await api.queryChanges(since: 'previous-applied');
+    expect(sessionReads, 1);
+    expect(api.session!.username, 'second');
+    expect(identical(api.session, before), false);
+    final stable = api.session;
+    await api.restoreSession();
+    expect(identical(stable, api.session), true);
+  });
+
+  for (final operation in ['logout', 'restore']) {
+    test('late $operation response cannot replace a newer login', () async {
+      final entered = Completer<void>();
+      final reply = Completer<http.Response>();
+      var logins = 0;
+      final api = SharedApiClient(
+        Uri.parse(origin),
+        MockClient((request) async {
+          if (request.url.path.endsWith('/login')) {
+            return http.Response(
+              jsonEncode({...session, 'csrfToken': 'login-${++logins}'}),
+              200,
+            );
+          }
+          entered.complete();
+          return reply.future;
+        }),
+      );
+      addTearDown(api.close);
+      await api.login('first', 'password');
+      final pending = operation == 'logout'
+          ? api.logout()
+          : api.restoreSession();
+      await entered.future;
+      await api.login('second', 'password');
+      final next = api.session;
+      reply.complete(
+        http.Response(
+          jsonEncode(operation == 'logout' ? {'ok': true} : session),
+          200,
+        ),
+      );
+      await pending;
+      expect(identical(next, api.session), true);
+    });
+  }
+
   test('two signed-in clients read the same server-owned Box', () async {
     final boxes = <Map<String, dynamic>>[];
     final requests = <http.Request>[];

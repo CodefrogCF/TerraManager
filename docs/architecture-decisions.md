@@ -2387,9 +2387,9 @@ production signing, size recording and release-candidate smoke tests.
 ### Status
 
 Architecture direction accepted (2026-10-18), Issue #186, following the operator's
-explicit choice to pursue SSE. The revision API (#226), targeted refresh (#227)
-and authenticated streaming (#228) are implemented. Recovery policy (#229) and
-production performance acceptance (#230) remain.
+explicit choice to pursue SSE. The revision API (#226), targeted refresh (#227),
+authenticated streaming (#228) and recovery policy (#229) are implemented.
+Production/device performance acceptance (#230) remains.
 The ARM64 laboratory and trusted Caddy/Chrome
 HTTP/2 path have completed a five-client Raspberry Pi comparison. See the
 [target-device report](testing/shared-care-update-evaluation-pi-2026-10-17.md).
@@ -2596,6 +2596,42 @@ Caddy in local Chrome/Edge HTTPS, with repeated idle disconnects over HTTP/1.1
 and HTTP/2. Test-certificate trust/pinning is explicit; this is not Pi performance,
 a mobile-browser matrix, or #229 recovery acceptance. #230 must measure the
 integrated Flutter UI and resource budgets on the Raspberry Pi.
+
+### Recovery and fallback coordination (Issue #229)
+
+`SharedSyncController` owns connection/lifecycle policy for one transient API
+client. It captures a revision before initial visible reads, reconciles after
+those reads and again at stream open. Reconnects use #227's applied cursor;
+transport IDs are deduplicated wakeups only. Existing reset semantics cover
+restart, history gaps, foreign/future cursors and replacement with reused IDs.
+
+One cancellable timer schedules either a connect/activity deadline or the next
+fallback poll/retry. Setup times out after eight seconds; the production handler
+emits observable 15-second keepalives, and 45 seconds of silence closes the source.
+Keepalives do not query or invalidate data. Fallback has at most four unchanged
+conditional queries per foreground minute. Retry ceilings grow 30/60/120 seconds,
+with independent per-tab 75–100% jitter; the upper bound remains 120 seconds.
+A successful HTTP reconciliation after failure gates another SSE probe.
+Thirty seconds of healthy activity resets backoff. Starting a probe cancels the
+fallback schedule; native EventSource retry stays disabled after errors.
+
+Hidden/backup states cancel scheduled work and streaming. Resume reconciles the
+due clock and authoritative state, preserving backoff. In-flight reads drain;
+generation fences reject late state without overlapping replacement reads.
+Failure retains dirty data and the applied cursor. Only successful replacement
+rotates local media cache identity. Session expiry/revocation is terminal until
+another login; no automatic login or offline mutation queue is introduced.
+
+Late 401s are scoped to the request's original session. A foreign-audience reset
+verifies the current session instead of interpreting the opaque cursor. If shared
+browser cookies changed the account, old cached data/routes are cleared. Forms
+retain their drafts through network/lifecycle recovery, and command failures do
+not become successful merely because a no-op route refresh completed.
+
+The [#229 validation report](testing/shared-care-recovery-validation-2026-10-18.md)
+records controlled-clock tests, widget regressions and verified local HTTPS/Caddy
+heartbeat delivery. The physical-browser, real Flutter traffic/paint, Pi CPU/RSS
+and 30-minute/100-reconnect budgets remain #230.
 
 ### References
 

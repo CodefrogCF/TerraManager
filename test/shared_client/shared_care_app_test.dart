@@ -60,6 +60,12 @@ void main() {
           signedIn = true;
           return http.Response(jsonEncode(_session), 200);
         }
+        if (request.url.path == '/api/v1/changes') {
+          return _changes(request, 'initial');
+        }
+        if (request.url.path == '/api/v1/auth/preferences') {
+          return http.Response(jsonEncode({'preferences': {}}), 200);
+        }
         if (request.url.path == '/api/v1/boxes') {
           return http.Response(
             jsonEncode({
@@ -81,7 +87,12 @@ void main() {
 
       await tester.pumpWidget(
         SharedCareApp(
-          api: SharedApiClient(Uri.parse('https://192.168.1.117'), backend),
+          api: SharedApiClient(
+            Uri.parse('https://192.168.1.117'),
+            backend,
+            syncNow: tester.binding.clock.now,
+            syncRandom: () => 0,
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -143,7 +154,12 @@ void main() {
     });
     await tester.pumpWidget(
       SharedCareApp(
-        api: SharedApiClient(Uri.parse('https://192.168.1.117'), backend),
+        api: SharedApiClient(
+          Uri.parse('https://192.168.1.117'),
+          backend,
+          syncNow: tester.binding.clock.now,
+          syncRandom: () => 0,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -198,7 +214,12 @@ void main() {
 
     await tester.pumpWidget(
       SharedCareApp(
-        api: SharedApiClient(Uri.parse('https://192.168.1.117'), backend),
+        api: SharedApiClient(
+          Uri.parse('https://192.168.1.117'),
+          backend,
+          syncNow: tester.binding.clock.now,
+          syncRandom: () => 0,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -237,11 +258,11 @@ void main() {
     await tester.pump(const Duration(seconds: 16));
     await tester.pumpAndSettle();
     expect(changeQueries, greaterThan(0));
-    // A hidden Box list stays dirty until the user returns to it.
+    // No commit occurred during the failed backup. Returning stays unchanged.
     expect(boxReads, readsBeforeWait);
     await tester.tap(find.byIcon(Icons.inventory_2_outlined));
     await tester.pumpAndSettle();
-    expect(boxReads, greaterThan(readsBeforeWait));
+    expect(boxReads, readsBeforeWait);
   });
 }
 

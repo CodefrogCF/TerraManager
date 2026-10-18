@@ -81,7 +81,12 @@ void main() {
     });
     await tester.pumpWidget(
       SharedCareApp(
-        api: SharedApiClient(Uri.parse('https://192.168.1.117'), backend),
+        api: SharedApiClient(
+          Uri.parse('https://192.168.1.117'),
+          backend,
+          syncNow: tester.binding.clock.now,
+          syncRandom: () => 0,
+        ),
       ),
     );
     await tester.pumpAndSettle();

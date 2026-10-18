@@ -1,5 +1,4 @@
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
-import 'package:terramanager/shared_client/changes/application/shared_change_stream.dart';
 
 import 'dart:async';
 
@@ -24,34 +23,24 @@ class SharedCareHome extends StatefulWidget {
 
 class _SharedCareHomeState extends State<SharedCareHome>
     with WidgetsBindingObserver {
-  Timer? _refreshTimer;
-  int _streamHintVersion = 0;
-  void _syncStream() {
-    if (_session != null && _initialLoaded && _foreground && !_backupBusy) {
-      widget.api.changeStream.start();
-    } else {
-      widget.api.changeStream.stop(clearReceived: _session == null);
-    }
-  }
-
-  void _onStreamChanged() {
-    final stream = widget.api.changeStream;
-    if (stream.state == SharedStreamState.authRequired) {
-      _error = const SharedApiException(
-        401,
-        'unauthorized',
-        'Your session expired. Please sign in again.',
-      );
-      widget.api.expireStreamSession();
-      return;
-    }
-    if (stream.hintVersion != _streamHintVersion) {
-      _streamHintVersion = stream.hintVersion;
-      // Reconcile from the successfully applied cursor, not lastReceivedId.
-      unawaited(_pollChanges());
-    } else if (stream.state == SharedStreamState.failed) {
-      // One authoritative request also detects an initial 401; no login loop.
-      unawaited(_pollChanges());
+  bool _commandBusy = false;
+  void _onSyncChanged() {
+    if (!mounted || _session == null || _backupBusy) return;
+    final sync = widget.api.synchronization;
+    final finished = sync.connected;
+    if (_connected != sync.connected ||
+        _error != sync.error ||
+        (finished && (!_initialLoaded || (_busy && !_commandBusy)))) {
+      setState(() {
+        _connected = sync.connected;
+        _error = sync.error;
+        if (finished) {
+          _initialLoaded = true;
+          if (!_commandBusy) _busy = false;
+        } else if (sync.error != null && !_commandBusy) {
+          _busy = false;
+        }
+      });
     }
   }
 
@@ -62,9 +51,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
   Object? _error;
   bool _busy = true;
   bool _connected = false;
-  bool _refreshing = false;
   bool _backupBusy = false;
-  int _refreshVersion = 0;
   int _page = 0;
   bool _initialLoaded = false;
   bool _foreground = true;
@@ -78,12 +65,19 @@ class _SharedCareHomeState extends State<SharedCareHome>
   final _subscriptions = <SharedRefreshSubscription>[];
 
   Future<void> _readCollection(String kind) async {
+    final owner = widget.api.session;
+    final generation = widget.api.refresh.generation;
     final values = await switch (kind) {
       'boxes' => widget.api.boxes(),
       'animals' => widget.api.animals(),
       _ => widget.api.reminders(),
     };
-    if (!mounted || _session == null) return;
+    if (!mounted ||
+        _session == null ||
+        !identical(owner, widget.api.session) ||
+        generation != widget.api.refresh.generation) {
+      return;
+    }
     setState(() {
       switch (kind) {
         case 'boxes':
@@ -108,17 +102,19 @@ class _SharedCareHomeState extends State<SharedCareHome>
 
   Future<void> _pollChanges() async {
     if (_session == null || _backupBusy || !_foreground) return;
+    final owner = widget.api.session;
+    final generation = widget.api.refresh.generation;
+    bool current() =>
+        mounted &&
+        identical(owner, widget.api.session) &&
+        generation == widget.api.refresh.generation &&
+        _foreground &&
+        !_backupBusy;
     try {
-      await widget.api.refresh.reconcile();
-      if (mounted && (_busy || !_connected || _error != null)) {
-        setState(() {
-          _busy = false;
-          _connected = true;
-          _error = null;
-        });
-      }
+      await widget.api.synchronization.reconcile();
+      if (current()) _onSyncChanged();
     } catch (error) {
-      if (mounted) {
+      if (current()) {
         setState(() {
           _busy = false;
           _connected = false;
@@ -151,33 +147,23 @@ class _SharedCareHomeState extends State<SharedCareHome>
               mounted &&
               _session != null &&
               !_backupBusy &&
-              (widget.api.refresh.hasVisibleDemand(kind) ||
+              (!_initialLoaded ||
+                  widget.api.refresh.hasVisibleDemand(kind) ||
                   (kind != 'boxes' && (_route?.isCurrent ?? true))),
           refresh: (_) => _readCollection(kind),
         ),
       );
     }
     widget.api.refresh.clock.addListener(_clockChanged);
-    widget.api.changeStream.addListener(_onStreamChanged);
+    widget.api.synchronization.addListener(_onSyncChanged);
     unawaited(_bootstrap());
     widget.api.addListener(_onApiChanged);
-    _refreshTimer = Timer.periodic(const Duration(seconds: 15), (_) {
-      if (_foreground &&
-          _session != null &&
-          !_busy &&
-          !_backupBusy &&
-          (widget.api.changeStream.state != SharedStreamState.open ||
-              !_connected)) {
-        unawaited(_pollChanges());
-      }
-    });
   }
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
-    widget.api.changeStream.removeListener(_onStreamChanged);
-    widget.api.changeStream.stop();
+    widget.api.synchronization.removeListener(_onSyncChanged);
+    widget.api.synchronization.setSession(null);
     for (final s in _subscriptions) {
       s.dispose();
     }
@@ -190,26 +176,36 @@ class _SharedCareHomeState extends State<SharedCareHome>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     _foreground = state == AppLifecycleState.resumed;
-    widget.api.refresh.paused = !_foreground || _backupBusy;
-    if (_foreground) widget.api.refresh.reconcileClock();
-    _syncStream();
-    if (_foreground && _session != null && !_busy && !_backupBusy) {
-      unawaited(_pollChanges());
-    }
+    widget.api.synchronization.setEnvironment(
+      foreground: _foreground,
+      backupBusy: _backupBusy,
+    );
   }
 
   void _onApiChanged() {
-    if (_session != null && widget.api.session == null) {
-      widget.api.refresh.reset(invalidate: false);
-      _session = null;
-      widget.api.changeStream.stop(clearReceived: true);
+    final current = widget.api.session;
+    if (_session != null &&
+        identical(_session, current) &&
+        !widget.api.connected) {
+      widget.api.synchronization.reportConnectionFailure(
+        const SharedConnectionException(),
+      );
+    }
+    if (_session != null && !identical(_session, current)) {
+      _session = current;
       _initialLoaded = false;
       _boxes = const [];
       _animals = const [];
       _reminders = const [];
-      _refreshVersion++;
-      _refreshing = false;
-      _busy = false;
+      _commandBusy = false;
+      _connected = false;
+      _busy = current != null;
+      widget.api.synchronization.setSession(current);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && identical(current, widget.api.session)) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
+      });
     }
     if (mounted) setState(() {});
   }
@@ -217,13 +213,10 @@ class _SharedCareHomeState extends State<SharedCareHome>
   void _onBackupBusyChanged(bool busy) {
     if (_backupBusy == busy) return;
     _backupBusy = busy;
-    widget.api.refresh.paused = busy || !_foreground;
-    _syncStream();
-    if (busy) {
-      // Ignore a refresh that began before the exclusive backup operation.
-      _refreshVersion++;
-      _refreshing = false;
-    }
+    widget.api.synchronization.setEnvironment(
+      foreground: _foreground,
+      backupBusy: busy,
+    );
     if (mounted) setState(() {});
   }
 
@@ -231,8 +224,8 @@ class _SharedCareHomeState extends State<SharedCareHome>
     try {
       final session = await widget.api.restoreSession();
       if (!mounted) return;
-      widget.api.refresh.reset(invalidate: false);
       setState(() => _session = session);
+      widget.api.synchronization.setSession(session);
       if (session != null) {
         await _refresh();
       } else {
@@ -256,8 +249,8 @@ class _SharedCareHomeState extends State<SharedCareHome>
     try {
       final session = await widget.api.login(username, password);
       if (!mounted) return;
-      widget.api.refresh.reset(invalidate: false);
       setState(() => _session = session);
+      widget.api.synchronization.setSession(session);
       await _refresh();
     } catch (error) {
       if (!mounted) return;
@@ -274,9 +267,14 @@ class _SharedCareHomeState extends State<SharedCareHome>
       _busy = true;
       _error = null;
     });
+    final owner = widget.api.session;
     try {
       await widget.api.logout();
-      if (!mounted) return;
+      if (!mounted ||
+          (widget.api.session != null &&
+              !identical(owner, widget.api.session))) {
+        return;
+      }
       setState(() {
         _session = null;
         _boxes = const [];
@@ -286,7 +284,11 @@ class _SharedCareHomeState extends State<SharedCareHome>
         _busy = false;
       });
     } catch (error) {
-      if (!mounted) return;
+      if (!mounted ||
+          (widget.api.session != null &&
+              !identical(owner, widget.api.session))) {
+        return;
+      }
       setState(() {
         _busy = false;
         _error = error;
@@ -295,68 +297,17 @@ class _SharedCareHomeState extends State<SharedCareHome>
   }
 
   Future<void> _refresh({bool quiet = false}) async {
-    if (_session == null) return;
-    if (quiet && (_refreshing || _backupBusy)) return;
-    if (_initialLoaded) {
-      if (_backupBusy) return;
-      if (!quiet && mounted) {
-        setState(() {
-          _busy = true;
-          _error = null;
-        });
-      }
-      widget.api.refresh.invalidate(SharedInvalidation({}, true));
-      try {
-        await widget.api.refresh.refreshVisible();
-        await _pollChanges();
-      } catch (error) {
-        if (mounted) {
-          setState(() {
-            _busy = false;
-            _connected = false;
-            _error = error;
-          });
-        }
-      }
-      return;
-    }
-    final version = ++_refreshVersion;
-    _refreshing = true;
+    if (_session == null || _backupBusy) return;
     if (!quiet && mounted) {
       setState(() {
         _busy = true;
         _error = null;
       });
     }
-    try {
-      final results = await Future.wait([
-        widget.api.boxes(),
-        widget.api.animals(),
-        widget.api.reminders(),
-      ]);
-      if (!mounted || version != _refreshVersion) return;
-      setState(() {
-        _initialLoaded = true;
-        _boxes = results[0];
-        _animals = results[1];
-        _reminders = results[2];
-        _scheduleDueTimes();
-        _busy = false;
-        _connected = true;
-        _error = null;
-      });
-    } catch (error) {
-      if (!mounted || version != _refreshVersion) return;
-      setState(() {
-        _busy = false;
-        _error = error;
-        _connected = false;
-        if (widget.api.session == null) _session = null;
-      });
-    } finally {
-      if (version == _refreshVersion) _refreshing = false;
-      if (mounted) _syncStream();
+    if (_initialLoaded) {
+      widget.api.refresh.invalidate(SharedInvalidation({}, true));
     }
+    await _pollChanges();
   }
 
   Future<bool> _change(Future<void> Function() operation) async {
@@ -365,15 +316,20 @@ class _SharedCareHomeState extends State<SharedCareHome>
       _busy = true;
       _error = null;
     });
-    _refreshVersion++;
-    _refreshing = false;
+    final owner = widget.api.session;
+    _commandBusy = true;
     try {
       await operation();
+      if (!identical(owner, widget.api.session)) return false;
       await _pollChanges();
       // A successful API response confirms the write even if the follow-up
       // reload fails. The collection remains disabled until it reloads.
       return true;
     } catch (error) {
+      if (!identical(owner, widget.api.session)) return false;
+      if (error is SharedConnectionException) {
+        widget.api.synchronization.reportConnectionFailure(error);
+      }
       if (!mounted) return false;
       setState(() {
         _error = error;
@@ -382,6 +338,11 @@ class _SharedCareHomeState extends State<SharedCareHome>
         if (widget.api.session == null) _session = null;
       });
       return false;
+    } finally {
+      if (identical(owner, widget.api.session)) {
+        _commandBusy = false;
+        if (mounted) setState(() => _busy = false);
+      }
     }
   }
 
@@ -484,8 +445,7 @@ class _SharedCareHomeState extends State<SharedCareHome>
         onLogout: _logout,
         onRestored: () async {
           _initialLoaded = false;
-          widget.api.refresh.reset();
-          await _refresh();
+          widget.api.synchronization.collectionReplaced();
         },
         onBackupBusyChanged: _onBackupBusyChanged,
       ),

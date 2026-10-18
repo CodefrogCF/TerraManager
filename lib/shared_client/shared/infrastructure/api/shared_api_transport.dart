@@ -70,6 +70,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
       }
       headers['X-CSRF-Token'] = token;
     }
+    final requestOwner = _session;
     late final http.Response response;
     try {
       final request = http.Request(method, apiUrl(path));
@@ -84,7 +85,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
       throw const SharedConnectionException();
     }
     _setConnected(true);
-    if (response.statusCode == 401) {
+    if (response.statusCode == 401 && identical(requestOwner, _session)) {
       _session = null;
       notifyListeners();
     }
@@ -121,6 +122,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
     String path, {
     Duration timeout = const Duration(minutes: 10),
   }) async {
+    final requestOwner = _session;
     late final http.StreamedResponse response;
     try {
       response = await _client
@@ -131,7 +133,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
       throw const SharedConnectionException();
     }
     _setConnected(true);
-    if (response.statusCode == 401) {
+    if (response.statusCode == 401 && identical(requestOwner, _session)) {
       _session = null;
       notifyListeners();
     }
@@ -203,6 +205,7 @@ abstract class SharedApiTransport extends ChangeNotifier {
       headers['X-CSRF-Token'] = csrfToken;
     }
 
+    final requestOwner = _session;
     late final http.Response response;
     try {
       final request = http.Request(method, apiUrl(path));
@@ -234,7 +237,9 @@ abstract class SharedApiTransport extends ChangeNotifier {
       throw failure;
     }
 
-    if (response.statusCode == 401 && requiresSession) {
+    if (response.statusCode == 401 &&
+        requiresSession &&
+        identical(requestOwner, _session)) {
       _session = null;
       notifyListeners();
     }

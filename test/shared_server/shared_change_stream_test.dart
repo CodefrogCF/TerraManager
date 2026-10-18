@@ -8,6 +8,7 @@ import 'package:terramanager/shared_server/accounts/infrastructure/account_store
 import 'package:terramanager/shared_server/app/shared_server_api.dart';
 import 'package:terramanager/shared_server/authentication/infrastructure/http/session_authenticator.dart';
 import 'package:terramanager/shared_server/changes/application/committed_changes.dart';
+import 'package:terramanager/shared_server/changes/infrastructure/http/change_stream_handler.dart';
 
 import '../helpers/test_database_helper.dart';
 
@@ -233,6 +234,38 @@ void main() {
     expect(jsonEncode(event), isNot(contains(admin.token)));
     expect(jsonEncode(event), isNot(contains(admin.csrfToken)));
   });
+  test(
+    'periodic keepalive is observable without advertising a new data cursor',
+    () async {
+      await server.close(force: true);
+      final handler = ChangeStreamHandler(
+        api.changes,
+        helper.accounts,
+        api.sessions,
+        heartbeat: const Duration(milliseconds: 30),
+      );
+      server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+      server.listen((request) async {
+        await handler.handle(request, admin);
+      });
+      final stream = await open();
+      final first = await stream.next();
+      expect(first['event'], 'changes');
+      final before = api.changes.revision;
+      final next = await stream.next();
+      expect(next['event'], 'keepalive');
+      expect(next['data'], isEmpty);
+      expect(next['id'], isEmpty);
+      expect(api.changes.revision, before);
+      stream.close();
+      final end = DateTime.now().add(const Duration(seconds: 3));
+      while (handler.activeConnections != 0 && DateTime.now().isBefore(end)) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      handler.close();
+      expect(handler.activeConnections, 0);
+    },
+  );
   test('committed HTTP command sends minimal hints immediately while stream stays open', () async {
     final stream = await open(after: cursor());
     final result = await call(

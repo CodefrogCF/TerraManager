@@ -96,12 +96,17 @@ class _SharedPictureGalleryState extends State<SharedPictureGallery> {
       },
       isVisible: () => mounted && (_route?.isCurrent ?? true),
       refresh: (_) async {
+        final generation = widget.api.refresh.generation;
         await _pictures.catchError((Object _) => <Map<String, dynamic>>[]);
+        if (generation != widget.api.refresh.generation ||
+            widget.api.refresh.paused) {
+          return;
+        }
         final pictures = await widget.api.pictures(
           widget.kind,
           widget.recordId,
         );
-        if (mounted) {
+        if (mounted && generation == widget.api.refresh.generation) {
           setState(() {
             _pictures = Future.value(pictures);
             _refreshes++;

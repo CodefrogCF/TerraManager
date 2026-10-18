@@ -114,14 +114,17 @@ without duplicate subscriptions or overlapping polling/refresh loops.
 
 ### Acceptance criteria
 
-- [ ] Keep transport-received IDs separate from #227's application-applied cursor; reconcile from successfully applied state after reconnect/resume.
-- [ ] Replay retained hints or reconcile after gaps, foreign/future cursors and epoch changes, including reused record/media IDs after restore.
-- [ ] Handle changes arriving during connection setup, initial snapshot loading and outstanding reads.
-- [ ] Use bounded retry backoff with jitter; prevent reconnect storms and repeated login attempts after expiry/revocation.
-- [ ] Maintain at most one active SSE connection or one fallback polling schedule per tab. At a 15-second interval, unchanged fallback uses at most four conditional revision queries/minute/foreground tab.
-- [ ] Reduce hidden-tab work, reconcile on resume and restore SSE gradually after fallback; trigger #227's clock-dependent refresh as needed.
-- [ ] Preserve unsaved edits, authentication, conflicts and the existing connected-state write policy; add no offline write queue.
-- [ ] Test outages, duplicate/out-of-order events, several tabs, login/logout, revocation and successful/failed restore with deterministic scheduling.
+- [x] Keep transport-received IDs separate from #227's application-applied cursor; reconcile from successfully applied state after reconnect/resume.
+- [x] Replay retained hints or reconcile after gaps, foreign/future cursors and epoch changes, including reused record/media IDs after restore.
+- [x] Handle changes arriving during connection setup, initial snapshot loading and outstanding reads.
+- [x] Use bounded retry backoff with jitter; prevent reconnect storms and repeated login attempts after expiry/revocation.
+- [x] Maintain at most one active SSE connection or one fallback polling schedule per tab. At a 15-second interval, unchanged fallback uses at most four conditional revision queries/minute/foreground tab.
+- [x] Reduce hidden-tab work, reconcile on resume and restore SSE gradually after fallback; trigger #227's clock-dependent refresh as needed.
+- [x] Preserve unsaved edits, authentication, conflicts and the existing connected-state write policy; add no offline write queue.
+- [x] Test outages, duplicate/out-of-order events, several tabs, login/logout, revocation and successful/failed restore with deterministic scheduling.
+
+Implementation and controlled-clock evidence: [#229 validation](shared-care-recovery-validation-2026-10-18.md).
+The physical-browser/device and performance matrix remains #230.
 
 ## #230 — Shared Care: validate SSE performance and resource bounds on Raspberry Pi
 

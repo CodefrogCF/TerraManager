@@ -86,7 +86,7 @@ class SharedInvalidation {
   }
 }
 
-/// One transient controller per API/session. Scheduling and the future SSE
+/// One transient controller per API/session. Scheduling and the SSE
 /// transport call reconcile(); neither can acknowledge a cursor themselves.
 class SharedRefreshController {
   SharedRefreshController({
@@ -107,7 +107,26 @@ class SharedRefreshController {
   Future<void>? _running;
   bool _requested = false;
   bool _disposed = false;
-  bool paused = false;
+  bool _paused = false;
+  bool get paused => _paused;
+  set paused(bool value) {
+    if (_paused == value) return;
+    _paused = value;
+    if (value) {
+      _generation++;
+      _dueTimer?.cancel();
+    } else {
+      reconcileClock();
+    }
+  }
+
+  int get generation => _generation;
+  int _scope = 0;
+  int? _runningGeneration;
+  final activity = ValueNotifier<int>(0);
+  Object? lastFailure;
+  bool lastReconciled = false;
+  int get scope => _scope;
   int _generation = 0;
   Timer? _dueTimer;
 
@@ -152,7 +171,7 @@ class SharedRefreshController {
     // Serialize with reconciliation so a read never races another read.
     if (_running != null) {
       _requested = true;
-      return _running;
+      return _joinCurrent(query: false);
     }
     return _start(query: false);
   }
@@ -160,14 +179,32 @@ class SharedRefreshController {
   Future<void> reconcile() {
     if (_disposed || paused) return Future.value();
     _requested = true;
-    return _running ?? _start(query: true);
+    return _running == null ? _start(query: true) : _joinCurrent(query: true);
+  }
+
+  Future<void> _joinCurrent({required bool query}) {
+    final running = _running!;
+    if (_runningGeneration == _generation) return running;
+    final generation = _generation;
+    return () async {
+      try {
+        await running;
+      } catch (_) {
+        /* Previous session/pause owns its failure. */
+      }
+      if (_disposed || paused || generation != _generation) return;
+      await (query ? reconcile() : refreshVisible());
+    }();
   }
 
   Future<void> _start({required bool query}) {
     final completion = Completer<void>();
     _running = completion.future;
     final generation = _generation;
+    final scope = _scope;
+    _runningGeneration = generation;
     unawaited(() async {
+      var queried = false;
       try {
         var check = query;
         do {
@@ -176,7 +213,8 @@ class SharedRefreshController {
           SharedChangeQuery? response;
           if (check) {
             response = await queryChanges(since: _appliedCursor);
-            if (_disposed || generation != _generation) break;
+            if (_disposed || paused || generation != _generation) break;
+            queried = true;
             if (response.cursor != _dispatchedCursor) {
               final change = SharedInvalidation.fromQuery(response);
               if (change.reset) _mediaGeneration++;
@@ -199,12 +237,16 @@ class SharedRefreshController {
                 await initialLoad;
                 if (s._disposed) continue;
                 if (_disposed || paused || generation != _generation) {
-                  s._dirty = dirty.merge(s._dirty);
+                  if (scope == _scope) s._dirty = dirty.merge(s._dirty);
                   break;
                 }
                 await s.refresh(dirty);
+                if (_disposed || paused || generation != _generation) {
+                  if (scope == _scope) s._dirty = dirty.merge(s._dirty);
+                  break;
+                }
               } catch (_) {
-                s._dirty = dirty.merge(s._dirty);
+                if (scope == _scope) s._dirty = dirty.merge(s._dirty);
                 rethrow;
               }
               batchRead = true;
@@ -225,11 +267,22 @@ class SharedRefreshController {
           // required reads succeeded, even if no second notification arrived.
           check = reads || _requested;
         } while (check);
+        if (!_disposed && !paused && generation == _generation) {
+          lastFailure = null;
+          lastReconciled = queried;
+          activity.value++;
+        }
         completion.complete();
       } catch (e, st) {
+        if (!_disposed && !paused && generation == _generation) {
+          lastFailure = e;
+          lastReconciled = false;
+          activity.value++;
+        }
         completion.completeError(e, st);
       } finally {
         _running = null;
+        _runningGeneration = null;
       }
     }());
     return completion.future;
@@ -263,7 +316,7 @@ class SharedRefreshController {
     final future =
         _dueTimes.values.expand((v) => v).where((d) => d.isAfter(now)).toList()
           ..sort();
-    if (_disposed || future.isEmpty) return;
+    if (_disposed || paused || future.isEmpty) return;
     _dueTimer = Timer(future.first.difference(now), () {
       if (_disposed) return;
       clock.value = _now();
@@ -273,6 +326,8 @@ class SharedRefreshController {
 
   void reset({bool invalidate = true}) {
     _generation++;
+    _scope++;
+    lastFailure = null;
     _mediaGeneration++;
     _appliedCursor = _dispatchedCursor = null;
     _dueTimer?.cancel();
@@ -289,6 +344,7 @@ class SharedRefreshController {
     _subscriptions.clear();
     _demands.clear();
     clock.dispose();
+    activity.dispose();
   }
 }
 

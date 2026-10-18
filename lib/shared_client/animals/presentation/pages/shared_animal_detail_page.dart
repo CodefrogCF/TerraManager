@@ -124,34 +124,47 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
 
   Future<void> _refreshChanged(SharedInvalidation change) async {
     final id = _id;
+    final generation = widget.api.refresh.generation;
+    bool current() =>
+        mounted &&
+        generation == widget.api.refresh.generation &&
+        !widget.api.refresh.paused;
     var readingRecord = false;
     try {
       // Await the initial requests before starting a replacement read.
       await Future.wait([_record, _feedings, _weights, _shedding])
           .catchError((Object _) => <Object?>[]);
+      if (!current()) return;
       readingRecord =
           change.affects('animals', id) || change.affects('reminders', id);
       final animal = readingRecord
           ? await widget.api.animal(id)
           : await _record;
+      if (!current()) return;
       readingRecord = false;
       final feedings = change.affects('feedingHistories', id)
           ? await widget.api.feedings(id)
           : null;
+      if (!current()) return;
       final weights = change.affects('weightHistories', id)
           ? await widget.api.weights(id)
           : null;
+      if (!current()) return;
       final shedding = change.affects('sheddingHistories', id)
           ? await widget.api.shedding(id)
           : null;
+      if (!current()) return;
       final boxes = change.affects('boxes') ? await widget.api.boxes() : null;
+      if (!current()) return;
       final navigation = _navigationContext;
       final animals = navigation != null && change.affects('animals')
           ? await widget.api.animals()
           : null;
+      if (!current()) return;
       final updated = navigation == null || animals == null
           ? navigation
           : navigation.withRecords(_orderedAnimalIds(navigation, animals));
+      if (generation != widget.api.refresh.generation) return;
       if (navigation != null &&
           (updated == null ||
               (animal['status'] == 'archived') != navigation.archived ||
@@ -172,6 +185,7 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
         _navigationContext = updated;
       });
     } on SharedApiException catch (error) {
+      if (generation != widget.api.refresh.generation) return;
       if (error.status != 404 || !readingRecord) rethrow;
       if (mounted && id == _id) leaveRemovedSharedDetail(context);
     }

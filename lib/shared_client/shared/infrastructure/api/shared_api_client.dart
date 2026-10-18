@@ -1,5 +1,6 @@
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:terramanager/shared_client/changes/application/shared_change_stream.dart';
+import 'package:terramanager/shared_client/changes/application/shared_sync_controller.dart';
 import 'package:terramanager/shared_client/changes/domain/shared_event_source_port.dart';
 import 'package:terramanager/shared_client/changes/infrastructure/shared_event_source_stub.dart'
     if (dart.library.js_interop) 'package:terramanager/shared_client/changes/infrastructure/shared_event_source_web.dart';
@@ -36,7 +37,15 @@ class SharedApiClient extends SharedApiTransport
         SharedCareHistoryApi,
         SharedMediaApi,
         SharedBackupsApi {
-  SharedApiClient(super.origin, super.client, {this.eventSource});
+  SharedApiClient(
+    super.origin,
+    super.client, {
+    this.eventSource,
+    this.syncNow,
+    this.syncRandom,
+  });
+  final DateTime Function()? syncNow;
+  final double Function()? syncRandom;
   final SharedEventSourcePort? eventSource;
   late final changeStream = SharedChangeStream(
     origin.resolve('/api/v1/changes/events'),
@@ -50,7 +59,30 @@ class SharedApiClient extends SharedApiTransport
     notifyListeners();
   }
 
-  late final refresh = SharedRefreshController(queryChanges: queryChanges);
+  late final refresh = SharedRefreshController(
+    queryChanges: queryChanges,
+    now: syncNow,
+  );
+  late final synchronization = SharedSyncController(
+    refresh: refresh,
+    stream: changeStream,
+    onAuthenticationRequired: expireStreamSession,
+    now: syncNow,
+    random: syncRandom,
+  );
+
+  @override
+  Future<SharedChangeQuery> queryChanges({String? since}) async {
+    final owner = session;
+    final response = await super.queryChanges(since: since);
+    // Cookies are shared across tabs. A different audience can mean another
+    // tab changed the signed-in account. Never decode an opaque cursor.
+    if (response.body?['reason'] == 'foreign_cursor' &&
+        identical(owner, session)) {
+      await restoreSession();
+    }
+    return response;
+  }
 
   /// Media IDs are immutable within an epoch; restore may reuse those IDs.
   /// A tab-local number invalidates image provider keys without exposing cursors.
@@ -65,6 +97,7 @@ class SharedApiClient extends SharedApiTransport
 
   @override
   void close() {
+    synchronization.dispose();
     changeStream.dispose();
     refresh.dispose();
     super.close();

@@ -161,6 +161,81 @@ void main() {
   );
 
   testWidgets(
+    'a request outside the refresh loop enters fallback and recovers automatically',
+    (tester) async {
+      final source = _Source();
+      var offline = false;
+      final api = SharedApiClient(
+        Uri.parse('https://localhost'),
+        MockClient((request) async {
+          final path = request.url.path;
+          if (offline && path == '/api/v1/animals') {
+            throw http.ClientException('offline');
+          }
+          if (path == '/api/v1/auth/session') {
+            return http.Response(
+              jsonEncode({
+                'user': {'username': 'carer', 'role': 'caregiver'},
+                'csrfToken': 'csrf',
+              }),
+              200,
+            );
+          }
+          if (path == '/api/v1/changes') {
+            if (request.url.queryParameters['since'] == 'idle') {
+              return http.Response(
+                '',
+                304,
+                headers: {'x-shared-care-cursor': 'idle'},
+              );
+            }
+            return http.Response(
+              jsonEncode(_body('idle')..['reset'] = true),
+              200,
+            );
+          }
+          return http.Response(
+            jsonEncode(switch (path) {
+              '/api/v1/boxes' => {'boxes': []},
+              '/api/v1/animals' => {'animals': []},
+              '/api/v1/reminders' => {'reminders': []},
+              '/api/v1/auth/preferences' => {'preferences': {}},
+              _ => {},
+            }),
+            200,
+          );
+        }),
+        eventSource: source,
+        syncNow: tester.binding.clock.now,
+        syncRandom: () => 0,
+      );
+      await tester.pumpWidget(SharedCareApp(api: api));
+      await tester.pumpAndSettle();
+      source.opened();
+      await tester.pumpAndSettle();
+      offline = true;
+      await expectLater(
+        api.animals(),
+        throwsA(isA<SharedConnectionException>()),
+      );
+      await tester.pumpAndSettle();
+      expect(api.synchronization.connected, false);
+      expect(find.byKey(const Key('shared-error')), findsOneWidget);
+      offline = false;
+      await tester.pump(const Duration(seconds: 15));
+      await tester.pumpAndSettle();
+      expect(api.synchronization.connected, true);
+      expect(find.byKey(const Key('shared-error')), findsNothing);
+      await tester.pump(const Duration(seconds: 8));
+      await tester.pumpAndSettle();
+      expect(source.opens, 2);
+      source.opened();
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets(
     'home delivers SSE wakeups to targeted refresh and skips idle polling while open',
     (tester) async {
       final source = _Source();
@@ -212,6 +287,8 @@ void main() {
           );
         }),
         eventSource: source,
+        syncNow: tester.binding.clock.now,
+        syncRandom: () => 0,
       );
       await tester.pumpWidget(SharedCareApp(api: api));
       await tester.pumpAndSettle();
@@ -230,6 +307,13 @@ void main() {
       expect(find.text('Box 1'), findsWidgets);
       expect(reads['/api/v1/boxes'], before['/api/v1/boxes']! + 1);
       expect(reads['/api/v1/animals'], before['/api/v1/animals']);
+      await tester.tap(find.byKey(const Key('add-box-button')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byType(TextFormField).first,
+        'Unsaved reconnect draft',
+      );
+      revision++;
       source.error();
       await tester.pumpAndSettle();
       final afterFailure = reads['/api/v1/changes']!;
@@ -237,12 +321,24 @@ void main() {
       await tester.pumpAndSettle();
       expect(reads['/api/v1/changes'], afterFailure + 1);
       expect(source.opens, 1);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
       await tester.pumpAndSettle();
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+      expect(source.opens, 1);
+      await tester.pump(const Duration(seconds: 7));
       await tester.pumpAndSettle();
       expect(source.opens, 2);
       source.opened();
+      await tester.pumpAndSettle();
+      expect(find.text('Unsaved reconnect draft'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.text('Box 2'), findsWidgets);
       source.message('auth-required', '{}', '');
       await tester.pumpAndSettle();
       expect(api.session, isNull);

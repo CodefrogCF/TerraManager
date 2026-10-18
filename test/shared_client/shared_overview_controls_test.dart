@@ -1,3 +1,5 @@
+import 'fake_change_response.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -28,6 +30,8 @@ void main() {
         final api = SharedApiClient(
           Uri.parse('https://192.168.1.117'),
           MockClient((_) async => http.Response('{}', 404)),
+          syncNow: tester.binding.clock.now,
+          syncRandom: () => 0,
         );
         addTearDown(settings.dispose);
         addTearDown(api.close);
@@ -157,10 +161,15 @@ void main() {
       SharedApiClient client() => SharedApiClient(
         Uri.parse('https://192.168.1.117'),
         MockClient((request) async {
+          if (request.url.path == '/api/v1/changes') {
+            return fakeChangeResponse(request, 'overview');
+          }
           if (request.url.path == '/api/v1/auth/preferences') {
-            savedPreferences.addAll(
-              jsonDecode(request.body) as Map<String, dynamic>,
-            );
+            if (request.method == 'PATCH') {
+              savedPreferences.addAll(
+                jsonDecode(request.body) as Map<String, dynamic>,
+              );
+            }
             return http.Response(
               jsonEncode({'preferences': savedPreferences}),
               200,
@@ -202,6 +211,8 @@ void main() {
             200,
           );
         }),
+        syncNow: tester.binding.clock.now,
+        syncRandom: () => 0,
       );
       await tester.pumpWidget(SharedCareApp(api: client()));
       await tester.pumpAndSettle();

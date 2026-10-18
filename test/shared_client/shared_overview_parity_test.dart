@@ -35,6 +35,8 @@ void main() {
     final api = SharedApiClient(
       Uri.parse('https://192.168.1.117'),
       MockClient((_) async => http.Response('{}', 404)),
+      syncNow: tester.binding.clock.now,
+      syncRandom: () => 0,
     );
     addTearDown(settings.dispose);
     addTearDown(api.close);
@@ -109,6 +111,8 @@ void main() {
     final api = SharedApiClient(
       Uri.parse('https://192.168.1.117'),
       MockClient((_) async => http.Response('{}', 404)),
+      syncNow: tester.binding.clock.now,
+      syncRandom: () => 0,
     );
     addTearDown(settings.dispose);
     addTearDown(api.close);
@@ -234,6 +238,8 @@ void main() {
         }
         return http.Response('{}', 404);
       }),
+      syncNow: tester.binding.clock.now,
+      syncRandom: () => 0,
     );
     addTearDown(settings.dispose);
     addTearDown(api.close);
@@ -330,6 +336,8 @@ void main() {
         }
         return http.Response('{}', 404);
       }),
+      syncNow: tester.binding.clock.now,
+      syncRandom: () => 0,
     );
     addTearDown(settings.dispose);
     addTearDown(api.close);
@@ -453,7 +461,12 @@ void main() {
 
       await tester.pumpWidget(
         SharedCareApp(
-          api: SharedApiClient(Uri.parse('https://192.168.1.117'), backend),
+          api: SharedApiClient(
+            Uri.parse('https://192.168.1.117'),
+            backend,
+            syncNow: tester.binding.clock.now,
+            syncRandom: () => 0,
+          ),
         ),
       );
       await tester.pumpAndSettle();

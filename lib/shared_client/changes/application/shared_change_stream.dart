@@ -36,6 +36,8 @@ class SharedChangeStream extends ChangeNotifier {
   String? get lastReceivedId => _lastReceivedId;
   SharedChangeQuery? _hint;
   SharedChangeQuery? get hint => _hint;
+  int _activityVersion = 0;
+  int get activityVersion => _activityVersion;
   int _hintVersion = 0;
   int get hintVersion => _hintVersion;
   int _generation = 0;
@@ -74,6 +76,11 @@ class SharedChangeStream extends ChangeNotifier {
         onError: () => fail(SharedStreamState.failed),
         onMessage: (event, data, id) {
           if (!current()) return;
+          if (event == 'keepalive') {
+            _activityVersion++;
+            notifyListeners();
+            return;
+          }
           if (event == 'auth-required') {
             fail(SharedStreamState.authRequired);
             return;
@@ -98,6 +105,7 @@ class SharedChangeStream extends ChangeNotifier {
             SharedInvalidation.fromQuery(
               hint,
             ); // Validate without applying data/cursor.
+            _activityVersion++;
             _lastReceivedId = id;
             _hint = hint;
             _hintVersion++;

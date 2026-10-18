@@ -12,9 +12,12 @@ The local and target-device reports record executed checks separately. The ARM64
 Pi/Caddy/Chrome HTTP/2 pilot includes browser results and CPU/network samples.
 The real Flutter client was also exercised through the separate gateway; see the
 target-device report for the observed workload and measurement boundaries.
-Per-trial RAM accounting, repeated trials, the wider browser/lifecycle matrix
-and implementation acceptance remain pending. The operator selected the SSE
-architecture direction on 2026-10-18; ADR-037 records that decision separately.
+The [corrected repeated comparison](shared-care-sse-comparison-2026-10-18.md)
+completed all twelve windows with per-trial process CPU/RSS and WLAN observations.
+Five-client SSE lab targets passed; memory savings and long-term bounds are not
+established. Physical browser/lifecycle/scale and production acceptance remain
+follow-up work. The operator selected the SSE direction on 2026-10-18; ADR-037
+records that decision separately.
 
 The first repeated polling/SSE run exposed retained laboratory SSE slots and
 stopped after nine windows. Apply the
@@ -407,15 +410,28 @@ SSE notifications and conditional/version polling fallback. See ADR-037 and the
 follow-up issue drafts. The architectural choice does not mark outstanding
 measurements or the production implementation complete.
 
-Targets to validate (not achieved claims):
+The corrected five-client lab met the first two targets below. These targets
+still require production Flutter validation; other acceptance items remain open:
 - at least 95% of updates visible within 2 seconds with five LAN clients;
 - at least 90% fewer idle data requests and 80% fewer idle bytes including upkeep;
 - no data-dependent list rebuild on unchanged versions or heartbeat;
 - automatic convergence after reconnect, process restart and successful restore;
 - CPU/RAM budgets defined after the Pi baseline and bounded queues/connections.
 
-Issue #186 remains open until actual Pi/current-Flutter measurements, browser/
-Caddy evidence and focused follow-up issue scope are recorded and the remaining
-evaluation evidence is reviewed. The architecture decision is now recorded.
-A local loopback prototype run alone does not satisfy those completion gates.
+The architecture decision, real Flutter polling baseline, Pi/Caddy comparison,
+repeated per-trial CPU/RSS and [five focused implementation issue drafts](shared-care-sse-implementation-issues.md)
+are now recorded. The drafts carry production latency/traffic targets and proposed
+resource budgets. GitHub submission/closure remains an operator action. Review the
+remaining physical-browser, lifecycle, scale and memory-bound acceptance explicitly;
+the lab pass does not complete the production synchronization implementation.
+
+Reproduce the derived resource summary without Playwright or device access:
+
+~~~sh
+python3 tool/evaluation/shared_updates/test_analyze_sse_comparison.py
+python3 tool/evaluation/shared_updates/analyze_sse_comparison.py \
+  docs/testing/data/shared-care-sse-browser-2026-10-18.json \
+  --resources docs/testing/data/shared-care-sse-resources-2026-10-18.jsonl \
+  --output-prefix /tmp/tm186-sse-review
+~~~
 

@@ -235,10 +235,13 @@ its fallback request budget is separate from the connected-SSE target.
 The real Flutter run measured 12 overview and 40 detail-stack data GETs/min/client;
 the extra gallery lookup was missing from the earlier 36-read model. Post-header
 browser cancellation diagnostics remain explicitly qualified above.
-Remaining evidence for #186: per-trial memory observations, repeated/scaled trials
-and the agreed browser/lifecycle scenarios. Production
-commit hooks, full mutation coverage, reconnect/replay/fallback, permission
-filtering and restore behavior remain implementation follow-ups.
+The corrected 2026-10-18 run subsequently completed three repetitions with
+per-trial process memory/CPU; see the [complete repeated comparison](shared-care-sse-comparison-2026-10-18.md).
+That run replaces the resource comparison affected by orphaned SSE slots; it
+does not rewrite this exploratory pilot. Physical-browser/lifecycle/scale and
+long-term memory acceptance remain follow-up validation. Production commit hooks,
+full mutation coverage, reconnect/replay/fallback, permission filtering and restore
+behavior remain the [five implementation issue scopes](shared-care-sse-implementation-issues.md).
 
 ## References
 

@@ -59,8 +59,11 @@ It does not forward request logs containing possible credentials.
 - Forty actual Chrome EventSource cycles against the local native bundle leave zero streams.
 - The new controller guard rejects the existing Pi lab with streams=32 before starting browsers.
 
-Local native/Chrome checks use Windows loopback. The corrected ARM64 image and
-Caddy HTTPS path still require the next target run; no such pass is claimed here.
+These initial native/Chrome checks used Windows loopback. The later corrected
+ARM64/Caddy run also passed: a five-client disconnect smoke and all twelve
+comparison windows ended with zero streams. See the
+[2026-10-18 target report](shared-care-sse-comparison-2026-10-18.md) for that
+separate evidence; the failed attempt above remains a partial run.
 
 ## Restart and repeat
 

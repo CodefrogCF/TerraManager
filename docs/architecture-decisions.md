@@ -2387,16 +2387,18 @@ production signing, size recording and release-candidate smoke tests.
 ### Status
 
 Architecture direction accepted (2026-10-18), Issue #186, following the operator's
-explicit choice to pursue SSE. Implementation and performance acceptance are pending.
+explicit choice to pursue SSE. Production implementation and performance acceptance are pending.
 The ARM64 laboratory and trusted Caddy/Chrome
 HTTP/2 path have completed a five-client Raspberry Pi comparison. See the
 [target-device report](testing/shared-care-update-evaluation-pi-2026-10-17.md).
 The same disposable backend has also served the real Flutter UI: five logical
 Chrome clients measured 12 overview and 40 detail-stack data GETs/min/client.
 The earlier 36-read model omitted the gallery lookup. One Feeding update was
-observed in all five detail views. The remaining
-evidence includes per-trial RAM accounting, repeated trials and the agreed
-browser/lifecycle matrix. The production
+observed in all five detail views. The
+[corrected repeated comparison](testing/shared-care-sse-comparison-2026-10-18.md) records
+twelve windows, all 180 observations, zero retained streams and per-window
+CPU/RSS. Physical-browser/lifecycle/scale and memory-bound validation remain
+follow-up acceptance. The production
 polling implementation is unchanged; the laboratory is not the production
 synchronization implementation.
 
@@ -2495,9 +2497,16 @@ Report wire/upkeep traffic and Dart/Caddy resources separately.
 The [focused SSE validation procedure](testing/shared-care-sse-validation.md)
 repeats polling and SSE three times with an alternating workload order. It adds
 PID 1 RSS and cumulative CPU ticks where Docker memory statistics are unavailable.
-This next five-client run does not replace the wider scale/browser/lifecycle matrix.
+The corrected five-client run completed all three repetitions. SSE lab write
+p95 was 173/179/180 ms versus polling 12778/12765/12763 ms, with zero idle data
+GETs and about 99.98% fewer received idle body bytes including upkeep. In-window
+Dart idle CPU was 0.009-0.017% of one core versus polling 0.930-0.982%.
+RSS observations are available, but the shared process grew across the run and
+later released memory; no per-mode RAM saving or long-term bound is established.
+The [five issue drafts](testing/shared-care-sse-implementation-issues.md) retain
+the wider scale/browser/lifecycle matrix and propose explicit CPU/RSS budgets.
 
-Targets to confirm:
+Targets to confirm in production (connected-lab latency/traffic passed):
 - p95 visible update latency <= 2 seconds with five LAN clients;
 - >= 90% fewer idle data requests and >= 80% fewer idle bytes including upkeep
   while the preferred notification transport is connected;
@@ -2506,8 +2515,11 @@ Targets to confirm:
   latency and request budget rather than applying the connected-SSE target;
 - no data-list rebuild on unchanged versions or heartbeat;
 - automatic convergence after outage, restart and successful restore;
-- concrete CPU/RAM budgets derived from the Pi baseline, with bounded memory
-  and no growth across repeated reconnects.
+- proposed same-fixture budgets after warmup: Dart/Caddy idle CPU <= 0.10/0.10%
+  of one core, write-window CPU <= 1.50/0.25%, sampled PID 1 RSS <= 256/80 MiB;
+- validate memory over 30 minutes and at least 100 reconnects; investigate a
+  final warm 10-minute median RSS > 10% above the initial warm 10-minute median.
+  These proposed budgets have not passed production acceptance.
 
 The test kit is intentionally outside production entry points. Its completed-
 request observer publishes only successful Feeding-create hints and cannot

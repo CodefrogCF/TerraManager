@@ -37,6 +37,19 @@ password. Transfer ~/tm186-private/credentials.json to the controller's private
 credentials file before starting the next browser run. Do not publish it.
 The previous host-side resource directory is retained.
 
+## Corrected target run completed
+
+The fresh run associated with sse-20261018T072824Z completed all twelve windows.
+All 180 expected observations arrived; all 36 created Feedings were cleaned up.
+The guard confirmed zero streams after every window. The 467 resource samples
+contain valid CPU/RSS for both processes, with no restarts or counter resets.
+See the [complete report and reproducible evidence](shared-care-sse-comparison-2026-10-18.md).
+
+The three connected-lab targets passed. RSS rose across the warm common process
+and later fell; this does not establish SSE memory savings or long-term bounds.
+The [implementation drafts](shared-care-sse-implementation-issues.md) retain the
+physical-browser/lifecycle/scale and production memory validation scope.
+
 ## Pi: switch only the separate gateway and start resources
 
 Apply this ZIP to the Pi checkout first. The following block switches the 8443

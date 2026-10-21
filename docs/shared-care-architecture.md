@@ -6,115 +6,55 @@ permalink: /shared-care-architecture.html
 
 # Shared Care code organization
 
-Shared Care follows the feature-oriented layout of the standalone app while
-keeping its browser presentation separate from server-owned persistence.
-Issue #185 changes source organization only. API paths and payloads, collection
-schema version 16, portable backup format version 2, permissions and visible
-workflows remain unchanged.
+Shared Care separates browser presentation from server-owned persistence and
+reuses standalone domain/repository code. The collection is schema 17; portable
+format 2 and API routes are documented in their respective contracts.
 
 ## Client
 
 `lib/main_shared.dart` composes `shared_client/app/shared_care_app.dart`.
-Feature pages live in `<feature>/presentation/pages/`, reusable feature widgets
-in `<feature>/presentation/widgets/`, and feature API methods in
-`<feature>/infrastructure/api/`.
+Feature folders contain `presentation/pages`, reusable `presentation/widgets`
+and `infrastructure/api` mixins: Animals, Boxes/QR, Feedings, care history, media,
+backups, settings, authentication and administration/accounts/audit.
+`navigation` owns detail context and browser Back; `shared` owns transport,
+synchronization and common labels/widgets.
 
-| Feature | Responsibilities |
-| --- | --- |
-| `animals` | Overview, details, create/edit form, Weight and Shedding detail sections, Animal API commands |
-| `boxes` | Overview, details, create/edit form, QR scanner and QR export, browser camera adapters, Box API commands |
-| `feedings` | Box Feeding workflow, reminders, detail Feeding summary and Feeding API commands |
-| `care_history` | Existing Feeding, Weight and Shedding history editor and history API commands |
-| `media` | Gallery uploads and selection, thumbnails, overview image cache and Media API commands |
-| `settings` | Settings page, account preference application and preferences API commands |
-| `backups` | Backup Settings section, legacy-time-zone dialog, browser time-zone adapter and backup API commands |
-| `administration/accounts` | Administrator account page and account API commands |
-| `administration/audit` | Administrator audit page, metadata models and audit API commands |
-| `authentication` | Sign-in page, session model and authentication API commands |
-| `navigation` | Home navigation, detail navigation context and browser Back adapters |
-| `shared` | Transient API transport, API error/payload validation, labels, sorting and reusable dialogs/widgets |
+`SharedApiClient` composes feature APIs over one transport/session. The
+synchronization controller invalidates affected data and coordinates SSE,
+conditional fallback and recovery. See the [change contract](shared-care-change-contract.md).
+No client imports server persistence or opens a collection database. Reusing
+pure enums, formatting and picture-selection widgets is allowed.
 
-`SharedApiClient` composes the feature API mixins over a single
-`SharedApiTransport`. Transport owns the HTTP client, transient session state,
-CSRF headers, timeouts, error translation and connection notifications. Feature
-methods retain their existing public signatures. Pages still receive the same
-client instance. No feature introduces a second session or local collection
-cache on disk.
-
-The client does not import server code or database repositories. Presentation
-may reuse standalone pure enums, formatting and media-selection components.
-Collection writes always go through the server API; portable backup handling in
-the browser transfers archives and does not restore a browser database.
-
-## Browser navigation and care-entry controls
-
-`SerializedBrowserHistory` queues browser history writes behind the completion
-of `history.go()`. Its `popstate` echo acknowledges an in-app pop without
-dispatching another Flutter Back action. This prevents a menu's delayed event
-from closing the next confirmation dialog. Browser-initiated Back still reaches
-`SharedBrowserBackObserver` and respects protected forms and scanner cleanup.
-
-Animal and Box archives are pushed routes, so browser/mobile Back returns to
-their respective overview. Archive pages receive current records and connection
-state from the overview through `SharedArchiveSnapshot`; polling, mutations and
-account preferences continue to update the visible archive. They always use
-thumbnail lists with archive reason/date, regardless of Big Picture Mode.
-`sortSharedArchiveRecords` uses the standalone archive comparator and each
-account's separate Animal/Box archive sort preference. Detail navigation retains
-that archive order as records change.
-
-Shared Care history dialogs edit the date and local time separately. Time input
-starts with editable hour/minute fields, validates the range, and preserves the
-selected date. API operations continue to encode care-event instants in UTC.
+Browser-history writes are serialized; acknowledging an in-app pop must not
+dispatch a second Back. Archive routes receive refreshed snapshots and retain
+their own sort order. Reconciliation preserves mounted edit drafts. Care-event
+dialogs edit local dates/times and encode UTC instants for the API.
 
 ## Server
 
 `bin/shared_server.dart` composes `shared_server/app/shared_server_api.dart`.
-The entry point keeps global origin, session and administrator guards, health
-checks, exception translation and routing. Collection dispatch lives in
-`collection/infrastructure/http/care_api.dart`.
+Global routing enforces origin/session/role guards, health and error translation;
+`collection/infrastructure/http/care_api.dart` dispatches collection resources.
 
-| Layer | Responsibilities |
+| Layer | Responsibility |
 | --- | --- |
-| `<feature>/infrastructure/http/` | Existing route and HTTP-method matching, bounded request decoding, response delivery and feature routing |
-| `<feature>/application/` | Typed input validation, collection/account commands, conflict and lifecycle checks, backup operations and transaction orchestration |
-| `<feature>/domain/` | API results/errors, account/session identity and allowlisted audit metadata |
-| `<feature>/infrastructure/` | Account SQLite storage, password hashing, collection audit storage and audit DDL |
-| `shared/infrastructure/` | Server database connection, HTTP readers/writers and existing response serialization |
+| `<feature>/infrastructure/http/` | Routes, bounded request decoding, HTTP responses |
+| `<feature>/application/` | Typed validation, commands, conflicts, lifecycle and transaction orchestration |
+| `<feature>/domain/` | Results/errors, identity and allowlisted audit metadata |
+| `<feature>/infrastructure/` | SQLite accounts, password hashing and audit storage |
+| `shared/infrastructure/` | Database connection, HTTP readers/writers and serialization |
 
-Animal, Box, Feeding and Media handlers delegate commands to their feature
-operations. Weight and Shedding commands live with Animals. Authentication,
-Settings, account administration, Audit and Backups have their own modules.
-Existing collection repositories in `core/database/repositories/` remain the
-shared persistence implementation used by standalone and the server. This
-refactor does not move them into the browser client or change their behavior.
+Operations reuse `core/database/repositories/`. Weight/shedding belong to Animals;
+authentication, administration, backups and change delivery have dedicated
+modules. Publish revision hints only after collection/audit commit. Preserve
+backup safety gates and idempotency receipts.
 
-One `CollectionOperationGate` is shared by collection routing, backups and audit
-reads. One Feeding idempotency cache belongs to each `CareApi`; rollback and
-successful collection replacement still clear it. The backup handler retains
-session-bound safety grants and rechecks their collection generation after
-draining writes. Restore and its successful audit event still commit in the
-same collection transaction. Account commands retain the account store's
-identity checks, session revocation and final-administrator protection.
+## Dependency rules
 
-Application modules accept plain command values and API results rather than
-`HttpRequest` or Flutter widgets. Server persistence never depends on browser
-presentation. Audit metadata excludes request bodies, secret values and notes.
+- Browser code: no server, Drift or SQLite persistence imports.
+- Server application operations: no Flutter UI or HTTP implementation imports.
+- Import canonical feature paths; old flat files are export-only adapters.
+- Organization changes must preserve API, transaction and authorization contracts.
 
-## Incremental migration and verification
-
-Former flat source paths remain as small compatibility exports. Production
-imports and existing feature tests use the canonical feature paths. New code
-should use those paths; compatibility files contain no duplicate implementation.
-They can be removed in a later, explicit migration after consumers have moved.
-
-Architecture tests reject browser dependencies on server persistence, HTTP/UI
-dependencies in server application modules and new production imports through
-the compatibility paths. A separate compatibility test verifies that old
-imports resolve to the same public types. Existing UI and API regression tests
-continue to exercise the behavior of the extracted modules.
-
-See [architecture decisions](architecture-decisions.md),
-[Shared Care API](shared-care-api.md),
-[development](development.md) and
-[project documentation](project-documentation.md).
+`test/architecture/` checks these boundaries and compatibility exports.
+See [ADR-035](architecture-decisions.md#adr-035-organize-shared-care-by-feature-with-explicit-transport-and-persistence-boundaries).

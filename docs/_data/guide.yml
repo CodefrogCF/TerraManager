@@ -24,230 +24,214 @@ de:
   jump:
     heading: Direkt zum Thema
     items:
-      - number: "01"
-        target: start
-        title: Bestand anlegen
-        body: Boxen und Tiere erfassen
-      - number: "02"
-        target: qr
-        title: QR-Codes nutzen
-        body: Drucken, anbringen, scannen
-      - number: "03"
-        target: feeding
-        title: Fütterungen
-        body: Einzeln oder per Box-Scan
-      - number: "04"
-        target: reminders
-        title: Erinnerungen
-        body: Intervalle und Fälligkeiten
-      - number: "05"
-        target: archive
-        title: Archivieren
-        body: Historie statt Löschen
-      - number: "06"
-        target: backup
-        title: Daten sichern
-        body: Backup und Wiederherstellung
-      - number: "07"
-        target: shared-care
-        title: Gemeinsam betreuen
-        body: Eine Sammlung im eigenen Netzwerk
+    - number: '01'
+      target: start
+      title: Bestand anlegen
+      body: Boxen und Tiere erfassen
+    - number: '02'
+      target: qr
+      title: QR-Codes nutzen
+      body: Drucken, anbringen, scannen
+    - number: '03'
+      target: feeding
+      title: Fütterungen
+      body: Einzeln oder per Box-Scan
+    - number: '04'
+      target: reminders
+      title: Erinnerungen
+      body: Intervalle und Fälligkeiten
+    - number: '05'
+      target: archive
+      title: Archivieren
+      body: Historie statt Löschen
+    - number: '06'
+      target: backup
+      title: Daten sichern
+      body: Backup und Wiederherstellung
+    - number: '07'
+      target: shared-care
+      title: Gemeinsam betreuen
+      body: Eine Sammlung im eigenen Netzwerk
   sections:
-    - id: start
-      number: "01"
-      eyebrow: Bestand anlegen
-      heading: Boxen und Tiere bilden die Grundlage
-      lead: Beim ersten Start einer leeren eigenständigen Sammlung führt dich eine überspringbare Einführung durch Boxen, Tiere, Fütterungen und QR-Codes. Mit Weiter und Zurück bleibst du in der Einführung; Fertig oder Überspringen schließt sie, ohne die aktuelle Seite zu wechseln. Du kannst sie unter Einstellungen erneut öffnen. Lege zuerst den realen Behälter als Box an. Danach erfasst du das Tier und weist ihm die passende Box zu.
-      heading_image:
-        file: box_detail.webp
-        alt: Detailansicht einer Box
-        caption: Boxdetailansicht
-      steps:
-        - number: "1"
-          heading: Box anlegen
-          body_html: Öffne <strong>Boxen</strong> und tippe auf <strong>+</strong>. Hinterlege einen Namen, Abmessungen, optional ein Bild und weitere Informationen. Nach dem Speichern erhält die Box automatisch eine eindeutige QR-Kennung.
-          note_html: "Tipp: Ein aussagekräftiges Bild erleichtert später die visuelle Zuordnung – besonders bei größeren Beständen."
-          images:
-            - file: boxes-overview.webp
-              alt: Boxübersicht mit mehreren Behältern
-              caption: Boxübersicht
-            - file: box-create.webp
-              alt: Maske zum Erstellen einer neuen Box
-              caption: Neue Box erstellen
-        - number: "2"
-          reverse: true
-          heading: Tier erfassen und zuweisen
-          body_html: Unter <strong>Tiere</strong> legst du den Tierdatensatz an und weist ihn einer aktiven Box zu. Zu den optionalen Angaben gehören Taxonomie, ein bekanntes Geschlecht, Geburtsinformationen, Tag- und Nachttemperaturen, Luftfeuchtigkeit, Herkunft, Gewicht, Ruhezeiten und Notizen.<br><br>Gewicht und Häutung können in den Tierdetails getrennt ein- oder ausgeblendet werden, ohne die zugehörigen Verläufe zu löschen. Ein vorhandenes Geburtsdatum lässt sich zusammen mit seiner Genauigkeitsangabe entfernen.
-          images:
-            - file: animal-edit.webp
-              alt: Bearbeitungsansicht eines Tieres
-              caption: Tier bearbeiten
-            - file: animal-details.webp
-              alt: Detailansicht eines Tieres
-              caption: Tierdetails
-        - number: "3"
-          heading: Darstellung der Übersichten wählen
-          body_html: Aktiviere unter <strong>Einstellungen</strong> den <strong>Großbildmodus</strong>, wenn Bilder in der Box- und Tierübersicht stärker im Mittelpunkt stehen sollen. Die Einstellung gilt auch für die nach Kategorien gruppierte Tieransicht und wird in portablen Backups gesichert.
-          images:
-            - file: big-picture-mode.webp
-              alt: Tierübersicht im Großbildmodus
-              caption: Optionaler Großbildmodus
-        - number: "4"
-          reverse: true
-          heading: Bilder fortlaufend ergänzen
-          body_html: Neben dem Hauptbild kannst du weitere Aufnahmen in der Galerie speichern. Ein Bild lässt sich jederzeit als primäres Bild auswählen, ohne die übrigen Aufnahmen zu entfernen. Tippe auf das Hauptbild oder ein Galeriebild, um es in der Vollbildansicht zu vergrößern. Auf breiten Bildschirmen bleiben Übersichten, Einstellungen sowie Detail-, Bearbeitungs- und Verlaufsseiten auf gut lesbare Breiten begrenzt. Die Seitenränder folgen dem gewählten Theme. Detailbilder erhalten bei breiten Ansichten mehr Höhe; die Vollbildansicht nutzt weiterhin den gesamten Bildschirm.
-          images:
-            - file: gallery.webp
-              alt: Bildergalerie eines Tieres
-              caption: Bildergalerie
-    - id: qr
-      number: "02"
-      eyebrow: QR-Codes
-      heading: Physische Box und Datensatz direkt verbinden
-      lead: Jede Box besitzt einen eindeutigen QR-Code. Gedruckt am Behälter führt er beim Scannen direkt zum passenden Workflow.
-      tone: soft
-      steps:
-        - number: "5"
-          heading: Box-QR-Codes exportieren
-          body_html: Unter <strong>Einstellungen → Box-QR-Codes</strong> wählst du aktive oder archivierte Boxen aus und speicherst ihre QR-Codes als einzelne PNG-Dateien, ZIP-Archiv oder druckfertiges A4-PDF. Vor jedem Export kannst du Boxen abwählen; für das PDF legst du die Codegröße zwischen 6 und 20 mm fest.
-          images:
-            - file: qr-pdf-export.webp
-              alt: Dialog zum PDF-Export von Box-QR-Codes
-              caption: QR-Codes gesammelt als PDF exportieren
-        - number: "6"
-          reverse: true
-          heading: Anbringen und scannen
-          body_html: Bringe den Ausdruck am realen Terrarium oder Behälter an. Im eigenständigen Modus löst der integrierte Scanner den Code lokal auf. Derselbe Scanner kann eine Box öffnen, den Fütterungsmodus starten oder beim Bearbeiten eines Tieres eine aktive Zielbox auswählen. Der Umsetzmodus verlangt eine Bestätigung und lehnt unbekannte, archivierte oder bereits zugewiesene Boxen ab. Im optionalen Shared-Care-Webmodus öffnet der Box-Scan die gemeinsame Boxdetailseite; dafür sind vertrauenswürdiges HTTPS und die integrierte QR-Erkennung eines unterstützten Browsers nötig. Nur die QR-Kennung wird an den eigenen Server übertragen.
-          wide_images: true
-          images:
-            - file: qr-on-enclosure.webp
-              alt: QR-Code an einem Terrarium
-              caption: QR-Code am Behälter
-            - file: qr-scanner.webp
-              alt: QR-Scanner in TerraManager
-              caption: Integrierter Scanner
-    - id: feeding
-      number: "03"
-      eyebrow: Fütterungen
-      heading: Direkt dokumentieren – einzeln oder per Box-Scan
-      lead: Fütterungen werden mit Zeitpunkt sowie Futter beziehungsweise Menge gespeichert und bleiben chronologisch nachvollziehbar.
-      steps:
-        - number: "7"
-          heading: Fütterungshistorie
-          body_html: Die Historie zeigt bisherige Fütterungen eines Tieres. Vorhandene Einträge können korrigiert oder bei Fehleingaben gelöscht werden.
-          images:
-            - file: feeding-history.webp
-              alt: Fütterungshistorie eines Tieres
-              caption: Chronologische Fütterungshistorie
-        - number: "8"
-          reverse: true
-          heading: Schnelle Fütterung per Box-Scan
-          body_html: Scanne zuerst die Box. TerraManager zeigt anschließend die darin aktiven Tiere mit Namen und aktuellem Vorschaubild. Ohne Bild erscheint der übliche Platzhalter. Dies gilt auch für den Shared-Care-Fütterungsmodus. Wähle ein oder mehrere tatsächlich gefütterte Tiere aus und speichere die Fütterung gemeinsam. Für jedes ausgewählte Tier entsteht ein eigener Eintrag.
-          note_html: <strong>Falsche Box gescannt?</strong> „Andere Box scannen“ führt zurück zum Scanner und dient zur Korrektur des versehentlichen Scans.
-          images:
-            - file: quick-feeding.webp
-              alt: Schnelle Fütterung nach einem Box-Scan
-              caption: Mehrere Tiere einer Box auswählen
-        - number: "9"
-          heading: Häutungen dokumentieren
-          body_html: Füge Häutungsereignisse mit Datum und Uhrzeit über die Tierdetails oder beim Bearbeiten eines Tieres hinzu. Die Häutungshistorie ist vom neuesten zum ältesten Eintrag geordnet. Jeder Eintrag kann eine eigene optionale Notiz enthalten und später korrigiert oder nach Bestätigung dauerhaft gelöscht werden.
-          images:
-            - file: shedding-history.webp
-              alt: Tierdetails mit Aktionen für Häutungen
-              caption: Zeitlich geordnete Häutungshistorie
-    - id: reminders
-      number: "04"
-      eyebrow: Erinnerungen
-      heading: Individuelle Fütterungsrhythmen im Blick behalten
-      lead: Für jedes Tier kann ein Intervall in Tagen oder ein fester Wochentagsplan aktiviert werden.
-      tone: soft
-      steps:
-        - number: "10"
-          heading: Intervall oder Wochentage festlegen
-          body_html: Öffne das Erinnerungssymbol in den Tierdetails und aktiviere die Fütterungserinnerung. Wähle entweder ein Intervall mit einer positiven Anzahl ganzer Tage oder feste Wochentage mit Uhrzeit und Zeitzone. Eine Fütterung verschiebt die gewählten Wochentage nicht. Bestehende Intervalle bleiben erhalten.
-          images:
-            - file: feeding-reminder-settings.webp
-              alt: Einstellungen für eine Fütterungserinnerung
-              caption: Individuelles Erinnerungsintervall
-        - number: "11"
-          reverse: true
-          heading: Fällige und bevorstehende Fütterungen erkennen
-          body_html: Erreicht oder überschreitet ein Tier den errechneten Termin, erscheint es als <strong>Fällig</strong>. Der Tiereintrag in der Hauptnavigation und die Tierübersicht weisen auf aktive Fälligkeiten hin. Die Liste der fälligen Tiere lässt sich in beiden Ansichtsmodi ein- und ausklappen; die Anzahl bleibt sichtbar. Aktiviere optional „Nächste Fütterung“ und tippe auf die Karte, um alle Tiere mit Erinnerung chronologisch nach ihrem nächsten Termin zu sehen, auch wenn alle Termine fällig sind.
-          images:
-            - file: feeding-reminders-due.webp
-              alt: Tierübersicht mit mehreren fälligen Fütterungen
-              caption: Fällige Fütterungen zentral im Blick
-    - id: archive
-      number: "05"
-      eyebrow: Historie
-      heading: Archivieren statt Informationen verlieren
-      lead: Nicht mehr aktive Tiere und Boxen können aus dem aktiven Bestand entfernt werden, ohne ihre bisherigen Daten zu löschen.
-      steps:
-        - number: "12"
-          heading: Archivinformationen erhalten und wiederherstellen
-          body_html: Beim Archivieren können Grund, Datum und eine optionale Notiz hinterlegt werden. Tierhistorie und archivierte Boxen lassen sich in beiden Richtungen nach Archivdatum oder angezeigtem Namen sortieren. Über das Kontextmenü können archivierte Einträge direkt wiederhergestellt oder dupliziert werden.
-          note_html: „Dauerhaft löschen“ entfernt den Datensatz endgültig. Wenn historische Informationen weiterhin wichtig sind, ist die Archivierung die sicherere Wahl.
-          images:
-            - file: animal-history.webp
-              alt: Tierhistorie mit archivierten Tieren
-              caption: Sortierte Tierhistorie
-            #- file: archived-boxes.webp
-            #  alt: Übersicht der archivierten Boxen
-            #  caption: Archivierte Boxen
-            - file: archive-details.webp
-              alt: Archivinformationen mit Wiederherstellungsaktion
-              caption: Archivdetails und Wiederherstellung
-    - id: backup
-      number: "06"
-      eyebrow: Datensicherung
-      heading: Regelmäßig sichern und kontrolliert wiederherstellen
-      lead: Mit wachsendem Bestand enthalten Backups Stammdaten, Bildergalerien, Fütterungen, Gewichts- und Häutungsverläufe, tierbezogene Anzeigeeinstellungen sowie portable Einstellungen für die Übersichten.
-      tone: dark
-      steps:
-        - number: "13"
-          heading: Safety Backup bei Wiederherstellung
-          body_html: Vor einer Wiederherstellung ist standardmäßig ein zusätzliches Safety Backup des aktuellen Zustands vorgesehen. Der Schutz ist als Opt-out ausgeführt und kann bewusst deaktiviert werden.
-          note_html: Im eigenständigen Modus ist bei aktiviertem Safety Backup keine separate manuelle Zwischensicherung vor jeder Wiederherstellung nötig. Bei Shared Care ist vor dem Ersetzen vorhandener Sammlungsdaten eine aktuelle portable Sicherheitskopie erforderlich. Nur bei einer vom Server bestätigten leeren Sammlung entfällt sie; der Server prüft dies vor dem Ersetzen erneut. Die Bestätigung der Wiederherstellung bleibt erforderlich; für die vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden.
-          images:
-            - file: restore-safety-backup.webp
-              alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
-              caption: Safety Backup vor der Wiederherstellung
-        - number: "14"
-          heading: Sicherung mit Passwort schützen
-          body_html: Wähle beim Speichern einer portablen Sicherung <strong>Mit Passwort schützen</strong>, gib das Passwort zweimal ein und bewahre es getrennt von der Datei auf. Beim Import erkennt TerraManager die geschützte Datei und fragt nach dem Passwort. Ein falsches Passwort oder eine beschädigte Datei wird vor dem Ersetzen der Sammlung zurückgewiesen. Ungeschützte ältere Sicherungen bleiben importierbar.
-          note_html: Ein vergessenes Passwort kann nicht wiederhergestellt werden. TerraManager speichert das Backup-Passwort nicht dauerhaft. Bei großen Sicherungen kann die Verarbeitung mehrere Minuten dauern und auf Geräten mit wenig freiem Speicher scheitern; ein fehlgeschlagener oder abgebrochener Versuch ersetzt die bestehende Sammlung nicht. Beim Wiederherstellen einer geschützten Datei erhält die optionale lokale Sicherheitskopie dasselbe Passwort. Bei Shared Care speichert ein Administrator zuerst eine aktuelle passwortgeschützte Sicherheitskopie; der Browser entschlüsselt die Importdatei vor dem Senden an den eigenen Server.
+  - id: start
+    number: '01'
+    eyebrow: Bestand anlegen
+    heading: Boxen und Tiere bilden die Grundlage
+    lead: Lege zuerst eine Box und danach ein Tier mit Zuordnung zu einer aktiven Box an. Die optionale Einführung kannst du überspringen oder in Einstellungen erneut öffnen.
+    heading_image:
+      file: box_detail.webp
+      alt: Detailansicht einer Box
+      caption: Boxdetailansicht
+    steps:
+    - number: '1'
+      heading: Box anlegen
+      body_html: Öffne <strong>Boxen → +</strong>. Ergänze Namen, Abmessungen und optional ein zugeschnittenes Bild. Beim Speichern entsteht die permanente QR-Kennung.
+      images:
+      - file: boxes-overview.webp
+        alt: Boxübersicht mit mehreren Behältern
+        caption: Boxübersicht
+      - file: box-create.webp
+        alt: Maske zum Erstellen einer neuen Box
+        caption: Neue Box erstellen
+    - number: '2'
+      reverse: true
+      heading: Tier erfassen und zuweisen
+      body_html: Unter <strong>Tiere → +</strong> wählst du eine aktive Box, Kategorie, Namen und Haltungswerte. Herkunft, Geburtsinformationen und weitere Angaben sind optional. Gewicht und Häutung lassen sich in den Details unabhängig ausblenden, ohne Verläufe zu löschen.
+      images:
+      - file: animal-edit.webp
+        alt: Bearbeitungsansicht eines Tieres
+        caption: Tier bearbeiten
+      - file: animal-details.webp
+        alt: Detailansicht eines Tieres
+        caption: Tierdetails
+    - number: '3'
+      heading: Darstellung der Übersichten wählen
+      body_html: Sortiere über die Übersicht und schalte die Kategoriegruppen separat ein. Unter <strong>Einstellungen</strong> aktivierst du den <strong>Großbildmodus</strong> für Boxen und Tiere.
+      images:
+      - file: big-picture-mode.webp
+        alt: Tierübersicht im Großbildmodus
+        caption: Optionaler Großbildmodus
+    - number: '4'
+      reverse: true
+      heading: Galerie und Tier-PDFs
+      body_html: Ergänze Aufnahmen in der Galerie und markiere ein Hauptbild. Tippe auf ein Bild für Vollbild, Zoom und Blättern. In den Tierdetails exportierst du ein Etikett mit frei wählbarer Breite und quadratischem Hauptbild oder ein A4-Datenblatt mit Fütterungs-, Häutungs- und Gewichtshistorie. Optional folgen alle Galeriebilder chronologisch, einschließlich Hauptbild, mit vier Bildern pro Seite im Originalformat.
+      images:
+      - file: gallery.webp
+        alt: Bildergalerie eines Tieres
+        caption: Bildergalerie
+  - id: qr
+    number: '02'
+    eyebrow: QR-Codes
+    heading: Physische Box und Datensatz direkt verbinden
+    lead: Ein Box-QR enthält eine permanente Kennung. Der Ausdruck bleibt gültig, wenn sich Tier- oder Boxdaten ändern.
+    tone: soft
+    steps:
+    - number: '5'
+      heading: Box-QR-Codes exportieren
+      body_html: Unter <strong>Einstellungen → Box-QR-Codes</strong> wählst du aktive/archivierte Boxen und speicherst PNG, ZIP oder A4-PDF. Die PDF-Codegröße ist zwischen 6 und 20 mm einstellbar.
+      images:
+      - file: qr-pdf-export.webp
+        alt: Dialog zum PDF-Export von Box-QR-Codes
+        caption: QR-Codes gesammelt als PDF exportieren
+    - number: '6'
+      reverse: true
+      heading: Anbringen und scannen
+      body_html: Scanne das Etikett, um die Box zu öffnen oder den Fütterungsmodus zu nutzen. Eine archivierte Box kann nach Rückfrage wiederhergestellt werden. Beim Erstellen eines Tieres wählt QR die Box; beim Umsetzen sind nur aktive andere Ziele nach Bestätigung erlaubt. Shared-Care-Scanning benötigt vertrauenswürdiges HTTPS und native QR-Unterstützung im Browser; übertragen wird nur die Kennung.
+      wide_images: true
+      images:
+      - file: qr-on-enclosure.webp
+        alt: QR-Code an einem Terrarium
+        caption: QR-Code am Behälter
+      - file: qr-scanner.webp
+        alt: QR-Scanner in TerraManager
+        caption: Integrierter Scanner
+  - id: feeding
+    number: '03'
+    eyebrow: Fütterungen
+    heading: Direkt dokumentieren – einzeln oder per Box-Scan
+    lead: Speichere Fütterungen mit Zeitpunkt und optionaler Notiz. Gewichts- und Häutungsereignisse bilden eigene Verläufe.
+    steps:
+    - number: '7'
+      heading: Fütterungshistorie
+      body_html: Öffne die Tierhistorie, um Fütterungen anzusehen, zu korrigieren oder zu löschen. Shared Care erlaubt endgültiges Löschen nur Administratoren.
+      images:
+      - file: feeding-history.webp
+        alt: Fütterungshistorie eines Tieres
+        caption: Chronologische Fütterungshistorie
+    - number: '8'
+      reverse: true
+      heading: Schnelle Fütterung per Box-Scan
+      body_html: Scanne eine Box oder wähle sie manuell, markiere die gefütterten Tiere und speichere Zeit/Notiz. Jedes ausgewählte Tier erhält einen Eintrag; die Gruppe wird gemeinsam gespeichert.
+      note_html: <strong>Falsche Box?</strong> „Andere Box scannen“ verwirft den ungespeicherten Fütterungsentwurf und öffnet den Scanner erneut.
+      images:
+      - file: quick-feeding.webp
+        alt: Schnelle Fütterung nach einem Box-Scan
+        caption: Mehrere Tiere einer Box auswählen
+    - number: '9'
+      heading: Häutungen und Gewicht dokumentieren
+      body_html: Erfasse Häutungen mit Datum, Uhrzeit und optionaler Notiz. Gewicht wird als positiver Wert in Gramm mit Zeitpunkt erfasst. Verläufe sind zeitlich geordnet und lassen sich nachträglich korrigieren.
+      images:
+      - file: shedding-history.webp
+        alt: Tierdetails mit Aktionen für Häutungen
+        caption: Zeitlich geordnete Häutungshistorie
+  - id: reminders
+    number: '04'
+    eyebrow: Erinnerungen
+    heading: Individuelle Fütterungsrhythmen im Blick behalten
+    lead: Wähle pro Tier ein Tagesintervall oder feste Wochentage mit Uhrzeit und Zeitzone.
+    tone: soft
+    steps:
+    - number: '10'
+      heading: Intervall oder Wochentage festlegen
+      body_html: Öffne das Erinnerungssymbol in den Tierdetails. Stelle ein positives Tagesintervall oder Wochentage mit Uhrzeit und IANA-Zeitzone ein. Neue Fütterungen verschieben einen festen Wochentagsplan nicht.
+      images:
+      - file: feeding-reminder-settings.webp
+        alt: Einstellungen für eine Fütterungserinnerung
+        caption: Individuelles Erinnerungsintervall
+    - number: '11'
+      reverse: true
+      heading: Fällige und bevorstehende Fütterungen erkennen
+      body_html: Fällige Tiere erhalten eine Markierung in Liste und Navigation. Die Fälligkeitsgruppe lässt sich ein-/ausklappen. Die optionale Karte <strong>Nächste Fütterung</strong> öffnet alle aktiven Erinnerungstermine chronologisch. Erinnerungen erscheinen in der App, ohne Systembenachrichtigungen.
+      images:
+      - file: feeding-reminders-due.webp
+        alt: Tierübersicht mit mehreren fälligen Fütterungen
+        caption: Fällige Fütterungen zentral im Blick
+  - id: archive
+    number: '05'
+    eyebrow: Historie
+    heading: Archivieren statt Informationen verlieren
+    lead: Archivierte Tiere und Boxen behalten ihre Daten, Bilder und Verläufe und lassen sich wiederherstellen.
+    steps:
+    - number: '12'
+      heading: Archivinformationen erhalten und wiederherstellen
+      body_html: Archiviere mit Grund, Datum und optionaler Notiz. Eine Box darf keine aktiven Tiere enthalten. Die Historie sortiert nach Name oder Archivdatum; Wiederherstellen und Duplizieren stehen im Kontextmenü. Ein Tier benötigt beim Wiederherstellen eine aktive Zielbox.
+      note_html: „Dauerhaft löschen“ entfernt archivierte Daten endgültig. In Shared Care ist diese Aktion Administratoren vorbehalten.
+      images:
+      - file: animal-history.webp
+        alt: Tierhistorie mit archivierten Tieren
+        caption: Sortierte Tierhistorie
+      - file: archive-details.webp
+        alt: Archivinformationen mit Wiederherstellungsaktion
+        caption: Archivdetails und Wiederherstellung
+  - id: backup
+    number: '06'
+    eyebrow: Datensicherung
+    heading: Regelmäßig sichern und kontrolliert wiederherstellen
+    lead: Portable .tmbackup-Dateien enthalten Sammlung, Bilder, Verläufe und portable Einstellungen. Wiederherstellen ersetzt den Zielbestand.
+    tone: dark
+    steps:
+    - number: '13'
+      heading: Safety Backup bei Wiederherstellung
+      body_html: Im eigenständigen Modus ist die zusätzliche Sicherheitskopie vor Wiederherstellung standardmäßig aktiviert und für diesen Vorgang abwählbar. Scheitert ihr Speichern oder wird es abgebrochen, beginnt kein Ersetzen.
+      note_html: Shared Care verlangt vor dem Ersetzen vorhandener Daten eine aktuelle Sicherheitskopie. Nur eine serverseitig bestätigte leere Sammlung kann sie überspringen. Eine portable Kopie enthält keine Konten; für Serverwiederherstellung beide Datenbanken sichern.
+      images:
+      - file: restore-safety-backup.webp
+        alt: Wiederherstellungsdialog mit aktiviertem Safety Backup
+        caption: Safety Backup vor der Wiederherstellung
+    - number: '14'
+      heading: Sicherung mit Passwort schützen
+      body_html: Wähle <strong>Mit Passwort schützen</strong> und bestätige das Passwort. Der Import fragt es vor der Verarbeitung ab; falsches Passwort oder beschädigte Datei werden vor dem Ersetzen abgewiesen. Ältere ungeschützte Sicherungen bleiben lesbar.
+      note_html: Ein vergessenes Passwort kann nicht wiederhergestellt werden. TerraManager speichert das Backup-Passwort nicht dauerhaft. Bei großen Sicherungen kann die Verarbeitung mehrere Minuten dauern und auf speicherarmen Geräten scheitern. Fehler oder Abbruch ersetzen die bestehende Sammlung nicht. Eine aktivierte lokale Sicherheitskopie übernimmt beim geschützten Import dasselbe Passwort; Shared Care entschlüsselt im Browser vor dem Senden an den eigenen Server.
   shared_care:
     eyebrow: Optionale gemeinsame Nutzung
     heading: Eine Sammlung auf deinem eigenen Server
     lead: Im Shared-Care-Webmodus greifen mehrere Betreuungspersonen über ihren Browser auf dieselbe Sammlung zu. Ein eigener Server im lokalen Netzwerk speichert Boxen, Tiere, Fütterungen, Verläufe und Bilder. Die eigenständige Android- und Webanwendung bleibt davon getrennt.
     items:
-      - title: Server und Zugang einrichten
-        body: Der Betreiber richtet TerraManager auf einem eigenen Raspberry Pi oder vergleichbaren Server ein, legt lokale Konten an und stellt eine vertrauenswürdige HTTPS-Adresse bereit. Für die tägliche Nutzung ist kein Cloud-Dienst oder Entwicklerkonto erforderlich.
-      - title: Aus der Android-App öffnen
-        body: Unter Einstellungen → Gemeinsame Betreuung öffnest du die HTTPS-Adresse im externen Browser. Die Daten der lokalen App werden weder automatisch übertragen noch mit der Serversammlung synchronisiert.
-      - title: Zusammen arbeiten
-        body: Melde dich im Browser an. Änderungen werden auf anderen angemeldeten Geräten sichtbar; gleichzeitig bearbeitete Datensätze überschreiben sich nicht unbemerkt. Box-QR-Scans benötigen vertrauenswürdiges HTTPS und einen unterstützten mobilen Browser. Im QR-Fütterungsmodus kannst du ohne Scanner eine Box auswählen; zum QR-Umsetzen bleibt die normale Boxauswahl im Bearbeitungsformular verfügbar.
-      - title: Schnellaktionen und Erinnerungen nutzen
-        body: Öffne das Kontextmenü einer Box oder eines Tieres durch langen Druck oder Rechtsklick. Aktive Einträge lassen sich umbenennen, bearbeiten, duplizieren und archivieren; beim Tier kannst du direkt eine Fütterung beginnen. Archivierte Einträge lassen sich über das Menü wiederherstellen. Endgültiges Löschen findest du nur in den archivierten Details. Ein Ausrufezeichen am Tiere-Symbol zeigt eine fällige Fütterung an.
-      - title: Bilder und Fälligkeiten ansehen
-        body: Hauptbilder und Galeriebilder von Boxen und Tieren öffnen sich per Tipp in einer vergrößerbaren Vollbildansicht. Die Übersicht verwendet bereits geladene Bilder beim Scrollen weiter. Beim erneuten Öffnen, nach der Rückkehr aus Details oder über Neu laden wird der Bildstand erneuert. Die Gruppe fälliger Fütterungen lässt sich in der Tierübersicht ein- und ausklappen; Anzahl und Warnsymbol bleiben sichtbar.
-      - title: Darstellung und Bedienelemente wählen
-        body: Unter Einstellungen kannst du die nächste noch nicht fällige Fütterung ein- oder ausblenden; fällige Erinnerungen bleiben sichtbar. Der Großbildmodus direkt darunter gilt für Boxen, Tiere und die Archive und bleibt für diesen Browser gespeichert. Sortierung und Kategorieanzeige stellst du direkt in der jeweiligen Übersicht ein. Die Aktionen stehen wie in der eigenständigen App oben in einer Leiste; Neu laden ist der zusätzliche Button ganz rechts.
-      - title: Box-QR-Codes exportieren
-        body: Unter Einstellungen → Box-QR-Codes kannst du ausgewählte aktive und archivierte Boxen als einzelne PNG-Dateien, ZIP oder A4-PDF speichern. Vor jedem Export öffnet sich eine Checkliste; beim PDF stellst du die Codegröße zwischen 6 und 20 mm ein. Die Dateien werden direkt im Browser erzeugt.
-      - title: Zur vorherigen Ansicht zurückkehren
-        body: Mit dem Zurück-Pfeil oder der Zurück-Funktion des Browsers beziehungsweise Geräts verlässt du Details, Verlaufsseiten oder den QR-Scanner. Unter Android führt die Zurück-Geste vom Rand innerhalb von Shared Care zurück; beim Schließen des Scanners wird die Kamera freigegeben. Auf der Hauptansicht gilt das normale Browser-Verhalten.
-      - title: Serverkonten verwalten
-        body: Administratoren öffnen Einstellungen → Server → Konten verwalten, um Benutzer hinzuzufügen, Namen und Rollen zu ändern, Passwörter zurückzusetzen, Konten zu deaktivieren oder zu reaktivieren und eine endgültige Löschung zu bestätigen. Änderungen melden den betroffenen Benutzer auf allen Geräten ab. Der letzte aktive Administrator kann nicht herabgestuft, deaktiviert oder gelöscht werden. Eine Kontolöschung erhält die Sammlung und bisherige Audit-Einträge.
-      - title: Lokale Nachvollziehbarkeit
-        body: Der Server des Betreibers protokolliert, wer wann gemeinsame Sammlungsdaten oder Konten geändert hat und welche Einträge betroffen waren. Notizen, Bilder und Zugangsdaten werden nicht in das Änderungsprotokoll kopiert. Einträge bleiben 365 Tage erhalten, auch nach einer Kontolöschung, und werden durch eine portable Wiederherstellung nicht ersetzt.
-      - title: Audit-Verlauf prüfen
-        body: Administratoren öffnen Einstellungen → Gemeinsamer Server → Audit → Letzte Ereignisse ansehen. Der Verlauf zeigt Benutzer, lokale Uhrzeit, Aktion und betroffene Datensatz-ID, neueste Ereignisse zuerst. Filtere nach Datumsbereich, Benutzername oder Aktion; mit Zurück und Weiter wechselst du die Seite. Aktualisieren zeigt wieder die neuesten Ereignisse. Betreuungskonten können diesen Verlauf nicht öffnen. Ohne Ereignisse oder passende Filtertreffer erscheint ein eindeutiger Leerzustand.
-    note: Die portable Shared-Care-Sicherung enthält die Sammlung, aber keine Serverkonten. Für eine vollständige Serverwiederherstellung müssen zusätzlich beide Datenbanken im Serververzeichnis gesichert werden. Der native Android-Modus bleibt eigenständig und benötigt keine zusätzlichen Netzwerkberechtigungen.
+    - title: Zugang und getrennte Sammlung
+      body: Der Betreiber richtet Server, lokale Konten und eine vertrauenswürdige HTTPS-Adresse ein. Die Android-Einstellung „Gemeinsame Betreuung“ öffnet den externen Browser. Lokale App-Daten werden nicht automatisch synchronisiert; eine portable Sicherung überträgt den Bestand.
+    - title: Automatische Aktualisierung
+      body: Änderungen erscheinen ohne Neuladen auf anderen Geräten. Nach Hintergrund oder Verbindungsunterbrechung gleicht der Client die Daten ab. Nicht bestätigte Speichervorgänge prüfen, bevor du erneut speicherst; es gibt keine Offline-Warteschlange. Veraltete Entwürfe überschreiben keine neueren Daten.
+    - title: Bedienung und Darstellung
+      body: Namen änderst du über Bearbeiten. Kontextmenüs bieten passende Pflege-, Duplizieren-, Archiv- und Wiederherstellungsaktionen. Bilder kannst du bereits beim Anlegen auswählen. Sprache, Sortierung und Darstellung gehören zu deinem Konto; Archive bleiben Vorschaulisten.
+    - title: Rollen und Sitzung
+      body: Administratoren verwalten Konten, Backups, endgültiges Löschen und Audit. Kontoänderungen melden betroffene Sitzungen ab; der letzte aktive Administrator ist geschützt. Sitzungen enden nach zwölf Stunden, auch bei aktiver Nutzung. Melde dich anschließend erneut an.
+    - title: Audit und Sicherung
+      body: Das lokale Audit speichert Akteur, Zeitpunkt, Aktion und Datensatzkennung für 365 Tage, keine Notizen, Bilder oder Zugangsdaten. Administratoren filtern es in Einstellungen → Shared server → Audit. Eine portable Sicherung enthält die Sammlung; für vollständige Serverwiederherstellung zusätzlich beide Datenbanken sichern.
+    note: Shared Care bleibt vom eigenständigen Bestand getrennt und benötigt einen erreichbaren Server im LAN.
     setup: Einrichtung und Betrieb des eigenen Servers
   finish:
     heading: Das war der Kernworkflow
-    body: "Im Alltag reduziert sich TerraManager damit auf wenige wiederkehrende Schritte: Box identifizieren, Versorgung dokumentieren, Fälligkeiten prüfen und den gewachsenen Datenbestand regelmäßig sichern."
+    body: 'Im Alltag reduziert sich TerraManager damit auf wenige wiederkehrende Schritte: Box identifizieren, Versorgung dokumentieren, Fälligkeiten prüfen und den gewachsenen Datenbestand regelmäßig sichern.'
     download: TerraManager herunterladen
     manual: Handbuch öffnen
   footer:
@@ -256,7 +240,6 @@ de:
     home: Startseite
     privacy: Datenschutz
     github: GitHub
-
 en:
   locale: en_US
   title: TerraManager Guide – Quick start and daily workflow
@@ -283,230 +266,214 @@ en:
   jump:
     heading: Jump to a topic
     items:
-      - number: "01"
-        target: start
-        title: Set up your collection
-        body: Add enclosures and animals
-      - number: "02"
-        target: qr
-        title: Use QR codes
-        body: Print, attach and scan
-      - number: "03"
-        target: feeding
-        title: Feedings
-        body: Individually or by enclosure scan
-      - number: "04"
-        target: reminders
-        title: Reminders
-        body: Intervals and due feedings
-      - number: "05"
-        target: archive
-        title: Archive records
-        body: Keep history instead of deleting
-      - number: "06"
-        target: backup
-        title: Back up your data
-        body: Backup and restore
-      - number: "07"
-        target: shared-care
-        title: Shared care
-        body: One collection on your own LAN
+    - number: '01'
+      target: start
+      title: Set up your collection
+      body: Add enclosures and animals
+    - number: '02'
+      target: qr
+      title: Use QR codes
+      body: Print, attach and scan
+    - number: '03'
+      target: feeding
+      title: Feedings
+      body: Individually or by enclosure scan
+    - number: '04'
+      target: reminders
+      title: Reminders
+      body: Intervals and due feedings
+    - number: '05'
+      target: archive
+      title: Archive records
+      body: Keep history instead of deleting
+    - number: '06'
+      target: backup
+      title: Back up your data
+      body: Backup and restore
+    - number: '07'
+      target: shared-care
+      title: Shared care
+      body: One collection on your own LAN
   sections:
-    - id: start
-      number: "01"
-      eyebrow: Set up your collection
-      heading: Enclosures and animals are the foundation
-      lead: On the first launch of an empty standalone collection, a skippable introduction walks through enclosures, animals, feedings and QR codes. Next and Back stay within the introduction; Finish or Skip closes it without changing the current page. You can replay it from Settings. Create the physical enclosure first, then add the animal and assign it to the appropriate enclosure.
-      heading_image:
-        file: box_detail.webp
-        alt: Enclosure detail view
-        caption: Enclosure details
-      steps:
-        - number: "1"
-          heading: Add an enclosure
-          body_html: Open <strong>Enclosures</strong> and tap <strong>+</strong>. Add a name, dimensions, optionally a picture and any other useful information. After saving, the enclosure receives its own unique QR identifier automatically.
-          note_html: "Tip: A clear picture makes visual identification easier later, especially in larger collections."
-          images:
-            - file: boxes-overview.webp
-              alt: Enclosure overview with multiple enclosures
-              caption: Enclosure overview
-            - file: box-create.webp
-              alt: Form for creating a new enclosure
-              caption: Create a new enclosure
-        - number: "2"
-          reverse: true
-          heading: Add and assign an animal
-          body_html: Under <strong>Animals</strong>, create the animal record and assign it to an active enclosure. Optional details include taxonomy, explicit sex, birth information, daytime and nighttime temperatures, humidity, origin, weight, rest periods and notes.<br><br>Weight and shedding can be shown or hidden separately on Animal details without deleting their histories. An existing birth date can also be cleared together with its accuracy.
-          images:
-            - file: animal-edit.webp
-              alt: Animal edit screen
-              caption: Edit animal
-            - file: animal-details.webp
-              alt: Animal detail screen
-              caption: Animal details
-        - number: "3"
-          heading: Choose the overview presentation
-          body_html: Enable <strong>Big Picture Mode</strong> in <strong>Settings</strong> when pictures should be the main focus of the enclosure and animal overviews. The setting also applies when animals are grouped by category and is restored through portable backups.
-          images:
-            - file: big-picture-mode-en.webp
-              alt: Animal overview using large pictures
-              caption: Optional Big Picture Mode
-        - number: "4"
-          reverse: true
-          heading: Keep adding pictures
-          body_html: In addition to the primary picture, you can store more pictures in the gallery. Any picture can later be selected as the primary image without deleting the others. Tap the primary or a gallery picture to zoom it in the full-screen viewer. On wide screens, overviews, settings, detail pages, editing forms and history pages stay at comfortable reading widths. The side margins follow the selected theme. Detail pictures gain more height in wide layouts; the full-screen viewer still uses the entire window.
-          images:
-            - file: gallery.webp
-              alt: Animal picture gallery
-              caption: Picture gallery
-    - id: qr
-      number: "02"
-      eyebrow: QR codes
-      heading: Connect the physical enclosure to its record
-      lead: Every enclosure has a unique QR code. Attach the printed code to the enclosure and scan it to open the matching workflow immediately.
-      tone: soft
-      steps:
-        - number: "5"
-          heading: Export Box QR codes
-          body_html: Under <strong>Settings → Box QR codes</strong>, select active or archived Boxes and save their QR codes as individual PNG files, a ZIP archive or a print-ready A4 PDF. You can deselect Boxes before each export and choose a 6–20 mm code size for the PDF.
-          images:
-            - file: qr-pdf-export.webp
-              alt: Dialog for exporting enclosure QR codes to PDF
-              caption: Export QR codes together as PDF
-        - number: "6"
-          reverse: true
-          heading: Attach and scan
-          body_html: Attach the printed code to the actual terrarium or enclosure. In standalone mode, TerraManager’s integrated scanner resolves the code locally. The same scanner can open an enclosure, start Feeding Mode or select an active destination enclosure from Edit Animal. Rehouse Mode asks for confirmation and rejects unknown, archived and current enclosures. In optional Shared Care Web mode, a Box scan opens the shared Box details; it requires trusted HTTPS and a supported browser’s built-in QR reader. Only the QR identifier is sent to your own server.
-          wide_images: true
-          images:
-            - file: qr-on-enclosure.webp
-              alt: QR code attached to a terrarium
-              caption: QR code on the enclosure
-            - file: qr-scanner.webp
-              alt: QR scanner in TerraManager
-              caption: Integrated scanner
-    - id: feeding
-      number: "03"
-      eyebrow: Feedings
-      heading: Record feedings directly – individually or by enclosure scan
-      lead: Feedings are stored with date, time and food or quantity, creating a chronological history for each animal.
-      steps:
-        - number: "7"
-          heading: Feeding history
-          body_html: The feeding history shows the animal’s previous feedings. Existing entries can be corrected or deleted if they were entered by mistake.
-          images:
-            - file: feeding-history.webp
-              alt: Animal feeding history
-              caption: Chronological feeding history
-        - number: "8"
-          reverse: true
-          heading: Record shedding history
-          body_html: Add timestamped shedding events from Animal details or Edit Animal. The history is ordered from newest to oldest, and every entry can have its own optional note. Existing entries can be corrected or permanently deleted after confirmation.
-          images:
-            - file: shedding-history-en.webp
-              alt: Animal details with shedding actions
-              caption: Timestamped shedding history
-        - number: "9"
-          heading: Quick feeding by enclosure scan
-          body_html: Scan the enclosure first. TerraManager then shows the active animals assigned to it with their names and current thumbnails. Animals without a picture use the usual placeholder. Shared Care Feeding Mode uses the same selection layout. Select one or more animals that were actually fed and save the feeding together. A separate feeding entry is created for each selected animal.
-          note_html: <strong>Scanned the wrong enclosure?</strong> “Scan another enclosure” returns to the scanner so you can correct the accidental scan.
-          images:
-            - file: quick-feeding.webp
-              alt: Quick feeding after scanning an enclosure
-              caption: Select multiple animals from one enclosure
-    - id: reminders
-      number: "04"
-      eyebrow: Reminders
-      heading: Keep individual feeding schedules in view
-      lead: Each animal can use a day interval or a fixed weekday feeding plan.
-      tone: soft
-      steps:
-        - number: "10"
-          heading: Set an interval or weekdays
-          body_html: Open the reminder action in the animal details and enable the feeding reminder. Choose either a positive whole number of days or fixed weekdays with a time and time zone. Recording a feeding does not shift the selected weekdays. Existing intervals remain available.
-          images:
-            - file: feeding-reminder-settings.webp
-              alt: Feeding reminder settings
-              caption: Individual reminder interval
-        - number: "11"
-          reverse: true
-          heading: See which animals are due
-          body_html: When the calculated date is reached or passed, the animal is marked as <strong>Due</strong>. The primary Animals navigation item and the Animal Overview indicate active due feedings. The due list can be collapsed and expanded in both overview modes while its count stays visible. Enable the optional Next Feeding card and tap it to see all animals with reminders ordered by their next appointment, even when every appointment is overdue.
-          images:
-            - file: feeding-reminders-due.webp
-              alt: Animal overview with several due feedings
-              caption: Due feedings at a glance
-    - id: archive
-      number: "05"
-      eyebrow: History
-      heading: Archive records instead of losing information
-      lead: Animals and enclosures that are no longer active can be removed from the active collection without deleting their existing information.
-      steps:
-        - number: "12"
-          heading: Preserve and restore archive information
-          body_html: When archiving, you can record a reason, date and optional note. Animal History and Enclosure History can be sorted by archive date or displayed name in both directions. A context menu provides direct Restore and Duplicate actions.
-          note_html: “Delete permanently” removes the record for good. When historical information remains useful, archiving is the safer choice.
-          images:
-            - file: animal-history.webp
-              alt: Animal History with archived animals
-              caption: Sorted Animal History
-            #- file: archived-boxes.webp
-            #  alt: Enclosure History with archived enclosures
-            #  caption: Enclosure History
-            - file: archive-details.webp
-              alt: Archive information with restore action
-              caption: Archive details and restore
-    - id: backup
-      number: "06"
-      eyebrow: Backup
-      heading: Back up regularly and restore in a controlled way
-      lead: As your collection grows, backups contain core records, picture galleries, feedings, weight and shedding histories, Animal detail preferences and portable overview settings.
-      tone: dark
-      steps:
-        - number: "13"
-          heading: Safety backup before restore
-          body_html: Before restoring a backup, TerraManager offers an additional safety backup of the current state by default. This protection is opt-out and can be deliberately disabled.
-          note_html: In standalone mode, the enabled safety backup removes the need for a separate manual backup before every restore. In Shared Care, a current portable safety backup is required before replacing existing collection data. Only a server-confirmed empty collection may skip it, and the server checks again before replacement. Explicit restore confirmation is still required; full server recovery also requires a backup of both databases in the server data directory.
-          images:
-            - file: restore-safety-backup.webp
-              alt: Restore dialog with safety backup enabled
-              caption: Safety backup before restore
-        - number: "14"
-          heading: Protect a backup with a password
-          body_html: Select <strong>Protect with password</strong> when saving a portable backup, enter the password twice, and keep it separately from the file. TerraManager recognizes a protected import and asks for the password. It rejects a wrong password or damaged file before replacing the collection. Older unprotected backups remain importable.
-          note_html: A forgotten password cannot be recovered. TerraManager does not persist the backup password. Processing a large backup can take several minutes and may fail on a device with little free memory; a failed or cancelled attempt does not replace the existing collection. When restoring a protected file, the optional local safety backup uses the same password. In Shared Care, an administrator first saves a current password-protected safety copy; the browser decrypts the selected file before sending it to the operator's server.
+  - id: start
+    number: '01'
+    eyebrow: Set up your collection
+    heading: Enclosures and animals are the foundation
+    lead: Create a Box first, then an Animal assigned to an active Box. Skip the optional introduction or replay it from Settings.
+    heading_image:
+      file: box_detail.webp
+      alt: Enclosure detail view
+      caption: Enclosure details
+    steps:
+    - number: '1'
+      heading: Add an enclosure
+      body_html: Open <strong>Boxes → +</strong>. Add a name, dimensions and an optional cropped picture. Saving creates the permanent QR identifier.
+      images:
+      - file: boxes-overview.webp
+        alt: Enclosure overview with multiple enclosures
+        caption: Enclosure overview
+      - file: box-create.webp
+        alt: Form for creating a new enclosure
+        caption: Create a new enclosure
+    - number: '2'
+      reverse: true
+      heading: Add and assign an animal
+      body_html: Under <strong>Animals → +</strong>, choose an active Box, category, names and husbandry values. Origin, birth information and other details are optional. Hide Weight or Shedding independently on details without deleting their histories.
+      images:
+      - file: animal-edit.webp
+        alt: Animal edit screen
+        caption: Edit animal
+      - file: animal-details.webp
+        alt: Animal detail screen
+        caption: Animal details
+    - number: '3'
+      heading: Choose the overview presentation
+      body_html: Use the overview sort control and separate category-group toggle. Enable <strong>Big Picture Mode</strong> for Boxes and Animals in <strong>Settings</strong>.
+      images:
+      - file: big-picture-mode-en.webp
+        alt: Animal overview using large pictures
+        caption: Optional Big Picture Mode
+    - number: '4'
+      reverse: true
+      heading: Gallery and Animal PDFs
+      body_html: Add gallery pictures and choose a primary image. Tap a picture for full-screen zoom and navigation. Animal details export either a label with a chosen width and square primary picture, or an A4 profile with feeding, shedding and weight histories. Optionally append all gallery pictures in chronological order, including the primary image, four per page at their original aspect ratios.
+      images:
+      - file: gallery.webp
+        alt: Animal picture gallery
+        caption: Picture gallery
+  - id: qr
+    number: '02'
+    eyebrow: QR codes
+    heading: Connect the physical enclosure to its record
+    lead: A Box QR contains a permanent identifier. The printed label stays valid when Box or Animal data changes.
+    tone: soft
+    steps:
+    - number: '5'
+      heading: Export Box QR codes
+      body_html: In <strong>Settings → Box QR codes</strong>, select active/archived Boxes and save PNG, ZIP or A4 PDF. PDF code size is adjustable from 6 to 20 mm.
+      images:
+      - file: qr-pdf-export.webp
+        alt: Dialog for exporting enclosure QR codes to PDF
+        caption: Export QR codes together as PDF
+    - number: '6'
+      reverse: true
+      heading: Attach and scan
+      body_html: Scan a label to open its Box or use Feeding Mode. An archived Box offers restoration after confirmation. QR selection during Animal creation chooses the Box; reassignment accepts only another active destination after confirmation. Shared Care scanning requires trusted HTTPS and native browser QR support; only the identifier is sent.
+      wide_images: true
+      images:
+      - file: qr-on-enclosure.webp
+        alt: QR code attached to a terrarium
+        caption: QR code on the enclosure
+      - file: qr-scanner.webp
+        alt: QR scanner in TerraManager
+        caption: Integrated scanner
+  - id: feeding
+    number: '03'
+    eyebrow: Feedings
+    heading: Record feedings directly – individually or by enclosure scan
+    lead: Record feeding time and optional notes. Weight and shedding events have their own histories.
+    steps:
+    - number: '7'
+      heading: Feeding history
+      body_html: Open an Animal history to view, correct or delete Feedings. Permanent deletion in Shared Care requires an administrator.
+      images:
+      - file: feeding-history.webp
+        alt: Animal feeding history
+        caption: Chronological feeding history
+    - number: '8'
+      reverse: true
+      heading: Quick feeding by Box scan
+      body_html: Scan or manually choose a Box, select the Animals actually fed, and save the time/notes. Each selected Animal receives an event in one grouped operation.
+      images:
+      - file: quick-feeding.webp
+        alt: Quick feeding after scanning an enclosure
+        caption: Select multiple animals from one enclosure
+      note_html: <strong>Wrong Box?</strong> Choose “Scan a different Box” to discard the unsaved Feeding draft and return to scanning.
+    - number: '9'
+      heading: Record shedding and weight
+      body_html: Record shedding with date, time and optional notes. Record weight as a positive gram value with its timestamp. Histories are ordered by time and can be corrected later.
+      images:
+      - file: shedding-history-en.webp
+        alt: Animal details with shedding actions
+        caption: Timestamped shedding history
+  - id: reminders
+    number: '04'
+    eyebrow: Reminders
+    heading: Keep individual feeding schedules in view
+    lead: Choose an interval in days or fixed weekdays with a time and time zone for each Animal.
+    tone: soft
+    steps:
+    - number: '10'
+      heading: Set an interval or weekdays
+      body_html: Open the reminder action in Animal details. Set a positive day interval or weekdays with a time and IANA zone. Recording a Feeding does not shift a fixed weekday schedule.
+      images:
+      - file: feeding-reminder-settings.webp
+        alt: Feeding reminder settings
+        caption: Individual reminder interval
+    - number: '11'
+      reverse: true
+      heading: See which animals are due
+      body_html: Due Animals are marked in the list and navigation. Expand/collapse the due group. The optional <strong>Next Feeding</strong> card opens all active reminder appointments chronologically. Reminders stay inside the app without system notifications.
+      images:
+      - file: feeding-reminders-due.webp
+        alt: Animal overview with several due feedings
+        caption: Due feedings at a glance
+  - id: archive
+    number: '05'
+    eyebrow: History
+    heading: Archive records instead of losing information
+    lead: Archived Animals and Boxes keep their data, pictures and histories and can be restored.
+    steps:
+    - number: '12'
+      heading: Preserve and restore archive information
+      body_html: Archive with a reason, date and optional note. A Box must have no active Animals. Sort archives by name or archive date; Restore and Duplicate are available in context menus. Restoring an Animal requires an active destination Box.
+      note_html: Permanent deletion removes archived data irreversibly. In Shared Care, this action is administrator-only.
+      images:
+      - file: animal-history.webp
+        alt: Animal History with archived animals
+        caption: Sorted Animal History
+      - file: archive-details.webp
+        alt: Archive information with restore action
+        caption: Archive details and restore
+  - id: backup
+    number: '06'
+    eyebrow: Backup
+    heading: Back up regularly and restore in a controlled way
+    lead: Portable .tmbackup files contain the collection, pictures, histories and portable preferences. Restore replaces the target collection.
+    tone: dark
+    steps:
+    - number: '13'
+      heading: Safety backup before restore
+      body_html: Standalone enables a pre-restore safety copy by default; you may disable it for that operation. Failed or cancelled safety saving stops replacement.
+      note_html: Shared Care requires a current safety copy before replacing existing data. Only a server-confirmed empty collection can skip it. Portable exports exclude accounts; full server recovery needs both databases.
+      images:
+      - file: restore-safety-backup.webp
+        alt: Restore dialog with safety backup enabled
+        caption: Safety backup before restore
+    - number: '14'
+      heading: Protect a backup with a password
+      body_html: Choose <strong>Protect with password</strong> and confirm the password. Import asks before processing; a wrong password or damaged file is rejected before replacement. Older unprotected backups remain readable.
+      note_html: A forgotten password cannot be recovered. TerraManager does not persist the backup password. Processing a large backup can take several minutes and fail on low-memory devices. Failure or cancellation leaves the collection unchanged. An enabled local safety copy uses the same password when importing a protected file; Shared Care decrypts in the browser before sending to your own server.
   shared_care:
     eyebrow: Optional shared use
     heading: One collection on your own server
     lead: Shared Care Web mode lets several caregivers use the same collection through their browsers. Your own server on the local network stores Boxes, Animals, feedings, histories and pictures. The standalone Android and Web applications remain separate.
     items:
-      - title: Set up the server and access
-        body: The operator installs TerraManager on a Raspberry Pi or comparable server, creates local accounts and provides a trusted HTTPS address. Daily use requires no cloud service or developer account.
-      - title: Open it from the Android app
-        body: In Settings → Shared care, open the HTTPS address in an external browser. The local app data is neither transferred nor synchronized with the server collection automatically.
-      - title: Work together
-        body: Sign in through the browser. Changes become visible on other signed-in devices, and simultaneous edits cannot silently overwrite one another. Box QR scanning requires trusted HTTPS and a supported mobile browser. Feeding Mode offers Choose Box when scanning is unavailable; Edit Animal retains the ordinary Box selector for reassignment.
-      - title: Use quick actions and reminders
-        body: Long-press or right-click a Box or Animal to open its context menu. Active records can be renamed, edited, duplicated and archived; Animals can start a Feeding directly. Archived records can be restored from the menu. Permanent deletion is available only in archived details. An exclamation mark on the Animals tab shows a due Feeding.
-      - title: View pictures and due feedings
-        body: Tap an enclosure or animal primary picture or gallery thumbnail to open the zoomable full-screen viewer. The overview reuses loaded pictures while scrolling. Opening it again, returning from details or choosing Reload renews the picture snapshot. Collapse or expand the due-feeding group in the Animal Overview; its count and warning marker stay visible.
-      - title: Choose presentation and overview controls
-        body: In Settings, Show next feeding controls the next reminder that is still in the future; due reminders remain visible. Big Picture Mode immediately below it applies to Boxes, Animals and their archives and stays saved in this browser. Sorting and category grouping are selected on the relevant overview. Actions share the same top toolbar as the standalone app; Reload is the additional rightmost button.
-      - title: Return to the previous view
-        body: Use the in-app back arrow or the browser/system Back action to leave a detail, history page or QR scanner. On Android, the edge-back gesture returns within Shared Care; closing the scanner releases the camera. Back from the main view follows normal browser behavior.
-      - title: Manage server accounts
-        body: Administrators open Settings → Server → Manage accounts to add users, edit names and roles, reset passwords, deactivate or reactivate accounts and confirm permanent removal. Changes sign the affected user out on all devices. The last active administrator cannot be demoted, deactivated or removed. Removing an account preserves the collection and past audit entries.
-      - title: Local accountability
-        body: The operator's server records who changed shared collection data or accounts, when, and which records were affected. Notes, images and credentials are not copied into this audit log. Entries remain for 365 days, including after account removal, and survive portable backup restore.
-      - title: Review audit history
-        body: Administrators open Settings → Shared server → Audit → View recent events. History shows the actor, local time, action and affected record ID, newest first. Filter by date range, actor name or action and use Previous/Next to change pages. Refresh returns to the latest events. Caregiver accounts cannot open this history. An empty history or a filter without matches displays an explicit empty state.
-      - title: Export Box QR codes
-        body: In Settings → Box QR codes, select active and archived Boxes to save individual PNG files, a ZIP or an A4 PDF. A checklist opens before every export; the PDF offers a 6–20 mm code-size slider. Files are generated directly in the browser.
-    note: A portable Shared Care backup contains the collection but not server accounts. Full server recovery also requires a backup of both databases in the server data directory. Native Android mode stays standalone and needs no additional network permission.
+    - title: Access and independent collection
+      body: The operator provides a server, local accounts and trusted HTTPS. The Android Shared care setting opens an external browser. Local app data is not automatically synchronized; a portable backup transfers the collection.
+    - title: Automatic updates
+      body: Changes appear on other devices without reloading. After backgrounding or connection loss, the client reconciles server data. Check an unconfirmed save before retrying; there is no offline write queue. Stale drafts cannot silently overwrite newer data.
+    - title: Controls and presentation
+      body: Change names through Edit. Context menus offer applicable care, duplicate, archive and restore actions. Select pictures during creation. Language, sorting and presentation belong to your account; archives stay thumbnail lists.
+    - title: Roles and sessions
+      body: Administrators manage accounts, backups, permanent deletion and audit. Account changes revoke affected sessions; the final active administrator is protected. Sessions expire after twelve hours even during active use; sign in again afterward.
+    - title: Audit and backup
+      body: Local audit records actor, time, action and record identity for 365 days, without notes, pictures or credentials. Administrators filter it under Settings → Shared server → Audit. Portable backups contain the collection; full server recovery additionally requires both databases.
+    note: Shared Care stays separate from standalone collections and requires a reachable LAN server.
     setup: Set up and operate your own server
   finish:
     heading: That is the core workflow
-    body: "For daily use, TerraManager comes down to a few recurring actions: identify the enclosure, record care, check due feedings and regularly back up the growing collection data."
+    body: 'For daily use, TerraManager comes down to a few recurring actions: identify the enclosure, record care, check due feedings and regularly back up the growing collection data.'
     download: Download TerraManager
     manual: Open manual
   footer:

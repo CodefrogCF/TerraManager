@@ -33,7 +33,6 @@ void main() {
       'docs/project-documentation.md',
       'docs/development.md',
       'docs/release-checklist.md',
-      'docs/documentation-maintenance.md',
       'docs/toolchain-baseline.md',
       'docs/installation-and-updates.md',
       'docs/platform-support.md',
@@ -42,8 +41,13 @@ void main() {
       'docs/architecture-decisions.md',
       'docs/android-release-signing.md',
       'docs/roadmap.md',
-      'docs/functional-requirements-MVP.md',
-      'docs/functional-requirements-non-MVP.md',
+      'docs/testing/index.md',
+      'docs/testing/validation.md',
+      'docs/testing/shared-care-updates.md',
+      'docs/testing/password-backups.md',
+      'docs/testing/android-build.md',
+      'tool/docs/build_user_manuals.py',
+      'tool/evaluation/shared_updates/results/acceptance-2026-10.zip',
     ];
 
     for (final path in requiredFiles) {
@@ -84,7 +88,6 @@ void main() {
     const canonicalReferences = [
       'development.md',
       'release-checklist.md',
-      'documentation-maintenance.md',
       'toolchain-baseline.md',
       'installation-and-updates.md',
       'platform-support.md',
@@ -113,10 +116,7 @@ void main() {
       releaseChecklist,
       contains('canonical release-validation checklist'),
     );
-    expect(
-      releaseChecklist,
-      contains('does not block this release-validation issue'),
-    );
+    expect(releaseChecklist, contains('testing/password-backups.md'));
 
     expect(
       development,
@@ -138,12 +138,12 @@ void main() {
   test(
     'documentation maintenance owns guides screenshots and localization',
     () {
-      final maintenance = read('docs/documentation-maintenance.md');
+      final maintenance = read('docs/development.md');
 
       expect(maintenance, contains('Screenshot'));
       expect(maintenance, contains('English and German'));
       expect(maintenance, contains('visual user guides'));
-      expect(maintenance, contains('downloadable manual'));
+      expect(maintenance, contains(RegExp(r'downloadable\s+manuals?')));
       expect(maintenance, contains('release-checklist.md'));
     },
   );
@@ -303,20 +303,14 @@ void main() {
   test(
     'canonical Markdown documentation has no broken relative Markdown links',
     () {
-      const documents = [
+      final documents = [
         'README.md',
-        'docs/project-documentation.md',
-        'docs/development.md',
-        'docs/release-checklist.md',
-        'docs/documentation-maintenance.md',
-        'docs/toolchain-baseline.md',
-        'docs/installation-and-updates.md',
-        'docs/platform-support.md',
-        'docs/data-model.md',
-        'docs/backup-format.md',
-        'docs/architecture-decisions.md',
-        'docs/android-release-signing.md',
-        'docs/roadmap.md',
+        ...Directory('docs')
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((file) => file.path.endsWith('.md'))
+            .map((file) => file.path),
+        'tool/evaluation/shared_updates/results/README.md',
       ];
 
       final markdownLinkPattern = RegExp(r'\[[^\]]+\]\(([^)]+)\)');

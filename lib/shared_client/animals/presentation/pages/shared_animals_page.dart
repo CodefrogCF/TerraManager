@@ -228,6 +228,15 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
     color: Theme.of(context).colorScheme.errorContainer,
     child: ExpansionTile(
+      // Preserve the default border insets, without painting an outline.
+      shape: const Border(
+        top: BorderSide(color: Colors.transparent),
+        bottom: BorderSide(color: Colors.transparent),
+      ),
+      collapsedShape: const Border(
+        top: BorderSide(color: Colors.transparent),
+        bottom: BorderSide(color: Colors.transparent),
+      ),
       // Keep ExpansionTile's Boolean PageStorage value separate from the
       // overview scroll offset, which is stored as a number.
       key: const PageStorageKey<String>(

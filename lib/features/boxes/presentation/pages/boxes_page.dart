@@ -22,7 +22,7 @@ import 'box_scanner_page.dart';
 import 'new_box_page.dart';
 import 'box_history_page.dart';
 
-enum _BoxOverviewAction { rename, edit, duplicate, archive }
+enum _BoxOverviewAction { edit, duplicate, archive }
 
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
@@ -187,10 +187,6 @@ class _BoxesPageState extends State<BoxesPage> {
 
   Future<void> _handleBoxAction(_BoxOverviewAction action, Box box) async {
     switch (action) {
-      case _BoxOverviewAction.rename:
-        await _renameBox(box);
-        return;
-
       case _BoxOverviewAction.edit:
         await _editBox(box);
         return;
@@ -202,41 +198,6 @@ class _BoxesPageState extends State<BoxesPage> {
       case _BoxOverviewAction.archive:
         await _archiveBox(box);
         return;
-    }
-  }
-
-  Future<void> _renameBox(Box box) async {
-    final input = await showDialog<BoxNameInput>(
-      context: context,
-      builder: (_) => RenameBoxDialog(initialName: box.name),
-    );
-
-    if (!mounted || input == null) {
-      return;
-    }
-
-    try {
-      final renamed = await BoxRepository(widget.database)
-          .renameBox(boxId: box.id, name: input.name);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (!renamed) {
-        _showMessage(context.l10n.failedToRenameBox);
-        return;
-      }
-
-      await _reloadBoxesPreservingScroll(_currentScrollOffset());
-
-      if (mounted) {
-        _showMessage(context.l10n.boxRenamed);
-      }
-    } catch (_) {
-      if (mounted) {
-        _showMessage(context.l10n.failedToRenameBox);
-      }
     }
   }
 
@@ -407,11 +368,6 @@ class _BoxesPageState extends State<BoxesPage> {
     BuildContext context,
   ) {
     return [
-      _boxMenuItem(
-        action: _BoxOverviewAction.rename,
-        icon: Icons.drive_file_rename_outline,
-        label: context.l10n.renameBox,
-      ),
       _boxMenuItem(
         action: _BoxOverviewAction.edit,
         icon: Icons.edit_outlined,

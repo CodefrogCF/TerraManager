@@ -28,7 +28,7 @@ import 'animal_edit_page.dart';
 import 'animal_history_page.dart';
 import 'new_animal_page.dart';
 
-enum _AnimalOverviewAction { createFeeding, rename, edit, archive, duplicate }
+enum _AnimalOverviewAction { createFeeding, edit, archive, duplicate }
 
 class AnimalsPage extends StatefulWidget {
   final AppDatabase database;
@@ -260,10 +260,6 @@ class _AnimalsPageState extends State<AnimalsPage> {
         await _createFeeding(animal);
         return;
 
-      case _AnimalOverviewAction.rename:
-        await _renameAnimal(animal);
-        return;
-
       case _AnimalOverviewAction.edit:
         await _editAnimal(animal);
         return;
@@ -295,41 +291,6 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
     if (mounted) {
       _showMessage(context.l10n.feedingCreated);
-    }
-  }
-
-  Future<void> _renameAnimal(Animal animal) async {
-    final name = await showDialog<String>(
-      context: context,
-      builder: (_) => RenameAnimalDialog(initialName: animal.commonName),
-    );
-
-    if (!mounted || name == null) {
-      return;
-    }
-
-    try {
-      final renamed = await AnimalRepository(widget.database)
-          .renameAnimal(animalId: animal.id, commonName: name);
-
-      if (!mounted) {
-        return;
-      }
-
-      if (!renamed) {
-        _showMessage(context.l10n.failedToRenameAnimal);
-        return;
-      }
-
-      await _reloadAnimalsPreservingScroll(_currentScrollOffset());
-
-      if (mounted) {
-        _showMessage(context.l10n.animalRenamed);
-      }
-    } catch (_) {
-      if (mounted) {
-        _showMessage(context.l10n.failedToRenameAnimal);
-      }
     }
   }
 
@@ -489,6 +450,15 @@ class _AnimalsPageState extends State<AnimalsPage> {
       margin: const EdgeInsets.fromLTRB(12, 12, 12, 4),
       color: colorScheme.errorContainer,
       child: ExpansionTile(
+        // Preserve the default border insets, without painting an outline.
+        shape: const Border(
+          top: BorderSide(color: Colors.transparent),
+          bottom: BorderSide(color: Colors.transparent),
+        ),
+        collapsedShape: const Border(
+          top: BorderSide(color: Colors.transparent),
+          bottom: BorderSide(color: Colors.transparent),
+        ),
         // Expansion state must not share the overview's numeric scroll offset.
         key: const PageStorageKey<String>('feeding-reminder-summary-toggle'),
         initiallyExpanded: _dueRemindersExpanded,
@@ -634,11 +604,6 @@ class _AnimalsPageState extends State<AnimalsPage> {
         action: _AnimalOverviewAction.createFeeding,
         icon: Icons.restaurant_outlined,
         label: context.l10n.createFeeding,
-      ),
-      _animalMenuItem(
-        action: _AnimalOverviewAction.rename,
-        icon: Icons.drive_file_rename_outline,
-        label: context.l10n.renameAnimal,
       ),
       _animalMenuItem(
         action: _AnimalOverviewAction.edit,

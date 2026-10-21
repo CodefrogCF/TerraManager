@@ -16,6 +16,10 @@ The project uses semantic versioning.
 
 ### Added
 
+- select, crop, optimize and preview an optional picture while creating a Box or
+  Animal in Shared Care; retry an unconfirmed picture upload without creating
+  another record — Issue #232
+
 - reconcile Shared Care after reconnect, resume, restart and restore; coordinate
   one SSE connection or conditional fallback schedule with capped jittered retry,
   liveness deadlines and terminal authentication handling — Issue #229
@@ -68,6 +72,12 @@ The project uses semantic versioning.
 
 
 ### Changed
+
+- remove Rename Animal and Rename Box from Standalone overview context menus;
+  names remain editable through the existing edit pages — Issue #231
+- hide the expanded overdue Feeding summary's top and bottom outlines in
+  Standalone and Shared Care while retaining layout and toggle behavior — Issue #234
+
 
 
 

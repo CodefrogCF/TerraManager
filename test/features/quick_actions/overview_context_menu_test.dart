@@ -108,7 +108,7 @@ void main() {
     await tester.longPress(tile);
     await tester.pumpAndSettle();
     expect(find.text('Create Feeding'), findsOneWidget);
-    expect(find.text('Rename Animal'), findsOneWidget);
+    expect(find.text('Rename Animal'), findsNothing);
     expect(find.text('Edit Animal'), findsOneWidget);
     expect(find.text('Archive Animal'), findsOneWidget);
     expect(find.text('Duplicate Animal'), findsOneWidget);
@@ -134,7 +134,7 @@ void main() {
     await tester.tap(find.byKey(Key('animal-context-menu-button-$animalId')));
     await tester.pumpAndSettle();
     expect(find.text('Fütterung erstellen'), findsOneWidget);
-    expect(find.text('Tier umbenennen'), findsOneWidget);
+    expect(find.text('Tier umbenennen'), findsNothing);
     expect(find.text('Tier bearbeiten'), findsOneWidget);
     expect(find.text('Tier archivieren'), findsOneWidget);
     expect(find.text('Tier duplizieren'), findsOneWidget);
@@ -143,53 +143,59 @@ void main() {
     await pumpBoxes(tester, locale: const Locale('de'));
     await tester.tap(find.byKey(Key('box-context-menu-button-$boxId')));
     await tester.pumpAndSettle();
-    expect(find.text('Box umbenennen'), findsOneWidget);
+    expect(find.text('Box umbenennen'), findsNothing);
     expect(find.text('Box bearbeiten'), findsOneWidget);
     expect(find.text('Box duplizieren'), findsOneWidget);
     expect(find.text('Box archivieren'), findsOneWidget);
   });
 
-  testWidgets('Animal rename can cancel and targets the selected row', (
-    tester,
-  ) async {
-    final boxId = await boxes.createBox('box-1');
-    final firstId = await createAnimal(boxId, 'First Animal');
-    final targetId = await createAnimal(boxId, 'Target Animal');
-    await pumpAnimals(tester);
+  testWidgets(
+    'Animal edit can cancel a name change and rename only the selected row',
+    (tester) async {
+      final boxId = await boxes.createBox('box-1');
+      final firstId = await createAnimal(boxId, 'First Animal');
+      final targetId = await createAnimal(boxId, 'Target Animal');
+      await pumpAnimals(tester);
 
-    await tester.tap(find.byKey(Key('animal-context-menu-button-$targetId')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Rename Animal'));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const Key('rename-animal-name-field')),
-      'Cancelled Name',
-    );
-    await tester.tap(find.byKey(const Key('cancel-rename-animal-button')));
-    await tester.pumpAndSettle();
-    expect(
-      (await animals.getAnimalById(targetId))!.commonName,
-      'Target Animal',
-    );
+      await tester.tap(find.byKey(Key('animal-context-menu-button-$targetId')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Edit Animal'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('common-name-field')),
+        'Cancelled Name',
+      );
+      await tester.tap(find.byKey(const Key('back-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Discard'));
+      await tester.pumpAndSettle();
+      expect(
+        (await animals.getAnimalById(targetId))!.commonName,
+        'Target Animal',
+      );
 
-    await tester.tap(find.byKey(Key('animal-context-menu-button-$targetId')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Rename Animal'));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const Key('rename-animal-name-field')),
-      'Renamed Target',
-    );
-    await tester.tap(find.byKey(const Key('save-rename-animal-button')));
-    await tester.pumpAndSettle();
+      await tester.tap(find.byKey(Key('animal-context-menu-button-$targetId')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Edit Animal'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('common-name-field')),
+        'Renamed Target',
+      );
+      await tester.tap(find.byKey(const Key('save-animal-button')));
+      await tester.pumpAndSettle();
 
-    expect((await animals.getAnimalById(firstId))!.commonName, 'First Animal');
-    expect(
-      (await animals.getAnimalById(targetId))!.commonName,
-      'Renamed Target',
-    );
-    expect(find.text('Renamed Target'), findsOneWidget);
-  });
+      expect(
+        (await animals.getAnimalById(firstId))!.commonName,
+        'First Animal',
+      );
+      expect(
+        (await animals.getAnimalById(targetId))!.commonName,
+        'Renamed Target',
+      );
+      expect(find.text('Renamed Target'), findsOneWidget);
+    },
+  );
 
   testWidgets('Animal quick actions create feeding and use existing flows', (
     tester,
@@ -278,7 +284,7 @@ void main() {
   );
 
   testWidgets(
-    'Box context menu supports both gestures and selected-row rename',
+    'Box context menu keeps both gestures and renaming through edit',
     (tester) async {
       final firstId = await boxes.createBox('box-1', name: 'First Box');
       final targetId = await boxes.createBox('box-2', name: 'Target Box');
@@ -288,7 +294,7 @@ void main() {
       final targetTile = find.byKey(Key('box-list-item-$targetId'));
       await tester.longPress(targetTile);
       await tester.pumpAndSettle();
-      expect(find.text('Rename Box'), findsOneWidget);
+      expect(find.text('Rename Box'), findsNothing);
       expect(find.text('Edit Box'), findsOneWidget);
       expect(find.text('Duplicate Box'), findsOneWidget);
       expect(find.text('Archive Box'), findsOneWidget);
@@ -300,13 +306,13 @@ void main() {
         kind: PointerDeviceKind.mouse,
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Rename Box'));
+      await tester.tap(find.text('Edit Box'));
       await tester.pumpAndSettle();
       await tester.enterText(
-        find.byKey(const Key('rename-box-name-field')),
+        find.byKey(const Key('box-name-field')),
         'Renamed Box',
       );
-      await tester.tap(find.byKey(const Key('save-rename-box-button')));
+      await tester.tap(find.byKey(const Key('save-box-button')));
       await tester.pumpAndSettle();
 
       expect((await boxes.getBoxById(firstId))!.name, 'First Box');

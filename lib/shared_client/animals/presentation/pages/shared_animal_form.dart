@@ -9,13 +9,16 @@ import 'package:terramanager/features/animals/presentation/widgets/animal_range_
 import 'package:terramanager/features/feedings/presentation/widgets/feeding_reminder_form_fields.dart';
 import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
 import 'package:terramanager/features/feedings/infrastructure/feeding_device_time_zone.dart';
+import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/l10n/app_localizations_labels.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
+import 'package:terramanager/shared_client/media/presentation/widgets/shared_creation_picture_field.dart';
 import 'package:terramanager/shared_client/shared/application/shared_change.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 import 'package:terramanager/shared_client/shared/presentation/record_labels.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
+import 'package:uuid/uuid.dart';
 
 class SharedAnimalForm extends StatefulWidget {
   const SharedAnimalForm({
@@ -24,11 +27,13 @@ class SharedAnimalForm extends StatefulWidget {
     required this.boxes,
     required this.change,
     this.initial,
+    this.pictureSelectionFlow,
   });
   final SharedApiClient api;
   final List<Map<String, dynamic>> boxes;
   final SharedChange change;
   final Map<String, dynamic>? initial;
+  final PictureSelectionFlow? pictureSelectionFlow;
 
   @override
   State<SharedAnimalForm> createState() => _SharedAnimalFormState();
@@ -56,6 +61,10 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   bool _saving = false;
   bool _stale = false;
   String? _error;
+  SelectedPicture? _picture;
+  String? _pictureRequestId;
+  Map<String, dynamic>? _created;
+  bool _processingPicture = false;
 
   @override
   void initState() {
@@ -345,9 +354,12 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   }
 
   Future<void> _save() async {
-    if (_saving || !widget.api.connected || !_form.currentState!.validate()) {
+    if (_saving || _processingPicture || !widget.api.connected) return;
+    if (_created != null) {
+      await _persist(const {});
       return;
     }
+    if (!_form.currentState!.validate()) return;
     if (_boxId == null) return;
     final tempMin = _number('tempMin')!;
     final tempMax = _number('tempMax')!;
@@ -425,9 +437,30 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
       'showWeightOnDetail': _showWeightOnDetail,
       'showSheddingOnDetail': _showSheddingOnDetail,
     };
+    await _persist(values);
+  }
+
+  Future<void> _persist(Map<String, dynamic> values) async {
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
     final saved = await widget.change(() async {
       if (_initial == null) {
-        await widget.api.createAnimal(values);
+        // Preserve a confirmed create across upload failures and retry only the
+        // same picture request. Its result may already have committed.
+        _created ??= await widget.api.createAnimal(values);
+        final picture = _picture;
+        if (picture != null) {
+          await widget.api.addPicture(
+            'animals',
+            recordId(_created!),
+            picture.fileName,
+            picture.mimeType,
+            picture.bytes,
+            requestId: _pictureRequestId!,
+          );
+        }
       } else {
         await widget.api.updateAnimal(
           recordId(_initial!),
@@ -446,7 +479,13 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
             widget.api.lastFailure is SharedApiException &&
             (widget.api.lastFailure as SharedApiException).code ==
                 'stale_record';
-        _error = _stale
+        _error = _created != null
+            ? sharedText(
+                context,
+                'The Animal was created, but its picture could not be confirmed. Retry the picture or finish and check its gallery.',
+                'Das Tier wurde angelegt, aber das Bild konnte nicht bestätigt werden. Wiederhole die Bildübertragung oder schließe ab und prüfe die Galerie.',
+              )
+            : _stale
             ? sharedText(
                 context,
                 'This Animal changed on the server. Reload and review the new values before saving.',
@@ -542,208 +581,143 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
           listenable: widget.api,
           builder: (context, _) => Form(
             key: _form,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                TextFormField(
-                  controller: _fields['commonName'],
-                  decoration: InputDecoration(
-                    labelText: sharedText(
-                      context,
-                      'Common name',
-                      'Trivialname',
-                    ),
-                  ),
-                  validator: (value) => (value ?? '').trim().isEmpty
-                      ? sharedText(context, 'Required', 'Pflichtfeld')
-                      : null,
-                ),
-                TextFormField(
-                  controller: _fields['latinName'],
-                  decoration: InputDecoration(
-                    labelText: sharedText(
-                      context,
-                      'Latin name',
-                      'Lateinischer Name',
-                    ),
-                  ),
-                  validator: (value) => (value ?? '').trim().isEmpty
-                      ? sharedText(context, 'Required', 'Pflichtfeld')
-                      : null,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        isExpanded: true,
-                        key: ValueKey('shared-animal-box-$_boxId'),
-                        initialValue: _boxId,
-                        decoration: InputDecoration(
-                          labelText: sharedText(context, 'Box', 'Box'),
-                        ),
-                        items: [
-                          for (final box in _boxes.where(
-                            (box) => box['status'] == 'active',
-                          ))
-                            DropdownMenuItem(
-                              value: recordId(box),
-                              child: Text(
-                                boxLabel(box),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                        ],
-                        onChanged: _saving
+            canPop: !_saving && _created == null,
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop && !_saving && _created != null) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: IgnorePointer(
+              ignoring: _saving || _processingPicture,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  if (widget.initial == null)
+                    SharedCreationPictureField(
+                      picture: _picture,
+                      pictureSelectionFlow: widget.pictureSelectionFlow,
+                      enabled:
+                          widget.api.connected && !_saving && _created == null,
+                      onChanged: (picture) => setState(() {
+                        _picture = picture;
+                        _pictureRequestId = picture == null
                             ? null
-                            : (value) => setState(() => _boxId = value),
-                      ),
+                            : const Uuid().v4();
+                      }),
+                      onProcessingChanged: (processing) =>
+                          setState(() => _processingPicture = processing),
                     ),
-                    ...[
-                      const SizedBox(width: 8),
-                      IconButton.filledTonal(
-                        key: Key(
-                          _initial == null
-                              ? 'shared-new-animal-scan-box-button'
-                              : 'shared-rehouse-scan-button',
-                        ),
-                        tooltip: context.l10n.scanNewBox,
-                        onPressed: widget.api.connected && !_saving && !_stale
-                            ? (_initial == null
-                                  ? _openBoxSelectionScanner
-                                  : _openRehouseScanner)
-                            : null,
-                        icon: const Icon(Icons.qr_code_scanner),
-                      ),
-                    ],
-                  ],
-                ),
-                DropdownButtonFormField<AnimalCategory>(
-                  isExpanded: true,
-                  initialValue: _category,
-                  decoration: InputDecoration(
-                    labelText: sharedText(context, 'Category', 'Kategorie'),
-                  ),
-                  items: [
-                    for (final value in AnimalCategory.values)
-                      DropdownMenuItem(
-                        value: value,
-                        child: Text(context.l10n.animalCategoryLabel(value)),
-                      ),
-                  ],
-                  onChanged: (value) {
-                    if (value == null) {
-                      return;
-                    }
-                    setState(() {
-                      _category = value;
-                      if (!_category.supports(_subcategory)) {
-                        _subcategory = null;
-                      }
-                    });
-                  },
-                ),
-                DropdownButtonFormField<AnimalSubcategory?>(
-                  isExpanded: true,
-                  key: ValueKey(_category),
-                  initialValue: _subcategory,
-                  decoration: InputDecoration(
-                    labelText: sharedText(
-                      context,
-                      'Subcategory',
-                      'Unterkategorie',
-                    ),
-                  ),
-                  items: [
-                    DropdownMenuItem(
-                      value: null,
-                      child: Text(sharedText(context, 'None', 'Keine')),
-                    ),
-                    for (final value in _category.subcategories)
-                      DropdownMenuItem(
-                        value: value,
-                        child: Text(context.l10n.animalSubcategoryLabel(value)),
-                      ),
-                  ],
-                  onChanged: (value) => setState(() => _subcategory = value),
-                ),
-                AnimalRangeFields.temperature(
-                  heading: sharedText(
-                    context,
-                    'Day temperature (°C)',
-                    'Tagestemperatur (°C)',
-                  ),
-                  minimumKey: const Key('shared-temp-min'),
-                  maximumKey: const Key('shared-temp-max'),
-                  minimumController: _fields['tempMin']!,
-                  maximumController: _fields['tempMax']!,
-                  required: true,
-                  enabled: !_saving,
-                ),
-                AnimalRangeFields.temperature(
-                  heading: sharedText(
-                    context,
-                    'Night temperature (°C)',
-                    'Nachttemperatur (°C)',
-                  ),
-                  minimumKey: const Key('shared-night-min'),
-                  maximumKey: const Key('shared-night-max'),
-                  minimumController: _fields['nighttimeTemperatureMin']!,
-                  maximumController: _fields['nighttimeTemperatureMax']!,
-                  required: false,
-                  enabled: !_saving,
-                ),
-                AnimalRangeFields(
-                  heading: sharedText(
-                    context,
-                    'Humidity (%)',
-                    'Feuchtigkeit (%)',
-                  ),
-                  minimumKey: const Key('shared-humidity-min'),
-                  maximumKey: const Key('shared-humidity-max'),
-                  minimumController: _fields['humidityMin']!,
-                  maximumController: _fields['humidityMax']!,
-                  minimumAllowed: 0,
-                  maximumAllowed: 100,
-                  required: true,
-                  enabled: !_saving,
-                ),
-                ExpansionTile(
-                  title: Text(
-                    sharedText(
-                      context,
-                      'Additional characteristics',
-                      'Weitere Merkmale',
-                    ),
-                  ),
-                  children: [
-                    ListTile(
-                      title: Text(
-                        _birthDate == null
-                            ? sharedText(context, 'Birth date', 'Geburtsdatum')
-                            : dateOnlyString(_birthDate)!,
-                      ),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final selected = await showDatePicker(
-                          context: context,
-                          initialDate: _birthDate ?? DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        );
-                        if (selected != null) {
-                          setState(() => _birthDate = selected);
-                        }
-                      },
-                    ),
-                    DropdownButtonFormField<String?>(
-                      isExpanded: true,
-                      initialValue: _birthAccuracy,
+                  if (_created == null) ...[
+                    TextFormField(
+                      controller: _fields['commonName'],
                       decoration: InputDecoration(
                         labelText: sharedText(
                           context,
-                          'Birth date accuracy',
-                          'Genauigkeit des Geburtsdatums',
+                          'Common name',
+                          'Trivialname',
+                        ),
+                      ),
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? sharedText(context, 'Required', 'Pflichtfeld')
+                          : null,
+                    ),
+                    TextFormField(
+                      controller: _fields['latinName'],
+                      decoration: InputDecoration(
+                        labelText: sharedText(
+                          context,
+                          'Latin name',
+                          'Lateinischer Name',
+                        ),
+                      ),
+                      validator: (value) => (value ?? '').trim().isEmpty
+                          ? sharedText(context, 'Required', 'Pflichtfeld')
+                          : null,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            isExpanded: true,
+                            key: ValueKey('shared-animal-box-$_boxId'),
+                            initialValue: _boxId,
+                            decoration: InputDecoration(
+                              labelText: sharedText(context, 'Box', 'Box'),
+                            ),
+                            items: [
+                              for (final box in _boxes.where(
+                                (box) => box['status'] == 'active',
+                              ))
+                                DropdownMenuItem(
+                                  value: recordId(box),
+                                  child: Text(
+                                    boxLabel(box),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                            ],
+                            onChanged: _saving
+                                ? null
+                                : (value) => setState(() => _boxId = value),
+                          ),
+                        ),
+                        ...[
+                          const SizedBox(width: 8),
+                          IconButton.filledTonal(
+                            key: Key(
+                              _initial == null
+                                  ? 'shared-new-animal-scan-box-button'
+                                  : 'shared-rehouse-scan-button',
+                            ),
+                            tooltip: context.l10n.scanNewBox,
+                            onPressed:
+                                widget.api.connected && !_saving && !_stale
+                                ? (_initial == null
+                                      ? _openBoxSelectionScanner
+                                      : _openRehouseScanner)
+                                : null,
+                            icon: const Icon(Icons.qr_code_scanner),
+                          ),
+                        ],
+                      ],
+                    ),
+                    DropdownButtonFormField<AnimalCategory>(
+                      isExpanded: true,
+                      initialValue: _category,
+                      decoration: InputDecoration(
+                        labelText: sharedText(context, 'Category', 'Kategorie'),
+                      ),
+                      items: [
+                        for (final value in AnimalCategory.values)
+                          DropdownMenuItem(
+                            value: value,
+                            child: Text(
+                              context.l10n.animalCategoryLabel(value),
+                            ),
+                          ),
+                      ],
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+                        setState(() {
+                          _category = value;
+                          if (!_category.supports(_subcategory)) {
+                            _subcategory = null;
+                          }
+                        });
+                      },
+                    ),
+                    DropdownButtonFormField<AnimalSubcategory?>(
+                      isExpanded: true,
+                      key: ValueKey(_category),
+                      initialValue: _subcategory,
+                      decoration: InputDecoration(
+                        labelText: sharedText(
+                          context,
+                          'Subcategory',
+                          'Unterkategorie',
                         ),
                       ),
                       items: [
@@ -751,130 +725,269 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                           value: null,
                           child: Text(sharedText(context, 'None', 'Keine')),
                         ),
-                        for (final value in BirthDateAccuracy.values)
+                        for (final value in _category.subcategories)
                           DropdownMenuItem(
-                            value: value.name,
-                            child: Text(context.l10n.birthAccuracyLabel(value)),
+                            value: value,
+                            child: Text(
+                              context.l10n.animalSubcategoryLabel(value),
+                            ),
                           ),
                       ],
                       onChanged: (value) =>
-                          setState(() => _birthAccuracy = value),
+                          setState(() => _subcategory = value),
                     ),
-                    DropdownButtonFormField<Sex?>(
-                      isExpanded: true,
-                      initialValue: _sex,
-                      decoration: InputDecoration(
-                        labelText: sharedText(context, 'Sex', 'Geschlecht'),
+                    AnimalRangeFields.temperature(
+                      heading: sharedText(
+                        context,
+                        'Day temperature (°C)',
+                        'Tagestemperatur (°C)',
                       ),
-                      items: [
-                        DropdownMenuItem(
-                          value: null,
-                          child: Text(
-                            sharedText(context, 'Unknown', 'Unbekannt'),
-                          ),
+                      minimumKey: const Key('shared-temp-min'),
+                      maximumKey: const Key('shared-temp-max'),
+                      minimumController: _fields['tempMin']!,
+                      maximumController: _fields['tempMax']!,
+                      required: true,
+                      enabled: !_saving,
+                    ),
+                    AnimalRangeFields.temperature(
+                      heading: sharedText(
+                        context,
+                        'Night temperature (°C)',
+                        'Nachttemperatur (°C)',
+                      ),
+                      minimumKey: const Key('shared-night-min'),
+                      maximumKey: const Key('shared-night-max'),
+                      minimumController: _fields['nighttimeTemperatureMin']!,
+                      maximumController: _fields['nighttimeTemperatureMax']!,
+                      required: false,
+                      enabled: !_saving,
+                    ),
+                    AnimalRangeFields(
+                      heading: sharedText(
+                        context,
+                        'Humidity (%)',
+                        'Feuchtigkeit (%)',
+                      ),
+                      minimumKey: const Key('shared-humidity-min'),
+                      maximumKey: const Key('shared-humidity-max'),
+                      minimumController: _fields['humidityMin']!,
+                      maximumController: _fields['humidityMax']!,
+                      minimumAllowed: 0,
+                      maximumAllowed: 100,
+                      required: true,
+                      enabled: !_saving,
+                    ),
+                    ExpansionTile(
+                      title: Text(
+                        sharedText(
+                          context,
+                          'Additional characteristics',
+                          'Weitere Merkmale',
                         ),
-                        for (final value in Sex.values)
-                          DropdownMenuItem(
-                            value: value,
-                            child: Text(context.l10n.animalSexLabel(value)),
+                      ),
+                      children: [
+                        ListTile(
+                          title: Text(
+                            _birthDate == null
+                                ? sharedText(
+                                    context,
+                                    'Birth date',
+                                    'Geburtsdatum',
+                                  )
+                                : dateOnlyString(_birthDate)!,
                           ),
+                          trailing: const Icon(Icons.calendar_today),
+                          onTap: () async {
+                            final selected = await showDatePicker(
+                              context: context,
+                              initialDate: _birthDate ?? DateTime.now(),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                            );
+                            if (selected != null) {
+                              setState(() => _birthDate = selected);
+                            }
+                          },
+                        ),
+                        DropdownButtonFormField<String?>(
+                          isExpanded: true,
+                          initialValue: _birthAccuracy,
+                          decoration: InputDecoration(
+                            labelText: sharedText(
+                              context,
+                              'Birth date accuracy',
+                              'Genauigkeit des Geburtsdatums',
+                            ),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(sharedText(context, 'None', 'Keine')),
+                            ),
+                            for (final value in BirthDateAccuracy.values)
+                              DropdownMenuItem(
+                                value: value.name,
+                                child: Text(
+                                  context.l10n.birthAccuracyLabel(value),
+                                ),
+                              ),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _birthAccuracy = value),
+                        ),
+                        DropdownButtonFormField<Sex?>(
+                          isExpanded: true,
+                          initialValue: _sex,
+                          decoration: InputDecoration(
+                            labelText: sharedText(context, 'Sex', 'Geschlecht'),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(
+                                sharedText(context, 'Unknown', 'Unbekannt'),
+                              ),
+                            ),
+                            for (final value in Sex.values)
+                              DropdownMenuItem(
+                                value: value,
+                                child: Text(context.l10n.animalSexLabel(value)),
+                              ),
+                          ],
+                          onChanged: (value) => setState(() => _sex = value),
+                        ),
+                        for (final entry in [
+                          (
+                            'originHabitat',
+                            'Origin / habitat',
+                            'Herkunft / Lebensraum',
+                          ),
+                          (
+                            'restOrDormancyPeriods',
+                            'Rest / dormancy periods',
+                            'Ruhezeiten',
+                          ),
+                          ('notes', 'Notes', 'Notizen'),
+                        ])
+                          TextFormField(
+                            controller: _fields[entry.$1],
+                            maxLines: 2,
+                            decoration: InputDecoration(
+                              labelText: sharedText(
+                                context,
+                                entry.$2,
+                                entry.$3,
+                              ),
+                            ),
+                          ),
+                        FeedingReminderFormFields(
+                          reminderEnabled: _reminderEnabled,
+                          controlsEnabled: !_saving,
+                          intervalDaysController:
+                              _fields['feedingReminderIntervalDays']!,
+                          onReminderEnabledChanged: (enabled) => setState(() {
+                            _reminderEnabled = enabled;
+                            _reminderBaseline = enabled ? DateTime.now() : null;
+                          }),
+                          weekdayMode: _weekdayMode,
+                          onWeekdayModeChanged: (value) =>
+                              setState(() => _weekdayMode = value),
+                          selectedWeekdays: _weekdays,
+                          onWeekdaysChanged: (value) =>
+                              setState(() => _weekdays = value),
+                          minuteOfDay: _minuteOfDay,
+                          onMinuteOfDayChanged: (value) =>
+                              setState(() => _minuteOfDay = value),
+                        ),
                       ],
-                      onChanged: (value) => setState(() => _sex = value),
                     ),
-                    for (final entry in [
-                      (
-                        'originHabitat',
-                        'Origin / habitat',
-                        'Herkunft / Lebensraum',
+                    if (_initial != null) ...[
+                      SwitchListTile(
+                        key: const Key('shared-show-weight-on-detail'),
+                        title: Text(context.l10n.showWeightOnAnimalDetail),
+                        subtitle: Text(
+                          context.l10n.showWeightOnAnimalDetailDescription,
+                        ),
+                        value: _showWeightOnDetail,
+                        onChanged: !_saving && !_stale && widget.api.connected
+                            ? (value) =>
+                                  setState(() => _showWeightOnDetail = value)
+                            : null,
                       ),
-                      (
-                        'restOrDormancyPeriods',
-                        'Rest / dormancy periods',
-                        'Ruhezeiten',
+                      SwitchListTile(
+                        key: const Key('shared-show-shedding-on-detail'),
+                        title: Text(context.l10n.showSheddingOnAnimalDetail),
+                        subtitle: Text(
+                          context.l10n.showSheddingOnAnimalDetailDescription,
+                        ),
+                        value: _showSheddingOnDetail,
+                        onChanged: !_saving && !_stale && widget.api.connected
+                            ? (value) =>
+                                  setState(() => _showSheddingOnDetail = value)
+                            : null,
                       ),
-                      ('notes', 'Notes', 'Notizen'),
-                    ])
-                      TextFormField(
-                        controller: _fields[entry.$1],
-                        maxLines: 2,
-                        decoration: InputDecoration(
-                          labelText: sharedText(context, entry.$2, entry.$3),
+                    ],
+                  ] else
+                    Text(
+                      _created!['commonName']?.toString() ??
+                          _fields['commonName']!.text,
+                    ),
+                  if (_error != null)
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  if (_stale)
+                    TextButton.icon(
+                      onPressed: widget.api.connected ? _reloadLatest : null,
+                      icon: const Icon(Icons.refresh),
+                      label: Text(
+                        sharedText(
+                          context,
+                          'Reload and review',
+                          'Neu laden und prüfen',
                         ),
                       ),
-                    FeedingReminderFormFields(
-                      reminderEnabled: _reminderEnabled,
-                      controlsEnabled: !_saving,
-                      intervalDaysController:
-                          _fields['feedingReminderIntervalDays']!,
-                      onReminderEnabledChanged: (enabled) => setState(() {
-                        _reminderEnabled = enabled;
-                        _reminderBaseline = enabled ? DateTime.now() : null;
-                      }),
-                      weekdayMode: _weekdayMode,
-                      onWeekdayModeChanged: (value) =>
-                          setState(() => _weekdayMode = value),
-                      selectedWeekdays: _weekdays,
-                      onWeekdaysChanged: (value) =>
-                          setState(() => _weekdays = value),
-                      minuteOfDay: _minuteOfDay,
-                      onMinuteOfDayChanged: (value) =>
-                          setState(() => _minuteOfDay = value),
                     ),
-                  ],
-                ),
-                if (_initial != null) ...[
-                  SwitchListTile(
-                    key: const Key('shared-show-weight-on-detail'),
-                    title: Text(context.l10n.showWeightOnAnimalDetail),
-                    subtitle: Text(
-                      context.l10n.showWeightOnAnimalDetailDescription,
+                  if (_created != null)
+                    TextButton(
+                      key: const Key('shared-creation-finish'),
+                      onPressed: _saving
+                          ? null
+                          : () => Navigator.of(context).pop(true),
+                      child: Text(
+                        sharedText(
+                          context,
+                          'Finish for now',
+                          'Vorerst abschließen',
+                        ),
+                      ),
                     ),
-                    value: _showWeightOnDetail,
-                    onChanged: !_saving && !_stale && widget.api.connected
-                        ? (value) => setState(() => _showWeightOnDetail = value)
+                  if (_saving) const LinearProgressIndicator(),
+                  const SizedBox(height: 20),
+                  FilledButton(
+                    key: const Key('shared-save-animal'),
+                    onPressed:
+                        widget.api.connected &&
+                            !_saving &&
+                            !_processingPicture &&
+                            !_stale
+                        ? _save
                         : null,
-                  ),
-                  SwitchListTile(
-                    key: const Key('shared-show-shedding-on-detail'),
-                    title: Text(context.l10n.showSheddingOnAnimalDetail),
-                    subtitle: Text(
-                      context.l10n.showSheddingOnAnimalDetailDescription,
+                    child: Text(
+                      _created == null
+                          ? sharedText(context, 'Save', 'Speichern')
+                          : sharedText(
+                              context,
+                              'Retry picture',
+                              'Bild erneut übertragen',
+                            ),
                     ),
-                    value: _showSheddingOnDetail,
-                    onChanged: !_saving && !_stale && widget.api.connected
-                        ? (value) =>
-                              setState(() => _showSheddingOnDetail = value)
-                        : null,
                   ),
                 ],
-                if (_error != null)
-                  Text(
-                    _error!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                if (_stale)
-                  TextButton.icon(
-                    onPressed: widget.api.connected ? _reloadLatest : null,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(
-                      sharedText(
-                        context,
-                        'Reload and review',
-                        'Neu laden und prüfen',
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 20),
-                FilledButton(
-                  key: const Key('shared-save-animal'),
-                  onPressed: widget.api.connected && !_saving && !_stale
-                      ? _save
-                      : null,
-                  child: Text(context.l10n.save),
-                ),
-              ],
+              ),
             ),
           ),
         ),

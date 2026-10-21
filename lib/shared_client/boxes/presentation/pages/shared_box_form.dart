@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
+import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
+import 'package:terramanager/shared_client/media/presentation/widgets/shared_creation_picture_field.dart';
 import 'package:terramanager/shared_client/shared/application/shared_change.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 import 'package:terramanager/shared_client/shared/presentation/record_labels.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
+import 'package:uuid/uuid.dart';
 
 class SharedBoxForm extends StatefulWidget {
   const SharedBoxForm({
@@ -11,10 +14,12 @@ class SharedBoxForm extends StatefulWidget {
     required this.api,
     required this.change,
     this.initial,
+    this.pictureSelectionFlow,
   });
   final SharedApiClient api;
   final SharedChange change;
   final Map<String, dynamic>? initial;
+  final PictureSelectionFlow? pictureSelectionFlow;
 
   @override
   State<SharedBoxForm> createState() => _SharedBoxFormState();
@@ -27,6 +32,10 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
   bool _saving = false;
   bool _stale = false;
   String? _error;
+  SelectedPicture? _picture;
+  String? _pictureRequestId;
+  Map<String, dynamic>? _created;
+  bool _processingPicture = false;
 
   @override
   void initState() {
@@ -79,9 +88,12 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
   }
 
   Future<void> _save() async {
-    if (_saving || !widget.api.connected || !_form.currentState!.validate()) {
+    if (_saving || _processingPicture || !widget.api.connected) return;
+    if (_created != null) {
+      await _persist(const {});
       return;
     }
+    if (!_form.currentState!.validate()) return;
     setState(() {
       _saving = true;
       _error = null;
@@ -94,9 +106,30 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
       'temperatureZones': _text('temperatureZones'),
       'notes': _text('notes'),
     };
+    await _persist(values);
+  }
+
+  Future<void> _persist(Map<String, dynamic> values) async {
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
     final saved = await widget.change(() async {
       if (_initial == null) {
-        await widget.api.createBox(values);
+        // Preserve a confirmed create across upload failures and retry only the
+        // same picture request. Its result may already have committed.
+        _created ??= await widget.api.createBox(values);
+        final picture = _picture;
+        if (picture != null) {
+          await widget.api.addPicture(
+            'boxes',
+            recordId(_created!),
+            picture.fileName,
+            picture.mimeType,
+            picture.bytes,
+            requestId: _pictureRequestId!,
+          );
+        }
       } else {
         await widget.api.updateBox(
           recordId(_initial!),
@@ -115,7 +148,13 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
             widget.api.lastFailure is SharedApiException &&
             (widget.api.lastFailure as SharedApiException).code ==
                 'stale_record';
-        _error = _stale
+        _error = _created != null
+            ? sharedText(
+                context,
+                'The Box was created, but its picture could not be confirmed. Retry the picture or finish and check its gallery.',
+                'Die Box wurde angelegt, aber das Bild konnte nicht bestätigt werden. Wiederhole die Bildübertragung oder schließe ab und prüfe die Galerie.',
+              )
+            : _stale
             ? sharedText(
                 context,
                 'This Box changed on the server. Reload and review the new values before saving.',
@@ -176,77 +215,133 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
           listenable: widget.api,
           builder: (context, _) => Form(
             key: _form,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                TextFormField(
-                  controller: _fields['name'],
-                  maxLength: 200,
-                  decoration: InputDecoration(
-                    labelText: sharedText(context, 'Name', 'Name'),
-                  ),
-                ),
-                for (final entry in [
-                  ('widthCm', 'Width (cm)', 'Breite (cm)'),
-                  ('heightCm', 'Height (cm)', 'Höhe (cm)'),
-                  ('depthCm', 'Depth (cm)', 'Tiefe (cm)'),
-                ])
-                  TextFormField(
-                    controller: _fields[entry.$1],
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
+            canPop: !_saving && _created == null,
+            onPopInvokedWithResult: (didPop, result) {
+              if (!didPop && !_saving && _created != null) {
+                Navigator.of(context).pop(true);
+              }
+            },
+            child: IgnorePointer(
+              ignoring: _saving || _processingPicture,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  if (widget.initial == null)
+                    SharedCreationPictureField(
+                      picture: _picture,
+                      pictureSelectionFlow: widget.pictureSelectionFlow,
+                      enabled:
+                          widget.api.connected && !_saving && _created == null,
+                      onChanged: (picture) => setState(() {
+                        _picture = picture;
+                        _pictureRequestId = picture == null
+                            ? null
+                            : const Uuid().v4();
+                      }),
+                      onProcessingChanged: (processing) =>
+                          setState(() => _processingPicture = processing),
                     ),
-                    validator: _positive,
-                    decoration: InputDecoration(
-                      labelText: sharedText(context, entry.$2, entry.$3),
-                    ),
-                  ),
-                TextFormField(
-                  controller: _fields['temperatureZones'],
-                  maxLines: 2,
-                  decoration: InputDecoration(
-                    labelText: sharedText(
-                      context,
-                      'Temperature zones',
-                      'Temperaturzonen',
-                    ),
-                  ),
-                ),
-                TextFormField(
-                  controller: _fields['notes'],
-                  maxLines: 4,
-                  decoration: InputDecoration(
-                    labelText: sharedText(context, 'Notes', 'Notizen'),
-                  ),
-                ),
-                if (_error != null)
-                  Text(
-                    _error!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                if (_stale)
-                  TextButton.icon(
-                    onPressed: widget.api.connected ? _reloadLatest : null,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(
-                      sharedText(
-                        context,
-                        'Reload and review',
-                        'Neu laden und prüfen',
+                  if (_created == null) ...[
+                    TextFormField(
+                      controller: _fields['name'],
+                      maxLength: 200,
+                      decoration: InputDecoration(
+                        labelText: sharedText(context, 'Name', 'Name'),
                       ),
                     ),
+                    for (final entry in [
+                      ('widthCm', 'Width (cm)', 'Breite (cm)'),
+                      ('heightCm', 'Height (cm)', 'Höhe (cm)'),
+                      ('depthCm', 'Depth (cm)', 'Tiefe (cm)'),
+                    ])
+                      TextFormField(
+                        controller: _fields[entry.$1],
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        validator: _positive,
+                        decoration: InputDecoration(
+                          labelText: sharedText(context, entry.$2, entry.$3),
+                        ),
+                      ),
+                    TextFormField(
+                      controller: _fields['temperatureZones'],
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        labelText: sharedText(
+                          context,
+                          'Temperature zones',
+                          'Temperaturzonen',
+                        ),
+                      ),
+                    ),
+                    TextFormField(
+                      controller: _fields['notes'],
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        labelText: sharedText(context, 'Notes', 'Notizen'),
+                      ),
+                    ),
+                  ] else
+                    Text(
+                      _created!['name']?.toString() ?? _fields['name']!.text,
+                    ),
+                  if (_error != null)
+                    Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  if (_stale)
+                    TextButton.icon(
+                      onPressed: widget.api.connected ? _reloadLatest : null,
+                      icon: const Icon(Icons.refresh),
+                      label: Text(
+                        sharedText(
+                          context,
+                          'Reload and review',
+                          'Neu laden und prüfen',
+                        ),
+                      ),
+                    ),
+                  if (_created != null)
+                    TextButton(
+                      key: const Key('shared-creation-finish'),
+                      onPressed: _saving
+                          ? null
+                          : () => Navigator.of(context).pop(true),
+                      child: Text(
+                        sharedText(
+                          context,
+                          'Finish for now',
+                          'Vorerst abschließen',
+                        ),
+                      ),
+                    ),
+                  if (_saving) const LinearProgressIndicator(),
+                  const SizedBox(height: 20),
+                  FilledButton(
+                    key: const Key('shared-save-box'),
+                    onPressed:
+                        widget.api.connected &&
+                            !_saving &&
+                            !_processingPicture &&
+                            !_stale
+                        ? _save
+                        : null,
+                    child: Text(
+                      _created == null
+                          ? sharedText(context, 'Save', 'Speichern')
+                          : sharedText(
+                              context,
+                              'Retry picture',
+                              'Bild erneut übertragen',
+                            ),
+                    ),
                   ),
-                const SizedBox(height: 20),
-                FilledButton(
-                  key: const Key('shared-save-box'),
-                  onPressed: widget.api.connected && !_saving && !_stale
-                      ? _save
-                      : null,
-                  child: Text(sharedText(context, 'Save', 'Speichern')),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

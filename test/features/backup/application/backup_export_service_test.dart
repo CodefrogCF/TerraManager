@@ -108,6 +108,7 @@ void main() {
       animalSortOrder: AnimalSortOrder.latestFeedingOldestFirst,
       animalCategoryViewEnabled: true,
       bigPictureModeEnabled: true,
+      showEmptyBoxesLast: true,
       boxSortOrder: BoxSortOrder.labelDescending,
       createdAt: DateTime(2026, 9, 2, 15, 30),
     );
@@ -137,6 +138,7 @@ void main() {
     expect(result.settings.animalCategoryViewEnabled, isTrue);
 
     expect(result.settings.bigPictureModeEnabled, isTrue);
+    expect(result.settings.showEmptyBoxesLast, isTrue);
 
     expect(result.settings.boxSortOrder, 'labelDescending');
 

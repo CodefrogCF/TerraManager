@@ -7,9 +7,9 @@ import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/presentation/widgets/overview_context_menu.dart';
+import '../../../../core/presentation/widgets/overview_action_buttons.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
-import '../../../feedings/presentation/pages/feeding_scanner_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
 import '../../../settings/app_settings_controller.dart';
 import '../../../settings/box_sort_order.dart';
@@ -26,15 +26,9 @@ enum _BoxOverviewAction { edit, duplicate, archive }
 
 class BoxesPage extends StatefulWidget {
   final AppDatabase database;
-  final VoidCallback? onFeedingChanged;
   final VoidCallback? onAnimalsChanged;
 
-  const BoxesPage({
-    super.key,
-    required this.database,
-    this.onFeedingChanged,
-    this.onAnimalsChanged,
-  });
+  const BoxesPage({super.key, required this.database, this.onAnimalsChanged});
 
   @override
   State<BoxesPage> createState() => _BoxesPageState();
@@ -42,6 +36,7 @@ class BoxesPage extends StatefulWidget {
 
 class _BoxesPageState extends State<BoxesPage> {
   late Future<List<Box>> _boxesFuture;
+  late final Stream<Set<int>> _occupiedBoxIds;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -50,6 +45,7 @@ class _BoxesPageState extends State<BoxesPage> {
   @override
   void initState() {
     super.initState();
+    _occupiedBoxIds = AnimalRepository(widget.database).watchOccupiedBoxIds();
     _loadBoxes();
   }
 
@@ -353,17 +349,6 @@ class _BoxesPageState extends State<BoxesPage> {
     await _reloadBoxesPreservingScroll(previousOffset);
   }
 
-  Future<void> _openFeedingMode() {
-    return Navigator.of(context).push<void>(
-      MaterialPageRoute<void>(
-        builder: (_) => FeedingScannerPage(
-          database: widget.database,
-          onFeedingChanged: widget.onFeedingChanged,
-        ),
-      ),
-    );
-  }
-
   List<PopupMenuEntry<_BoxOverviewAction>> _boxOverviewMenuItems(
     BuildContext context,
   ) {
@@ -617,111 +602,123 @@ class _BoxesPageState extends State<BoxesPage> {
           IconButton(
             key: const Key('box-archive-button'),
             onPressed: _openArchive,
-            icon: const Icon(Icons.inventory_2_outlined),
+            icon: const Icon(Icons.history),
             tooltip: context.l10n.archivedBoxes,
-          ),
-          IconButton(
-            key: const Key('scan-box-button'),
-            onPressed: _openScannerPage,
-            icon: const Icon(Icons.qr_code_scanner),
-            tooltip: context.l10n.scanBoxTitle,
-          ),
-          IconButton(
-            key: const Key('feeding-mode-button'),
-            onPressed: _openFeedingMode,
-            icon: const Icon(Icons.restaurant_menu),
-            tooltip: context.l10n.feedingModeTitle,
           ),
         ],
       ),
-      body: FutureBuilder<List<Box>>(
-        future: _boxesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text(context.l10n.failedToLoadBoxes));
-          }
+      body: StreamBuilder<Set<int>>(
+        stream: settings?.showEmptyBoxesLast == true ? _occupiedBoxIds : null,
+        builder: (context, occupied) => FutureBuilder<List<Box>>(
+          future: _boxesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError ||
+                (settings?.showEmptyBoxesLast == true && occupied.hasError)) {
+              return Center(child: Text(context.l10n.failedToLoadBoxes));
+            }
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            if (snapshot.connectionState == ConnectionState.waiting ||
+                (settings?.showEmptyBoxesLast == true && !occupied.hasData)) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final boxes = sortBoxesForOverview(
-            snapshot.data ?? const <Box>[],
-            boxSortOrder,
-          );
+            final boxes = sortBoxesForOverview(
+              snapshot.data ?? const <Box>[],
+              boxSortOrder,
+              showEmptyBoxesLast: settings?.showEmptyBoxesLast ?? false,
+              occupiedBoxIds: occupied.data ?? const {},
+            );
 
-          if (boxes.isEmpty) {
-            return Center(child: Text(context.l10n.noBoxesAvailable));
-          }
+            if (boxes.isEmpty) {
+              return Center(child: Text(context.l10n.noBoxesAvailable));
+            }
 
-          if (bigPictureModeEnabled) {
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final crossAxisCount = switch (constraints.maxWidth) {
-                  >= 1000 => 3,
-                  >= 600 => 2,
-                  _ => 1,
-                };
+            if (bigPictureModeEnabled) {
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final crossAxisCount = switch (constraints.maxWidth) {
+                    >= 1000 => 3,
+                    >= 600 => 2,
+                    _ => 1,
+                  };
 
-                return GridView.builder(
-                  key: const PageStorageKey<String>('boxes-overview-grid'),
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: crossAxisCount,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: crossAxisCount == 1 ? 1.45 : 1.15,
-                  ),
-                  itemCount: boxes.length,
-                  itemBuilder: (context, index) {
-                    final box = boxes[index];
-                    final boxName = _boxName(box);
-                    final boxLabel = context.l10n.boxLabel(box.id);
-                    final dimensions = _formatDimensions(context, box);
+                  return GridView.builder(
+                    key: const PageStorageKey<String>('boxes-overview-grid'),
+                    controller: _scrollController,
+                    padding: const EdgeInsets.fromLTRB(
+                      12,
+                      12,
+                      12,
+                      OverviewActionButtons.bottomPadding,
+                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: crossAxisCount == 1 ? 1.45 : 1.15,
+                    ),
+                    itemCount: boxes.length,
+                    itemBuilder: (context, index) {
+                      final box = boxes[index];
+                      final boxName = _boxName(box);
+                      final boxLabel = context.l10n.boxLabel(box.id);
+                      final dimensions = _formatDimensions(context, box);
 
-                    return _buildBigPictureBoxCard(
-                      context,
-                      box: box,
-                      boxes: boxes,
-                      boxName: boxName,
-                      boxLabel: boxLabel,
-                      dimensions: dimensions,
-                    );
-                  },
+                      return _buildBigPictureBoxCard(
+                        context,
+                        box: box,
+                        boxes: boxes,
+                        boxName: boxName,
+                        boxLabel: boxLabel,
+                        dimensions: dimensions,
+                      );
+                    },
+                  );
+                },
+              );
+            }
+
+            return ListView.builder(
+              key: const PageStorageKey<String>('boxes-overview-list'),
+              padding: const EdgeInsets.only(
+                bottom: OverviewActionButtons.bottomPadding,
+              ),
+              controller: _scrollController,
+              itemCount: boxes.length,
+              itemBuilder: (context, index) {
+                final box = boxes[index];
+                final boxName = _boxName(box);
+                final boxLabel = context.l10n.boxLabel(box.id);
+                final dimensions = _formatDimensions(context, box);
+
+                return _buildCompactBoxTile(
+                  context,
+                  box: box,
+                  boxes: boxes,
+                  boxName: boxName,
+                  boxLabel: boxLabel,
+                  dimensions: dimensions,
                 );
               },
             );
-          }
-
-          return ListView.builder(
-            key: const PageStorageKey<String>('boxes-overview-list'),
-            controller: _scrollController,
-            itemCount: boxes.length,
-            itemBuilder: (context, index) {
-              final box = boxes[index];
-              final boxName = _boxName(box);
-              final boxLabel = context.l10n.boxLabel(box.id);
-              final dimensions = _formatDimensions(context, box);
-
-              return _buildCompactBoxTile(
-                context,
-                box: box,
-                boxes: boxes,
-                boxName: boxName,
-                boxLabel: boxLabel,
-                dimensions: dimensions,
-              );
-            },
-          );
-        },
+          },
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'boxes-add-fab',
-        key: const Key('add-box-button'),
-        onPressed: _openNewBoxPage,
-        tooltip: context.l10n.addBox,
-        child: const Icon(Icons.add),
+      floatingActionButton: OverviewActionButtons(
+        secondary: FloatingActionButton(
+          key: const Key('scan-box-button'),
+          heroTag: 'boxes-scan-fab',
+          tooltip: context.l10n.scanBoxTitle,
+          onPressed: _openScannerPage,
+          child: const Icon(Icons.qr_code_scanner),
+        ),
+        primary: FloatingActionButton(
+          heroTag: 'boxes-add-fab',
+          key: const Key('add-box-button'),
+          onPressed: _openNewBoxPage,
+          tooltip: context.l10n.addBox,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

@@ -86,7 +86,7 @@ de:
         caption: Tierdetails
     - number: '3'
       heading: Darstellung der Übersichten wählen
-      body_html: Sortiere über die Übersicht und schalte die Kategoriegruppen separat ein. Unter <strong>Einstellungen</strong> aktivierst du den <strong>Großbildmodus</strong> für Boxen und Tiere.
+      body_html: Sortiere über die Übersicht und schalte die Kategoriegruppen separat ein. Unter <strong>Einstellungen → Darstellung</strong> stehen <strong>Großbildmodus</strong> und darunter <strong>Leere Boxen am Ende anzeigen</strong>. Letzteres ist anfangs aus und stellt Boxen ohne zugewiesene Tiere hinter belegte Boxen; die gewählte Sortierung bleibt je Gruppe erhalten.
       images:
       - file: big-picture-mode.webp
         alt: Tierübersicht im Großbildmodus
@@ -116,7 +116,7 @@ de:
     - number: '6'
       reverse: true
       heading: Anbringen und scannen
-      body_html: Scanne das Etikett, um die Box zu öffnen oder den Fütterungsmodus zu nutzen. Eine archivierte Box kann nach Rückfrage wiederhergestellt werden. Beim Erstellen eines Tieres wählt QR die Box; beim Umsetzen sind nur aktive andere Ziele nach Bestätigung erlaubt. Shared-Care-Scanning benötigt vertrauenswürdiges HTTPS und native QR-Unterstützung im Browser; übertragen wird nur die Kennung.
+      body_html: Der Boxscanner steht über <strong>+</strong> in der Boxübersicht, der Fütterungsmodus über <strong>+</strong> in der Tierübersicht. Eine gescannte archivierte Box kann nach Rückfrage wiederhergestellt werden. Beim Erstellen eines Tieres wählt QR die Box; beim Umsetzen sind nur aktive andere Ziele nach Bestätigung erlaubt. Shared-Care-Scanning benötigt vertrauenswürdiges HTTPS und native QR-Unterstützung im Browser; übertragen wird nur die Kennung.
       wide_images: true
       images:
       - file: qr-on-enclosure.webp
@@ -328,7 +328,7 @@ en:
         caption: Animal details
     - number: '3'
       heading: Choose the overview presentation
-      body_html: Use the overview sort control and separate category-group toggle. Enable <strong>Big Picture Mode</strong> for Boxes and Animals in <strong>Settings</strong>.
+      body_html: Use the overview sort control and separate category-group toggle. <strong>Settings → Appearance</strong> offers <strong>Big Picture Mode</strong>, followed by <strong>Show Empty Boxes Last</strong>. The latter defaults to off and places Boxes without assigned Animals after occupied Boxes, retaining the chosen sort order within each group.
       images:
       - file: big-picture-mode-en.webp
         alt: Animal overview using large pictures
@@ -358,7 +358,7 @@ en:
     - number: '6'
       reverse: true
       heading: Attach and scan
-      body_html: Scan a label to open its Box or use Feeding Mode. An archived Box offers restoration after confirmation. QR selection during Animal creation chooses the Box; reassignment accepts only another active destination after confirmation. Shared Care scanning requires trusted HTTPS and native browser QR support; only the identifier is sent.
+      body_html: The Box scanner sits above <strong>+</strong> in the Box overview; Feeding Mode sits above <strong>+</strong> in the Animal overview. A scanned archived Box offers restoration after confirmation. QR selection during Animal creation chooses the Box; reassignment accepts only another active destination after confirmation. Shared Care scanning requires trusted HTTPS and native browser QR support; only the identifier is sent.
       wide_images: true
       images:
       - file: qr-on-enclosure.webp

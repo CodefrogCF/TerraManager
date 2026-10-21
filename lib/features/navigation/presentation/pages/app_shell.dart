@@ -138,7 +138,6 @@ class _AppShellState extends State<AppShell> {
       BoxesPage(
         key: ValueKey('boxes-$_dataRevision'),
         database: widget.database,
-        onFeedingChanged: _handleFeedingChanged,
         onAnimalsChanged: _handleAnimalsDataChanged,
       ),
       AnimalsPage(
@@ -146,6 +145,7 @@ class _AppShellState extends State<AppShell> {
         database: widget.database,
         dataRevision: _animalsRevision,
         onDataChanged: _handleAnimalsDataChanged,
+        onFeedingChanged: _handleFeedingChanged,
       ),
       SettingsPage(
         database: widget.database,

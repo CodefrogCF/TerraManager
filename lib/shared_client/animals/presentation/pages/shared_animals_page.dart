@@ -7,6 +7,7 @@ import 'package:terramanager/features/feedings/presentation/widgets/feeding_aler
 import 'package:intl/intl.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
+import 'package:terramanager/core/presentation/widgets/overview_action_buttons.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_schedule_page.dart';
 import 'package:terramanager/features/feedings/presentation/widgets/feeding_due_date_label.dart';
@@ -16,6 +17,8 @@ import 'package:terramanager/features/settings/archive_sort_order.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/l10n/app_localizations_labels.dart';
 import 'package:terramanager/shared_client/animals/presentation/animal_overview.dart';
+import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
+import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_box_page.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_detail_page.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
 import 'package:terramanager/shared_client/boxes/presentation/widgets/shared_box_selection_dialog.dart';
@@ -296,6 +299,33 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         }
       }
     }
+  }
+
+  Future<void> _openFeedingMode() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => SharedBoxScannerPage(
+          api: widget.api,
+          boxes: widget.boxes,
+          animals: widget.animals,
+          change: widget.change,
+          title: context.l10n.feedingModeTitle,
+          allowBoxSelection: true,
+          onBoxResolved: (scannerContext, box) =>
+              Navigator.of(scannerContext).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) => SharedFeedingBoxPage(
+                    api: widget.api,
+                    box: box,
+                    change: widget.change,
+                    onReload: _reload,
+                  ),
+                ),
+              ),
+        ),
+      ),
+    );
+    if (mounted) await _reload();
   }
 
   Future<void> _openAnimal(Map<String, dynamic> animal) async {
@@ -669,6 +699,11 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         }
       }
       addGrid(group);
+      slivers.add(
+        const SliverToBoxAdapter(
+          child: SizedBox(height: OverviewActionButtons.bottomPadding),
+        ),
+      );
       return CustomScrollView(
         key: PageStorageKey<String>(
           _archived
@@ -852,24 +887,35 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         ),
         floatingActionButton: _archived
             ? null
-            : FloatingActionButton(
-                key: const Key('add-animal-button'),
-                heroTag: 'shared-animal-add',
-                tooltip: context.l10n.addAnimal,
-                onPressed:
-                    widget.connected &&
-                        widget.boxes.any((box) => box['status'] == 'active')
-                    ? () => Navigator.of(context).push<bool>(
-                        MaterialPageRoute(
-                          builder: (_) => SharedAnimalForm(
-                            api: widget.api,
-                            boxes: widget.boxes,
-                            change: widget.change,
+            : OverviewActionButtons(
+                secondary: FloatingActionButton(
+                  key: const Key('shared-feeding-mode-button'),
+                  heroTag: 'shared-animal-feeding-fab',
+                  tooltip: context.l10n.feedingModeTitle,
+                  onPressed: widget.connected && widget.api.connected
+                      ? _openFeedingMode
+                      : null,
+                  child: const Icon(Icons.restaurant_menu),
+                ),
+                primary: FloatingActionButton(
+                  key: const Key('add-animal-button'),
+                  heroTag: 'shared-animal-add',
+                  tooltip: context.l10n.addAnimal,
+                  onPressed:
+                      widget.connected &&
+                          widget.boxes.any((box) => box['status'] == 'active')
+                      ? () => Navigator.of(context).push<bool>(
+                          MaterialPageRoute(
+                            builder: (_) => SharedAnimalForm(
+                              api: widget.api,
+                              boxes: widget.boxes,
+                              change: widget.change,
+                            ),
                           ),
-                        ),
-                      )
-                    : null,
-                child: const Icon(Icons.add),
+                        )
+                      : null,
+                  child: const Icon(Icons.add),
+                ),
               ),
         body: values.isEmpty
             ? Center(
@@ -894,6 +940,11 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                       ? 'shared-animals-archive'
                       : 'shared-animals-overview',
                 ),
+                padding: _archived
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.only(
+                        bottom: OverviewActionButtons.bottomPadding,
+                      ),
                 itemCount: reminderRowCount + rows.length,
                 itemBuilder: (context, index) {
                   var rowIndex = index;

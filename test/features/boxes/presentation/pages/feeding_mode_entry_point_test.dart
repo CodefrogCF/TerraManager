@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_scanner_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
+import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_scanner_page.dart';
 
 void main() {
@@ -18,15 +19,21 @@ void main() {
     await database.close();
   });
 
-  Future<void> pumpPage(WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: BoxesPage(database: database)));
+  Future<void> pumpPage(WidgetTester tester, {bool animals = false}) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: animals
+            ? AnimalsPage(database: database)
+            : BoxesPage(database: database),
+      ),
+    );
     await tester.pumpAndSettle();
   }
 
   testWidgets('Feeding Mode button opens the dedicated scanner', (
     tester,
   ) async {
-    await pumpPage(tester);
+    await pumpPage(tester, animals: true);
 
     expect(find.byKey(const Key('feeding-mode-button')), findsOneWidget);
 

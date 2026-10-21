@@ -66,6 +66,7 @@ void main() {
       await api.logout();
       expect(settings.isFeedingAlertSuppressed('1:1000'), false);
       await api.login('bob', 'password');
+      expect(settings.showEmptyBoxesLast, false);
       expect(settings.isFeedingAlertSuppressed('1:1000'), false);
       final second = client();
       final otherSettings = SharedAccountSettings(second);
@@ -129,11 +130,14 @@ void main() {
       await api.login('alice', 'password');
       expect(settings.accent, AppAccent.blue);
       expect(settings.animalNameOrder, AnimalNameOrder.latinNameFirst);
+      await settings.setShowEmptyBoxesLast(true);
+      expect(settings.showEmptyBoxesLast, true);
       await settings.setAccent(AppAccent.purple);
       expect(settings.accent, AppAccent.purple);
       await api.logout();
       expect(settings.accent, AppAccent.green);
       await api.login('bob', 'password');
+      expect(settings.showEmptyBoxesLast, false);
       expect(settings.animalNameOrder, AnimalNameOrder.commonNameFirst);
       await settings.setThemeMode(ThemeMode.light);
       expect(stored['alice']!['theme_mode'], 'system');
@@ -142,6 +146,7 @@ void main() {
       addTearDown(secondSettings.dispose);
       addTearDown(second.close);
       await second.login('alice', 'password');
+      expect(secondSettings.showEmptyBoxesLast, true);
       expect(secondSettings.accent, AppAccent.purple);
       expect(secondSettings.animalNameOrder, AnimalNameOrder.latinNameFirst);
       expect(

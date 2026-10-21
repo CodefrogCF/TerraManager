@@ -20,6 +20,7 @@ final class SharedDetailNavigationContext {
     this.animalSortOrder,
     this.animalNameOrder,
     this.groupCategories = false,
+    this.showEmptyBoxesLast = false,
   }) {
     if (recordIds.isEmpty ||
         recordIds.toSet().length != recordIds.length ||
@@ -36,12 +37,14 @@ final class SharedDetailNavigationContext {
     required bool archived,
     required BoxSortOrder sortOrder,
     ArchiveSortOrder? archiveSortOrder,
+    bool showEmptyBoxesLast = false,
   }) => SharedDetailNavigationContext._(
     source: SharedDetailSource.boxes,
     recordIds: List<int>.unmodifiable(recordIds),
     currentRecordId: currentRecordId,
     archived: archived,
     boxSortOrder: sortOrder,
+    showEmptyBoxesLast: showEmptyBoxesLast,
     archiveSortOrder: archiveSortOrder,
   );
 
@@ -88,6 +91,7 @@ final class SharedDetailNavigationContext {
   final AnimalSortOrder? animalSortOrder;
   final AnimalNameOrder? animalNameOrder;
   final bool groupCategories;
+  final bool showEmptyBoxesLast;
 
   int? get previousRecordId {
     final index = recordIds.indexOf(currentRecordId);
@@ -119,6 +123,7 @@ final class SharedDetailNavigationContext {
       animalSortOrder: animalSortOrder,
       animalNameOrder: animalNameOrder,
       groupCategories: groupCategories,
+      showEmptyBoxesLast: showEmptyBoxesLast,
     );
   }
 }

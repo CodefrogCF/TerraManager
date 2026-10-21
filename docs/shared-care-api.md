@@ -58,7 +58,8 @@ entries and accepts at most 1,000 active entries. It hides only overview alerts
 for that account; schedules, history and detail banners are unchanged.
 
 Preferences include appearance, language, naming, sorting, category grouping,
-Big Picture, Next Feeding and archive orders. Unknown fields/values return 400.
+Big Picture, Next Feeding and archive orders. `show_empty_boxes_last` is a personal
+boolean (default false) for placing empty Boxes last. Unknown fields/values return 400.
 They belong to the account and are excluded from portable collection backups.
 
 ## Collection routes

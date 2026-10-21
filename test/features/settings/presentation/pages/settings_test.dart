@@ -108,6 +108,31 @@ void main() {
     expect(find.text('Deutsch'), findsOneWidget);
   });
 
+  testWidgets('empty-last toggle follows big-picture mode and persists', (
+    tester,
+  ) async {
+    final settings = await pumpSettings(tester);
+    final toggle = find.byKey(const Key('show-empty-boxes-last-switch'));
+    await scrollToSetting(tester, const Key('show-empty-boxes-last-switch'));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 180));
+    await tester.pumpAndSettle();
+    expect(find.text('Show Empty Boxes Last'), findsOneWidget);
+    expect(
+      tester.getTopLeft(toggle).dy,
+      greaterThan(
+        tester.getTopLeft(find.byKey(const Key('big-picture-mode-switch'))).dy,
+      ),
+    );
+    expect(tester.widget<SwitchListTile>(toggle).value, false);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    expect(settings.showEmptyBoxesLast, true);
+    final restored = AppSettingsController();
+    addTearDown(restored.dispose);
+    await restored.load();
+    expect(restored.showEmptyBoxesLast, true);
+  });
+
   testWidgets('can change theme mode', (tester) async {
     final controller = await pumpSettings(tester);
 

@@ -12,6 +12,7 @@ const defaultAccountPreferences = <String, Object>{
   'animal_category_view_enabled': false,
   'next_feeding_summary_enabled': false,
   'big_picture_mode_enabled': false,
+  'show_empty_boxes_last': false,
   'box_sort_order': 'labelAscending',
   'animal_archive_sort_order': 'archivedNewestFirst',
   'box_archive_sort_order': 'archivedNewestFirst',

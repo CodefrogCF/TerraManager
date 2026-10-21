@@ -80,7 +80,7 @@ void main() {
       );
       final replay = find.byKey(const Key('replay-tutorial-button'));
       await tester.scrollUntilVisible(
-        replay,
+        replay.hitTestable(),
         350,
         scrollable: find
             .descendant(
@@ -89,6 +89,8 @@ void main() {
             )
             .first,
       );
+      await tester.pumpAndSettle();
+      expect(replay.hitTestable(), findsOneWidget);
       await tester.tap(replay);
       await tester.pumpAndSettle();
       expect(

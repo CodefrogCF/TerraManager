@@ -4,6 +4,7 @@ import 'package:terramanager/shared_client/changes/application/shared_refresh_co
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
+import 'package:terramanager/core/presentation/widgets/overview_action_buttons.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/archive_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
@@ -13,7 +14,6 @@ import 'package:terramanager/shared_client/boxes/presentation/box_overview.dart'
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_detail_page.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_form.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
-import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_box_page.dart';
 import 'package:terramanager/shared_client/media/application/shared_overview_image_cache.dart';
 import 'package:terramanager/shared_client/media/presentation/widgets/shared_thumbnail.dart';
 import 'package:terramanager/shared_client/navigation/application/shared_detail_navigation.dart';
@@ -141,6 +141,8 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
     if (mounted) setState(_images.clear);
   }
 
+  Set<int> get _occupiedBoxIds =>
+      widget.animals.map((animal) => animal['boxId']).whereType<int>().toSet();
   bool get _archived => widget.archived;
   ValueNotifier<SharedArchiveSnapshot>? _archiveData;
   SharedArchiveSnapshot get _archiveSnapshot => (
@@ -173,33 +175,6 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
     }
   }
 
-  Future<void> _openFeedingMode() async {
-    await Navigator.of(context).push<void>(
-      MaterialPageRoute(
-        builder: (_) => SharedBoxScannerPage(
-          api: widget.api,
-          boxes: widget.boxes,
-          animals: widget.animals,
-          change: widget.change,
-          title: context.l10n.feedingModeTitle,
-          allowBoxSelection: true,
-          onBoxResolved: (scannerContext, box) =>
-              Navigator.of(scannerContext).push<bool>(
-                MaterialPageRoute(
-                  builder: (_) => SharedFeedingBoxPage(
-                    api: widget.api,
-                    box: box,
-                    change: widget.change,
-                    onReload: _reload,
-                  ),
-                ),
-              ),
-        ),
-      ),
-    );
-    if (mounted) await _reload();
-  }
-
   Future<void> _openBox(Map<String, dynamic> box) async {
     final settings = AppSettingsScope.of(context);
     final order = _archived
@@ -213,6 +188,8 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
               (item) => (item['status'] == 'archived') == _archived,
             ),
             settings.boxSortOrder,
+            showEmptyBoxesLast: settings.showEmptyBoxesLast,
+            occupiedBoxIds: _occupiedBoxIds,
           );
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
@@ -228,6 +205,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
             currentRecordId: recordId(box),
             archived: _archived,
             sortOrder: settings.boxSortOrder,
+            showEmptyBoxesLast: !_archived && settings.showEmptyBoxesLast,
             archiveSortOrder: _archived ? settings.boxArchiveSortOrder : null,
           ),
         ),
@@ -404,6 +382,8 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
               (box) => (box['status'] == 'archived') == _archived,
             ),
             settings.boxSortOrder,
+            showEmptyBoxesLast: settings.showEmptyBoxesLast,
+            occupiedBoxIds: _occupiedBoxIds,
           );
 
     return ConstrainedPageWidth(
@@ -493,37 +473,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                 key: const Key('box-archive-button'),
                 tooltip: context.l10n.archivedBoxes,
                 onPressed: _openArchive,
-                icon: const Icon(Icons.inventory_2_outlined),
-              ),
-            if (!_archived)
-              IconButton(
-                key: const Key('shared-box-scan-button'),
-                tooltip: context.l10n.scanBoxTitle,
-                onPressed: widget.connected && widget.api.connected
-                    ? () async {
-                        await Navigator.of(context).push<void>(
-                          MaterialPageRoute(
-                            builder: (_) => SharedBoxScannerPage(
-                              api: widget.api,
-                              boxes: widget.boxes,
-                              animals: widget.animals,
-                              change: widget.change,
-                            ),
-                          ),
-                        );
-                        if (mounted) await _reload();
-                      }
-                    : null,
-                icon: const Icon(Icons.qr_code_scanner),
-              ),
-            if (!_archived)
-              IconButton(
-                key: const Key('shared-feeding-mode-button'),
-                tooltip: context.l10n.feedingModeTitle,
-                onPressed: widget.connected && widget.api.connected
-                    ? _openFeedingMode
-                    : null,
-                icon: const Icon(Icons.restaurant_menu),
+                icon: const Icon(Icons.history),
               ),
             IconButton(
               key: const Key('shared-refresh'),
@@ -535,21 +485,44 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
         ),
         floatingActionButton: _archived
             ? null
-            : FloatingActionButton(
-                key: const Key('add-box-button'),
-                heroTag: 'shared-box-add',
-                tooltip: context.l10n.addBox,
-                onPressed: widget.connected
-                    ? () => Navigator.of(context).push<bool>(
-                        MaterialPageRoute(
-                          builder: (_) => SharedBoxForm(
-                            api: widget.api,
-                            change: widget.change,
+            : OverviewActionButtons(
+                secondary: FloatingActionButton(
+                  key: const Key('shared-box-scan-button'),
+                  heroTag: 'shared-box-scan-fab',
+                  tooltip: context.l10n.scanBoxTitle,
+                  onPressed: widget.connected && widget.api.connected
+                      ? () async {
+                          await Navigator.of(context).push<void>(
+                            MaterialPageRoute(
+                              builder: (_) => SharedBoxScannerPage(
+                                api: widget.api,
+                                boxes: widget.boxes,
+                                animals: widget.animals,
+                                change: widget.change,
+                              ),
+                            ),
+                          );
+                          if (mounted) await _reload();
+                        }
+                      : null,
+                  child: const Icon(Icons.qr_code_scanner),
+                ),
+                primary: FloatingActionButton(
+                  key: const Key('add-box-button'),
+                  heroTag: 'shared-box-add',
+                  tooltip: context.l10n.addBox,
+                  onPressed: widget.connected
+                      ? () => Navigator.of(context).push<bool>(
+                          MaterialPageRoute(
+                            builder: (_) => SharedBoxForm(
+                              api: widget.api,
+                              change: widget.change,
+                            ),
                           ),
-                        ),
-                      )
-                    : null,
-                child: const Icon(Icons.add),
+                        )
+                      : null,
+                  child: const Icon(Icons.add),
+                ),
               ),
         body: values.isEmpty
             ? Center(
@@ -577,7 +550,12 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                           ? 'shared-boxes-archive-grid'
                           : 'shared-boxes-overview-grid',
                     ),
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.fromLTRB(
+                      12,
+                      12,
+                      12,
+                      OverviewActionButtons.bottomPadding,
+                    ),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: columns,
                       crossAxisSpacing: 12,
@@ -594,6 +572,11 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                 key: PageStorageKey<String>(
                   _archived ? 'shared-boxes-archive' : 'shared-boxes-overview',
                 ),
+                padding: _archived
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.only(
+                        bottom: OverviewActionButtons.bottomPadding,
+                      ),
                 itemCount: values.length,
                 itemBuilder: (context, index) {
                   final box = values[index];

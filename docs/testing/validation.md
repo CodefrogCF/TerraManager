@@ -13,6 +13,7 @@ GitHub issue status remains in [Issues](https://github.com/CodefrogCF/TerraManag
 | #232: creation pictures | 20 widget cases cover Animal/Box creation, DE/EN, optional picture, crop cancellation/failure, upload rejection/lost reply, retry without duplicate creation and busy-state guards. | Camera/gallery/browser file chooser use controlled fakes; verify actual pickers on target devices. |
 | #233: reminder actions | Standalone/Shared Care: existing Feeding workflow, 24-hour expiry and persistence, per-Animal/account isolation, unchanged schedule/detail reminders, DE/EN list/grid and failure/retry coverage. | Device interaction remains a release check. |
 | #234: due-summary outlines | Eight rendering cases cover both modes, themes, one/two due Animals, unchanged geometry and expand/collapse. | Physical display acceptance follows release checks. |
+| #235-#237: overview sorting and controls | Both modes: all Box sort orders, live assignment changes, persisted personal setting and backup compatibility; scanner workflows, archive navigation and floating controls at narrow/landscape/desktop sizes with enlarged text. | Physical Android camera and browser interaction remain release checks. |
 
 ## Recorded automated gates
 
@@ -29,6 +30,12 @@ GitHub issue status remains in [Issues](https://github.com/CodefrogCF/TerraManag
   cases; 1 opt-in network test skipped. Full analysis, both Web release builds
   and pure-Dart Windows server build passed. Both guide PDFs remain four pages.
   Android interaction and the Linux Docker image were not exercised here.
+
+- #235-#237 (2026-10-21): **1,360 tests passed, 1 opt-in network test skipped**
+  on Flutter 3.47.2 / Dart 3.13.2, Windows. Full analysis, formatting, both Web
+  release builds and pure-Dart Windows server build passed. DE/EN guide PDFs
+  remain four pages each; physical Android scanning and Linux Docker build
+  were not exercised here.
 
 ## Recording future changes
 

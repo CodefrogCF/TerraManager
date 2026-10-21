@@ -861,5 +861,6 @@
   "feedingAlertActions": "Feeding reminder actions",
   "suppressFeedingAlert24Hours": "Disable Alert for 24 Hours",
   "feedingAlertSuppressionExplanation": "Only hide this Animal’s alerts in the overview. Its schedule and detail reminder stay active.",
-  "feedingAlertSuppressionFailed": "Could not hide the alert. Please try again."
+  "feedingAlertSuppressionFailed": "Could not hide the alert. Please try again.",
+  "showEmptyBoxesLast": "Show Empty Boxes Last"
 }

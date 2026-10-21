@@ -12,6 +12,7 @@ void main() {
       animalSortOrder: 'latestFeedingOldestFirst',
       animalCategoryViewEnabled: true,
       bigPictureModeEnabled: true,
+      showEmptyBoxesLast: true,
       boxSortOrder: 'labelDescending',
     );
 
@@ -30,6 +31,7 @@ void main() {
     expect(restored.animalCategoryViewEnabled, isTrue);
 
     expect(restored.bigPictureModeEnabled, isTrue);
+    expect(restored.showEmptyBoxesLast, isTrue);
 
     expect(restored.boxSortOrder, 'labelDescending');
   });
@@ -68,5 +70,6 @@ void main() {
     });
 
     expect(settings.bigPictureModeEnabled, isFalse);
+    expect(settings.showEmptyBoxesLast, isFalse);
   });
 }

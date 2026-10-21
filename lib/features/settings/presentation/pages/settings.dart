@@ -196,6 +196,7 @@ class _SettingsPageState extends State<SettingsPage> {
             animalCategoryViewEnabled: settings.animalCategoryViewEnabled,
             nextFeedingSummaryEnabled: settings.nextFeedingSummaryEnabled,
             bigPictureModeEnabled: settings.bigPictureModeEnabled,
+            showEmptyBoxesLast: settings.showEmptyBoxesLast,
             output: output,
           );
       final savedPath = protection.encrypted
@@ -987,6 +988,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   : settings.setBigPictureModeEnabled,
             ),
 
+            const SizedBox(height: 16),
+            SwitchListTile(
+              key: const Key('show-empty-boxes-last-switch'),
+              contentPadding: EdgeInsets.zero,
+              title: Text(context.l10n.showEmptyBoxesLast),
+              value: settings.showEmptyBoxesLast,
+              onChanged: _operationBusy ? null : settings.setShowEmptyBoxesLast,
+            ),
             const SizedBox(height: 32),
 
             Text(

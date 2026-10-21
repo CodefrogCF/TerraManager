@@ -118,13 +118,18 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
           : null;
       if (!current()) return;
       final navigation = _navigationContext;
-      final boxes = navigation != null && change.affects('boxes')
+      final boxes =
+          navigation != null &&
+              (change.affects('boxes') ||
+                  (navigation.showEmptyBoxesLast && change.affects('animals')))
           ? await widget.api.boxes()
           : null;
       if (!current()) return;
       final updated = navigation == null || boxes == null
           ? navigation
-          : navigation.withRecords(_orderedBoxIds(navigation, boxes));
+          : navigation.withRecords(
+              _orderedBoxIds(navigation, boxes, animals: animals ?? _animals),
+            );
       if (generation != widget.api.refresh.generation) return;
       if (navigation != null &&
           (updated == null ||
@@ -147,8 +152,9 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
 
   List<int> _orderedBoxIds(
     SharedDetailNavigationContext navigation,
-    List<Map<String, dynamic>> boxes,
-  ) => navigation.archiveSortOrder != null
+    List<Map<String, dynamic>> boxes, {
+    List<Map<String, dynamic>>? animals,
+  }) => navigation.archiveSortOrder != null
       ? sortSharedArchiveRecords(
           boxes,
           order: navigation.archiveSortOrder!,
@@ -159,6 +165,11 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
             (box) => (box['status'] == 'archived') == navigation.archived,
           ),
           navigation.boxSortOrder!,
+          showEmptyBoxesLast: navigation.showEmptyBoxesLast,
+          occupiedBoxIds: (animals ?? _animals)
+              .map((animal) => animal['boxId'])
+              .whereType<int>()
+              .toSet(),
         ).map(recordId).toList();
 
   Future<void> _switchAdjacent({required bool next}) async {
@@ -168,7 +179,10 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
     setState(() => _switching = true);
     try {
       final boxes = await widget.api.boxes();
-      final ids = _orderedBoxIds(navigation, boxes);
+      final sortAnimals = navigation.showEmptyBoxesLast
+          ? await widget.api.animals()
+          : null;
+      final ids = _orderedBoxIds(navigation, boxes, animals: sortAnimals);
       final current = navigation.withRecords(ids);
       if (!mounted) return;
       if (current == null) {
@@ -214,7 +228,7 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
         }
         return;
       }
-      final animals = await widget.api.animals();
+      final animals = sortAnimals ?? await widget.api.animals();
       if (!mounted) return;
       setState(() {
         _id = targetId;

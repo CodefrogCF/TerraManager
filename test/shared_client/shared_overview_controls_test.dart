@@ -20,7 +20,7 @@ void main() {
 
   for (final size in [const Size(390, 844), const Size(1920, 1080)]) {
     testWidgets(
-      'overview actions share one toolbar at $size with enlarged text',
+      'overview toolbar and floating actions remain accessible at $size',
       (tester) async {
         tester.view.physicalSize = size;
         tester.view.devicePixelRatio = 1;
@@ -80,23 +80,15 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        checkOrder([
-          'box-sort-button',
-          'box-archive-button',
-          'shared-box-scan-button',
-          'shared-feeding-mode-button',
-          'shared-refresh',
-        ]);
+        checkOrder(['box-sort-button', 'box-archive-button', 'shared-refresh']);
         expect(
-          tester
-              .widget<IconButton>(
-                find.byKey(const Key('shared-feeding-mode-button')),
-              )
-              .icon,
-          isA<Icon>().having(
-            (icon) => icon.icon,
-            'feeding icon',
-            Icons.restaurant_menu,
+          find.byKey(const Key('shared-feeding-mode-button')),
+          findsNothing,
+        );
+        expect(
+          tester.getCenter(find.byKey(const Key('shared-box-scan-button'))).dy,
+          lessThan(
+            tester.getCenter(find.byKey(const Key('add-box-button'))).dy,
           ),
         );
         await tester.tap(find.byKey(const Key('shared-refresh')));
@@ -131,6 +123,21 @@ void main() {
           'animal-history-button',
           'shared-refresh',
         ]);
+        final feeding = find.byKey(const Key('shared-feeding-mode-button'));
+        expect(
+          tester.widget<FloatingActionButton>(feeding).child,
+          isA<Icon>().having(
+            (icon) => icon.icon,
+            'feeding icon',
+            Icons.restaurant_menu,
+          ),
+        );
+        expect(
+          tester.getCenter(feeding).dy,
+          lessThan(
+            tester.getCenter(find.byKey(const Key('add-animal-button'))).dy,
+          ),
+        );
         await tester.tap(find.byKey(const Key('animal-category-view-toggle')));
         await tester.pumpAndSettle();
         expect(settings.animalCategoryViewEnabled, isTrue);

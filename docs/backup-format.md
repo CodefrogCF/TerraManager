@@ -111,6 +111,7 @@ shift existing rows speculatively.
 | `boxSortOrder` | `labelAscending` default; `labelDescending`, `nameAscending`, `nameDescending`, `volumeAscending`, `volumeDescending` |
 | `animalCategoryViewEnabled` | Boolean, default false |
 | `bigPictureModeEnabled` | Boolean, default false |
+| `showEmptyBoxesLast` | Boolean, default false; occupied Boxes first, existing sort within each group |
 | `nextFeedingSummaryEnabled` | Boolean, default false |
 
 Legacy Animal `categoryAscending`/`categoryDescending` enable grouping and map

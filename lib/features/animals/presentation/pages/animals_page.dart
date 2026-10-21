@@ -8,6 +8,7 @@ import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
 import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/presentation/widgets/overview_context_menu.dart';
+import '../../../../core/presentation/widgets/overview_action_buttons.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
@@ -15,6 +16,7 @@ import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/domain/feeding_alert_suppression.dart';
 import '../../../feedings/presentation/widgets/feeding_alert_actions.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
+import '../../../feedings/presentation/pages/feeding_scanner_page.dart';
 import '../../../feedings/presentation/pages/feeding_schedule_page.dart';
 import '../../../feedings/presentation/widgets/feeding_due_date_label.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
@@ -37,6 +39,7 @@ class AnimalsPage extends StatefulWidget {
   final FeedingReminderClock? reminderNow;
   final int dataRevision;
   final VoidCallback? onDataChanged;
+  final VoidCallback? onFeedingChanged;
 
   const AnimalsPage({
     super.key,
@@ -44,6 +47,7 @@ class AnimalsPage extends StatefulWidget {
     this.reminderNow,
     this.dataRevision = 0,
     this.onDataChanged,
+    this.onFeedingChanged,
   });
 
   @override
@@ -205,6 +209,18 @@ class _AnimalsPageState extends State<AnimalsPage> {
       mediaId,
       () => MediaRepository(widget.database).getMediaById(mediaId),
     );
+  }
+
+  Future<void> _openFeedingMode() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => FeedingScannerPage(
+          database: widget.database,
+          onFeedingChanged: widget.onFeedingChanged ?? widget.onDataChanged,
+        ),
+      ),
+    );
+    if (mounted) await _reloadAnimalsPreservingScroll(_currentScrollOffset());
   }
 
   Future<void> _openNewAnimalPage() async {
@@ -1027,6 +1043,11 @@ class _AnimalsPageState extends State<AnimalsPage> {
           }
         }
 
+        slivers.add(
+          const SliverToBoxAdapter(
+            child: SizedBox(height: OverviewActionButtons.bottomPadding),
+          ),
+        );
         return CustomScrollView(
           key: const PageStorageKey<String>('animals-overview-grid'),
           controller: _scrollController,
@@ -1057,6 +1078,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
 
     return ListView.builder(
       key: const PageStorageKey<String>('animals-overview-list'),
+      padding: const EdgeInsets.only(
+        bottom: OverviewActionButtons.bottomPadding,
+      ),
       controller: _scrollController,
       itemCount: overviewEntries.length + summaryCount,
       itemBuilder: (context, index) {
@@ -1274,12 +1298,21 @@ class _AnimalsPageState extends State<AnimalsPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'animals-add-fab',
-        key: const Key('add-animal-button'),
-        onPressed: _openNewAnimalPage,
-        tooltip: context.l10n.addAnimal,
-        child: const Icon(Icons.add),
+      floatingActionButton: OverviewActionButtons(
+        secondary: FloatingActionButton(
+          key: const Key('feeding-mode-button'),
+          heroTag: 'animals-feeding-fab',
+          tooltip: context.l10n.feedingModeTitle,
+          onPressed: _openFeedingMode,
+          child: const Icon(Icons.restaurant_menu),
+        ),
+        primary: FloatingActionButton(
+          heroTag: 'animals-add-fab',
+          key: const Key('add-animal-button'),
+          onPressed: _openNewAnimalPage,
+          tooltip: context.l10n.addAnimal,
+          child: const Icon(Icons.add),
+        ),
       ),
     );
   }

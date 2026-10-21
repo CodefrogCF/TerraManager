@@ -5,8 +5,14 @@ Release changes are summarized below. Detailed contracts are in the
 [Validation](docs/testing/validation.md). Dates and historical release
 groupings are retained from the existing record.
 
-## [Unreleased]
+## [1.15.5] - 2026-10-21
 
+### Added
+
+- Standalone and Shared Care: optionally show empty Boxes last while preserving
+  the selected sort within each group; the setting defaults to off (#235).
+- Place the Box scanner above Create Box and Feeding Mode above Create Animal;
+  use the same archive icon in both overviews (#236, #237).
 - Standalone and Shared Care: tap an Animal overview feeding alert to add a
   Feeding or hide its overview alerts for 24 hours. Suppression is personal to
   each Shared Care account; schedules and detail reminders stay active (#233).
@@ -16,13 +22,11 @@ groupings are retained from the existing record.
 - Remove overdue-summary top/bottom outlines in both modes (#234).
 
 
-## [1.15.3] - 2026-10-16
+## [1.15.2-1.15.4] - 2026-10-16
 
 ### Added
 
-- Enable Android Built-in Kotlin and CI verification; retain the separately
-  deferred `android.newDsl=false` boundary (#212). AGP 9.1.1 / Kotlin 2.4.20
-  use strict dependency locks and the pinned Flutter/Java baseline.
+
 - Shared Care: committed revisions, targeted refresh, authenticated SSE and
   conditional fallback with reconnect/resume/restore handling; preserve drafts,
   conflict protection and bounded resources. Evaluation and integrated Pi/browser

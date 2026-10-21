@@ -18,6 +18,17 @@ class AnimalRepository {
 
   AnimalRepository(this.database);
 
+  Stream<Set<int>> watchOccupiedBoxIds() {
+    final boxId = database.animals.boxId;
+    final query = database.selectOnly(database.animals)
+      ..addColumns([boxId])
+      ..where(boxId.isNotNull())
+      ..groupBy([boxId]);
+    return query.watch().map(
+      (rows) => rows.map((row) => row.read(boxId)!).toSet(),
+    );
+  }
+
   Future<List<Animal>> getAllAnimals() {
     return database.select(database.animals).get();
   }

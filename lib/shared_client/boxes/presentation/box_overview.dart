@@ -4,12 +4,19 @@ import 'package:terramanager/shared_client/shared/presentation/record_labels.dar
 
 List<Map<String, dynamic>> sortSharedBoxesForOverview(
   Iterable<Map<String, dynamic>> boxes,
-  BoxSortOrder order,
-) {
+  BoxSortOrder order, {
+  bool showEmptyBoxesLast = false,
+  Set<int> occupiedBoxIds = const {},
+}) {
   final values = boxes.toList();
   values.sort((a, b) {
     final aId = recordId(a);
     final bId = recordId(b);
+    if (showEmptyBoxesLast) {
+      final aOccupied = occupiedBoxIds.contains(aId);
+      final bOccupied = occupiedBoxIds.contains(bId);
+      if (aOccupied != bOccupied) return aOccupied ? -1 : 1;
+    }
     if (order == BoxSortOrder.labelAscending) return aId.compareTo(bId);
     if (order == BoxSortOrder.labelDescending) return bId.compareTo(aId);
     if (order == BoxSortOrder.nameAscending ||

@@ -77,6 +77,17 @@ void main() {
     await tester.tap(bigPicture);
     await tester.pumpAndSettle();
     expect(settings.bigPictureModeEnabled, isTrue);
+    final emptyLast = find.byKey(const Key('show-empty-boxes-last-switch'));
+    await tester.scrollUntilVisible(emptyLast, 150);
+    expect(find.text('Leere Boxen am Ende anzeigen'), findsOneWidget);
+    expect(
+      tester.getTopLeft(emptyLast).dy,
+      greaterThan(tester.getTopLeft(bigPicture).dy),
+    );
+    expect(tester.widget<SwitchListTile>(emptyLast).value, false);
+    await tester.tap(emptyLast);
+    await tester.pumpAndSettle();
+    expect(settings.showEmptyBoxesLast, true);
 
     await tester.scrollUntilVisible(
       find.byKey(const Key('shared-server-section-heading')),

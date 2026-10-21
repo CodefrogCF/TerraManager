@@ -475,7 +475,9 @@ void main() {
       expect(find.byKey(const Key('shared-box-scan-button')), findsOneWidget);
       expect(
         tester
-            .widget<IconButton>(find.byKey(const Key('shared-box-scan-button')))
+            .widget<FloatingActionButton>(
+              find.byKey(const Key('shared-box-scan-button')),
+            )
             .onPressed,
         isNotNull,
       );

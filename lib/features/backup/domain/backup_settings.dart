@@ -10,6 +10,7 @@ class BackupSettings {
   final bool animalCategoryViewEnabled;
   final bool nextFeedingSummaryEnabled;
   final bool bigPictureModeEnabled;
+  final bool showEmptyBoxesLast;
   final String boxSortOrder;
 
   const BackupSettings({
@@ -22,6 +23,7 @@ class BackupSettings {
     this.animalCategoryViewEnabled = false,
     this.nextFeedingSummaryEnabled = false,
     this.bigPictureModeEnabled = false,
+    this.showEmptyBoxesLast = false,
     this.boxSortOrder = 'labelAscending',
   });
 
@@ -36,6 +38,7 @@ class BackupSettings {
       'animalCategoryViewEnabled': animalCategoryViewEnabled,
       'nextFeedingSummaryEnabled': nextFeedingSummaryEnabled,
       'bigPictureModeEnabled': bigPictureModeEnabled,
+      'showEmptyBoxesLast': showEmptyBoxesLast,
       'boxSortOrder': boxSortOrder,
     };
   }
@@ -58,6 +61,7 @@ class BackupSettings {
       nextFeedingSummaryEnabled:
           json['nextFeedingSummaryEnabled'] as bool? ?? false,
       bigPictureModeEnabled: json['bigPictureModeEnabled'] as bool? ?? false,
+      showEmptyBoxesLast: json['showEmptyBoxesLast'] as bool? ?? false,
       boxSortOrder: json['boxSortOrder'] as String? ?? 'labelAscending',
     );
   }

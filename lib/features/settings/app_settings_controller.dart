@@ -93,6 +93,7 @@ class AppSettingsController extends ChangeNotifier {
   static const String _animalCategoryViewEnabledKey =
       'animal_category_view_enabled';
   static const String _bigPictureModeEnabledKey = 'big_picture_mode_enabled';
+  static const String _showEmptyBoxesLastKey = 'show_empty_boxes_last';
   static const String _nextFeedingSummaryEnabledKey =
       'next_feeding_summary_enabled';
   static const String _boxSortOrderKey = 'box_sort_order';
@@ -108,6 +109,7 @@ class AppSettingsController extends ChangeNotifier {
   bool _animalCategoryViewEnabled = false;
   bool _nextFeedingSummaryEnabled = false;
   bool _bigPictureModeEnabled = false;
+  bool _showEmptyBoxesLast = false;
   BoxSortOrder _boxSortOrder = BoxSortOrder.labelAscending;
   ArchiveSortOrder _animalArchiveSortOrder =
       ArchiveSortOrder.archivedNewestFirst;
@@ -122,6 +124,7 @@ class AppSettingsController extends ChangeNotifier {
   bool get animalCategoryViewEnabled => _animalCategoryViewEnabled;
   bool get nextFeedingSummaryEnabled => _nextFeedingSummaryEnabled;
   bool get bigPictureModeEnabled => _bigPictureModeEnabled;
+  bool get showEmptyBoxesLast => _showEmptyBoxesLast;
   BoxSortOrder get boxSortOrder => _boxSortOrder;
   ArchiveSortOrder get animalArchiveSortOrder => _animalArchiveSortOrder;
 
@@ -153,6 +156,7 @@ class AppSettingsController extends ChangeNotifier {
         values[_nextFeedingSummaryEnabledKey] as bool? ?? false;
     _bigPictureModeEnabled =
         values[_bigPictureModeEnabledKey] as bool? ?? false;
+    _showEmptyBoxesLast = values[_showEmptyBoxesLastKey] as bool? ?? false;
     notifyListeners();
   }
 
@@ -190,6 +194,7 @@ class AppSettingsController extends ChangeNotifier {
 
     _bigPictureModeEnabled =
         preferences.getBool(_bigPictureModeEnabledKey) ?? false;
+    _showEmptyBoxesLast = preferences.getBool(_showEmptyBoxesLastKey) ?? false;
 
     if (parsedAnimalSortOrder.isLegacyCategoryOrder) {
       await preferences.setString(_animalSortOrderKey, _animalSortOrder.name);
@@ -377,6 +382,18 @@ class AppSettingsController extends ChangeNotifier {
     await preferences.setBool(_bigPictureModeEnabledKey, enabled);
   }
 
+  Future<void> setShowEmptyBoxesLast(bool enabled) async {
+    if (_showEmptyBoxesLast == enabled) {
+      return;
+    }
+
+    _showEmptyBoxesLast = enabled;
+    notifyListeners();
+
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool(_showEmptyBoxesLastKey, enabled);
+  }
+
   ThemeMode _parseThemeMode(String? value) {
     if (value == null) {
       return ThemeMode.system;
@@ -482,6 +499,7 @@ class AppSettingsController extends ChangeNotifier {
     bool animalCategoryViewEnabled = false,
     required bool nextFeedingSummaryEnabled,
     bool bigPictureModeEnabled = false,
+    bool showEmptyBoxesLast = false,
     required BoxSortOrder boxSortOrder,
   }) async {
     final preferences = await SharedPreferences.getInstance();
@@ -494,6 +512,7 @@ class AppSettingsController extends ChangeNotifier {
     final previousAnimalCategoryViewEnabled = _animalCategoryViewEnabled;
     final previousNextFeedingSummaryEnabled = _nextFeedingSummaryEnabled;
     final previousBigPictureModeEnabled = _bigPictureModeEnabled;
+    final previousShowEmptyBoxesLast = _showEmptyBoxesLast;
     final previousBoxSortOrder = _boxSortOrder;
 
     final previousStoredTheme = preferences.getString(_themeModeKey);
@@ -515,6 +534,9 @@ class AppSettingsController extends ChangeNotifier {
     );
     final previousStoredBigPictureModeEnabled = preferences.getBool(
       _bigPictureModeEnabledKey,
+    );
+    final previousStoredShowEmptyBoxesLast = preferences.getBool(
+      _showEmptyBoxesLastKey,
     );
     final previousStoredBoxSortOrder = preferences.getString(_boxSortOrderKey);
 
@@ -587,6 +609,14 @@ class AppSettingsController extends ChangeNotifier {
       if (!bigPictureModeEnabledSaved) {
         throw StateError('Failed to persist Big Picture Mode');
       }
+      final showEmptyBoxesLastSaved = await preferences.setBool(
+        _showEmptyBoxesLastKey,
+        showEmptyBoxesLast,
+      );
+
+      if (!showEmptyBoxesLastSaved) {
+        throw StateError('Failed to persist empty Box ordering');
+      }
 
       final boxSortOrderSaved = await preferences.setString(
         _boxSortOrderKey,
@@ -605,6 +635,7 @@ class AppSettingsController extends ChangeNotifier {
       _animalCategoryViewEnabled = normalizedAnimalCategoryViewEnabled;
       _nextFeedingSummaryEnabled = nextFeedingSummaryEnabled;
       _bigPictureModeEnabled = bigPictureModeEnabled;
+      _showEmptyBoxesLast = showEmptyBoxesLast;
       _boxSortOrder = boxSortOrder;
 
       notifyListeners();
@@ -671,6 +702,14 @@ class AppSettingsController extends ChangeNotifier {
           previousStoredBigPictureModeEnabled,
         );
       }
+      if (previousStoredShowEmptyBoxesLast == null) {
+        await preferences.remove(_showEmptyBoxesLastKey);
+      } else {
+        await preferences.setBool(
+          _showEmptyBoxesLastKey,
+          previousStoredShowEmptyBoxesLast,
+        );
+      }
 
       if (previousStoredBoxSortOrder == null) {
         await preferences.remove(_boxSortOrderKey);
@@ -689,6 +728,7 @@ class AppSettingsController extends ChangeNotifier {
       _animalCategoryViewEnabled = previousAnimalCategoryViewEnabled;
       _nextFeedingSummaryEnabled = previousNextFeedingSummaryEnabled;
       _bigPictureModeEnabled = previousBigPictureModeEnabled;
+      _showEmptyBoxesLast = previousShowEmptyBoxesLast;
       _boxSortOrder = previousBoxSortOrder;
 
       notifyListeners();

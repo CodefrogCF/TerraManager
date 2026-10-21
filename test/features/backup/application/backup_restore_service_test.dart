@@ -156,6 +156,7 @@ void main() {
         animalSortOrder: 'latestFeedingOldestFirst',
         animalCategoryViewEnabled: true,
         bigPictureModeEnabled: true,
+        showEmptyBoxesLast: true,
         boxSortOrder: 'createdNewestFirst',
       ),
       mediaFiles: includePicture
@@ -379,6 +380,7 @@ void main() {
     expect(settingsController.animalCategoryViewEnabled, isTrue);
 
     expect(settingsController.bigPictureModeEnabled, isTrue);
+    expect(settingsController.showEmptyBoxesLast, isTrue);
 
     expect(settingsController.boxSortOrder, BoxSortOrder.labelDescending);
   });

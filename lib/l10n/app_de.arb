@@ -717,5 +717,6 @@
   "feedingAlertActions": "Aktionen zur Fütterungserinnerung",
   "suppressFeedingAlert24Hours": "Alarm für 24 Stunden deaktivieren",
   "feedingAlertSuppressionExplanation": "Nur die Hinweise dieses Tiers in der Übersicht ausblenden. Fütterungsplan und Erinnerung in den Tierdetails bleiben aktiv.",
-  "feedingAlertSuppressionFailed": "Der Hinweis konnte nicht ausgeblendet werden. Bitte erneut versuchen."
+  "feedingAlertSuppressionFailed": "Der Hinweis konnte nicht ausgeblendet werden. Bitte erneut versuchen.",
+  "showEmptyBoxesLast": "Leere Boxen am Ende anzeigen"
 }

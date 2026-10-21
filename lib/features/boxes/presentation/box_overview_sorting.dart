@@ -2,10 +2,20 @@ import '../../../core/database/app_database.dart';
 import '../../../core/sorting/natural_string_comparator.dart';
 import '../../settings/box_sort_order.dart';
 
-List<Box> sortBoxesForOverview(Iterable<Box> boxes, BoxSortOrder sortOrder) {
+List<Box> sortBoxesForOverview(
+  Iterable<Box> boxes,
+  BoxSortOrder sortOrder, {
+  bool showEmptyBoxesLast = false,
+  Set<int> occupiedBoxIds = const {},
+}) {
   final sortedBoxes = boxes.toList();
 
   sortedBoxes.sort((first, second) {
+    if (showEmptyBoxesLast) {
+      final firstOccupied = occupiedBoxIds.contains(first.id);
+      final secondOccupied = occupiedBoxIds.contains(second.id);
+      if (firstOccupied != secondOccupied) return firstOccupied ? -1 : 1;
+    }
     return switch (sortOrder) {
       BoxSortOrder.labelAscending => first.id.compareTo(second.id),
       BoxSortOrder.labelDescending => second.id.compareTo(first.id),

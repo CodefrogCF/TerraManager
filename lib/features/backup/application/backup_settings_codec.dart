@@ -19,6 +19,7 @@ class BackupSettingsCodec {
     bool animalCategoryViewEnabled = false,
     required bool nextFeedingSummaryEnabled,
     bool bigPictureModeEnabled = false,
+    bool showEmptyBoxesLast = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
   }) {
     return BackupSettings(
@@ -31,6 +32,7 @@ class BackupSettingsCodec {
           animalCategoryViewEnabled || animalSortOrder.isLegacyCategoryOrder,
       nextFeedingSummaryEnabled: nextFeedingSummaryEnabled,
       bigPictureModeEnabled: bigPictureModeEnabled,
+      showEmptyBoxesLast: showEmptyBoxesLast,
       boxSortOrder: encodeBoxSortOrder(boxSortOrder),
     );
   }

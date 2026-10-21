@@ -124,6 +124,9 @@ class SharedAccountSettings extends AppSettingsController {
   @override
   Future<void> setBigPictureModeEnabled(bool enabled) =>
       _save({'big_picture_mode_enabled': enabled});
+  @override
+  Future<void> setShowEmptyBoxesLast(bool enabled) =>
+      _save({'show_empty_boxes_last': enabled});
 
   @override
   Future<void> replaceSettings({
@@ -135,6 +138,7 @@ class SharedAccountSettings extends AppSettingsController {
     bool animalCategoryViewEnabled = false,
     required bool nextFeedingSummaryEnabled,
     bool bigPictureModeEnabled = false,
+    bool showEmptyBoxesLast = false,
     required BoxSortOrder boxSortOrder,
   }) => _save({
     'theme_mode': themeMode.name,
@@ -146,6 +150,7 @@ class SharedAccountSettings extends AppSettingsController {
         animalCategoryViewEnabled || animalSortOrder.isLegacyCategoryOrder,
     'next_feeding_summary_enabled': nextFeedingSummaryEnabled,
     'big_picture_mode_enabled': bigPictureModeEnabled,
+    'show_empty_boxes_last': showEmptyBoxesLast,
     'box_sort_order': boxSortOrder.name,
   });
 

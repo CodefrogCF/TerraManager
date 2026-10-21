@@ -46,6 +46,7 @@ class BackupExportService {
     bool animalCategoryViewEnabled = false,
     bool nextFeedingSummaryEnabled = false,
     bool bigPictureModeEnabled = false,
+    bool showEmptyBoxesLast = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
     DateTime? createdAt,
   }) async {
@@ -60,6 +61,7 @@ class BackupExportService {
       animalCategoryViewEnabled: animalCategoryViewEnabled,
       nextFeedingSummaryEnabled: nextFeedingSummaryEnabled,
       bigPictureModeEnabled: bigPictureModeEnabled,
+      showEmptyBoxesLast: showEmptyBoxesLast,
       boxSortOrder: boxSortOrder,
       createdAt: createdAt,
       output: output,
@@ -82,6 +84,7 @@ class BackupExportService {
     bool animalCategoryViewEnabled = false,
     bool nextFeedingSummaryEnabled = false,
     bool bigPictureModeEnabled = false,
+    bool showEmptyBoxesLast = false,
     BoxSortOrder boxSortOrder = BoxSortOrder.labelAscending,
     DateTime? createdAt,
   }) async {
@@ -243,6 +246,7 @@ class BackupExportService {
       animalCategoryViewEnabled: animalCategoryViewEnabled,
       nextFeedingSummaryEnabled: nextFeedingSummaryEnabled,
       bigPictureModeEnabled: bigPictureModeEnabled,
+      showEmptyBoxesLast: showEmptyBoxesLast,
       boxSortOrder: boxSortOrder,
     );
 

@@ -155,6 +155,45 @@ void main() {
   );
 
   test(
+    'empty-last is an authenticated private persistent boolean preference',
+    () async {
+      expect(
+        accounts.preferences(caregiver.account.id)['show_empty_boxes_last'],
+        false,
+      );
+      final response = await call(
+        'PATCH',
+        '/api/v1/auth/preferences',
+        session: caregiver,
+        body: {'show_empty_boxes_last': true},
+      );
+      expect(response.$1, 200);
+      expect(response.$2['preferences']['show_empty_boxes_last'], true);
+      expect(
+        accounts.preferences(admin.account.id)['show_empty_boxes_last'],
+        false,
+      );
+      final reopened = await AccountStore.open(
+        File('${dir.path}/accounts.sqlite'),
+      );
+      expect(
+        reopened.preferences(caregiver.account.id)['show_empty_boxes_last'],
+        true,
+      );
+      reopened.close();
+      expect(
+        (await call(
+          'PATCH',
+          '/api/v1/auth/preferences',
+          session: caregiver,
+          body: {'show_empty_boxes_last': 'true'},
+        )).$1,
+        400,
+      );
+    },
+  );
+
+  test(
     'duplicating Boxes and Animals commits through the audited server',
     () async {
       final picture = await MediaRepository(db).createMedia(

@@ -7,21 +7,26 @@ groupings are retained from the existing record.
 
 ## [Unreleased]
 
-- Shared Care: committed revisions, targeted refresh, authenticated SSE and
-  conditional fallback with reconnect/resume/restore handling; preserve drafts,
-  conflict protection and bounded resources. Evaluation and integrated Pi/browser
-  acceptance are recorded for #186 and #226-#230.
+- Standalone and Shared Care: tap an Animal overview feeding alert to add a
+  Feeding or hide its overview alerts for 24 hours. Suppression is personal to
+  each Shared Care account; schedules and detail reminders stay active (#233).
 - Optional cropped/optimized pictures during Shared Care Animal/Box creation;
   retry an uncertain upload without creating a duplicate record (#232).
 - Remove Standalone overview Rename actions; names remain editable through Edit (#231).
 - Remove overdue-summary top/bottom outlines in both modes (#234).
-- Enable Android Built-in Kotlin and CI verification; retain the separately
-  deferred `android.newDsl=false` boundary (#212). AGP 9.1.1 / Kotlin 2.4.20
-  use strict dependency locks and the pinned Flutter/Java baseline.
+
 
 ## [1.15.3] - 2026-10-16
 
-See [GitHub Releases](https://github.com/CodefrogCF/TerraManager/releases) for release notes.
+### Added
+
+- Enable Android Built-in Kotlin and CI verification; retain the separately
+  deferred `android.newDsl=false` boundary (#212). AGP 9.1.1 / Kotlin 2.4.20
+  use strict dependency locks and the pinned Flutter/Java baseline.
+- Shared Care: committed revisions, targeted refresh, authenticated SSE and
+  conditional fallback with reconnect/resume/restore handling; preserve drafts,
+  conflict protection and bounded resources. Evaluation and integrated Pi/browser
+  acceptance are recorded for #186 and #226-#230.
 
 ## [1.15.1] - 2026-10-02
 

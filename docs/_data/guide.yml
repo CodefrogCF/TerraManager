@@ -171,7 +171,7 @@ de:
     - number: '11'
       reverse: true
       heading: Fällige und bevorstehende Fütterungen erkennen
-      body_html: Fällige Tiere erhalten eine Markierung in Liste und Navigation. Die Fälligkeitsgruppe lässt sich ein-/ausklappen. Die optionale Karte <strong>Nächste Fütterung</strong> öffnet alle aktiven Erinnerungstermine chronologisch. Erinnerungen erscheinen in der App, ohne Systembenachrichtigungen.
+      body_html: Tippe auf eine Fällig-Markierung oder einen Eintrag der Fälligkeitsgruppe, um eine Fütterung hinzuzufügen oder die Übersichtshinweise dieses Tiers für 24 Stunden auszublenden. In Shared Care gilt das pro Benutzer, auch auf dessen anderen Geräten. Terminliste und roter Detailhinweis bleiben aktiv. Die optionale Karte <strong>Nächste Fütterung</strong> öffnet alle aktiven Termine. Erinnerungen erscheinen nur in der App.
       images:
       - file: feeding-reminders-due.webp
         alt: Tierübersicht mit mehreren fälligen Fütterungen
@@ -413,7 +413,7 @@ en:
     - number: '11'
       reverse: true
       heading: See which animals are due
-      body_html: Due Animals are marked in the list and navigation. Expand/collapse the due group. The optional <strong>Next Feeding</strong> card opens all active reminder appointments chronologically. Reminders stay inside the app without system notifications.
+      body_html: Tap a Due marker or an entry in the due group to add a Feeding or hide that Animal’s overview alerts for 24 hours. In Shared Care this applies to your account, including its other devices. Scheduled feedings and the red detail reminder stay active. The optional <strong>Next Feeding</strong> card opens all active appointments. Reminders appear only inside the app.
       images:
       - file: feeding-reminders-due.webp
         alt: Animal overview with several due feedings

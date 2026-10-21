@@ -19,6 +19,7 @@ lib/core/database/app_database_connection_flutter.dart
 !lib/features/feedings/application/feeding_reminder_service.dart
 !lib/features/feedings/domain/
 !lib/features/feedings/domain/feeding_reminder_state.dart
+!lib/features/feedings/domain/feeding_alert_suppression.dart
 !lib/shared_server/
 !lib/shared_server/**
 !deploy/

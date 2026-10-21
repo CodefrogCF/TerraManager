@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
+import 'package:terramanager/features/feedings/domain/feeding_alert_suppression.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:terramanager/shared_server/accounts/domain/care_account.dart';
 import 'package:terramanager/shared_server/audit/application/audit_query.dart';
@@ -13,6 +14,7 @@ import 'package:terramanager/shared_server/authentication/domain/care_session.da
 import 'package:terramanager/shared_server/authentication/infrastructure/password_hasher.dart';
 import 'package:terramanager/shared_server/settings/application/account_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:terramanager/shared_server/shared/domain/api_problem.dart';
 
 export 'package:terramanager/shared_server/accounts/domain/care_account.dart';
 export 'package:terramanager/shared_server/authentication/domain/care_session.dart';
@@ -119,6 +121,31 @@ class AccountStore {
     // Synchronous SQLite read/merge/write cannot interleave with another request.
     final previous = preferences(accountId);
     final updated = {...previous, ...valid};
+    if (valid.containsKey(feedingAlertSuppressionsKey)) {
+      // Merge individual Animals, including concurrent patches from two devices.
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final suppressions = {
+        ...parseFeedingAlertSuppressions(previous[feedingAlertSuppressionsKey]),
+        ...parseFeedingAlertSuppressions(valid[feedingAlertSuppressionsKey]),
+      }..removeWhere((_, until) => until <= now);
+      if (suppressions.length > 1000) {
+        throw const ApiProblem(
+          400,
+          'invalid_data',
+          'Too many feeding alert suppressions.',
+        );
+      }
+      final previousSuppressions = parseFeedingAlertSuppressions(
+        previous[feedingAlertSuppressionsKey],
+      );
+      updated[feedingAlertSuppressionsKey] =
+          suppressions.length == previousSuppressions.length &&
+              suppressions.entries.every(
+                (entry) => previousSuppressions[entry.key] == entry.value,
+              )
+          ? previous[feedingAlertSuppressionsKey]!
+          : suppressions;
+    }
     if (updated.entries.every((entry) => previous[entry.key] == entry.value)) {
       return previous;
     }

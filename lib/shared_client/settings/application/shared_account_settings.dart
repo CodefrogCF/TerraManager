@@ -1,5 +1,6 @@
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:terramanager/features/feedings/domain/feeding_alert_suppression.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/settings/app_accent.dart';
@@ -65,6 +66,22 @@ class SharedAccountSettings extends AppSettingsController {
         notifyListeners();
       }
     });
+  }
+
+  @override
+  Future<void> suppressFeedingAlertFor24Hours(String animalKey) async {
+    final owner = _owner;
+    if (owner == null || !identical(owner, api.session)) {
+      throw StateError('No active account');
+    }
+    await _save({
+      feedingAlertSuppressionsKey: {
+        animalKey: feedingAlertNow
+            .add(feedingAlertSuppressionDuration)
+            .millisecondsSinceEpoch,
+      },
+    });
+    if (saveError != null && identical(owner, api.session)) throw saveError!;
   }
 
   void dismissError() {

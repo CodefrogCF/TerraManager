@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import 'package:terramanager/features/feedings/domain/feeding_alert_suppression.dart';
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -83,6 +86,73 @@ void main() {
     accounts.close();
     await dir.delete(recursive: true);
   });
+
+  test(
+    'feeding alert suppressions are private, merged, validated and persistent',
+    () async {
+      final until = DateTime.now()
+          .add(const Duration(hours: 24))
+          .millisecondsSinceEpoch;
+      Future<(int, Map<String, dynamic>)> patch(Map<String, Object?> values) =>
+          call(
+            'PATCH',
+            '/api/v1/auth/preferences',
+            session: caregiver,
+            body: {feedingAlertSuppressionsKey: values},
+          );
+      final results = await Future.wait([
+        patch({'1:1000': until}),
+        patch({'2:1000': until}),
+      ]);
+      expect(results.map((e) => e.$1), everyElement(200));
+      final saved = accounts.preferences(
+        caregiver.account.id,
+      )[feedingAlertSuppressionsKey];
+      expect(saved, {'1:1000': until, '2:1000': until});
+      final revision = accounts.preferencesRevision(caregiver.account.id);
+      expect((await patch({'1:1000': until})).$1, 200);
+      expect(accounts.preferencesRevision(caregiver.account.id), revision);
+      expect(
+        accounts.preferences(admin.account.id)[feedingAlertSuppressionsKey],
+        isEmpty,
+      );
+      final reopened = await AccountStore.open(
+        File('${dir.path}/accounts.sqlite'),
+      );
+      expect(
+        reopened.preferences(caregiver.account.id)[feedingAlertSuppressionsKey],
+        saved,
+      );
+      reopened.close();
+      expect((await patch({'3:1000': 1})).$1, 200);
+      expect(
+        accounts.preferences(caregiver.account.id)[feedingAlertSuppressionsKey],
+        saved,
+      );
+      for (final invalid in <Map<String, Object?>>[
+        {'not-an-animal': until},
+        {'1:1000': 'tomorrow'},
+        {'1:1000': -1},
+        {'1:1000': 8640000000000001},
+      ]) {
+        expect((await patch(invalid)).$1, 400);
+      }
+      expect(
+        (await call(
+          'PATCH',
+          '/api/v1/auth/preferences',
+          session: caregiver,
+          body: {feedingAlertSuppressionsKey: []},
+        )).$1,
+        400,
+      );
+      expect(
+        accounts.preferences(caregiver.account.id)[feedingAlertSuppressionsKey],
+        saved,
+      );
+      expect((await db.select(db.feedingEvents).get()), isEmpty);
+    },
+  );
 
   test(
     'duplicating Boxes and Animals commits through the audited server',

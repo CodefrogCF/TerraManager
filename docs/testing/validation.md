@@ -11,6 +11,7 @@ GitHub issue status remains in [Issues](https://github.com/CodefrogCF/TerraManag
 | #203-#207: protected backups | Authenticated container/legacy/failure coverage; large native, mobile-Web and Shared Care restores. | Proportional memory and recorded release-candidate evidence gaps. [Details](password-backups.md). |
 | #231: overview menus | Standalone Box/Animal menus omit Rename; edit pages still rename. Context-menu regression passed. | Target-device interaction remains part of release checks. |
 | #232: creation pictures | 20 widget cases cover Animal/Box creation, DE/EN, optional picture, crop cancellation/failure, upload rejection/lost reply, retry without duplicate creation and busy-state guards. | Camera/gallery/browser file chooser use controlled fakes; verify actual pickers on target devices. |
+| #233: reminder actions | Standalone/Shared Care: existing Feeding workflow, 24-hour expiry and persistence, per-Animal/account isolation, unchanged schedule/detail reminders, DE/EN list/grid and failure/retry coverage. | Device interaction remains a release check. |
 | #234: due-summary outlines | Eight rendering cases cover both modes, themes, one/two due Animals, unchanged geometry and expand/collapse. | Physical display acceptance follows release checks. |
 
 ## Recorded automated gates
@@ -23,6 +24,11 @@ GitHub issue status remains in [Issues](https://github.com/CodefrogCF/TerraManag
   lazily built Save button and confirms reconnection does not replay a write.
   Full suite: **1,324 passed, one opt-in network test skipped** on Flutter 3.47.2 /
   Dart 3.13.2, Windows. Changed-file analysis and formatting passed.
+
+- #233 (2026-10-21): full suite plus affected-file recheck cover 1,341 passing
+  cases; 1 opt-in network test skipped. Full analysis, both Web release builds
+  and pure-Dart Windows server build passed. Both guide PDFs remain four pages.
+  Android interaction and the Linux Docker image were not exercised here.
 
 ## Recording future changes
 

@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:terramanager/features/feedings/domain/feeding_alert_suppression.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/feeding_alert_actions.dart';
 import 'package:intl/intl.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
@@ -261,11 +263,40 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                 _reminderDate(reminder.dueAt, reminder.animal),
               ),
             ),
-            onTap: () => _openAnimal(reminder.animal),
+            onTap: () => _reminderActions(reminder.animal),
           ),
       ],
     ),
   );
+
+  String _alertKey(Map<String, dynamic> animal) => feedingAlertAnimalKey(
+    recordId(animal),
+    DateTime.tryParse(animal['createdAt'] as String? ?? '') ??
+        DateTime.fromMillisecondsSinceEpoch(0),
+  );
+
+  Future<void> _reminderActions(Map<String, dynamic> animal) async {
+    final settings = AppSettingsScope.of(context);
+    final action = await showFeedingAlertActions(
+      context,
+      animalName: animalLabel(animal, order: settings.animalNameOrder),
+      enabled: widget.connected && widget.api.connected,
+    );
+    if (!mounted || action == null) return;
+    if (action == FeedingAlertAction.addFeeding) {
+      await _animalAction(_AnimalAction.feeding, animal);
+    } else {
+      try {
+        await settings.suppressFeedingAlertFor24Hours(_alertKey(animal));
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(context.l10n.feedingAlertSuppressionFailed)),
+          );
+        }
+      }
+    }
+  }
 
   Future<void> _openAnimal(Map<String, dynamic> animal) async {
     final settings = AppSettingsScope.of(context);
@@ -339,6 +370,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
             ),
           ),
         );
+        if (mounted) await _reload();
       case _AnimalAction.edit:
         try {
           final current = await widget.api.animal(id);
@@ -473,16 +505,10 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                     Positioned(
                       top: 12,
                       right: 12,
-                      child: Tooltip(
-                        message: context.l10n.feedingDue,
-                        child: CircleAvatar(
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .errorContainer,
-                          child: const Icon(
-                            Icons.notification_important_outlined,
-                          ),
-                        ),
+                      child: FeedingAlertButton(
+                        key: Key('shared-animal-due-marker-$id'),
+                        iconOnly: true,
+                        onPressed: () => _reminderActions(animal),
                       ),
                     ),
                   if (archived)
@@ -691,7 +717,11 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     }
     final now = DateTime.now();
     final dueReminders = reminderEntries
-        .where((entry) => !entry.dueAt.isAfter(now))
+        .where(
+          (entry) =>
+              !entry.dueAt.isAfter(now) &&
+              !settings.isFeedingAlertSuppressed(_alertKey(entry.animal)),
+        )
         .toList();
     final dueAnimalIds = dueReminders
         .map((entry) => recordId(entry.animal))
@@ -956,27 +986,9 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (dueAnimalIds.contains(id)) ...[
-                          Container(
+                          FeedingAlertButton(
                             key: Key('shared-animal-due-marker-$id'),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .errorContainer,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Text(
-                              context.l10n.due,
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onErrorContainer,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            onPressed: () => _reminderActions(animal),
                           ),
                           const SizedBox(width: 4),
                         ],

@@ -1,7 +1,9 @@
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
+import 'package:terramanager/features/feedings/domain/feeding_alert_suppression.dart';
 
 /// Personal settings live in accounts.sqlite, never in a collection backup.
 const defaultAccountPreferences = <String, Object>{
+  feedingAlertSuppressionsKey: <String, int>{},
   'theme_mode': 'system',
   'accent': 'green',
   'language': 'system',
@@ -58,6 +60,24 @@ Map<String, Object> validateAccountPreferences(Map<String, dynamic> patch) {
   }
   final result = <String, Object>{};
   for (final entry in patch.entries) {
+    if (entry.key == feedingAlertSuppressionsKey) {
+      final value = entry.value;
+      if (value is! Map<String, dynamic> ||
+          value.length > 1000 ||
+          value.entries.any(
+            (item) =>
+                !isFeedingAlertKey(item.key) ||
+                !isFeedingAlertExpiry(item.value),
+          )) {
+        throw const ApiProblem(
+          400,
+          'invalid_data',
+          'Invalid feeding alert suppressions.',
+        );
+      }
+      result[entry.key] = Map<String, int>.from(value);
+      continue;
+    }
     final choices = _choices[entry.key];
     final valid = choices != null
         ? entry.value is String && choices.contains(entry.value)

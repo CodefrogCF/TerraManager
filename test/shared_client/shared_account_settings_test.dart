@@ -22,6 +22,66 @@ void main() {
     }),
   );
   test(
+    'feeding alert suppression survives login and stays with its account',
+    () async {
+      final stored = <String, Map<String, dynamic>>{};
+      SharedApiClient client() {
+        var owner = '';
+        return SharedApiClient(
+          Uri.parse('https://test.local'),
+          MockClient((request) async {
+            if (request.url.path.endsWith('/login')) {
+              owner = jsonDecode(request.body)['username'];
+              stored.putIfAbsent(owner, () => {...defaultAccountPreferences});
+              return http.Response(
+                jsonEncode({
+                  'user': {'username': owner, 'role': 'caregiver'},
+                  'csrfToken': 'token',
+                  'preferences': stored[owner],
+                }),
+                200,
+              );
+            }
+            if (request.url.path.endsWith('/preferences')) {
+              if (request.method == 'PATCH') {
+                stored[owner]!.addAll(jsonDecode(request.body));
+              }
+              return http.Response(
+                jsonEncode({'preferences': stored[owner]}),
+                200,
+              );
+            }
+            return http.Response('{}', 200);
+          }),
+        );
+      }
+
+      final api = client();
+      final settings = SharedAccountSettings(api);
+      addTearDown(settings.dispose);
+      addTearDown(api.close);
+      await api.login('alice', 'password');
+      await settings.suppressFeedingAlertFor24Hours('1:1000');
+      expect(settings.isFeedingAlertSuppressed('1:1000'), true);
+      await api.logout();
+      expect(settings.isFeedingAlertSuppressed('1:1000'), false);
+      await api.login('bob', 'password');
+      expect(settings.isFeedingAlertSuppressed('1:1000'), false);
+      final second = client();
+      final otherSettings = SharedAccountSettings(second);
+      addTearDown(otherSettings.dispose);
+      addTearDown(second.close);
+      await second.login('alice', 'password');
+      expect(otherSettings.isFeedingAlertSuppressed('1:1000'), true);
+      expect(
+        (await SharedPreferences.getInstance()).getString(
+          'feeding_alert_suppressions',
+        ),
+        isNull,
+      );
+    },
+  );
+  test(
     'account preferences isolate shared browser and survive another client',
     () async {
       var owner = '';

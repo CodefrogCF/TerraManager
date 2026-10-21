@@ -12,6 +12,8 @@ import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
 import '../../../feedings/domain/feeding_reminder_state.dart';
+import '../../../feedings/domain/feeding_alert_suppression.dart';
+import '../../../feedings/presentation/widgets/feeding_alert_actions.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../feedings/presentation/pages/feeding_schedule_page.dart';
 import '../../../feedings/presentation/widgets/feeding_due_date_label.dart';
@@ -274,6 +276,30 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
   }
 
+  Future<void> _reminderActions(Animal animal) async {
+    final settings = AppSettingsScope.maybeOf(context);
+    final action = await showFeedingAlertActions(
+      context,
+      animalName: AnimalDisplayNames.fromContext(
+        context,
+        commonName: animal.commonName,
+        latinName: animal.latinName,
+      ).primary,
+    );
+    if (!mounted || action == null) return;
+    if (action == FeedingAlertAction.addFeeding) {
+      await _createFeeding(animal);
+    } else if (settings != null) {
+      try {
+        await settings.suppressFeedingAlertFor24Hours(
+          feedingAlertAnimalKey(animal.id, animal.createdAt),
+        );
+      } catch (_) {
+        if (mounted) _showMessage(context.l10n.feedingAlertSuppressionFailed);
+      }
+    }
+  }
+
   Future<void> _createFeeding(Animal animal) async {
     final created = await showFeedingEntryDialog(
       context: context,
@@ -509,7 +535,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                _openAnimalDetail(reminder.animal, animals);
+                _reminderActions(reminder.animal);
               },
             ),
           ],
@@ -623,25 +649,11 @@ class _AnimalsPageState extends State<AnimalsPage> {
     ];
   }
 
-  Widget _buildDueMarker(BuildContext context, Animal animal) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      key: Key('animal-due-marker-${animal.id}'),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        context.l10n.due,
-        style: TextStyle(
-          color: colorScheme.onErrorContainer,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
+  Widget _buildDueMarker(BuildContext context, Animal animal) =>
+      FeedingAlertButton(
+        key: Key('animal-due-marker-${animal.id}'),
+        onPressed: () => _reminderActions(animal),
+      );
 
   Widget _buildCompactAnimalTile(
     BuildContext context, {
@@ -1216,10 +1228,21 @@ class _AnimalsPageState extends State<AnimalsPage> {
                     .toList(growable: false);
 
           final dueReminders =
-              data?.dueReminders ?? const <FeedingReminderState>[];
+              (data?.dueReminders ?? const <FeedingReminderState>[])
+                  .where(
+                    (reminder) =>
+                        !(settings?.isFeedingAlertSuppressed(
+                              feedingAlertAnimalKey(
+                                reminder.animal.id,
+                                reminder.animal.createdAt,
+                              ),
+                            ) ??
+                            false),
+                  )
+                  .toList();
 
           final nextUpcomingReminder = nextFeedingSummaryEnabled
-              ? data?.nextUpcomingReminder ?? dueReminders.firstOrNull
+              ? data?.nextUpcomingReminder ?? data?.dueReminders.firstOrNull
               : null;
 
           if (animals.isEmpty) {

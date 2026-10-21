@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../feedings/domain/feeding_alert_suppression.dart';
 import 'app_accent.dart';
 import 'app_language.dart';
 import 'animal_name_order.dart';
@@ -9,6 +13,78 @@ import 'box_sort_order.dart';
 import 'archive_sort_order.dart';
 
 class AppSettingsController extends ChangeNotifier {
+  AppSettingsController({DateTime Function()? now})
+    : _now = now ?? DateTime.now;
+
+  final DateTime Function() _now;
+  Map<String, int> _feedingAlertSuppressions = {};
+  Timer? _feedingAlertTimer;
+  Future<void> _feedingAlertSave = Future.value();
+  bool _feedingAlertsDisposed = false;
+
+  DateTime get feedingAlertNow => _now();
+
+  bool isFeedingAlertSuppressed(String animalKey) =>
+      (_feedingAlertSuppressions[animalKey] ?? 0) >
+      feedingAlertNow.millisecondsSinceEpoch;
+
+  void _applyFeedingAlertSuppressions(Object? value) {
+    final now = feedingAlertNow.millisecondsSinceEpoch;
+    _feedingAlertSuppressions = parseFeedingAlertSuppressions(value)
+      ..removeWhere((_, until) => until <= now);
+    _feedingAlertTimer?.cancel();
+    if (_feedingAlertSuppressions.isEmpty) return;
+    final earliest = _feedingAlertSuppressions.values.reduce(
+      (a, b) => a < b ? a : b,
+    );
+    // Recheck daily even if a stored device clock was far ahead.
+    final delay = Duration(milliseconds: earliest - now);
+    _feedingAlertTimer = Timer(
+      delay > feedingAlertSuppressionDuration
+          ? feedingAlertSuppressionDuration
+          : delay,
+      () {
+        _applyFeedingAlertSuppressions(_feedingAlertSuppressions);
+        notifyListeners();
+      },
+    );
+  }
+
+  Future<void> suppressFeedingAlertFor24Hours(String animalKey) {
+    if (!isFeedingAlertKey(animalKey)) {
+      return Future.error(ArgumentError.value(animalKey, 'animalKey'));
+    }
+    final until = feedingAlertNow
+        .add(feedingAlertSuppressionDuration)
+        .millisecondsSinceEpoch;
+    final save = _feedingAlertSave.then((_) async {
+      final updated = {..._feedingAlertSuppressions, animalKey: until};
+      updated.removeWhere(
+        (_, expiry) => expiry <= feedingAlertNow.millisecondsSinceEpoch,
+      );
+      final preferences = await SharedPreferences.getInstance();
+      if (!await preferences.setString(
+        feedingAlertSuppressionsKey,
+        jsonEncode(updated),
+      )) {
+        throw StateError('Failed to save feeding alert suppression');
+      }
+      if (!_feedingAlertsDisposed) {
+        _applyFeedingAlertSuppressions(updated);
+        notifyListeners();
+      }
+    });
+    _feedingAlertSave = save.catchError((Object _) {});
+    return save;
+  }
+
+  @override
+  void dispose() {
+    _feedingAlertsDisposed = true;
+    _feedingAlertTimer?.cancel();
+    super.dispose();
+  }
+
   static const String _themeModeKey = 'theme_mode';
   static const String _accentKey = 'accent';
   static const String _languageKey = 'language';
@@ -54,6 +130,7 @@ class AppSettingsController extends ChangeNotifier {
   /// Hydrate an account snapshot without reading or writing device preferences.
   /// Missing fields always use application defaults, never the previous account.
   void applyStoredSettings(Map<String, dynamic> values) {
+    _applyFeedingAlertSuppressions(values[feedingAlertSuppressionsKey]);
     _themeMode = _parseThemeMode(values[_themeModeKey] as String?);
     _accent = _parseAccent(values[_accentKey] as String?);
     _language = _parseLanguage(values[_languageKey] as String?);
@@ -82,6 +159,15 @@ class AppSettingsController extends ChangeNotifier {
   Future<void> load() async {
     final preferences = await SharedPreferences.getInstance();
 
+    Object? suppressions;
+    try {
+      suppressions = jsonDecode(
+        preferences.getString(feedingAlertSuppressionsKey) ?? '{}',
+      );
+    } on FormatException {
+      // A malformed optional display preference must not prevent startup.
+    }
+    _applyFeedingAlertSuppressions(suppressions);
     _themeMode = _parseThemeMode(preferences.getString(_themeModeKey));
 
     _accent = _parseAccent(preferences.getString(_accentKey));

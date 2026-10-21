@@ -52,6 +52,11 @@ IDs; DELETE also requires `{"confirmation":"remove-account"}`. A response's
 `sessionRevoked` handles self-edits/removal. Transactions protect the final
 active administrator and retain historical attribution after account deletion.
 
+The personal `feeding_alert_suppressions` preference maps `animalId:createdAtMillis`
+to UTC Unix expiry milliseconds. PATCH merges individual Animals, prunes expired
+entries and accepts at most 1,000 active entries. It hides only overview alerts
+for that account; schedules, history and detail banners are unchanged.
+
 Preferences include appearance, language, naming, sorting, category grouping,
 Big Picture, Next Feeding and archive orders. Unknown fields/values return 400.
 They belong to the account and are excluded from portable collection backups.

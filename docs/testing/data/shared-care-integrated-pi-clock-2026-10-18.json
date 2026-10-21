@@ -1,0 +1,33 @@
+{
+  "createdAt": "2026-10-18T15:06:00.876Z",
+  "kind": "pi-controller-clock-offset-probe",
+  "offsetLowerMs": 19,
+  "offsetUpperMs": 24,
+  "samples": [
+    {
+      "roundTripMs": 7,
+      "offsetLowerMs": 18,
+      "offsetUpperMs": 25
+    },
+    {
+      "roundTripMs": 5,
+      "offsetLowerMs": 19,
+      "offsetUpperMs": 24
+    },
+    {
+      "roundTripMs": 5,
+      "offsetLowerMs": 19,
+      "offsetUpperMs": 24
+    },
+    {
+      "roundTripMs": 5,
+      "offsetLowerMs": 19,
+      "offsetUpperMs": 24
+    },
+    {
+      "roundTripMs": 5,
+      "offsetLowerMs": 19,
+      "offsetUpperMs": 24
+    }
+  ]
+}

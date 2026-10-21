@@ -1,0 +1,31 @@
+{
+  "kind": "published-complete-matrix-followup-inputs",
+  "files": [
+    {
+      "file": "shared-care-integrated-sse-scale-pinned-2026-10-19.json",
+      "bytes": 2174450,
+      "sha256": "597bfab3bc05471302dbb22f709c7209b01f9780a88972477bf11468c88bba31"
+    },
+    {
+      "file": "shared-care-integrated-pi-resources-2026-10-19T073107Z-scale.jsonl",
+      "bytes": 1440011,
+      "sha256": "ff9ca81056bc1f2b37c26a4b959a9e650e0bb8a11bd5d0d2d7076c794aba88f9"
+    },
+    {
+      "file": "shared-care-integrated-switch-polling-2026-10-18.json",
+      "bytes": 969,
+      "sha256": "1cf4141175bdfa5623094443cd4a0f33c6f2c1bf3494636ee56eeb4cbdd09e08"
+    },
+    {
+      "file": "shared-care-integrated-switch-sse-2026-10-19.json",
+      "bytes": 965,
+      "sha256": "53c606e081b6275b2024ae0cf321ba209b3b855a2a8c04b831cbc973592a535c"
+    }
+  ],
+  "limits": [
+    "The 07:31 resource file is a copied snapshot of the still-running four-hour collector.",
+    "Raw source captures retain their complete original timestamps and trials.",
+    "Transport order is SSE five-client, full polling, remaining SSE scales; not randomized.",
+    "The composite client plan enumerates a union, not a single execution sequence."
+  ]
+}

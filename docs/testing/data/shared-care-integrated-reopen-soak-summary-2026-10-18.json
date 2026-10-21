@@ -1,0 +1,130 @@
+{
+  "schema": 1,
+  "kind": "integrated-tab-reopen-resource-summary",
+  "captureStatus": "complete",
+  "method": "explicit-about-blank-and-return-with-existing-session",
+  "startedAt": "2026-10-18T19:42:36.502Z",
+  "plannedFinishedAt": "2026-10-18T20:12:36.506Z",
+  "fixedWindowSeconds": 1800.0039999485016,
+  "actualReopensInsideFixedWindow": 118,
+  "durationAndReopenThresholdsMet": true,
+  "reportedFixedWindowOverrunMs": 3,
+  "clockProbesBeforeAndAfter": true,
+  "sampledStreamsMaximum": 5,
+  "finalSampledStreams": 0,
+  "pageErrorsIncludingSetup": 0,
+  "processes": {
+    "tm230-acceptance-lab-1": {
+      "processIdentities": [
+        1104844068
+      ],
+      "stableIdentity": true,
+      "initialWarmTenMinutes": {
+        "samples": 120,
+        "coveredAtFiveSecondCadence": true,
+        "firstUtc": "2026-10-18T19:42:37.657173+00:00",
+        "lastUtc": "2026-10-18T19:52:32.657322+00:00",
+        "maximumGapSeconds": 6.011851072311401,
+        "medianMiB": 181.640625
+      },
+      "finalWarmTenMinutes": {
+        "samples": 120,
+        "coveredAtFiveSecondCadence": true,
+        "firstUtc": "2026-10-18T20:02:36.663050+00:00",
+        "lastUtc": "2026-10-18T20:12:31.660259+00:00",
+        "maximumGapSeconds": 6.013885021209717,
+        "medianMiB": 181.640625
+      },
+      "sampledRssMaximumMiB": 182.46875,
+      "proposedSampledRssLimitMiB": 256,
+      "sampledRssBudgetStatus": "sampled-within-limit",
+      "warmMedianGrowthPercent": 0.0,
+      "growthAssessment": "within-10-percent-investigation-threshold",
+      "cpuWholeWorkload": {
+        "windowSeconds": 1800.0039999485016,
+        "clockOffsetRangeSeconds": [
+          -0.023,
+          -0.003
+        ],
+        "guardSeconds": 0.1,
+        "quantizationGuardTicks": 2,
+        "lowerPercentOneCore": 0.4722211728553484,
+        "upperPercentOneCore": 0.4755544987813862,
+        "innerCounterSpanSeconds": 1794.003086090088,
+        "outerCounterSpanSeconds": 1806.0111281871796,
+        "processIdentities": [
+          1104844068
+        ],
+        "outerFirstUtc": "2026-10-18T19:42:31.657348+00:00",
+        "outerLastUtc": "2026-10-18T20:12:37.668476+00:00"
+      }
+    },
+    "tm230-acceptance-gateway-1": {
+      "processIdentities": [
+        1104844086
+      ],
+      "stableIdentity": true,
+      "initialWarmTenMinutes": {
+        "samples": 120,
+        "coveredAtFiveSecondCadence": true,
+        "firstUtc": "2026-10-18T19:42:37.728431+00:00",
+        "lastUtc": "2026-10-18T19:52:32.725433+00:00",
+        "maximumGapSeconds": 6.0191919803619385,
+        "medianMiB": 50.765625
+      },
+      "finalWarmTenMinutes": {
+        "samples": 120,
+        "coveredAtFiveSecondCadence": true,
+        "firstUtc": "2026-10-18T20:02:36.732779+00:00",
+        "lastUtc": "2026-10-18T20:12:31.733558+00:00",
+        "maximumGapSeconds": 6.030057907104492,
+        "medianMiB": 50.96875
+      },
+      "sampledRssMaximumMiB": 51.3125,
+      "proposedSampledRssLimitMiB": 80,
+      "sampledRssBudgetStatus": "sampled-within-limit",
+      "warmMedianGrowthPercent": 0.4001231148045514,
+      "growthAssessment": "within-10-percent-investigation-threshold",
+      "cpuWholeWorkload": {
+        "windowSeconds": 1800.0039999485016,
+        "clockOffsetRangeSeconds": [
+          -0.023,
+          -0.003
+        ],
+        "guardSeconds": 0.1,
+        "quantizationGuardTicks": 2,
+        "lowerPercentOneCore": 0.37833249260528506,
+        "upperPercentOneCore": 0.3833324814943417,
+        "innerCounterSpanSeconds": 1794.005126953125,
+        "outerCounterSpanSeconds": 1806.0296821594238,
+        "processIdentities": [
+          1104844086
+        ],
+        "outerFirstUtc": "2026-10-18T19:42:31.725622+00:00",
+        "outerLastUtc": "2026-10-18T20:12:37.755304+00:00"
+      }
+    }
+  },
+  "limits": [
+    "Tab reopen includes production Flutter startup and route reads; it is separate from outage recovery and normal invalidation.",
+    "Compare first/final ten-minute medians within the fixed workload after excluded setup/warmup.",
+    "RSS is sampled PID 1 memory, not continuous peak, container/tmpfs memory or browser memory.",
+    "Median comparison requires one stable process identity and dense coverage in both windows.",
+    "Investigate growth above 10 percent; a smaller change does not by itself prove the absence of leaks.",
+    "CPU is a workload observation; the ordinary idle/write CPU budgets do not apply to repeated tab startup.",
+    "Stream samples and source queue bounds are separate evidence; no live queue-size instrumentation is claimed."
+  ],
+  "sourceCaptureSha256": "ad06bb3608bc9fce25225c799d0477f4b0ad4566b68571c1f7531fff2c8e675d",
+  "sourceResourceCaptures": [
+    {
+      "file": "shared-care-integrated-pi-resources-2026-10-18T174803Z.jsonl",
+      "sha256": "d5582c68977b415e06b3a90e6ac9f1e84f4ca75cc7c528f301d962bd1e03c9b0",
+      "samples": 1738,
+      "trailingPartialRecords": 0,
+      "firstUtc": "2026-10-18T17:48:15.599012+00:00",
+      "lastUtc": "2026-10-18T20:13:00.598735+00:00",
+      "overlapSecondsWithEarlierInputs": 0
+    }
+  ],
+  "trailingPartialResourceRecords": 0
+}

@@ -1,0 +1,1479 @@
+{
+  "schema": 1,
+  "kind": "matched-integrated-flutter-comparison",
+  "browser": "155.0.8059.85",
+  "plan": {
+    "clients": [
+      5,
+      1,
+      3,
+      10
+    ],
+    "repetitions": 3,
+    "idleSeconds": 120,
+    "writesPerView": 3,
+    "writeSlotSeconds": 30,
+    "boundaryQuietSeconds": 6,
+    "latencyObserver": "native"
+  },
+  "diagnostics": "reads",
+  "explicitClientSubset": null,
+  "requiredMatrixComplete": true,
+  "fiveClientNumericalTargetsMet": true,
+  "requestOrPageErrorEvidenceOpen": false,
+  "windows": [
+    {
+      "clients": 1,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120006,
+        "dataGETs": 0,
+        "decodedBodyBytes": 216,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120005,
+        "dataGETs": 80,
+        "decodedBodyBytes": 1754808,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.9876910636326,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90001,
+        "dataGETs": 15,
+        "decodedBodyBytes": 315894,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 194,
+        "captureP95Ms": 265,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90012,
+        "dataGETs": 60,
+        "decodedBodyBytes": 1316106,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3902,
+        "captureP95Ms": 3966,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 216,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120009,
+        "dataGETs": 24,
+        "decodedBodyBytes": 903920,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610427912316,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90006,
+        "dataGETs": 9,
+        "decodedBodyBytes": 341661,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 654,
+        "captureP95Ms": 799,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90008,
+        "dataGETs": 18,
+        "decodedBodyBytes": 677940,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 2408,
+        "captureP95Ms": 2503,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120013,
+        "dataGETs": 0,
+        "decodedBodyBytes": 216,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120012,
+        "dataGETs": 80,
+        "decodedBodyBytes": 1754808,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769106362661,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90006,
+        "dataGETs": 15,
+        "decodedBodyBytes": 315894,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 226,
+        "captureP95Ms": 305,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90015,
+        "dataGETs": 60,
+        "decodedBodyBytes": 1316106,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3957,
+        "captureP95Ms": 4018,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 216,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120007,
+        "dataGETs": 24,
+        "decodedBodyBytes": 903920,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610467735531,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90009,
+        "dataGETs": 9,
+        "decodedBodyBytes": 341661,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 279,
+        "captureP95Ms": 364,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90002,
+        "dataGETs": 18,
+        "decodedBodyBytes": 677940,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 2896,
+        "captureP95Ms": 2962,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120027,
+        "dataGETs": 0,
+        "decodedBodyBytes": 216,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120001,
+        "dataGETs": 80,
+        "decodedBodyBytes": 1754808,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769362742091,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90009,
+        "dataGETs": 15,
+        "decodedBodyBytes": 315894,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 203,
+        "captureP95Ms": 284,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90015,
+        "dataGETs": 63,
+        "decodedBodyBytes": 1318087,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3951,
+        "captureP95Ms": 4015,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120008,
+        "dataGETs": 0,
+        "decodedBodyBytes": 216,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120001,
+        "dataGETs": 24,
+        "decodedBodyBytes": 903920,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610547384282,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 1,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90001,
+        "dataGETs": 9,
+        "decodedBodyBytes": 341661,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 254,
+        "captureP95Ms": 317,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90012,
+        "dataGETs": 18,
+        "decodedBodyBytes": 677940,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 2888,
+        "captureP95Ms": 2953,
+        "observations": 3,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120015,
+        "dataGETs": 0,
+        "decodedBodyBytes": 648,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120009,
+        "dataGETs": 240,
+        "decodedBodyBytes": 5264424,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769157643743,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90010,
+        "dataGETs": 45,
+        "decodedBodyBytes": 947682,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 840,
+        "captureP95Ms": 952,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90015,
+        "dataGETs": 180,
+        "decodedBodyBytes": 3948318,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 2933,
+        "captureP95Ms": 3001,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120007,
+        "dataGETs": 0,
+        "decodedBodyBytes": 648,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120005,
+        "dataGETs": 72,
+        "decodedBodyBytes": 2711760,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610447824918,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90015,
+        "dataGETs": 27,
+        "decodedBodyBytes": 1024983,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 636,
+        "captureP95Ms": 719,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90009,
+        "dataGETs": 54,
+        "decodedBodyBytes": 2033820,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 13602,
+        "captureP95Ms": 13670,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120006,
+        "dataGETs": 0,
+        "decodedBodyBytes": 648,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120015,
+        "dataGETs": 240,
+        "decodedBodyBytes": 5264424,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769003793065,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90004,
+        "dataGETs": 45,
+        "decodedBodyBytes": 947682,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 322,
+        "captureP95Ms": 390,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90010,
+        "dataGETs": 180,
+        "decodedBodyBytes": 3948318,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3909,
+        "captureP95Ms": 3974,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 648,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120016,
+        "dataGETs": 72,
+        "decodedBodyBytes": 2711760,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610288531064,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90004,
+        "dataGETs": 27,
+        "decodedBodyBytes": 1024983,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 332,
+        "captureP95Ms": 431,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90009,
+        "dataGETs": 54,
+        "decodedBodyBytes": 2033820,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14149,
+        "captureP95Ms": 14209,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120012,
+        "dataGETs": 0,
+        "decodedBodyBytes": 648,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120017,
+        "dataGETs": 240,
+        "decodedBodyBytes": 5264424,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769044823706,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90006,
+        "dataGETs": 45,
+        "decodedBodyBytes": 947682,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 313,
+        "captureP95Ms": 362,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90007,
+        "dataGETs": 180,
+        "decodedBodyBytes": 3948318,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3975,
+        "captureP95Ms": 4112,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120005,
+        "dataGETs": 0,
+        "decodedBodyBytes": 648,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120007,
+        "dataGETs": 72,
+        "decodedBodyBytes": 2711760,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610368175835,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 3,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90000,
+        "dataGETs": 27,
+        "decodedBodyBytes": 1024983,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 487,
+        "captureP95Ms": 559,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90001,
+        "dataGETs": 54,
+        "decodedBodyBytes": 2033820,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14099,
+        "captureP95Ms": 14162,
+        "observations": 9,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120002,
+        "dataGETs": 400,
+        "decodedBodyBytes": 8885049,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98784555936608,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90005,
+        "dataGETs": 75,
+        "decodedBodyBytes": 1579470,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 923,
+        "captureP95Ms": 988,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90008,
+        "dataGETs": 300,
+        "decodedBodyBytes": 6580530,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3403,
+        "captureP95Ms": 3506,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120013,
+        "dataGETs": 120,
+        "decodedBodyBytes": 4519600,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610348265886,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90006,
+        "dataGETs": 45,
+        "decodedBodyBytes": 1708305,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 714,
+        "captureP95Ms": 813,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90004,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3389700,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14710,
+        "captureP95Ms": 14777,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120012,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120005,
+        "dataGETs": 400,
+        "decodedBodyBytes": 8774040,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769167901789,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90005,
+        "dataGETs": 75,
+        "decodedBodyBytes": 1579470,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 359,
+        "captureP95Ms": 423,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90012,
+        "dataGETs": 300,
+        "decodedBodyBytes": 6580530,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3414,
+        "captureP95Ms": 3480,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120007,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120001,
+        "dataGETs": 120,
+        "decodedBodyBytes": 4519600,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610527473338,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90015,
+        "dataGETs": 45,
+        "decodedBodyBytes": 1708305,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 887,
+        "captureP95Ms": 1029,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90003,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3389700,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14176,
+        "captureP95Ms": 14241,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120002,
+        "dataGETs": 400,
+        "decodedBodyBytes": 8774040,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769178159662,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90014,
+        "dataGETs": 75,
+        "decodedBodyBytes": 1579470,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 390,
+        "captureP95Ms": 445,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90011,
+        "dataGETs": 300,
+        "decodedBodyBytes": 6580530,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3417,
+        "captureP95Ms": 3482,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120013,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120011,
+        "dataGETs": 120,
+        "decodedBodyBytes": 4519600,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610447822927,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90012,
+        "dataGETs": 45,
+        "decodedBodyBytes": 1708305,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 650,
+        "captureP95Ms": 762,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90003,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3389700,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 13128,
+        "captureP95Ms": 13194,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120008,
+        "dataGETs": 0,
+        "decodedBodyBytes": 2160,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120003,
+        "dataGETs": 803,
+        "decodedBodyBytes": 17661070,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98777022000365,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90016,
+        "dataGETs": 150,
+        "decodedBodyBytes": 3158940,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 1066,
+        "captureP95Ms": 1178,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90006,
+        "dataGETs": 609,
+        "decodedBodyBytes": 13268410,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 15256,
+        "captureP95Ms": 15315,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120015,
+        "dataGETs": 0,
+        "decodedBodyBytes": 2160,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120001,
+        "dataGETs": 240,
+        "decodedBodyBytes": 9039200,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610686751598,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90001,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3416610,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 1587,
+        "captureP95Ms": 1871,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90004,
+        "dataGETs": 183,
+        "decodedBodyBytes": 6892390,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14908,
+        "captureP95Ms": 15075,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120014,
+        "dataGETs": 0,
+        "decodedBodyBytes": 2160,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120012,
+        "dataGETs": 800,
+        "decodedBodyBytes": 17548080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769116618914,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90010,
+        "dataGETs": 150,
+        "decodedBodyBytes": 3158940,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 940,
+        "captureP95Ms": 991,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90001,
+        "dataGETs": 601,
+        "decodedBodyBytes": 13229709,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 15227,
+        "captureP95Ms": 15293,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120008,
+        "dataGETs": 0,
+        "decodedBodyBytes": 2160,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120003,
+        "dataGETs": 240,
+        "decodedBodyBytes": 9039200,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610507560404,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90008,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3416610,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 1264,
+        "captureP95Ms": 1424,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90003,
+        "dataGETs": 180,
+        "decodedBodyBytes": 6779400,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14710,
+        "captureP95Ms": 14782,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120017,
+        "dataGETs": 0,
+        "decodedBodyBytes": 2160,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120012,
+        "dataGETs": 800,
+        "decodedBodyBytes": 17548080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769147386638,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90003,
+        "dataGETs": 150,
+        "decodedBodyBytes": 3158940,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 1306,
+        "captureP95Ms": 1402,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90002,
+        "dataGETs": 614,
+        "decodedBodyBytes": 13383359,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14976,
+        "captureP95Ms": 15106,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 2160,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120010,
+        "dataGETs": 240,
+        "decodedBodyBytes": 9039200,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610408000708,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 10,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90017,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3416610,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 1650,
+        "captureP95Ms": 1873,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90004,
+        "dataGETs": 180,
+        "decodedBodyBytes": 6779400,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14289,
+        "captureP95Ms": 14370,
+        "observations": 30,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    }
+  ],
+  "limits": [
+    "Numerical targets are not overall issue acceptance: resource bounds, rendering, physical lifecycle and the soak are separate.",
+    "Each repetition stays separate; clients observing the same write are correlated.",
+    "Body-byte rates include stream upkeep/fallback/resync but exclude headers, TLS/TCP and other wire overhead.",
+    "Capture p95 is an upper bound after semantics/two animation callbacks, not physical presentation time.",
+    "Unclassified terminal events remain open even if UI values and numerical targets succeed.",
+    "Exact image identities and experiment mode order need their separate provenance record.",
+    "Separate transport batches have time/order and warm-up confounds; consult composition/switch timestamps. No per-mode RAM saving follows from this comparison."
+  ],
+  "sourceCaptureSha256": {
+    "sse": "c06afce475cf14dd4a1e33d16835a1659fa377c7e1e391f3ba9e9a6f5a54d803",
+    "polling": "78b008bc34ca5329b160b2798f9d711a679f881d3f5db5f370eb75c180cddebf"
+  }
+}

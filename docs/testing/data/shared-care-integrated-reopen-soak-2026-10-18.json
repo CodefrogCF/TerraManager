@@ -1,0 +1,4715 @@
+{
+  "schema": 1,
+  "kind": "integrated-flutter-tab-reopen-soak",
+  "status": "complete",
+  "createdAt": "2026-10-18T19:39:54.181Z",
+  "browser": "155.0.8059.85",
+  "channel": "chrome",
+  "method": "explicit-about-blank-and-return-with-existing-session",
+  "plan": {
+    "clients": 5,
+    "warmupSeconds": 120,
+    "fixedWorkloadSeconds": 1800,
+    "reopenSlotSeconds": 15,
+    "writeSlotSeconds": 60,
+    "finalReopenReserveSeconds": 30
+  },
+  "toolSha256": {
+    "soak": "49d271a4b9d77464268fadb93b0729e26eb84292be65caee972a5f9ca4bf34a7",
+    "fixtureAndCommandHelpers": "c6d40296d50a56397d0b0d76752eab9758633eb9f9b0ebce2721f1ed6362d0f9"
+  },
+  "controller": {
+    "node": "v23.9.0",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "reopens": [
+    {
+      "client": 1,
+      "slot": 0,
+      "startedAt": "2026-10-18T19:42:36.507Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:42:40.196Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 1,
+      "startedAt": "2026-10-18T19:42:51.516Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:42:55.300Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 2,
+      "startedAt": "2026-10-18T19:43:06.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:43:11.093Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 3,
+      "startedAt": "2026-10-18T19:43:21.516Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:43:25.354Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 4,
+      "startedAt": "2026-10-18T19:43:37.547Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:43:41.702Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 5,
+      "startedAt": "2026-10-18T19:43:51.507Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:43:54.812Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 6,
+      "startedAt": "2026-10-18T19:44:06.515Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:44:10.890Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 7,
+      "startedAt": "2026-10-18T19:44:21.513Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:44:25.318Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 8,
+      "startedAt": "2026-10-18T19:44:37.026Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:44:40.581Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 9,
+      "startedAt": "2026-10-18T19:44:51.513Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:44:54.841Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 10,
+      "startedAt": "2026-10-18T19:45:06.521Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:45:09.818Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 11,
+      "startedAt": "2026-10-18T19:45:21.508Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:45:25.395Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 12,
+      "startedAt": "2026-10-18T19:45:37.049Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:45:40.510Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 13,
+      "startedAt": "2026-10-18T19:45:51.513Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:45:54.801Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 14,
+      "startedAt": "2026-10-18T19:46:06.512Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:46:10.137Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 15,
+      "startedAt": "2026-10-18T19:46:21.510Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:46:24.222Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 16,
+      "startedAt": "2026-10-18T19:46:37.183Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:46:39.988Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 17,
+      "startedAt": "2026-10-18T19:46:51.508Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:46:54.965Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 18,
+      "startedAt": "2026-10-18T19:47:06.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:47:08.941Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 19,
+      "startedAt": "2026-10-18T19:47:21.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:47:23.730Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 20,
+      "startedAt": "2026-10-18T19:47:36.825Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:47:39.184Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 21,
+      "startedAt": "2026-10-18T19:47:51.521Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:47:54.124Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 22,
+      "startedAt": "2026-10-18T19:48:06.511Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:48:09.085Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 23,
+      "startedAt": "2026-10-18T19:48:21.520Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:48:23.780Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 24,
+      "startedAt": "2026-10-18T19:48:36.870Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:48:39.233Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 25,
+      "startedAt": "2026-10-18T19:48:51.513Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:48:53.776Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 26,
+      "startedAt": "2026-10-18T19:49:06.507Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:49:09.097Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 27,
+      "startedAt": "2026-10-18T19:49:21.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:49:23.967Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 28,
+      "startedAt": "2026-10-18T19:49:36.932Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:49:40.152Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 29,
+      "startedAt": "2026-10-18T19:49:51.509Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:49:54.390Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 30,
+      "startedAt": "2026-10-18T19:50:06.506Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:50:09.457Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 31,
+      "startedAt": "2026-10-18T19:50:21.510Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:50:24.107Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 32,
+      "startedAt": "2026-10-18T19:50:36.907Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:50:40.126Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 33,
+      "startedAt": "2026-10-18T19:50:51.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:50:54.398Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 34,
+      "startedAt": "2026-10-18T19:51:06.519Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:51:09.656Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 35,
+      "startedAt": "2026-10-18T19:51:21.513Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:51:24.428Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 36,
+      "startedAt": "2026-10-18T19:51:37.092Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:51:40.163Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 37,
+      "startedAt": "2026-10-18T19:51:51.519Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:51:54.789Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 38,
+      "startedAt": "2026-10-18T19:52:06.518Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:52:09.606Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 39,
+      "startedAt": "2026-10-18T19:52:21.511Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:52:24.626Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 40,
+      "startedAt": "2026-10-18T19:52:36.975Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:52:39.798Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 41,
+      "startedAt": "2026-10-18T19:52:51.520Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:52:54.186Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 42,
+      "startedAt": "2026-10-18T19:53:06.510Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:53:09.890Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 43,
+      "startedAt": "2026-10-18T19:53:21.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:53:24.384Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 44,
+      "startedAt": "2026-10-18T19:53:37.153Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:53:40.174Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 45,
+      "startedAt": "2026-10-18T19:53:51.518Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:53:54.642Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 46,
+      "startedAt": "2026-10-18T19:54:06.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:54:09.707Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 47,
+      "startedAt": "2026-10-18T19:54:21.510Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:54:29.724Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 48,
+      "startedAt": "2026-10-18T19:54:37.626Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:54:42.841Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 49,
+      "startedAt": "2026-10-18T19:54:51.519Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:54:55.546Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 50,
+      "startedAt": "2026-10-18T19:55:06.507Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:55:09.570Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 51,
+      "startedAt": "2026-10-18T19:55:21.509Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:55:24.434Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 52,
+      "startedAt": "2026-10-18T19:55:37.347Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:55:40.536Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 53,
+      "startedAt": "2026-10-18T19:55:51.521Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:55:55.783Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 54,
+      "startedAt": "2026-10-18T19:56:06.513Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:56:09.882Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 55,
+      "startedAt": "2026-10-18T19:56:21.509Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:56:24.205Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 56,
+      "startedAt": "2026-10-18T19:56:37.323Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:56:40.888Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 57,
+      "startedAt": "2026-10-18T19:56:51.515Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:56:55.392Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 58,
+      "startedAt": "2026-10-18T19:57:06.509Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:57:10.085Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 59,
+      "startedAt": "2026-10-18T19:57:21.512Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:57:25.272Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 60,
+      "startedAt": "2026-10-18T19:57:37.289Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:57:40.588Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 61,
+      "startedAt": "2026-10-18T19:57:51.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:57:55.159Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 62,
+      "startedAt": "2026-10-18T19:58:06.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:58:10.033Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 63,
+      "startedAt": "2026-10-18T19:58:21.507Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:58:25.354Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 64,
+      "startedAt": "2026-10-18T19:58:37.271Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:58:40.876Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 65,
+      "startedAt": "2026-10-18T19:58:51.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:58:54.619Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 66,
+      "startedAt": "2026-10-18T19:59:06.511Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:59:10.070Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 67,
+      "startedAt": "2026-10-18T19:59:21.516Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:59:24.426Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 68,
+      "startedAt": "2026-10-18T19:59:37.210Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:59:40.186Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 69,
+      "startedAt": "2026-10-18T19:59:51.509Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T19:59:54.500Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 70,
+      "startedAt": "2026-10-18T20:00:06.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:00:09.719Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 71,
+      "startedAt": "2026-10-18T20:00:21.515Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:00:25.458Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 72,
+      "startedAt": "2026-10-18T20:00:37.117Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:00:40.041Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 73,
+      "startedAt": "2026-10-18T20:00:51.520Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:00:54.340Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 74,
+      "startedAt": "2026-10-18T20:01:06.511Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:01:10.530Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 75,
+      "startedAt": "2026-10-18T20:01:21.509Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:01:23.629Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 76,
+      "startedAt": "2026-10-18T20:01:37.008Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:01:39.446Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 77,
+      "startedAt": "2026-10-18T20:01:51.515Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:01:54.588Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 78,
+      "startedAt": "2026-10-18T20:02:06.510Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:02:08.693Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 79,
+      "startedAt": "2026-10-18T20:02:21.516Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:02:24.383Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 80,
+      "startedAt": "2026-10-18T20:02:36.945Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:02:38.972Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 81,
+      "startedAt": "2026-10-18T20:02:51.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:02:54.169Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 82,
+      "startedAt": "2026-10-18T20:03:06.516Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:03:08.978Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 83,
+      "startedAt": "2026-10-18T20:03:21.510Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:03:23.752Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 84,
+      "startedAt": "2026-10-18T20:03:36.944Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:03:39.570Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 85,
+      "startedAt": "2026-10-18T20:03:51.518Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:03:53.858Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 86,
+      "startedAt": "2026-10-18T20:04:06.516Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:04:09.051Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 87,
+      "startedAt": "2026-10-18T20:04:21.507Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:04:24.004Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 88,
+      "startedAt": "2026-10-18T20:04:36.896Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:04:39.329Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 89,
+      "startedAt": "2026-10-18T20:04:51.507Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:04:54.006Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 90,
+      "startedAt": "2026-10-18T20:05:06.521Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:05:08.325Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 91,
+      "startedAt": "2026-10-18T20:05:21.518Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:05:23.435Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 92,
+      "startedAt": "2026-10-18T20:05:37.187Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:05:40.009Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 93,
+      "startedAt": "2026-10-18T20:05:51.519Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:05:54.264Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 94,
+      "startedAt": "2026-10-18T20:06:06.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:06:10.297Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 95,
+      "startedAt": "2026-10-18T20:06:21.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:06:24.056Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 96,
+      "startedAt": "2026-10-18T20:06:37.322Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:06:40.729Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 97,
+      "startedAt": "2026-10-18T20:06:51.516Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:06:53.657Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 98,
+      "startedAt": "2026-10-18T20:07:06.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:07:09.022Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 99,
+      "startedAt": "2026-10-18T20:07:21.521Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:07:24.331Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 100,
+      "startedAt": "2026-10-18T20:07:36.883Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:07:39.196Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 101,
+      "startedAt": "2026-10-18T20:07:51.514Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:07:53.892Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 102,
+      "startedAt": "2026-10-18T20:08:06.508Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:08:08.707Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 103,
+      "startedAt": "2026-10-18T20:08:21.511Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:08:24.071Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 104,
+      "startedAt": "2026-10-18T20:08:36.824Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:08:39.972Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 105,
+      "startedAt": "2026-10-18T20:08:51.512Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:08:54.513Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 106,
+      "startedAt": "2026-10-18T20:09:06.517Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:09:10.246Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 107,
+      "startedAt": "2026-10-18T20:09:21.518Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:09:24.770Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 108,
+      "startedAt": "2026-10-18T20:09:37.030Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:09:40.695Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 109,
+      "startedAt": "2026-10-18T20:09:51.509Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:09:55.056Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 110,
+      "startedAt": "2026-10-18T20:10:06.511Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:10:10.004Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 111,
+      "startedAt": "2026-10-18T20:10:21.515Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:10:25.752Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 112,
+      "startedAt": "2026-10-18T20:10:36.970Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:10:41.937Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 4,
+      "slot": 113,
+      "startedAt": "2026-10-18T20:10:51.520Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:10:54.677Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 5,
+      "slot": 114,
+      "startedAt": "2026-10-18T20:11:06.518Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:11:09.748Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 1,
+      "slot": 115,
+      "startedAt": "2026-10-18T20:11:21.506Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:11:25.145Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 2,
+      "slot": 116,
+      "startedAt": "2026-10-18T20:11:37.405Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:11:41.224Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    },
+    {
+      "client": 3,
+      "slot": 117,
+      "startedAt": "2026-10-18T20:11:51.520Z",
+      "serverStreamsAfterClose": 4,
+      "browserIdsRetiredWithoutTerminalEvent": 1,
+      "completedAt": "2026-10-18T20:11:55.107Z",
+      "newConfirmedConnections": 1,
+      "completedInsideWindow": true,
+      "serverStreamsAfterReopen": 5
+    }
+  ],
+  "writes": [
+    {
+      "startedAt": "2026-10-18T19:43:36.529Z",
+      "completedAt": "2026-10-18T19:43:37.547Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 980
+        },
+        {
+          "client": 2,
+          "semanticsMs": 1018
+        },
+        {
+          "client": 3,
+          "semanticsMs": 558
+        },
+        {
+          "client": 4,
+          "semanticsMs": 851
+        },
+        {
+          "client": 5,
+          "semanticsMs": 931
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:44:36.517Z",
+      "completedAt": "2026-10-18T19:44:37.026Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 446
+        },
+        {
+          "client": 2,
+          "semanticsMs": 361
+        },
+        {
+          "client": 3,
+          "semanticsMs": 358
+        },
+        {
+          "client": 4,
+          "semanticsMs": 447
+        },
+        {
+          "client": 5,
+          "semanticsMs": 509
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:45:36.525Z",
+      "completedAt": "2026-10-18T19:45:37.049Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 524
+        },
+        {
+          "client": 2,
+          "semanticsMs": 419
+        },
+        {
+          "client": 3,
+          "semanticsMs": 481
+        },
+        {
+          "client": 4,
+          "semanticsMs": 475
+        },
+        {
+          "client": 5,
+          "semanticsMs": 496
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:46:36.527Z",
+      "completedAt": "2026-10-18T19:46:37.183Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 446
+        },
+        {
+          "client": 2,
+          "semanticsMs": 446
+        },
+        {
+          "client": 3,
+          "semanticsMs": 656
+        },
+        {
+          "client": 4,
+          "semanticsMs": 509
+        },
+        {
+          "client": 5,
+          "semanticsMs": 372
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:47:36.522Z",
+      "completedAt": "2026-10-18T19:47:36.825Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 286
+        },
+        {
+          "client": 2,
+          "semanticsMs": 303
+        },
+        {
+          "client": 3,
+          "semanticsMs": 286
+        },
+        {
+          "client": 4,
+          "semanticsMs": 269
+        },
+        {
+          "client": 5,
+          "semanticsMs": 254
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:48:36.522Z",
+      "completedAt": "2026-10-18T19:48:36.870Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 339
+        },
+        {
+          "client": 2,
+          "semanticsMs": 297
+        },
+        {
+          "client": 3,
+          "semanticsMs": 348
+        },
+        {
+          "client": 4,
+          "semanticsMs": 257
+        },
+        {
+          "client": 5,
+          "semanticsMs": 299
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:49:36.526Z",
+      "completedAt": "2026-10-18T19:49:36.932Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 329
+        },
+        {
+          "client": 2,
+          "semanticsMs": 337
+        },
+        {
+          "client": 3,
+          "semanticsMs": 280
+        },
+        {
+          "client": 4,
+          "semanticsMs": 406
+        },
+        {
+          "client": 5,
+          "semanticsMs": 342
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:50:36.530Z",
+      "completedAt": "2026-10-18T19:50:36.907Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 300
+        },
+        {
+          "client": 2,
+          "semanticsMs": 317
+        },
+        {
+          "client": 3,
+          "semanticsMs": 349
+        },
+        {
+          "client": 4,
+          "semanticsMs": 362
+        },
+        {
+          "client": 5,
+          "semanticsMs": 377
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:51:36.538Z",
+      "completedAt": "2026-10-18T19:51:37.092Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 479
+        },
+        {
+          "client": 2,
+          "semanticsMs": 554
+        },
+        {
+          "client": 3,
+          "semanticsMs": 505
+        },
+        {
+          "client": 4,
+          "semanticsMs": 554
+        },
+        {
+          "client": 5,
+          "semanticsMs": 313
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:52:36.524Z",
+      "completedAt": "2026-10-18T19:52:36.975Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 306
+        },
+        {
+          "client": 2,
+          "semanticsMs": 324
+        },
+        {
+          "client": 3,
+          "semanticsMs": 306
+        },
+        {
+          "client": 4,
+          "semanticsMs": 376
+        },
+        {
+          "client": 5,
+          "semanticsMs": 451
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:53:36.523Z",
+      "completedAt": "2026-10-18T19:53:37.153Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 460
+        },
+        {
+          "client": 2,
+          "semanticsMs": 505
+        },
+        {
+          "client": 3,
+          "semanticsMs": 466
+        },
+        {
+          "client": 4,
+          "semanticsMs": 509
+        },
+        {
+          "client": 5,
+          "semanticsMs": 630
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:54:36.528Z",
+      "completedAt": "2026-10-18T19:54:37.625Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 1097
+        },
+        {
+          "client": 2,
+          "semanticsMs": 847
+        },
+        {
+          "client": 3,
+          "semanticsMs": 846
+        },
+        {
+          "client": 4,
+          "semanticsMs": 1026
+        },
+        {
+          "client": 5,
+          "semanticsMs": 782
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:55:36.519Z",
+      "completedAt": "2026-10-18T19:55:37.347Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 476
+        },
+        {
+          "client": 2,
+          "semanticsMs": 701
+        },
+        {
+          "client": 3,
+          "semanticsMs": 767
+        },
+        {
+          "client": 4,
+          "semanticsMs": 755
+        },
+        {
+          "client": 5,
+          "semanticsMs": 828
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:56:36.525Z",
+      "completedAt": "2026-10-18T19:56:37.323Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 733
+        },
+        {
+          "client": 2,
+          "semanticsMs": 667
+        },
+        {
+          "client": 3,
+          "semanticsMs": 687
+        },
+        {
+          "client": 4,
+          "semanticsMs": 707
+        },
+        {
+          "client": 5,
+          "semanticsMs": 798
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:57:36.523Z",
+      "completedAt": "2026-10-18T19:57:37.289Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 766
+        },
+        {
+          "client": 2,
+          "semanticsMs": 618
+        },
+        {
+          "client": 3,
+          "semanticsMs": 632
+        },
+        {
+          "client": 4,
+          "semanticsMs": 693
+        },
+        {
+          "client": 5,
+          "semanticsMs": 710
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:58:36.529Z",
+      "completedAt": "2026-10-18T19:58:37.271Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 628
+        },
+        {
+          "client": 2,
+          "semanticsMs": 607
+        },
+        {
+          "client": 3,
+          "semanticsMs": 520
+        },
+        {
+          "client": 4,
+          "semanticsMs": 513
+        },
+        {
+          "client": 5,
+          "semanticsMs": 742
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T19:59:36.532Z",
+      "completedAt": "2026-10-18T19:59:37.210Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 678
+        },
+        {
+          "client": 2,
+          "semanticsMs": 655
+        },
+        {
+          "client": 3,
+          "semanticsMs": 584
+        },
+        {
+          "client": 4,
+          "semanticsMs": 663
+        },
+        {
+          "client": 5,
+          "semanticsMs": 654
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:00:36.518Z",
+      "completedAt": "2026-10-18T20:00:37.117Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 475
+        },
+        {
+          "client": 2,
+          "semanticsMs": 501
+        },
+        {
+          "client": 3,
+          "semanticsMs": 388
+        },
+        {
+          "client": 4,
+          "semanticsMs": 569
+        },
+        {
+          "client": 5,
+          "semanticsMs": 599
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:01:36.533Z",
+      "completedAt": "2026-10-18T20:01:37.008Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 316
+        },
+        {
+          "client": 2,
+          "semanticsMs": 460
+        },
+        {
+          "client": 3,
+          "semanticsMs": 475
+        },
+        {
+          "client": 4,
+          "semanticsMs": 357
+        },
+        {
+          "client": 5,
+          "semanticsMs": 421
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:02:36.524Z",
+      "completedAt": "2026-10-18T20:02:36.945Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 420
+        },
+        {
+          "client": 2,
+          "semanticsMs": 421
+        },
+        {
+          "client": 3,
+          "semanticsMs": 356
+        },
+        {
+          "client": 4,
+          "semanticsMs": 415
+        },
+        {
+          "client": 5,
+          "semanticsMs": 385
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:03:36.532Z",
+      "completedAt": "2026-10-18T20:03:36.944Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 268
+        },
+        {
+          "client": 2,
+          "semanticsMs": 372
+        },
+        {
+          "client": 3,
+          "semanticsMs": 412
+        },
+        {
+          "client": 4,
+          "semanticsMs": 372
+        },
+        {
+          "client": 5,
+          "semanticsMs": 338
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:04:36.538Z",
+      "completedAt": "2026-10-18T20:04:36.896Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 273
+        },
+        {
+          "client": 2,
+          "semanticsMs": 301
+        },
+        {
+          "client": 3,
+          "semanticsMs": 353
+        },
+        {
+          "client": 4,
+          "semanticsMs": 358
+        },
+        {
+          "client": 5,
+          "semanticsMs": 288
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:05:36.522Z",
+      "completedAt": "2026-10-18T20:05:37.187Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 565
+        },
+        {
+          "client": 2,
+          "semanticsMs": 406
+        },
+        {
+          "client": 3,
+          "semanticsMs": 665
+        },
+        {
+          "client": 4,
+          "semanticsMs": 432
+        },
+        {
+          "client": 5,
+          "semanticsMs": 470
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:06:36.524Z",
+      "completedAt": "2026-10-18T20:06:37.322Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 409
+        },
+        {
+          "client": 2,
+          "semanticsMs": 531
+        },
+        {
+          "client": 3,
+          "semanticsMs": 553
+        },
+        {
+          "client": 4,
+          "semanticsMs": 798
+        },
+        {
+          "client": 5,
+          "semanticsMs": 650
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:07:36.532Z",
+      "completedAt": "2026-10-18T20:07:36.883Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 351
+        },
+        {
+          "client": 2,
+          "semanticsMs": 299
+        },
+        {
+          "client": 3,
+          "semanticsMs": 307
+        },
+        {
+          "client": 4,
+          "semanticsMs": 282
+        },
+        {
+          "client": 5,
+          "semanticsMs": 248
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:08:36.519Z",
+      "completedAt": "2026-10-18T20:08:36.824Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 305
+        },
+        {
+          "client": 2,
+          "semanticsMs": 292
+        },
+        {
+          "client": 3,
+          "semanticsMs": 303
+        },
+        {
+          "client": 4,
+          "semanticsMs": 226
+        },
+        {
+          "client": 5,
+          "semanticsMs": 280
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:09:36.520Z",
+      "completedAt": "2026-10-18T20:09:37.030Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 441
+        },
+        {
+          "client": 2,
+          "semanticsMs": 388
+        },
+        {
+          "client": 3,
+          "semanticsMs": 510
+        },
+        {
+          "client": 4,
+          "semanticsMs": 409
+        },
+        {
+          "client": 5,
+          "semanticsMs": 464
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:10:36.529Z",
+      "completedAt": "2026-10-18T20:10:36.970Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 371
+        },
+        {
+          "client": 2,
+          "semanticsMs": 356
+        },
+        {
+          "client": 3,
+          "semanticsMs": 402
+        },
+        {
+          "client": 4,
+          "semanticsMs": 429
+        },
+        {
+          "client": 5,
+          "semanticsMs": 441
+        }
+      ]
+    },
+    {
+      "startedAt": "2026-10-18T20:11:36.539Z",
+      "completedAt": "2026-10-18T20:11:37.405Z",
+      "status": 200,
+      "observations": [
+        {
+          "client": 1,
+          "semanticsMs": 492
+        },
+        {
+          "client": 2,
+          "semanticsMs": 778
+        },
+        {
+          "client": 3,
+          "semanticsMs": 866
+        },
+        {
+          "client": 4,
+          "semanticsMs": 574
+        },
+        {
+          "client": 5,
+          "semanticsMs": 687
+        }
+      ]
+    }
+  ],
+  "streamSamples": [
+    {
+      "at": "2026-10-18T19:39:55.050Z",
+      "label": "before-setup",
+      "streams": 0,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:42:36.516Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:42:36.646Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:42:40.207Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:42:51.537Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:42:51.608Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:42:55.311Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:06.525Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:06.595Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:11.105Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:21.527Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:21.569Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:25.373Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:37.565Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:37.640Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:41.713Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:51.518Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:51.561Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:43:54.826Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:06.529Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:06.593Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:10.901Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:21.525Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:21.560Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:25.327Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:37.034Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:37.176Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:40.590Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:51.526Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:51.590Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:44:54.851Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:06.536Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:06.570Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:09.826Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:21.527Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:21.582Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:25.406Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:37.057Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:37.222Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:40.523Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:51.522Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:51.554Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:45:54.812Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:06.522Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:06.556Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:10.144Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:21.518Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:21.550Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:24.231Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:37.233Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:37.300Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:39.996Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:51.518Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:51.548Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:46:54.972Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:06.526Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:06.560Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:08.952Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:21.530Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:21.584Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:23.747Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:36.835Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:36.913Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:39.189Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:51.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:51.570Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:47:54.140Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:06.521Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:06.557Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:09.094Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:21.528Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:21.567Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:23.786Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:36.877Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:36.933Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:39.238Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:51.523Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:51.561Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:48:53.785Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:06.516Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:06.553Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:09.107Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:21.526Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:21.563Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:23.976Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:36.945Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:37.048Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:40.161Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:51.526Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:51.564Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:49:54.399Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:06.516Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:06.542Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:09.464Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:21.520Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:21.557Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:24.118Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:36.925Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:37.092Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:40.132Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:51.523Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:51.554Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:50:54.403Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:06.545Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:06.583Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:09.663Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:21.523Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:21.562Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:24.440Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:37.136Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:37.196Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:40.176Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:51.538Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:51.595Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:51:54.799Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:06.527Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:06.558Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:09.618Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:21.532Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:21.577Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:24.633Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:37.016Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:37.134Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:39.808Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:51.535Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:51.595Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:52:54.197Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:06.521Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:06.554Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:09.899Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:21.528Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:21.564Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:24.392Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:37.168Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:37.239Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:40.203Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:51.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:51.562Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:53:54.649Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:06.545Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:06.597Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:09.716Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:21.522Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:21.570Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:29.745Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:37.681Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:37.765Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:42.857Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:51.538Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:51.665Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:54:55.565Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:06.516Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:06.546Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:09.579Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:21.519Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:21.552Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:24.442Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:37.367Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:37.441Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:40.556Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:51.537Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:51.605Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:55:55.800Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:06.532Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:06.620Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:09.896Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:21.518Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:21.554Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:24.214Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:37.350Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:37.494Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:40.905Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:51.528Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:51.576Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:56:55.402Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:06.519Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:06.563Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:10.093Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:21.524Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:21.581Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:25.280Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:37.313Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:37.416Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:40.602Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:51.567Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:51.644Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:57:55.172Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:06.526Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:06.568Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:10.044Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:21.525Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:21.611Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:25.368Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:37.293Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:37.391Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:40.884Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:51.524Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:51.566Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:58:54.630Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:06.528Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:06.597Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:10.081Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:21.525Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:21.569Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:24.437Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:37.230Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:37.314Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:40.196Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:51.519Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:51.556Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T19:59:54.509Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:06.540Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:06.628Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:09.730Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:21.532Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:21.607Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:25.474Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:37.134Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:37.204Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:40.056Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:51.532Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:51.594Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:00:54.352Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:06.518Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:06.555Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:10.541Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:21.518Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:21.553Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:23.642Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:37.023Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:37.101Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:39.455Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:51.525Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:51.559Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:01:54.596Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:06.520Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:06.555Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:08.703Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:21.531Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:21.572Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:24.396Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:36.981Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:37.023Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:38.981Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:51.532Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:51.566Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:02:54.177Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:06.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:06.566Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:08.984Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:21.528Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:21.649Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:23.757Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:36.951Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:36.989Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:39.579Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:51.526Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:51.558Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:03:53.868Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:06.527Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:06.564Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:09.060Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:21.517Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:21.554Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:24.014Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:36.919Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:36.981Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:39.338Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:51.518Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:51.554Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:04:54.015Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:06.529Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:06.565Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:08.333Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:21.529Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:21.567Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:23.444Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:37.264Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:37.357Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:40.025Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:51.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:51.577Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:05:54.276Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:06.525Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:06.562Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:10.312Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:21.527Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:21.568Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:24.066Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:37.348Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:37.471Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:40.736Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:51.529Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:51.570Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:06:53.665Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:06.526Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:06.563Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:09.033Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:21.531Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:21.589Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:24.342Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:36.894Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:36.948Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:39.210Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:51.525Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:51.570Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:07:53.898Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:06.516Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:06.552Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:08.718Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:21.523Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:21.556Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:24.081Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:36.830Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:36.955Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:39.985Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:51.523Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:51.556Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:08:54.537Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:06.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:06.572Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:10.255Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:21.530Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:21.573Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:24.781Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:37.039Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:37.279Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:40.714Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:51.527Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:51.571Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:09:55.067Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:06.529Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:06.598Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:10.015Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:21.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:21.582Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:25.765Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:36.981Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:37.153Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:41.947Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:51.531Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:51.573Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:10:54.694Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:06.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:06.609Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:09.757Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:21.516Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:21.555Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:25.156Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:37.421Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:37.504Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:41.236Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:51.533Z",
+      "label": "before-tab-close",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:51.572Z",
+      "label": "after-close",
+      "streams": 4,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:11:55.117Z",
+      "label": "after-reopen",
+      "streams": 5,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    },
+    {
+      "at": "2026-10-18T20:12:37.145Z",
+      "label": "final-drain",
+      "streams": 0,
+      "maximumConnections": 32,
+      "maximumPerAccount": 8
+    }
+  ],
+  "limits": [
+    "Deliberate tab navigation stress measures server connection cleanup and memory under repeated app startup.",
+    "These are real new SSE requests with HTTP 200 and an actual changes frame, not simulated events.",
+    "Tab reopen stress is not evidence for the client outage/backoff/foreground policy or normal invalidation.",
+    "Existing signed-in contexts retain cookies; only initial login/setup and warmup are excluded.",
+    "Each reopen includes Flutter page startup and authoritative route reads; it is not a pure transport microbenchmark.",
+    "UI writes are observed through actual semantics without reloading the other tabs; no physical paint timestamp is claimed.",
+    "The workload threshold is separate from Pi RSS medians, growth, process identity, queue bounds and resource acceptance.",
+    "Stream samples are point observations. The server writer queue bound requires its separate source/tests evidence.",
+    "No credentials, cookies, response bodies, cursors, screenshots or original HAR are persisted."
+  ],
+  "warmupStartedAt": "2026-10-18T19:40:36.447Z",
+  "clockBefore": {
+    "observedAt": "2026-10-18T19:42:36.502Z",
+    "samples": [
+      {
+        "roundTripMs": 20,
+        "offsetLowerMs": -23,
+        "offsetUpperMs": -3
+      },
+      {
+        "roundTripMs": 11,
+        "offsetLowerMs": -20,
+        "offsetUpperMs": -9
+      },
+      {
+        "roundTripMs": 8,
+        "offsetLowerMs": -17,
+        "offsetUpperMs": -9
+      }
+    ]
+  },
+  "startedAt": "2026-10-18T19:42:36.502Z",
+  "plannedFinishedAt": "2026-10-18T20:12:36.506Z",
+  "finishedAt": "2026-10-18T20:12:36.509Z",
+  "wallMs": 1800003,
+  "fixedWindowOverrunMs": 3,
+  "actualReopensInsideWindow": 118,
+  "minimumDurationMet": true,
+  "minimumActualReopensMet": true,
+  "reconnectWorkloadThresholdMet": true,
+  "clockAfter": {
+    "observedAt": "2026-10-18T20:12:36.538Z",
+    "samples": [
+      {
+        "roundTripMs": 12,
+        "offsetLowerMs": -20,
+        "offsetUpperMs": -8
+      },
+      {
+        "roundTripMs": 7,
+        "offsetLowerMs": -19,
+        "offsetUpperMs": -12
+      },
+      {
+        "roundTripMs": 6,
+        "offsetLowerMs": -19,
+        "offsetUpperMs": -13
+      }
+    ]
+  },
+  "drainStartedAt": "2026-10-18T20:12:36.538Z",
+  "clients": [
+    {
+      "client": 1,
+      "confirmedConnections": 25,
+      "sseRequests": 25,
+      "dataGets": 162,
+      "changeGets": 137,
+      "pageErrors": 0,
+      "lastBrowserTrackedStreamCountAtContextClose": 1
+    },
+    {
+      "client": 2,
+      "confirmedConnections": 25,
+      "sseRequests": 25,
+      "dataGets": 162,
+      "changeGets": 138,
+      "pageErrors": 0,
+      "lastBrowserTrackedStreamCountAtContextClose": 1
+    },
+    {
+      "client": 3,
+      "confirmedConnections": 25,
+      "sseRequests": 25,
+      "dataGets": 162,
+      "changeGets": 137,
+      "pageErrors": 0,
+      "lastBrowserTrackedStreamCountAtContextClose": 1
+    },
+    {
+      "client": 4,
+      "confirmedConnections": 24,
+      "sseRequests": 24,
+      "dataGets": 159,
+      "changeGets": 131,
+      "pageErrors": 0,
+      "lastBrowserTrackedStreamCountAtContextClose": 1
+    },
+    {
+      "client": 5,
+      "confirmedConnections": 24,
+      "sseRequests": 24,
+      "dataGets": 159,
+      "changeGets": 132,
+      "pageErrors": 0,
+      "lastBrowserTrackedStreamCountAtContextClose": 1
+    }
+  ],
+  "drainFinishedAt": "2026-10-18T20:12:37.145Z"
+}

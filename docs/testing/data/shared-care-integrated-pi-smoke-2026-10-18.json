@@ -1,0 +1,471 @@
+{
+  "schema": 1,
+  "kind": "integrated-flutter-acceptance",
+  "createdAt": "2026-10-18T14:54:41.566Z",
+  "browser": "155.0.8059.84",
+  "mode": "sse",
+  "channel": "chrome",
+  "trials": [
+    {
+      "clients": 1,
+      "repetition": 1,
+      "views": [
+        {
+          "view": "overview",
+          "workload": "idle",
+          "startedAt": "2026-10-18T14:54:50.659Z",
+          "writes": [],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T14:54:50.659Z",
+              "routes": {},
+              "bytes": {
+                "cdpEncodedChunk": 72,
+                "decodedBody": 54
+              },
+              "sseEvents": {
+                "keepalive": 2
+              },
+              "failures": [],
+              "frames": null,
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 1,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 4,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 1,
+              "GET /api/v1/animals": 1,
+              "GET /api/v1/reminders": 1,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 1
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T14:55:20.665Z",
+          "wallMs": 30005,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 1,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 4,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 1,
+              "GET /api/v1/animals": 1,
+              "GET /api/v1/reminders": 1,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 2
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          },
+          "semanticsMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          }
+        },
+        {
+          "view": "overview",
+          "workload": "writes",
+          "startedAt": "2026-10-18T14:55:20.688Z",
+          "writes": [
+            {
+              "startedAt": "2026-10-18T14:55:20.775Z",
+              "status": 200,
+              "observations": [
+                {
+                  "client": 1,
+                  "semanticsMs": 215,
+                  "screenshotUpperBoundMs": 291,
+                  "dataRegionPixelsChanged": true
+                }
+              ]
+            }
+          ],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T14:55:20.688Z",
+              "routes": {
+                "/api/v1/changes": {
+                  "requests": 2,
+                  "getRequests": 2,
+                  "statuses": {
+                    "200": 1,
+                    "304": 1
+                  }
+                },
+                "/api/v1/boxes": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/reminders": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                }
+              },
+              "bytes": {
+                "cdpEncodedChunk": 114026,
+                "decodedBody": 113873
+              },
+              "sseEvents": {
+                "changes": 1,
+                "keepalive": 2
+              },
+              "failures": [],
+              "frames": null,
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 1,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 4,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 1,
+              "GET /api/v1/animals": 1,
+              "GET /api/v1/reminders": 1,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 3
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T14:55:50.703Z",
+          "wallMs": 30015,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 2,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 6,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 2,
+              "GET /api/v1/animals": 2,
+              "GET /api/v1/reminders": 2,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 4,
+              "PUT /api/v1/animals/:id": 1
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 1,
+            "p50": 291,
+            "p95": 291
+          },
+          "semanticsMs": {
+            "n": 1,
+            "p50": 215,
+            "p95": 215
+          }
+        },
+        {
+          "view": "detail",
+          "workload": "idle",
+          "startedAt": "2026-10-18T14:55:56.024Z",
+          "writes": [],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T14:55:56.024Z",
+              "routes": {},
+              "bytes": {
+                "cdpEncodedChunk": 72,
+                "decodedBody": 54
+              },
+              "sseEvents": {
+                "keepalive": 2
+              },
+              "failures": [],
+              "frames": null,
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 3,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 6,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 2,
+              "GET /api/v1/animals": 2,
+              "GET /api/v1/reminders": 2,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 5,
+              "PUT /api/v1/animals/:id": 1,
+              "GET /api/v1/animals/:id/feedings": 1,
+              "GET /api/v1/animals/:id/weights": 1,
+              "GET /api/v1/animals/:id/shedding": 1,
+              "GET /api/v1/animals/:id/pictures": 1
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T14:56:26.026Z",
+          "wallMs": 30002,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 3,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 6,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 2,
+              "GET /api/v1/animals": 2,
+              "GET /api/v1/reminders": 2,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 6,
+              "PUT /api/v1/animals/:id": 1,
+              "GET /api/v1/animals/:id/feedings": 1,
+              "GET /api/v1/animals/:id/weights": 1,
+              "GET /api/v1/animals/:id/shedding": 1,
+              "GET /api/v1/animals/:id/pictures": 1
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          },
+          "semanticsMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          }
+        },
+        {
+          "view": "detail",
+          "workload": "writes",
+          "startedAt": "2026-10-18T14:56:26.049Z",
+          "writes": [
+            {
+              "startedAt": "2026-10-18T14:56:26.109Z",
+              "status": 200,
+              "observations": [
+                {
+                  "client": 1,
+                  "semanticsMs": 202,
+                  "screenshotUpperBoundMs": 267,
+                  "dataRegionPixelsChanged": true
+                }
+              ]
+            }
+          ],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T14:56:26.049Z",
+              "routes": {
+                "/api/v1/changes": {
+                  "requests": 2,
+                  "getRequests": 2,
+                  "statuses": {
+                    "200": 1,
+                    "304": 1
+                  }
+                },
+                "/api/v1/animals/:id": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals/:id/weights": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals/:id/shedding": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/boxes": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                }
+              },
+              "bytes": {
+                "cdpEncodedChunk": 105473,
+                "decodedBody": 105284
+              },
+              "sseEvents": {
+                "changes": 1,
+                "keepalive": 2
+              },
+              "failures": [
+                {
+                  "route": "/api/v1/boxes",
+                  "status": 200,
+                  "terminal": "net::ERR_ABORTED",
+                  "bodyOutcome": "unavailable",
+                  "applicationOutcome": "not-established-by-terminal-event"
+                },
+                {
+                  "route": "/api/v1/animals",
+                  "status": 200,
+                  "terminal": "net::ERR_ABORTED",
+                  "bodyOutcome": "unavailable",
+                  "applicationOutcome": "not-established-by-terminal-event"
+                }
+              ],
+              "frames": null,
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 3,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 6,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 2,
+              "GET /api/v1/animals": 2,
+              "GET /api/v1/reminders": 2,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 7,
+              "PUT /api/v1/animals/:id": 1,
+              "GET /api/v1/animals/:id/feedings": 1,
+              "GET /api/v1/animals/:id/weights": 1,
+              "GET /api/v1/animals/:id/shedding": 1,
+              "GET /api/v1/animals/:id/pictures": 1
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T14:56:56.059Z",
+          "wallMs": 30010,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 2,
+              "POST /api/v1/auth/login": 2,
+              "GET /api/v1/animals/:id": 5,
+              "GET /api/v1/auth/session": 1,
+              "GET /api/v1/changes": 8,
+              "GET /api/v1/auth/preferences": 1,
+              "GET /api/v1/boxes": 3,
+              "GET /api/v1/animals": 3,
+              "GET /api/v1/reminders": 2,
+              "GET /api/v1/changes/events": 1,
+              "GET /evaluation/metrics": 8,
+              "PUT /api/v1/animals/:id": 2,
+              "GET /api/v1/animals/:id/feedings": 1,
+              "GET /api/v1/animals/:id/weights": 2,
+              "GET /api/v1/animals/:id/shedding": 2,
+              "GET /api/v1/animals/:id/pictures": 1
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 1,
+            "p50": 267,
+            "p95": 267
+          },
+          "semanticsMs": {
+            "n": 1,
+            "p50": 202,
+            "p95": 202
+          }
+        }
+      ],
+      "status": "complete",
+      "logicalContexts": 1,
+      "streamsAfterClose": 0
+    }
+  ],
+  "limits": [
+    "Logical contexts/tabs on one desktop controller are not separate physical devices or mobile browsers.",
+    "Each trial is one repetition; client observations within it are correlated.",
+    "CDP body bytes include live SSE upkeep and resync/fallback, but exclude headers/TLS/TCP overhead.",
+    "Use decodedBody for body comparisons; cdpEncodedChunk can be zero for an unfinished live stream despite delivered data and is not complete wire bandwidth.",
+    "Screenshot completion is a conservative capture upper bound after matching semantics and two animation callbacks; semantics alone is not paint.",
+    "No screenshots, response bodies, credentials, cookies, cursor or original HAR are persisted.",
+    "Only the optional probe build reports Flutter drawFrame CPU, not widget build counts or physical presentation.",
+    "Historical baseline used Feeding writes; these matched repeated trials use Animal-name writes in both views.",
+    "A terminal request failure is not automatically an application failure or success; unavailable body evidence stays unresolved.",
+    "Pi resource data, physical lifecycle checks and a 30-minute/100-reconnect soak are separate acceptance gates."
+  ],
+  "status": "complete",
+  "completedAt": "2026-10-18T14:56:56.121Z"
+}

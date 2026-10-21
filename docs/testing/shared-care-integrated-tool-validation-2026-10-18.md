@@ -67,7 +67,11 @@ required display flags. The helper now preserves the full editable profile and
 revision; a regression test and the two successful real-UI captures validate that
 correction. An incomplete capture is never presented as an acceptance pass.
 
-Frame CPU covers synchronous Flutter build/layout/paint. It does not count
+The historical frame fields labelled `CPU` are Stopwatch elapsed durations of
+synchronous Flutter build/layout/paint, including scheduling/preemption. They
+are not operating-system thread CPU counters. New probe output uses
+`frameElapsedMicroseconds`; the original capture labels remain preserved.
+The measurement does not count
 individual widget builds, GPU raster, browser paint or physical screen
 presentation. Screenshot completion is an upper bound after expected semantics
 and two animation callbacks. The resource budgets, wider client/device matrix,

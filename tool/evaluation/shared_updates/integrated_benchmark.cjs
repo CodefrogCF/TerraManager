@@ -3,6 +3,9 @@
 // Real Flutter acceptance capture. No production dependency; requires Playwright.
 const fs = require('node:fs');
 const crypto = require('node:crypto');
+const {installReadObserver, correlateReadFailure} = require('./observe_api_reads.cjs');
+const {installSemanticsObserver} = require('./observe_semantics.cjs');
+const {artifact, installProbeAssets} = require('./local_probe_assets.cjs');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const routeOf = url => new URL(url).pathname.replace(/\/\d+(?=\/|$)/g, '/:id');
 function percentile(values, p) {
@@ -21,7 +24,7 @@ function renamePayload(record, name) {
     commonName: name, expectedRevision: record.revision};
 }
 function parseArgs(argv) {
-  const args = {clients: '1', repetitions: '1', seconds: '120', writes: '3', channel: 'chrome', mode: 'sse', contexts: null};
+  const args = {clients: '1', repetitions: '1', seconds: '120', writes: '3', channel: 'chrome', mode: 'sse', contexts: null, diagnostics: 'off', executable: null, 'probe-root': null, 'latency-observer': 'locator'};
   const allowed = new Set(['credentials', 'output', ...Object.keys(args)]);
   for (let i = 0; i < argv.length; i += 2) {
     const key = argv[i]?.replace(/^--/, '');
@@ -31,7 +34,8 @@ function parseArgs(argv) {
   for (const key of ['repetitions', 'seconds', 'writes']) args[key] = Number(args[key]);
   args.clients = args.clients.split(',').map(Number);
   if (!args.credentials || !args.output || !['sse', 'polling'].includes(args.mode) ||
-      !['chrome', 'msedge'].includes(args.channel) ||
+      !['chrome', 'msedge'].includes(args.channel) || !['off', 'reads'].includes(args.diagnostics) ||
+      !['locator', 'native'].includes(args['latency-observer']) ||
       !args.clients.length || args.clients.some(n => !Number.isInteger(n) || n < 1 || n > 10) ||
       !Number.isInteger(args.repetitions) || args.repetitions < 1 || args.repetitions > 10 ||
       !Number.isInteger(args.seconds) || args.seconds < 10 || args.seconds > 600 ||
@@ -60,14 +64,15 @@ function phaseNow() { return {startedAt: new Date().toISOString(), routes: {}, b
 async function attachCapture(page) {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Network.enable');
-  const requests = new Map(), jobs = new Set();
+  const requests = new Map(), jobs = new Set(), ordinals = new Map();
   const subject = {page, phase: null, cdp, pageErrors: 0, openEvents: 0};
   page.on('pageerror', () => subject.pageErrors++);
   cdp.on('Network.requestWillBeSent', e => {
     const route = routeOf(e.request.url);
     if (!route.startsWith('/api/v1/')) return;
     if (requests.size > 4096) throw Error('Capture request bound exceeded');
-    requests.set(e.requestId, {route, method: e.request.method, status: null});
+    const ordinal = (ordinals.get(route) || 0) + 1; ordinals.set(route, ordinal);
+    requests.set(e.requestId, {route, ordinal, method: e.request.method, status: null});
     if (subject.phase) {
       const item = subject.phase.routes[route] ||= {requests: 0, getRequests: 0, statuses: {}};
       item.requests++;
@@ -101,7 +106,7 @@ async function attachCapture(page) {
     const request = requests.get(e.requestId), phase = subject.phase;
     requests.delete(e.requestId);
     if (!request || !phase) return;
-    const failure = {route: request.route, status: request.status,
+    const failure = {route: request.route, ordinal: request.ordinal, status: request.status,
       terminal: /^net::ERR_[A-Z_]+$/.test(e.errorText) ? e.errorText : 'other',
       bodyOutcome: 'unavailable', applicationOutcome: 'not-established-by-terminal-event'};
     phase.failures.push(failure);
@@ -162,6 +167,7 @@ async function observeWrite(subjects, control, origin, view, previousName, nextN
   if (current.status() !== 200) throw Error('Cannot read synthetic Animal');
   const record = (await current.json()).animal;
   const data = renamePayload(record, nextName);
+  await Promise.all(subjects.map(s => s.page.evaluate(name => window.__tm230ArmName?.(name), nextName)));
   const start = Date.now();
   const observations = subjects.map(async (s, i) => {
     await waitName(s.page, view, nextName);
@@ -169,7 +175,10 @@ async function observeWrite(subjects, control, origin, view, previousName, nextN
     await s.page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const bytes = await s.page.screenshot({clip: before[i].clip, animations: 'disabled'});
     const screenshotUpperBoundMs = Date.now() - start;
+    const native = await s.page.evaluate(() => window.__tm230NameSnapshot?.() || null);
     return {client: i + 1, semanticsMs, screenshotUpperBoundMs,
+      nativeSemanticsMs: native?.found ? native.observedAt - start : null,
+      nativeTwoAnimationCallbacksMs: native?.twoAnimationCallbacksAt ? native.twoAnimationCallbacksAt - start : null,
       dataRegionPixelsChanged: await pixelDigest(s.page, bytes) !== before[i].digest};
   });
   // Attach handlers immediately so a failed command cannot leave rejected observers unhandled.
@@ -184,6 +193,21 @@ async function observeWrite(subjects, control, origin, view, previousName, nextN
   if (values.some(v => v.status !== 'fulfilled')) throw Error('A Flutter view did not reflect the command');
   return {startedAt: new Date(start).toISOString(), status: response.status(),
     observations: values.map(v => v.value)};
+}
+
+
+async function clockProbe(context, origin) {
+  const samples = [];
+  for (let i = 0; i < 3; i++) {
+    const started = Date.now();
+    const response = await context.request.get(origin + '/evaluation/state');
+    const body = await response.json(), finished = Date.now(), server = Date.parse(body.timeUtc);
+    if (response.status() !== 200 || !Number.isFinite(server)) throw Error('Clock probe failed');
+    samples.push({roundTripMs: finished - started, offsetLowerMs: server - finished, offsetUpperMs: server - started});
+  }
+  return {observedAt: new Date().toISOString(), samples,
+    offsetLowerMs: Math.max(...samples.map(s => s.offsetLowerMs)),
+    offsetUpperMs: Math.min(...samples.map(s => s.offsetUpperMs))};
 }
 
 async function runTrial(browser, credentials, options, clients, repetition, save, report) {
@@ -201,6 +225,7 @@ async function runTrial(browser, credentials, options, clients, repetition, save
     const state = await controller.request.get(origin + '/evaluation/state');
     if (state.status() !== 200) throw Error('Disposable identity missing');
     assertFixture(credentials, await state.json());
+    trial.clockBefore = await clockProbe(controller, origin);
     const animal = await controller.request.get(origin + '/api/v1/animals/1');
     if (animal.status() !== 200) throw Error('Fixture Animal missing');
     name = (await animal.json()).animal.commonName;
@@ -208,6 +233,9 @@ async function runTrial(browser, credentials, options, clients, repetition, save
     for (let group = 0; group < groups; group++) {
       const context = await browser.newContext({viewport: {width: 1100, height: 900}, locale: 'de-DE'});
       contexts.push(context); clientContexts.push(context);
+      if (options['probe-root']) await installProbeAssets(context, origin, options['probe-root']);
+      if (options.diagnostics === 'reads') await context.addInitScript(installReadObserver);
+      if (options['latency-observer'] === 'native') await context.addInitScript(installSemanticsObserver);
       const account = credentials.clients[group % credentials.clients.length];
       const response = await context.request.post(origin + '/api/v1/auth/login', {data: account, headers: {Origin: origin}});
       if (response.status() !== 200) throw Error('Client login failed');
@@ -221,6 +249,7 @@ async function runTrial(browser, credentials, options, clients, repetition, save
       await enableSemantics(page);
       await page.getByRole('tab', {name: /Tiere|Animals/}).click();
       await waitName(page, 'overview', name);
+      if (options['probe-root'] && !(await probe(page, false))) throw Error('Local artifact has no Flutter frame probe');
     }
     for (const view of ['overview', 'detail']) {
       if (view === 'detail') for (const s of subjects) {
@@ -229,6 +258,10 @@ async function runTrial(browser, credentials, options, clients, repetition, save
       }
       // Let initial authoritative reads, route animations and SSE setup settle.
       await pause(5000);
+      if (options['latency-observer'] === 'native') for (const s of subjects) {
+        const recognized = await s.page.evaluate(name => {window.__tm230ArmName(name); return window.__tm230NameSnapshot()?.found;}, name);
+        if (!recognized) throw Error('Native semantics observer does not recognize ' + view);
+      }
       if (options.mode === 'sse') for (const s of subjects) {
         if (s.openEvents < 1) throw Error('Production Flutter SSE did not open');
       }
@@ -257,7 +290,12 @@ async function runTrial(browser, credentials, options, clients, repetition, save
         window.finishedAt = new Date().toISOString(); window.wallMs = Date.now() - start;
         for (const [i, s] of subjects.entries()) {
           await s.drain();
-          window.clients.push({client: i + 1, ...s.phase, frames: await probe(s.page, false), pageErrors: s.pageErrors,
+          const readDiagnostics = await s.page.evaluate(() => typeof window.__tm230ReadSnapshot === 'function' ? window.__tm230ReadSnapshot() : null);
+          if (readDiagnostics) {
+            s.phase.failures = s.phase.failures.map(failure => correlateReadFailure(failure, readDiagnostics.records));
+            readDiagnostics.records = readDiagnostics.records.filter(row => row.startedAt >= Date.parse(s.phase.startedAt));
+          }
+          window.clients.push({client: i + 1, ...s.phase, readDiagnostics, frames: await probe(s.page, false), pageErrors: s.pageErrors,
             visibility: await s.page.evaluate(() => document.visibilityState),
             liveStreamByteCoverage: Object.keys(s.phase.sseEvents).length === 0 || s.phase.bytes.decodedBody > 0});
           s.phase = null;
@@ -268,6 +306,8 @@ async function runTrial(browser, credentials, options, clients, repetition, save
         window.screenshotUpperBoundMs = summarize(times);
         window.semanticsMs = summarize(window.writes.flatMap(w => w.observations.map(o => o.semanticsMs)));
         save(); console.log('DONE ' + view + '/' + workload);
+        // Keep one complete five-second resource probe clear of the next workload.
+        await pause(6000);
       }
     }
     trial.status = 'complete';
@@ -284,6 +324,7 @@ async function runTrial(browser, credentials, options, clients, repetition, save
         await pause(100);
       } while (Date.now() < deadline);
     }
+    if (control) trial.clockAfter = await clockProbe(control.context, origin);
     if (contexts[0]) await contexts[0].close();
     save();
   }
@@ -294,15 +335,24 @@ async function main() {
   const credentials = JSON.parse(fs.readFileSync(options.credentials, 'utf8'));
   if (fs.existsSync(options.output)) throw Error('Output already exists');
   const origin = assertCredentials(credentials);
+  const webArtifact = options['probe-root'] ? artifact(options['probe-root']) : {kind: 'gateway-production-release'};
   const args = [];
   if (process.env.TM230_LOOPBACK_SPKI) {
     if (origin.hostname !== '127.0.0.1') throw Error('Test certificate pin restricted to loopback');
     args.push('--ignore-certificate-errors-spki-list=' + process.env.TM230_LOOPBACK_SPKI);
   }
   const {chromium} = require('playwright');
-  const browser = await chromium.launch({channel: options.channel, headless: true, args});
+  const browser = await chromium.launch({channel: options.channel, executablePath: options.executable || undefined, headless: true, args});
   const report = {schema: 1, kind: 'integrated-flutter-acceptance', createdAt: new Date().toISOString(),
-    browser: browser.version(), mode: options.mode, channel: options.channel, trials: [],
+    browser: browser.version(), mode: options.mode, channel: options.channel, diagnostics: options.diagnostics,
+    plan: {clients: options.clients, repetitions: options.repetitions, idleSeconds: options.seconds, writesPerView: options.writes, writeSlotSeconds: 30, boundaryQuietSeconds: 6, latencyObserver: options['latency-observer']},
+    browserExecutableSha256: options.executable ? crypto.createHash('sha256').update(fs.readFileSync(options.executable)).digest('hex') : null,
+    webArtifact,
+    controller: {node: process.version, platform: process.platform, architecture: process.arch},
+    toolSha256: {runner: crypto.createHash('sha256').update(fs.readFileSync(__filename)).digest('hex'),
+      readObserver: crypto.createHash('sha256').update(fs.readFileSync(require.resolve('./observe_api_reads.cjs'))).digest('hex'),
+      semanticsObserver: crypto.createHash('sha256').update(fs.readFileSync(require.resolve('./observe_semantics.cjs'))).digest('hex'),
+      probeAssets: crypto.createHash('sha256').update(fs.readFileSync(require.resolve('./local_probe_assets.cjs'))).digest('hex')}, trials: [],
     limits: [
       'Logical contexts/tabs on one desktop controller are not separate physical devices or mobile browsers.',
       'Each trial is one repetition; client observations within it are correlated.',
@@ -310,9 +360,11 @@ async function main() {
       'Use decodedBody for body comparisons; cdpEncodedChunk can be zero for an unfinished live stream despite delivered data and is not complete wire bandwidth.',
       'Screenshot completion is a conservative capture upper bound after matching semantics and two animation callbacks; semantics alone is not paint.',
       'No screenshots, response bodies, credentials, cookies, cursor or original HAR are persisted.',
-      'Only the optional probe build reports Flutter drawFrame CPU, not widget build counts or physical presentation.',
+      'Only the optional probe build reports synchronous Flutter drawFrame elapsed wall time, not OS CPU, widget build counts or physical presentation.',
+      'Optional native semantics timing observes the in-document mutation and two animation callbacks; neither establishes paint. It adds diagnostic work and must match between compared runs.',
       'Historical baseline used Feeding writes; these matched repeated trials use Animal-name writes in both views.',
       'A terminal request failure is not automatically an application failure or success; unavailable body evidence stays unresolved.',
+      'Optional reads diagnostics add promise continuations and bounded transient decoding; original streams/cache policy stay intact. Record this mode in comparisons and calibrate observer overhead.',
       'Pi resource data, physical lifecycle checks and a 30-minute/100-reconnect soak are separate acceptance gates.',
     ]};
   const save = () => fs.writeFileSync(options.output, JSON.stringify(report, null, 2) + '\n', {mode: 0o600});

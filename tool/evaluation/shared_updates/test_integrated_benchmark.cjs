@@ -6,8 +6,10 @@ test('argument bounds reject overloaded accounts and incomplete captures', () =>
   const base = ['--credentials', 'private.json', '--output', 'result.json'];
   assert.deepEqual(parseArgs([...base, '--clients', '1,3,5,10', '--repetitions', '3']).clients, [1,3,5,10]);
   assert.equal(parseArgs([...base, '--clients', '10', '--contexts', '3']).contexts, 3);
+  assert.equal(parseArgs([...base, '--diagnostics', 'reads']).diagnostics, 'reads');
+  assert.equal(parseArgs([...base, '--latency-observer', 'native'])['latency-observer'], 'native');
   for (const extra of [['--clients', '11'], ['--clients', '10', '--contexts', '1'], ['--repetitions', '0'],
-    ['--seconds', 'NaN'], ['--writes', '21'], ['--mode', 'unknown'], ['--channel', 'safari'], ['--unknown', 'a'], ['--seconds']]) {
+    ['--latency-observer', 'unknown'], ['--diagnostics', 'unknown'], ['--seconds', 'NaN'], ['--writes', '21'], ['--mode', 'unknown'], ['--channel', 'safari'], ['--unknown', 'a'], ['--seconds']]) {
     assert.throws(() => parseArgs([...base, ...extra]));
   }
 });

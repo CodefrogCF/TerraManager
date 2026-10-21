@@ -1,0 +1,350 @@
+{
+  "schema": 1,
+  "kind": "operator-reported-physical-browser-checks",
+  "testOrigin": "https://192.168.1.117:8443",
+  "reports": [
+    {
+      "recordedAtUtc": "2026-10-19T09:47:26Z",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "case": "foreground-name-update-without-page-reload",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "alles funktioniert, der name ändert sich ohne neuladen auf den restlichen clients",
+      "requestedSetup": [
+        {
+          "device": "Samsung Galaxy S25 Ultra",
+          "browser": "Brave"
+        },
+        {
+          "device": "Samsung Galaxy S22",
+          "browser": "Firefox"
+        },
+        {
+          "device": "Windows",
+          "browser": "Chrome",
+          "role": "test administrator / writer"
+        },
+        {
+          "device": "Windows",
+          "browser": "Firefox"
+        },
+        {
+          "device": "Windows",
+          "browser": "Edge"
+        }
+      ],
+      "requestedMarkers": [
+        "TM230-G1",
+        "TM230-G2"
+      ],
+      "automaticUpdateOnOtherClients": true,
+      "manualReloadRequired": false,
+      "httpsTrustConfirmation": "not separately stated in this reply",
+      "latencyMeasurement": null,
+      "limits": [
+        "This is the operator's report, not an independently recorded screen capture.",
+        "The device/browser arrangement comes from the requested procedure; versions, per-client view allocation and individual markers were not restated.",
+        "No numerical latency, background, outage, draft/conflict, session-expiry or restore outcome is inferred."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T09:52:24Z",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "case": "background-foreground",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "das funktioniert. nach dem simulierten verbindungsabbruch dauerte es etwa 10 sekunden ohne neuladen, bis das update sichtbart war",
+      "requestedSetup": [
+        {
+          "device": "Samsung Galaxy S25 Ultra",
+          "browser": "Brave"
+        },
+        {
+          "device": "Samsung Galaxy S22",
+          "browser": "Firefox"
+        }
+      ],
+      "requestedMarkers": [
+        "TM230-H1",
+        "TM230-H2"
+      ],
+      "requestedBackgroundSeconds": 60,
+      "result": "Operator confirms the requested background/resume check works.",
+      "latencyMeasurement": null,
+      "browserDiscardOrAutomaticReload": "not separately described",
+      "limits": [
+        "The response confirms the requested setup collectively, without a separate per-device breakdown.",
+        "No retained-page versus OS-discard behavior or transport-level recovery state is inferred."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T09:52:24Z",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "case": "network-outage-recovery",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "das funktioniert. nach dem simulierten verbindungsabbruch dauerte es etwa 10 sekunden ohne neuladen, bis das update sichtbart war",
+      "requestedSetup": [
+        {
+          "device": "Samsung Galaxy S25 Ultra",
+          "browser": "Brave"
+        },
+        {
+          "device": "Samsung Galaxy S22",
+          "browser": "Firefox"
+        }
+      ],
+      "requestedMarkers": [
+        "TM230-N1",
+        "TM230-N2"
+      ],
+      "requestedOutageSeconds": 60,
+      "reportedRecoveryApproxSeconds": 10,
+      "timingKind": "operator estimate, not a per-device measurement or percentile",
+      "manualReloadRequired": false,
+      "connectionIndicator": "not described",
+      "transportAfterRecovery": "not observed; SSE versus conditional fallback not distinguished",
+      "limits": [
+        "The approximate ten-second observation is not assigned separately to both devices.",
+        "Recovery after an outage is separate from the primary two-second already-connected update target.",
+        "This does not test disconnected writes, preserved drafts, natural expiry, revocation or restore."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T09:58:24Z",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "das funktioniert alles wie erwartet. zwei tabs aktualisieren ohne neuladen, auf veraltete daten wird hingewiesen und auf eine fehlende verbindung überschreibt auch nichts.",
+      "case": "multiple-tabs",
+      "requestedSetup": {
+        "observer": "Windows Firefox, two tabs in the same private window",
+        "writer": "Windows Chrome"
+      },
+      "requestedMarker": "TM230-TABS",
+      "bothTabsUpdateWithoutReload": true,
+      "latencyMeasurement": null,
+      "limits": [
+        "List/detail allocation follows the requested procedure; no numerical latency is inferred."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T09:58:24Z",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "das funktioniert alles wie erwartet. zwei tabs aktualisieren ohne neuladen, auf veraltete daten wird hingewiesen und auf eine fehlende verbindung überschreibt auch nichts.",
+      "case": "retained-draft-and-conflict",
+      "requestedSetup": {
+        "editor": "Windows Firefox",
+        "concurrentWriter": "Windows Chrome"
+      },
+      "requestedMarkers": [
+        "TM230-ENTWURF",
+        "TM230-KONFLIKT"
+      ],
+      "reportedConflictFeedback": "Warning about outdated data",
+      "draftOutcome": "Collectively confirmed as expected; draft contents and exact message were not separately restated.",
+      "unexpectedOverwriteReported": false,
+      "limits": [
+        "The exact conflict message and individual button sequence were not supplied."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T09:58:24Z",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "das funktioniert alles wie erwartet. zwei tabs aktualisieren ohne neuladen, auf veraltete daten wird hingewiesen und auf eine fehlende verbindung überschreibt auch nichts.",
+      "case": "disconnected-write-feedback",
+      "requestedSetup": {
+        "editor": "Samsung Galaxy S25 Ultra / Brave"
+      },
+      "requestedMarker": "TM230-OFFLINE",
+      "reportedOutcome": "Missing connection is handled without overwriting data; all requested behavior reported as expected.",
+      "unexpectedOverwriteReported": false,
+      "draftOutcome": "Collectively confirmed as expected; not separately described.",
+      "limits": [
+        "No HTTP trace, exact error text or separate server-value capture was supplied.",
+        "This is operator-reported functional acceptance, not independent proof of the underlying transport path."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T10:03:20Z",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "case": "account-revocation",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "konto deaktivieren und wieder aktivieren funktioniert ebenfalls wie erwartet. ich hatte nur mit dem firefox browser des s22 eine zertifikatswarnung, seite unsicher, trotzdem besuchen",
+      "requestedSetup": "Administrator Chrome disables/reactivates the caregiver used by an open mobile test client.",
+      "reportedOutcome": "Deactivation and reactivation work as expected under the requested procedure.",
+      "limits": [
+        "The exact affected caregiver/device, error wording and separate login attempts were not restated.",
+        "Forced account revocation does not establish natural twelve-hour session expiry."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T10:03:20Z",
+      "case": "trusted-https-matrix",
+      "status": "partial-four-warning-free-one-warning-bypassed",
+      "operatorStatement": "konto deaktivieren und wieder aktivieren funktioniert ebenfalls wie erwartet. ich hatte nur mit dem firefox browser des s22 eine zertifikatswarnung, seite unsicher, trotzdem besuchen",
+      "requestedSetupResults": [
+        {
+          "device": "Samsung Galaxy S25 Ultra",
+          "browser": "Brave",
+          "certificateWarningReported": false
+        },
+        {
+          "device": "Samsung Galaxy S22",
+          "browser": "Firefox",
+          "certificateWarningReported": true,
+          "warningBypassed": true,
+          "trustedHttpsGatePassed": false
+        },
+        {
+          "device": "Windows",
+          "browser": "Chrome",
+          "certificateWarningReported": false
+        },
+        {
+          "device": "Windows",
+          "browser": "Firefox",
+          "certificateWarningReported": false
+        },
+        {
+          "device": "Windows",
+          "browser": "Edge",
+          "certificateWarningReported": false
+        }
+      ],
+      "limits": [
+        "Other four warning-free outcomes follow the explicit statement that only S22 Firefox warned.",
+        "Earlier S22 functional observations remain functional evidence under an exception, not trusted-HTTPS acceptance."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T10:07:36.655304+00:00",
+      "case": "s22-firefox-trust-diagnosis",
+      "status": "local-ca-absent-installation-choice-pending",
+      "operatorStatement": "das zertifikat ist auf diesem gerät noch nicht hinterlegt.",
+      "device": "Samsung Galaxy S22",
+      "browser": "Firefox",
+      "terramanagerCaInstalled": false,
+      "firefoxErrorCode": null,
+      "permissionState": "User choice requested before adding Android trust; earlier permission applied to Windows.",
+      "limits": [
+        "No Android trust or Firefox setting has been changed by the agent.",
+        "Installing the CA and any further Firefox setting must be verified before the S22 trusted-HTTPS gate can pass."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T10:14:19.096618+00:00",
+      "case": "s22-firefox-trusted-https-exclusion",
+      "status": "excluded-by-operator-for-now",
+      "operatorStatement": "S22 vorerst aus der Prüfung mit vertrauenswürdigem HTTPS ausnehmen",
+      "device": "Samsung Galaxy S22",
+      "browser": "Firefox",
+      "trustedHttpsGatePassed": false,
+      "trustChangesPerformed": false,
+      "result": "No Android CA installation or Firefox trust-setting change. Continue restore checks with S25/Brave and the three Windows browsers.",
+      "limits": [
+        "Earlier S22 functional results remain qualified by the accepted certificate warning; this exclusion is not a trusted-HTTPS pass."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T10:14:19.096618+00:00",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "case": "failed-restore",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "alles funktioniert wie erwartet",
+      "requestedSetup": {
+        "administrator": "Windows Chrome, settings left open between exports and restores",
+        "writer": "Windows Firefox",
+        "observers": [
+          "Samsung Galaxy S25 Ultra / Brave",
+          "Windows Firefox",
+          "Windows Edge"
+        ],
+        "backupFiles": "Distinct unencrypted disposable fixture A and B backups; no production backup",
+        "excludedClient": "Samsung Galaxy S22 / Firefox"
+      },
+      "reportedOutcome": "Restore using the valid older A backup and a stale safety grant is rejected; stored name B and the open mobile draft remain.",
+      "requestedStoredName": "TM230-RESTORE-B",
+      "requestedDraft": "TM230-RESTORE-ENTWURF",
+      "exactRejectionMessage": null,
+      "manualReloadRequired": null,
+      "reauthenticationRequired": null,
+      "limits": [
+        "The operator confirmed both requested procedures collectively; individual values, exact messages and reload/login outcomes were not separately restated.",
+        "No independent screen/network trace or collection-epoch measurement is inferred."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-19T10:14:19.096618+00:00",
+      "executionTime": "not supplied; recorded time is not the measured execution time",
+      "case": "successful-restore",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "alles funktioniert wie erwartet",
+      "requestedSetup": {
+        "administrator": "Windows Chrome, settings left open between exports and restores",
+        "writer": "Windows Firefox",
+        "observers": [
+          "Samsung Galaxy S25 Ultra / Brave",
+          "Windows Firefox",
+          "Windows Edge"
+        ],
+        "backupFiles": "Distinct unencrypted disposable fixture A and B backups; no production backup",
+        "excludedClient": "Samsung Galaxy S22 / Firefox"
+      },
+      "reportedOutcome": "After exporting a fresh B safety backup, restoring the earlier valid A backup succeeds and observing clients reconcile to A.",
+      "requestedRestoredName": "TM230-RESTORE-A",
+      "exactRejectionMessage": null,
+      "manualReloadRequired": null,
+      "reauthenticationRequired": null,
+      "limits": [
+        "The operator confirmed both requested procedures collectively; individual values, exact messages and reload/login outcomes were not separately restated.",
+        "No independent screen/network trace or collection-epoch measurement is inferred."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-21T07:51:09.524222+00:00",
+      "case": "natural-session-expiry",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "oh, ich glaube, wir brauchen den test nicht nochmal neu starten, die sitzung wurde nach 12 stunden automatisiert getrennt, trotz der bearbeitung 10 minuten zuvor. die seite zeigt nun ohne manuelles neuladen den anmeldebildschirm",
+      "requestedClient": "Windows Firefox test profile / caregiver at port 8443",
+      "reportedLoginLocal": "2026-10-20T21:19+02:00",
+      "timeZone": "Europe/Berlin",
+      "reportedLoginPrecision": "minute",
+      "expectedExpiryLocalApproximate": "2026-10-21T09:19+02:00",
+      "observedState": "Login screen appeared automatically after the twelve-hour lifetime despite recent editing.",
+      "manualReloadRequired": false,
+      "activityExtendedSession": false,
+      "limits": [
+        "The exact transition second and server-side expiry timestamp were not measured.",
+        "This is the operator's physical-browser observation; browser/account details follow the requested setup and were not individually restated.",
+        "No screen recording, HTTP status trace or independent timestamp measurement is inferred."
+      ]
+    },
+    {
+      "recordedAtUtc": "2026-10-21T07:51:09.524222+00:00",
+      "case": "post-expiry-login-and-update",
+      "status": "operator-confirmed-pass",
+      "operatorStatement": "ja, das funktioniert",
+      "requestedProcedure": "From the automatically displayed login screen, sign in again with the caregiver and verify automatic name updates from another client without manual reload.",
+      "reportedOutcome": "The operator confirms that renewed login and automatic updates work in the requested procedure.",
+      "limits": [
+        "The response confirms the requested procedure collectively; no individual marker, measured latency or login trace was supplied."
+      ]
+    }
+  ],
+  "remainingCases": [],
+  "transportQualification": {
+    "s22Firefox": "Earlier functional cases used an accepted certificate warning. The operator excluded this client from trusted-HTTPS acceptance for now; no trust setting was changed.",
+    "otherFourClients": "Operator reports no certificate warning in the requested setup.",
+    "restoreSetup": "Restore checks were requested only on S25/Brave and Windows Chrome/Firefox/Edge, which the operator had reported as warning-free."
+  },
+  "excludedCases": [
+    {
+      "case": "s22-firefox-trusted-https-retest",
+      "status": "excluded-by-operator-for-now",
+      "reason": "Local CA is absent; the operator chose not to change Android certificate trust for this test.",
+      "countsAsPass": false
+    }
+  ],
+  "status": "operator-physical-checks-complete-with-explicit-trust-exclusion",
+  "issue230AcceptanceComplete": true,
+  "acceptanceRecordedAtUtc": "2026-10-21T07:51:09.524222+00:00"
+}

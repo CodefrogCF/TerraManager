@@ -1,0 +1,454 @@
+{
+  "schema": 1,
+  "kind": "integrated-flutter-window-summary",
+  "captureStatus": "complete",
+  "browser": "155.0.8059.84",
+  "mode": "sse",
+  "diagnostics": "off",
+  "budgetInterpretation": "proposed-SSE-acceptance",
+  "plan": null,
+  "resourceMetadata": {
+    "schema": 2,
+    "metadata": {
+      "system": "Linux",
+      "machine": "aarch64",
+      "cpu_count": 4,
+      "clock_ticks_per_second": 100,
+      "device_model": "Raspberry Pi 5 Model B Rev 1.0",
+      "memory_total_kib": 4146880
+    },
+    "requested_interval_seconds": 5.0,
+    "process_stats_requested": true,
+    "limits": "Docker NetIO is per container; do not sum proxy/backend traffic. Host interface counters include unrelated traffic. PID 1 RSS is process memory, not container/tmpfs memory. VmHWM is lifetime-wide, not a per-trial peak. CPU tick deltas require the same process start_time_ticks. Collection adds diagnostic overhead; inspect actual timestamps."
+  },
+  "windows": [
+    {
+      "view": "overview",
+      "workload": "idle",
+      "startedAt": "2026-10-18T14:54:50.659Z",
+      "finishedAt": "2026-10-18T14:55:20.665Z",
+      "wallMs": 30005,
+      "clients": 1,
+      "repetition": 1,
+      "clockProbesAvailable": false,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 54,
+      "upkeepEvents": 2,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 126.25,
+          "rssMedianMiB": 126.25,
+          "probeSamples": 6,
+          "probeSpanSeconds": 25.01002287864685,
+          "maxProbeGapSeconds": 5.01487398147583,
+          "maxCollectionDurationSeconds": 0.08796225674450397,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.00600004196167,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.1999600077187677,
+            "innerCounterSpanSeconds": 25.01002287864685,
+            "outerCounterSpanSeconds": 35.005555868148804,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T14:54:50.250725+00:00",
+            "outerLastUtc": "2026-10-18T14:55:25.256281+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "inconclusive-at-this-resolution"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 43.953125,
+          "rssMedianMiB": 43.953125,
+          "probeSamples": 6,
+          "probeSpanSeconds": 25.016703128814697,
+          "maxProbeGapSeconds": 5.046512842178345,
+          "maxCollectionDurationSeconds": 0.08374426513910294,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.00600004196167,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.13330667181251182,
+            "innerCounterSpanSeconds": 25.016703128814697,
+            "outerCounterSpanSeconds": 35.018718004226685,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T14:54:50.324409+00:00",
+            "outerLastUtc": "2026-10-18T14:55:25.343127+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "inconclusive-at-this-resolution"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "overview",
+      "workload": "writes",
+      "startedAt": "2026-10-18T14:55:20.688Z",
+      "finishedAt": "2026-10-18T14:55:50.703Z",
+      "wallMs": 30015,
+      "clients": 1,
+      "repetition": 1,
+      "clockProbesAvailable": false,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 3,
+      "changeControlGETs": 2,
+      "decodedBodyBytes": 113873,
+      "upkeepEvents": 2,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T14:55:20.775Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 215,
+              "screenshotUpperBoundMs": 291,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "semanticsMs": {
+        "n": 1,
+        "p50": 215,
+        "p95": 215
+      },
+      "screenshotUpperBoundMs": {
+        "n": 1,
+        "p50": 291,
+        "p95": 291
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 126.4375,
+          "rssMedianMiB": 126.4375,
+          "probeSamples": 6,
+          "probeSpanSeconds": 23.995777130126953,
+          "maxProbeGapSeconds": 5.006412029266357,
+          "maxCollectionDurationSeconds": 0.09246482327580452,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.015000104904175,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.2332167241557419,
+            "innerCounterSpanSeconds": 23.995777130126953,
+            "outerCounterSpanSeconds": 34.993084192276,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T14:55:20.258046+00:00",
+            "outerLastUtc": "2026-10-18T14:55:55.251130+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 44.0625,
+          "rssMedianMiB": 44.0625,
+          "probeSamples": 6,
+          "probeSpanSeconds": 23.996313095092773,
+          "maxProbeGapSeconds": 5.008450031280518,
+          "maxCollectionDurationSeconds": 0.08995242789387703,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.015000104904175,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.0999500246381751,
+            "innerCounterSpanSeconds": 23.996313095092773,
+            "outerCounterSpanSeconds": 34.998217821121216,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T14:55:20.333475+00:00",
+            "outerLastUtc": "2026-10-18T14:55:55.331693+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "idle",
+      "startedAt": "2026-10-18T14:55:56.024Z",
+      "finishedAt": "2026-10-18T14:56:26.026Z",
+      "wallMs": 30002,
+      "clients": 1,
+      "repetition": 1,
+      "clockProbesAvailable": false,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 54,
+      "upkeepEvents": 2,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 126.4375,
+          "rssMedianMiB": 126.4375,
+          "probeSamples": 6,
+          "probeSpanSeconds": 25.001044034957886,
+          "maxProbeGapSeconds": 5.003977060317993,
+          "maxCollectionDurationSeconds": 0.09143076464533806,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.002000093460083,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.16665555577709346,
+            "innerCounterSpanSeconds": 25.001044034957886,
+            "outerCounterSpanSeconds": 35.00757598876953,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T14:55:55.251130+00:00",
+            "outerLastUtc": "2026-10-18T14:56:30.258706+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "inconclusive-at-this-resolution"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 44.203125,
+          "rssMedianMiB": 44.203125,
+          "probeSamples": 6,
+          "probeSpanSeconds": 25.00207805633545,
+          "maxProbeGapSeconds": 5.012413024902344,
+          "maxCollectionDurationSeconds": 0.08372102491557598,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.002000093460083,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.09999333346625607,
+            "innerCounterSpanSeconds": 25.00207805633545,
+            "outerCounterSpanSeconds": 35.008769035339355,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T14:55:55.331693+00:00",
+            "outerLastUtc": "2026-10-18T14:56:30.340462+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "writes",
+      "startedAt": "2026-10-18T14:56:26.049Z",
+      "finishedAt": "2026-10-18T14:56:56.059Z",
+      "wallMs": 30010,
+      "clients": 1,
+      "repetition": 1,
+      "clockProbesAvailable": false,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 5,
+      "changeControlGETs": 2,
+      "decodedBodyBytes": 105284,
+      "upkeepEvents": 2,
+      "terminalFailures": 2,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T14:56:26.109Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 202,
+              "screenshotUpperBoundMs": 267,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "semanticsMs": {
+        "n": 1,
+        "p50": 202,
+        "p95": 202
+      },
+      "screenshotUpperBoundMs": {
+        "n": 1,
+        "p50": 267,
+        "p95": 267
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 124.546875,
+          "rssMedianMiB": 124.546875,
+          "probeSamples": 6,
+          "probeSpanSeconds": 24.995194911956787,
+          "maxProbeGapSeconds": 5.00612211227417,
+          "maxCollectionDurationSeconds": 0.09450966119766235,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.009999990463257,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.16661112967640546,
+            "innerCounterSpanSeconds": 24.995194911956787,
+            "outerCounterSpanSeconds": 35.00256896018982,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T14:56:25.257412+00:00",
+            "outerLastUtc": "2026-10-18T14:57:00.259981+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 6,
+          "rssMaxMiB": 44.46875,
+          "rssMedianMiB": 44.421875,
+          "probeSamples": 6,
+          "probeSpanSeconds": 24.990024089813232,
+          "maxProbeGapSeconds": 5.012761116027832,
+          "maxCollectionDurationSeconds": 0.0900305937975645,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 30.009999990463257,
+            "clockOffsetRangeSeconds": [
+              0,
+              0
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.13328890374112437,
+            "innerCounterSpanSeconds": 24.990024089813232,
+            "outerCounterSpanSeconds": 35.00432300567627,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T14:56:25.337297+00:00",
+            "outerLastUtc": "2026-10-18T14:57:00.341620+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 2
+    }
+  ],
+  "limits": [
+    "Clients within each trial are correlated. Keep repetitions separate.",
+    "Decoded body bytes include SSE upkeep, resync and fallback, not headers or TLS/TCP wire overhead.",
+    "Screenshot completion is an upper capture bound, not physical presentation time.",
+    "CPU uses surrounding/inside probes and two rounding ticks. Do not call inner-span zero the whole-window load.",
+    "Without before/after clock probes, zero offset plus the explicit guard is only a provisional assumption.",
+    "Sampled RSS is not instantaneous peak or container/tmpfs memory; proposed budgets are not automatically accepted."
+  ],
+  "sourceCaptureSha256": "0d1c3bb0672c7950b714fb302e67753f385fcd74f50b6713b7f2471295500bf5",
+  "trailingPartialResourceRecords": 0,
+  "sourceResourceCaptures": [
+    {
+      "file": "shared-care-integrated-pi-resources-smoke-2026-10-18.jsonl",
+      "sha256": "f3ad6d71db4d51687f6e16e383669a68c24c7637fca51f9408af2602faa95a89",
+      "samples": 58,
+      "trailingPartialRecords": 0,
+      "firstUtc": "2026-10-18T14:53:43.192433+00:00",
+      "lastUtc": "2026-10-18T14:58:28.192043+00:00",
+      "overlapSecondsWithEarlierInputs": 0
+    }
+  ],
+  "sourceResourcesSha256": "f3ad6d71db4d51687f6e16e383669a68c24c7637fca51f9408af2602faa95a89"
+}

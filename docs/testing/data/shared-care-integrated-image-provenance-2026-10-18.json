@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "kind": "operator-reported-integrated-image-provenance",
+  "recordedDate": "2026-10-18",
+  "evidence": "Docker image inspect and private image-identities/source-head output pasted by the operator",
+  "sourceHead": "2dee1f11a85309b5b8402c2c1d43d144ea28260d",
+  "images": [
+    {
+      "role": "historical-polling-flutter-web",
+      "reference": "terramanager-web:8e684ec",
+      "id": "sha256:8eaec74469eff42162da2affc98265234993b40a95084d97e008ab337732608a",
+      "architecture": "arm64"
+    },
+    {
+      "role": "current-production-api-disposable-fixture",
+      "reference": "terramanager-integrated-acceptance:2dee1f1",
+      "id": "sha256:de08a8c1549cc9fa05469e5a3d92bf44198c59e703b2527dddfa3f742633f73f",
+      "architecture": "arm64"
+    },
+    {
+      "role": "current-sse-flutter-web",
+      "reference": "terramanager-web:2dee1f1",
+      "id": "sha256:b7151972b3c6acaa525376c7800274ca6eb011dc9eceb24acbd7a980cfee12cb",
+      "architecture": "arm64"
+    }
+  ],
+  "limits": [
+    "The historical image identity is available; this does not establish that a matched polling matrix has run.",
+    "The production API fixture stays current for both web clients, isolating the client transport comparison rather than reconstructing the full old server stack.",
+    "Source identity of an operator checkout is not a cryptographic attestation of every image's build inputs.",
+    "Resource collectors overlap briefly; absolute process and network counters must not be added."
+  ]
+}

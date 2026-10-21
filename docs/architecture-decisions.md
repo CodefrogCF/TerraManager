@@ -2389,7 +2389,10 @@ production signing, size recording and release-candidate smoke tests.
 Architecture direction accepted (2026-10-18), Issue #186, following the operator's
 explicit choice to pursue SSE. The revision API (#226), targeted refresh (#227),
 authenticated streaming (#228) and recovery policy (#229) are implemented.
-Production/device performance acceptance (#230) remains.
+Production/device validation (#230) completed on 2026-10-21 for the recorded
+fixture, accepted resource budgets and explicitly qualified browser coverage.
+See the [final acceptance report](testing/shared-care-integrated-acceptance-2026-10-21.md);
+S22 Firefox remains excluded from trusted-HTTPS acceptance by the operator.
 The ARM64 laboratory and trusted Caddy/Chrome
 HTTP/2 path have completed a five-client Raspberry Pi comparison. See the
 [target-device report](testing/shared-care-update-evaluation-pi-2026-10-17.md).
@@ -2632,6 +2635,110 @@ The [#229 validation report](testing/shared-care-recovery-validation-2026-10-18.
 records controlled-clock tests, widget regressions and verified local HTTPS/Caddy
 heartbeat delivery. The physical-browser, real Flutter traffic/paint, Pi CPU/RSS
 and 30-minute/100-reconnect budgets remain #230.
+
+### Initial integrated resource evidence (Issue #230, 2026-10-18)
+
+The [full production-UI SSE matrix](testing/shared-care-integrated-sse-matrix-2026-10-18.md)
+completed 12 trials / 48 windows on the Raspberry Pi 5 B (4 GB). The
+[resource and soak report](testing/shared-care-integrated-resources-2026-10-18.md)
+joins both complete resource captures without adding overlapping counters.
+All Dart CPU windows and 45/48 Caddy windows are within the proposed limits;
+three ten-client detail-write Caddy intervals straddle 0.25% and remain
+inconclusive. Sampled maxima are 183.36 / 51.59 MiB (Dart / Caddy).
+
+The fixed 30-minute workload completed 118 observed 5 -> 4 -> 5 stream cycles
+with zero final streams. First/final warm ten-minute median RSS growth was
+0.000% Dart and 0.400% Caddy. This does not establish absence of leaks, per-mode
+RAM savings, browser memory or physical outage recovery. The server writer
+source retains one active write plus one dirty bit; the existing
+`coalescing_stream_writer_test.dart` separately tests 10,000 hints, stalled
+consumer timeout and disconnect cancellation. No live queue-size instrumentation
+is claimed by the soak.
+
+Proposed budgets remain unchanged. This initial .84 matrix retains its
+five-client overview latency outlier and unresolved control-request events.
+The follow-up below records later evidence; this is not final #230 acceptance.
+
+### Complete pinned comparison (Issue #230, 2026-10-19, partial acceptance)
+
+The [matched .85 comparison](testing/shared-care-integrated-matched-2026-10-19.md)
+uses the same pinned executable, four measurement modules, diagnostics and
+native observer. It retains the three Oct 18 five-client SSE trials and nine
+Oct 19 1/3/10-client trials, composed with source hashes, original plans and
+unaltered timestamps/trials. The full polling matrix lies between those batches.
+This is 12 trials / 48 windows per mode, not one continuous/randomized run.
+
+All 342 SSE write observations matched the new value and changed screenshot
+region. Five-client per-view/per-repetition capture p95 is 423–1,029 ms, idle
+data GET rates fall 100% and decoded body-byte rates at least 99.976%, including
+upkeep. Screenshot completion is an upper bound, not physical display timing.
+The 295 SSE and 3,225 polling terminal events have actual EOF/valid-JSON reader
+evidence and matching-text application parse observations; identical concurrent
+body texts can make that correlation ambiguous. The old .84 events retain their
+original classifications. The separate instrumented probe observes no frames
+during its idle windows and frames after writes; drawFrame duration is elapsed
+wall time, not OS CPU/GPU time or presentation.
+
+In the matched .85 matrix, Dart CPU is within proposed bounds in all 48 windows,
+Caddy in 45/48; three ten-client detail-write intervals remain inconclusive.
+Highest sampled RSS is 183.70 / 51.30 MiB (Dart / Caddy), below 256 / 80 MiB.
+The verified image-switch chain preserves the lab container and recreates only
+the test gateway; process counters are never bridged across that recreation.
+No per-mode RAM saving or physical-device outcome follows from this comparison.
+
+Before accepting the unresolved CPU budget, collect a separate ten-client,
+three-repetition resolution check with six writes per view and the same
+30-second write spacing: 180-second active windows instead of 90 seconds.
+Shorter 30-second idle setup windows are outside the primary idle acceptance.
+This keeps workload density and the 0.25% threshold, and reduces endpoint/tick
+uncertainty without adding idle padding. Keep the different plan separate from
+the matched matrix. Its completed outcome and review proposal follow below.
+
+### CPU-resolution outcome and accepted scale-specific budgets (2026-10-19)
+
+The [separate 180-second-window report](testing/shared-care-integrated-cpu-resolution-2026-10-19.md)
+records six active windows, three repetitions per view, unchanged write density,
+the same pinned executable/modules and stable process identities. All 360
+expected write observations succeeded with zero page errors/final streams.
+Six Dart upper bounds are within 1.50%; five Caddy upper bounds are within 0.25%.
+The final Caddy detail interval is 0.199986–0.261092% of one core and remains
+inconclusive. The 0.25% proposal is not confirmed in every repetition. No original
+status is relabelled. Sampled maxima are 183.16 / 52.64 MiB (Dart / Caddy).
+
+The supplementary overview capture p95 of 2,449 ms is retained separately.
+This ten-client CPU plan does not replace the primary five-client latency gate
+or its three passing repetitions. The controller performed evidence/document
+work during the supplementary run; no cause for an individual outlier is proven.
+
+**Accepted on 2026-10-19:** retain idle CPU 0.10 / 0.10%, write
+CPU 1.50 / 0.25% through five clients and sampled RSS 256 / 80 MiB. At ten clients,
+accept Caddy write CPU **0.30% of one core**. This explicitly changes the larger-scale
+engineering budget by 0.05 percentage points; it does not establish passage of
+the original 0.25% budget. Ten clients double the five-client consumer workload;
+0.30% of one core is 0.075% of this four-core machine's capacity. The accepted limit
+covers the main matrix maximum upper bound 0.288879% and the extended-window
+maximum 0.261092%, retaining the stronger lower-scale limit and all idle/RSS
+limits. It does not extrapolate beyond the recorded fixture or client count.
+
+The [budget review JSON](testing/data/shared-care-integrated-budget-review-2026-10-19.json)
+preserves original limits/statuses and records the operator's explicit approval.
+All 108 main/supplementary-active process bounds fit the accepted scale-specific
+budgets; short setup-idle windows remain outside primary idle acceptance. This
+is an explicit post-measurement engineering-budget decision. Resource acceptance
+is complete for the recorded fixture and workloads. Natural twelve-hour expiry,
+renewed login and resumed automatic updates were confirmed on 2026-10-21,
+completing the documented #230 validation scope. The [physical-browser report](testing/shared-care-integrated-physical-checks.md)
+records operator-confirmed foreground, resume/outage, tabs, draft/conflict,
+disconnected-write, account revocation/reactivation and rejected/successful
+restore cases on 2026-10-19. The restore reply confirms the requested procedure
+collectively without separate exact messages or reload/login observations.
+S25/Brave and Windows Chrome/Firefox/Edge were reported warning-free. S22 Firefox
+used a bypassed certificate warning and is explicitly excluded from trusted-HTTPS
+acceptance for now, at the operator's request. No Android trust setting was changed;
+its earlier functional observations retain the certificate exception. The
+expiry check showed an automatic login screen without manual reload despite
+recent editing; subsequent login and updates worked. These physical results
+are operator observations, without a measured transition second.
 
 ### References
 

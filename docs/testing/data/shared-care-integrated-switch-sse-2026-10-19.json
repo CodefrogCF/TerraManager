@@ -1,0 +1,17 @@
+{
+  "kind": "integrated-gateway-switch",
+  "utc": "2026-10-19T07:31:07.014705+00:00",
+  "requestedMode": "sse",
+  "webImageRef": "terramanager-web:2dee1f1",
+  "webImageId": "sha256:b7151972b3c6acaa525376c7800274ca6eb011dc9eceb24acbd7a980cfee12cb",
+  "previousGatewayContainerId": "47922c96cf4165a76883d1b86f6b306a8d7d20271513ad1581d60fce2a462572",
+  "gatewayContainerId": "750c71d08505754ec51aea339f5825b13c016b3ac673edd3ba47ef04f36474cb",
+  "previousGatewayImageId": "sha256:8eaec74469eff42162da2affc98265234993b40a95084d97e008ab337732608a",
+  "unchangedLabContainerId": "66f389ec9e41255a5f3c98d66cb044ffd7565c9f4852c0fd4695e7a83dce7abe",
+  "unchangedLabStartedAt": "2026-10-18T14:50:43.047744867Z",
+  "operatorCheckoutHead": "2dee1f11a85309b5b8402c2c1d43d144ea28260d",
+  "limits": [
+    "Requested mode is a label; the browser runner verifies SSE presence/absence.",
+    "Gateway process counters restart at a gateway recreation; do not bridge identities."
+  ]
+}

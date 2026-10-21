@@ -128,6 +128,20 @@ The physical-browser/device and performance matrix remains #230.
 
 ## #230 — Shared Care: validate SSE performance and resource bounds on Raspberry Pi
 
+The [2026-10-19 matched follow-up](shared-care-integrated-matched-2026-10-19.md)
+records a complete matched .85 matrix: 1/3/5/10 clients, three repetitions,
+overview/details, idle/writes. All 342 SSE write observations succeeded.
+Five-client network/latency targets and conservative CPU/RSS bounds pass in
+that capture. Three ten-client detail-write Caddy CPU intervals remain
+inconclusive. The [longer-window CPU check](shared-care-integrated-cpu-resolution-2026-10-19.md)
+is complete: six Dart and five Caddy active bounds pass the original proposal,
+one Caddy interval remains inconclusive against the original 0.25% proposal.
+On 2026-10-19 the operator accepted 0.30% Caddy at ten clients; 0.25% through five
+clients and other limits are unchanged. All compared upper bounds fit the accepted
+resource budgets. Natural expiry, renewed login and resumed automatic updates
+were confirmed on 2026-10-21, completing the documented validation scope;
+the older .84 latency outlier remains in its original evidence.
+
 **Scope:** Production Flutter/device performance and regression acceptance
 **Priority:** Medium
 **Type:** Testing / performance
@@ -141,14 +155,52 @@ per-mode RAM saving or long-term memory bound.
 
 ### Acceptance criteria
 
-- [ ] Measure real Flutter API traffic and data-dependent build/frame behavior; keep laboratory DOM and semantics timestamps separate from paint/frame measurements.
-- [ ] Repeat identical overview/detail, idle/write workloads at 1/3/5/10 clients with at least three repetitions; record physical desktop/mobile browsers, several tabs and trusted HTTPS.
-- [ ] With five connected LAN clients, confirm p95 visible update <= 2 seconds, >= 90% fewer idle data GETs and >= 80% fewer idle received bytes including upkeep versus polling.
-- [ ] Include stream upkeep, resynchronization and fallback traffic; report per-trial p50/p95 without treating correlated clients as independent repetitions.
-- [ ] Record Dart/Caddy process CPU and RSS separately, with probe coverage and process identity. Proposed same-fixture warm budgets: idle CPU <= 0.10/0.10% of one core, write-window CPU <= 1.50/0.25%, sampled RSS <= 256/80 MiB. Validate these proposed budgets during integration.
-- [ ] After warmup, run the fixed workload for 30 minutes and at least 100 reconnects. Investigate a final warm 10-minute median RSS > 10% above the initial warm 10-minute median; verify bounded queues and separate login/setup costs.
-- [ ] Validate background/foreground, outage, session expiry and restore behavior on physical browsers, alongside #229's deterministic recovery tests.
-- [ ] Classify actual Flutter terminal request failures using body/application outcomes. Retain the independent complete-body/no-store ERR_ABORTED control without assuming every earlier abort was harmless.
-- [ ] Keep reproducible sanitized evidence and update ADR budgets/tolerances; exclude credentials, cookies, personal collection bodies and original HAR captures.
+- [x] Measure real Flutter API traffic and data-dependent build/frame behavior; keep laboratory DOM and semantics timestamps separate from paint/frame measurements.
+- [x] Repeat identical overview/detail, idle/write workloads at 1/3/5/10 clients with at least three repetitions; record physical desktop/mobile browsers, several tabs and trusted HTTPS. Four physical clients were reported warning-free; S22 Firefox is explicitly excluded from trusted-HTTPS acceptance by the operator, with its earlier functional exception retained.
+- [x] With five connected LAN clients, confirm p95 visible update <= 2 seconds, >= 90% fewer idle data GETs and >= 80% fewer idle received bytes including upkeep versus polling.
+- [x] Include stream upkeep, resynchronization and fallback traffic; report per-trial p50/p95 without treating correlated clients as independent repetitions. The matched capture counts all in-window API bodies and stream upkeep; it is not a deliberate outage/fallback trial.
+- [x] Record Dart/Caddy process CPU and RSS separately, with probe coverage and process identity. Accepted 2026-10-19 for the recorded fixture/workloads: idle CPU <= 0.10/0.10% of one core, write CPU <= 1.50/0.25% at 1/3/5 clients and <= 1.50/0.30% at ten clients, sampled RSS <= 256/80 MiB. All compared conservative upper bounds fit these accepted limits; retain original assessments.
+- [x] After warmup, run the fixed workload for 30 minutes and at least 100 reconnects. Investigate a final warm 10-minute median RSS > 10% above the initial warm 10-minute median; verify bounded queues and separate login/setup costs. The fixed reopen workload has 118 actual cycles; writer source/tests establish queue bounds separately from sampled process RAM.
+- [x] Validate background/foreground, outage, session expiry and restore behavior on physical browsers, alongside #229's deterministic recovery tests. Natural twelve-hour expiry displayed the login screen without manual reload despite recent editing; renewed login and automatic updates were confirmed on 2026-10-21. Retain the explicit S22 trusted-HTTPS exclusion.
+- [x] Classify actual Flutter terminal request failures using body/application outcomes. The matched .85 captures have EOF/valid-JSON plus matching-text application-parse evidence, with identical-concurrent-body ambiguity retained. Retain the independent complete-body/no-store ERR_ABORTED control without assuming every earlier abort was harmless.
+- [x] Keep reproducible sanitized evidence and update ADR budgets/tolerances; exclude credentials, cookies, personal collection bodies and original HAR captures.
 
-Preparation is available in the [integrated acceptance runbook](shared-care-integrated-acceptance.md): a disposable fixture with the current production API/SSE, the installed Flutter web image, process capture and repeated real-UI workloads. This preparation does not mark any Pi performance or physical-browser criterion passed.
+The [integrated acceptance runbook](shared-care-integrated-acceptance.md) describes
+the disposable fixture, current production API/SSE, installed Flutter web image,
+process capture and repeated real-UI workloads. Results below supersede its
+original preparation-only status. The [physical-browser report](shared-care-integrated-physical-checks.md)
+now records the operator's 2026-10-19 confirmation of foreground name propagation
+without reloading in the requested five-client setup, followed by successful
+mobile background/resume and outage recovery. Recovery took approximately ten
+seconds without manual reload, according to the operator's collective estimate.
+No per-device percentile is inferred. The operator also confirmed same-browser
+tabs updating without reload, outdated-data conflict feedback, disconnected writes
+without unexpected overwrite, account deactivation/reactivation and both restore
+procedures (stale-safety rejection followed by a successful older-backup restore
+after a fresh safety export). Exact restore messages and reload/login outcomes
+were not separately restated. On 2026-10-21 the operator confirmed natural
+twelve-hour expiry without manual reload despite recent editing, followed by
+successful renewed login and automatic updates.
+
+S25/Brave and Windows Chrome/Firefox/Edge were reported warning-free. S22 Firefox
+used a bypassed warning and lacks the local CA. The operator explicitly excluded
+it from trusted-HTTPS acceptance for now; no Android trust setting was changed.
+Its earlier functional results retain that limitation. Restore testing used only
+the remaining four clients. This narrows physical trusted-HTTPS coverage and does
+not silently turn the original five-client setup into five trusted clients.
+
+The [first actual Pi UI captures](shared-care-integrated-pi-smoke-2026-10-18.md) validate the workload, identify concrete read/parse evidence behind reproduced Chrome terminal events, and correct CPU window accounting. These short one-client captures alone do not complete this issue.
+
+The [full SSE matrix](shared-care-integrated-sse-matrix-2026-10-18.md) has now
+completed all twelve trials/48 windows. It retains the third five-client
+overview outlier and unclassified control-query events. The corrected reopen
+smoke passed. The [30-minute workload and resources](shared-care-integrated-resources-2026-10-18.md)
+are now recorded: 118 actual reopens, stable Dart median RSS and 0.400% Caddy
+median growth. The [instrumented frame probe](shared-care-integrated-frames-2026-10-18.md)
+records zero observed idle frames and data-dependent frames after writes, with
+elapsed-time and sample-size limits. The [complete matched .85 matrix](shared-care-integrated-matched-2026-10-19.md)
+now supplies polling and current SSE evidence. The CPU-resolution check is
+recorded with its original uncertainty and the separately accepted resource
+budgets. The [final acceptance report](shared-care-integrated-acceptance-2026-10-21.md)
+records completed validation on 2026-10-21. The earlier
+.84 matrix and its unresolved events/outlier retain their original status.

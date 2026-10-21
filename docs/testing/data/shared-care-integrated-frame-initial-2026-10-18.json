@@ -1,0 +1,941 @@
+{
+  "schema": 1,
+  "kind": "integrated-flutter-acceptance",
+  "createdAt": "2026-10-18T20:37:20.286Z",
+  "browser": "155.0.8059.85",
+  "mode": "sse",
+  "channel": "chrome",
+  "diagnostics": "reads",
+  "plan": {
+    "clients": [
+      1
+    ],
+    "repetitions": 1,
+    "idleSeconds": 30,
+    "writesPerView": 1,
+    "writeSlotSeconds": 30,
+    "boundaryQuietSeconds": 6,
+    "latencyObserver": "native"
+  },
+  "browserExecutableSha256": "de999bce6a1c954df71a8f15bf751b336172f55ac1a0325bb0580cbc2121268c",
+  "webArtifact": {
+    "kind": "supplementary-local-Flutter-probe",
+    "files": {
+      "index.html": "06033158f28cd17405c48964182446903e95c76d2bac8e38d50b082190b6e984",
+      "flutter_bootstrap.js": "df4f65b07a1814ae5970a960e7ac9d34576a109ede08f3f3073c259d2279faa4",
+      "main.dart.js": "074c1431d321f23ab6c7a0f69c28d794e35a7709b4fdcaddb291981a52d12140"
+    },
+    "limit": "Only static app assets are fulfilled locally with no-store; API/evaluation requests still use the trusted Pi gateway. Not a production release/network-byte baseline."
+  },
+  "controller": {
+    "node": "v23.9.0",
+    "platform": "win32",
+    "architecture": "x64"
+  },
+  "toolSha256": {
+    "runner": "31cfef1d4f796582172b408e13ad93f9a1b3d09a735d1fe9f968ba3a6d9831ff",
+    "readObserver": "f126086f1d2df5dcb69a2b28d65b8f8b4609158c2cacd6c634a52303b28dba2c",
+    "semanticsObserver": "2e528c4b28e373fdbc635af95d89e1386da4db601a6cfaa41eeaf973b4f5a945",
+    "probeAssets": "6e37b81014fb749c6dc186b518f20ced2a02dd1fbf30f3164cd7a114964af7be"
+  },
+  "trials": [
+    {
+      "clients": 1,
+      "repetition": 1,
+      "views": [
+        {
+          "view": "overview",
+          "workload": "idle",
+          "startedAt": "2026-10-18T20:37:31.102Z",
+          "writes": [],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T20:37:31.102Z",
+              "routes": {},
+              "bytes": {
+                "cdpEncodedChunk": 36,
+                "decodedBody": 54
+              },
+              "sseEvents": {
+                "keepalive": 2
+              },
+              "failures": [],
+              "readDiagnostics": {
+                "droppedReads": 0,
+                "records": []
+              },
+              "frames": {
+                "kind": "instrumented-flutter-drawFrame-elapsed",
+                "timeOriginMs": 1792355842085.1,
+                "atMs": 39036.80000001192,
+                "frameElapsedMicroseconds": [],
+                "droppedSamples": 0,
+                "limit": "Synchronous drawFrame elapsed wall time, including scheduling/preemption. Not OS CPU time, GPU raster, widget build count, browser paint or physical presentation latency."
+              },
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 364,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1627,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 699,
+              "GET /api/v1/animals": 699,
+              "GET /api/v1/reminders": 523,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 505,
+              "PUT /api/v1/animals/:id": 109,
+              "GET /api/v1/animals/:id/feedings": 60,
+              "GET /api/v1/animals/:id/weights": 236,
+              "GET /api/v1/animals/:id/shedding": 236,
+              "GET /api/v1/animals/:id/pictures": 60
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T20:38:01.110Z",
+          "wallMs": 30007,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 364,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1627,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 699,
+              "GET /api/v1/animals": 699,
+              "GET /api/v1/reminders": 523,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 506,
+              "PUT /api/v1/animals/:id": 109,
+              "GET /api/v1/animals/:id/feedings": 60,
+              "GET /api/v1/animals/:id/weights": 236,
+              "GET /api/v1/animals/:id/shedding": 236,
+              "GET /api/v1/animals/:id/pictures": 60
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          },
+          "semanticsMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          }
+        },
+        {
+          "view": "overview",
+          "workload": "writes",
+          "startedAt": "2026-10-18T20:38:07.174Z",
+          "writes": [
+            {
+              "startedAt": "2026-10-18T20:38:07.689Z",
+              "status": 200,
+              "observations": [
+                {
+                  "client": 1,
+                  "semanticsMs": 484,
+                  "screenshotUpperBoundMs": 757,
+                  "nativeSemanticsMs": null,
+                  "nativeTwoAnimationCallbacksMs": null,
+                  "dataRegionPixelsChanged": true
+                }
+              ]
+            }
+          ],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T20:38:07.174Z",
+              "routes": {
+                "/api/v1/changes": {
+                  "requests": 2,
+                  "getRequests": 2,
+                  "statuses": {
+                    "200": 1,
+                    "304": 1
+                  }
+                },
+                "/api/v1/boxes": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/reminders": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                }
+              },
+              "bytes": {
+                "cdpEncodedChunk": 111661,
+                "decodedBody": 113887
+              },
+              "sseEvents": {
+                "changes": 1,
+                "keepalive": 2
+              },
+              "failures": [],
+              "readDiagnostics": {
+                "droppedReads": 0,
+                "records": [
+                  {
+                    "route": "/api/v1/changes",
+                    "ordinal": 5,
+                    "startedAt": 1792355887717,
+                    "status": 200,
+                    "bodyBytes": 362,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "changes",
+                      "cursor",
+                      "epoch",
+                      "preferencesChanged",
+                      "preferencesRevision",
+                      "reset",
+                      "revision"
+                    ],
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, private, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355887756,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355887756,
+                    "applicationJsonParsedAt": 1792355887757
+                  },
+                  {
+                    "route": "/api/v1/boxes",
+                    "ordinal": 2,
+                    "startedAt": 1792355887759,
+                    "status": 200,
+                    "bodyBytes": 1981,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "boxes"
+                    ],
+                    "listCount": 5,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355887778,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355887778,
+                    "applicationJsonParsedAt": 1792355887778
+                  },
+                  {
+                    "route": "/api/v1/animals",
+                    "ordinal": 2,
+                    "startedAt": 1792355887779,
+                    "status": 200,
+                    "bodyBytes": 101402,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "animals"
+                    ],
+                    "listCount": 100,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355887990,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355887990,
+                    "applicationJsonParsedAt": 1792355887991
+                  },
+                  {
+                    "route": "/api/v1/reminders",
+                    "ordinal": 2,
+                    "startedAt": 1792355887992,
+                    "status": 200,
+                    "bodyBytes": 9607,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "reminders"
+                    ],
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355888164,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355888164,
+                    "applicationJsonParsedAt": 1792355888165
+                  },
+                  {
+                    "route": "/api/v1/changes",
+                    "ordinal": 6,
+                    "startedAt": 1792355888166,
+                    "status": 304,
+                    "bodyBytes": 0,
+                    "readChunks": 0,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": false,
+                    "applicationJsonParsed": false,
+                    "rootKeys": null,
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, private, no-store",
+                    "contentLength": "0",
+                    "eofAt": 1792355888324,
+                    "validationError": "SyntaxError",
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355888324
+                  }
+                ]
+              },
+              "frames": {
+                "kind": "instrumented-flutter-drawFrame-elapsed",
+                "timeOriginMs": 1792355842085.1,
+                "atMs": 75114.20000001788,
+                "frameElapsedMicroseconds": [
+                  193700,
+                  157700,
+                  145400
+                ],
+                "droppedSamples": 0,
+                "limit": "Synchronous drawFrame elapsed wall time, including scheduling/preemption. Not OS CPU time, GPU raster, widget build count, browser paint or physical presentation latency."
+              },
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 364,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1627,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 699,
+              "GET /api/v1/animals": 699,
+              "GET /api/v1/reminders": 523,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 507,
+              "PUT /api/v1/animals/:id": 109,
+              "GET /api/v1/animals/:id/feedings": 60,
+              "GET /api/v1/animals/:id/weights": 236,
+              "GET /api/v1/animals/:id/shedding": 236,
+              "GET /api/v1/animals/:id/pictures": 60
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T20:38:37.184Z",
+          "wallMs": 30010,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 365,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1629,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 700,
+              "GET /api/v1/animals": 700,
+              "GET /api/v1/reminders": 524,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 508,
+              "PUT /api/v1/animals/:id": 110,
+              "GET /api/v1/animals/:id/feedings": 60,
+              "GET /api/v1/animals/:id/weights": 236,
+              "GET /api/v1/animals/:id/shedding": 236,
+              "GET /api/v1/animals/:id/pictures": 60
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 1,
+            "p50": 757,
+            "p95": 757
+          },
+          "semanticsMs": {
+            "n": 1,
+            "p50": 484,
+            "p95": 484
+          }
+        },
+        {
+          "view": "detail",
+          "workload": "idle",
+          "startedAt": "2026-10-18T20:38:49.079Z",
+          "writes": [],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T20:38:49.079Z",
+              "routes": {},
+              "bytes": {
+                "cdpEncodedChunk": 72,
+                "decodedBody": 54
+              },
+              "sseEvents": {
+                "keepalive": 2
+              },
+              "failures": [],
+              "readDiagnostics": {
+                "droppedReads": 0,
+                "records": []
+              },
+              "frames": {
+                "kind": "instrumented-flutter-drawFrame-elapsed",
+                "timeOriginMs": 1792355842085.1,
+                "atMs": 117022.60000002384,
+                "frameElapsedMicroseconds": [],
+                "droppedSamples": 0,
+                "limit": "Synchronous drawFrame elapsed wall time, including scheduling/preemption. Not OS CPU time, GPU raster, widget build count, browser paint or physical presentation latency."
+              },
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 366,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1629,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 700,
+              "GET /api/v1/animals": 700,
+              "GET /api/v1/reminders": 524,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 509,
+              "PUT /api/v1/animals/:id": 110,
+              "GET /api/v1/animals/:id/feedings": 61,
+              "GET /api/v1/animals/:id/weights": 237,
+              "GET /api/v1/animals/:id/shedding": 237,
+              "GET /api/v1/animals/:id/pictures": 61
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T20:39:19.080Z",
+          "wallMs": 30001,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 366,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1629,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 700,
+              "GET /api/v1/animals": 700,
+              "GET /api/v1/reminders": 524,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 510,
+              "PUT /api/v1/animals/:id": 110,
+              "GET /api/v1/animals/:id/feedings": 61,
+              "GET /api/v1/animals/:id/weights": 237,
+              "GET /api/v1/animals/:id/shedding": 237,
+              "GET /api/v1/animals/:id/pictures": 61
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          },
+          "semanticsMs": {
+            "n": 0,
+            "p50": null,
+            "p95": null
+          }
+        },
+        {
+          "view": "detail",
+          "workload": "writes",
+          "startedAt": "2026-10-18T20:39:25.175Z",
+          "writes": [
+            {
+              "startedAt": "2026-10-18T20:39:25.275Z",
+              "status": 200,
+              "observations": [
+                {
+                  "client": 1,
+                  "semanticsMs": 350,
+                  "screenshotUpperBoundMs": 418,
+                  "nativeSemanticsMs": 272,
+                  "nativeTwoAnimationCallbacksMs": 276,
+                  "dataRegionPixelsChanged": true
+                }
+              ]
+            }
+          ],
+          "clients": [
+            {
+              "client": 1,
+              "startedAt": "2026-10-18T20:39:25.175Z",
+              "routes": {
+                "/api/v1/changes": {
+                  "requests": 2,
+                  "getRequests": 2,
+                  "statuses": {
+                    "200": 1,
+                    "304": 1
+                  }
+                },
+                "/api/v1/animals/:id": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals/:id/weights": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals/:id/shedding": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/boxes": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                },
+                "/api/v1/animals": {
+                  "requests": 1,
+                  "getRequests": 1,
+                  "statuses": {
+                    "200": 1
+                  }
+                }
+              },
+              "bytes": {
+                "cdpEncodedChunk": 102036,
+                "decodedBody": 105298
+              },
+              "sseEvents": {
+                "changes": 1,
+                "keepalive": 2
+              },
+              "failures": [
+                {
+                  "route": "/api/v1/animals",
+                  "ordinal": 3,
+                  "status": 200,
+                  "terminal": "net::ERR_ABORTED",
+                  "bodyOutcome": "actual-body-valid-json-read-to-eof",
+                  "applicationOutcome": "json-decoded-by-actual-application-consumer",
+                  "networkBodyOutcome": "unavailable",
+                  "readEvidence": {
+                    "route": "/api/v1/animals",
+                    "ordinal": 3,
+                    "startedAt": 1792355965375,
+                    "status": 200,
+                    "bodyBytes": 101402,
+                    "readChunks": 4,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "animals"
+                    ],
+                    "listCount": 100,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355965439,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965439,
+                    "applicationJsonParsedAt": 1792355965440
+                  }
+                }
+              ],
+              "readDiagnostics": {
+                "droppedReads": 0,
+                "records": [
+                  {
+                    "route": "/api/v1/changes",
+                    "ordinal": 7,
+                    "startedAt": 1792355965292,
+                    "status": 200,
+                    "bodyBytes": 362,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "changes",
+                      "cursor",
+                      "epoch",
+                      "preferencesChanged",
+                      "preferencesRevision",
+                      "reset",
+                      "revision"
+                    ],
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, private, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355965308,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965308,
+                    "applicationJsonParsedAt": 1792355965308
+                  },
+                  {
+                    "route": "/api/v1/animals/:id",
+                    "ordinal": 2,
+                    "startedAt": 1792355965310,
+                    "status": 200,
+                    "bodyBytes": 989,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "animal"
+                    ],
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355965326,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965326,
+                    "applicationJsonParsedAt": 1792355965327
+                  },
+                  {
+                    "route": "/api/v1/animals/:id/weights",
+                    "ordinal": 2,
+                    "startedAt": 1792355965327,
+                    "status": 200,
+                    "bodyBytes": 14,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "weights"
+                    ],
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355965341,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965342,
+                    "applicationJsonParsedAt": 1792355965342
+                  },
+                  {
+                    "route": "/api/v1/animals/:id/shedding",
+                    "ordinal": 2,
+                    "startedAt": 1792355965342,
+                    "status": 200,
+                    "bodyBytes": 15,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "shedding"
+                    ],
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355965358,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965358,
+                    "applicationJsonParsedAt": 1792355965358
+                  },
+                  {
+                    "route": "/api/v1/boxes",
+                    "ordinal": 3,
+                    "startedAt": 1792355965358,
+                    "status": 200,
+                    "bodyBytes": 1981,
+                    "readChunks": 1,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "boxes"
+                    ],
+                    "listCount": 5,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355965375,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965375,
+                    "applicationJsonParsedAt": 1792355965375
+                  },
+                  {
+                    "route": "/api/v1/animals",
+                    "ordinal": 3,
+                    "startedAt": 1792355965375,
+                    "status": 200,
+                    "bodyBytes": 101402,
+                    "readChunks": 4,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": true,
+                    "applicationJsonParsed": true,
+                    "rootKeys": [
+                      "animals"
+                    ],
+                    "listCount": 100,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, no-store",
+                    "contentLength": null,
+                    "eofAt": 1792355965439,
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965439,
+                    "applicationJsonParsedAt": 1792355965440
+                  },
+                  {
+                    "route": "/api/v1/changes",
+                    "ordinal": 8,
+                    "startedAt": 1792355965443,
+                    "status": 304,
+                    "bodyBytes": 0,
+                    "readChunks": 0,
+                    "eof": true,
+                    "readerError": null,
+                    "cancelCalled": true,
+                    "jsonValid": false,
+                    "applicationJsonParsed": false,
+                    "rootKeys": null,
+                    "listCount": null,
+                    "bodyLimitExceeded": false,
+                    "cacheControl": "no-store, private, no-store",
+                    "contentLength": "0",
+                    "eofAt": 1792355965500,
+                    "validationError": "SyntaxError",
+                    "cancelAfterEof": true,
+                    "cancelAt": 1792355965501
+                  }
+                ]
+              },
+              "frames": {
+                "kind": "instrumented-flutter-drawFrame-elapsed",
+                "timeOriginMs": 1792355842085.1,
+                "atMs": 153119.5,
+                "frameElapsedMicroseconds": [
+                  46300,
+                  40200
+                ],
+                "droppedSamples": 0,
+                "limit": "Synchronous drawFrame elapsed wall time, including scheduling/preemption. Not OS CPU time, GPU raster, widget build count, browser paint or physical presentation latency."
+              },
+              "pageErrors": 0,
+              "visibility": "visible",
+              "liveStreamByteCoverage": true
+            }
+          ],
+          "serverBefore": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 366,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1629,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 700,
+              "GET /api/v1/animals": 700,
+              "GET /api/v1/reminders": 524,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 511,
+              "PUT /api/v1/animals/:id": 110,
+              "GET /api/v1/animals/:id/feedings": 61,
+              "GET /api/v1/animals/:id/weights": 237,
+              "GET /api/v1/animals/:id/shedding": 237,
+              "GET /api/v1/animals/:id/pictures": 61
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "finishedAt": "2026-10-18T20:39:55.185Z",
+          "wallMs": 30010,
+          "serverAfter": {
+            "requests": {
+              "GET /api/v1/health": 1,
+              "GET /evaluation/state": 121,
+              "POST /api/v1/auth/login": 96,
+              "GET /api/v1/animals/:id": 368,
+              "GET /api/v1/auth/session": 200,
+              "GET /api/v1/changes": 1631,
+              "GET /api/v1/auth/preferences": 200,
+              "GET /api/v1/boxes": 701,
+              "GET /api/v1/animals": 701,
+              "GET /api/v1/reminders": 524,
+              "GET /api/v1/changes/events": 200,
+              "GET /evaluation/metrics": 512,
+              "PUT /api/v1/animals/:id": 111,
+              "GET /api/v1/animals/:id/feedings": 61,
+              "GET /api/v1/animals/:id/weights": 238,
+              "GET /api/v1/animals/:id/shedding": 238,
+              "GET /api/v1/animals/:id/pictures": 61
+            },
+            "streams": 1,
+            "maximumConnections": 32,
+            "maximumPerAccount": 8
+          },
+          "screenshotUpperBoundMs": {
+            "n": 1,
+            "p50": 418,
+            "p95": 418
+          },
+          "semanticsMs": {
+            "n": 1,
+            "p50": 350,
+            "p95": 350
+          }
+        }
+      ],
+      "status": "complete",
+      "clockBefore": {
+        "observedAt": "2026-10-18T20:37:21.338Z",
+        "samples": [
+          {
+            "roundTripMs": 11,
+            "offsetLowerMs": -24,
+            "offsetUpperMs": -13
+          },
+          {
+            "roundTripMs": 13,
+            "offsetLowerMs": -26,
+            "offsetUpperMs": -13
+          },
+          {
+            "roundTripMs": 10,
+            "offsetLowerMs": -24,
+            "offsetUpperMs": -14
+          }
+        ],
+        "offsetLowerMs": -24,
+        "offsetUpperMs": -14
+      },
+      "logicalContexts": 1,
+      "streamsAfterClose": 0,
+      "clockAfter": {
+        "observedAt": "2026-10-18T20:40:01.472Z",
+        "samples": [
+          {
+            "roundTripMs": 11,
+            "offsetLowerMs": -24,
+            "offsetUpperMs": -13
+          },
+          {
+            "roundTripMs": 7,
+            "offsetLowerMs": -24,
+            "offsetUpperMs": -17
+          },
+          {
+            "roundTripMs": 6,
+            "offsetLowerMs": -24,
+            "offsetUpperMs": -18
+          }
+        ],
+        "offsetLowerMs": -24,
+        "offsetUpperMs": -18
+      }
+    }
+  ],
+  "limits": [
+    "Logical contexts/tabs on one desktop controller are not separate physical devices or mobile browsers.",
+    "Each trial is one repetition; client observations within it are correlated.",
+    "CDP body bytes include live SSE upkeep and resync/fallback, but exclude headers/TLS/TCP overhead.",
+    "Use decodedBody for body comparisons; cdpEncodedChunk can be zero for an unfinished live stream despite delivered data and is not complete wire bandwidth.",
+    "Screenshot completion is a conservative capture upper bound after matching semantics and two animation callbacks; semantics alone is not paint.",
+    "No screenshots, response bodies, credentials, cookies, cursor or original HAR are persisted.",
+    "Only the optional probe build reports synchronous Flutter drawFrame elapsed wall time, not OS CPU, widget build counts or physical presentation.",
+    "Optional native semantics timing observes the in-document mutation and two animation callbacks; neither establishes paint. It adds diagnostic work and must match between compared runs.",
+    "Historical baseline used Feeding writes; these matched repeated trials use Animal-name writes in both views.",
+    "A terminal request failure is not automatically an application failure or success; unavailable body evidence stays unresolved.",
+    "Optional reads diagnostics add promise continuations and bounded transient decoding; original streams/cache policy stay intact. Record this mode in comparisons and calibrate observer overhead.",
+    "Pi resource data, physical lifecycle checks and a 30-minute/100-reconnect soak are separate acceptance gates."
+  ],
+  "status": "complete",
+  "completedAt": "2026-10-18T20:40:01.483Z"
+}

@@ -1,0 +1,2296 @@
+{
+  "schema": 1,
+  "kind": "integrated-flutter-window-summary",
+  "captureStatus": "complete",
+  "browser": "155.0.8059.85",
+  "mode": "sse",
+  "diagnostics": "reads",
+  "budgetInterpretation": "proposed-SSE-acceptance",
+  "plan": {
+    "clients": [
+      5
+    ],
+    "repetitions": 3,
+    "idleSeconds": 120,
+    "writesPerView": 3,
+    "writeSlotSeconds": 30,
+    "boundaryQuietSeconds": 6,
+    "latencyObserver": "native"
+  },
+  "resourceMetadata": {
+    "schema": 2,
+    "metadata": {
+      "system": "Linux",
+      "machine": "aarch64",
+      "cpu_count": 4,
+      "clock_ticks_per_second": 100,
+      "device_model": "Raspberry Pi 5 Model B Rev 1.0",
+      "memory_total_kib": 4146880
+    },
+    "requested_interval_seconds": 5.0,
+    "process_stats_requested": true,
+    "limits": "Docker NetIO is per container; do not sum proxy/backend traffic. Host interface counters include unrelated traffic. PID 1 RSS is process memory, not container/tmpfs memory. VmHWM is lifetime-wide, not a per-trial peak. CPU tick deltas require the same process start_time_ticks. Collection adds diagnostic overhead; inspect actual timestamps."
+  },
+  "windows": [
+    {
+      "view": "overview",
+      "workload": "idle",
+      "startedAt": "2026-10-18T20:48:56.824Z",
+      "finishedAt": "2026-10-18T20:50:56.835Z",
+      "wallMs": 120010,
+      "clients": 5,
+      "repetition": 1,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 1080,
+      "upkeepEvents": 40,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 181.859375,
+          "rssMedianMiB": 181.859375,
+          "probeSamples": 24,
+          "probeSpanSeconds": 115.01122498512268,
+          "maxProbeGapSeconds": 6.002922058105469,
+          "maxCollectionDurationSeconds": 0.0941415224224329,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.01100015640259,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.0333302780144075,
+            "innerCounterSpanSeconds": 115.01122498512268,
+            "outerCounterSpanSeconds": 125.00207591056824,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T20:48:52.655045+00:00",
+            "outerLastUtc": "2026-10-18T20:50:57.657121+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 49.09375,
+          "rssMedianMiB": 49.09375,
+          "probeSamples": 24,
+          "probeSpanSeconds": 115.02477216720581,
+          "maxProbeGapSeconds": 6.005383014678955,
+          "maxCollectionDurationSeconds": 0.09170214459300041,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.01100015640259,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.008332569503601875,
+            "upperPercentOneCore": 0.041662847518009374,
+            "innerCounterSpanSeconds": 115.02477216720581,
+            "outerCounterSpanSeconds": 125.00900721549988,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T20:48:52.722221+00:00",
+            "outerLastUtc": "2026-10-18T20:50:57.731228+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "overview",
+      "workload": "writes",
+      "startedAt": "2026-10-18T20:51:02.907Z",
+      "finishedAt": "2026-10-18T20:52:32.913Z",
+      "wallMs": 90006,
+      "clients": 5,
+      "repetition": 1,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 45,
+      "changeControlGETs": 30,
+      "decodedBodyBytes": 1708305,
+      "upkeepEvents": 30,
+      "terminalFailures": 6,
+      "failuresProvenConsumed": 6,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T20:51:03.044Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 466,
+              "screenshotUpperBoundMs": 808,
+              "nativeSemanticsMs": 450,
+              "nativeTwoAnimationCallbacksMs": 471,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 714,
+              "screenshotUpperBoundMs": 811,
+              "nativeSemanticsMs": 424,
+              "nativeTwoAnimationCallbacksMs": 441,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 712,
+              "screenshotUpperBoundMs": 809,
+              "nativeSemanticsMs": 414,
+              "nativeTwoAnimationCallbacksMs": 428,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 416,
+              "screenshotUpperBoundMs": 757,
+              "nativeSemanticsMs": 399,
+              "nativeTwoAnimationCallbacksMs": 422,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 713,
+              "screenshotUpperBoundMs": 813,
+              "nativeSemanticsMs": 428,
+              "nativeTwoAnimationCallbacksMs": 446,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T20:51:33.132Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 467,
+              "screenshotUpperBoundMs": 782,
+              "nativeSemanticsMs": 439,
+              "nativeTwoAnimationCallbacksMs": 456,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 615,
+              "screenshotUpperBoundMs": 778,
+              "nativeSemanticsMs": 444,
+              "nativeTwoAnimationCallbacksMs": 456,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 493,
+              "screenshotUpperBoundMs": 809,
+              "nativeSemanticsMs": 472,
+              "nativeTwoAnimationCallbacksMs": 490,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 443,
+              "screenshotUpperBoundMs": 704,
+              "nativeSemanticsMs": 424,
+              "nativeTwoAnimationCallbacksMs": 437,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 657,
+              "screenshotUpperBoundMs": 776,
+              "nativeSemanticsMs": 463,
+              "nativeTwoAnimationCallbacksMs": 483,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T20:52:03.022Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 218,
+              "screenshotUpperBoundMs": 401,
+              "nativeSemanticsMs": 207,
+              "nativeTwoAnimationCallbacksMs": 220,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 392,
+              "screenshotUpperBoundMs": 486,
+              "nativeSemanticsMs": 266,
+              "nativeTwoAnimationCallbacksMs": 278,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 364,
+              "screenshotUpperBoundMs": 457,
+              "nativeSemanticsMs": 244,
+              "nativeTwoAnimationCallbacksMs": 255,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 375,
+              "screenshotUpperBoundMs": 459,
+              "nativeSemanticsMs": 245,
+              "nativeTwoAnimationCallbacksMs": 257,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 385,
+              "screenshotUpperBoundMs": 461,
+              "nativeSemanticsMs": 262,
+              "nativeTwoAnimationCallbacksMs": 274,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 15,
+        "p50": 466,
+        "p95": 714
+      },
+      "screenshotUpperBoundMs": {
+        "n": 15,
+        "p50": 776,
+        "p95": 813
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 181.96875,
+          "rssMedianMiB": 181.640625,
+          "probeSamples": 18,
+          "probeSpanSeconds": 85.01301288604736,
+          "maxProbeGapSeconds": 6.008270978927612,
+          "maxCollectionDurationSeconds": 0.1000190731137991,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.00600004196167,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.3222007420225309,
+            "upperPercentOneCore": 0.5444081503139315,
+            "innerCounterSpanSeconds": 85.01301288604736,
+            "outerCounterSpanSeconds": 94.98410892486572,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T20:51:02.674660+00:00",
+            "outerLastUtc": "2026-10-18T20:52:37.658769+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 48.21875,
+          "rssMedianMiB": 47.9375,
+          "probeSamples": 18,
+          "probeSpanSeconds": 85.03295016288757,
+          "maxProbeGapSeconds": 6.023869037628174,
+          "maxCollectionDurationSeconds": 0.0927110593765974,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.00600004196167,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.05555185207285016,
+            "upperPercentOneCore": 0.12221407456027035,
+            "innerCounterSpanSeconds": 85.03295016288757,
+            "outerCounterSpanSeconds": 100.00170278549194,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T20:50:57.731228+00:00",
+            "outerLastUtc": "2026-10-18T20:52:37.732931+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "idle",
+      "startedAt": "2026-10-18T20:52:46.558Z",
+      "finishedAt": "2026-10-18T20:54:46.568Z",
+      "wallMs": 120010,
+      "clients": 5,
+      "repetition": 1,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 1080,
+      "upkeepEvents": 40,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 181.96875,
+          "rssMedianMiB": 181.96875,
+          "probeSamples": 24,
+          "probeSpanSeconds": 115.00862407684326,
+          "maxProbeGapSeconds": 6.008275032043457,
+          "maxCollectionDurationSeconds": 0.09653923660516739,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.00999999046326,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.0333305557896664,
+            "innerCounterSpanSeconds": 115.00862407684326,
+            "outerCounterSpanSeconds": 125.00126004219055,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T20:52:42.655463+00:00",
+            "outerLastUtc": "2026-10-18T20:54:47.656723+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 48.71875,
+          "rssMedianMiB": 48.71875,
+          "probeSamples": 24,
+          "probeSpanSeconds": 115.0171251296997,
+          "maxProbeGapSeconds": 6.009847164154053,
+          "maxCollectionDurationSeconds": 0.08958941139280796,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.00999999046326,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.0499958336844996,
+            "innerCounterSpanSeconds": 115.0171251296997,
+            "outerCounterSpanSeconds": 125.002681016922,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T20:52:42.722567+00:00",
+            "outerLastUtc": "2026-10-18T20:54:47.725248+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "writes",
+      "startedAt": "2026-10-18T20:54:52.674Z",
+      "finishedAt": "2026-10-18T20:56:22.680Z",
+      "wallMs": 90005,
+      "clients": 5,
+      "repetition": 1,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 75,
+      "changeControlGETs": 30,
+      "decodedBodyBytes": 1579470,
+      "upkeepEvents": 30,
+      "terminalFailures": 21,
+      "failuresProvenConsumed": 21,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T20:54:52.782Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 337,
+              "screenshotUpperBoundMs": 447,
+              "nativeSemanticsMs": 320,
+              "nativeTwoAnimationCallbacksMs": 328,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 335,
+              "screenshotUpperBoundMs": 445,
+              "nativeSemanticsMs": 320,
+              "nativeTwoAnimationCallbacksMs": 328,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 222,
+              "screenshotUpperBoundMs": 329,
+              "nativeSemanticsMs": 217,
+              "nativeTwoAnimationCallbacksMs": 228,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 347,
+              "screenshotUpperBoundMs": 448,
+              "nativeSemanticsMs": 266,
+              "nativeTwoAnimationCallbacksMs": 278,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 349,
+              "screenshotUpperBoundMs": 448,
+              "nativeSemanticsMs": 333,
+              "nativeTwoAnimationCallbacksMs": 345,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T20:55:22.791Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 349,
+              "screenshotUpperBoundMs": 412,
+              "nativeSemanticsMs": 278,
+              "nativeTwoAnimationCallbacksMs": 292,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 307,
+              "screenshotUpperBoundMs": 388,
+              "nativeSemanticsMs": 270,
+              "nativeTwoAnimationCallbacksMs": 276,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 346,
+              "screenshotUpperBoundMs": 413,
+              "nativeSemanticsMs": 256,
+              "nativeTwoAnimationCallbacksMs": 275,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 200,
+              "screenshotUpperBoundMs": 272,
+              "nativeSemanticsMs": 180,
+              "nativeTwoAnimationCallbacksMs": 192,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 223,
+              "screenshotUpperBoundMs": 304,
+              "nativeSemanticsMs": 216,
+              "nativeTwoAnimationCallbacksMs": 225,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T20:55:52.815Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 923,
+              "screenshotUpperBoundMs": 988,
+              "nativeSemanticsMs": 425,
+              "nativeTwoAnimationCallbacksMs": 441,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 414,
+              "screenshotUpperBoundMs": 482,
+              "nativeSemanticsMs": 339,
+              "nativeTwoAnimationCallbacksMs": 368,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 484,
+              "screenshotUpperBoundMs": 561,
+              "nativeSemanticsMs": 461,
+              "nativeTwoAnimationCallbacksMs": 475,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 419,
+              "screenshotUpperBoundMs": 496,
+              "nativeSemanticsMs": 373,
+              "nativeTwoAnimationCallbacksMs": 417,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 902,
+              "screenshotUpperBoundMs": 970,
+              "nativeSemanticsMs": 466,
+              "nativeTwoAnimationCallbacksMs": 475,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 15,
+        "p50": 347,
+        "p95": 923
+      },
+      "screenshotUpperBoundMs": {
+        "n": 15,
+        "p50": 447,
+        "p95": 988
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 19,
+          "rssMaxMiB": 181.96875,
+          "rssMedianMiB": 181.53125,
+          "probeSamples": 19,
+          "probeSpanSeconds": 89.99958395957947,
+          "maxProbeGapSeconds": 6.0019309520721436,
+          "maxCollectionDurationSeconds": 0.09532766416668892,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.00600004196167,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.2777592603642508,
+            "upperPercentOneCore": 0.4666355574119413,
+            "innerCounterSpanSeconds": 80.02101397514343,
+            "outerCounterSpanSeconds": 99.00185894966125,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T20:54:47.656723+00:00",
+            "outerLastUtc": "2026-10-18T20:56:26.658582+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 19,
+          "rssMaxMiB": 48.8125,
+          "rssMedianMiB": 48.25,
+          "probeSamples": 19,
+          "probeSpanSeconds": 90.00916886329651,
+          "maxProbeGapSeconds": 6.004738092422485,
+          "maxCollectionDurationSeconds": 0.09123495221138,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.00600004196167,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.019
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.05555185207285016,
+            "upperPercentOneCore": 0.14443481538941044,
+            "innerCounterSpanSeconds": 80.03177213668823,
+            "outerCounterSpanSeconds": 99.00030779838562,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T20:54:47.725248+00:00",
+            "outerLastUtc": "2026-10-18T20:56:26.725556+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "overview",
+      "workload": "idle",
+      "startedAt": "2026-10-18T20:57:02.746Z",
+      "finishedAt": "2026-10-18T20:59:02.753Z",
+      "wallMs": 120007,
+      "clients": 5,
+      "repetition": 2,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 1080,
+      "upkeepEvents": 40,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 25,
+          "rssMaxMiB": 182.390625,
+          "rssMedianMiB": 182.390625,
+          "probeSamples": 25,
+          "probeSpanSeconds": 119.99986910820007,
+          "maxProbeGapSeconds": 6.006543159484863,
+          "maxCollectionDurationSeconds": 0.09298566356301308,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.00699996948242,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.033331389010784314,
+            "innerCounterSpanSeconds": 110.00258302688599,
+            "outerCounterSpanSeconds": 130.003897190094,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T20:56:57.665228+00:00",
+            "outerLastUtc": "2026-10-18T20:59:07.669125+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 25,
+          "rssMaxMiB": 50.015625,
+          "rssMedianMiB": 50.015625,
+          "probeSamples": 25,
+          "probeSpanSeconds": 120.00057291984558,
+          "maxProbeGapSeconds": 6.017603874206543,
+          "maxCollectionDurationSeconds": 0.08384581282734871,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.00699996948242,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.008332847252696078,
+            "upperPercentOneCore": 0.0416642362634804,
+            "innerCounterSpanSeconds": 110.00697088241577,
+            "outerCounterSpanSeconds": 130.00862312316895,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T20:56:57.741732+00:00",
+            "outerLastUtc": "2026-10-18T20:59:07.750355+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "overview",
+      "workload": "writes",
+      "startedAt": "2026-10-18T20:59:08.817Z",
+      "finishedAt": "2026-10-18T21:00:38.832Z",
+      "wallMs": 90015,
+      "clients": 5,
+      "repetition": 2,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 45,
+      "changeControlGETs": 30,
+      "decodedBodyBytes": 1708305,
+      "upkeepEvents": 30,
+      "terminalFailures": 9,
+      "failuresProvenConsumed": 9,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T20:59:08.942Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 884,
+              "screenshotUpperBoundMs": 1018,
+              "nativeSemanticsMs": 487,
+              "nativeTwoAnimationCallbacksMs": 505,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 885,
+              "screenshotUpperBoundMs": 1029,
+              "nativeSemanticsMs": 498,
+              "nativeTwoAnimationCallbacksMs": 512,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 886,
+              "screenshotUpperBoundMs": 1016,
+              "nativeSemanticsMs": 509,
+              "nativeTwoAnimationCallbacksMs": 525,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 886,
+              "screenshotUpperBoundMs": 1018,
+              "nativeSemanticsMs": 526,
+              "nativeTwoAnimationCallbacksMs": 540,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 887,
+              "screenshotUpperBoundMs": 1020,
+              "nativeSemanticsMs": 546,
+              "nativeTwoAnimationCallbacksMs": 561,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T20:59:38.936Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 331,
+              "screenshotUpperBoundMs": 563,
+              "nativeSemanticsMs": 314,
+              "nativeTwoAnimationCallbacksMs": 333,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 462,
+              "screenshotUpperBoundMs": 565,
+              "nativeSemanticsMs": 323,
+              "nativeTwoAnimationCallbacksMs": 335,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 324,
+              "screenshotUpperBoundMs": 521,
+              "nativeSemanticsMs": 304,
+              "nativeTwoAnimationCallbacksMs": 318,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 331,
+              "screenshotUpperBoundMs": 524,
+              "nativeSemanticsMs": 314,
+              "nativeTwoAnimationCallbacksMs": 333,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 422,
+              "screenshotUpperBoundMs": 522,
+              "nativeSemanticsMs": 295,
+              "nativeTwoAnimationCallbacksMs": 307,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T21:00:09.003Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 318,
+              "screenshotUpperBoundMs": 574,
+              "nativeSemanticsMs": 304,
+              "nativeTwoAnimationCallbacksMs": 322,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 318,
+              "screenshotUpperBoundMs": 566,
+              "nativeSemanticsMs": 304,
+              "nativeTwoAnimationCallbacksMs": 322,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 286,
+              "screenshotUpperBoundMs": 568,
+              "nativeSemanticsMs": 272,
+              "nativeTwoAnimationCallbacksMs": 290,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 487,
+              "screenshotUpperBoundMs": 613,
+              "nativeSemanticsMs": 283,
+              "nativeTwoAnimationCallbacksMs": 295,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 505,
+              "screenshotUpperBoundMs": 615,
+              "nativeSemanticsMs": 270,
+              "nativeTwoAnimationCallbacksMs": 278,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 15,
+        "p50": 462,
+        "p95": 887
+      },
+      "screenshotUpperBoundMs": {
+        "n": 15,
+        "p50": 574,
+        "p95": 1029
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 182.453125,
+          "rssMedianMiB": 182.171875,
+          "probeSamples": 18,
+          "probeSpanSeconds": 85.01399207115173,
+          "maxProbeGapSeconds": 6.004725933074951,
+          "maxCollectionDurationSeconds": 0.08565755747258663,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.01500010490417,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.3221685270921866,
+            "upperPercentOneCore": 0.5332444586353433,
+            "innerCounterSpanSeconds": 85.01399207115173,
+            "outerCounterSpanSeconds": 94.99174094200134,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T20:59:07.669125+00:00",
+            "outerLastUtc": "2026-10-18T21:00:42.660866+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 50.03125,
+          "rssMedianMiB": 50.015625,
+          "probeSamples": 18,
+          "probeSpanSeconds": 85.01660895347595,
+          "maxProbeGapSeconds": 6.007385015487671,
+          "maxCollectionDurationSeconds": 0.08616072311997414,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.01500010490417,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.05554629777451493,
+            "upperPercentOneCore": 0.13331111465883583,
+            "innerCounterSpanSeconds": 85.01660895347595,
+            "outerCounterSpanSeconds": 94.99549198150635,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T20:59:07.750355+00:00",
+            "outerLastUtc": "2026-10-18T21:00:42.745847+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "idle",
+      "startedAt": "2026-10-18T21:00:52.039Z",
+      "finishedAt": "2026-10-18T21:02:52.051Z",
+      "wallMs": 120012,
+      "clients": 5,
+      "repetition": 2,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 1080,
+      "upkeepEvents": 40,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 182.0,
+          "rssMedianMiB": 182.0,
+          "probeSamples": 24,
+          "probeSpanSeconds": 114.99648714065552,
+          "maxProbeGapSeconds": 6.015375137329102,
+          "maxCollectionDurationSeconds": 0.10282728262245655,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.01200008392334,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.03333000030999263,
+            "innerCounterSpanSeconds": 114.99648714065552,
+            "outerCounterSpanSeconds": 125.00783681869507,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T21:00:47.660648+00:00",
+            "outerLastUtc": "2026-10-18T21:02:52.668485+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 49.5,
+          "rssMedianMiB": 49.5,
+          "probeSamples": 24,
+          "probeSpanSeconds": 114.9924840927124,
+          "maxProbeGapSeconds": 6.027788877487183,
+          "maxCollectionDurationSeconds": 0.08759858272969723,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.01200008392334,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.008332500077498157,
+            "upperPercentOneCore": 0.04166250038749078,
+            "innerCounterSpanSeconds": 114.9924840927124,
+            "outerCounterSpanSeconds": 125.02041816711426,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T21:00:47.732426+00:00",
+            "outerLastUtc": "2026-10-18T21:02:52.752844+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "writes",
+      "startedAt": "2026-10-18T21:02:58.157Z",
+      "finishedAt": "2026-10-18T21:04:28.162Z",
+      "wallMs": 90005,
+      "clients": 5,
+      "repetition": 2,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 75,
+      "changeControlGETs": 30,
+      "decodedBodyBytes": 1579470,
+      "upkeepEvents": 30,
+      "terminalFailures": 21,
+      "failuresProvenConsumed": 21,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T21:02:58.257Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 359,
+              "screenshotUpperBoundMs": 414,
+              "nativeSemanticsMs": 280,
+              "nativeTwoAnimationCallbacksMs": 287,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 194,
+              "screenshotUpperBoundMs": 265,
+              "nativeSemanticsMs": 181,
+              "nativeTwoAnimationCallbacksMs": 187,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 322,
+              "screenshotUpperBoundMs": 403,
+              "nativeSemanticsMs": 315,
+              "nativeTwoAnimationCallbacksMs": 321,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 342,
+              "screenshotUpperBoundMs": 402,
+              "nativeSemanticsMs": 255,
+              "nativeTwoAnimationCallbacksMs": 270,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 312,
+              "screenshotUpperBoundMs": 376,
+              "nativeSemanticsMs": 219,
+              "nativeTwoAnimationCallbacksMs": 237,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T21:03:28.239Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 193,
+              "screenshotUpperBoundMs": 276,
+              "nativeSemanticsMs": 153,
+              "nativeTwoAnimationCallbacksMs": 161,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 310,
+              "screenshotUpperBoundMs": 372,
+              "nativeSemanticsMs": 227,
+              "nativeTwoAnimationCallbacksMs": 244,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 328,
+              "screenshotUpperBoundMs": 402,
+              "nativeSemanticsMs": 254,
+              "nativeTwoAnimationCallbacksMs": 261,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 201,
+              "screenshotUpperBoundMs": 276,
+              "nativeSemanticsMs": 196,
+              "nativeTwoAnimationCallbacksMs": 211,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 326,
+              "screenshotUpperBoundMs": 388,
+              "nativeSemanticsMs": 237,
+              "nativeTwoAnimationCallbacksMs": 244,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T21:03:58.264Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 338,
+              "screenshotUpperBoundMs": 422,
+              "nativeSemanticsMs": 274,
+              "nativeTwoAnimationCallbacksMs": 293,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 336,
+              "screenshotUpperBoundMs": 421,
+              "nativeSemanticsMs": 311,
+              "nativeTwoAnimationCallbacksMs": 333,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 231,
+              "screenshotUpperBoundMs": 311,
+              "nativeSemanticsMs": 220,
+              "nativeTwoAnimationCallbacksMs": 228,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 333,
+              "screenshotUpperBoundMs": 420,
+              "nativeSemanticsMs": 322,
+              "nativeTwoAnimationCallbacksMs": 326,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 343,
+              "screenshotUpperBoundMs": 423,
+              "nativeSemanticsMs": 335,
+              "nativeTwoAnimationCallbacksMs": 342,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 15,
+        "p50": 326,
+        "p95": 359
+      },
+      "screenshotUpperBoundMs": {
+        "n": 15,
+        "p50": 402,
+        "p95": 423
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 181.78125,
+          "rssMedianMiB": 181.5625,
+          "probeSamples": 18,
+          "probeSpanSeconds": 84.99197292327881,
+          "maxProbeGapSeconds": 5.027179956436157,
+          "maxCollectionDurationSeconds": 0.10771681182086468,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.00499987602234,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.2888728407956645,
+            "upperPercentOneCore": 0.477751236700522,
+            "innerCounterSpanSeconds": 84.99197292327881,
+            "outerCounterSpanSeconds": 95.00621700286865,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T21:02:57.659466+00:00",
+            "outerLastUtc": "2026-10-18T21:04:32.665683+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 49.15625,
+          "rssMedianMiB": 48.6875,
+          "probeSamples": 18,
+          "probeSpanSeconds": 84.98368811607361,
+          "maxProbeGapSeconds": 5.053020000457764,
+          "maxCollectionDurationSeconds": 0.09096379578113556,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.00499987602234,
+            "clockOffsetRangeSeconds": [
+              -0.026,
+              -0.02
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.07777345713729429,
+            "upperPercentOneCore": 0.16665740815134486,
+            "innerCounterSpanSeconds": 84.98368811607361,
+            "outerCounterSpanSeconds": 95.00514793395996,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T21:02:57.743983+00:00",
+            "outerLastUtc": "2026-10-18T21:04:32.749131+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "overview",
+      "workload": "idle",
+      "startedAt": "2026-10-18T21:05:04.366Z",
+      "finishedAt": "2026-10-18T21:07:04.379Z",
+      "wallMs": 120013,
+      "clients": 5,
+      "repetition": 3,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 1080,
+      "upkeepEvents": 40,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 181.890625,
+          "rssMedianMiB": 181.890625,
+          "probeSamples": 24,
+          "probeSpanSeconds": 114.99038004875183,
+          "maxProbeGapSeconds": 5.994869947433472,
+          "maxCollectionDurationSeconds": 0.09661119617521763,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.01300001144409,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.03332972261020532,
+            "innerCounterSpanSeconds": 114.99038004875183,
+            "outerCounterSpanSeconds": 125.00147700309753,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T21:05:01.657173+00:00",
+            "outerLastUtc": "2026-10-18T21:07:06.658650+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 50.046875,
+          "rssMedianMiB": 50.03125,
+          "probeSamples": 24,
+          "probeSpanSeconds": 114.98644304275513,
+          "maxProbeGapSeconds": 5.995357990264893,
+          "maxCollectionDurationSeconds": 0.08301753737032413,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.01300001144409,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.00833243065255133,
+            "upperPercentOneCore": 0.04166215326275666,
+            "innerCounterSpanSeconds": 114.98644304275513,
+            "outerCounterSpanSeconds": 125.01259803771973,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T21:05:01.730632+00:00",
+            "outerLastUtc": "2026-10-18T21:07:06.743230+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "overview",
+      "workload": "writes",
+      "startedAt": "2026-10-18T21:07:10.449Z",
+      "finishedAt": "2026-10-18T21:08:40.461Z",
+      "wallMs": 90012,
+      "clients": 5,
+      "repetition": 3,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 45,
+      "changeControlGETs": 30,
+      "decodedBodyBytes": 1708305,
+      "upkeepEvents": 30,
+      "terminalFailures": 7,
+      "failuresProvenConsumed": 7,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T21:07:10.542Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 383,
+              "screenshotUpperBoundMs": 718,
+              "nativeSemanticsMs": 371,
+              "nativeTwoAnimationCallbacksMs": 387,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 406,
+              "screenshotUpperBoundMs": 746,
+              "nativeSemanticsMs": 391,
+              "nativeTwoAnimationCallbacksMs": 404,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 544,
+              "screenshotUpperBoundMs": 716,
+              "nativeSemanticsMs": 398,
+              "nativeTwoAnimationCallbacksMs": 411,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 424,
+              "screenshotUpperBoundMs": 745,
+              "nativeSemanticsMs": 409,
+              "nativeTwoAnimationCallbacksMs": 422,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 650,
+              "screenshotUpperBoundMs": 762,
+              "nativeSemanticsMs": 412,
+              "nativeTwoAnimationCallbacksMs": 427,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T21:07:40.569Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 300,
+              "screenshotUpperBoundMs": 480,
+              "nativeSemanticsMs": 287,
+              "nativeTwoAnimationCallbacksMs": 300,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 428,
+              "screenshotUpperBoundMs": 527,
+              "nativeSemanticsMs": 291,
+              "nativeTwoAnimationCallbacksMs": 303,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 320,
+              "screenshotUpperBoundMs": 528,
+              "nativeSemanticsMs": 306,
+              "nativeTwoAnimationCallbacksMs": 319,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 332,
+              "screenshotUpperBoundMs": 531,
+              "nativeSemanticsMs": 321,
+              "nativeTwoAnimationCallbacksMs": 333,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 317,
+              "screenshotUpperBoundMs": 534,
+              "nativeSemanticsMs": 302,
+              "nativeTwoAnimationCallbacksMs": 317,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T21:08:10.562Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 282,
+              "screenshotUpperBoundMs": 461,
+              "nativeSemanticsMs": 269,
+              "nativeTwoAnimationCallbacksMs": 281,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 370,
+              "screenshotUpperBoundMs": 443,
+              "nativeSemanticsMs": 238,
+              "nativeTwoAnimationCallbacksMs": 251,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 331,
+              "screenshotUpperBoundMs": 412,
+              "nativeSemanticsMs": 218,
+              "nativeTwoAnimationCallbacksMs": 231,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 451,
+              "screenshotUpperBoundMs": 530,
+              "nativeSemanticsMs": 330,
+              "nativeTwoAnimationCallbacksMs": 351,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 369,
+              "screenshotUpperBoundMs": 426,
+              "nativeSemanticsMs": 236,
+              "nativeTwoAnimationCallbacksMs": 248,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 15,
+        "p50": 370,
+        "p95": 650
+      },
+      "screenshotUpperBoundMs": {
+        "n": 15,
+        "p50": 530,
+        "p95": 762
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 182.0,
+          "rssMedianMiB": 181.671875,
+          "probeSamples": 18,
+          "probeSpanSeconds": 84.98716902732849,
+          "maxProbeGapSeconds": 5.991289138793945,
+          "maxCollectionDurationSeconds": 0.09850368462502956,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.01200008392334,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.32217926468650443,
+            "upperPercentOneCore": 0.5443718610220247,
+            "innerCounterSpanSeconds": 84.98716902732849,
+            "outerCounterSpanSeconds": 96.00952911376953,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T21:07:06.658650+00:00",
+            "outerLastUtc": "2026-10-18T21:08:42.668179+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 50.078125,
+          "rssMedianMiB": 50.046875,
+          "probeSamples": 18,
+          "probeSpanSeconds": 84.98364305496216,
+          "maxProbeGapSeconds": 5.970418930053711,
+          "maxCollectionDurationSeconds": 0.09792096354067326,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.01200008392334,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.044438519267104064,
+            "upperPercentOneCore": 0.13331555780131218,
+            "innerCounterSpanSeconds": 84.98364305496216,
+            "outerCounterSpanSeconds": 96.00084590911865,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T21:07:06.743230+00:00",
+            "outerLastUtc": "2026-10-18T21:08:42.744076+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "idle",
+      "startedAt": "2026-10-18T21:08:53.928Z",
+      "finishedAt": "2026-10-18T21:10:53.938Z",
+      "wallMs": 120010,
+      "clients": 5,
+      "repetition": 3,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 0,
+      "changeControlGETs": 0,
+      "decodedBodyBytes": 1080,
+      "upkeepEvents": 40,
+      "terminalFailures": 0,
+      "failuresProvenConsumed": 0,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "screenshotUpperBoundMs": {
+        "n": 0,
+        "p50": null,
+        "p95": null
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 182.0,
+          "rssMedianMiB": 182.0,
+          "probeSamples": 24,
+          "probeSpanSeconds": 116.00187921524048,
+          "maxProbeGapSeconds": 6.012248992919922,
+          "maxCollectionDurationSeconds": 0.09354545176029205,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.00999999046326,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0,
+            "upperPercentOneCore": 0.041663194737083006,
+            "innerCounterSpanSeconds": 116.00187921524048,
+            "outerCounterSpanSeconds": 125.00393986701965,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T21:08:52.660490+00:00",
+            "outerLastUtc": "2026-10-18T21:10:57.664430+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 24,
+          "rssMaxMiB": 49.671875,
+          "rssMedianMiB": 49.671875,
+          "probeSamples": 24,
+          "probeSpanSeconds": 116.01169991493225,
+          "maxProbeGapSeconds": 6.022830963134766,
+          "maxCollectionDurationSeconds": 0.09245200641453266,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 120.00999999046326,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.0083326389474166,
+            "upperPercentOneCore": 0.041663194737083006,
+            "innerCounterSpanSeconds": 116.01169991493225,
+            "outerCounterSpanSeconds": 125.01275300979614,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T21:08:52.730197+00:00",
+            "outerLastUtc": "2026-10-18T21:10:57.742950+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.1,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    },
+    {
+      "view": "detail",
+      "workload": "writes",
+      "startedAt": "2026-10-18T21:11:00.035Z",
+      "finishedAt": "2026-10-18T21:12:30.049Z",
+      "wallMs": 90014,
+      "clients": 5,
+      "repetition": 3,
+      "clockProbesAvailable": true,
+      "streamsAfterTrialClose": 0,
+      "dataGETs": 75,
+      "changeControlGETs": 30,
+      "decodedBodyBytes": 1579470,
+      "upkeepEvents": 30,
+      "terminalFailures": 28,
+      "failuresProvenConsumed": 28,
+      "pageErrors": 0,
+      "liveByteCoverage": true,
+      "writes": [
+        {
+          "startedAt": "2026-10-18T21:11:00.156Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 327,
+              "screenshotUpperBoundMs": 393,
+              "nativeSemanticsMs": 257,
+              "nativeTwoAnimationCallbacksMs": 271,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 233,
+              "screenshotUpperBoundMs": 306,
+              "nativeSemanticsMs": 221,
+              "nativeTwoAnimationCallbacksMs": 238,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 312,
+              "screenshotUpperBoundMs": 382,
+              "nativeSemanticsMs": 289,
+              "nativeTwoAnimationCallbacksMs": 304,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 319,
+              "screenshotUpperBoundMs": 410,
+              "nativeSemanticsMs": 311,
+              "nativeTwoAnimationCallbacksMs": 321,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 326,
+              "screenshotUpperBoundMs": 409,
+              "nativeSemanticsMs": 315,
+              "nativeTwoAnimationCallbacksMs": 324,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T21:11:30.138Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 310,
+              "screenshotUpperBoundMs": 360,
+              "nativeSemanticsMs": 229,
+              "nativeTwoAnimationCallbacksMs": 245,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 188,
+              "screenshotUpperBoundMs": 241,
+              "nativeSemanticsMs": 156,
+              "nativeTwoAnimationCallbacksMs": 162,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 193,
+              "screenshotUpperBoundMs": 258,
+              "nativeSemanticsMs": 186,
+              "nativeTwoAnimationCallbacksMs": 195,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 295,
+              "screenshotUpperBoundMs": 359,
+              "nativeSemanticsMs": 264,
+              "nativeTwoAnimationCallbacksMs": 278,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 326,
+              "screenshotUpperBoundMs": 373,
+              "nativeSemanticsMs": 252,
+              "nativeTwoAnimationCallbacksMs": 262,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        },
+        {
+          "startedAt": "2026-10-18T21:12:00.158Z",
+          "status": 200,
+          "observations": [
+            {
+              "client": 1,
+              "semanticsMs": 330,
+              "screenshotUpperBoundMs": 423,
+              "nativeSemanticsMs": 321,
+              "nativeTwoAnimationCallbacksMs": 331,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 2,
+              "semanticsMs": 390,
+              "screenshotUpperBoundMs": 445,
+              "nativeSemanticsMs": 302,
+              "nativeTwoAnimationCallbacksMs": 315,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 3,
+              "semanticsMs": 330,
+              "screenshotUpperBoundMs": 410,
+              "nativeSemanticsMs": 320,
+              "nativeTwoAnimationCallbacksMs": 331,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 4,
+              "semanticsMs": 283,
+              "screenshotUpperBoundMs": 346,
+              "nativeSemanticsMs": 261,
+              "nativeTwoAnimationCallbacksMs": 281,
+              "dataRegionPixelsChanged": true
+            },
+            {
+              "client": 5,
+              "semanticsMs": 275,
+              "screenshotUpperBoundMs": 347,
+              "nativeSemanticsMs": 209,
+              "nativeTwoAnimationCallbacksMs": 231,
+              "dataRegionPixelsChanged": true
+            }
+          ]
+        }
+      ],
+      "frameObservations": [
+        {
+          "client": 1,
+          "measurement": null
+        },
+        {
+          "client": 2,
+          "measurement": null
+        },
+        {
+          "client": 3,
+          "measurement": null
+        },
+        {
+          "client": 4,
+          "measurement": null
+        },
+        {
+          "client": 5,
+          "measurement": null
+        }
+      ],
+      "semanticsMs": {
+        "n": 15,
+        "p50": 312,
+        "p95": 390
+      },
+      "screenshotUpperBoundMs": {
+        "n": 15,
+        "p50": 373,
+        "p95": 445
+      },
+      "processes": {
+        "tm230-acceptance-lab-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 182.0625,
+          "rssMedianMiB": 181.890625,
+          "probeSamples": 18,
+          "probeSpanSeconds": 85.02049899101257,
+          "maxProbeGapSeconds": 6.020462989807129,
+          "maxCollectionDurationSeconds": 0.09126791171729565,
+          "proposedSampledRssLimitMiB": 256,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.01399993896484,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.2999533407948508,
+            "upperPercentOneCore": 0.4888128516656828,
+            "innerCounterSpanSeconds": 85.02049899101257,
+            "outerCounterSpanSeconds": 95.00369000434875,
+            "processIdentities": [
+              1104844068
+            ],
+            "outerFirstUtc": "2026-10-18T21:10:57.664430+00:00",
+            "outerLastUtc": "2026-10-18T21:12:32.668120+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 1.5,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        },
+        "tm230-acceptance-gateway-1": {
+          "rssSamples": 18,
+          "rssMaxMiB": 49.40625,
+          "rssMedianMiB": 48.890625,
+          "probeSamples": 18,
+          "probeSpanSeconds": 85.03359889984131,
+          "maxProbeGapSeconds": 6.037959098815918,
+          "maxCollectionDurationSeconds": 0.08758414164185524,
+          "proposedSampledRssLimitMiB": 80,
+          "sampledRssBudgetStatus": "sampled-within-limit",
+          "cpu": {
+            "windowSeconds": 90.01399993896484,
+            "clockOffsetRangeSeconds": [
+              -0.027,
+              -0.021
+            ],
+            "guardSeconds": 0.1,
+            "quantizationGuardTicks": 2,
+            "lowerPercentOneCore": 0.06665629795441128,
+            "upperPercentOneCore": 0.15553136189362635,
+            "innerCounterSpanSeconds": 85.03359889984131,
+            "outerCounterSpanSeconds": 95.01304912567139,
+            "processIdentities": [
+              1104844086
+            ],
+            "outerFirstUtc": "2026-10-18T21:10:57.742950+00:00",
+            "outerLastUtc": "2026-10-18T21:12:32.755999+00:00"
+          },
+          "proposedCpuLimitPercentOneCore": 0.25,
+          "proposedCpuBudgetStatus": "within-conservative-bound"
+        }
+      },
+      "unclassifiedOrUnsuccessfulFailures": 0
+    }
+  ],
+  "limits": [
+    "Clients within each trial are correlated. Keep repetitions separate.",
+    "Decoded body bytes include SSE upkeep, resync and fallback, not headers or TLS/TCP wire overhead.",
+    "Screenshot completion is an upper capture bound, not physical presentation time.",
+    "CPU uses surrounding/inside probes and two rounding ticks. Do not call inner-span zero the whole-window load.",
+    "Without before/after clock probes, zero offset plus the explicit guard is only a provisional assumption.",
+    "Sampled RSS is not instantaneous peak or container/tmpfs memory; proposed budgets are not automatically accepted."
+  ],
+  "sourceCaptureSha256": "5d323197f9bf727d8db37f4573dd4678a92de2875f6dd5fdd785becd78745398",
+  "trailingPartialResourceRecords": 0,
+  "sourceResourceCaptures": [
+    {
+      "file": "shared-care-integrated-pi-resources-2026-10-18T174803Z-complete.jsonl",
+      "sha256": "f8bfe7020a2d4548335ee0b8270477e0dd23e3767476d8da76876c822a7c69bc",
+      "samples": 2602,
+      "trailingPartialRecords": 0,
+      "firstUtc": "2026-10-18T17:48:15.599012+00:00",
+      "lastUtc": "2026-10-18T21:25:00.598737+00:00",
+      "overlapSecondsWithEarlierInputs": 0
+    }
+  ],
+  "sourceResourcesSha256": "f8bfe7020a2d4548335ee0b8270477e0dd23e3767476d8da76876c822a7c69bc"
+}

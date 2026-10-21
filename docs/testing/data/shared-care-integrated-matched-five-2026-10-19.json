@@ -1,0 +1,398 @@
+{
+  "schema": 1,
+  "kind": "matched-integrated-flutter-comparison",
+  "browser": "155.0.8059.85",
+  "plan": {
+    "clients": [
+      5
+    ],
+    "repetitions": 3,
+    "idleSeconds": 120,
+    "writesPerView": 3,
+    "writeSlotSeconds": 30,
+    "boundaryQuietSeconds": 6,
+    "latencyObserver": "native"
+  },
+  "diagnostics": "reads",
+  "explicitClientSubset": [
+    5
+  ],
+  "requiredMatrixComplete": false,
+  "fiveClientNumericalTargetsMet": true,
+  "requestOrPageErrorEvidenceOpen": false,
+  "windows": [
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120002,
+        "dataGETs": 400,
+        "decodedBodyBytes": 8885049,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98784555936608,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90005,
+        "dataGETs": 75,
+        "decodedBodyBytes": 1579470,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 923,
+        "captureP95Ms": 988,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90008,
+        "dataGETs": 300,
+        "decodedBodyBytes": 6580530,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3403,
+        "captureP95Ms": 3506,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120013,
+        "dataGETs": 120,
+        "decodedBodyBytes": 4519600,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610348265886,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 1,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90006,
+        "dataGETs": 45,
+        "decodedBodyBytes": 1708305,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 714,
+        "captureP95Ms": 813,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90004,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3389700,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14710,
+        "captureP95Ms": 14777,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120012,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120005,
+        "dataGETs": 400,
+        "decodedBodyBytes": 8774040,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769167901789,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90005,
+        "dataGETs": 75,
+        "decodedBodyBytes": 1579470,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 359,
+        "captureP95Ms": 423,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90012,
+        "dataGETs": 300,
+        "decodedBodyBytes": 6580530,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3414,
+        "captureP95Ms": 3480,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120007,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120001,
+        "dataGETs": 120,
+        "decodedBodyBytes": 4519600,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610527473338,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 2,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90015,
+        "dataGETs": 45,
+        "decodedBodyBytes": 1708305,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 887,
+        "captureP95Ms": 1029,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90003,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3389700,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 14176,
+        "captureP95Ms": 14241,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120010,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120002,
+        "dataGETs": 400,
+        "decodedBodyBytes": 8774040,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.98769178159662,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "detail",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90014,
+        "dataGETs": 75,
+        "decodedBodyBytes": 1579470,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 390,
+        "captureP95Ms": 445,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90011,
+        "dataGETs": 300,
+        "decodedBodyBytes": 6580530,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 3417,
+        "captureP95Ms": 3482,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "idle",
+      "sse": {
+        "wallMs": 120013,
+        "dataGETs": 0,
+        "decodedBodyBytes": 1080,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 120011,
+        "dataGETs": 120,
+        "decodedBodyBytes": 4519600,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": null,
+        "captureP95Ms": null,
+        "observations": 0,
+        "allObservedPixelsChanged": true
+      },
+      "idleDataGetReductionPercent": 100.0,
+      "idleBodyByteReductionPercent": 99.97610447822927,
+      "numericalTargetMet": true
+    },
+    {
+      "clients": 5,
+      "repetition": 3,
+      "view": "overview",
+      "workload": "writes",
+      "sse": {
+        "wallMs": 90012,
+        "dataGETs": 45,
+        "decodedBodyBytes": 1708305,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 650,
+        "captureP95Ms": 762,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "polling": {
+        "wallMs": 90003,
+        "dataGETs": 90,
+        "decodedBodyBytes": 3389700,
+        "unclassifiedOrUnsuccessfulFailuresByRoute": {},
+        "pageErrorsCumulativeAtWindowEnd": 0,
+        "semanticsP95Ms": 13128,
+        "captureP95Ms": 13194,
+        "observations": 15,
+        "allObservedPixelsChanged": true
+      },
+      "numericalTargetMet": true
+    }
+  ],
+  "limits": [
+    "Numerical targets are not overall issue acceptance: resource bounds, rendering, physical lifecycle and the soak are separate.",
+    "Each repetition stays separate; clients observing the same write are correlated.",
+    "Body-byte rates include stream upkeep/fallback/resync but exclude headers, TLS/TCP and other wire overhead.",
+    "Capture p95 is an upper bound after semantics/two animation callbacks, not physical presentation time.",
+    "Unclassified terminal events remain open even if UI values and numerical targets succeed.",
+    "Exact image identities and experiment mode order need their separate provenance record.",
+    "Batched SSE then polling has a time/order confound; no per-mode RAM saving follows from this comparison."
+  ],
+  "sourceCaptureSha256": {
+    "sse": "5d323197f9bf727d8db37f4573dd4678a92de2875f6dd5fdd785becd78745398",
+    "polling": "78b008bc34ca5329b160b2798f9d711a679f881d3f5db5f370eb75c180cddebf"
+  }
+}

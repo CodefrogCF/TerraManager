@@ -1,5 +1,6 @@
 // Optional measurement build. Production main_shared.dart remains unchanged.
-// drawFrame measures Flutter UI build/layout/paint CPU, NOT presented pixels.
+// Stopwatch measures synchronous drawFrame elapsed time, including preemption.
+// It does not measure OS CPU time or presented pixels.
 import 'dart:convert';
 import 'dart:js_interop';
 
@@ -30,12 +31,12 @@ class AcceptanceBinding extends WidgetsFlutterBinding {
 
   JSString snapshot(JSBoolean reset) {
     final result = jsonEncode({
-      'kind': 'instrumented-flutter-drawFrame-CPU',
+      'kind': 'instrumented-flutter-drawFrame-elapsed',
       'timeOriginMs': web.window.performance.timeOrigin,
       'atMs': web.window.performance.now(),
-      'frameCpuMicroseconds': _samples,
+      'frameElapsedMicroseconds': _samples,
       'droppedSamples': _dropped,
-      'limit': 'Not GPU raster, widget build count, browser paint or physical presentation latency.',
+      'limit': 'Synchronous drawFrame elapsed wall time, including scheduling/preemption. Not OS CPU time, GPU raster, widget build count, browser paint or physical presentation latency.',
     });
     if (reset.toDart) {
       _samples.clear();

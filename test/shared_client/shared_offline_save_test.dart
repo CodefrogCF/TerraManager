@@ -97,11 +97,24 @@ void main() {
       await tester.tap(find.byKey(const Key('add-box-button')));
       await tester.pumpAndSettle();
       await tester.enterText(
-        find.byType(TextFormField).first,
+        find.widgetWithText(TextFormField, 'Name'),
         'Unconfirmed Box',
       );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      final saveButton = find.byKey(const Key('shared-save-box'));
+      // The optional picture controls make this a scrollable creation form.
+      await tester.scrollUntilVisible(
+        saveButton,
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(saveButton);
+      await tester.pumpAndSettle();
+      expect(saveButton.hitTestable(), findsOneWidget);
       offline = true;
-      await tester.tap(find.byKey(const Key('shared-save-box')));
+      await tester.tap(saveButton);
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('shared-save-box')), findsOneWidget);
@@ -119,13 +132,22 @@ void main() {
       expect(find.byKey(const Key('shared-error')), findsOneWidget);
       expect(find.textContaining('Unconfirmed Box'), findsNothing);
       offline = false;
-      boxes.add({'id': 2, 'name': 'From another browser', 'status': 'active'});
+      boxes.add({
+        'id': boxes.length + 1,
+        'name': 'From another browser',
+        'status': 'active',
+      });
       await tester.pump(const Duration(seconds: 16));
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('shared-error')), findsNothing);
       expect(find.textContaining('Unconfirmed Box'), findsOneWidget);
       expect(find.textContaining('From another browser'), findsOneWidget);
+      expect(
+        writes,
+        1,
+        reason: 'Reconnection must not replay the uncertain save.',
+      );
       expect(
         tester
             .widget<FloatingActionButton>(

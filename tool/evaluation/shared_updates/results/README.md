@@ -5,8 +5,6 @@ and password-backup CSV evidence from October 2026. `manifest.json` records each
 original relative name, size and SHA-256; file bytes and earlier classifications
 are unchanged. This is historical evidence, not a current benchmark or test suite.
 
-Reader-facing results: [Shared Care](../../../../docs/testing/shared-care-updates.md),
-[password backups](../../../../docs/testing/password-backups.md).
 Unpack outside the source tree before analysis. With the archive extracted as
 `/tmp/tm-measurements`, the existing analyzers accept these input paths:
 

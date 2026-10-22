@@ -1,8 +1,7 @@
 # Changelog
 
 Release changes are summarized below. Detailed contracts are in the
-[documentation](docs/project-documentation.md); test evidence is in
-[Validation](docs/testing/validation.md). Dates and historical release
+[documentation](docs/project-documentation.md). Dates and historical release
 groupings are retained from the existing record.
 
 ## [1.15.5] - 2026-10-21

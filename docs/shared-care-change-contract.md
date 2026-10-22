@@ -1,7 +1,6 @@
 # Shared Care change contract
 
-Implemented by Issues #226-#229; evaluated in
-[Shared Care update acceptance](testing/shared-care-updates.md). HTTP remains
+Implemented by Issues #226-#229. HTTP remains
 the authorized command/data interface. Change hints carry resource kinds/IDs,
 never record contents or credentials.
 

@@ -303,14 +303,9 @@ ZIP: Argon2id plus framed AES-256-GCM with fresh salt/nonce, authenticated metad
 and a final frame. Keep legacy ZIP imports and the combined wrong-password/
 damage error. Never persist passwords; Shared Care encrypts/decrypts client-side.
 
-The initial #118 whole-file proof was deferred; the later feature ships with
-documented proportional-memory limits. File-backed/incremental paths reduce copies
-but do not establish end-to-end bounded memory. The optimized S22 protected
-import peaked at 854.5 MiB sampled PSS; its increase remained 164.2 MiB above the
-plain comparison, exceeding the proposed 64 MiB target. Approximately 4 GiB
-device validation and further memory work remain separate follow-ups.
-See [container format](backup-format.md) and
-[backup acceptance/open gates](testing/password-backups.md).
+Protected operations still use memory proportional to the archive. File-backed
+and incremental paths reduce copies without establishing end-to-end bounded
+memory. See [container format](backup-format.md).
 
 ## ADR-037: Evaluate versioned Shared Care invalidation and SSE delivery
 
@@ -333,10 +328,6 @@ restart, restore and foreground return; preserve drafts, conflicts and the offli
 write policy. Enforce cookie/origin/role/session checks throughout open streams.
 The [change contract](shared-care-change-contract.md) defines exact behavior.
 
-Issues #226-#229 implement revisions, targeted refresh, SSE and recovery. #230
-completed integrated Pi/browser acceptance on 2026-10-21 for the recorded fixture
-and accepted budgets. The chosen Dart/Caddy/browser path is validated; other
-deployments require their own checks. Caddy's accepted ten-client write budget
-is 0.30% of one core, while the original inconclusive 0.25% classifications remain
-preserved. S22 Firefox is excluded from trusted-HTTPS acceptance because its CA
-was absent. See [measurements and reproduction](testing/shared-care-updates.md).
+Issues #226-#229 implement revisions, targeted refresh, SSE and recovery.
+Deployments must verify the Dart/Caddy/browser path, authentication, reconnects
+and resource use on their own hardware.

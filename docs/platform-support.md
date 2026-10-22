@@ -31,13 +31,11 @@ the Shared Care link opens the external browser.
 - Save destinations and fallback downloads depend on the browser/OS.
 - Protected backups may take minutes and require memory proportional to the
   archive. Large files can fail on low-memory clients; failed/cancelled restore
-  leaves the collection unchanged. See [backup validation](testing/password-backups.md).
+  leaves the collection unchanged.
 
 Shared Care uses trusted LAN HTTPS, a supported browser and a reachable server.
 Hidden/disconnected clients reconcile on return; edits are not queued offline.
 Appearance and sorting are account preferences, not a browser collection database.
-Tested browser combinations and limitations are in
-[Shared Care acceptance](testing/shared-care-updates.md).
 
 ## Portability
 

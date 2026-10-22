@@ -24,17 +24,14 @@ Commands are in [Development](development.md) and
 - [ ] Check persistence, archive/restore, QR, pictures and care histories where touched.
 - [ ] For backup changes, verify legacy formats, large media, cancellation,
   wrong password/corruption, safety-copy failure and unchanged data on failure.
-  Use the [backup validation summary](testing/password-backups.md).
 - [ ] For Shared Care, verify trusted HTTPS, automatic updates, conflicts,
   connection recovery, role/session handling and collection restore using
-  disposable data. See [Shared Care acceptance](testing/shared-care-updates.md).
-- [ ] Record only issue-required results and outstanding checks in
-  [Validation](testing/validation.md). A build does not establish a device result.
+  disposable data.
+- [ ] Record issue-required results and outstanding checks in the corresponding
+  GitHub issue. A build does not establish a device result.
 
-Large password-protected backups currently have proportional memory costs.
-The separate bounded-memory optimization does not block this release-validation
-issue when the limitation is documented and functional/integrity gates pass.
-Do not claim the deferred 64 MiB / approximately 4 GiB target is satisfied.
+Large password-protected backups currently require memory proportional to the
+archive size. Functional success does not establish bounded memory.
 
 ## Compatibility and publication
 

@@ -69,15 +69,14 @@ Run focused tests while developing and the quality gates before merging.
 For documentation, run `flutter test test/platform`; check local links and both
 guide languages. For platform changes, test the affected camera, file, media or
 storage workflow on its target. Record the issue requirement, result and any
-unverified boundary in the [validation summary](testing/validation.md).
+unverified boundary in the corresponding GitHub issue.
 The [release-checklist.md](release-checklist.md) covers publishing checks.
 
 ## Documentation maintenance
 
 Each technical topic has one reference linked from the
 [documentation index](project-documentation.md). Use the changelog for release
-history and GitHub Issues for work tracking. Keep test reports to acceptance
-results, essential measurements, reproduction commands and open checks.
+history and GitHub Issues for work tracking.
 
 The public site uses Jekyll: `docs/index.md` and `docs/en/index.md` select localized
 homepage data in `_data/home.yml`; both visual user guides use `_data/guide.yml`

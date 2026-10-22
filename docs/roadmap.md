@@ -3,8 +3,7 @@
 Current work and acceptance criteria live in
 [GitHub Issues](https://github.com/CodefrogCF/TerraManager/issues).
 Completed releases are recorded once in the [changelog](../CHANGELOG.md).
-The [validation summary](testing/validation.md) records evidence and open checks;
-this page does not duplicate issue checklists or infer their current GitHub state.
+This page does not duplicate issue checklists or infer their current GitHub state.
 
 ## Established scope
 
@@ -21,8 +20,7 @@ synchronize independent standalone collections.
 - Bound memory for large protected backup operations and validate the target on
   approximately 4 GiB hardware. Functional large-backup success does not prove
   the memory target.
-- Complete outstanding release-candidate/device evidence for affected features;
-  use the current validation summary rather than historic intermediate reports.
+- Complete outstanding release-candidate/device checks for affected features.
 - Validate iOS before advertising support; native desktop releases are not validated.
 
 ## Ideas without a committed release

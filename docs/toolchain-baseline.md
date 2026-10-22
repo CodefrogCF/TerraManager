@@ -55,8 +55,7 @@ cd android
 `flutter_image_compress_common` retains a conditional legacy fallback in its
 source; the task checks that this fallback is not applied.
 `android.newDsl=false` remains required by Flutter 3.47.2. Removing it and remaining
-legacy DSL dependencies is separate follow-up work. See the
-[migration results](testing/android-build.md).
+legacy DSL dependencies is separate follow-up work.
 
 ## CI and upgrades
 

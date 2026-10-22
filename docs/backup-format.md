@@ -171,4 +171,4 @@ full server backup.
 
 Large protected operations can take minutes and still use memory proportional
 to the archive. File-backed paths reduce copies without establishing bounded
-memory. Current evidence/open targets are in [Backup validation](testing/password-backups.md).
+memory.

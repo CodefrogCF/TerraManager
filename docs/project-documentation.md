@@ -19,7 +19,7 @@ receive change notifications through SSE. Commands and refreshed data use HTTP.
 | Install, update and transfer data | [Installation and updates](installation-and-updates.md) |
 | Supported devices and browser limitations | [Platform support](platform-support.md) |
 | Set up, back up and update Shared Care | [Shared Care deployment](shared-care-deployment.md) |
-| Try the app and report a problem | [Testing](testing/index.md), [Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md) |
+| Report a problem | [Support](https://github.com/CodefrogCF/TerraManager/blob/main/SUPPORT.md) |
 
 ## For developers
 
@@ -34,7 +34,6 @@ receive change notifications through SSE. Commands and refreshed data use HTTP.
 | Shared client/server boundaries | [Shared Care code organization](shared-care-architecture.md) |
 | Routes, authorization and limits | [Shared Care API](shared-care-api.md) |
 | Revisions, SSE and recovery | [Change contract](shared-care-change-contract.md) |
-| Issue acceptance and remaining checks | [Validation summary](testing/validation.md) |
 | Future work | [Roadmap](roadmap.md) |
 
 ## Project policies

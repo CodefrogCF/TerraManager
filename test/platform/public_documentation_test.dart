@@ -41,11 +41,6 @@ void main() {
       'docs/architecture-decisions.md',
       'docs/android-release-signing.md',
       'docs/roadmap.md',
-      'docs/testing/index.md',
-      'docs/testing/validation.md',
-      'docs/testing/shared-care-updates.md',
-      'docs/testing/password-backups.md',
-      'docs/testing/android-build.md',
       'tool/docs/build_user_manuals.py',
       'tool/evaluation/shared_updates/results/acceptance-2026-10.zip',
     ];
@@ -116,7 +111,6 @@ void main() {
       releaseChecklist,
       contains('canonical release-validation checklist'),
     );
-    expect(releaseChecklist, contains('testing/password-backups.md'));
 
     expect(
       development,

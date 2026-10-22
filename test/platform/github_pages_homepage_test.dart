@@ -108,7 +108,6 @@ void main() {
       'docs/privacy/de/index.md',
       'docs/license/index.md',
       'docs/installation-and-updates.md',
-      'docs/testing/index.md',
       'docs/project-documentation.md',
     ];
 

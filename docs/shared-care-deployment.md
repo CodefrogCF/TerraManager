@@ -67,8 +67,7 @@ Open `https://<TM_HOST>/` from another device and verify valid TLS, sign-in and
 must return 401. With disposable records, confirm two-client automatic updates,
 stale-edit rejection, reconnection, role checks, picture/QR workflows and persistence
 after restart. A successful container health check alone is insufficient.
-Use [the acceptance checklist/results](testing/shared-care-updates.md) for the
-targeted protocol; preserve separate browser profiles for test stacks on the same host.
+Use separate browser profiles for test stacks on the same host.
 
 Healthy clients receive SSE hints and refresh affected data without page reload.
 If streaming fails, conditional polling takes over. Drafts stay open; disconnected

@@ -27,7 +27,7 @@ receive change notifications through SSE. Commands and refreshed data use HTTP.
 | --- | --- |
 | Setup, generation and documentation maintenance | [Development guide](development.md) |
 | Pinned SDKs and dependency locks | [Toolchain baseline](toolchain-baseline.md) |
-| Build and publish | [Release checklist](release-checklist.md), [Android release signing](android-release-signing.md) |
+| Android release signing | [Android release signing](android-release-signing.md) |
 | Decisions and trade-offs | [Architecture decisions](architecture-decisions.md) |
 | SQLite entities and migrations | [Data model](data-model.md) |
 | Portable and password-protected archives | [Backup format](backup-format.md) |

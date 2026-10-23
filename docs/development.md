@@ -70,7 +70,6 @@ For documentation, run `flutter test test/platform`; check local links and both
 guide languages. For platform changes, test the affected camera, file, media or
 storage workflow on its target. Record the issue requirement, result and any
 unverified boundary in the corresponding GitHub issue.
-The [release-checklist.md](release-checklist.md) covers publishing checks.
 
 ## Documentation maintenance
 

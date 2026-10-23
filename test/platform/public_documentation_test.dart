@@ -32,7 +32,6 @@ void main() {
       'LICENSE',
       'docs/project-documentation.md',
       'docs/development.md',
-      'docs/release-checklist.md',
       'docs/toolchain-baseline.md',
       'docs/installation-and-updates.md',
       'docs/platform-support.md',
@@ -82,7 +81,6 @@ void main() {
 
     const canonicalReferences = [
       'development.md',
-      'release-checklist.md',
       'toolchain-baseline.md',
       'installation-and-updates.md',
       'platform-support.md',
@@ -102,33 +100,6 @@ void main() {
     }
   });
 
-  test('release checks have one canonical documentation source', () {
-    final releaseChecklist = read('docs/release-checklist.md');
-    final development = read('docs/development.md');
-    final projectDocumentation = read('docs/project-documentation.md');
-
-    expect(
-      releaseChecklist,
-      contains('canonical release-validation checklist'),
-    );
-
-    expect(
-      development,
-      contains('[release-checklist.md](release-checklist.md)'),
-    );
-
-    expect(
-      projectDocumentation,
-      contains('[Release checklist](release-checklist.md)'),
-    );
-
-    expect(
-      development,
-      isNot(contains('## Recommended Release Validation')),
-      reason: 'The complete release checklist should not be duplicated in development.md.',
-    );
-  });
-
   test(
     'documentation maintenance owns guides screenshots and localization',
     () {
@@ -138,7 +109,6 @@ void main() {
       expect(maintenance, contains('English and German'));
       expect(maintenance, contains('visual user guides'));
       expect(maintenance, contains(RegExp(r'downloadable\s+manuals?')));
-      expect(maintenance, contains('release-checklist.md'));
     },
   );
 
@@ -357,7 +327,6 @@ void main() {
 
     final obsoletePatterns = [
       RegExp(r'release[-_]?validation', caseSensitive: false),
-      RegExp(r'v1[_\.-]?0[_\.-]?0.*checklist', caseSensitive: false),
       RegExp(r'issue[-_]?\d+.*\.md$', caseSensitive: false),
     ];
 

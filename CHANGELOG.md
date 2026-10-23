@@ -310,7 +310,6 @@ groupings are retained from the existing record.
 - align Animal and Box archive presentation and interaction patterns
 - keep archive sort preferences local to the current installation
 - consolidate project and release documentation around authoritative shared documents
-  and one release checklist
 
 ### Compatibility
 
@@ -726,8 +725,6 @@ groupings are retained from the existing record.
   Release builds
 - added a documented Flutter 3.47.2, Dart 3.13, Java 17, Android Gradle Plugin 9.1.0
   and Gradle 9.3.1 baseline with an explicit upgrade procedure
-- added the final v1.0.0 regression, compatibility, artifact-verification and
-  publication checklist
 - added the complete GNU General Public License under the `GPL-3.0-or-later`
   identifier
 - added public privacy and permission documentation for local data, camera, gallery,

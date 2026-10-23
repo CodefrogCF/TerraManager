@@ -352,4 +352,4 @@ creation identity and appointment before navigating; never replace an edit route
 
 Inexact delivery can be delayed or blocked by Android, force stop, channel or
 manufacturer limits. Surface planning failures and retry; do not claim reliable
-real-time delivery. Manual acceptance is in [Release checklist](release-checklist.md).
+real-time delivery.

@@ -4,7 +4,7 @@ Release changes are summarized below. Detailed contracts are in the
 [documentation](docs/project-documentation.md). Dates and historical release
 groupings are retained from the existing record.
 
-## [Unreleased]
+## [1.16.0] - 2026-10-23
 
 ### Added
 
@@ -14,6 +14,18 @@ groupings are retained from the existing record.
   reminder, archive/delete and device-setting changes. Keep in-app reminders and
   their independent 24-hour overview suppression (#246). Web/Shared Care do not
   create additional system alerts. Android delivery can be delayed by OS restrictions.
+- Add View Animal as the first feeding-alert action in Standalone and Shared Care,
+  alongside Add Feeding and the existing 24-hour overview suppression.
+
+### Changed
+
+- Give empty Boxes their own localized heading when empty-last sorting is enabled,
+  in compact and Big Picture overviews in Standalone and Shared Care.
+- Reduce overview bottom spacing and hide both floating actions at the end of
+  scrollable Animal/Box lists and grids; show them again when scrolling back so
+  the last record's context menu remains accessible.
+- Shorten the Android notification setting description in German and English.
+- Condense user and developer documentation and remove redundant validation reports.
 
 ## [1.15.5] - 2026-10-21
 
@@ -21,26 +33,50 @@ groupings are retained from the existing record.
 
 - Standalone and Shared Care: optionally show empty Boxes last while preserving
   the selected sort within each group; the setting defaults to off (#235).
-- Place the Box scanner above Create Box and Feeding Mode above Create Animal;
-  use the same archive icon in both overviews (#236, #237).
 - Standalone and Shared Care: tap an Animal overview feeding alert to add a
   Feeding or hide its overview alerts for 24 hours. Suppression is personal to
   each Shared Care account; schedules and detail reminders stay active (#233).
 - Optional cropped/optimized pictures during Shared Care Animal/Box creation;
   retry an uncertain upload without creating a duplicate record (#232).
+
+### Changed
+
+- Place the Box scanner above Create Box and Feeding Mode above Create Animal;
+  use the same archive icon in both overviews (#236, #237).
 - Remove Standalone overview Rename actions; names remain editable through Edit (#231).
 - Remove overdue-summary top/bottom outlines in both modes (#234).
-
 
 ## [1.15.2-1.15.4] - 2026-10-16
 
 ### Added
 
-
 - Shared Care: committed revisions, targeted refresh, authenticated SSE and
   conditional fallback with reconnect/resume/restore handling; preserve drafts,
   conflict protection and bounded resources. Evaluation and integrated Pi/browser
   acceptance are recorded for #186 and #226-#230.
+- Export an Animal as a width-adjustable label or a complete A4 profile with
+  Feeding, Shedding and Weight histories, in Standalone and Shared Care; include
+  the favorite picture and optionally the complete gallery (#141).
+- Offer to restore an archived Box after scanning its QR code in Standalone and
+  Shared Care (#219).
+
+### Changed
+
+- Keep Animal labels compact with a square favorite picture and shorter field
+  labels; arrange optional A4 gallery pictures chronologically, including the
+  primary picture, with four original-aspect images per page (#141).
+- Place Restore Box above permanent deletion in Standalone archived Box details
+  and remove the separate top restore button (#220).
+- Migrate Android compilation to AGP Built-in Kotlin and compatible save/scanner
+  plugins; retain the Flutter-required `android.newDsl=false` flag for a separate
+  Android DSL migration (#212).
+
+### Fixed
+
+- Mark due Animals in the compact Shared Care overview (#217).
+- Accept manual entry of the current Feeding time in Shared Care (#218).
+- Keep the localized backup information title readable on narrow screens and
+  with enlarged text, including German "Sicherungsinformationen" (#216).
 
 ## [1.15.1] - 2026-10-02
 

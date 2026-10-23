@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
 import 'package:terramanager/core/presentation/widgets/overview_action_buttons.dart';
+import 'package:terramanager/features/boxes/presentation/widgets/box_overview_layout.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/archive_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
@@ -371,6 +372,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.of(context);
+    final occupiedBoxIds = _occupiedBoxIds;
     final values = _archived
         ? sortSharedArchiveRecords(
             widget.boxes,
@@ -383,246 +385,229 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
             ),
             settings.boxSortOrder,
             showEmptyBoxesLast: settings.showEmptyBoxesLast,
-            occupiedBoxIds: _occupiedBoxIds,
+            occupiedBoxIds: occupiedBoxIds,
           );
 
     return ConstrainedPageWidth(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: _archived
-              ? IconButton(
-                  tooltip: sharedText(context, 'Back', 'Zurück'),
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.arrow_back),
-                )
-              : null,
-          title: Text(
-            _archived
-                ? context.l10n.archivedBoxes
-                : context.l10n.navigationBoxes,
-          ),
-          actions: [
-            if (_archived)
-              PopupMenuButton<ArchiveSortCriterion>(
-                key: const Key('box-archive-sort-button'),
-                tooltip: context.l10n.sortArchivedBoxes,
-                icon: const Icon(Icons.sort),
-                initialValue: settings.boxArchiveSortOrder.criterion,
-                onSelected: (criterion) {
-                  final current = settings.boxArchiveSortOrder;
-                  settings.setBoxArchiveSortOrder(
-                    criterion == current.criterion
-                        ? current.reversed
-                        : criterion.defaultOrder,
-                  );
-                },
-                itemBuilder: (context) => [
-                  for (final criterion in ArchiveSortCriterion.values)
-                    CheckedPopupMenuItem<ArchiveSortCriterion>(
-                      key: Key('box-archive-sort-option-${criterion.name}'),
-                      value: criterion,
-                      checked:
-                          criterion == settings.boxArchiveSortOrder.criterion,
-                      child: Text(
-                        context.l10n.archiveSortCriterionMenuLabel(
-                          criterion,
-                          activeOrder:
-                              criterion ==
-                                  settings.boxArchiveSortOrder.criterion
-                              ? settings.boxArchiveSortOrder
-                              : null,
-                        ),
-                      ),
-                    ),
-                ],
-              )
-            else
-              PopupMenuButton<BoxSortCriterion>(
-                key: const Key('box-sort-button'),
-                initialValue: settings.boxSortOrder.criterion,
-                tooltip: context.l10n.sortBoxes,
-                icon: const Icon(Icons.sort),
-                onSelected: (criterion) {
-                  final current = settings.boxSortOrder;
-                  settings.setBoxSortOrder(
-                    criterion == current.criterion
-                        ? current.reversed
-                        : criterion.defaultOrder,
-                  );
-                },
-                itemBuilder: (context) => [
-                  for (final criterion in BoxSortCriterion.values)
-                    CheckedPopupMenuItem<BoxSortCriterion>(
-                      key: Key('box-sort-option-${criterion.name}'),
-                      value: criterion,
-                      checked: criterion == settings.boxSortOrder.criterion,
-                      child: Text(
-                        context.l10n.boxSortCriterionMenuLabel(
-                          criterion,
-                          activeOrder:
-                              criterion == settings.boxSortOrder.criterion
-                              ? settings.boxSortOrder
-                              : null,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            if (!_archived)
-              IconButton(
-                key: const Key('box-archive-button'),
-                tooltip: context.l10n.archivedBoxes,
-                onPressed: _openArchive,
-                icon: const Icon(Icons.history),
-              ),
-            IconButton(
-              key: const Key('shared-refresh'),
-              tooltip: sharedText(context, 'Reload', 'Neu laden'),
-              onPressed: _reload,
-              icon: const Icon(Icons.refresh),
+      child: OverviewScrollScope(
+        child: Scaffold(
+          appBar: AppBar(
+            leading: _archived
+                ? IconButton(
+                    tooltip: sharedText(context, 'Back', 'Zurück'),
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back),
+                  )
+                : null,
+            title: Text(
+              _archived
+                  ? context.l10n.archivedBoxes
+                  : context.l10n.navigationBoxes,
             ),
-          ],
-        ),
-        floatingActionButton: _archived
-            ? null
-            : OverviewActionButtons(
-                secondary: FloatingActionButton(
-                  key: const Key('shared-box-scan-button'),
-                  heroTag: 'shared-box-scan-fab',
-                  tooltip: context.l10n.scanBoxTitle,
-                  onPressed: widget.connected && widget.api.connected
-                      ? () async {
-                          await Navigator.of(context).push<void>(
+            actions: [
+              if (_archived)
+                PopupMenuButton<ArchiveSortCriterion>(
+                  key: const Key('box-archive-sort-button'),
+                  tooltip: context.l10n.sortArchivedBoxes,
+                  icon: const Icon(Icons.sort),
+                  initialValue: settings.boxArchiveSortOrder.criterion,
+                  onSelected: (criterion) {
+                    final current = settings.boxArchiveSortOrder;
+                    settings.setBoxArchiveSortOrder(
+                      criterion == current.criterion
+                          ? current.reversed
+                          : criterion.defaultOrder,
+                    );
+                  },
+                  itemBuilder: (context) => [
+                    for (final criterion in ArchiveSortCriterion.values)
+                      CheckedPopupMenuItem<ArchiveSortCriterion>(
+                        key: Key('box-archive-sort-option-${criterion.name}'),
+                        value: criterion,
+                        checked:
+                            criterion == settings.boxArchiveSortOrder.criterion,
+                        child: Text(
+                          context.l10n.archiveSortCriterionMenuLabel(
+                            criterion,
+                            activeOrder:
+                                criterion ==
+                                    settings.boxArchiveSortOrder.criterion
+                                ? settings.boxArchiveSortOrder
+                                : null,
+                          ),
+                        ),
+                      ),
+                  ],
+                )
+              else
+                PopupMenuButton<BoxSortCriterion>(
+                  key: const Key('box-sort-button'),
+                  initialValue: settings.boxSortOrder.criterion,
+                  tooltip: context.l10n.sortBoxes,
+                  icon: const Icon(Icons.sort),
+                  onSelected: (criterion) {
+                    final current = settings.boxSortOrder;
+                    settings.setBoxSortOrder(
+                      criterion == current.criterion
+                          ? current.reversed
+                          : criterion.defaultOrder,
+                    );
+                  },
+                  itemBuilder: (context) => [
+                    for (final criterion in BoxSortCriterion.values)
+                      CheckedPopupMenuItem<BoxSortCriterion>(
+                        key: Key('box-sort-option-${criterion.name}'),
+                        value: criterion,
+                        checked: criterion == settings.boxSortOrder.criterion,
+                        child: Text(
+                          context.l10n.boxSortCriterionMenuLabel(
+                            criterion,
+                            activeOrder:
+                                criterion == settings.boxSortOrder.criterion
+                                ? settings.boxSortOrder
+                                : null,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              if (!_archived)
+                IconButton(
+                  key: const Key('box-archive-button'),
+                  tooltip: context.l10n.archivedBoxes,
+                  onPressed: _openArchive,
+                  icon: const Icon(Icons.history),
+                ),
+              IconButton(
+                key: const Key('shared-refresh'),
+                tooltip: sharedText(context, 'Reload', 'Neu laden'),
+                onPressed: _reload,
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
+          floatingActionButton: _archived
+              ? null
+              : OverviewActionButtons(
+                  secondary: FloatingActionButton(
+                    key: const Key('shared-box-scan-button'),
+                    heroTag: 'shared-box-scan-fab',
+                    tooltip: context.l10n.scanBoxTitle,
+                    onPressed: widget.connected && widget.api.connected
+                        ? () async {
+                            await Navigator.of(context).push<void>(
+                              MaterialPageRoute(
+                                builder: (_) => SharedBoxScannerPage(
+                                  api: widget.api,
+                                  boxes: widget.boxes,
+                                  animals: widget.animals,
+                                  change: widget.change,
+                                ),
+                              ),
+                            );
+                            if (mounted) await _reload();
+                          }
+                        : null,
+                    child: const Icon(Icons.qr_code_scanner),
+                  ),
+                  primary: FloatingActionButton(
+                    key: const Key('add-box-button'),
+                    heroTag: 'shared-box-add',
+                    tooltip: context.l10n.addBox,
+                    onPressed: widget.connected
+                        ? () => Navigator.of(context).push<bool>(
                             MaterialPageRoute(
-                              builder: (_) => SharedBoxScannerPage(
+                              builder: (_) => SharedBoxForm(
                                 api: widget.api,
-                                boxes: widget.boxes,
-                                animals: widget.animals,
                                 change: widget.change,
                               ),
                             ),
-                          );
-                          if (mounted) await _reload();
-                        }
-                      : null,
-                  child: const Icon(Icons.qr_code_scanner),
-                ),
-                primary: FloatingActionButton(
-                  key: const Key('add-box-button'),
-                  heroTag: 'shared-box-add',
-                  tooltip: context.l10n.addBox,
-                  onPressed: widget.connected
-                      ? () => Navigator.of(context).push<bool>(
-                          MaterialPageRoute(
-                            builder: (_) => SharedBoxForm(
-                              api: widget.api,
-                              change: widget.change,
-                            ),
-                          ),
-                        )
-                      : null,
-                  child: const Icon(Icons.add),
-                ),
-              ),
-        body: values.isEmpty
-            ? Center(
-                child: Text(
-                  _archived
-                      ? sharedText(
-                          context,
-                          'No archived Boxes',
-                          'Keine archivierten Boxen',
-                        )
-                      : context.l10n.noBoxesAvailable,
-                ),
-              )
-            : !_archived && settings.bigPictureModeEnabled
-            ? LayoutBuilder(
-                builder: (context, constraints) {
-                  final columns = switch (constraints.maxWidth) {
-                    >= 1000 => 3,
-                    >= 600 => 2,
-                    _ => 1,
-                  };
-                  return GridView.builder(
-                    key: PageStorageKey<String>(
-                      _archived
-                          ? 'shared-boxes-archive-grid'
-                          : 'shared-boxes-overview-grid',
-                    ),
-                    padding: const EdgeInsets.fromLTRB(
-                      12,
-                      12,
-                      12,
-                      OverviewActionButtons.bottomPadding,
-                    ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columns,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: columns == 1 ? 1.45 : 1.15,
-                    ),
-                    itemCount: values.length,
-                    itemBuilder: (context, index) =>
-                        _bigPictureBoxCard(values[index], _archived),
-                  );
-                },
-              )
-            : ListView.builder(
-                key: PageStorageKey<String>(
-                  _archived ? 'shared-boxes-archive' : 'shared-boxes-overview',
-                ),
-                padding: _archived
-                    ? EdgeInsets.zero
-                    : const EdgeInsets.only(
-                        bottom: OverviewActionButtons.bottomPadding,
-                      ),
-                itemCount: values.length,
-                itemBuilder: (context, index) {
-                  final box = values[index];
-                  final id = recordId(box);
-                  final name = (box['name'] as String?)?.trim();
-                  final hasName = name != null && name.isNotEmpty;
-                  final dimensions = _boxDimensions(box);
-                  Widget tile(Widget? menuButton) => ListTile(
-                    key: Key('box-list-item-$id'),
-                    leading: SharedThumbnail(
-                      api: widget.api,
-                      images: _images,
-                      mediaId: box['pictureMediaId'] as int?,
-                      fallback: Icons.inventory_2_outlined,
-                    ),
-                    title: Text(hasName ? name : 'Box $id'),
-                    subtitle: _archived
-                        ? Text(sharedArchiveSummary(context, box, box: true))
-                        : hasName
-                        ? Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Box $id'),
-                              if (dimensions != null) Text(dimensions),
-                            ],
                           )
-                        : dimensions == null
-                        ? null
-                        : Text(dimensions),
-                    isThreeLine: !_archived && hasName && dimensions != null,
-                    trailing: menuButton,
-                    onTap: () => _openBox(box),
-                  );
-                  return OverviewContextMenu<_BoxAction>(
-                    key: Key('box-context-menu-region-$id'),
-                    menuButtonKey: Key('box-context-menu-button-$id'),
-                    tooltip: context.l10n.boxActions(
-                      hasName ? name : 'Box $id',
-                    ),
-                    onSelected: (action) => _boxAction(action, box),
-                    itemBuilder: _archived ? _archivedBoxMenu : _boxMenu,
-                    builder: (context, button) => tile(button),
-                  );
-                },
-              ),
+                        : null,
+                    child: const Icon(Icons.add),
+                  ),
+                ),
+          body: values.isEmpty
+              ? OverviewPlaceholder(
+                  child: Text(
+                    _archived
+                        ? sharedText(
+                            context,
+                            'No archived Boxes',
+                            'Keine archivierten Boxen',
+                          )
+                        : context.l10n.noBoxesAvailable,
+                  ),
+                )
+              : BoxOverviewLayout(
+                  bigPictures: !_archived && settings.bigPictureModeEnabled,
+                  firstEmptyIndex: !_archived && settings.showEmptyBoxesLast
+                      ? values.indexWhere(
+                          (box) => !occupiedBoxIds.contains(recordId(box)),
+                        )
+                      : -1,
+                  scrollKey: PageStorageKey<String>(
+                    _archived
+                        ? 'shared-boxes-archive'
+                        : settings.bigPictureModeEnabled
+                        ? 'shared-boxes-overview-grid'
+                        : 'shared-boxes-overview',
+                  ),
+                  listPadding: _archived
+                      ? EdgeInsets.zero
+                      : const EdgeInsets.only(
+                          bottom: OverviewActionButtons.bottomPadding,
+                        ),
+                  itemCount: values.length,
+                  itemBuilder: (context, index) {
+                    if (!_archived && settings.bigPictureModeEnabled) {
+                      return _bigPictureBoxCard(values[index], _archived);
+                    }
+                    final box = values[index];
+                    final id = recordId(box);
+                    final name = (box['name'] as String?)?.trim();
+                    final hasName = name != null && name.isNotEmpty;
+                    final dimensions = _boxDimensions(box);
+                    Widget tile(Widget? menuButton) => ListTile(
+                      key: Key('box-list-item-$id'),
+                      leading: SharedThumbnail(
+                        api: widget.api,
+                        images: _images,
+                        mediaId: box['pictureMediaId'] as int?,
+                        fallback: Icons.inventory_2_outlined,
+                      ),
+                      title: Text(hasName ? name : 'Box $id'),
+                      subtitle: _archived
+                          ? Text(sharedArchiveSummary(context, box, box: true))
+                          : hasName
+                          ? Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Box $id'),
+                                if (dimensions != null) Text(dimensions),
+                              ],
+                            )
+                          : dimensions == null
+                          ? null
+                          : Text(dimensions),
+                      isThreeLine: !_archived && hasName && dimensions != null,
+                      trailing: menuButton,
+                      onTap: () => _openBox(box),
+                    );
+                    return OverviewContextMenu<_BoxAction>(
+                      key: Key('box-context-menu-region-$id'),
+                      menuButtonKey: Key('box-context-menu-button-$id'),
+                      tooltip: context.l10n.boxActions(
+                        hasName ? name : 'Box $id',
+                      ),
+                      onSelected: (action) => _boxAction(action, box),
+                      itemBuilder: _archived ? _archivedBoxMenu : _boxMenu,
+                      builder: (context, button) => tile(button),
+                    );
+                  },
+                ),
+        ),
       ),
     );
   }

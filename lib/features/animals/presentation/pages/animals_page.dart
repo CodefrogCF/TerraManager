@@ -1163,131 +1163,148 @@ class _AnimalsPageState extends State<AnimalsPage> {
     final nextFeedingSummaryEnabled =
         settings?.nextFeedingSummaryEnabled ?? false;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.navigationAnimals),
-        actions: [
-          IconButton(
-            key: const Key('animal-category-view-toggle'),
-            isSelected: categoryViewEnabled,
-            onPressed: settings == null
-                ? null
-                : () => settings.setAnimalCategoryViewEnabled(
-                    !categoryViewEnabled,
-                  ),
-            icon: const Icon(Icons.toggle_on_outlined),
-            selectedIcon: const Icon(Icons.toggle_off_outlined),
-            tooltip: categoryViewEnabled
-                ? context.l10n.hideAnimalCategoryGroups
-                : context.l10n.showAnimalCategoryGroups,
-          ),
-          PopupMenuButton<AnimalSortCriterion>(
-            key: const Key('animal-sort-button'),
-            initialValue: animalSortOrder.criterion,
-            onSelected: (criterion) {
-              final sortOrder = criterion == animalSortOrder.criterion
-                  ? animalSortOrder.reversed
-                  : criterion.defaultOrder;
-
-              settings?.setAnimalSortOrder(sortOrder);
-            },
-            icon: const Icon(Icons.sort),
-            tooltip: context.l10n.sortAnimals,
-            itemBuilder: (context) {
-              return AnimalSortCriterion.values.map((criterion) {
-                final isActive = criterion == animalSortOrder.criterion;
-
-                return CheckedPopupMenuItem<AnimalSortCriterion>(
-                  key: Key(
-                    'animal-sort-option-'
-                    '${criterion.name}',
-                  ),
-                  value: criterion,
-                  checked: isActive,
-                  child: Text(
-                    context.l10n.animalSortCriterionMenuLabel(
-                      criterion,
-                      activeOrder: isActive ? animalSortOrder : null,
+    return OverviewScrollScope(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.navigationAnimals),
+          actions: [
+            IconButton(
+              key: const Key('animal-category-view-toggle'),
+              isSelected: categoryViewEnabled,
+              onPressed: settings == null
+                  ? null
+                  : () => settings.setAnimalCategoryViewEnabled(
+                      !categoryViewEnabled,
                     ),
-                  ),
-                );
-              }).toList();
-            },
-          ),
-          IconButton(
-            key: const Key('animal-history-button'),
-            onPressed: _openAnimalHistory,
-            icon: const Icon(Icons.history),
-            tooltip: context.l10n.animalHistory,
-          ),
-        ],
-      ),
-      body: FutureBuilder<_AnimalsOverviewData>(
-        future: _overviewFuture,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text(context.l10n.failedToLoadAnimals));
-          }
+              icon: const Icon(Icons.toggle_on_outlined),
+              selectedIcon: const Icon(Icons.toggle_off_outlined),
+              tooltip: categoryViewEnabled
+                  ? context.l10n.hideAnimalCategoryGroups
+                  : context.l10n.showAnimalCategoryGroups,
+            ),
+            PopupMenuButton<AnimalSortCriterion>(
+              key: const Key('animal-sort-button'),
+              initialValue: animalSortOrder.criterion,
+              onSelected: (criterion) {
+                final sortOrder = criterion == animalSortOrder.criterion
+                    ? animalSortOrder.reversed
+                    : criterion.defaultOrder;
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+                settings?.setAnimalSortOrder(sortOrder);
+              },
+              icon: const Icon(Icons.sort),
+              tooltip: context.l10n.sortAnimals,
+              itemBuilder: (context) {
+                return AnimalSortCriterion.values.map((criterion) {
+                  final isActive = criterion == animalSortOrder.criterion;
 
-          final data = snapshot.data;
+                  return CheckedPopupMenuItem<AnimalSortCriterion>(
+                    key: Key(
+                      'animal-sort-option-'
+                      '${criterion.name}',
+                    ),
+                    value: criterion,
+                    checked: isActive,
+                    child: Text(
+                      context.l10n.animalSortCriterionMenuLabel(
+                        criterion,
+                        activeOrder: isActive ? animalSortOrder : null,
+                      ),
+                    ),
+                  );
+                }).toList();
+              },
+            ),
+            IconButton(
+              key: const Key('animal-history-button'),
+              onPressed: _openAnimalHistory,
+              icon: const Icon(Icons.history),
+              tooltip: context.l10n.animalHistory,
+            ),
+          ],
+        ),
+        body: FutureBuilder<_AnimalsOverviewData>(
+          future: _overviewFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return OverviewPlaceholder(
+                child: Text(context.l10n.failedToLoadAnimals),
+              );
+            }
 
-          final rawAnimals = data?.animals ?? const <Animal>[];
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const OverviewPlaceholder(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-          final categoryGroups = categoryViewEnabled
-              ? groupAnimalsForCategoryOverview(
-                  rawAnimals,
-                  sortOrder: animalSortOrder,
-                  nameOrder: animalNameOrder,
-                  latestFeedingTimes:
-                      data?.latestFeedingTimes ?? const <int, DateTime>{},
-                  subcategoryLabel: context.l10n.animalSubcategoryLabel,
-                )
-              : null;
+            final data = snapshot.data;
 
-          final animals = categoryGroups == null
-              ? sortAnimalsForOverview(
-                  rawAnimals,
-                  sortOrder: animalSortOrder,
-                  nameOrder: animalNameOrder,
-                  latestFeedingTimes:
-                      data?.latestFeedingTimes ?? const <int, DateTime>{},
-                )
-              : categoryGroups
-                    .expand((group) => group.animals)
-                    .toList(growable: false);
+            final rawAnimals = data?.animals ?? const <Animal>[];
 
-          final dueReminders =
-              (data?.dueReminders ?? const <FeedingReminderState>[])
-                  .where(
-                    (reminder) =>
-                        !(settings?.isFeedingAlertSuppressed(
-                              feedingAlertAnimalKey(
-                                reminder.animal.id,
-                                reminder.animal.createdAt,
-                              ),
-                            ) ??
-                            false),
+            final categoryGroups = categoryViewEnabled
+                ? groupAnimalsForCategoryOverview(
+                    rawAnimals,
+                    sortOrder: animalSortOrder,
+                    nameOrder: animalNameOrder,
+                    latestFeedingTimes:
+                        data?.latestFeedingTimes ?? const <int, DateTime>{},
+                    subcategoryLabel: context.l10n.animalSubcategoryLabel,
                   )
-                  .toList();
+                : null;
 
-          final nextUpcomingReminder = nextFeedingSummaryEnabled
-              ? data?.nextUpcomingReminder ?? data?.dueReminders.firstOrNull
-              : null;
+            final animals = categoryGroups == null
+                ? sortAnimalsForOverview(
+                    rawAnimals,
+                    sortOrder: animalSortOrder,
+                    nameOrder: animalNameOrder,
+                    latestFeedingTimes:
+                        data?.latestFeedingTimes ?? const <int, DateTime>{},
+                  )
+                : categoryGroups
+                      .expand((group) => group.animals)
+                      .toList(growable: false);
 
-          if (animals.isEmpty) {
-            return Center(child: Text(context.l10n.noAnimalsAvailable));
-          }
+            final dueReminders =
+                (data?.dueReminders ?? const <FeedingReminderState>[])
+                    .where(
+                      (reminder) =>
+                          !(settings?.isFeedingAlertSuppressed(
+                                feedingAlertAnimalKey(
+                                  reminder.animal.id,
+                                  reminder.animal.createdAt,
+                                ),
+                              ) ??
+                              false),
+                    )
+                    .toList();
 
-          final dueRemindersByAnimalId = {
-            for (final reminder in dueReminders) reminder.animalId: reminder,
-          };
+            final nextUpcomingReminder = nextFeedingSummaryEnabled
+                ? data?.nextUpcomingReminder ?? data?.dueReminders.firstOrNull
+                : null;
 
-          if (bigPictureModeEnabled) {
-            return _buildBigPictureAnimalGrid(
+            if (animals.isEmpty) {
+              return OverviewPlaceholder(
+                child: Text(context.l10n.noAnimalsAvailable),
+              );
+            }
+
+            final dueRemindersByAnimalId = {
+              for (final reminder in dueReminders) reminder.animalId: reminder,
+            };
+
+            if (bigPictureModeEnabled) {
+              return _buildBigPictureAnimalGrid(
+                context,
+                animals: animals,
+                categoryGroups: categoryGroups,
+                dueReminders: dueReminders,
+                nextUpcomingReminder: nextUpcomingReminder,
+                dueRemindersByAnimalId: dueRemindersByAnimalId,
+              );
+            }
+
+            return _buildCompactAnimalOverview(
               context,
               animals: animals,
               categoryGroups: categoryGroups,
@@ -1295,32 +1312,23 @@ class _AnimalsPageState extends State<AnimalsPage> {
               nextUpcomingReminder: nextUpcomingReminder,
               dueRemindersByAnimalId: dueRemindersByAnimalId,
             );
-          }
-
-          return _buildCompactAnimalOverview(
-            context,
-            animals: animals,
-            categoryGroups: categoryGroups,
-            dueReminders: dueReminders,
-            nextUpcomingReminder: nextUpcomingReminder,
-            dueRemindersByAnimalId: dueRemindersByAnimalId,
-          );
-        },
-      ),
-      floatingActionButton: OverviewActionButtons(
-        secondary: FloatingActionButton(
-          key: const Key('feeding-mode-button'),
-          heroTag: 'animals-feeding-fab',
-          tooltip: context.l10n.feedingModeTitle,
-          onPressed: _openFeedingMode,
-          child: const Icon(Icons.restaurant_menu),
+          },
         ),
-        primary: FloatingActionButton(
-          heroTag: 'animals-add-fab',
-          key: const Key('add-animal-button'),
-          onPressed: _openNewAnimalPage,
-          tooltip: context.l10n.addAnimal,
-          child: const Icon(Icons.add),
+        floatingActionButton: OverviewActionButtons(
+          secondary: FloatingActionButton(
+            key: const Key('feeding-mode-button'),
+            heroTag: 'animals-feeding-fab',
+            tooltip: context.l10n.feedingModeTitle,
+            onPressed: _openFeedingMode,
+            child: const Icon(Icons.restaurant_menu),
+          ),
+          primary: FloatingActionButton(
+            heroTag: 'animals-add-fab',
+            key: const Key('add-animal-button'),
+            onPressed: _openNewAnimalPage,
+            tooltip: context.l10n.addAnimal,
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
     );

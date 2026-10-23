@@ -17,6 +17,7 @@ import 'package:terramanager/features/boxes/presentation/box_overview_sorting.da
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 import 'package:terramanager/shared_client/boxes/presentation/box_overview.dart';
 
 void main() {
@@ -174,12 +175,18 @@ void main() {
       double top(int id) =>
           tester.getTopLeft(find.byKey(Key('box-list-item-$id'))).dy;
       expect(top(2), lessThan(top(1)));
+      final heading = find.byKey(const Key('empty-boxes-heading'));
+      expect(find.text('Empty Boxes'), findsOneWidget);
+      expect(tester.getTopLeft(heading).dy, greaterThan(top(2)));
+      expect(tester.getBottomLeft(heading).dy, lessThanOrEqualTo(top(1)));
       animals = [
         {'id': 1, 'boxId': 1, 'status': 'active', 'commonName': 'Animal'},
       ];
       await tester.pumpWidget(view());
       await tester.pumpAndSettle();
       expect(top(1), lessThan(top(2)));
+      expect(tester.getTopLeft(heading).dy, greaterThan(top(1)));
+      expect(tester.getBottomLeft(heading).dy, lessThanOrEqualTo(top(2)));
       await tester.tap(find.byKey(const Key('box-list-item-1')));
       await tester.pumpAndSettle();
       final detail = tester.widget<SharedBoxDetailPage>(
@@ -196,6 +203,10 @@ void main() {
       await tester.pumpWidget(view());
       await tester.pumpAndSettle();
       expect(top(1), lessThan(top(2)));
+      expect(tester.getBottomLeft(heading).dy, lessThanOrEqualTo(top(1)));
+      await settings.setShowEmptyBoxesLast(false);
+      await tester.pumpAndSettle();
+      expect(heading, findsNothing);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
     },
@@ -240,13 +251,19 @@ void main() {
       double top(int id) =>
           tester.getTopLeft(find.byKey(Key('box-list-item-$id'))).dy;
       expect(top(first), lessThan(top(second)));
+      final heading = find.byKey(const Key('empty-boxes-heading'));
+      expect(heading, findsNothing);
       await settings.setShowEmptyBoxesLast(true);
       await tester.pumpAndSettle();
       expect(top(second), lessThan(top(first)));
+      expect(find.text('Empty Boxes'), findsOneWidget);
+      expect(tester.getTopLeft(heading).dy, greaterThan(top(second)));
+      expect(tester.getBottomLeft(heading).dy, lessThanOrEqualTo(top(first)));
       await AnimalRepository(database)
           .moveAnimalToBox(animalId: id, boxId: first);
       await tester.pumpAndSettle();
       expect(top(first), lessThan(top(second)));
+      expect(tester.getTopLeft(heading).dy, greaterThan(top(first)));
       await AnimalRepository(database).archiveAnimal(
         animalId: id,
         reason: AnimalArchiveReason.other,
@@ -254,13 +271,137 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(top(first), lessThan(top(second)));
+      expect(tester.getBottomLeft(heading).dy, lessThanOrEqualTo(top(first)));
       await animal(second);
       await tester.pumpAndSettle();
       expect(top(second), lessThan(top(first)));
       await settings.setShowEmptyBoxesLast(false);
       await tester.pumpAndSettle();
       expect(top(first), lessThan(top(second)));
+      expect(heading, findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+
+  for (final shared in [false, true]) {
+    testWidgets(
+      '${shared ? 'Shared Care' : 'Standalone'} grid has a full-width empty section',
+      (tester) async {
+        tester.view.physicalSize = const Size(900, 1200);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final first = await box('First');
+        final second = await box('Second');
+        final animalId = await animal(second);
+        final settings = AppSettingsController();
+        addTearDown(settings.dispose);
+        await settings.setShowEmptyBoxesLast(true);
+        await settings.setBigPictureModeEnabled(true);
+        var animals = <Map<String, dynamic>>[
+          {
+            'id': animalId,
+            'boxId': second,
+            'commonName': 'Animal',
+            'status': 'active',
+          },
+        ];
+        final api = SharedApiClient(
+          Uri.parse('https://test.local'),
+          MockClient((_) async => http.Response('{}', 404)),
+        );
+        addTearDown(api.close);
+        var archived = false;
+        Widget view() => AppSettingsScope(
+          controller: settings,
+          child: MaterialApp(
+            locale: const Locale('de'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: shared
+                ? SharedBoxesPage(
+                    api: api,
+                    boxes: [
+                      {
+                        'id': first,
+                        'name': 'First',
+                        'status': archived ? 'archived' : 'active',
+                      },
+                      {
+                        'id': second,
+                        'name': 'Second',
+                        'status': archived ? 'archived' : 'active',
+                      },
+                    ],
+                    animals: animals,
+                    archived: archived,
+                    connected: true,
+                    change: (_) async => true,
+                    onReload: () async {},
+                  )
+                : BoxesPage(database: database),
+          ),
+        );
+        await tester.pumpWidget(view());
+        await tester.pumpAndSettle();
+        final heading = find.byKey(const Key('empty-boxes-heading'));
+        final firstTile = find.byKey(Key('box-list-item-$first'));
+        final secondTile = find.byKey(Key('box-list-item-$second'));
+        expect(find.text('Leere Boxen'), findsOneWidget);
+        expect(tester.widget<Semantics>(heading).properties.header, true);
+        final section = tester.getRect(heading);
+        expect(section.width, 900);
+        expect(
+          section.top,
+          greaterThanOrEqualTo(tester.getBottomLeft(secondTile).dy),
+        );
+        expect(section.bottom, lessThan(tester.getTopLeft(firstTile).dy));
+        // All occupied: no empty section.
+        final secondAnimalId = await animal(first);
+        animals = [
+          ...animals,
+          {'id': secondAnimalId, 'boxId': first, 'status': 'active'},
+        ];
+        await tester.pumpWidget(view());
+        await tester.pumpAndSettle();
+        expect(heading, findsNothing);
+        // All empty: one heading before the first row, with both cards on that row.
+        for (final id in [animalId, secondAnimalId]) {
+          await AnimalRepository(database).archiveAnimal(
+            animalId: id,
+            reason: AnimalArchiveReason.other,
+            archivedAt: DateTime.now(),
+          );
+        }
+        animals = [];
+        await tester.pumpWidget(view());
+        await tester.pumpAndSettle();
+        expect(heading, findsOneWidget);
+        expect(
+          tester.getBottomLeft(heading).dy,
+          lessThan(tester.getTopLeft(firstTile).dy),
+        );
+        expect(
+          tester.getTopLeft(firstTile).dy,
+          tester.getTopLeft(secondTile).dy,
+        );
+        await settings.setShowEmptyBoxesLast(false);
+        await tester.pumpAndSettle();
+        expect(heading, findsNothing);
+        if (shared) {
+          await settings.setShowEmptyBoxesLast(true);
+          archived = true;
+          await tester.pumpWidget(view());
+          await tester.pumpAndSettle();
+          expect(heading, findsNothing);
+          expect(
+            find.byKey(const PageStorageKey<String>('shared-boxes-archive')),
+            findsOneWidget,
+          );
+        }
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
 }

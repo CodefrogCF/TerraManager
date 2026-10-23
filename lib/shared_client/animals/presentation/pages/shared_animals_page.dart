@@ -777,294 +777,302 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     final reminderRowCount =
         (dueReminders.isEmpty ? 0 : 1) + (nextReminder == null ? 0 : 1);
     return ConstrainedPageWidth(
-      child: Scaffold(
-        appBar: AppBar(
-          leading: _archived
-              ? IconButton(
-                  tooltip: sharedText(context, 'Back', 'Zurück'),
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.arrow_back),
-                )
-              : null,
-          title: Text(
-            _archived
-                ? context.l10n.animalHistory
-                : context.l10n.navigationAnimals,
-          ),
-          actions: [
-            if (!_archived)
-              IconButton(
-                key: const Key('animal-category-view-toggle'),
-                isSelected: settings.animalCategoryViewEnabled,
-                onPressed: () => settings.setAnimalCategoryViewEnabled(
-                  !settings.animalCategoryViewEnabled,
-                ),
-                icon: const Icon(Icons.toggle_on_outlined),
-                selectedIcon: const Icon(Icons.toggle_off_outlined),
-                tooltip: settings.animalCategoryViewEnabled
-                    ? context.l10n.hideAnimalCategoryGroups
-                    : context.l10n.showAnimalCategoryGroups,
-              ),
-            if (_archived)
-              PopupMenuButton<ArchiveSortCriterion>(
-                key: const Key('animal-archive-sort-button'),
-                tooltip: context.l10n.sortArchivedAnimals,
-                icon: const Icon(Icons.sort),
-                initialValue: settings.animalArchiveSortOrder.criterion,
-                onSelected: (criterion) {
-                  final current = settings.animalArchiveSortOrder;
-                  settings.setAnimalArchiveSortOrder(
-                    criterion == current.criterion
-                        ? current.reversed
-                        : criterion.defaultOrder,
-                  );
-                },
-                itemBuilder: (context) => [
-                  for (final criterion in ArchiveSortCriterion.values)
-                    CheckedPopupMenuItem<ArchiveSortCriterion>(
-                      key: Key('animal-archive-sort-option-${criterion.name}'),
-                      value: criterion,
-                      checked:
-                          criterion ==
-                          settings.animalArchiveSortOrder.criterion,
-                      child: Text(
-                        context.l10n.archiveSortCriterionMenuLabel(
-                          criterion,
-                          activeOrder:
-                              criterion ==
-                                  settings.animalArchiveSortOrder.criterion
-                              ? settings.animalArchiveSortOrder
-                              : null,
-                        ),
-                      ),
-                    ),
-                ],
-              )
-            else
-              PopupMenuButton<AnimalSortCriterion>(
-                key: const Key('animal-sort-button'),
-                initialValue: settings.animalSortOrder.criterion,
-                tooltip: context.l10n.sortAnimals,
-                icon: const Icon(Icons.sort),
-                onSelected: (criterion) {
-                  final current = settings.animalSortOrder.normalized;
-                  settings.setAnimalSortOrder(
-                    criterion == current.criterion
-                        ? current.reversed
-                        : criterion.defaultOrder,
-                  );
-                },
-                itemBuilder: (context) => [
-                  for (final criterion in const [
-                    AnimalSortCriterion.created,
-                    AnimalSortCriterion.displayName,
-                    AnimalSortCriterion.age,
-                    AnimalSortCriterion.latestFeeding,
-                  ])
-                    CheckedPopupMenuItem<AnimalSortCriterion>(
-                      key: Key('animal-sort-option-${criterion.name}'),
-                      value: criterion,
-                      checked: criterion == settings.animalSortOrder.criterion,
-                      child: Text(
-                        context.l10n.animalSortCriterionMenuLabel(
-                          criterion,
-                          activeOrder:
-                              criterion == settings.animalSortOrder.criterion
-                              ? settings.animalSortOrder
-                              : null,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            if (!_archived)
-              IconButton(
-                key: const Key('animal-history-button'),
-                tooltip: context.l10n.animalHistory,
-                onPressed: _openArchive,
-                icon: const Icon(Icons.history),
-              ),
-            IconButton(
-              key: const Key('shared-refresh'),
-              tooltip: sharedText(context, 'Reload', 'Neu laden'),
-              onPressed: _reload,
-              icon: const Icon(Icons.refresh),
+      child: OverviewScrollScope(
+        child: Scaffold(
+          appBar: AppBar(
+            leading: _archived
+                ? IconButton(
+                    tooltip: sharedText(context, 'Back', 'Zurück'),
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back),
+                  )
+                : null,
+            title: Text(
+              _archived
+                  ? context.l10n.animalHistory
+                  : context.l10n.navigationAnimals,
             ),
-          ],
-        ),
-        floatingActionButton: _archived
-            ? null
-            : OverviewActionButtons(
-                secondary: FloatingActionButton(
-                  key: const Key('shared-feeding-mode-button'),
-                  heroTag: 'shared-animal-feeding-fab',
-                  tooltip: context.l10n.feedingModeTitle,
-                  onPressed: widget.connected && widget.api.connected
-                      ? _openFeedingMode
-                      : null,
-                  child: const Icon(Icons.restaurant_menu),
+            actions: [
+              if (!_archived)
+                IconButton(
+                  key: const Key('animal-category-view-toggle'),
+                  isSelected: settings.animalCategoryViewEnabled,
+                  onPressed: () => settings.setAnimalCategoryViewEnabled(
+                    !settings.animalCategoryViewEnabled,
+                  ),
+                  icon: const Icon(Icons.toggle_on_outlined),
+                  selectedIcon: const Icon(Icons.toggle_off_outlined),
+                  tooltip: settings.animalCategoryViewEnabled
+                      ? context.l10n.hideAnimalCategoryGroups
+                      : context.l10n.showAnimalCategoryGroups,
                 ),
-                primary: FloatingActionButton(
-                  key: const Key('add-animal-button'),
-                  heroTag: 'shared-animal-add',
-                  tooltip: context.l10n.addAnimal,
-                  onPressed:
-                      widget.connected &&
-                          widget.boxes.any((box) => box['status'] == 'active')
-                      ? () => Navigator.of(context).push<bool>(
-                          MaterialPageRoute(
-                            builder: (_) => SharedAnimalForm(
-                              api: widget.api,
-                              boxes: widget.boxes,
-                              change: widget.change,
-                            ),
+              if (_archived)
+                PopupMenuButton<ArchiveSortCriterion>(
+                  key: const Key('animal-archive-sort-button'),
+                  tooltip: context.l10n.sortArchivedAnimals,
+                  icon: const Icon(Icons.sort),
+                  initialValue: settings.animalArchiveSortOrder.criterion,
+                  onSelected: (criterion) {
+                    final current = settings.animalArchiveSortOrder;
+                    settings.setAnimalArchiveSortOrder(
+                      criterion == current.criterion
+                          ? current.reversed
+                          : criterion.defaultOrder,
+                    );
+                  },
+                  itemBuilder: (context) => [
+                    for (final criterion in ArchiveSortCriterion.values)
+                      CheckedPopupMenuItem<ArchiveSortCriterion>(
+                        key: Key(
+                          'animal-archive-sort-option-${criterion.name}',
+                        ),
+                        value: criterion,
+                        checked:
+                            criterion ==
+                            settings.animalArchiveSortOrder.criterion,
+                        child: Text(
+                          context.l10n.archiveSortCriterionMenuLabel(
+                            criterion,
+                            activeOrder:
+                                criterion ==
+                                    settings.animalArchiveSortOrder.criterion
+                                ? settings.animalArchiveSortOrder
+                                : null,
                           ),
-                        )
-                      : null,
-                  child: const Icon(Icons.add),
-                ),
-              ),
-        body: values.isEmpty
-            ? Center(
-                child: Text(
-                  _archived
-                      ? context.l10n.noArchivedAnimals
-                      : context.l10n.noAnimalsAvailable,
-                ),
-              )
-            : !_archived && settings.bigPictureModeEnabled
-            ? _bigPictureAnimalGrid(
-                rows,
-                dueAnimalIds,
-                settings.animalNameOrder,
-                dueReminders,
-                nextReminder,
-                reminderEntries,
-              )
-            : ListView.builder(
-                key: PageStorageKey<String>(
-                  _archived
-                      ? 'shared-animals-archive'
-                      : 'shared-animals-overview',
-                ),
-                padding: _archived
-                    ? EdgeInsets.zero
-                    : const EdgeInsets.only(
-                        bottom: OverviewActionButtons.bottomPadding,
+                        ),
                       ),
-                itemCount: reminderRowCount + rows.length,
-                itemBuilder: (context, index) {
-                  var rowIndex = index;
-                  if (dueReminders.isNotEmpty) {
-                    if (rowIndex == 0) {
-                      return _dueReminderSummary(
-                        dueReminders,
-                        settings.animalNameOrder,
-                      );
-                    }
-                    rowIndex--;
-                  }
-                  if (nextReminder != null) {
-                    if (rowIndex == 0) {
-                      return Card(
-                        key: const Key('shared-next-feeding-summary'),
-                        margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                        child: ListTile(
-                          leading: const Icon(Icons.schedule_outlined),
-                          title: Text(context.l10n.nextFeeding),
-                          subtitle: Text(
-                            context.l10n.nextFeedingSummaryForAnimal(
-                              animalLabel(
-                                nextReminder.animal,
-                                order: settings.animalNameOrder,
-                              ),
-                              _reminderDate(
-                                nextReminder.dueAt,
-                                nextReminder.animal,
+                  ],
+                )
+              else
+                PopupMenuButton<AnimalSortCriterion>(
+                  key: const Key('animal-sort-button'),
+                  initialValue: settings.animalSortOrder.criterion,
+                  tooltip: context.l10n.sortAnimals,
+                  icon: const Icon(Icons.sort),
+                  onSelected: (criterion) {
+                    final current = settings.animalSortOrder.normalized;
+                    settings.setAnimalSortOrder(
+                      criterion == current.criterion
+                          ? current.reversed
+                          : criterion.defaultOrder,
+                    );
+                  },
+                  itemBuilder: (context) => [
+                    for (final criterion in const [
+                      AnimalSortCriterion.created,
+                      AnimalSortCriterion.displayName,
+                      AnimalSortCriterion.age,
+                      AnimalSortCriterion.latestFeeding,
+                    ])
+                      CheckedPopupMenuItem<AnimalSortCriterion>(
+                        key: Key('animal-sort-option-${criterion.name}'),
+                        value: criterion,
+                        checked:
+                            criterion == settings.animalSortOrder.criterion,
+                        child: Text(
+                          context.l10n.animalSortCriterionMenuLabel(
+                            criterion,
+                            activeOrder:
+                                criterion == settings.animalSortOrder.criterion
+                                ? settings.animalSortOrder
+                                : null,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              if (!_archived)
+                IconButton(
+                  key: const Key('animal-history-button'),
+                  tooltip: context.l10n.animalHistory,
+                  onPressed: _openArchive,
+                  icon: const Icon(Icons.history),
+                ),
+              IconButton(
+                key: const Key('shared-refresh'),
+                tooltip: sharedText(context, 'Reload', 'Neu laden'),
+                onPressed: _reload,
+                icon: const Icon(Icons.refresh),
+              ),
+            ],
+          ),
+          floatingActionButton: _archived
+              ? null
+              : OverviewActionButtons(
+                  secondary: FloatingActionButton(
+                    key: const Key('shared-feeding-mode-button'),
+                    heroTag: 'shared-animal-feeding-fab',
+                    tooltip: context.l10n.feedingModeTitle,
+                    onPressed: widget.connected && widget.api.connected
+                        ? _openFeedingMode
+                        : null,
+                    child: const Icon(Icons.restaurant_menu),
+                  ),
+                  primary: FloatingActionButton(
+                    key: const Key('add-animal-button'),
+                    heroTag: 'shared-animal-add',
+                    tooltip: context.l10n.addAnimal,
+                    onPressed:
+                        widget.connected &&
+                            widget.boxes.any((box) => box['status'] == 'active')
+                        ? () => Navigator.of(context).push<bool>(
+                            MaterialPageRoute(
+                              builder: (_) => SharedAnimalForm(
+                                api: widget.api,
+                                boxes: widget.boxes,
+                                change: widget.change,
                               ),
                             ),
+                          )
+                        : null,
+                    child: const Icon(Icons.add),
+                  ),
+                ),
+          body: values.isEmpty
+              ? OverviewPlaceholder(
+                  child: Text(
+                    _archived
+                        ? context.l10n.noArchivedAnimals
+                        : context.l10n.noAnimalsAvailable,
+                  ),
+                )
+              : !_archived && settings.bigPictureModeEnabled
+              ? _bigPictureAnimalGrid(
+                  rows,
+                  dueAnimalIds,
+                  settings.animalNameOrder,
+                  dueReminders,
+                  nextReminder,
+                  reminderEntries,
+                )
+              : ListView.builder(
+                  key: PageStorageKey<String>(
+                    _archived
+                        ? 'shared-animals-archive'
+                        : 'shared-animals-overview',
+                  ),
+                  padding: _archived
+                      ? EdgeInsets.zero
+                      : const EdgeInsets.only(
+                          bottom: OverviewActionButtons.bottomPadding,
+                        ),
+                  itemCount: reminderRowCount + rows.length,
+                  itemBuilder: (context, index) {
+                    var rowIndex = index;
+                    if (dueReminders.isNotEmpty) {
+                      if (rowIndex == 0) {
+                        return _dueReminderSummary(
+                          dueReminders,
+                          settings.animalNameOrder,
+                        );
+                      }
+                      rowIndex--;
+                    }
+                    if (nextReminder != null) {
+                      if (rowIndex == 0) {
+                        return Card(
+                          key: const Key('shared-next-feeding-summary'),
+                          margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                          child: ListTile(
+                            leading: const Icon(Icons.schedule_outlined),
+                            title: Text(context.l10n.nextFeeding),
+                            subtitle: Text(
+                              context.l10n.nextFeedingSummaryForAnimal(
+                                animalLabel(
+                                  nextReminder.animal,
+                                  order: settings.animalNameOrder,
+                                ),
+                                _reminderDate(
+                                  nextReminder.dueAt,
+                                  nextReminder.animal,
+                                ),
+                              ),
+                            ),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () => _openFeedingSchedule(
+                              reminderEntries,
+                              settings.animalNameOrder,
+                            ),
                           ),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => _openFeedingSchedule(
-                            reminderEntries,
-                            settings.animalNameOrder,
-                          ),
+                        );
+                      }
+                      rowIndex--;
+                    }
+                    final row = rows[rowIndex];
+                    if (row is String) {
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+                        child: Text(
+                          row,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
                       );
                     }
-                    rowIndex--;
-                  }
-                  final row = rows[rowIndex];
-                  if (row is String) {
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-                      child: Text(
-                        row,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                    final animal = row as Map<String, dynamic>;
+                    final id = recordId(animal);
+                    final primary = animalLabel(
+                      animal,
+                      order: settings.animalNameOrder,
                     );
-                  }
-                  final animal = row as Map<String, dynamic>;
-                  final id = recordId(animal);
-                  final primary = animalLabel(
-                    animal,
-                    order: settings.animalNameOrder,
-                  );
-                  final common =
-                      (animal['commonName'] as String?)?.trim() ?? '';
-                  final latin = (animal['latinName'] as String?)?.trim() ?? '';
-                  final secondary =
-                      settings.animalNameOrder ==
-                          AnimalNameOrder.commonNameFirst
-                      ? latin
-                      : common;
-                  final box = widget.boxes
-                      .where((entry) => entry['id'] == animal['boxId'])
-                      .firstOrNull;
-                  Widget tile(Widget? menuButton) => ListTile(
-                    key: Key('animal-list-item-$id'),
-                    leading: SharedThumbnail(
-                      api: widget.api,
-                      images: _images,
-                      mediaId: animal['pictureMediaId'] as int?,
-                      fallback: Icons.emoji_nature_outlined,
-                    ),
-                    title: Text(primary),
-                    subtitle: Text(
-                      [
-                        if (secondary.isNotEmpty && secondary != primary)
-                          secondary,
-                        if (_archived)
-                          sharedArchiveSummary(context, animal, box: false)
-                        else if (box != null)
-                          boxLabel(box),
-                      ].join(' · '),
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (dueAnimalIds.contains(id)) ...[
-                          FeedingAlertButton(
-                            key: Key('shared-animal-due-marker-$id'),
-                            onPressed: () => _reminderActions(animal),
-                          ),
-                          const SizedBox(width: 4),
+                    final common =
+                        (animal['commonName'] as String?)?.trim() ?? '';
+                    final latin =
+                        (animal['latinName'] as String?)?.trim() ?? '';
+                    final secondary =
+                        settings.animalNameOrder ==
+                            AnimalNameOrder.commonNameFirst
+                        ? latin
+                        : common;
+                    final box = widget.boxes
+                        .where((entry) => entry['id'] == animal['boxId'])
+                        .firstOrNull;
+                    Widget tile(Widget? menuButton) => ListTile(
+                      key: Key('animal-list-item-$id'),
+                      leading: SharedThumbnail(
+                        api: widget.api,
+                        images: _images,
+                        mediaId: animal['pictureMediaId'] as int?,
+                        fallback: Icons.emoji_nature_outlined,
+                      ),
+                      title: Text(primary),
+                      subtitle: Text(
+                        [
+                          if (secondary.isNotEmpty && secondary != primary)
+                            secondary,
+                          if (_archived)
+                            sharedArchiveSummary(context, animal, box: false)
+                          else if (box != null)
+                            boxLabel(box),
+                        ].join(' · '),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (dueAnimalIds.contains(id)) ...[
+                            FeedingAlertButton(
+                              key: Key('shared-animal-due-marker-$id'),
+                              onPressed: () => _reminderActions(animal),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                          ?menuButton,
                         ],
-                        ?menuButton,
-                      ],
-                    ),
-                    onTap: () => _openAnimal(animal),
-                  );
-                  return OverviewContextMenu<_AnimalAction>(
-                    key: Key('animal-context-menu-region-$id'),
-                    menuButtonKey: Key('animal-context-menu-button-$id'),
-                    tooltip: context.l10n.animalActions(primary),
-                    onSelected: (action) => _animalAction(action, animal),
-                    itemBuilder: _archived ? _archivedAnimalMenu : _animalMenu,
-                    builder: (context, button) => tile(button),
-                  );
-                },
-              ),
+                      ),
+                      onTap: () => _openAnimal(animal),
+                    );
+                    return OverviewContextMenu<_AnimalAction>(
+                      key: Key('animal-context-menu-region-$id'),
+                      menuButtonKey: Key('animal-context-menu-button-$id'),
+                      tooltip: context.l10n.animalActions(primary),
+                      onSelected: (action) => _animalAction(action, animal),
+                      itemBuilder: _archived
+                          ? _archivedAnimalMenu
+                          : _animalMenu,
+                      builder: (context, button) => tile(button),
+                    );
+                  },
+                ),
+        ),
       ),
     );
   }

@@ -16,6 +16,7 @@ import '../../../settings/box_sort_order.dart';
 import '../box_lifecycle_dialogs.dart';
 import '../box_overview_sorting.dart';
 import '../box_quick_action_dialogs.dart';
+import '../widgets/box_overview_layout.dart';
 import 'box_detail_page.dart';
 import 'box_edit_page.dart';
 import 'box_scanner_page.dart';
@@ -565,159 +566,140 @@ class _BoxesPageState extends State<BoxesPage> {
 
     final bigPictureModeEnabled = settings?.bigPictureModeEnabled ?? false;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(context.l10n.navigationBoxes),
-        actions: [
-          PopupMenuButton<BoxSortCriterion>(
-            key: const Key('box-sort-button'),
-            initialValue: boxSortOrder.criterion,
-            onSelected: (criterion) {
-              final sortOrder = criterion == boxSortOrder.criterion
-                  ? boxSortOrder.reversed
-                  : criterion.defaultOrder;
+    return OverviewScrollScope(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(context.l10n.navigationBoxes),
+          actions: [
+            PopupMenuButton<BoxSortCriterion>(
+              key: const Key('box-sort-button'),
+              initialValue: boxSortOrder.criterion,
+              onSelected: (criterion) {
+                final sortOrder = criterion == boxSortOrder.criterion
+                    ? boxSortOrder.reversed
+                    : criterion.defaultOrder;
 
-              settings?.setBoxSortOrder(sortOrder);
-            },
-            icon: const Icon(Icons.sort),
-            tooltip: context.l10n.sortBoxes,
-            itemBuilder: (context) {
-              return BoxSortCriterion.values.map((criterion) {
-                final isActive = criterion == boxSortOrder.criterion;
+                settings?.setBoxSortOrder(sortOrder);
+              },
+              icon: const Icon(Icons.sort),
+              tooltip: context.l10n.sortBoxes,
+              itemBuilder: (context) {
+                return BoxSortCriterion.values.map((criterion) {
+                  final isActive = criterion == boxSortOrder.criterion;
 
-                return CheckedPopupMenuItem<BoxSortCriterion>(
-                  key: Key('box-sort-option-${criterion.name}'),
-                  value: criterion,
-                  checked: isActive,
-                  child: Text(
-                    context.l10n.boxSortCriterionMenuLabel(
-                      criterion,
-                      activeOrder: isActive ? boxSortOrder : null,
+                  return CheckedPopupMenuItem<BoxSortCriterion>(
+                    key: Key('box-sort-option-${criterion.name}'),
+                    value: criterion,
+                    checked: isActive,
+                    child: Text(
+                      context.l10n.boxSortCriterionMenuLabel(
+                        criterion,
+                        activeOrder: isActive ? boxSortOrder : null,
+                      ),
                     ),
-                  ),
+                  );
+                }).toList();
+              },
+            ),
+            IconButton(
+              key: const Key('box-archive-button'),
+              onPressed: _openArchive,
+              icon: const Icon(Icons.history),
+              tooltip: context.l10n.archivedBoxes,
+            ),
+          ],
+        ),
+        body: StreamBuilder<Set<int>>(
+          stream: settings?.showEmptyBoxesLast == true ? _occupiedBoxIds : null,
+          builder: (context, occupied) => FutureBuilder<List<Box>>(
+            future: _boxesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.hasError ||
+                  (settings?.showEmptyBoxesLast == true && occupied.hasError)) {
+                return OverviewPlaceholder(
+                  child: Text(context.l10n.failedToLoadBoxes),
                 );
-              }).toList();
-            },
-          ),
-          IconButton(
-            key: const Key('box-archive-button'),
-            onPressed: _openArchive,
-            icon: const Icon(Icons.history),
-            tooltip: context.l10n.archivedBoxes,
-          ),
-        ],
-      ),
-      body: StreamBuilder<Set<int>>(
-        stream: settings?.showEmptyBoxesLast == true ? _occupiedBoxIds : null,
-        builder: (context, occupied) => FutureBuilder<List<Box>>(
-          future: _boxesFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasError ||
-                (settings?.showEmptyBoxesLast == true && occupied.hasError)) {
-              return Center(child: Text(context.l10n.failedToLoadBoxes));
-            }
+              }
 
-            if (snapshot.connectionState == ConnectionState.waiting ||
-                (settings?.showEmptyBoxesLast == true && !occupied.hasData)) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              if (snapshot.connectionState == ConnectionState.waiting ||
+                  (settings?.showEmptyBoxesLast == true && !occupied.hasData)) {
+                return const OverviewPlaceholder(
+                  child: CircularProgressIndicator(),
+                );
+              }
 
-            final boxes = sortBoxesForOverview(
-              snapshot.data ?? const <Box>[],
-              boxSortOrder,
-              showEmptyBoxesLast: settings?.showEmptyBoxesLast ?? false,
-              occupiedBoxIds: occupied.data ?? const {},
-            );
+              final boxes = sortBoxesForOverview(
+                snapshot.data ?? const <Box>[],
+                boxSortOrder,
+                showEmptyBoxesLast: settings?.showEmptyBoxesLast ?? false,
+                occupiedBoxIds: occupied.data ?? const {},
+              );
 
-            if (boxes.isEmpty) {
-              return Center(child: Text(context.l10n.noBoxesAvailable));
-            }
+              if (boxes.isEmpty) {
+                return OverviewPlaceholder(
+                  child: Text(context.l10n.noBoxesAvailable),
+                );
+              }
 
-            if (bigPictureModeEnabled) {
-              return LayoutBuilder(
-                builder: (context, constraints) {
-                  final crossAxisCount = switch (constraints.maxWidth) {
-                    >= 1000 => 3,
-                    >= 600 => 2,
-                    _ => 1,
-                  };
+              return BoxOverviewLayout(
+                scrollKey: PageStorageKey<String>(
+                  bigPictureModeEnabled
+                      ? 'boxes-overview-grid'
+                      : 'boxes-overview-list',
+                ),
+                bigPictures: bigPictureModeEnabled,
+                firstEmptyIndex: settings?.showEmptyBoxesLast == true
+                    ? boxes.indexWhere(
+                        (box) =>
+                            !(occupied.data ?? const <int>{}).contains(box.id),
+                      )
+                    : -1,
+                controller: _scrollController,
+                itemCount: boxes.length,
+                itemBuilder: (context, index) {
+                  final box = boxes[index];
+                  final boxName = _boxName(box);
+                  final boxLabel = context.l10n.boxLabel(box.id);
+                  final dimensions = _formatDimensions(context, box);
 
-                  return GridView.builder(
-                    key: const PageStorageKey<String>('boxes-overview-grid'),
-                    controller: _scrollController,
-                    padding: const EdgeInsets.fromLTRB(
-                      12,
-                      12,
-                      12,
-                      OverviewActionButtons.bottomPadding,
-                    ),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: crossAxisCount == 1 ? 1.45 : 1.15,
-                    ),
-                    itemCount: boxes.length,
-                    itemBuilder: (context, index) {
-                      final box = boxes[index];
-                      final boxName = _boxName(box);
-                      final boxLabel = context.l10n.boxLabel(box.id);
-                      final dimensions = _formatDimensions(context, box);
-
-                      return _buildBigPictureBoxCard(
-                        context,
-                        box: box,
-                        boxes: boxes,
-                        boxName: boxName,
-                        boxLabel: boxLabel,
-                        dimensions: dimensions,
-                      );
-                    },
+                  if (bigPictureModeEnabled) {
+                    return _buildBigPictureBoxCard(
+                      context,
+                      box: box,
+                      boxes: boxes,
+                      boxName: boxName,
+                      boxLabel: boxLabel,
+                      dimensions: dimensions,
+                    );
+                  }
+                  return _buildCompactBoxTile(
+                    context,
+                    box: box,
+                    boxes: boxes,
+                    boxName: boxName,
+                    boxLabel: boxLabel,
+                    dimensions: dimensions,
                   );
                 },
               );
-            }
-
-            return ListView.builder(
-              key: const PageStorageKey<String>('boxes-overview-list'),
-              padding: const EdgeInsets.only(
-                bottom: OverviewActionButtons.bottomPadding,
-              ),
-              controller: _scrollController,
-              itemCount: boxes.length,
-              itemBuilder: (context, index) {
-                final box = boxes[index];
-                final boxName = _boxName(box);
-                final boxLabel = context.l10n.boxLabel(box.id);
-                final dimensions = _formatDimensions(context, box);
-
-                return _buildCompactBoxTile(
-                  context,
-                  box: box,
-                  boxes: boxes,
-                  boxName: boxName,
-                  boxLabel: boxLabel,
-                  dimensions: dimensions,
-                );
-              },
-            );
-          },
+            },
+          ),
         ),
-      ),
-      floatingActionButton: OverviewActionButtons(
-        secondary: FloatingActionButton(
-          key: const Key('scan-box-button'),
-          heroTag: 'boxes-scan-fab',
-          tooltip: context.l10n.scanBoxTitle,
-          onPressed: _openScannerPage,
-          child: const Icon(Icons.qr_code_scanner),
-        ),
-        primary: FloatingActionButton(
-          heroTag: 'boxes-add-fab',
-          key: const Key('add-box-button'),
-          onPressed: _openNewBoxPage,
-          tooltip: context.l10n.addBox,
-          child: const Icon(Icons.add),
+        floatingActionButton: OverviewActionButtons(
+          secondary: FloatingActionButton(
+            key: const Key('scan-box-button'),
+            heroTag: 'boxes-scan-fab',
+            tooltip: context.l10n.scanBoxTitle,
+            onPressed: _openScannerPage,
+            child: const Icon(Icons.qr_code_scanner),
+          ),
+          primary: FloatingActionButton(
+            heroTag: 'boxes-add-fab',
+            key: const Key('add-box-button'),
+            onPressed: _openNewBoxPage,
+            tooltip: context.l10n.addBox,
+            child: const Icon(Icons.add),
+          ),
         ),
       ),
     );

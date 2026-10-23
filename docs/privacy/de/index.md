@@ -268,6 +268,17 @@ Sie dient der Kompatibilität von Dateiexporten mit älteren unterstützten Andr
 
 Für Android 10 und neuere Versionen gilt sie nicht.
 
+### Optionale lokale Benachrichtigungen
+
+`android.permission.POST_NOTIFICATIONS` wird ab Android 13 erst angefragt, wenn
+Benachrichtigungen für Fütterungen in den Einstellungen eingeschaltet werden.
+Die Option ist anfangs aus und für In-App-Erinnerungen und andere Funktionen
+nicht erforderlich. `android.permission.RECEIVE_BOOT_COMPLETED` erlaubt Android,
+bereits geplante lokale Hinweise nach Neustart oder App-Update wieder einzuplanen.
+Beide Berechtigungen gewähren keinen Netzwerkzugriff. Für Erinnerungen kommen
+keine Berechtigungen für exakte Alarme, Vollbild, Hintergrunddienste oder
+Vibration hinzu.
+
 ### Interne Android-Kompatibilitätsberechtigungen
 
 Android- oder AndroidX-Bibliotheken können anwendungsspezifische interne Berechtigungen hinzufügen, mit denen Android-Komponenten sicher verwaltet werden.
@@ -286,7 +297,6 @@ Die aktuelle Android-Produktionsversion fordert Folgendes nicht an:
 * Zugriff auf Kontakte;
 * Mikrofonzugriff;
 * Zugriff auf Android-Benutzerkonten;
-* Systemberechtigung für Benachrichtigungen;
 * uneingeschränkten Lesezugriff auf externen Speicher.
 
 Einige von der Benutzerin oder dem Benutzer ausgewählte Android-Systemkomponenten, Datei- oder Medienauswahlen können vorübergehenden Zugriff auf einzelne Dateien gewähren, ohne TerraManager weitreichende Speicherberechtigungen zu erteilen.
@@ -305,7 +315,20 @@ Komponenten Dritter unterliegen weiterhin ihren jeweiligen Softwarelizenzen.
 
 TerraManager kann fütterungsbezogene Erinnerungsinformationen innerhalb der Anwendung anzeigen.
 
-Die aktuelle Version benötigt für diese Funktion keine Android-Systemberechtigung für Benachrichtigungen.
+In-App-Erinnerungen benötigen keine Systemberechtigung für Benachrichtigungen.
+Optionale Android-Hinweise werden vollständig auf dem Gerät für die eigenständige
+Sammlung geplant. Shared Care und Standalone Web behalten In-App-Erinnerungen
+und fragen keine Browser-Benachrichtigungsberechtigung an. Hinweise verwenden
+allgemeinen Text ohne Tiernamen, Bilder oder Pflegenotizen und eine private
+Sperrbildschirmanzeige. Antippen öffnet das Tier eines aktuellen Termins;
+veraltete oder gelöschte Ziele verändern die aktuelle Sammlung nicht.
+
+Die gerätebezogene Freigabe und der Zustellstatus sind lokale Einstellungen,
+ausgenommen von portablen Sicherungen. Android speichert außerdem geplante
+Alarmzeiten und eine lokale Navigationskennung. Dafür werden weder Konto,
+Cloud-Nachrichten, Serververbindung, Tracking noch externe Dienste verwendet.
+Android-Energiesparmaßnahmen können die Zustellung verzögern oder verhindern;
+Grenzen sind in der Anleitung beschrieben.
 
 Im eigenständigen Modus werden Fütterungserinnerungen anhand lokaler Daten berechnet. Im Shared-Care-Modus berechnet der Betreiber-Server die Erinnerungstermine aus den gemeinsamen Datensätzen; der Browser zeigt sie an und markiert fällige Erinnerungen.
 Bei einem festen Wochentagsplan werden die gewählten Wochentage und die Uhrzeit zusammen mit der automatisch ermittelten Zeitzone im Tierdatensatz gespeichert, damit der Termin zur gewählten Ortszeit bestehen bleibt.

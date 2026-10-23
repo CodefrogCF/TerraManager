@@ -10,6 +10,7 @@ import '../../../../core/qr/qr_export_service.dart';
 import '../../../../core/qr/qr_storage_service.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/app_localizations_labels.dart';
+import '../../../notifications/presentation/local_notifications_settings.dart';
 
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
 
@@ -1063,6 +1064,8 @@ class _SettingsPageState extends State<SettingsPage> {
               context.l10n.changesSavedAutomatically,
               style: Theme.of(context).textTheme.bodySmall,
             ),
+
+            const LocalNotificationsSettings(),
 
             const SizedBox(height: 40),
 

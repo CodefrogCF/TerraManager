@@ -22,6 +22,36 @@ subprojects {
 }
 subprojects {
     project.evaluationDependsOn(":app")
+    if (name == "flutter_local_notifications") {
+        // Keep the new plugin on the app's AGP baseline instead of resolving
+        // its older, unused build-tool classpath alongside it.
+        buildscript.configurations.configureEach {
+            resolutionStrategy.eachDependency {
+                if (requested.group == "com.android.tools.build" && requested.name == "gradle") {
+                    useVersion("9.1.1")
+                    because("Match TerraManager's pinned Android Gradle Plugin")
+                }
+                if (requested.group == "org.jetbrains.kotlin" && requested.name == "kotlin-gradle-plugin") {
+                    useVersion("2.4.20")
+                    because("Match TerraManager's AGP-hosted Kotlin compiler baseline")
+                }
+            }
+        }
+        configurations.configureEach {
+            if (name.contains("UnitTest", ignoreCase = true)) {
+                resolutionStrategy.eachDependency {
+                    if (requested.group == "junit" && requested.name == "junit") {
+                        useVersion("4.13.2")
+                        because("Avoid GHSA-269g-pwp5-87pp in plugin tests")
+                    }
+                    if (requested.group == "org.bouncycastle" && requested.name == "bcprov-jdk18on") {
+                        useVersion("1.86")
+                        because("Use a patched provider in the plugin's Robolectric tests")
+                    }
+                }
+            }
+        }
+    }
     dependencyLocking {
         lockAllConfigurations()
         lockMode = LockMode.STRICT

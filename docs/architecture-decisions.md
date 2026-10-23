@@ -331,3 +331,25 @@ The [change contract](shared-care-change-contract.md) defines exact behavior.
 Issues #226-#229 implement revisions, targeted refresh, SSE and recovery.
 Deployments must verify the Dart/Caddy/browser path, authentication, reconnects
 and resource use on their own hardware.
+
+## ADR-038: Opt-in local Android feeding notifications
+
+**Date:** 2026-10-22
+
+Use pinned `flutter_local_notifications` 22.3.2 with inexact one-shot Android
+alarms, one localized channel and generic private content. Request notification
+permission only after explicit device opt-in; do not request exact alarms or
+battery exemptions. Web and Shared Care retain in-app reminders only, avoiding
+extra alerts from several browser clients and requiring no server connection.
+
+Reuse `FeedingReminderService` for interval and IANA weekday/DST calculations.
+Observe committed Animal/Feeding changes; reconcile on startup, app resume,
+language and device-setting changes. The plugin restores pending UTC instants
+on boot/update. A device-only appointment ledger prevents re-notifying consumed
+appointments; it and opt-in are excluded from portable backups. In-app 24-hour
+suppression remains independent. Validate payload version, collection, record
+creation identity and appointment before navigating; never replace an edit route.
+
+Inexact delivery can be delayed or blocked by Android, force stop, channel or
+manufacturer limits. Surface planning failures and retry; do not claim reliable
+real-time delivery. Manual acceptance is in [Release checklist](release-checklist.md).

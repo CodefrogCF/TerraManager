@@ -718,5 +718,17 @@
   "suppressFeedingAlert24Hours": "Alarm für 24 Stunden deaktivieren",
   "feedingAlertSuppressionExplanation": "Nur die Hinweise dieses Tiers in der Übersicht ausblenden. Fütterungsplan und Erinnerung in den Tierdetails bleiben aktiv.",
   "feedingAlertSuppressionFailed": "Der Hinweis konnte nicht ausgeblendet werden. Bitte erneut versuchen.",
-  "showEmptyBoxesLast": "Leere Boxen am Ende anzeigen"
+  "showEmptyBoxesLast": "Leere Boxen am Ende anzeigen",
+  "localNotificationsHeading": "Android-Benachrichtigungen",
+  "localNotificationsEnable": "Auf diesem Gerät an Fütterungen erinnern",
+  "localNotificationsDescription": "Optional, anfangs ausgeschaltet. Verwendet nur Erinnerungen der lokalen App-Sammlung. Shared Care erinnert weiterhin im Browser.",
+  "localNotificationsTiming": "Android kann Hinweise verzögert anzeigen, besonders im Energiesparmodus. Jeder fällige Termin wird einmal gemeldet. Das Ausblenden eines In-App-Hinweises für 24 Stunden schaltet Android-Hinweise nicht stumm.",
+  "localNotificationsDenied": "Android-Benachrichtigungen sind gesperrt. In-App-Erinnerungen funktionieren weiterhin. Du kannst Benachrichtigungen in den Android-Einstellungen erlauben und hierher zurückkehren.",
+  "localNotificationsFailed": "Einige Benachrichtigungen konnten nicht aktualisiert werden. Prüfe die Android-Einstellungen und versuche es erneut. In-App-Erinnerungen bleiben verfügbar.",
+  "localNotificationsRetry": "Planung erneut versuchen",
+  "localNotificationsAndroidSettings": "Android-Benachrichtigungseinstellungen",
+  "localNotificationsChannel": "Fütterungserinnerungen",
+  "localNotificationsChannelDescription": "Optionale Erinnerungen für die lokale Tiersammlung",
+  "localNotificationsBody": "Eine Fütterung ist fällig. Öffne TerraManager, um die Erinnerung anzusehen.",
+  "localNotificationsUnavailable": "Diese Fütterungserinnerung ist nicht mehr verfügbar. Deine aktuelle Sammlung bleibt unverändert."
 }

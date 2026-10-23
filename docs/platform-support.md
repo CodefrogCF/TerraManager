@@ -15,8 +15,24 @@ require the established signing identity and a higher build number. See
 [Installation and updates](installation-and-updates.md) and
 [Android release signing](android-release-signing.md).
 Camera/gallery/file actions use the corresponding platform facilities.
-Standalone release builds do not require network or notification permission;
-the Shared Care link opens the external browser.
+Standalone release builds do not require network access. Feeding notifications
+are optional and off by default; Android 13+ asks for permission only on explicit
+opt-in. In-app reminders need no notification permission. The Shared Care link
+opens the external browser; neither Web mode schedules system notifications.
+
+### Feeding notifications
+
+Enable per Android device in Settings; this preference and the delivery ledger
+are not portable backup settings. One-shot alerts follow the existing interval
+or fixed weekday/IANA schedule. A due appointment is reported once, then waits
+for a Feeding or schedule change; overdue alerts are not repeated daily.
+Changes, archive/delete and collection restore reconcile while the app runs.
+Pending alerts survive reboot/app update. Reopen after force stop; battery
+restrictions, a blocked channel or manufacturer alarm limits can delay/prevent
+alerts. No exact delivery time is guaranteed. App resume renews pending alarms;
+there is no background network or polling service. A saved weekday zone remains
+authoritative after travel; changing the device zone does not rewrite the plan.
+In-app 24-hour overview suppression does not mute Android notifications.
 
 ## Web
 

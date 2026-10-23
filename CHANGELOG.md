@@ -4,6 +4,17 @@ Release changes are summarized below. Detailed contracts are in the
 [documentation](docs/project-documentation.md). Dates and historical release
 groupings are retained from the existing record.
 
+## [Unreleased]
+
+### Added
+
+- Opt-in Android feeding notifications for the local collection, off by default,
+  with contextual permission, generic private text and safe Animal navigation (#245).
+- Schedule existing interval/weekday reminders on-device; update after feeding,
+  reminder, archive/delete and device-setting changes. Keep in-app reminders and
+  their independent 24-hour overview suppression (#246). Web/Shared Care do not
+  create additional system alerts. Android delivery can be delayed by OS restrictions.
+
 ## [1.15.5] - 2026-10-21
 
 ### Added

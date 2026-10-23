@@ -862,5 +862,17 @@
   "suppressFeedingAlert24Hours": "Disable Alert for 24 Hours",
   "feedingAlertSuppressionExplanation": "Only hide this Animal’s alerts in the overview. Its schedule and detail reminder stay active.",
   "feedingAlertSuppressionFailed": "Could not hide the alert. Please try again.",
-  "showEmptyBoxesLast": "Show Empty Boxes Last"
+  "showEmptyBoxesLast": "Show Empty Boxes Last",
+  "localNotificationsHeading": "Android notifications",
+  "localNotificationsEnable": "Notify me about feedings on this device",
+  "localNotificationsDescription": "Optional, off by default. Uses reminders from this app’s local collection only. Shared Care browser reminders remain in the browser.",
+  "localNotificationsTiming": "Android may deliver alerts late, especially with battery saving. Each due appointment is reported once. Hiding an in-app alert for 24 hours does not mute Android notifications.",
+  "localNotificationsDenied": "Android notifications are blocked. In-app reminders continue to work. You can allow notifications in Android settings and return here.",
+  "localNotificationsFailed": "Some notifications could not be updated. Check Android settings and retry. In-app reminders are still available.",
+  "localNotificationsRetry": "Retry scheduling",
+  "localNotificationsAndroidSettings": "Android notification settings",
+  "localNotificationsChannel": "Feeding reminders",
+  "localNotificationsChannelDescription": "Optional reminders for the local Animal collection",
+  "localNotificationsBody": "A feeding is due. Open TerraManager to see the reminder.",
+  "localNotificationsUnavailable": "This feeding reminder is no longer available. Your current collection is unchanged."
 }

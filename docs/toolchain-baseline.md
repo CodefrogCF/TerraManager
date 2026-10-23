@@ -24,6 +24,10 @@ repository rather than the Pub cache. `io.flutter:*` follows the pinned engine;
 the narrowly excluded `kotlin-stdlib-common` handles the existing Gradle locking
 inconsistency. Locks fix versions, not artifact authenticity.
 
+The notification plugin follows the project's AGP and hosted Kotlin versions. Its JVM unit-test
+configurations pin JUnit 4.13.2 and Bouncy Castle 1.86 to avoid newly introduced
+advisories; the targeted rules live in `android/build.gradle.kts`.
+
 After an intentional dependency change, refresh with the pinned toolchain:
 
 ```sh

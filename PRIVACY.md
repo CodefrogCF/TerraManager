@@ -255,6 +255,16 @@ It exists for compatibility with file-export functionality on older supported An
 
 It does not apply to Android 10 or newer.
 
+### Optional local notifications
+
+`android.permission.POST_NOTIFICATIONS` is requested on Android 13 or newer only
+when the user switches on feeding notifications in Settings. This option defaults
+to off and is not needed for in-app reminders or any other workflow.
+`android.permission.RECEIVE_BOOT_COMPLETED` lets Android restore already scheduled
+local alarms after reboot or an app update. Neither permission provides network
+access. No exact-alarm, full-screen, background-service or vibration permission
+is added for reminders.
+
 ### Android internal compatibility permissions
 
 Android or AndroidX libraries may add application-specific internal permissions used to securely manage Android components.
@@ -273,7 +283,6 @@ The current Android production release does not request:
 * contacts access;
 * microphone access;
 * access to Android user accounts;
-* system notification permission;
 * unrestricted external-storage read access.
 
 Some Android system components, file pickers or media pickers selected by the user may provide temporary access to individual files without granting TerraManager broad storage permissions.
@@ -292,7 +301,19 @@ Third-party components remain subject to their respective software licences.
 
 TerraManager can display feeding-related reminder information within the application.
 
-The current version does not require Android system-notification permission for this functionality.
+In-app reminders require no system notification permission. Optional Android
+notifications are planned entirely on the device for the standalone collection;
+Shared Care and standalone Web keep in-app reminders and do not request browser
+notification permission. Notifications use generic text without Animal names,
+pictures or care notes, and private lock-screen visibility. Tapping a current
+notification opens its Animal; stale/deleted targets leave the current collection
+unchanged.
+
+The device-only opt-in and appointment delivery ledger are local preferences,
+excluded from portable backups. Android also stores pending alarm times and a
+local navigation identifier. No account, cloud messaging, server connection,
+tracking or external service is used for these notifications. Android battery
+restrictions may delay or prevent delivery; see the user guide for limitations.
 
 In standalone mode, feeding reminder calculations use local data. In Shared Care, the operator's server calculates reminder dates from the shared records; the browser displays those dates and marks reminders that are due.
 For a fixed weekday plan, the selected weekdays and time, together with the automatically detected time zone, are stored with the Animal record so the appointment stays at the chosen local time.

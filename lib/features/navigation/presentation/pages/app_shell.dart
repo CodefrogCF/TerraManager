@@ -11,8 +11,14 @@ import '../../../feedings/application/feeding_reminder_service.dart';
 class AppShell extends StatefulWidget {
   final AppDatabase database;
   final VoidCallback? onReplayTutorial;
+  final int dataRevision;
 
-  const AppShell({super.key, required this.database, this.onReplayTutorial});
+  const AppShell({
+    super.key,
+    required this.database,
+    this.onReplayTutorial,
+    this.dataRevision = 0,
+  });
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -34,6 +40,15 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
     _refreshDueFeedings();
+  }
+
+  @override
+  void didUpdateWidget(covariant AppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.dataRevision != oldWidget.dataRevision) {
+      _dataRevision++;
+      _refreshDueFeedings();
+    }
   }
 
   Future<void> _refreshDueFeedings() async {

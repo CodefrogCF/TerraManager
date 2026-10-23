@@ -9,9 +9,14 @@ import '../../navigation/presentation/pages/app_shell.dart';
 import 'standalone_tutorial_dialog.dart';
 
 class StandaloneTutorialGate extends StatefulWidget {
-  const StandaloneTutorialGate({super.key, required this.database});
+  const StandaloneTutorialGate({
+    super.key,
+    required this.database,
+    this.dataRevision = 0,
+  });
 
   final AppDatabase database;
+  final int dataRevision;
 
   @override
   State<StandaloneTutorialGate> createState() => _StandaloneTutorialGateState();
@@ -58,6 +63,10 @@ class _StandaloneTutorialGateState extends State<StandaloneTutorialGate> {
   @override
   Widget build(BuildContext context) => ConstrainedPageWidth(
     maxWidth: 960,
-    child: AppShell(database: widget.database, onReplayTutorial: _openTutorial),
+    child: AppShell(
+      database: widget.database,
+      dataRevision: widget.dataRevision,
+      onReplayTutorial: _openTutorial,
+    ),
   );
 }

@@ -171,7 +171,7 @@ de:
     - number: '11'
       reverse: true
       heading: Fällige und bevorstehende Fütterungen erkennen
-      body_html: Tippe auf eine Fällig-Markierung oder einen Eintrag der Fälligkeitsgruppe, um eine Fütterung hinzuzufügen oder die Übersichtshinweise dieses Tiers für 24 Stunden auszublenden. In Shared Care gilt das pro Benutzer, auch auf dessen anderen Geräten. Terminliste und roter Detailhinweis bleiben aktiv. Die optionale Karte <strong>Nächste Fütterung</strong> öffnet alle aktiven Termine. Erinnerungen erscheinen nur in der App.
+      body_html: Fällig-Markierungen bieten Fütterung hinzufügen oder Übersichtshinweise für 24 Stunden ausblenden (in Shared Care pro Konto). Terminliste und Detailhinweis bleiben aktiv. <strong>Nächste Fütterung</strong> öffnet die Terminliste. Optional unter <strong>Einstellungen → Android-Benachrichtigungen</strong> lokale Hinweise einschalten; anfangs aus, Freigabe erst beim Einschalten. Web und Shared Care erinnern nur in der App. Android meldet jeden Termin einmal, eventuell verzögert; keine Tierdaten auf dem Sperrbildschirm. Nach erzwungenem Beenden die App öffnen. Das Ausblenden für 24 Stunden schaltet Android-Hinweise nicht stumm.
       images:
       - file: feeding-reminders-due.webp
         alt: Tierübersicht mit mehreren fälligen Fütterungen
@@ -413,7 +413,7 @@ en:
     - number: '11'
       reverse: true
       heading: See which animals are due
-      body_html: Tap a Due marker or an entry in the due group to add a Feeding or hide that Animal’s overview alerts for 24 hours. In Shared Care this applies to your account, including its other devices. Scheduled feedings and the red detail reminder stay active. The optional <strong>Next Feeding</strong> card opens all active appointments. Reminders appear only inside the app.
+      body_html: Due markers offer Add Feeding or hide overview alerts for 24 hours (per account in Shared Care). Scheduled feedings and detail reminders stay active. <strong>Next Feeding</strong> opens the schedule. Optionally enable local alerts under <strong>Settings → Android notifications</strong>; off by default, permission requested on enabling. Web and Shared Care keep in-app reminders. Android reports each appointment once, possibly late, without Animal data on the lock screen. Reopen the app after force stop. Hiding alerts for 24 hours does not mute Android notifications.
       images:
       - file: feeding-reminders-due.webp
         alt: Animal overview with several due feedings

@@ -152,28 +152,48 @@ void main() {
     }
   }
 
-  testWidgets('last Box row scrolls above both floating buttons', (
-    tester,
-  ) async {
-    final db = AppDatabase.test(NativeDatabase.memory());
-    addTearDown(db.close);
-    for (var i = 0; i < 20; i++) {
-      await BoxRepository(db).createBoxWithGeneratedQrId(name: 'Box $i');
-    }
-    await tester.pumpWidget(MaterialApp(home: BoxesPage(database: db)));
-    await tester.pumpAndSettle();
-    final last = find.byKey(const Key('box-list-item-20'));
-    await tester.scrollUntilVisible(last, 400);
-    await tester.drag(find.byType(ListView), const Offset(0, -1000));
-    await tester.pumpAndSettle();
-    expect(
-      tester.getBottomLeft(last).dy,
-      lessThanOrEqualTo(
-        tester.getTopLeft(find.byKey(const Key('scan-box-button'))).dy,
-      ),
-    );
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+  testWidgets(
+    'last Box context menu stays accessible when floating actions hide',
+    (tester) async {
+      final db = AppDatabase.test(NativeDatabase.memory());
+      addTearDown(db.close);
+      for (var i = 0; i < 20; i++) {
+        await BoxRepository(db).createBoxWithGeneratedQrId(name: 'Box $i');
+      }
+      await tester.pumpWidget(MaterialApp(home: BoxesPage(database: db)));
+      await tester.pumpAndSettle();
+      final add = find.byKey(const Key('add-box-button'));
+      final scan = find.byKey(const Key('scan-box-button'));
+      expect(add, findsOneWidget);
+      expect(scan, findsOneWidget);
+      final last = find.byKey(const Key('box-list-item-20'));
+      await tester.scrollUntilVisible(last, 400);
+      await tester.drag(find.byType(ListView), const Offset(0, -1000));
+      await tester.pumpAndSettle();
+      expect(add, findsNothing);
+      expect(scan, findsNothing);
+      expect(
+        tester.getBottomLeft(last).dy,
+        lessThanOrEqualTo(tester.getBottomLeft(find.byType(ListView)).dy),
+      );
+      final menu = find.byKey(const Key('box-context-menu-button-20'));
+      expect(menu.hitTestable(), findsOneWidget);
+      await tester.tap(menu);
+      await tester.pumpAndSettle();
+      expect(
+        find.byWidgetPredicate((widget) => widget is PopupMenuItem),
+        findsWidgets,
+      );
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, 300));
+      await tester.pumpAndSettle();
+      expect(add.hitTestable(), findsOneWidget);
+      expect(scan.hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   testWidgets(
     'Shared Care feeding button opens existing scanner and Box feeding workflow',

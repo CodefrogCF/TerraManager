@@ -4,6 +4,14 @@ Release changes are summarized below. Detailed contracts are in the
 [documentation](docs/project-documentation.md). Dates and historical release
 groupings are retained from the existing record.
 
+## [unreleased]
+
+### Added
+
+- Show bundled German/English release highlights once per version/build after an
+  Android Standalone update, with manual reopening through Settings → What's new;
+  keep first-run onboarding and device-local display state separate (#252).
+
 ## [1.16.0] - 2026-10-23
 
 ### Added

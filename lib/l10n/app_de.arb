@@ -732,5 +732,20 @@
   "localNotificationsChannel": "Fütterungserinnerungen",
   "localNotificationsChannelDescription": "Optionale Erinnerungen für die lokale Tiersammlung",
   "localNotificationsBody": "Eine Fütterung ist fällig. Öffne TerraManager, um die Erinnerung anzusehen.",
-  "localNotificationsUnavailable": "Diese Fütterungserinnerung ist nicht mehr verfügbar. Deine aktuelle Sammlung bleibt unverändert."
+  "localNotificationsUnavailable": "Diese Fütterungserinnerung ist nicht mehr verfügbar. Deine aktuelle Sammlung bleibt unverändert.",
+  "releaseHighlightsSettings": "Neuerungen",
+  "releaseHighlightsTitle": "Das ist neu",
+  "releaseHighlightsVersion": "Version {version} ({build})",
+  "releaseHighlightsIntro": "Die neuesten Verbesserungen für deine Sammlung:",
+  "releaseHighlightsNotificationsTitle": "Optionale Fütterungsbenachrichtigungen",
+  "releaseHighlightsNotificationsBody": "Aktiviere bei Bedarf Android-Fütterungsbenachrichtigungen in den Einstellungen. Sie sind anfangs ausgeschaltet und folgen deinem bisherigen Erinnerungsplan. Android kann sie verzögert anzeigen.",
+  "releaseHighlightsFeedingTitle": "Schnelle Aktionen bei fälligen Fütterungen",
+  "releaseHighlightsFeedingBody": "Tippe auf eine Fällig-Markierung, um das Tier anzuzeigen, eine Fütterung einzutragen oder seine Übersichtshinweise für 24 Stunden auszublenden. Android-Benachrichtigungen werden dadurch nicht stummgeschaltet.",
+  "releaseHighlightsBoxesTitle": "Leere Boxen zusammen anzeigen",
+  "releaseHighlightsBoxesBody": "Zeige leere Boxen bei Bedarf am Ende der Übersicht unter einer eigenen Überschrift an. Deine gewählte Sortierung bleibt innerhalb jeder Gruppe erhalten.",
+  "releaseHighlightsOverviewTitle": "Übersichtlichere Listen und Menüs",
+  "releaseHighlightsOverviewBody": "Weniger Leerraum am Listenende: Die schwebenden Buttons blenden sich dort aus, damit das letzte Kontextmenü erreichbar bleibt. Beim Hochscrollen erscheinen sie wieder. Namen änderst du weiterhin über Bearbeiten.",
+  "releaseHighlightsSettingsHint": "Du kannst diese Übersicht jederzeit unter Einstellungen → Neuerungen erneut öffnen.",
+  "releaseHighlightsClose": "Schließen",
+  "releaseHighlightsUnavailable": "Die Neuerungen konnten nicht geöffnet werden. Bitte versuche es erneut."
 }

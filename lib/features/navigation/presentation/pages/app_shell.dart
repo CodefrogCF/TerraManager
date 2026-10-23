@@ -11,12 +11,14 @@ import '../../../feedings/application/feeding_reminder_service.dart';
 class AppShell extends StatefulWidget {
   final AppDatabase database;
   final VoidCallback? onReplayTutorial;
+  final VoidCallback? onShowReleaseHighlights;
   final int dataRevision;
 
   const AppShell({
     super.key,
     required this.database,
     this.onReplayTutorial,
+    this.onShowReleaseHighlights,
     this.dataRevision = 0,
   });
 
@@ -166,6 +168,7 @@ class _AppShellState extends State<AppShell> {
         database: widget.database,
         onRestoreCompleted: _handleRestoreCompleted,
         onReplayTutorial: widget.onReplayTutorial,
+        onShowReleaseHighlights: widget.onShowReleaseHighlights,
       ),
     ];
 

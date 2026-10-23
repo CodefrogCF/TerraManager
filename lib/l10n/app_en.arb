@@ -876,5 +876,27 @@
   "localNotificationsChannel": "Feeding reminders",
   "localNotificationsChannelDescription": "Optional reminders for the local Animal collection",
   "localNotificationsBody": "A feeding is due. Open TerraManager to see the reminder.",
-  "localNotificationsUnavailable": "This feeding reminder is no longer available. Your current collection is unchanged."
+  "localNotificationsUnavailable": "This feeding reminder is no longer available. Your current collection is unchanged.",
+  "releaseHighlightsSettings": "What's new",
+  "releaseHighlightsTitle": "What's new",
+  "releaseHighlightsVersion": "Version {version} ({build})",
+  "@releaseHighlightsVersion": {
+    "placeholders": {
+      "version": {"type": "String"},
+      "build": {"type": "String"}
+    }
+  },
+  "releaseHighlightsIntro": "The latest improvements for your collection:",
+  "releaseHighlightsNotificationsTitle": "Optional feeding notifications",
+  "releaseHighlightsNotificationsBody": "Enable Android feeding notifications in Settings if you want them. They are off by default and follow your existing reminder schedule. Android may deliver them late.",
+  "@releaseHighlightsNotificationsBody": {"description": "Bundled Android release highlights; review the releaseHighlights content in both languages for each release."},
+  "releaseHighlightsFeedingTitle": "Quick actions for due feedings",
+  "releaseHighlightsFeedingBody": "Tap a due marker to view the Animal, add a Feeding or hide its overview alerts for 24 hours. This does not mute Android notifications.",
+  "releaseHighlightsBoxesTitle": "Empty Boxes together",
+  "releaseHighlightsBoxesBody": "Optionally show empty Boxes at the end of the overview under their own heading. Your chosen sort order is kept within each group.",
+  "releaseHighlightsOverviewTitle": "Clearer overviews and menus",
+  "releaseHighlightsOverviewBody": "Less empty space at the bottom of lists. Floating buttons hide at the end, leaving the last context menu accessible, and return when you scroll up. Names remain editable through Edit.",
+  "releaseHighlightsSettingsHint": "You can reopen this overview at any time under Settings → What's new.",
+  "releaseHighlightsClose": "Close",
+  "releaseHighlightsUnavailable": "The release highlights could not be opened. Please try again."
 }

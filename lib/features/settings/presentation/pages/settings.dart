@@ -65,6 +65,7 @@ class SettingsPage extends StatefulWidget {
 
   final VoidCallback? onRestoreCompleted;
   final VoidCallback? onReplayTutorial;
+  final VoidCallback? onShowReleaseHighlights;
 
   const SettingsPage({
     super.key,
@@ -81,6 +82,7 @@ class SettingsPage extends StatefulWidget {
     this.appInformationLoader,
     this.onRestoreCompleted,
     this.onReplayTutorial,
+    this.onShowReleaseHighlights,
   });
 
   @override
@@ -1195,6 +1197,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ],
                 ),
+              ),
+            ],
+
+            if (!kIsWeb &&
+                defaultTargetPlatform == TargetPlatform.android &&
+                widget.onShowReleaseHighlights != null) ...[
+              const SizedBox(height: 24),
+              const Divider(),
+              ListTile(
+                key: const Key('release-highlights-settings'),
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.new_releases_outlined),
+                title: Text(context.l10n.releaseHighlightsSettings),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _operationBusy ? null : widget.onShowReleaseHighlights,
               ),
             ],
 

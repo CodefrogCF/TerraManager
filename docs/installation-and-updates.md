@@ -40,6 +40,17 @@ The current technical compatibility baseline is documented separately:
 Normal updates from an existing production-signed TerraManager installation
 apply the required database migrations automatically.
 
+Android Standalone shows the current release highlights once after an update.
+Reopen them through **Settings → What's new** (**Einstellungen → Neuerungen**).
+The German/English text is bundled offline. New installations keep the introduction;
+existing installations see the highlights when this feature first becomes available.
+The last shown version/build is stored on the device, outside collection backups.
+Web and Shared Care do not show this overlay.
+
+For release maintenance, review the `releaseHighlights*` texts in both
+`lib/l10n/app_en.arb` and `lib/l10n/app_de.arb` alongside the changelog. The installed
+version and build number are read from the application package.
+
 Create a current `.tmbackup` before updating.
 
 ## Android installation

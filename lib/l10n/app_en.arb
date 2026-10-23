@@ -858,6 +858,7 @@
   "animalPdfSaved": "Animal PDF saved",
   "animalPdfFailed": "Animal PDF could not be saved.",
   "animalPdfArchiveReason": "Archive reason",
+  "viewAnimal": "View Animal",
   "feedingAlertActions": "Feeding reminder actions",
   "suppressFeedingAlert24Hours": "Disable Alert for 24 Hours",
   "feedingAlertSuppressionExplanation": "Only hide this Animal’s alerts in the overview. Its schedule and detail reminder stay active.",

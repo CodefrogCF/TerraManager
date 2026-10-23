@@ -82,6 +82,79 @@ void main() {
   }
 
   for (final bigPicture in [false, true]) {
+    for (final fromSummary in [false, true]) {
+      testWidgets(
+        'reminder opens the selected Animal without changing care data, big=$bigPicture, summary=$fromSummary',
+        (tester) async {
+          final now = DateTime.now();
+          final first = await createAnimal(
+            commonName: 'First',
+            intervalDays: 1,
+            baseline: now.subtract(const Duration(days: 3)),
+          );
+          final selected = await createAnimal(
+            commonName: 'Second',
+            intervalDays: 1,
+            baseline: now.subtract(const Duration(days: 2)),
+          );
+          final before = (await AnimalRepository(database)
+              .getAnimalById(selected))!;
+          final settings = AppSettingsController();
+          addTearDown(settings.dispose);
+          await settings.setBigPictureModeEnabled(bigPicture);
+          await tester.pumpWidget(
+            AppSettingsScope(
+              controller: settings,
+              child: MaterialApp(
+                locale: Locale(bigPicture ? 'de' : 'en'),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: AnimalsPage(database: database, reminderNow: () => now),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          final entry = find.byKey(
+            Key(
+              fromSummary
+                  ? 'feeding-reminder-summary-item-$selected'
+                  : 'animal-due-marker-$selected',
+            ),
+          );
+          await tester.ensureVisible(entry);
+          await tester.tap(entry);
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const Key('feeding-alert-view-animal')));
+          await tester.pumpAndSettle();
+          final detail = tester.widget<AnimalDetailPage>(
+            find.byType(AnimalDetailPage),
+          );
+          expect(detail.animalId, selected);
+          expect(detail.navigationContext!.recordIds, [first, selected]);
+          expect(detail.navigationContext!.currentRecordId, selected);
+          expect(
+            await AnimalRepository(database).getAnimalById(selected),
+            before,
+          );
+          expect(
+            await FeedingRepository(database).getFeedingsForAnimal(selected),
+            isEmpty,
+          );
+          expect(
+            settings.isFeedingAlertSuppressed(
+              feedingAlertAnimalKey(selected, before.createdAt),
+            ),
+            false,
+          );
+          await tester.tap(find.byType(BackButton));
+          await tester.pumpAndSettle();
+          expect(find.byType(AnimalDetailPage), findsNothing);
+          expect(entry, findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+
     testWidgets(
       'suppression changes only overview indicators, large pictures=$bigPicture',
       (tester) async {

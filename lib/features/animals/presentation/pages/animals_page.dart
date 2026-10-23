@@ -292,7 +292,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
   }
 
-  Future<void> _reminderActions(Animal animal) async {
+  Future<void> _reminderActions(Animal animal, List<Animal> animals) async {
     final settings = AppSettingsScope.maybeOf(context);
     final action = await showFeedingAlertActions(
       context,
@@ -303,16 +303,22 @@ class _AnimalsPageState extends State<AnimalsPage> {
       ).primary,
     );
     if (!mounted || action == null) return;
-    if (action == FeedingAlertAction.addFeeding) {
-      await _createFeeding(animal);
-    } else if (settings != null) {
-      try {
-        await settings.suppressFeedingAlertFor24Hours(
-          feedingAlertAnimalKey(animal.id, animal.createdAt),
-        );
-      } catch (_) {
-        if (mounted) _showMessage(context.l10n.feedingAlertSuppressionFailed);
-      }
+    switch (action) {
+      case FeedingAlertAction.viewAnimal:
+        await _openAnimalDetail(animal, animals);
+        return;
+      case FeedingAlertAction.addFeeding:
+        await _createFeeding(animal);
+        return;
+      case FeedingAlertAction.suppressFor24Hours:
+        if (settings == null) return;
+        try {
+          await settings.suppressFeedingAlertFor24Hours(
+            feedingAlertAnimalKey(animal.id, animal.createdAt),
+          );
+        } catch (_) {
+          if (mounted) _showMessage(context.l10n.feedingAlertSuppressionFailed);
+        }
     }
   }
 
@@ -551,7 +557,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
               ),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
-                _reminderActions(reminder.animal);
+                _reminderActions(reminder.animal, animals);
               },
             ),
           ],
@@ -665,11 +671,14 @@ class _AnimalsPageState extends State<AnimalsPage> {
     ];
   }
 
-  Widget _buildDueMarker(BuildContext context, Animal animal) =>
-      FeedingAlertButton(
-        key: Key('animal-due-marker-${animal.id}'),
-        onPressed: () => _reminderActions(animal),
-      );
+  Widget _buildDueMarker(
+    BuildContext context,
+    Animal animal,
+    List<Animal> animals,
+  ) => FeedingAlertButton(
+    key: Key('animal-due-marker-${animal.id}'),
+    onPressed: () => _reminderActions(animal, animals),
+  );
 
   Widget _buildCompactAnimalTile(
     BuildContext context, {
@@ -710,7 +719,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (dueReminder != null) ...[
-              _buildDueMarker(context, animal),
+              _buildDueMarker(context, animal, animals),
               const SizedBox(width: 4),
             ],
             menuButton,
@@ -832,7 +841,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
                         Positioned(
                           top: 12,
                           right: 12,
-                          child: _buildDueMarker(context, animal),
+                          child: _buildDueMarker(context, animal, animals),
                         ),
                     ],
                   ),

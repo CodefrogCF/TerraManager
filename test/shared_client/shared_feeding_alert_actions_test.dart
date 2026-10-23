@@ -207,6 +207,50 @@ void main() {
     },
   );
   for (final big in [false, true]) {
+    for (final fromSummary in [false, true]) {
+      testWidgets(
+        'Shared Care reminder opens Animal details without writes, big=$big, summary=$fromSummary',
+        (tester) async {
+          final fixture = _Fixture(big: big);
+          fixture.preferences['animal_sort_order'] = 'displayNameAscending';
+          addTearDown(fixture.dispose);
+          await fixture.pump(tester, locale: Locale(big ? 'de' : 'en'));
+          final entry = find.byKey(
+            Key(
+              fromSummary
+                  ? 'shared-feeding-reminder-due-1'
+                  : 'shared-animal-due-marker-1',
+            ),
+          );
+          await tester.ensureVisible(entry);
+          await tester.tap(entry);
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(const Key('feeding-alert-view-animal')));
+          await tester.pumpAndSettle();
+          final detail = tester.widget<SharedAnimalDetailPage>(
+            find.byType(SharedAnimalDetailPage),
+          );
+          expect(detail.id, 1);
+          expect(detail.navigationContext!.recordIds, [1, 3, 2]);
+          expect(detail.navigationContext!.currentRecordId, 1);
+          expect(fixture.writes, 0);
+          expect(
+            fixture.settings.isFeedingAlertSuppressed(
+              feedingAlertAnimalKey(1, DateTime.parse(_created)),
+            ),
+            false,
+          );
+          await tester.tap(find.byType(BackButton));
+          await tester.pumpAndSettle();
+          expect(find.byType(SharedAnimalDetailPage), findsNothing);
+          expect(entry, findsOneWidget);
+          expect(fixture.reloads, greaterThan(0));
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+        },
+      );
+    }
+
     testWidgets(
       'Shared Care suppression keeps other Animals, schedule and detail, big=$big',
       (tester) async {

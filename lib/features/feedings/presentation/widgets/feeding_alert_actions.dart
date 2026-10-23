@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations_context.dart';
 
-enum FeedingAlertAction { addFeeding, suppressFor24Hours }
+enum FeedingAlertAction { viewAnimal, addFeeding, suppressFor24Hours }
 
 Future<FeedingAlertAction?> showFeedingAlertActions(
   BuildContext context, {
@@ -21,6 +21,14 @@ Future<FeedingAlertAction?> showFeedingAlertActions(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            ListTile(
+              key: const Key('feeding-alert-view-animal'),
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.pets_outlined),
+              title: Text(context.l10n.viewAnimal),
+              onTap: () =>
+                  Navigator.pop(context, FeedingAlertAction.viewAnimal),
+            ),
             ListTile(
               key: const Key('feeding-alert-add-feeding'),
               contentPadding: EdgeInsets.zero,

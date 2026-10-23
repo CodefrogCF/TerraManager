@@ -286,18 +286,25 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
       enabled: widget.connected && widget.api.connected,
     );
     if (!mounted || action == null) return;
-    if (action == FeedingAlertAction.addFeeding) {
-      await _animalAction(_AnimalAction.feeding, animal);
-    } else {
-      try {
-        await settings.suppressFeedingAlertFor24Hours(_alertKey(animal));
-      } catch (_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.feedingAlertSuppressionFailed)),
-          );
+    switch (action) {
+      case FeedingAlertAction.viewAnimal:
+        await _openAnimal(animal);
+        return;
+      case FeedingAlertAction.addFeeding:
+        await _animalAction(_AnimalAction.feeding, animal);
+        return;
+      case FeedingAlertAction.suppressFor24Hours:
+        try {
+          await settings.suppressFeedingAlertFor24Hours(_alertKey(animal));
+        } catch (_) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(context.l10n.feedingAlertSuppressionFailed),
+              ),
+            );
+          }
         }
-      }
     }
   }
 

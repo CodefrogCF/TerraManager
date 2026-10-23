@@ -714,6 +714,7 @@
   "animalPdfSaved": "Tier-PDF gespeichert",
   "animalPdfFailed": "Tier-PDF konnte nicht gespeichert werden.",
   "animalPdfArchiveReason": "Archivgrund",
+  "viewAnimal": "Tier anzeigen",
   "feedingAlertActions": "Aktionen zur Fütterungserinnerung",
   "suppressFeedingAlert24Hours": "Alarm für 24 Stunden deaktivieren",
   "feedingAlertSuppressionExplanation": "Nur die Hinweise dieses Tiers in der Übersicht ausblenden. Fütterungsplan und Erinnerung in den Tierdetails bleiben aktiv.",

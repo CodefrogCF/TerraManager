@@ -125,7 +125,7 @@ class FeedingNotificationController extends ChangeNotifier {
   });
 
   Future<void> refresh({bool renew = false}) =>
-      _enqueue(() => _reconcile(renew: renew));
+      _enqueue(() => _reconcile(renew: renew, preserveDue: true));
 
   Future<void> setLanguage(String code) {
     final language = code == 'de' ? 'de' : 'en';
@@ -143,7 +143,10 @@ class FeedingNotificationController extends ChangeNotifier {
     }),
   );
 
-  Future<void> _reconcile({bool renew = false}) async {
+  Future<void> _reconcile({
+    bool renew = false,
+    bool preserveDue = false,
+  }) async {
     _failed = false;
     final language = _languageCode;
     _allowed = await gateway.isAllowed();
@@ -188,7 +191,13 @@ class FeedingNotificationController extends ChangeNotifier {
       // appointment without a pending alarm has already been consumed; do not
       // notify again after dismissal, restart, language or clock changes.
       if (previous != null && !pending.contains(previous.id)) continue;
-      if (previous != null && previous.language == language && !renew) {
+      final now = _now().toUtc();
+      // Do not restart Android's delivery window for a due alarm on resume.
+      // A cold start still renews pending alarms: force stop can remove alarms
+      // from AlarmManager while leaving the plugin's persistent cache intact.
+      if (previous != null &&
+          previous.language == language &&
+          (!renew || (preserveDue && !target.dueAt.isAfter(now)))) {
         continue;
       }
       var id = previous?.id ?? 1;
@@ -197,7 +206,6 @@ class FeedingNotificationController extends ChangeNotifier {
           id++;
         }
       }
-      final now = _now().toUtc();
       final at = target.dueAt.isAfter(now)
           ? target.dueAt.toUtc()
           : now.add(const Duration(seconds: 5));

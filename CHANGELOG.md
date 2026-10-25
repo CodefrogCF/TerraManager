@@ -12,6 +12,12 @@ groupings are retained from the existing record.
   Android Standalone update, with manual reopening through Settings → What's new;
   keep first-run onboarding and device-local display state separate (#252).
 
+### Fixed
+
+- Keep due Android feeding alarms pending when returning to the running app,
+  instead of restarting their inexact delivery window. Cold starts still rearm
+  cached alarms to recover after force stop.
+
 ## [1.16.0] - 2026-10-23
 
 ### Added

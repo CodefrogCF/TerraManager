@@ -256,6 +256,55 @@ void main() {
     expect(gateway.scheduleCalls, 1);
   });
 
+  test('resume preserves a due alarm still pending in Android', () async {
+    await animal();
+    await controller.start();
+    await controller.setEnabled(true);
+    final original = gateway.pending.values.single;
+    now = original.at.add(const Duration(hours: 1));
+
+    // Android may batch an inexact alarm. Returning to the app must not replace
+    // that pending alarm with a new now + 5 seconds appointment.
+    await controller.refresh(renew: true);
+    expect(gateway.scheduleCalls, 1);
+    expect(gateway.pending.values.single.at, original.at);
+    expect(gateway.permissionRequests, 1);
+  });
+
+  test('repeated resumes do not postpone an overdue catch-up alarm', () async {
+    await animal(baseline: now.subtract(const Duration(days: 3)));
+    await controller.start();
+    await controller.setEnabled(true);
+    final original = gateway.pending.values.single;
+    for (var i = 0; i < 3; i++) {
+      now = now.add(const Duration(seconds: 2));
+      await controller.refresh(renew: true);
+    }
+    expect(gateway.scheduleCalls, 1);
+    expect(gateway.pending.values.single.at, original.at);
+  });
+
+  test('cold start rearms an overdue alarm cached before force stop', () async {
+    await animal();
+    await controller.start();
+    await controller.setEnabled(true);
+    final original = gateway.pending.values.single;
+    now = original.at.add(const Duration(hours: 1));
+
+    // The plugin cache survives a force stop even though Android has cancelled
+    // the actual alarm. A process restart must still recover that appointment.
+    controller.dispose();
+    controller = makeController();
+    await controller.start();
+    expect(gateway.scheduleCalls, 2);
+    expect(gateway.pending.values.single.id, original.id);
+    expect(
+      gateway.pending.values.single.at,
+      now.add(const Duration(seconds: 5)),
+    );
+    expect(gateway.permissionRequests, 1);
+  });
+
   test(
     'feeding create edit and delete automatically reconcile after commit',
     () async {

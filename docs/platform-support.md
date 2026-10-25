@@ -29,8 +29,13 @@ for a Feeding or schedule change; overdue alerts are not repeated daily.
 Changes, archive/delete and collection restore reconcile while the app runs.
 Pending alerts survive reboot/app update. Reopen after force stop; battery
 restrictions, a blocked channel or manufacturer alarm limits can delay/prevent
-alerts. No exact delivery time is guaranteed. App resume renews pending alarms;
-there is no background network or polling service. A saved weekday zone remains
+alerts. If alerts arrive only after opening the app, check its Android battery
+and standby settings; on Samsung, ensure it is not in deep sleep and compare
+with the app's battery setting set to Unrestricted. No exact delivery time is
+guaranteed, and power-saving restrictions can delay delivery beyond an hour.
+App resume preserves due pending alarms; cold starts rearm cached alarms after
+force stop. There is no continuously running background or hourly polling
+service: Android delivers the scheduled alerts. A saved weekday zone remains
 authoritative after travel; changing the device zone does not rewrite the plan.
 In-app 24-hour overview suppression does not mute Android notifications.
 

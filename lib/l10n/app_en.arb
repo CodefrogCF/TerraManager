@@ -898,5 +898,18 @@
   "releaseHighlightsOverviewBody": "Less empty space at the bottom of lists. Floating buttons hide at the end, leaving the last context menu accessible, and return when you scroll up. Names remain editable through Edit.",
   "releaseHighlightsSettingsHint": "You can reopen this overview at any time under Settings → What's new.",
   "releaseHighlightsClose": "Close",
-  "releaseHighlightsUnavailable": "The release highlights could not be opened. Please try again."
+  "releaseHighlightsUnavailable": "The release highlights could not be opened. Please try again.",
+  "boxCareHistory": "Enclosure care",
+  "boxCareScope": "This history belongs to the enclosure, independently of its inhabitants.",
+  "boxCareAdd": "Record care",
+  "boxCareEdit": "Edit care",
+  "boxCareType": "Care type",
+  "boxCareSubstrate": "Substrate change",
+  "boxCareCleaning": "Cleaning",
+  "boxCareWater": "Water change",
+  "boxCareEmpty": "No care events recorded yet.",
+  "boxCareFailed": "Care history could not be loaded or saved. Reload the current history and try again. A failed save keeps your draft.",
+  "boxCareFuture": "Date and time must not be in the future.",
+  "boxCareDeleteConfirm": "Delete this care event?",
+  "boxCareReload": "Reload history"
 }

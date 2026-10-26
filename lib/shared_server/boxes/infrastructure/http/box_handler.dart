@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:terramanager/shared_server/boxes/application/box_care_operations.dart';
+
 import 'package:terramanager/core/database/enums/box_status.dart';
 import 'package:terramanager/shared_server/boxes/application/box_operations.dart';
 import 'package:terramanager/shared_server/media/infrastructure/http/media_handler.dart';
@@ -9,9 +11,14 @@ import 'package:terramanager/shared_server/shared/infrastructure/http/api_reques
 import 'package:terramanager/shared_server/shared/infrastructure/serialization/api_models.dart';
 
 class BoxHandler {
-  const BoxHandler({required this.operations, required this.pictures});
+  const BoxHandler({
+    required this.operations,
+    required this.pictures,
+    required this.care,
+  });
   final BoxOperations operations;
   final MediaHandler pictures;
+  final BoxCareOperations care;
   Future<ApiReply> handle(
     List<String> path,
     String method,
@@ -34,6 +41,27 @@ class BoxHandler {
     final id = parseRecordId(path[1]);
     final existing = await boxes.getBoxById(id);
     if (existing == null) return apiError(404, 'not_found', 'Box not found.');
+    if (path.length >= 3 && path[2] == 'care-events') {
+      if (path.length == 3 && method == 'GET') return care.list(id);
+      if (path.length == 3 && method == 'POST') {
+        return care.create(id, await readCollectionBody(request));
+      }
+      if (path.length == 4 && method == 'PUT') {
+        return care.update(
+          id,
+          parseRecordId(path[3]),
+          await readCollectionBody(request),
+        );
+      }
+      if (path.length == 4 && method == 'DELETE') {
+        return care.delete(
+          id,
+          parseRecordId(path[3]),
+          await readCollectionBody(request),
+        );
+      }
+      return apiError(404, 'not_found', 'Unknown care event operation.');
+    }
     if (path.length == 2 && method == 'GET') {
       return ApiReply(200, {'box': boxJson(existing)});
     }

@@ -57,6 +57,7 @@ class BackupBox {
 
   final String? pictureMediaPath;
   final List<BackupPicture> pictures;
+  final List<BackupBoxCareEvent> careEvents;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -76,6 +77,7 @@ class BackupBox {
     this.notes,
     this.pictureMediaPath,
     this.pictures = const [],
+    this.careEvents = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -96,6 +98,7 @@ class BackupBox {
       'notes': notes,
       'pictureMediaPath': pictureMediaPath,
       'pictures': pictures.map((picture) => picture.toJson()).toList(),
+      'careEvents': careEvents.map((event) => event.toJson()).toList(),
       'createdAt': createdAt.toUtc().toIso8601String(),
       'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
@@ -107,6 +110,11 @@ class BackupBox {
     return BackupBox(
       id: json['id'] as int,
       qrId: json['qrId'] as String,
+      careEvents: (json['careEvents'] as List? ?? const [])
+          .map(
+            (item) => BackupBoxCareEvent.fromJson(item as Map<String, dynamic>),
+          )
+          .toList(),
       // Only absent status is legacy data; an explicit null is invalid.
       status: json.containsKey('status') ? json['status'] as String : 'active',
       archiveReason: json['archiveReason'] as String?,
@@ -130,6 +138,54 @@ class BackupBox {
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
+}
+
+class BackupBoxCareEvent {
+  const BackupBoxCareEvent({
+    required this.id,
+    required this.type,
+    required this.occurredAt,
+    this.notes,
+    this.attachments = const [],
+    required this.requestId,
+    required this.revision,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  final int id;
+  final String type;
+  final DateTime occurredAt;
+  final String? notes;
+  final List<BackupPicture> attachments;
+  final String requestId;
+  final int revision;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'type': type,
+    'occurredAt': occurredAt.toUtc().toIso8601String(),
+    'notes': notes,
+    'attachments': attachments.map((p) => p.toJson()).toList(),
+    'requestId': requestId,
+    'revision': revision,
+    'createdAt': createdAt.toUtc().toIso8601String(),
+    'updatedAt': updatedAt.toUtc().toIso8601String(),
+  };
+  factory BackupBoxCareEvent.fromJson(Map<String, dynamic> json) =>
+      BackupBoxCareEvent(
+        id: json['id'] as int,
+        type: json['type'] as String,
+        occurredAt: DateTime.parse(json['occurredAt'] as String),
+        notes: json['notes'] as String?,
+        attachments: (json['attachments'] as List? ?? const [])
+            .map((p) => BackupPicture.fromJson(p as Map<String, dynamic>))
+            .toList(),
+        requestId: json['requestId'] as String,
+        revision: json['revision'] as int,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        updatedAt: DateTime.parse(json['updatedAt'] as String),
+      );
 }
 
 class BackupWeightEntry {

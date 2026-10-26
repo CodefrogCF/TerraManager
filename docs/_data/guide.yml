@@ -65,7 +65,7 @@ de:
     steps:
     - number: '1'
       heading: Box anlegen
-      body_html: Öffne <strong>Boxen → +</strong>. Ergänze Namen, Abmessungen und optional ein zugeschnittenes Bild. Beim Speichern entsteht die permanente QR-Kennung.
+      body_html: Öffne <strong>Boxen → +</strong>. Ergänze Namen, Abmessungen und optional ein zugeschnittenes Bild. Beim Speichern entsteht die permanente QR-Kennung. Unter <strong>Boxpflege</strong> in den Boxdetails erfasst du Substratwechsel, Reinigung oder Wasserwechsel mit Zeitpunkt und optionaler Notiz. Den Zugang findest du oben rechts neben Bearbeiten. Der Verlauf bleibt in Standalone und Shared Care bei der Box.
       images:
       - file: boxes-overview.webp
         alt: Boxübersicht mit mehreren Behältern
@@ -94,7 +94,7 @@ de:
     - number: '4'
       reverse: true
       heading: Galerie und Tier-PDFs
-      body_html: Ergänze Aufnahmen in der Galerie und markiere ein Hauptbild. Tippe auf ein Bild für Vollbild, Zoom und Blättern. In den Tierdetails exportierst du ein Etikett mit frei wählbarer Breite und quadratischem Hauptbild oder ein A4-Datenblatt mit Fütterungs-, Häutungs- und Gewichtshistorie. Optional folgen alle Galeriebilder chronologisch, einschließlich Hauptbild, mit vier Bildern pro Seite im Originalformat.
+      body_html: Ergänze Aufnahmen in der Galerie und markiere ein Hauptbild. Tippe auf ein Bild für Vollbild, Zoom und Blättern. In den Tierdetails exportierst du ein Etikett mit frei wählbarer Breite und quadratischem Hauptbild oder ein A4-Datenblatt mit Fütterungs-, Häutungs- und Gewichtshistorie in bis zu drei Spalten. Optional folgen alle Galeriebilder chronologisch, einschließlich Hauptbild, mit vier Bildern pro Seite im Originalformat.
       images:
       - file: gallery.webp
         alt: Bildergalerie eines Tieres
@@ -307,7 +307,7 @@ en:
     steps:
     - number: '1'
       heading: Add an enclosure
-      body_html: Open <strong>Boxes → +</strong>. Add a name, dimensions and an optional cropped picture. Saving creates the permanent QR identifier.
+      body_html: Open <strong>Boxes → +</strong>. Add a name, dimensions and an optional cropped picture. Saving creates the permanent QR identifier. Use <strong>Enclosure care</strong> in Box details for dated substrate changes, cleaning or water changes, with optional notes. Open it from the top right, next to Edit. Entries stay with the enclosure in Standalone and Shared Care.
       images:
       - file: boxes-overview.webp
         alt: Enclosure overview with multiple enclosures
@@ -336,7 +336,7 @@ en:
     - number: '4'
       reverse: true
       heading: Gallery and Animal PDFs
-      body_html: Add gallery pictures and choose a primary image. Tap a picture for full-screen zoom and navigation. Animal details export either a label with a chosen width and square primary picture, or an A4 profile with feeding, shedding and weight histories. Optionally append all gallery pictures in chronological order, including the primary image, four per page at their original aspect ratios.
+      body_html: Add gallery pictures and choose a primary image. Tap a picture for full-screen zoom and navigation. Animal details export either a label with a chosen width and square primary picture, or an A4 profile with feeding, shedding and weight histories in up to three columns. Optionally append all gallery pictures in chronological order, including the primary image, four per page at their original aspect ratios.
       images:
       - file: gallery.webp
         alt: Animal picture gallery

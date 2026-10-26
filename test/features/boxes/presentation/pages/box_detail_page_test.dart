@@ -124,6 +124,15 @@ void main() {
 
     expect(detailPage.navigationContext, isNull);
     expect(find.byKey(const Key('box-detail-title')), findsOneWidget);
+    final care = find.byKey(const Key('box-care-history-button'));
+    final edit = find.byKey(const Key('edit-box-button'));
+    expect(
+      find.ancestor(of: care, matching: find.byType(AppBar)),
+      findsOneWidget,
+    );
+    expect(tester.getCenter(care).dy, tester.getCenter(edit).dy);
+    expect(tester.getCenter(care).dx, lessThan(tester.getCenter(edit).dx));
+    expect(tester.widget<IconButton>(care).tooltip, 'Enclosure care');
 
     expect(find.text('Box 1'), findsOneWidget);
 

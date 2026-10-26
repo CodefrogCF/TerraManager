@@ -1,7 +1,48 @@
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_payload.dart';
+import 'package:terramanager/features/boxes/domain/box_care_entry.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 
 mixin SharedBoxesApi on SharedApiTransport {
+  Future<List<BoxCareEntry>> boxCareEvents(int boxId) async => readApiList(
+    await requestJson('GET', '/api/v1/boxes/$boxId/care-events'),
+    'careEvents',
+  ).map(BoxCareEntry.fromJson).toList();
+
+  Future<void> saveBoxCareEvent(
+    int boxId, {
+    BoxCareEntry? existing,
+    required BoxCareEventType type,
+    required DateTime occurredAt,
+    String? notes,
+    List<int> mediaIds = const [],
+    required String requestId,
+  }) async {
+    await requestJson(
+      existing == null ? 'POST' : 'PUT',
+      '/api/v1/boxes/$boxId/care-events${existing == null ? '' : '/${existing.id}'}',
+      body: {
+        'type': type.name,
+        'occurredAt': occurredAt.toUtc().toIso8601String(),
+        'notes': notes,
+        'mediaIds': mediaIds,
+        if (existing == null) 'requestId': requestId,
+        if (existing != null) 'expectedRevision': existing.revision,
+        if (existing != null) 'expectedRequestId': existing.requestId,
+      },
+    );
+  }
+
+  Future<void> deleteBoxCareEvent(BoxCareEntry entry) async {
+    await requestJson(
+      'DELETE',
+      '/api/v1/boxes/${entry.boxId}/care-events/${entry.id}',
+      body: {
+        'expectedRevision': entry.revision,
+        'expectedRequestId': entry.requestId,
+      },
+    );
+  }
+
   Future<List<Map<String, dynamic>>> boxes() async =>
       readApiList(await requestJson('GET', '/api/v1/boxes'), 'boxes');
 

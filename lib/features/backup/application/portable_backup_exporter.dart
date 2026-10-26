@@ -76,10 +76,58 @@ class PortableBackupExporter {
         archiveWriter: archiveWriter,
       );
 
+      final careEvents = await (database.select(
+        database.boxCareEvents,
+      )..where((e) => e.boxId.equals(box.id))).get();
+      final mediaPaths = {...exportedPictures.pathsByMediaId};
+      final backupCare = <BackupBoxCareEvent>[];
+      for (final event in careEvents) {
+        final links = await (database.select(
+          database.boxCareEventAttachments,
+        )..where((a) => a.eventId.equals(event.id))).get();
+        final attachments = <BackupPicture>[];
+        for (final link in links) {
+          final media = await mediaRepository.getMediaById(link.mediaAssetId);
+          if (media == null || media.data.isEmpty) {
+            throw BackupExportException(
+              'Missing care event picture ${link.mediaAssetId}.',
+            );
+          }
+          var path = mediaPaths[media.id];
+          if (path == null) {
+            final extension = BackupMediaFormat.extensionForExport(
+              source: media.fileName,
+              mimeType: media.mimeType,
+            );
+            path =
+                '${BackupFormat.boxMediaDirectory}/${box.id}_care_${media.id}.$extension';
+            archiveWriter.addMedia(path, media.data);
+            mediaPaths[media.id] = path;
+          }
+          attachments.add(
+            BackupPicture(mediaPath: path, capturedAt: media.createdAt),
+          );
+        }
+        backupCare.add(
+          BackupBoxCareEvent(
+            id: event.id,
+            type: event.type.name,
+            occurredAt: event.occurredAt,
+            notes: event.notes,
+            attachments: attachments,
+            requestId: event.requestId,
+            revision: event.revision,
+            createdAt: event.createdAt,
+            updatedAt: event.updatedAt,
+          ),
+        );
+      }
+
       backupBoxes.add(
         BackupBox(
           id: box.id,
           qrId: box.qrId,
+          careEvents: backupCare,
           status: BackupEnumCodec.encodeBoxStatus(box.status),
           archiveReason: box.archiveReason == null
               ? null
@@ -356,6 +404,7 @@ class PortableBackupExporter {
     archiveWriter.addMedia(mediaPath, media.data);
     return _ExportedPictures(
       primaryPath: mediaPath,
+      pathsByMediaId: {mediaId: mediaPath},
       pictures: [
         BackupPicture(mediaPath: mediaPath, capturedAt: media.createdAt),
       ],
@@ -371,6 +420,7 @@ class PortableBackupExporter {
     required BackupZipBuilder archiveWriter,
   }) {
     final backupPictures = <BackupPicture>[];
+    final mediaPaths = <int, String>{};
     String? primaryPath;
     for (final picture in pictures) {
       if (picture.media.data.isEmpty) {
@@ -388,6 +438,7 @@ class PortableBackupExporter {
           ? '$ownerId'
           : '${ownerId}_gallery_${picture.sortOrder}_${picture.media.id}';
       final mediaPath = '$mediaDirectory/$fileStem.$extension';
+      mediaPaths[picture.media.id] = mediaPath;
       archiveWriter.addMedia(mediaPath, picture.media.data);
       backupPictures.add(
         BackupPicture(mediaPath: mediaPath, capturedAt: picture.capturedAt),
@@ -397,6 +448,7 @@ class PortableBackupExporter {
       }
     }
     return _ExportedPictures(
+      pathsByMediaId: mediaPaths,
       primaryPath: primaryPath,
       pictures: backupPictures,
     );
@@ -418,7 +470,13 @@ class PortableBackupExporter {
 }
 
 class _ExportedPictures {
-  const _ExportedPictures({required this.primaryPath, required this.pictures});
+  const _ExportedPictures({
+    required this.primaryPath,
+    required this.pictures,
+    this.pathsByMediaId = const {},
+  });
+
+  final Map<int, String> pathsByMediaId;
 
   final String? primaryPath;
   final List<BackupPicture> pictures;

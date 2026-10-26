@@ -350,6 +350,7 @@ void main() {
         matching: find.byType(Scrollable),
       ),
     );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('add-animal-to-box-button')));
     await tester.pumpAndSettle();
 

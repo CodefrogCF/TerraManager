@@ -171,6 +171,44 @@ void main() {
     },
   );
 
+  test('uses the available A4 width before adding history pages', () async {
+    for (final count in [90, 300]) {
+      final data = AnimalProfilePdfData(
+        name: 'History layout',
+        fields: const [],
+        feedingTitle: 'Feeding history',
+        sheddingTitle: 'Shedding history',
+        weightTitle: 'Weight history',
+        galleryTitle: 'Gallery',
+        feedings: [
+          for (var i = 1; i <= count; i++) AnimalProfilePdfEntry('F$i'),
+        ],
+      );
+      final pdf = await const AnimalProfilePdfExportService().export(
+        data,
+        const AnimalProfilePdfOptions(kind: AnimalProfilePdfKind.handover),
+      );
+      expect(pageCount(pdf), count == 90 ? 1 : inInclusiveRange(2, 3));
+    }
+  });
+
+  test('continues very long history notes across columns and pages', () async {
+    final data = AnimalProfilePdfData(
+      name: 'Long history note',
+      fields: const [],
+      feedingTitle: 'Feeding history',
+      sheddingTitle: 'Shedding history',
+      weightTitle: 'Weight history',
+      galleryTitle: 'Gallery',
+      feedings: [AnimalProfilePdfEntry('F1', notes: 'Very long note. ' * 500)],
+    );
+    final pdf = await const AnimalProfilePdfExportService().export(
+      data,
+      const AnimalProfilePdfOptions(kind: AnimalProfilePdfKind.handover),
+    );
+    expect(pageCount(pdf), inInclusiveRange(2, 6));
+  });
+
   test('wraps long label values and paginates complete A4 histories', () async {
     final picture = Uint8List.fromList(
       img.encodePng(img.Image(width: 60, height: 40)),
@@ -179,7 +217,7 @@ void main() {
       const Locale('en'),
       picture: picture,
       gallery: [picture, picture],
-      feedingCount: 110,
+      feedingCount: 180,
       longName: 'Long animal name ${'with readable details ' * 12}',
     );
     final service = AnimalProfilePdfExportService();

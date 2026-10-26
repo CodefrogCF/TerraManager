@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../qr/qr_id_generator.dart';
 import '../app_database.dart';
+import 'box_care_repository.dart';
 import '../enums/box_status.dart';
 import '../enums/box_archive_reason.dart';
 import 'animal_repository.dart';
@@ -270,6 +271,7 @@ class BoxRepository {
 
       final galleryRepository = PictureGalleryRepository(database);
       final mediaIds = await galleryRepository.getBoxGalleryMediaIds(boxId);
+      mediaIds.addAll(await BoxCareRepository(database).mediaIdsForBox(boxId));
       if (existing.pictureMediaId != null) {
         mediaIds.add(existing.pictureMediaId!);
       }
@@ -298,6 +300,7 @@ class BoxRepository {
 
       final galleryRepository = PictureGalleryRepository(database);
       final mediaIds = await galleryRepository.getBoxGalleryMediaIds(boxId);
+      mediaIds.addAll(await BoxCareRepository(database).mediaIdsForBox(boxId));
       if (existing.pictureMediaId != null) {
         mediaIds.add(existing.pictureMediaId!);
       }

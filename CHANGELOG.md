@@ -8,9 +8,21 @@ groupings are retained from the existing record.
 
 ### Added
 
+- Record substrate changes, cleaning and water changes in a Box-owned care history
+  in Standalone and Shared Care, with timestamps and optional notes. Include
+  editing, chronological history, conflict/retry protection,
+  schema 18 migration and portable backup/restore support. Open care history from
+  the Box detail toolbar, next to Edit (#238).
+
 - Show bundled German/English release highlights once per version/build after an
   Android Standalone update, with manual reopening through Settings → What's new;
   keep first-run onboarding and device-local display state separate (#252).
+
+### Changed
+
+- Use up to three columns for long Animal A4 histories, filling each column from
+  top to bottom before continuing to the right or onto another page. Keep long
+  notes readable and preserve gallery page layouts.
 
 ### Fixed
 

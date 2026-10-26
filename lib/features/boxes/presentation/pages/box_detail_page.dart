@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../standalone_box_care_history.dart';
+
 import '../../../../core/presentation/widgets/responsive_picture_frame.dart';
 import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
@@ -532,6 +534,21 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
               key: const Key('box-detail-title'),
             ),
             actions: [
+              IconButton(
+                key: const Key('box-care-history-button'),
+                tooltip: context.l10n.boxCareHistory,
+                onPressed: _switchingBox || _lifecycleActionInProgress
+                    ? null
+                    : () => openStandaloneBoxCareHistory(
+                        context,
+                        database: widget.database,
+                        boxId: box.id,
+                        label: box.name?.trim().isNotEmpty == true
+                            ? box.name!
+                            : 'Box ${box.id}',
+                      ),
+                icon: const Icon(Icons.cleaning_services_outlined),
+              ),
               if (box.status != BoxStatus.archived)
                 IconButton(
                   key: const Key('edit-box-button'),

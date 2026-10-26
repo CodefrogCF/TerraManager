@@ -39,6 +39,7 @@ replay is never presented as complete.
 | Resource kind | ID meaning |
 | --- | --- |
 | `animals`, `boxes`, `feedings`, `media` | Respective record IDs |
+| `boxCareHistories` | Owning Box IDs; care changes do not invalidate Animal histories |
 | `feedingHistories`, `weightHistories`, `sheddingHistories`, `reminders` | Owning Animal IDs |
 | `animalPictures`, `boxPictures` | Gallery owner IDs |
 | `audit` | Administrator listing |

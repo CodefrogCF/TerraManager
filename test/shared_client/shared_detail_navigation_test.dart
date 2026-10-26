@@ -146,6 +146,16 @@ void main() {
       await tester.tap(find.byKey(const Key('box-list-item-2')));
       await tester.pumpAndSettle();
       expect(find.text('Box 2'), findsWidgets);
+      final care = find.byKey(const Key('box-care-history-button'));
+      final edit = find.byKey(const Key('edit-box-button'));
+      expect(
+        find.ancestor(of: care, matching: find.byType(AppBar)),
+        findsOneWidget,
+      );
+      expect(tester.getCenter(care).dy, tester.getCenter(edit).dy);
+      expect(tester.getCenter(care).dx, lessThan(tester.getCenter(edit).dx));
+      expect(tester.widget<IconButton>(care).tooltip, 'Enclosure care');
+
       expect(find.text('1 / 2'), findsOneWidget);
       expect(
         tester

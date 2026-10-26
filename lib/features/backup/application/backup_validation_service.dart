@@ -226,6 +226,7 @@ class BackupValidationService {
       mediaFiles,
       mediaPaths: mediaPaths,
       closeArchiveEntries: closeArchiveEntries,
+      releaseMediaBytes: !retainMediaBytes,
     );
 
     return ValidatedBackup(
@@ -242,7 +243,7 @@ class BackupValidationService {
               try {
                 return entry.readBytes();
               } finally {
-                entry.closeSync();
+                _releaseDecodedMedia(files, path);
               }
             },
       disposer: onDispose,
@@ -256,6 +257,7 @@ class BackupValidationService {
     Map<String, Uint8List> mediaFiles, {
     required Set<String> mediaPaths,
     required bool closeArchiveEntries,
+    required bool releaseMediaBytes,
   }) {
     // Extra ZIP entries are ignored by the portable format. Do not expand
     // them merely to check a checksum: an unused entry could be very large.
@@ -289,7 +291,11 @@ class BackupValidationService {
         // The returned media map owns its byte arrays; the ZIP entry no
         // longer needs to retain an additional decompressed copy. File-backed
         // entries share one file handle, which the caller closes at the end.
-        if (closeArchiveEntries) file.closeSync();
+        if (closeArchiveEntries) {
+          file.closeSync();
+        } else if (releaseMediaBytes && mediaPaths.contains(path)) {
+          _releaseDecodedMedia(files, path);
+        }
       }
     }
   }
@@ -305,6 +311,18 @@ class BackupValidationService {
     }
 
     return file;
+  }
+
+  // Closing an ArchiveFile also closes its shared InputFileStream. Retain only
+  // the raw ZIP source in a fresh wrapper, releasing the decompressed buffer
+  // without closing the caller-owned stream. Later reads can decompress again.
+  void _releaseDecodedMedia(Map<String, ArchiveFile> files, String path) {
+    final file = files[path]!;
+    final raw = file.rawContent;
+    if (raw != null) {
+      files[path] = ArchiveFile.file(path, file.size, raw);
+      file.clear();
+    }
   }
 
   Map<String, dynamic> _decodeJsonObject(ArchiveFile file, String fileName) {
@@ -446,6 +464,8 @@ class BackupValidationService {
     final boxIds = <int>{};
     final archivedBoxIds = <int>{};
     final qrIds = <String>{};
+    final careIds = <int>{};
+    final careRequests = <String>{};
 
     for (final box in data.boxes) {
       if (box.id <= 0) {
@@ -480,6 +500,26 @@ class BackupValidationService {
         );
       }
 
+      for (final event in box.careEvents) {
+        if (event.id <= 0 ||
+            !careIds.add(event.id) ||
+            !const {
+              'substrateChange',
+              'cleaning',
+              'waterChange',
+            }.contains(event.type) ||
+            event.revision < 1 ||
+            event.requestId.isEmpty ||
+            event.requestId.length > 64 ||
+            !careRequests.add(event.requestId) ||
+            (event.notes?.length ?? 0) > 10000 ||
+            event.attachments.length > 20) {
+          throw BackupValidationException(
+            code: BackupValidationErrorCode.invalidData,
+            message: 'Box ${box.id} contains an invalid care event.',
+          );
+        }
+      }
       _validateBoxLifecycle(box);
       if (box.status == 'archived') {
         archivedBoxIds.add(box.id);
@@ -803,6 +843,19 @@ class BackupValidationService {
     final result = <String, Uint8List>{};
 
     for (final box in data.boxes) {
+      for (final event in box.careEvents) {
+        _validateEntityMedia(
+          entityLabel: 'Box care event',
+          entityId: event.id,
+          primaryPath: null,
+          pictures: event.attachments,
+          isValidPath: _isValidBoxMediaPath,
+          archiveFiles: archiveFiles,
+          result: result,
+          mediaPaths: mediaPaths,
+          retainMediaBytes: retainMediaBytes,
+        );
+      }
       _validateEntityMedia(
         entityLabel: 'Box',
         entityId: box.id,
@@ -881,6 +934,9 @@ class BackupValidationService {
           message: 'Referenced media file is missing: $mediaPath',
         );
       }
+      // A gallery and several care events may share one archive entry. Validate
+      // its bytes once, including when lazy validation releases decoded data.
+      if (mediaPaths.contains(mediaPath)) continue;
       final Uint8List? bytes;
       try {
         bytes = file.readBytes();
@@ -899,7 +955,7 @@ class BackupValidationService {
       }
       mediaPaths.add(mediaPath);
       if (!retainMediaBytes) {
-        file.closeSync();
+        _releaseDecodedMedia(archiveFiles, mediaPath);
         continue;
       }
       // For compressed entries this is already an independent decoded

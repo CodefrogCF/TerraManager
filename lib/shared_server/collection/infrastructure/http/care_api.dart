@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:terramanager/shared_server/boxes/application/box_care_operations.dart';
+
 import 'package:sqlite3/sqlite3.dart' show SqlError, SqliteException;
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_lifecycle_exception.dart';
@@ -44,6 +46,7 @@ class CareApi {
   );
   late final _boxHandler = BoxHandler(
     operations: BoxOperations(database),
+    care: BoxCareOperations(database),
     pictures: _mediaHandler,
   );
   late final _animalHandler = AnimalHandler(

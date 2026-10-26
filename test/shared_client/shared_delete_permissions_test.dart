@@ -119,8 +119,12 @@ void main() {
           ),
         );
         await tester.scrollUntilVisible(find.text('Restore Box'), 300);
-        expect(find.text('Delete permanently'), expected);
         expect(find.text('Restore Box'), findsOneWidget);
+        if (role == 'administrator') {
+          await tester.scrollUntilVisible(find.text('Delete permanently'), 200);
+        }
+        await tester.pumpAndSettle();
+        expect(find.text('Delete permanently'), expected);
         await show(
           SharedAnimalDetailPage(
             api: api,

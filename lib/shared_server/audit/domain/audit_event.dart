@@ -68,8 +68,15 @@ List<AuditEvent> collectionAuditEvents(
       'feeding-reminder',
     }.contains(section)) {
       operation = section;
-    } else if (const {'pictures', 'weights', 'shedding'}.contains(section)) {
-      type = section == 'pictures'
+    } else if (const {
+      'pictures',
+      'weights',
+      'shedding',
+      'care-events',
+    }.contains(section)) {
+      type = section == 'care-events'
+          ? 'boxCareEvent'
+          : section == 'pictures'
           ? 'media'
           : section == 'weights'
           ? 'weight'
@@ -91,6 +98,7 @@ List<AuditEvent> collectionAuditEvents(
         'feeding',
         'weight',
         'shedding',
+        'careEvent',
         'picture',
       ]) {
         final record = reply[key];

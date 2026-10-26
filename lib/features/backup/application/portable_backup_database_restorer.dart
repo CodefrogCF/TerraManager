@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/enums/box_care_event_type.dart';
 import '../../../core/database/validation/animal_weight_parser.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_data.dart';
@@ -14,6 +15,8 @@ class PortableBackupDatabaseRestorer {
 
   Future<int> restore(ValidatedBackup backup) {
     return database.transaction(() async {
+      await database.delete(database.boxCareEventAttachments).go();
+      await database.delete(database.boxCareEvents).go();
       await database.delete(database.feedingEvents).go();
 
       await database.delete(database.animalWeightEntries).go();
@@ -33,6 +36,7 @@ class PortableBackupDatabaseRestorer {
       await database.customStatement(
         "DELETE FROM sqlite_sequence "
         "WHERE name IN ("
+        "'box_care_events', "
         "'boxes', "
         "'animals', "
         "'animal_weight_entries', "
@@ -44,17 +48,17 @@ class PortableBackupDatabaseRestorer {
         ")",
       );
 
-      var restoredMediaCount = 0;
+      final mediaCache = <String, int>{};
 
       for (final box in backup.data.boxes) {
         final restoredPictures = await _restorePictures(
           backup: backup,
+          mediaCache: mediaCache,
           pictures: box.pictures,
           primaryPath: box.pictureMediaPath,
           fallbackCapturedAt: box.createdAt,
           updatedAt: box.updatedAt,
         );
-        restoredMediaCount += restoredPictures.items.length;
 
         await database
             .into(database.boxes)
@@ -98,6 +102,44 @@ class PortableBackupDatabaseRestorer {
         }
       }
 
+      for (final box in backup.data.boxes) {
+        for (final event in box.careEvents) {
+          await database
+              .into(database.boxCareEvents)
+              .insert(
+                BoxCareEventsCompanion.insert(
+                  id: Value(event.id),
+                  boxId: box.id,
+                  type: BoxCareEventType.values.byName(event.type),
+                  occurredAt: event.occurredAt,
+                  notes: Value(event.notes),
+                  requestId: event.requestId,
+                  revision: Value(event.revision),
+                  createdAt: event.createdAt,
+                  updatedAt: event.updatedAt,
+                ),
+              );
+          final pictures = await _restorePictures(
+            backup: backup,
+            mediaCache: mediaCache,
+            pictures: event.attachments,
+            primaryPath: null,
+            fallbackCapturedAt: event.occurredAt,
+            updatedAt: event.updatedAt,
+          );
+          for (final item in pictures.items) {
+            await database
+                .into(database.boxCareEventAttachments)
+                .insert(
+                  BoxCareEventAttachmentsCompanion.insert(
+                    eventId: event.id,
+                    mediaAssetId: item.mediaId,
+                  ),
+                );
+          }
+        }
+      }
+
       for (final animal in backup.data.animals) {
         final status = BackupEnumCodec.decodeAnimalStatus(animal.status);
 
@@ -123,12 +165,12 @@ class PortableBackupDatabaseRestorer {
 
         final restoredPictures = await _restorePictures(
           backup: backup,
+          mediaCache: mediaCache,
           pictures: animal.pictures,
           primaryPath: animal.pictureMediaPath,
           fallbackCapturedAt: animal.createdAt,
           updatedAt: animal.updatedAt,
         );
-        restoredMediaCount += restoredPictures.items.length;
 
         final parsedLegacyWeight = animal.weightHistory.isEmpty
             ? AnimalWeightParser.parseUnambiguousLegacyGrams(animal.weight)
@@ -280,12 +322,13 @@ class PortableBackupDatabaseRestorer {
         );
       }
 
-      return restoredMediaCount;
+      return mediaCache.length;
     });
   }
 
   Future<_RestoredPictures> _restorePictures({
     required ValidatedBackup backup,
+    required Map<String, int> mediaCache,
     required List<BackupPicture> pictures,
     required String? primaryPath,
     required DateTime fallbackCapturedAt,
@@ -304,6 +347,12 @@ class PortableBackupDatabaseRestorer {
     final restored = <_RestoredPicture>[];
     int? primaryMediaId;
     for (final picture in effectivePictures) {
+      final cached = mediaCache[picture.mediaPath];
+      if (cached != null) {
+        restored.add(_RestoredPicture(mediaId: cached, picture: picture));
+        if (picture.mediaPath == primaryPath) primaryMediaId = cached;
+        continue;
+      }
       final bytes = backup.readMedia(picture.mediaPath);
       if (bytes == null) {
         throw StateError(
@@ -327,6 +376,7 @@ class PortableBackupDatabaseRestorer {
               updatedAt: Value(updatedAt),
             ),
           );
+      mediaCache[picture.mediaPath] = mediaId;
       restored.add(_RestoredPicture(mediaId: mediaId, picture: picture));
       if (picture.mediaPath == primaryPath) {
         primaryMediaId = mediaId;

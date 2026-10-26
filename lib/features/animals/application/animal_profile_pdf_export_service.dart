@@ -273,9 +273,11 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
           ),
           pw.SizedBox(height: 5 * PdfPageFormat.mm),
           ...remainingFields.expand(_field),
-          ..._history(data.feedingTitle, data.feedings),
-          ..._history(data.sheddingTitle, data.shedding),
-          ..._history(data.weightTitle, data.weights),
+          ..._histories([
+            (data.feedingTitle, data.feedings),
+            (data.sheddingTitle, data.shedding),
+            (data.weightTitle, data.weights),
+          ]),
         ],
       ),
     );
@@ -367,31 +369,72 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
     ),
   );
 
-  static List<pw.Widget> _history(
-    String title,
-    List<AnimalProfilePdfEntry> entries,
+  static List<pw.Widget> _histories(
+    List<(String, List<AnimalProfilePdfEntry>)> histories,
   ) {
-    if (entries.isEmpty) return const [];
+    if (histories.every((history) => history.$2.isEmpty)) return const [];
+    const gap = 5 * PdfPageFormat.mm;
+    final columnWidth =
+        (PdfPageFormat.a4.width - 24 * PdfPageFormat.mm - 2 * gap) / 3;
     return [
-      pw.NewPage(freeSpace: 20 * PdfPageFormat.mm),
-      _heading(title),
-      for (final entry in entries) ...[
-        pw.Text(
-          [
-            entry.date,
-            if (entry.value?.trim().isNotEmpty == true) entry.value!,
-          ].join(' · '),
-          style: const pw.TextStyle(fontSize: 10),
-        ),
-        if (entry.notes?.trim().isNotEmpty == true)
-          for (final chunk in _chunks(entry.notes!, 350))
-            pw.Padding(
-              padding: pw.EdgeInsets.only(left: 3 * PdfPageFormat.mm),
-              child: pw.Text(chunk, style: const pw.TextStyle(fontSize: 9)),
-            ),
-        pw.SizedBox(height: 2 * PdfPageFormat.mm),
-      ],
+      pw.NewPage(freeSpace: 45 * PdfPageFormat.mm),
+      // Keep all histories in one spanning flow so a section can use remaining
+      // column space and each page restores one consistent layout context.
+      pw.Wrap(
+        direction: pw.Axis.vertical,
+        runSpacing: gap,
+        children: [
+          for (final (title, entries) in histories)
+            for (var index = 0; index < entries.length; index++)
+              ..._historyEntry(
+                entries[index],
+                columnWidth,
+                heading: index == 0 ? title : null,
+              ),
+        ],
+      ),
     ];
+  }
+
+  static Iterable<pw.Widget> _historyEntry(
+    AnimalProfilePdfEntry entry,
+    double width, {
+    String? heading,
+  }) sync* {
+    // Bound each block so even very long notes can continue in the next column
+    // or page, while keeping the date with the first part of its note.
+    final notes = entry.notes?.trim().isNotEmpty == true
+        ? _chunks(entry.notes!, 100).toList()
+        : const <String>[];
+    for (var index = 0; index < math.max(1, notes.length); index++) {
+      yield pw.SizedBox(
+        width: width,
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          mainAxisSize: pw.MainAxisSize.min,
+          children: [
+            if (index == 0 && heading != null) _heading(heading),
+            if (index == 0)
+              pw.Text(
+                [
+                  entry.date,
+                  if (entry.value?.trim().isNotEmpty == true) entry.value!,
+                ].join(' · '),
+                style: const pw.TextStyle(fontSize: 10),
+              ),
+            if (notes.isNotEmpty)
+              pw.Padding(
+                padding: pw.EdgeInsets.only(left: 3 * PdfPageFormat.mm),
+                child: pw.Text(
+                  notes[index],
+                  style: const pw.TextStyle(fontSize: 9),
+                ),
+              ),
+            pw.SizedBox(height: 2 * PdfPageFormat.mm),
+          ],
+        ),
+      );
+    }
   }
 
   static Iterable<String> _chunks(String value, int maxLength) sync* {

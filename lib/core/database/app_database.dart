@@ -20,6 +20,8 @@ import 'enums/birth_date_accuracy.dart';
 import 'enums/sex.dart';
 
 import 'tables/boxes.dart';
+import 'tables/box_care_events.dart';
+import 'enums/box_care_event_type.dart';
 import 'tables/animals.dart';
 import 'tables/animal_picture_associations.dart';
 import 'tables/animal_weight_entries.dart';
@@ -52,6 +54,8 @@ QueryExecutor _configureTestQueryExecutor(QueryExecutor executor) {
     FeedingEvents,
     AnimalPictureAssociations,
     BoxPictureAssociations,
+    BoxCareEvents,
+    BoxCareEventAttachments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -200,6 +204,10 @@ class AppDatabase extends _$AppDatabase {
                   schema.animals.feedingReminderTimeZone,
                 );
               },
+              from17To18: (m, schema) async {
+                await m.createTable(schema.boxCareEvents);
+                await m.createTable(schema.boxCareEventAttachments);
+              },
             ),
           );
 
@@ -224,7 +232,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

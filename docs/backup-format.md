@@ -29,13 +29,14 @@ Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are
 
 | Record | Serialized fields |
 | --- | --- |
-| Box | `id`, `qrId`, `name`, lifecycle, `widthCm`, `heightCm`, `depthCm`, `temperatureZones`, `notes`, `pictureMediaPath`, `pictures`, creation/update fields |
+| Box | `id`, `qrId`, `name`, lifecycle, `widthCm`, `heightCm`, `depthCm`, `temperatureZones`, `notes`, `pictureMediaPath`, `pictures`, optional `careEvents`, creation/update fields |
 | Animal identity | `id`, `boxId`, lifecycle, `commonName`, `latinName`, `category`, `subcategory`, `sex`, `birthDate`, `birthDateAccuracy` |
 | Animal profile | `tempMin`, `tempMax`, `nighttimeTemperature`, `nighttimeTemperatureMin`, `nighttimeTemperatureMax`, `humidityMin`, `humidityMax`, `originHabitat`, `weight`, `restOrDormancyPeriods`, `temperatureZones`, `notes` |
 | Animal history / pictures | `weightHistory`, `sheddingNotes` (legacy), `sheddingHistory`, `showWeightOnDetail`, `showSheddingOnDetail`, `pictureMediaPath`, `pictures`, creation/update fields |
 | Animal reminder | `feedingReminderIntervalDays`, `feedingReminderBaseline`, `feedingReminderWeekdays`, `feedingReminderMinuteOfDay`, `feedingReminderTimeZone` |
 | FeedingEvent | `id`, `animalId`, `fedAt`, `notes` |
 | Nested weight entry | `id`, `weightGrams`, `measuredAt` |
+| Nested Box care event | `id`, `type`, `occurredAt`, optional `notes`, `attachments` (picture records), `requestId`, positive integer `revision`, `createdAt`, `updatedAt`. Missing `careEvents` means empty history; IDs/retry keys are unique across Boxes. Shared images are archived/restored once. |
 | Nested shedding entry | `id`, `shedAt`, `notes`, `createdAt`, `updatedAt` |
 | Gallery entry | `mediaPath`, `capturedAt`; list order is retained |
 

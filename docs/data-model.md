@@ -10,6 +10,7 @@ specified in [Backup format](backup-format.md).
 ```text
 Box -> Animals -> FeedingEvents / AnimalWeightEntries / SheddingEvents
 Box -> BoxPictureAssociations -> MediaAssets
+Box -> BoxCareEvents -> BoxCareEventAttachments -> MediaAssets
 Animal -> AnimalPictureAssociations -> MediaAssets
 ```
 
@@ -33,11 +34,18 @@ All entity IDs are integer primary keys. Box and Animal have `createdAt` and
 | FeedingEvent | `animalId`, `fedAt`, optional `notes`. Group feeding creates one event per selected Animal in one transaction. |
 | AnimalWeightEntry | `animalId`, positive finite `weightGrams`, `measuredAt`. Latest measurement determines current numeric weight. |
 | SheddingEvent | `animalId`, `shedAt`, optional `notes`, `createdAt`, `updatedAt`. |
+| BoxCareEvent | `boxId`, `type` (`substrateChange`, `cleaning`, `waterChange`), `occurredAt`, optional `notes`, unique retry `requestId`, integer `revision`, creation/update timestamps. The UI records type/time/notes; legacy image references remain compatible with backups. |
 | MediaAsset | `fileName`, `mimeType`, binary `data`, `createdAt`, `updatedAt`. |
 | Picture association | Owner `animalId` or `boxId`, `mediaAssetId`, `capturedAt`, `sortOrder`; unique media association and unique owner/order. |
 
 Stable enums have explicit converters. Taxonomy, enum wire values, timestamp
 encoding and legacy defaults are listed once in the [backup contract](backup-format.md).
+
+Box care is a separate newest-first history in Box details. It never becomes an
+Animal event or follows an Animal when it moves. Schema 17 → 18 adds two tables
+without rewriting existing histories. Archived Boxes retain read-only care;
+duplicates start without care history. Permanent Box deletion cascades its care
+events and releases images only when no gallery or event still references them.
 
 ## Lifecycle and duplication
 
@@ -74,7 +82,7 @@ migrated only when readable. Missing legacy files must not discard other data.
 
 ## Schema Version
 
-The current Drift database schema version is **17**. Upgrade steps preserve
+The current Drift database schema version is **18**. Upgrade steps preserve
 existing IDs, relationships and QR values and finish with foreign-key checks.
 
 | Version | Addition |
@@ -96,5 +104,6 @@ existing IDs, relationships and QR values and finish with foreign-key checks.
 | 15 | Timestamped shedding history |
 | 16 | Per-Animal weight/shedding visibility |
 | 17 | Weekday/time/zone feeding reminders |
+| 18 | Box care events and picture attachments |
 
 Generation commands and migration checks are in [Development](development.md).

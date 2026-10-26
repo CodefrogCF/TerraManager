@@ -3168,6 +3168,302 @@ i1.GeneratedColumn<String> _column_56(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
+
+final class Schema18 extends i0.VersionedSchema {
+  Schema18({required super.database}) : super(version: 18);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    mediaAssets,
+    boxes,
+    animals,
+    animalWeightEntries,
+    sheddingEvents,
+    feedingEvents,
+    animalPictureAssociations,
+    boxPictureAssociations,
+    boxCareEvents,
+    boxCareEventAttachments,
+  ];
+  late final Shape3 mediaAssets = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'media_assets',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_22,
+        _column_23,
+        _column_24,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 boxes = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'boxes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_5,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_31,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_36,
+        _column_16,
+        _column_25,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 animals = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'animals',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_37,
+        _column_38,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_44,
+        _column_45,
+        _column_46,
+        _column_13,
+        _column_14,
+        _column_32,
+        _column_33,
+        _column_34,
+        _column_35,
+        _column_36,
+        _column_15,
+        _column_25,
+        _column_16,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_29,
+        _column_30,
+        _column_54,
+        _column_55,
+        _column_56,
+        _column_52,
+        _column_53,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 animalWeightEntries = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'animal_weight_entries',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_39, _column_47, _column_48],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 sheddingEvents = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'shedding_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_39,
+        _column_49,
+        _column_16,
+        _column_50,
+        _column_51,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 feedingEvents = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'feeding_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_20, _column_21, _column_16],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 animalPictureAssociations = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'animal_picture_associations',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'UNIQUE(media_asset_id)',
+        'UNIQUE(animal_id, sort_order)',
+      ],
+      columns: [_column_0, _column_39, _column_40, _column_41, _column_42],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 boxPictureAssociations = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'box_picture_associations',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'UNIQUE(media_asset_id)',
+        'UNIQUE(box_id, sort_order)',
+      ],
+      columns: [_column_0, _column_43, _column_40, _column_41, _column_42],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 boxCareEvents = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'box_care_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'CHECK(type IN (\'substrateChange\', \'cleaning\', \'waterChange\'))',
+        'CHECK(revision > 0)',
+      ],
+      columns: [
+        _column_0,
+        _column_43,
+        _column_57,
+        _column_58,
+        _column_16,
+        _column_59,
+        _column_60,
+        _column_50,
+        _column_51,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape22 boxCareEventAttachments = Shape22(
+    source: i0.VersionedTable(
+      entityName: 'box_care_event_attachments',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(event_id, media_asset_id)'],
+      columns: [_column_61, _column_62],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape21 extends i0.VersionedTable {
+  Shape21({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get boxId =>
+      columnsByName['box_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get type =>
+      columnsByName['type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get occurredAt =>
+      columnsByName['occurred_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get notes =>
+      columnsByName['notes']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get requestId =>
+      columnsByName['request_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get revision =>
+      columnsByName['revision']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_57(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'type',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<int> _column_58(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'occurred_at',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_59(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'request_id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL UNIQUE',
+    );
+i1.GeneratedColumn<int> _column_60(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'revision',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL DEFAULT 1',
+      defaultValue: const i1.CustomExpression('1'),
+    );
+
+class Shape22 extends i0.VersionedTable {
+  Shape22({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get eventId =>
+      columnsByName['event_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get mediaAssetId =>
+      columnsByName['media_asset_id']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_61(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'event_id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints:
+          'NOT NULL REFERENCES box_care_events(id)ON DELETE CASCADE',
+    );
+i1.GeneratedColumn<int> _column_62(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'media_asset_id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL REFERENCES media_assets(id)',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -3185,6 +3481,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema15 schema) from14To15,
   required Future<void> Function(i1.Migrator m, Schema16 schema) from15To16,
   required Future<void> Function(i1.Migrator m, Schema17 schema) from16To17,
+  required Future<void> Function(i1.Migrator m, Schema18 schema) from17To18,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -3268,6 +3565,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from16To17(migrator, schema);
         return 17;
+      case 17:
+        final schema = Schema18(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from17To18(migrator, schema);
+        return 18;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -3291,6 +3593,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema15 schema) from14To15,
   required Future<void> Function(i1.Migrator m, Schema16 schema) from15To16,
   required Future<void> Function(i1.Migrator m, Schema17 schema) from16To17,
+  required Future<void> Function(i1.Migrator m, Schema18 schema) from17To18,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -3309,5 +3612,6 @@ i1.OnUpgrade stepByStep({
     from14To15: from14To15,
     from15To16: from15To16,
     from16To17: from16To17,
+    from17To18: from17To18,
   ),
 );

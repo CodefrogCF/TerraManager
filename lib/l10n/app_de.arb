@@ -747,5 +747,18 @@
   "releaseHighlightsOverviewBody": "Weniger Leerraum am Listenende: Die schwebenden Buttons blenden sich dort aus, damit das letzte Kontextmenü erreichbar bleibt. Beim Hochscrollen erscheinen sie wieder. Namen änderst du weiterhin über Bearbeiten.",
   "releaseHighlightsSettingsHint": "Du kannst diese Übersicht jederzeit unter Einstellungen → Neuerungen erneut öffnen.",
   "releaseHighlightsClose": "Schließen",
-  "releaseHighlightsUnavailable": "Die Neuerungen konnten nicht geöffnet werden. Bitte versuche es erneut."
+  "releaseHighlightsUnavailable": "Die Neuerungen konnten nicht geöffnet werden. Bitte versuche es erneut.",
+  "boxCareHistory": "Boxpflege",
+  "boxCareScope": "Dieser Verlauf gehört zur Box, unabhängig von ihren Bewohnern.",
+  "boxCareAdd": "Pflege eintragen",
+  "boxCareEdit": "Pflege bearbeiten",
+  "boxCareType": "Pflegeart",
+  "boxCareSubstrate": "Substratwechsel",
+  "boxCareCleaning": "Reinigung",
+  "boxCareWater": "Wasserwechsel",
+  "boxCareEmpty": "Noch keine Pflege eingetragen.",
+  "boxCareFailed": "Der Pflegeverlauf konnte nicht geladen oder gespeichert werden. Lade den aktuellen Stand neu und versuche es erneut. Dein Entwurf bleibt bei einem Speicherfehler erhalten.",
+  "boxCareFuture": "Datum und Uhrzeit dürfen nicht in der Zukunft liegen.",
+  "boxCareDeleteConfirm": "Diesen Pflegeeintrag löschen?",
+  "boxCareReload": "Verlauf neu laden"
 }

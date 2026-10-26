@@ -88,16 +88,20 @@ class CareChangeHints {
         }
       }
     } else if (path.firstOrNull == 'boxes') {
+      if (path.length > 2 && path[2] == 'care-events') {
+        return {'audit': null, 'boxCareHistories': ids};
+      }
       final box = body['box'];
       if (box is Map && box['id'] is int) ids.add(box['id'] as int);
       resources['boxes'] = ids;
       if ((path.length > 2 && path[2] == 'pictures') ||
-          method == 'DELETE' ||
+          (method == 'DELETE' && path.length == 2) ||
           (box is Map && box['pictureMediaId'] != oldPictureMediaId)) {
         resources['boxPictures'] = ids;
         resources['media'] = mediaIds(box is Map ? box : null);
       }
       if (path.length == 2 && method == 'DELETE') {
+        resources['boxCareHistories'] = ids;
         resources['animals'] = null;
         resources['reminders'] = null;
         resources['media'] = null;

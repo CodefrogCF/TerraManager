@@ -72,6 +72,7 @@ They belong to the account and are excluded from portable collection backups.
 | Reminders | `GET /reminders` |
 | Weight | `GET/POST /animals/{id}/weights`; `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`; `PUT/DELETE /animals/{id}/shedding/{eventId}` |
+| Box care | `GET/POST /boxes/{id}/care-events`; `PUT/DELETE /boxes/{id}/care-events/{eventId}` |
 | Galleries | `GET/POST /animals/{id}/pictures` and `/boxes/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
 | Media | `GET /media/{id}`; standalone `POST /media` is unsupported |
 | Changes | `GET /changes`, `GET /changes/events`; [contract](shared-care-change-contract.md) |
@@ -84,6 +85,16 @@ generates `qrId` on the server. Animal creation requires `boxId`, `commonName`,
 editable fields and additionally requires `category`, `showWeightOnDetail`,
 `showSheddingOnDetail`; Box PATCH changes supplied fields only. Ordinary edits
 cannot assign IDs, QR values, lifecycle state or archive timestamps.
+
+Box care POST requires `type` (`substrateChange`, `cleaning`, `waterChange`), UTC
+`occurredAt` and a stable `requestId` (1–64 characters). Optional `notes` and
+`mediaIds` (up to 20 distinct pictures belonging to that Box) attach gallery images.
+PUT supplies the same care fields plus integer `expectedRevision` and immutable
+`expectedRequestId`; DELETE supplies both guards. The identity guard also prevents
+old drafts from changing a different event after restore reuses numeric IDs. Stale writes return `409 stale_record`. Retries of the same
+POST return the existing entry without a second commit. Archived histories are
+read-only; permanent deletion remains administrator-only. Committed care changes
+invalidate `boxCareHistories` for the owning Box ID through the existing change stream.
 
 ## Conflicts, histories and retries
 

@@ -3,6 +3,8 @@ import 'package:terramanager/shared_client/shared/presentation/shared_archive_re
 
 import 'dart:async';
 
+import 'shared_box_care_history_page.dart';
+
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
@@ -314,20 +316,44 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
         actions: [
           FutureBuilder<Map<String, dynamic>>(
             future: _record,
-            builder: (context, snapshot) => snapshot.data?['status'] == 'active'
-                ? ListenableBuilder(
-                    listenable: widget.api,
-                    builder: (context, _) => IconButton(
-                      tooltip: sharedText(
-                        context,
-                        'Edit Box',
-                        'Box bearbeiten',
+            builder: (context, snapshot) {
+              final box = snapshot.data;
+              if (box == null) return const SizedBox.shrink();
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    key: const Key('box-care-history-button'),
+                    tooltip: context.l10n.boxCareHistory,
+                    icon: const Icon(Icons.cleaning_services_outlined),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => SharedBoxCareHistoryPage(
+                          api: widget.api,
+                          boxId: _id,
+                          label: boxLabel(box),
+                          change: _change,
+                        ),
                       ),
-                      onPressed: widget.api.connected ? _openEdit : null,
-                      icon: const Icon(Icons.edit_outlined),
                     ),
-                  )
-                : const SizedBox.shrink(),
+                  ),
+                  if (box['status'] == 'active')
+                    ListenableBuilder(
+                      listenable: widget.api,
+                      builder: (context, _) => IconButton(
+                        key: const Key('edit-box-button'),
+                        tooltip: sharedText(
+                          context,
+                          'Edit Box',
+                          'Box bearbeiten',
+                        ),
+                        onPressed: widget.api.connected ? _openEdit : null,
+                        icon: const Icon(Icons.edit_outlined),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
         bottom: _navigationContext == null

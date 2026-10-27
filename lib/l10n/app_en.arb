@@ -13,7 +13,6 @@
     "description": "Bottom navigation label for the Animal overview"
   },
   "navigationSettings": "Settings",
-  "navigationSettings": "Settings",
   "@navigationSettings": {
     "description": "Bottom navigation label for Settings"
   },
@@ -187,7 +186,9 @@
   "animalThumbnailLabel": "Animal thumbnail for {animalName}",
   "@animalThumbnailLabel": {
     "placeholders": {
-      "animalName": {"type": "String"}
+      "animalName": {
+        "type": "String"
+      }
     }
   },
   "failedToLoadAnimals": "Failed to load animals",
@@ -565,8 +566,12 @@
   "sortCriterionWithDirection": "{criterion}: {direction}",
   "@sortCriterionWithDirection": {
     "placeholders": {
-      "criterion": {"type": "String"},
-      "direction": {"type": "String"}
+      "criterion": {
+        "type": "String"
+      },
+      "direction": {
+        "type": "String"
+      }
     }
   },
   "archiveBox": "Archive Box",
@@ -592,7 +597,7 @@
   "additionalCharacteristics": "Additional characteristics",
   "originHabitat": "Origin / habitat",
   "weight": "Weight",
-  "sheddingNotes": "Shedding notes",
+  "sheddingNotes": "Notes",
   "restOrDormancyPeriods": "Rest or dormancy periods",
   "temperatureZones": "Temperature zones",
   "animalActions": "Actions for {name}",
@@ -719,8 +724,12 @@
   "pictureAddedAt": "Added {date} at {time}",
   "@pictureAddedAt": {
     "placeholders": {
-      "date": { "type": "String" },
-      "time": { "type": "String" }
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
     }
   },
   "minimum": "Min",
@@ -734,14 +743,18 @@
   "legacyWeightValue": "Legacy value: {value}. Enter a weight in grams to replace it.",
   "@legacyWeightValue": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "nextFeeding": "Next feeding",
   "feedingScheduledFor": "Scheduled for {dateTime}",
   "@feedingScheduledFor": {
     "placeholders": {
-      "dateTime": { "type": "String" }
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "weightHistory": "Weight history",
@@ -749,7 +762,9 @@
   "weightMeasurement": "{weight} g",
   "@weightMeasurement": {
     "placeholders": {
-      "weight": { "type": "String" }
+      "weight": {
+        "type": "String"
+      }
     }
   },
   "failedToLoadWeightHistory": "Weight history could not be loaded",
@@ -762,8 +777,12 @@
   "deleteWeightMeasurementWarning": "Delete {weight} from {dateTime} permanently?\n\nThis action cannot be undone.",
   "@deleteWeightMeasurementWarning": {
     "placeholders": {
-      "weight": { "type": "String" },
-      "dateTime": { "type": "String" }
+      "weight": {
+        "type": "String"
+      },
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "failedToDeleteWeightMeasurement": "Weight measurement could not be deleted",
@@ -787,7 +806,6 @@
   "failedToUpdateSheddingEvent": "Failed to update shedding entry.",
   "failedToSaveSheddingEvent": "Failed to save shedding entry.",
   "sheddingDateTimeInFuture": "The shedding date and time cannot be in the future.",
-  "sheddingNotes": "Notes",
   "latestShedding": "Latest shedding",
   "noSheddingEventsAvailable": "No shedding entries available.",
   "sortArchivedAnimals": "Sort archived animals",
@@ -801,7 +819,6 @@
   "showSheddingOnAnimalDetailDescription": "Show shedding information and shedding actions on the Animal Detail page.",
   "nextFeedingSummary": "Show next feeding",
   "nextFeedingSummaryDescription": "Show the next feeding on the Animal Overview and open the full feeding schedule.",
-  "nextFeeding": "Next feeding",
   "nextFeedingSummaryForAnimal": "{animal}: {dateTime}",
   "@nextFeedingSummaryForAnimal": {
     "placeholders": {
@@ -852,7 +869,13 @@
   "animalPdfNightLabel": "Night",
   "animalPdfHandover": "Complete A4 profile and history",
   "animalPdfLabelWidth": "Label width: {width} mm",
-  "@animalPdfLabelWidth": {"placeholders": {"width": {"type": "int"}}},
+  "@animalPdfLabelWidth": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      }
+    }
+  },
   "animalPdfIncludeGallery": "Append complete picture gallery",
   "animalPdfSave": "Choose destination and save PDF",
   "animalPdfSaved": "Animal PDF saved",
@@ -882,14 +905,20 @@
   "releaseHighlightsVersion": "Version {version} ({build})",
   "@releaseHighlightsVersion": {
     "placeholders": {
-      "version": {"type": "String"},
-      "build": {"type": "String"}
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
     }
   },
   "releaseHighlightsIntro": "The latest improvements for your collection:",
   "releaseHighlightsNotificationsTitle": "Optional feeding notifications",
   "releaseHighlightsNotificationsBody": "Enable Android feeding notifications in Settings if you want them. They are off by default and follow your existing reminder schedule. Android may deliver them late.",
-  "@releaseHighlightsNotificationsBody": {"description": "Bundled Android release highlights; review the releaseHighlights content in both languages for each release."},
+  "@releaseHighlightsNotificationsBody": {
+    "description": "Bundled Android release highlights; review the releaseHighlights content in both languages for each release."
+  },
   "releaseHighlightsFeedingTitle": "Quick actions for due feedings",
   "releaseHighlightsFeedingBody": "Tap a due marker to view the Animal, add a Feeding or hide its overview alerts for 24 hours. This does not mute Android notifications.",
   "releaseHighlightsBoxesTitle": "Empty Boxes together",
@@ -927,5 +956,28 @@
   "careTypeMoveDown": "Move down",
   "careTypeFilter": "Filter care history",
   "careTypeAll": "All care types",
-  "careTypeUnavailable": "Unavailable care type"
+  "careTypeUnavailable": "Unavailable care type",
+  "customFields": "Custom fields",
+  "customFieldTemplates": "Field templates",
+  "customFieldsManage": "Manage field templates",
+  "customFieldsEmpty": "Add optional information using field templates. Fill in values when editing the profile.",
+  "customFieldsFailure": "Custom fields could not be loaded or saved. Your entries are retained. Reload and review before retrying.",
+  "customFieldsReload": "Reload custom fields",
+  "customFieldsDirty": "Save or discard your custom field entries before managing templates.",
+  "customFieldAdd": "Add field template",
+  "customFieldLabel": "Label",
+  "customFieldType": "Field type",
+  "customFieldText": "Text",
+  "customFieldNumber": "Number",
+  "customFieldDate": "Date",
+  "customFieldBoolean": "Yes / No",
+  "customFieldUnset": "Not specified",
+  "customFieldHidden": "Hide field",
+  "customFieldArchived": "Archive template",
+  "customFieldPreserve": "Hiding or archiving preserves all stored values. Archived fields remain readable in profiles. Field type and target cannot be changed.",
+  "customFieldInvalid": "Enter a valid value. Dates use YYYY-MM-DD; numbers must be finite. Text is limited to 10,000 characters.",
+  "customFieldLabelInvalid": "Use a unique label with 1–80 characters.",
+  "customFieldTemplateFailure": "The template could not be saved. Check for duplicate labels or reload changed templates. Your draft is retained.",
+  "customFieldYes": "Yes",
+  "customFieldNo": "No"
 }

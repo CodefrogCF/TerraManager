@@ -103,7 +103,9 @@
   "animalThumbnailLabel": "Tier-Vorschaubild für {animalName}",
   "@animalThumbnailLabel": {
     "placeholders": {
-      "animalName": {"type": "String"}
+      "animalName": {
+        "type": "String"
+      }
     }
   },
   "failedToLoadAnimals": "Tiere konnten nicht geladen werden",
@@ -427,8 +429,12 @@
   "sortCriterionWithDirection": "{criterion}: {direction}",
   "@sortCriterionWithDirection": {
     "placeholders": {
-      "criterion": {"type": "String"},
-      "direction": {"type": "String"}
+      "criterion": {
+        "type": "String"
+      },
+      "direction": {
+        "type": "String"
+      }
     }
   },
   "archiveBox": "Box archivieren",
@@ -454,7 +460,7 @@
   "additionalCharacteristics": "Zusätzliche Merkmale",
   "originHabitat": "Herkunft / Lebensraum",
   "weight": "Gewicht",
-  "sheddingNotes": "Häutungsnotizen",
+  "sheddingNotes": "Notizen",
   "restOrDormancyPeriods": "Ruhe- oder Dormanzzeiten",
   "temperatureZones": "Temperaturzonen",
   "animalActions": "Aktionen für {name}",
@@ -581,8 +587,12 @@
   "pictureAddedAt": "Hinzugefügt am {date} um {time}",
   "@pictureAddedAt": {
     "placeholders": {
-      "date": { "type": "String" },
-      "time": { "type": "String" }
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
     }
   },
   "minimum": "Min.",
@@ -596,14 +606,18 @@
   "legacyWeightValue": "Bisheriger Wert: {value}. Ein Gewicht in Gramm eingeben, um ihn zu ersetzen.",
   "@legacyWeightValue": {
     "placeholders": {
-      "value": { "type": "String" }
+      "value": {
+        "type": "String"
+      }
     }
   },
   "nextFeeding": "Nächste Fütterung",
   "feedingScheduledFor": "Geplant für {dateTime}",
   "@feedingScheduledFor": {
     "placeholders": {
-      "dateTime": { "type": "String" }
+      "dateTime": {
+        "type": "String"
+      }
     }
   },
   "weightHistory": "Gewichtsverlauf",
@@ -611,7 +625,9 @@
   "weightMeasurement": "{weight} g",
   "@weightMeasurement": {
     "placeholders": {
-      "weight": { "type": "String" }
+      "weight": {
+        "type": "String"
+      }
     }
   },
   "failedToLoadWeightHistory": "Der Gewichtsverlauf konnte nicht geladen werden",
@@ -643,7 +659,6 @@
   "failedToUpdateSheddingEvent": "Der Häutungseintrag konnte nicht aktualisiert werden.",
   "failedToSaveSheddingEvent": "Der Häutungseintrag konnte nicht gespeichert werden.",
   "sheddingDateTimeInFuture": "Datum und Uhrzeit der Häutung dürfen nicht in der Zukunft liegen.",
-  "sheddingNotes": "Notizen",
   "latestShedding": "Letzte Häutung",
   "noSheddingEventsAvailable": "Noch keine Häutungen erfasst.",
   "sortArchivedAnimals": "Archivierte Tiere sortieren",
@@ -657,7 +672,6 @@
   "showSheddingOnAnimalDetailDescription": "Häutungsinformationen und Häutungsaktionen in den Tierdetails anzeigen.",
   "nextFeedingSummary": "Nächste Fütterung anzeigen",
   "nextFeedingSummaryDescription": "Zeigt die nächste Fütterung in der Tierübersicht an und öffnet die vollständige Terminliste.",
-  "nextFeeding": "Nächste Fütterung",
   "nextFeedingSummaryForAnimal": "{animal}: {dateTime}",
   "@nextFeedingSummaryForAnimal": {
     "placeholders": {
@@ -708,7 +722,13 @@
   "animalPdfNightLabel": "Nacht",
   "animalPdfHandover": "Vollständiges A4-Datenblatt mit Historie",
   "animalPdfLabelWidth": "Etikettbreite: {width} mm",
-  "@animalPdfLabelWidth": {"placeholders": {"width": {"type": "int"}}},
+  "@animalPdfLabelWidth": {
+    "placeholders": {
+      "width": {
+        "type": "int"
+      }
+    }
+  },
   "animalPdfIncludeGallery": "Vollständige Bildergalerie anhängen",
   "animalPdfSave": "Speicherort wählen und PDF speichern",
   "animalPdfSaved": "Tier-PDF gespeichert",
@@ -776,5 +796,28 @@
   "careTypeMoveDown": "Nach unten",
   "careTypeFilter": "Pflegeverlauf filtern",
   "careTypeAll": "Alle Pflegearten",
-  "careTypeUnavailable": "Nicht verfügbare Pflegeart"
+  "careTypeUnavailable": "Nicht verfügbare Pflegeart",
+  "customFields": "Eigene Felder",
+  "customFieldTemplates": "Feldvorlagen",
+  "customFieldsManage": "Feldvorlagen verwalten",
+  "customFieldsEmpty": "Ergänze optionale Angaben mit Feldvorlagen. Werte trägst du beim Bearbeiten des Profils ein.",
+  "customFieldsFailure": "Eigene Felder konnten nicht geladen oder gespeichert werden. Deine Eingaben bleiben erhalten. Lade den Stand neu und prüfe ihn vor dem erneuten Speichern.",
+  "customFieldsReload": "Eigene Felder neu laden",
+  "customFieldsDirty": "Speichere oder verwerfe deine Eingaben in eigenen Feldern, bevor du Vorlagen verwaltest.",
+  "customFieldAdd": "Feldvorlage hinzufügen",
+  "customFieldLabel": "Bezeichnung",
+  "customFieldType": "Feldtyp",
+  "customFieldText": "Text",
+  "customFieldNumber": "Zahl",
+  "customFieldDate": "Datum",
+  "customFieldBoolean": "Ja / Nein",
+  "customFieldUnset": "Keine Angabe",
+  "customFieldHidden": "Feld ausblenden",
+  "customFieldArchived": "Vorlage archivieren",
+  "customFieldPreserve": "Ausblenden und Archivieren erhalten alle gespeicherten Werte. Archivierte Felder bleiben im Profil lesbar. Feldtyp und Zuordnung können nicht geändert werden.",
+  "customFieldInvalid": "Gib einen gültigen Wert ein. Datumsformat: JJJJ-MM-TT; Zahlen müssen endlich sein. Text ist auf 10.000 Zeichen begrenzt.",
+  "customFieldLabelInvalid": "Verwende eine eindeutige Bezeichnung mit 1–80 Zeichen.",
+  "customFieldTemplateFailure": "Die Vorlage konnte nicht gespeichert werden. Prüfe doppelte Bezeichnungen oder lade geänderte Vorlagen neu. Dein Entwurf bleibt erhalten.",
+  "customFieldYes": "Ja",
+  "customFieldNo": "Nein"
 }

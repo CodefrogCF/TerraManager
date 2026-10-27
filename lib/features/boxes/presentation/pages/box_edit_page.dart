@@ -1,3 +1,6 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/features/custom_fields/presentation/standalone_custom_fields.dart';
+
 import 'dart:typed_data';
 
 import 'package:drift/drift.dart' as drift;
@@ -37,6 +40,13 @@ class BoxEditPage extends StatefulWidget {
 
 class _BoxEditPageState extends State<BoxEditPage> {
   final _formKey = GlobalKey<FormState>();
+  late final _custom = CustomFieldsController(
+    standaloneCustomFields(
+      widget.database,
+      CustomFieldTarget.box,
+      widget.boxId,
+    ),
+  );
 
   final _nameController = TextEditingController();
   final _widthController = TextEditingController();
@@ -69,6 +79,10 @@ class _BoxEditPageState extends State<BoxEditPage> {
   @override
   void initState() {
     super.initState();
+    _custom.load();
+    _custom.addListener(() {
+      if (mounted && _custom.dirty) setState(() => _hasUnsavedChanges = true);
+    });
     _pictureSelectionFlow =
         widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
     _loadBox();
@@ -76,6 +90,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
 
   @override
   void dispose() {
+    _custom.dispose();
     _nameController.dispose();
     _widthController.dispose();
     _heightController.dispose();
@@ -276,6 +291,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
         }
 
         final updated = await BoxRepository(widget.database).updateBox(
+          customFields: _custom.patch,
           boxId: _box!.id,
           name: drift.Value(name.isEmpty ? null : name),
           widthCm: drift.Value(widthCm),
@@ -302,7 +318,8 @@ class _BoxEditPageState extends State<BoxEditPage> {
       _hasUnsavedChanges = false;
 
       Navigator.of(context).pop(BoxEditResult.saved);
-    } catch (_) {
+    } catch (error) {
+      if (error is CustomFieldConflict) _custom.conflict();
       if (!mounted) {
         return;
       }
@@ -588,6 +605,7 @@ class _BoxEditPageState extends State<BoxEditPage> {
             ),
             const SizedBox(height: 16),
 
+            CustomFieldsEditor(controller: _custom, enabled: !_saving),
             TextFormField(
               key: const Key('box-notes-field'),
               controller: _notesController,

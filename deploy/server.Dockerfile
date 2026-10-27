@@ -14,6 +14,7 @@ COPY lib/core/database/ lib/core/database/
 COPY lib/core/qr/qr_id_generator.dart lib/core/qr/qr_id_generator.dart
 COPY lib/core/qr/qr_validator.dart lib/core/qr/qr_validator.dart
 COPY lib/features/backup/ lib/features/backup/
+COPY lib/features/custom_fields/domain/ lib/features/custom_fields/domain/
 COPY lib/features/boxes/domain/box_care_entry.dart lib/features/boxes/domain/box_care_entry.dart
 COPY lib/features/boxes/domain/care_event_type_definition.dart lib/features/boxes/domain/care_event_type_definition.dart
 COPY lib/features/feedings/application/feeding_reminder_service.dart lib/features/feedings/application/feeding_reminder_service.dart

@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import '../../../core/database/repositories/custom_field_repository.dart';
+
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -210,6 +214,17 @@ class PortableBackupExporter {
     }
 
     final backupData = BackupData(
+      customFieldTemplates: await CustomFieldRepository(database).templates(),
+      customFieldValues: [
+        for (final r in await database.select(database.customFieldValues).get())
+          {
+            'templateId': r.templateId,
+            'animalId': r.animalId,
+            'boxId': r.boxId,
+            'value': jsonDecode(r.valueJson),
+            'revision': r.revision,
+          },
+      ],
       careEventTypes: await CareEventTypeRepository(database).all(),
       boxes: backupBoxes,
       animals: backupAnimals,

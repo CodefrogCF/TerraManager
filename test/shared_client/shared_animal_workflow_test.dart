@@ -64,6 +64,23 @@ Future<SharedApiClient> _client(
   final api = SharedApiClient(
     Uri.parse('https://localhost'),
     MockClient((request) async {
+      if (request.method == 'GET' &&
+          request.url.path == '/api/v1/custom-field-templates') {
+        return http.Response(jsonEncode({'templates': []}), 200);
+      }
+      if (request.method == 'GET' &&
+          request.url.path.endsWith('/custom-fields')) {
+        return http.Response(
+          jsonEncode({
+            'templates': [],
+            'values': [],
+            'active': true,
+            'revision': 'custom-fields',
+          }),
+          200,
+        );
+      }
+
       if (request.url.path == '/api/v1/auth/login') {
         return http.Response(
           jsonEncode({
@@ -397,6 +414,18 @@ void main() {
             500,
             scrollable: find.byType(Scrollable).first,
           );
+          FocusManager.instance.primaryFocus?.unfocus();
+          await tester.pumpAndSettle();
+          await tester.scrollUntilVisible(
+            find.byKey(const Key('shared-save-animal')),
+            200,
+            scrollable: find.byType(Scrollable).first,
+          );
+          await tester.pumpAndSettle();
+          await tester.ensureVisible(
+            find.byKey(const Key('shared-save-animal')),
+          );
+          await tester.pumpAndSettle();
           await tester.tap(find.byKey(const Key('shared-save-animal')));
           await tester.pumpAndSettle();
           expect(writes, hasLength(1));
@@ -505,6 +534,16 @@ void main() {
         500,
         scrollable: find.byType(Scrollable).first,
       );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('shared-save-animal')),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('shared-save-animal')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('shared-save-animal')));
       await tester.pumpAndSettle();
       expect(writes, 1);

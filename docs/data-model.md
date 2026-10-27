@@ -20,7 +20,7 @@ Histories and galleries remain owned by their Animal while archived.
 
 ## Fields
 
-All entity IDs are integer primary keys. Box and Animal have `createdAt` and
+Record IDs are integer primary keys; custom definitions use stable UUIDs. Box and Animal have `createdAt` and
 `updatedAt`; optional fields are nullable unless a default is stated.
 
 | Entity | Fields / purpose |
@@ -36,6 +36,8 @@ All entity IDs are integer primary keys. Box and Animal have `createdAt` and
 | SheddingEvent | `animalId`, `shedAt`, optional `notes`, `createdAt`, `updatedAt`. |
 | BoxCareEvent | `boxId`, `type` (`substrateChange`, `cleaning`, `waterChange`, `custom`), optional `customTypeId`, `occurredAt`, optional `notes`, unique retry `requestId`, integer `revision`, creation/update timestamps. Care events have no media association. |
 | CareEventType | Collection-wide UUID `id`, normalized unique `labelKey`, display `label` (1–80 characters), `sortOrder`, `archived`, `revision`, timestamps. Custom events reference its stable ID; definitions are archived rather than deleted. |
+| CustomFieldTemplate | Stable UUID, target (`animal`/`box`), immutable type (`text`/`number`/`date`/`boolean`), unique normalized label per target, `hidden`, `archived`, positive `revision`. |
+| CustomFieldValue | Template FK and exactly one Animal/Box owner FK, validated scalar JSON, positive revision. Unique per owner/template; owner deletion cascades. |
 | MediaAsset | `fileName`, `mimeType`, binary `data`, `createdAt`, `updatedAt`. |
 | Picture association | Owner `animalId` or `boxId`, `mediaAssetId`, `capturedAt`, `sortOrder`; unique media association and unique owner/order. |
 
@@ -53,6 +55,15 @@ displayed label without rewriting events; archive removes a type from new-event
 choices while preserving history, filtering and edits that retain the same type.
 Case-insensitive normalized labels must be unique, including archived types;
 standard DE/EN labels are reserved. Reordering checks the complete ID/revision set.
+
+Custom fields are optional profile data, edited with the core profile in one
+transaction. Templates are managed from details/editing, separately for Animals
+and Boxes. Rename keeps IDs; hidden fields retain values but leave the UI;
+archived fields leave editing and remain readable in details. Clearing a value
+keeps a revisioned null tombstone for conflict detection. Duplicate profiles copy
+all custom values, including hidden/archived values. Dates are strict calendar
+dates (YYYY-MM-DD); numbers are finite and may be zero; booleans distinguish
+unset from false. Text is limited to 10,000 characters.
 
 ## Lifecycle and duplication
 
@@ -89,7 +100,7 @@ migrated only when readable. Missing legacy files must not discard other data.
 
 ## Schema Version
 
-The current Drift database schema version is **20**. Upgrade steps preserve
+The current Drift database schema version is **21**. Upgrade steps preserve
 existing IDs, relationships and QR values and finish with foreign-key checks.
 
 | Version | Addition |
@@ -114,5 +125,6 @@ existing IDs, relationships and QR values and finish with foreign-key checks.
 | 18 | Box care events and picture attachments |
 | 19 | Remove retired Box care picture links |
 | 20 | Collection-wide custom care definitions and stable event references |
+| 21 | Typed Animal/Box custom-field templates and separately stored values |
 
 Generation commands and migration checks are in [Development](development.md).

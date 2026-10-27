@@ -410,6 +410,23 @@ void main() {
       var writes = 0;
       var archives = 0;
       final backend = MockClient((request) async {
+        if (request.method == 'GET' &&
+            request.url.path.endsWith('/custom-fields')) {
+          return http.Response(
+            jsonEncode({
+              'templates': [],
+              'values': [],
+              'active': true,
+              'revision': 'custom-fields',
+            }),
+            200,
+          );
+        }
+        if (request.method == 'GET' &&
+            request.url.path == '/api/v1/custom-field-templates') {
+          return http.Response(jsonEncode({'templates': []}), 200);
+        }
+
         switch (request.url.path) {
           case '/api/v1/changes':
             return fakeChangeResponse(
@@ -497,19 +514,15 @@ void main() {
       await tester.tap(find.text('Edit Box'));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextFormField).first, 'Renamed');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
       await tester.scrollUntilVisible(
         find.byKey(const Key('shared-save-box')),
-        400,
-        scrollable: find.byType(Scrollable).first,
+        200,
+        scrollable: find.byType(Scrollable).last,
       );
       await tester.pumpAndSettle();
-      await tester.drag(
-        find.ancestor(
-          of: find.byKey(const Key('shared-save-box')),
-          matching: find.byType(ListView),
-        ),
-        const Offset(0, -200),
-      );
+      await tester.ensureVisible(find.byKey(const Key('shared-save-box')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('shared-save-box')));
       await tester.pumpAndSettle();

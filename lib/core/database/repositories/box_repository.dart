@@ -1,3 +1,6 @@
+import '../../../features/custom_fields/domain/custom_field.dart';
+import 'custom_field_repository.dart';
+
 import 'package:drift/drift.dart';
 
 import '../../qr/qr_id_generator.dart';
@@ -110,6 +113,7 @@ class BoxRepository {
     String? temperatureZones,
     String? notes,
     int? pictureMediaId,
+    CustomFieldPatch? customFields,
   }) {
     return database.transaction(() async {
       final boxId = await database
@@ -130,6 +134,10 @@ class BoxRepository {
         await PictureGalleryRepository(database)
             .ensureBoxPictureAssociation(boxId: boxId, mediaId: pictureMediaId);
       }
+      if (customFields != null) {
+        await CustomFieldRepository(database)
+            .save(CustomFieldTarget.box, boxId, customFields, creating: true);
+      }
       return boxId;
     });
   }
@@ -142,9 +150,11 @@ class BoxRepository {
     String? temperatureZones,
     String? notes,
     int? pictureMediaId,
+    CustomFieldPatch? customFields,
   }) {
     return createBox(
       generateBoxQrId(),
+      customFields: customFields,
       name: name,
       widthCm: widthCm,
       heightCm: heightCm,
@@ -208,6 +218,8 @@ class BoxRepository {
         sourceBoxId: source.id,
         targetBoxId: targetBoxId,
       );
+      await CustomFieldRepository(database)
+          .copy(CustomFieldTarget.box, sourceBoxId, targetBoxId);
       return targetBoxId;
     });
   }
@@ -221,6 +233,7 @@ class BoxRepository {
     Value<String?> temperatureZones = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     Value<int?> pictureMediaId = const Value.absent(),
+    CustomFieldPatch? customFields,
   }) async {
     return database.transaction(() async {
       final existing = await getBoxById(boxId);
@@ -229,6 +242,10 @@ class BoxRepository {
         return false;
       }
 
+      if (customFields != null) {
+        await CustomFieldRepository(database)
+            .save(CustomFieldTarget.box, boxId, customFields);
+      }
       final updatedRows =
           await (database.update(
             database.boxes,

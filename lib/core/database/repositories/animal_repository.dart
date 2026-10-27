@@ -1,3 +1,6 @@
+import '../../../features/custom_fields/domain/custom_field.dart';
+import 'custom_field_repository.dart';
+
 import 'package:drift/drift.dart';
 
 import '../app_database.dart';
@@ -112,6 +115,7 @@ class AnimalRepository {
     String? feedingReminderTimeZone,
     bool showWeightOnDetail = true,
     bool showSheddingOnDetail = true,
+    CustomFieldPatch? customFields,
   }) {
     AnimalEnvironmentalLimits.validate(
       temperatureMinimum: tempMin,
@@ -193,6 +197,14 @@ class AnimalRepository {
         await PictureGalleryRepository(database).ensureAnimalPictureAssociation(
           animalId: animalId,
           mediaId: pictureMediaId,
+        );
+      }
+      if (customFields != null) {
+        await CustomFieldRepository(database).save(
+          CustomFieldTarget.animal,
+          animalId,
+          customFields,
+          creating: true,
         );
       }
       return animalId;
@@ -340,6 +352,8 @@ class AnimalRepository {
         sourceAnimalId: source.id,
         targetAnimalId: targetAnimalId,
       );
+      await CustomFieldRepository(database)
+          .copy(CustomFieldTarget.animal, sourceAnimalId, targetAnimalId);
       return targetAnimalId;
     });
   }
@@ -377,6 +391,7 @@ class AnimalRepository {
     String? feedingReminderTimeZone,
     required bool showWeightOnDetail,
     required bool showSheddingOnDetail,
+    CustomFieldPatch? customFields,
   }) async {
     AnimalEnvironmentalLimits.validate(
       temperatureMinimum: tempMin,
@@ -405,6 +420,10 @@ class AnimalRepository {
     }
 
     return database.transaction(() async {
+      if (customFields != null) {
+        await CustomFieldRepository(database)
+            .save(CustomFieldTarget.animal, animalId, customFields);
+      }
       await _requireActiveBox(boxId);
       final updatedRows =
           await (database.update(database.animals)..where(

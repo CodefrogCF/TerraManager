@@ -70,6 +70,9 @@ void main() {
         );
         await tester.tap(find.byKey(const Key('add-box-care-event')));
         await tester.pumpAndSettle();
+        expect(find.byKey(const Key('box-care-dialog')), findsOneWidget);
+        expect(find.byType(AlertDialog), findsOneWidget);
+        expect(find.byIcon(Icons.calendar_today), findsOneWidget);
         await tester.tap(find.byKey(const Key('box-care-type')));
         await tester.pumpAndSettle();
         await tester.tap(
@@ -94,6 +97,8 @@ void main() {
           200,
         );
         expect(find.text('Changed the water'), findsOneWidget);
+        expect(find.byType(Card), findsNothing);
+        expect(find.byType(ListTile), findsOneWidget);
         expect(tester.takeException(), isNull);
       },
     );

@@ -1,7 +1,10 @@
+import '../../custom_fields/domain/custom_field.dart';
 import '../../../core/database/date_only.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
 
 class BackupData {
+  final List<CustomFieldTemplate> customFieldTemplates;
+  final List<Map<String, dynamic>> customFieldValues;
   final List<BackupBox> boxes;
   final List<BackupAnimal> animals;
   final List<BackupFeedingEvent> feedingEvents;
@@ -12,10 +15,16 @@ class BackupData {
     required this.animals,
     required this.feedingEvents,
     this.careEventTypes = const [],
+    this.customFieldTemplates = const [],
+    this.customFieldValues = const [],
   });
 
   Map<String, dynamic> toJson() {
     return {
+      'customFieldTemplates': customFieldTemplates
+          .map((t) => t.toJson())
+          .toList(),
+      'customFieldValues': customFieldValues,
       'careEventTypes': careEventTypes.map((type) => type.toJson()).toList(),
       'boxes': boxes.map((box) => box.toJson()).toList(),
       'animals': animals.map((animal) => animal.toJson()).toList(),
@@ -27,6 +36,16 @@ class BackupData {
 
   factory BackupData.fromJson(Map<String, dynamic> json) {
     return BackupData(
+      customFieldTemplates: (json['customFieldTemplates'] as List? ?? const [])
+          .map(
+            (e) => CustomFieldTemplate.fromJson(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
+          .toList(),
+      customFieldValues: (json['customFieldValues'] as List? ?? const [])
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
       careEventTypes: (json['careEventTypes'] as List? ?? const [])
           .map(
             (e) => CareEventTypeDefinition.fromJson(e as Map<String, dynamic>),

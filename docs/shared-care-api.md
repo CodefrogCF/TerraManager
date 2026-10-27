@@ -73,6 +73,7 @@ They belong to the account and are excluded from portable collection backups.
 | Weight | `GET/POST /animals/{id}/weights`; `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`; `PUT/DELETE /animals/{id}/shedding/{eventId}` |
 | Box care | `GET/POST /boxes/{id}/care-events`; `PUT/DELETE /boxes/{id}/care-events/{eventId}` |
+| Custom fields | `GET/POST /custom-field-templates`; `PATCH /custom-field-templates/{uuid}`; `GET /animals/{id}/custom-fields` and `/boxes/{id}/custom-fields` |
 | Custom care types | `GET/POST /care-event-types`; `PATCH /care-event-types/{uuid}`; `PUT /care-event-types/order` |
 | Galleries | `GET/POST /animals/{id}/pictures` and `/boxes/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
 | Media | `GET /media/{id}`; standalone `POST /media` is unsupported |
@@ -183,3 +184,21 @@ Shape: `{"error":{"code":"invalid_data","message":"..."}}`.
 | 429 | `rate_limited`; honor retry delay |
 | 503 | `restore_in_progress`; retry reads after recovery |
 | 500 | `internal_error`; implementation details withheld |
+
+## Custom profile fields
+
+Templates use `{id, target, type, label, hidden, archived, revision}`. IDs are UUIDv4;
+target/type are immutable. Labels are 1–80 characters and unique per target,
+including hidden/archived templates. Create starts at revision 1; PATCH submits
+the current revision and full definition. No delete or executable metadata exists.
+Caregivers and administrators may manage templates under the usual session/CSRF rules.
+
+An owner's GET returns `{templates, values, revision, active}`; values contain
+`templateId`, scalar `value` and positive integer `revision`. Core Animal/Box
+create/update accepts optional `customFields: {expectedRevision, updates}`;
+each update is `{templateId, templateRevision, value}`. Create expects null
+snapshot revision, edit requires the GET's opaque revision. Core and custom writes
+commit together. Omitted fields remain unchanged; explicit null clears a value.
+Hidden/archived, foreign-target or stale definitions cannot be changed by a form.
+Stale batches return 409 `stale_record`; invalid values return 400. Field types and
+visibility rules are described in [Data model](data-model.md).

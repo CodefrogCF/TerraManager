@@ -1,3 +1,7 @@
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+import 'package:terramanager/shared_server/custom_fields/application/custom_field_operations.dart';
+import 'package:terramanager/shared_server/custom_fields/infrastructure/http/custom_field_handler.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -125,6 +129,15 @@ class CareApi {
           error.message?.toString() ?? 'Invalid data.',
         ),
       );
+    } on CustomFieldConflict {
+      await _send(
+        request.response,
+        apiError(
+          409,
+          'stale_record',
+          'Custom fields changed. Reload before saving.',
+        ),
+      );
     } on StateError {
       await _send(
         request.response,
@@ -231,6 +244,23 @@ class CareApi {
     }
     final path = segments.skip(2).toList(growable: false);
     final method = request.method;
+    if (path[0] == 'custom-field-templates') {
+      return CustomFieldHandler(CustomFieldOperations(database))
+          .handle(path, method, request);
+    }
+    if (method == 'GET' &&
+        path.length == 3 &&
+        path[2] == 'custom-fields' &&
+        (path[0] == 'animals' || path[0] == 'boxes')) {
+      final id = int.tryParse(path[1]);
+      if (id == null || id < 1) {
+        return apiError(400, 'invalid_data', 'Invalid record ID.');
+      }
+      return CustomFieldOperations(database).snapshot(
+        path[0] == 'animals' ? CustomFieldTarget.animal : CustomFieldTarget.box,
+        id,
+      );
+    }
     if (path[0] == 'care-event-types') {
       return _careTypes.handle(path, method, request);
     }

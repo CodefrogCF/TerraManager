@@ -1,3 +1,5 @@
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+
 import 'dart:async';
 
 import 'package:terramanager/core/database/app_database.dart';
@@ -34,11 +36,16 @@ class AnimalOperations extends CollectionOperations {
   }
 
   Future<ApiReply> create(ApiInput input) async {
+    final rawCustomFields = input.values.remove('customFields');
+    final customFields = rawCustomFields == null
+        ? null
+        : CustomFieldPatch.fromJson(rawCustomFields);
     final animals = AnimalRepository(database);
 
     final data = AnimalCommand.fromInput(input, creating: true);
     await requireMedia(data.pictureMediaId);
     final id = await animals.createAnimal(
+      customFields: customFields,
       boxId: data.boxId,
       commonName: data.commonName,
       latinName: data.latinName,
@@ -87,6 +94,10 @@ class AnimalOperations extends CollectionOperations {
   }
 
   Future<ApiReply> update(int id, Animal existing, ApiInput input) async {
+    final rawCustomFields = input.values.remove('customFields');
+    final customFields = rawCustomFields == null
+        ? null
+        : CustomFieldPatch.fromJson(rawCustomFields);
     final animals = AnimalRepository(database);
 
     if (existing.status != AnimalStatus.active) {
@@ -104,6 +115,7 @@ class AnimalOperations extends CollectionOperations {
         expectedRevision,
       );
       return animals.updateAnimal(
+        customFields: customFields,
         animalId: id,
         boxId: data.boxId,
         commonName: data.commonName,

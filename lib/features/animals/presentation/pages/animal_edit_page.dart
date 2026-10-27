@@ -1,3 +1,6 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/features/custom_fields/presentation/standalone_custom_fields.dart';
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -48,6 +51,13 @@ class AnimalEditPage extends StatefulWidget {
 
 class _AnimalEditPageState extends State<AnimalEditPage> {
   final _formKey = GlobalKey<FormState>();
+  late final _custom = CustomFieldsController(
+    standaloneCustomFields(
+      widget.database,
+      CustomFieldTarget.animal,
+      widget.animalId,
+    ),
+  );
 
   final _commonNameController = TextEditingController();
   final _latinNameController = TextEditingController();
@@ -100,6 +110,10 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
   @override
   void initState() {
     super.initState();
+    _custom.load();
+    _custom.addListener(() {
+      if (mounted && _custom.dirty) setState(() => _hasUnsavedChanges = true);
+    });
     _pictureSelectionFlow =
         widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
     _loadAnimal();
@@ -107,6 +121,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
 
   @override
   void dispose() {
+    _custom.dispose();
     _commonNameController.dispose();
     _latinNameController.dispose();
     _tempMinController.dispose();
@@ -513,6 +528,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         }
 
         final updated = await AnimalRepository(widget.database).updateAnimal(
+          customFields: _custom.patch,
           animalId: _animal!.id,
           boxId: _boxId!,
           commonName: _commonNameController.text.trim(),
@@ -567,6 +583,14 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
         _hasUnsavedChanges = false;
 
         Navigator.of(context).pop(true);
+      }
+    } on CustomFieldConflict {
+      _custom.conflict();
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _error = context.l10n.customFieldsFailure;
+        });
       }
     } on BoxAssignmentException {
       try {
@@ -909,6 +933,7 @@ class _AnimalEditPageState extends State<AnimalEditPage> {
               onChanged: (_) => _markAsChanged(),
             ),
             const SizedBox(height: 16),
+            CustomFieldsEditor(controller: _custom, enabled: !_saving),
             AnimalAdditionalCharacteristicsFields(
               expanded: _additionalCharacteristicsExpanded,
               enabled: !_actionInProgress && !_processingPicture,

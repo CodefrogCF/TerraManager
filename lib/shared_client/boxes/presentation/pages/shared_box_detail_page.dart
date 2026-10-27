@@ -1,3 +1,5 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/shared_client/custom_fields/presentation/shared_custom_fields.dart';
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_archive_records.dart';
 
@@ -506,6 +508,12 @@ class _SharedBoxDetailPageState extends State<SharedBoxDetailPage> {
                         'Temperaturzonen',
                       ),
                       value: box['temperatureZones'] as String?,
+                    ),
+                    SharedCustomFieldsSection(
+                      key: ValueKey('custom-fields-${box['id']}'),
+                      api: widget.api,
+                      target: CustomFieldTarget.box,
+                      id: recordId(box),
                     ),
                     SharedDetailRow(
                       label: sharedText(context, 'Notes', 'Notizen'),

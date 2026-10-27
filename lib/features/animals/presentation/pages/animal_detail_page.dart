@@ -1,3 +1,5 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/features/custom_fields/presentation/standalone_custom_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -1108,6 +1110,11 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
             ),
         ],
 
+        StandaloneCustomFieldsSection(
+          database: widget.database,
+          target: CustomFieldTarget.animal,
+          id: animal.id,
+        ),
         if (animal.notes != null && animal.notes!.isNotEmpty) ...[
           const SizedBox(height: 16),
 

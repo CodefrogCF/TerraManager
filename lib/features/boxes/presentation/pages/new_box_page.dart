@@ -1,3 +1,6 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/features/custom_fields/presentation/standalone_custom_fields.dart';
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -28,6 +31,9 @@ class NewBoxPage extends StatefulWidget {
 
 class _NewBoxPageState extends State<NewBoxPage> {
   final _formKey = GlobalKey<FormState>();
+  late final _custom = CustomFieldsController(
+    standaloneCustomFields(widget.database, CustomFieldTarget.box),
+  );
 
   final _nameController = TextEditingController();
   final _widthController = TextEditingController();
@@ -50,12 +56,14 @@ class _NewBoxPageState extends State<NewBoxPage> {
   @override
   void initState() {
     super.initState();
+    _custom.load();
     _pictureSelectionFlow =
         widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
   }
 
   @override
   void dispose() {
+    _custom.dispose();
     _nameController.dispose();
     _widthController.dispose();
     _heightController.dispose();
@@ -159,6 +167,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
         }
 
         await BoxRepository(widget.database).createBoxWithGeneratedQrId(
+          customFields: _custom.patch,
           name: name.isEmpty ? null : name,
           widthCm: widthCm,
           heightCm: heightCm,
@@ -174,7 +183,8 @@ class _NewBoxPageState extends State<NewBoxPage> {
       }
 
       Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (error) {
+      if (error is CustomFieldConflict) _custom.conflict();
       if (!mounted) {
         return;
       }
@@ -300,6 +310,7 @@ class _NewBoxPageState extends State<NewBoxPage> {
                   ),
                   const SizedBox(height: 16),
 
+                  CustomFieldsEditor(controller: _custom, enabled: !_saving),
                   TextFormField(
                     key: const Key('new-box-notes-field'),
                     controller: _notesController,

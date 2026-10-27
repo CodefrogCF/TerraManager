@@ -45,6 +45,9 @@ class CareChangeHints {
 
   Map<String, Iterable<int>?> complete(ApiReply reply) {
     if (reply.status < 200 || reply.status >= 300 || reply.replayed) return {};
+    if (path.firstOrNull == 'custom-field-templates') {
+      return {'audit': null, 'customFieldTemplates': null};
+    }
     if (path.firstOrNull == 'care-event-types') {
       return {'audit': null, 'careEventTypes': null};
     }
@@ -71,6 +74,10 @@ class CareChangeHints {
       final animal = body['animal'];
       if (animal is Map && animal['id'] is int) ids.add(animal['id'] as int);
       resources['animals'] = ids;
+      if (path.length < 3 ||
+          const {'archive', 'restore', 'duplicate'}.contains(path[2])) {
+        resources['animalCustomFields'] = ids;
+      }
       resources['boxes'] = {
         ?oldBoxId,
         if (animal is Map && animal['boxId'] is int) animal['boxId'] as int,
@@ -97,6 +104,10 @@ class CareChangeHints {
       final box = body['box'];
       if (box is Map && box['id'] is int) ids.add(box['id'] as int);
       resources['boxes'] = ids;
+      if (path.length < 3 ||
+          const {'archive', 'restore', 'duplicate'}.contains(path[2])) {
+        resources['boxCustomFields'] = ids;
+      }
       if ((path.length > 2 && path[2] == 'pictures') ||
           (method == 'DELETE' && path.length == 2) ||
           (box is Map && box['pictureMediaId'] != oldPictureMediaId)) {

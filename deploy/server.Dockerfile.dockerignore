@@ -31,3 +31,7 @@ lib/core/database/app_database_connection_flutter.dart
 !deploy/server/
 !deploy/server/pubspec.yaml
 !deploy/server/pubspec.lock
+
+!lib/features/custom_fields/
+!lib/features/custom_fields/domain/
+!lib/features/custom_fields/domain/**

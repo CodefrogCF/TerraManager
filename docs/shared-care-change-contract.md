@@ -39,6 +39,8 @@ replay is never presented as complete.
 | Resource kind | ID meaning |
 | --- | --- |
 | `animals`, `boxes`, `feedings`, `media` | Respective record IDs |
+| `customFieldTemplates` | Whole-kind invalidation; labels and values never enter hints |
+| `animalCustomFields`, `boxCustomFields` | Owning record IDs; detail sections refresh while open, form drafts remain intact |
 | `careEventTypes` | Whole-kind invalidation (`null`); collection-wide definitions, no labels in hints |
 | `boxCareHistories` | Owning Box IDs; care changes do not invalidate Animal histories |
 | `feedingHistories`, `weightHistories`, `sheddingHistories`, `reminders` | Owning Animal IDs |

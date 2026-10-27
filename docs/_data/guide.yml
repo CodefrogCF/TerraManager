@@ -65,7 +65,7 @@ de:
     steps:
     - number: '1'
       heading: Box anlegen
-      body_html: Öffne <strong>Boxen → +</strong>. Ergänze Namen, Abmessungen und optional ein zugeschnittenes Bild. Beim Speichern entsteht die permanente QR-Kennung. Unter <strong>Boxpflege</strong> in den Boxdetails erfasst du Substratwechsel, Reinigung oder Wasserwechsel mit Zeitpunkt und optionaler Notiz. Den Zugang findest du oben rechts neben Bearbeiten. Der Verlauf bleibt in Standalone und Shared Care bei der Box. Eigene Pflegearten legst du direkt im Pflegeverlauf über <strong>Eigene Pflegearten</strong> an und verwaltest sie dort. Archivierte Arten bleiben im Verlauf filterbar.
+      body_html: Öffne <strong>Boxen → +</strong>. Ergänze Namen, Abmessungen und optional ein zugeschnittenes Bild. Beim Speichern entsteht die permanente QR-Kennung. Unter <strong>Boxpflege</strong> in den Boxdetails erfasst du Substratwechsel, Reinigung oder Wasserwechsel mit Zeitpunkt und optionaler Notiz. Den Zugang findest du oben rechts neben Bearbeiten; Pflegeeinträge ergänzt du über + in einem kompakten Dialog wie bei Fütterungen. Der Verlauf bleibt in Standalone und Shared Care bei der Box. Eigene Pflegearten legst du direkt im Pflegeverlauf über <strong>Eigene Pflegearten</strong> an und verwaltest sie dort. Archivierte Arten bleiben im Verlauf filterbar.
       images:
       - file: boxes-overview.webp
         alt: Boxübersicht mit mehreren Behältern
@@ -76,7 +76,7 @@ de:
     - number: '2'
       reverse: true
       heading: Tier erfassen und zuweisen
-      body_html: Unter <strong>Tiere → +</strong> wählst du eine aktive Box, Kategorie, Namen und Haltungswerte. Herkunft, Geburtsinformationen und weitere Angaben sind optional. Gewicht und Häutung lassen sich in den Details unabhängig ausblenden, ohne Verläufe zu löschen.
+      body_html: Unter <strong>Tiere → +</strong> wählst du eine aktive Box, Kategorie, Namen und Haltungswerte. Herkunft, Geburtsinformationen und weitere Angaben sind optional. Gewicht und Häutung lassen sich in den Details unabhängig ausblenden, ohne Verläufe zu löschen. Unter <strong>Eigene Felder → Feldvorlagen verwalten</strong> in Tier- oder Boxprofilen legst du Text-, Zahlen-, Datums- und Ja/Nein-Felder an. Werte füllst du beim Bearbeiten aus. Ausblenden und Archivieren erhalten die Daten; archivierte Werte bleiben lesbar.
       images:
       - file: animal-edit.webp
         alt: Bearbeitungsansicht eines Tieres
@@ -318,7 +318,7 @@ en:
     - number: '2'
       reverse: true
       heading: Add and assign an animal
-      body_html: Under <strong>Animals → +</strong>, choose an active Box, category, names and husbandry values. Origin, birth information and other details are optional. Hide Weight or Shedding independently on details without deleting their histories.
+      body_html: Under <strong>Animals → +</strong>, choose an active Box, category, names and husbandry values. Origin, birth information and other details are optional. Hide Weight or Shedding independently on details without deleting their histories. Under <strong>Custom fields → Manage field templates</strong> in Animal or Box profiles, add text, number, date and yes/no fields. Fill in values when editing. Hiding and archiving preserve data; archived values remain readable.
       images:
       - file: animal-edit.webp
         alt: Animal edit screen

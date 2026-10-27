@@ -161,6 +161,7 @@ class BoxCareHistoryPageState extends State<BoxCareHistoryPage> {
     child: Scaffold(
       appBar: AppBar(title: Text(context.l10n.boxCareHistory)),
       body: ConstrainedPageWidth(
+        maxWidth: 760,
         child: FutureBuilder<BoxCareHistoryData>(
           future: _future,
           builder: (context, snapshot) {
@@ -200,121 +201,80 @@ class BoxCareHistoryPageState extends State<BoxCareHistoryPage> {
                     final time = b.occurredAt.compareTo(a.occurredAt);
                     return time == 0 ? b.id.compareTo(a.id) : time;
                   });
-            return ListView(
-              padding: const EdgeInsets.all(16),
+            return Stack(
               children: [
-                Text(
-                  widget.boxLabel,
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                Text(context.l10n.boxCareScope),
-                const SizedBox(height: 12),
-                InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: context.l10n.careTypeFilter,
-                    border: const OutlineInputBorder(),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      key: const Key('box-care-filter'),
-                      value: filter,
-                      isExpanded: true,
-                      itemHeight: null,
-                      items: [
-                        for (final choice in choices.entries)
-                          DropdownMenuItem(
-                            value: choice.key,
-                            child: Text(choice.value),
+                ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+                  children: [
+                    Text(
+                      widget.boxLabel,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(context.l10n.boxCareScope),
+                    const SizedBox(height: 12),
+                    InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: context.l10n.careTypeFilter,
+                        border: const OutlineInputBorder(),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          key: const Key('box-care-filter'),
+                          value: filter,
+                          isExpanded: true,
+                          itemHeight: null,
+                          items: [
+                            for (final choice in choices.entries)
+                              DropdownMenuItem(
+                                value: choice.key,
+                                child: Text(choice.value),
+                              ),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _filterId = value ?? ''),
+                        ),
+                      ),
+                    ),
+                    if (_error != null)
+                      Text(
+                        _error!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        if (widget.manageTypes != null)
+                          TextButton.icon(
+                            key: const Key('manage-care-types'),
+                            onPressed: _busy ? null : _manageTypes,
+                            icon: const Icon(Icons.category_outlined),
+                            label: Text(context.l10n.careTypes),
                           ),
                       ],
-                      onChanged: (value) =>
-                          setState(() => _filterId = value ?? ''),
                     ),
-                  ),
-                ),
-                if (_error != null)
-                  Text(
-                    _error!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                  ),
-                Wrap(
-                  spacing: 8,
-                  children: [
-                    if (data.active)
-                      TextButton.icon(
-                        key: const Key('add-box-care-event'),
-                        onPressed: _busy ? null : () => _edit(data),
-                        icon: const Icon(Icons.add),
-                        label: Text(context.l10n.boxCareAdd),
+                    if (entries.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text(context.l10n.boxCareEmpty),
                       ),
-                    if (widget.manageTypes != null)
-                      TextButton.icon(
-                        key: const Key('manage-care-types'),
-                        onPressed: _busy ? null : _manageTypes,
-                        icon: const Icon(Icons.category_outlined),
-                        label: Text(context.l10n.careTypes),
-                      ),
+                    for (var index = 0; index < entries.length; index++) ...[
+                      if (index > 0) const Divider(),
+                      _historyTile(context, data, entries[index]),
+                    ],
                   ],
                 ),
-                if (entries.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text(context.l10n.boxCareEmpty),
-                  ),
-                for (final entry in entries)
-                  Card(
-                    key: ValueKey('box-care-event-${entry.id}'),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            boxCareTypeLabel(
-                              context.l10n,
-                              entry.type,
-                              data.types
-                                  .where((t) => t.id == entry.customTypeId)
-                                  .firstOrNull
-                                  ?.label,
-                            ),
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          Text(_when(context, entry.occurredAt)),
-                          if (entry.notes != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(entry.notes!),
-                            ),
-                          if (data.active)
-                            Wrap(
-                              children: [
-                                TextButton.icon(
-                                  key: ValueKey('edit-box-care-${entry.id}'),
-                                  onPressed: _busy
-                                      ? null
-                                      : () => _edit(data, entry),
-                                  icon: const Icon(Icons.edit_outlined),
-                                  label: Text(context.l10n.boxCareEdit),
-                                ),
-                                if (data.canDelete)
-                                  TextButton.icon(
-                                    key: ValueKey(
-                                      'delete-box-care-${entry.id}',
-                                    ),
-                                    onPressed: _busy
-                                        ? null
-                                        : () => _delete(entry),
-                                    icon: const Icon(Icons.delete_outline),
-                                    label: Text(context.l10n.delete),
-                                  ),
-                              ],
-                            ),
-                        ],
-                      ),
+                if (data.active)
+                  Positioned(
+                    right: 16,
+                    bottom: 16,
+                    child: FloatingActionButton(
+                      key: const Key('add-box-care-event'),
+                      onPressed: _busy ? null : () => _edit(data),
+                      tooltip: context.l10n.boxCareAdd,
+                      child: const Icon(Icons.add),
                     ),
                   ),
               ],
@@ -324,6 +284,64 @@ class BoxCareHistoryPageState extends State<BoxCareHistoryPage> {
       ),
     ),
   );
+
+  Widget _historyTile(
+    BuildContext context,
+    BoxCareHistoryData data,
+    BoxCareEntry entry,
+  ) {
+    final label = boxCareTypeLabel(
+      context.l10n,
+      entry.type,
+      data.types.where((t) => t.id == entry.customTypeId).firstOrNull?.label,
+    );
+    final actions = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          key: ValueKey('edit-box-care-${entry.id}'),
+          onPressed: _busy ? null : () => _edit(data, entry),
+          icon: const Icon(Icons.edit_outlined),
+          tooltip: context.l10n.boxCareEdit,
+        ),
+        if (data.canDelete)
+          IconButton(
+            key: ValueKey('delete-box-care-${entry.id}'),
+            onPressed: _busy ? null : () => _delete(entry),
+            icon: const Icon(Icons.delete_outline),
+            tooltip: context.l10n.delete,
+          ),
+      ],
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact =
+            constraints.maxWidth < 340 ||
+            MediaQuery.textScalerOf(context).scale(14) > 21;
+        return ListTile(
+          key: ValueKey('box-care-event-${entry.id}'),
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(switch (entry.type) {
+            BoxCareEventType.substrateChange => Icons.grass,
+            BoxCareEventType.cleaning => Icons.cleaning_services_outlined,
+            BoxCareEventType.waterChange => Icons.water_drop_outlined,
+            BoxCareEventType.custom => Icons.build_outlined,
+          }),
+          title: Text(_when(context, entry.occurredAt)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label),
+              if (entry.notes != null) Text(entry.notes!),
+              if (data.active && compact) actions,
+            ],
+          ),
+          trailing: data.active && !compact ? actions : null,
+          onTap: data.active && !_busy ? () => _edit(data, entry) : null,
+        );
+      },
+    );
+  }
 }
 
 String _when(BuildContext context, DateTime at) {
@@ -418,14 +436,14 @@ class _CareDialogState extends State<_CareDialog> {
     return PopScope(
       canPop: !busy,
       child: AlertDialog(
-        insetPadding: const EdgeInsets.all(16),
+        key: const Key('box-care-dialog'),
         title: Text(
           widget.entry == null
               ? context.l10n.boxCareAdd
               : context.l10n.boxCareEdit,
         ),
         content: SizedBox(
-          width: 480,
+          width: 320,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -472,20 +490,29 @@ class _CareDialogState extends State<_CareDialog> {
                           _customTypeId = standard == null ? id : null;
                         }),
                 ),
-                TextButton.icon(
-                  key: const Key('box-care-time'),
-                  onPressed: busy ? null : _pickTime,
-                  icon: const Icon(Icons.event_outlined),
-                  label: Text(_when(context, _at)),
+                const SizedBox(height: 16),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(context.l10n.dateAndTime),
+                  subtitle: Text(_when(context, _at)),
+                  trailing: IconButton(
+                    key: const Key('box-care-time'),
+                    onPressed: busy ? null : _pickTime,
+                    icon: const Icon(Icons.calendar_today),
+                    tooltip: context.l10n.dateAndTime,
+                  ),
                 ),
+                const SizedBox(height: 16),
                 TextField(
                   key: const Key('box-care-notes'),
                   controller: _notes,
                   enabled: !busy,
-                  minLines: 2,
-                  maxLines: 5,
+                  maxLines: 3,
                   maxLength: 10000,
-                  decoration: InputDecoration(labelText: context.l10n.notes),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.notes,
+                    alignLabelWithHint: true,
+                  ),
                 ),
                 if (_error != null)
                   Text(
@@ -506,7 +533,7 @@ class _CareDialogState extends State<_CareDialog> {
           FilledButton(
             key: const Key('save-box-care-event'),
             onPressed: busy ? null : _save,
-            child: Text(context.l10n.save),
+            child: Text(busy ? context.l10n.saving : context.l10n.save),
           ),
         ],
       ),

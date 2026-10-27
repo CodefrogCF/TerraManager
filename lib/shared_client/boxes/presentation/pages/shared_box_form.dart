@@ -1,3 +1,5 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/shared_client/custom_fields/presentation/shared_custom_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/features/media/presentation/picture_selection_flow.dart';
@@ -27,6 +29,13 @@ class SharedBoxForm extends StatefulWidget {
 
 class _SharedBoxFormState extends State<SharedBoxForm> {
   final _form = GlobalKey<FormState>();
+  late final _custom = CustomFieldsController(
+    sharedCustomFields(
+      widget.api,
+      CustomFieldTarget.box,
+      widget.initial?['id'] as int?,
+    ),
+  );
   late final Map<String, TextEditingController> _fields;
   Map<String, dynamic>? _initial;
   bool _saving = false;
@@ -40,6 +49,7 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
   @override
   void initState() {
     super.initState();
+    _custom.load();
     _initial = widget.initial;
     _fields = {
       for (final key in [
@@ -58,6 +68,7 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
 
   @override
   void dispose() {
+    _custom.dispose();
     for (final controller in _fields.values) {
       controller.dispose();
     }
@@ -98,7 +109,9 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
       _saving = true;
       _error = null;
     });
+    final customPatch = _custom.patch;
     final values = <String, dynamic>{
+      if (customPatch != null) 'customFields': customPatch.toJson(),
       'name': _text('name'),
       'widthCm': _number('widthCm'),
       'heightCm': _number('heightCm'),
@@ -178,6 +191,8 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
         Navigator.of(context).pop(false);
         return;
       }
+      await _custom.load();
+      if (!mounted) return;
       setState(() {
         _initial = latest;
         for (final entry in _fields.entries) {
@@ -285,6 +300,11 @@ class _SharedBoxFormState extends State<SharedBoxForm> {
                   ] else
                     Text(
                       _created!['name']?.toString() ?? _fields['name']!.text,
+                    ),
+                  if (_created == null)
+                    CustomFieldsEditor(
+                      controller: _custom,
+                      enabled: !_saving && widget.api.connected,
                     ),
                   if (_error != null)
                     Text(

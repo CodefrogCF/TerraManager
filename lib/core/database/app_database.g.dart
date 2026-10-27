@@ -6317,6 +6317,935 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
   }
 }
 
+class $CustomFieldTemplatesTable extends CustomFieldTemplates
+    with TableInfo<$CustomFieldTemplatesTable, CustomFieldTemplateRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomFieldTemplatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetMeta = const VerificationMeta('target');
+  @override
+  late final GeneratedColumn<String> target = GeneratedColumn<String>(
+    'target',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 80,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelKeyMeta = const VerificationMeta(
+    'labelKey',
+  );
+  @override
+  late final GeneratedColumn<String> labelKey = GeneratedColumn<String>(
+    'label_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
+  @override
+  late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
+    'hidden',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _archivedMeta = const VerificationMeta(
+    'archived',
+  );
+  @override
+  late final GeneratedColumn<bool> archived = GeneratedColumn<bool>(
+    'archived',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("archived" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    target,
+    type,
+    label,
+    labelKey,
+    hidden,
+    archived,
+    revision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'custom_field_templates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CustomFieldTemplateRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('target')) {
+      context.handle(
+        _targetMeta,
+        target.isAcceptableOrUnknown(data['target']!, _targetMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_targetMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('label_key')) {
+      context.handle(
+        _labelKeyMeta,
+        labelKey.isAcceptableOrUnknown(data['label_key']!, _labelKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_labelKeyMeta);
+    }
+    if (data.containsKey('hidden')) {
+      context.handle(
+        _hiddenMeta,
+        hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta),
+      );
+    }
+    if (data.containsKey('archived')) {
+      context.handle(
+        _archivedMeta,
+        archived.isAcceptableOrUnknown(data['archived']!, _archivedMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {target, labelKey},
+  ];
+  @override
+  CustomFieldTemplateRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomFieldTemplateRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      target: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      )!,
+      labelKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label_key'],
+      )!,
+      hidden: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden'],
+      )!,
+      archived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}archived'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+    );
+  }
+
+  @override
+  $CustomFieldTemplatesTable createAlias(String alias) {
+    return $CustomFieldTemplatesTable(attachedDatabase, alias);
+  }
+}
+
+class CustomFieldTemplateRow extends DataClass
+    implements Insertable<CustomFieldTemplateRow> {
+  final String id;
+  final String target;
+  final String type;
+  final String label;
+  final String labelKey;
+  final bool hidden;
+  final bool archived;
+  final int revision;
+  const CustomFieldTemplateRow({
+    required this.id,
+    required this.target,
+    required this.type,
+    required this.label,
+    required this.labelKey,
+    required this.hidden,
+    required this.archived,
+    required this.revision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['target'] = Variable<String>(target);
+    map['type'] = Variable<String>(type);
+    map['label'] = Variable<String>(label);
+    map['label_key'] = Variable<String>(labelKey);
+    map['hidden'] = Variable<bool>(hidden);
+    map['archived'] = Variable<bool>(archived);
+    map['revision'] = Variable<int>(revision);
+    return map;
+  }
+
+  CustomFieldTemplatesCompanion toCompanion(bool nullToAbsent) {
+    return CustomFieldTemplatesCompanion(
+      id: Value(id),
+      target: Value(target),
+      type: Value(type),
+      label: Value(label),
+      labelKey: Value(labelKey),
+      hidden: Value(hidden),
+      archived: Value(archived),
+      revision: Value(revision),
+    );
+  }
+
+  factory CustomFieldTemplateRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomFieldTemplateRow(
+      id: serializer.fromJson<String>(json['id']),
+      target: serializer.fromJson<String>(json['target']),
+      type: serializer.fromJson<String>(json['type']),
+      label: serializer.fromJson<String>(json['label']),
+      labelKey: serializer.fromJson<String>(json['labelKey']),
+      hidden: serializer.fromJson<bool>(json['hidden']),
+      archived: serializer.fromJson<bool>(json['archived']),
+      revision: serializer.fromJson<int>(json['revision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'target': serializer.toJson<String>(target),
+      'type': serializer.toJson<String>(type),
+      'label': serializer.toJson<String>(label),
+      'labelKey': serializer.toJson<String>(labelKey),
+      'hidden': serializer.toJson<bool>(hidden),
+      'archived': serializer.toJson<bool>(archived),
+      'revision': serializer.toJson<int>(revision),
+    };
+  }
+
+  CustomFieldTemplateRow copyWith({
+    String? id,
+    String? target,
+    String? type,
+    String? label,
+    String? labelKey,
+    bool? hidden,
+    bool? archived,
+    int? revision,
+  }) => CustomFieldTemplateRow(
+    id: id ?? this.id,
+    target: target ?? this.target,
+    type: type ?? this.type,
+    label: label ?? this.label,
+    labelKey: labelKey ?? this.labelKey,
+    hidden: hidden ?? this.hidden,
+    archived: archived ?? this.archived,
+    revision: revision ?? this.revision,
+  );
+  CustomFieldTemplateRow copyWithCompanion(CustomFieldTemplatesCompanion data) {
+    return CustomFieldTemplateRow(
+      id: data.id.present ? data.id.value : this.id,
+      target: data.target.present ? data.target.value : this.target,
+      type: data.type.present ? data.type.value : this.type,
+      label: data.label.present ? data.label.value : this.label,
+      labelKey: data.labelKey.present ? data.labelKey.value : this.labelKey,
+      hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      archived: data.archived.present ? data.archived.value : this.archived,
+      revision: data.revision.present ? data.revision.value : this.revision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldTemplateRow(')
+          ..write('id: $id, ')
+          ..write('target: $target, ')
+          ..write('type: $type, ')
+          ..write('label: $label, ')
+          ..write('labelKey: $labelKey, ')
+          ..write('hidden: $hidden, ')
+          ..write('archived: $archived, ')
+          ..write('revision: $revision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    target,
+    type,
+    label,
+    labelKey,
+    hidden,
+    archived,
+    revision,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomFieldTemplateRow &&
+          other.id == this.id &&
+          other.target == this.target &&
+          other.type == this.type &&
+          other.label == this.label &&
+          other.labelKey == this.labelKey &&
+          other.hidden == this.hidden &&
+          other.archived == this.archived &&
+          other.revision == this.revision);
+}
+
+class CustomFieldTemplatesCompanion
+    extends UpdateCompanion<CustomFieldTemplateRow> {
+  final Value<String> id;
+  final Value<String> target;
+  final Value<String> type;
+  final Value<String> label;
+  final Value<String> labelKey;
+  final Value<bool> hidden;
+  final Value<bool> archived;
+  final Value<int> revision;
+  final Value<int> rowid;
+  const CustomFieldTemplatesCompanion({
+    this.id = const Value.absent(),
+    this.target = const Value.absent(),
+    this.type = const Value.absent(),
+    this.label = const Value.absent(),
+    this.labelKey = const Value.absent(),
+    this.hidden = const Value.absent(),
+    this.archived = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CustomFieldTemplatesCompanion.insert({
+    required String id,
+    required String target,
+    required String type,
+    required String label,
+    required String labelKey,
+    this.hidden = const Value.absent(),
+    this.archived = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       target = Value(target),
+       type = Value(type),
+       label = Value(label),
+       labelKey = Value(labelKey);
+  static Insertable<CustomFieldTemplateRow> custom({
+    Expression<String>? id,
+    Expression<String>? target,
+    Expression<String>? type,
+    Expression<String>? label,
+    Expression<String>? labelKey,
+    Expression<bool>? hidden,
+    Expression<bool>? archived,
+    Expression<int>? revision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (target != null) 'target': target,
+      if (type != null) 'type': type,
+      if (label != null) 'label': label,
+      if (labelKey != null) 'label_key': labelKey,
+      if (hidden != null) 'hidden': hidden,
+      if (archived != null) 'archived': archived,
+      if (revision != null) 'revision': revision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CustomFieldTemplatesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? target,
+    Value<String>? type,
+    Value<String>? label,
+    Value<String>? labelKey,
+    Value<bool>? hidden,
+    Value<bool>? archived,
+    Value<int>? revision,
+    Value<int>? rowid,
+  }) {
+    return CustomFieldTemplatesCompanion(
+      id: id ?? this.id,
+      target: target ?? this.target,
+      type: type ?? this.type,
+      label: label ?? this.label,
+      labelKey: labelKey ?? this.labelKey,
+      hidden: hidden ?? this.hidden,
+      archived: archived ?? this.archived,
+      revision: revision ?? this.revision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (target.present) {
+      map['target'] = Variable<String>(target.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (labelKey.present) {
+      map['label_key'] = Variable<String>(labelKey.value);
+    }
+    if (hidden.present) {
+      map['hidden'] = Variable<bool>(hidden.value);
+    }
+    if (archived.present) {
+      map['archived'] = Variable<bool>(archived.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldTemplatesCompanion(')
+          ..write('id: $id, ')
+          ..write('target: $target, ')
+          ..write('type: $type, ')
+          ..write('label: $label, ')
+          ..write('labelKey: $labelKey, ')
+          ..write('hidden: $hidden, ')
+          ..write('archived: $archived, ')
+          ..write('revision: $revision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CustomFieldValuesTable extends CustomFieldValues
+    with TableInfo<$CustomFieldValuesTable, CustomFieldValueRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomFieldValuesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _templateIdMeta = const VerificationMeta(
+    'templateId',
+  );
+  @override
+  late final GeneratedColumn<String> templateId = GeneratedColumn<String>(
+    'template_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES custom_field_templates (id)',
+    ),
+  );
+  static const VerificationMeta _animalIdMeta = const VerificationMeta(
+    'animalId',
+  );
+  @override
+  late final GeneratedColumn<int> animalId = GeneratedColumn<int>(
+    'animal_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES animals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _boxIdMeta = const VerificationMeta('boxId');
+  @override
+  late final GeneratedColumn<int> boxId = GeneratedColumn<int>(
+    'box_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES boxes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _valueJsonMeta = const VerificationMeta(
+    'valueJson',
+  );
+  @override
+  late final GeneratedColumn<String> valueJson = GeneratedColumn<String>(
+    'value_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    templateId,
+    animalId,
+    boxId,
+    valueJson,
+    revision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'custom_field_values';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CustomFieldValueRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('template_id')) {
+      context.handle(
+        _templateIdMeta,
+        templateId.isAcceptableOrUnknown(data['template_id']!, _templateIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_templateIdMeta);
+    }
+    if (data.containsKey('animal_id')) {
+      context.handle(
+        _animalIdMeta,
+        animalId.isAcceptableOrUnknown(data['animal_id']!, _animalIdMeta),
+      );
+    }
+    if (data.containsKey('box_id')) {
+      context.handle(
+        _boxIdMeta,
+        boxId.isAcceptableOrUnknown(data['box_id']!, _boxIdMeta),
+      );
+    }
+    if (data.containsKey('value_json')) {
+      context.handle(
+        _valueJsonMeta,
+        valueJson.isAcceptableOrUnknown(data['value_json']!, _valueJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueJsonMeta);
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {animalId, templateId},
+    {boxId, templateId},
+  ];
+  @override
+  CustomFieldValueRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomFieldValueRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      templateId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}template_id'],
+      )!,
+      animalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}animal_id'],
+      ),
+      boxId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}box_id'],
+      ),
+      valueJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value_json'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+    );
+  }
+
+  @override
+  $CustomFieldValuesTable createAlias(String alias) {
+    return $CustomFieldValuesTable(attachedDatabase, alias);
+  }
+}
+
+class CustomFieldValueRow extends DataClass
+    implements Insertable<CustomFieldValueRow> {
+  final int id;
+  final String templateId;
+  final int? animalId;
+  final int? boxId;
+  final String valueJson;
+  final int revision;
+  const CustomFieldValueRow({
+    required this.id,
+    required this.templateId,
+    this.animalId,
+    this.boxId,
+    required this.valueJson,
+    required this.revision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['template_id'] = Variable<String>(templateId);
+    if (!nullToAbsent || animalId != null) {
+      map['animal_id'] = Variable<int>(animalId);
+    }
+    if (!nullToAbsent || boxId != null) {
+      map['box_id'] = Variable<int>(boxId);
+    }
+    map['value_json'] = Variable<String>(valueJson);
+    map['revision'] = Variable<int>(revision);
+    return map;
+  }
+
+  CustomFieldValuesCompanion toCompanion(bool nullToAbsent) {
+    return CustomFieldValuesCompanion(
+      id: Value(id),
+      templateId: Value(templateId),
+      animalId: animalId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(animalId),
+      boxId: boxId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boxId),
+      valueJson: Value(valueJson),
+      revision: Value(revision),
+    );
+  }
+
+  factory CustomFieldValueRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomFieldValueRow(
+      id: serializer.fromJson<int>(json['id']),
+      templateId: serializer.fromJson<String>(json['templateId']),
+      animalId: serializer.fromJson<int?>(json['animalId']),
+      boxId: serializer.fromJson<int?>(json['boxId']),
+      valueJson: serializer.fromJson<String>(json['valueJson']),
+      revision: serializer.fromJson<int>(json['revision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'templateId': serializer.toJson<String>(templateId),
+      'animalId': serializer.toJson<int?>(animalId),
+      'boxId': serializer.toJson<int?>(boxId),
+      'valueJson': serializer.toJson<String>(valueJson),
+      'revision': serializer.toJson<int>(revision),
+    };
+  }
+
+  CustomFieldValueRow copyWith({
+    int? id,
+    String? templateId,
+    Value<int?> animalId = const Value.absent(),
+    Value<int?> boxId = const Value.absent(),
+    String? valueJson,
+    int? revision,
+  }) => CustomFieldValueRow(
+    id: id ?? this.id,
+    templateId: templateId ?? this.templateId,
+    animalId: animalId.present ? animalId.value : this.animalId,
+    boxId: boxId.present ? boxId.value : this.boxId,
+    valueJson: valueJson ?? this.valueJson,
+    revision: revision ?? this.revision,
+  );
+  CustomFieldValueRow copyWithCompanion(CustomFieldValuesCompanion data) {
+    return CustomFieldValueRow(
+      id: data.id.present ? data.id.value : this.id,
+      templateId: data.templateId.present
+          ? data.templateId.value
+          : this.templateId,
+      animalId: data.animalId.present ? data.animalId.value : this.animalId,
+      boxId: data.boxId.present ? data.boxId.value : this.boxId,
+      valueJson: data.valueJson.present ? data.valueJson.value : this.valueJson,
+      revision: data.revision.present ? data.revision.value : this.revision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldValueRow(')
+          ..write('id: $id, ')
+          ..write('templateId: $templateId, ')
+          ..write('animalId: $animalId, ')
+          ..write('boxId: $boxId, ')
+          ..write('valueJson: $valueJson, ')
+          ..write('revision: $revision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, templateId, animalId, boxId, valueJson, revision);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomFieldValueRow &&
+          other.id == this.id &&
+          other.templateId == this.templateId &&
+          other.animalId == this.animalId &&
+          other.boxId == this.boxId &&
+          other.valueJson == this.valueJson &&
+          other.revision == this.revision);
+}
+
+class CustomFieldValuesCompanion extends UpdateCompanion<CustomFieldValueRow> {
+  final Value<int> id;
+  final Value<String> templateId;
+  final Value<int?> animalId;
+  final Value<int?> boxId;
+  final Value<String> valueJson;
+  final Value<int> revision;
+  const CustomFieldValuesCompanion({
+    this.id = const Value.absent(),
+    this.templateId = const Value.absent(),
+    this.animalId = const Value.absent(),
+    this.boxId = const Value.absent(),
+    this.valueJson = const Value.absent(),
+    this.revision = const Value.absent(),
+  });
+  CustomFieldValuesCompanion.insert({
+    this.id = const Value.absent(),
+    required String templateId,
+    this.animalId = const Value.absent(),
+    this.boxId = const Value.absent(),
+    required String valueJson,
+    this.revision = const Value.absent(),
+  }) : templateId = Value(templateId),
+       valueJson = Value(valueJson);
+  static Insertable<CustomFieldValueRow> custom({
+    Expression<int>? id,
+    Expression<String>? templateId,
+    Expression<int>? animalId,
+    Expression<int>? boxId,
+    Expression<String>? valueJson,
+    Expression<int>? revision,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (templateId != null) 'template_id': templateId,
+      if (animalId != null) 'animal_id': animalId,
+      if (boxId != null) 'box_id': boxId,
+      if (valueJson != null) 'value_json': valueJson,
+      if (revision != null) 'revision': revision,
+    });
+  }
+
+  CustomFieldValuesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? templateId,
+    Value<int?>? animalId,
+    Value<int?>? boxId,
+    Value<String>? valueJson,
+    Value<int>? revision,
+  }) {
+    return CustomFieldValuesCompanion(
+      id: id ?? this.id,
+      templateId: templateId ?? this.templateId,
+      animalId: animalId ?? this.animalId,
+      boxId: boxId ?? this.boxId,
+      valueJson: valueJson ?? this.valueJson,
+      revision: revision ?? this.revision,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (templateId.present) {
+      map['template_id'] = Variable<String>(templateId.value);
+    }
+    if (animalId.present) {
+      map['animal_id'] = Variable<int>(animalId.value);
+    }
+    if (boxId.present) {
+      map['box_id'] = Variable<int>(boxId.value);
+    }
+    if (valueJson.present) {
+      map['value_json'] = Variable<String>(valueJson.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomFieldValuesCompanion(')
+          ..write('id: $id, ')
+          ..write('templateId: $templateId, ')
+          ..write('animalId: $animalId, ')
+          ..write('boxId: $boxId, ')
+          ..write('valueJson: $valueJson, ')
+          ..write('revision: $revision')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6333,6 +7262,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $BoxPictureAssociationsTable(this);
   late final $CareEventTypesTable careEventTypes = $CareEventTypesTable(this);
   late final $BoxCareEventsTable boxCareEvents = $BoxCareEventsTable(this);
+  late final $CustomFieldTemplatesTable customFieldTemplates =
+      $CustomFieldTemplatesTable(this);
+  late final $CustomFieldValuesTable customFieldValues =
+      $CustomFieldValuesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6348,6 +7281,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     boxPictureAssociations,
     careEventTypes,
     boxCareEvents,
+    customFieldTemplates,
+    customFieldValues,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -6407,6 +7342,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('box_care_events', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'animals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('custom_field_values', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'boxes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('custom_field_values', kind: UpdateKind.delete)],
     ),
   ]);
 }
@@ -7156,6 +8105,27 @@ final class $$BoxesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$CustomFieldValuesTable, List<CustomFieldValueRow>>
+  _customFieldValuesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.customFieldValues,
+        aliasName: 'boxes__id__custom_field_values__box_id',
+      );
+
+  $$CustomFieldValuesTableProcessedTableManager get customFieldValuesRefs {
+    final manager = $$CustomFieldValuesTableTableManager(
+      $_db,
+      $_db.customFieldValues,
+    ).filter((f) => f.boxId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _customFieldValuesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
@@ -7328,6 +8298,31 @@ class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
           }) => $$BoxCareEventsTableFilterComposer(
             $db: $db,
             $table: $db.boxCareEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> customFieldValuesRefs(
+    Expression<bool> Function($$CustomFieldValuesTableFilterComposer f) f,
+  ) {
+    final $$CustomFieldValuesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.customFieldValues,
+      getReferencedColumn: (t) => t.boxId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomFieldValuesTableFilterComposer(
+            $db: $db,
+            $table: $db.customFieldValues,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7599,6 +8594,32 @@ class $$BoxesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> customFieldValuesRefs<T extends Object>(
+    Expression<T> Function($$CustomFieldValuesTableAnnotationComposer a) f,
+  ) {
+    final $$CustomFieldValuesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.customFieldValues,
+          getReferencedColumn: (t) => t.boxId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CustomFieldValuesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.customFieldValues,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$BoxesTableTableManager
@@ -7619,6 +8640,7 @@ class $$BoxesTableTableManager
             bool animalsRefs,
             bool boxPictureAssociationsRefs,
             bool boxCareEventsRefs,
+            bool customFieldValuesRefs,
           })
         > {
   $$BoxesTableTableManager(_$AppDatabase db, $BoxesTable table)
@@ -7712,6 +8734,7 @@ class $$BoxesTableTableManager
                 animalsRefs = false,
                 boxPictureAssociationsRefs = false,
                 boxCareEventsRefs = false,
+                customFieldValuesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -7719,6 +8742,7 @@ class $$BoxesTableTableManager
                     if (animalsRefs) db.animals,
                     if (boxPictureAssociationsRefs) db.boxPictureAssociations,
                     if (boxCareEventsRefs) db.boxCareEvents,
+                    if (customFieldValuesRefs) db.customFieldValues,
                   ],
                   addJoins:
                       <
@@ -7807,6 +8831,27 @@ class $$BoxesTableTableManager
                           ) => referencedItems.where((e) => e.boxId == item.id),
                           typedResults: items,
                         ),
+                      if (customFieldValuesRefs)
+                        await $_getPrefetchedData<
+                          Box,
+                          $BoxesTable,
+                          CustomFieldValueRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BoxesTableReferences
+                              ._customFieldValuesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BoxesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).customFieldValuesRefs,
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.boxId == item.id),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -7832,6 +8877,7 @@ typedef $$BoxesTableProcessedTableManager =
         bool animalsRefs,
         bool boxPictureAssociationsRefs,
         bool boxCareEventsRefs,
+        bool customFieldValuesRefs,
       })
     >;
 typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
@@ -8027,6 +9073,27 @@ final class $$AnimalsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _animalPictureAssociationsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$CustomFieldValuesTable, List<CustomFieldValueRow>>
+  _customFieldValuesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.customFieldValues,
+        aliasName: 'animals__id__custom_field_values__animal_id',
+      );
+
+  $$CustomFieldValuesTableProcessedTableManager get customFieldValuesRefs {
+    final manager = $$CustomFieldValuesTableTableManager(
+      $_db,
+      $_db.customFieldValues,
+    ).filter((f) => f.animalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _customFieldValuesRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -8373,6 +9440,31 @@ class $$AnimalsTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return f(composer);
+  }
+
+  Expression<bool> customFieldValuesRefs(
+    Expression<bool> Function($$CustomFieldValuesTableFilterComposer f) f,
+  ) {
+    final $$CustomFieldValuesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.customFieldValues,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomFieldValuesTableFilterComposer(
+            $db: $db,
+            $table: $db.customFieldValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -8919,6 +10011,32 @@ class $$AnimalsTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> customFieldValuesRefs<T extends Object>(
+    Expression<T> Function($$CustomFieldValuesTableAnnotationComposer a) f,
+  ) {
+    final $$CustomFieldValuesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.customFieldValues,
+          getReferencedColumn: (t) => t.animalId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CustomFieldValuesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.customFieldValues,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$AnimalsTableTableManager
@@ -8941,6 +10059,7 @@ class $$AnimalsTableTableManager
             bool sheddingEventsRefs,
             bool feedingEventsRefs,
             bool animalPictureAssociationsRefs,
+            bool customFieldValuesRefs,
           })
         > {
   $$AnimalsTableTableManager(_$AppDatabase db, $AnimalsTable table)
@@ -9130,6 +10249,7 @@ class $$AnimalsTableTableManager
                 sheddingEventsRefs = false,
                 feedingEventsRefs = false,
                 animalPictureAssociationsRefs = false,
+                customFieldValuesRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -9139,6 +10259,7 @@ class $$AnimalsTableTableManager
                     if (feedingEventsRefs) db.feedingEvents,
                     if (animalPictureAssociationsRefs)
                       db.animalPictureAssociations,
+                    if (customFieldValuesRefs) db.customFieldValues,
                   ],
                   addJoins:
                       <
@@ -9267,6 +10388,27 @@ class $$AnimalsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (customFieldValuesRefs)
+                        await $_getPrefetchedData<
+                          Animal,
+                          $AnimalsTable,
+                          CustomFieldValueRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AnimalsTableReferences
+                              ._customFieldValuesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AnimalsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).customFieldValuesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.animalId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -9294,6 +10436,7 @@ typedef $$AnimalsTableProcessedTableManager =
         bool sheddingEventsRefs,
         bool feedingEventsRefs,
         bool animalPictureAssociationsRefs,
+        bool customFieldValuesRefs,
       })
     >;
 typedef $$AnimalWeightEntriesTableCreateCompanionBuilder =
@@ -11943,6 +13086,903 @@ typedef $$BoxCareEventsTableProcessedTableManager =
       BoxCareEvent,
       PrefetchHooks Function({bool boxId, bool customTypeId})
     >;
+typedef $$CustomFieldTemplatesTableCreateCompanionBuilder =
+    CustomFieldTemplatesCompanion Function({
+      required String id,
+      required String target,
+      required String type,
+      required String label,
+      required String labelKey,
+      Value<bool> hidden,
+      Value<bool> archived,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+typedef $$CustomFieldTemplatesTableUpdateCompanionBuilder =
+    CustomFieldTemplatesCompanion Function({
+      Value<String> id,
+      Value<String> target,
+      Value<String> type,
+      Value<String> label,
+      Value<String> labelKey,
+      Value<bool> hidden,
+      Value<bool> archived,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+
+final class $$CustomFieldTemplatesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CustomFieldTemplatesTable,
+          CustomFieldTemplateRow
+        > {
+  $$CustomFieldTemplatesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$CustomFieldValuesTable, List<CustomFieldValueRow>>
+  _customFieldValuesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.customFieldValues,
+        aliasName:
+            'custom_field_templates__id__custom_field_values__template_id',
+      );
+
+  $$CustomFieldValuesTableProcessedTableManager get customFieldValuesRefs {
+    final manager = $$CustomFieldValuesTableTableManager(
+      $_db,
+      $_db.customFieldValues,
+    ).filter((f) => f.templateId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _customFieldValuesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$CustomFieldTemplatesTableFilterComposer
+    extends Composer<_$AppDatabase, $CustomFieldTemplatesTable> {
+  $$CustomFieldTemplatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get target => $composableBuilder(
+    column: $table.target,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get labelKey => $composableBuilder(
+    column: $table.labelKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> customFieldValuesRefs(
+    Expression<bool> Function($$CustomFieldValuesTableFilterComposer f) f,
+  ) {
+    final $$CustomFieldValuesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.customFieldValues,
+      getReferencedColumn: (t) => t.templateId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomFieldValuesTableFilterComposer(
+            $db: $db,
+            $table: $db.customFieldValues,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CustomFieldTemplatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CustomFieldTemplatesTable> {
+  $$CustomFieldTemplatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get target => $composableBuilder(
+    column: $table.target,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get labelKey => $composableBuilder(
+    column: $table.labelKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CustomFieldTemplatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CustomFieldTemplatesTable> {
+  $$CustomFieldTemplatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get target =>
+      $composableBuilder(column: $table.target, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get labelKey =>
+      $composableBuilder(column: $table.labelKey, builder: (column) => column);
+
+  GeneratedColumn<bool> get hidden =>
+      $composableBuilder(column: $table.hidden, builder: (column) => column);
+
+  GeneratedColumn<bool> get archived =>
+      $composableBuilder(column: $table.archived, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  Expression<T> customFieldValuesRefs<T extends Object>(
+    Expression<T> Function($$CustomFieldValuesTableAnnotationComposer a) f,
+  ) {
+    final $$CustomFieldValuesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.customFieldValues,
+          getReferencedColumn: (t) => t.templateId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CustomFieldValuesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.customFieldValues,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$CustomFieldTemplatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CustomFieldTemplatesTable,
+          CustomFieldTemplateRow,
+          $$CustomFieldTemplatesTableFilterComposer,
+          $$CustomFieldTemplatesTableOrderingComposer,
+          $$CustomFieldTemplatesTableAnnotationComposer,
+          $$CustomFieldTemplatesTableCreateCompanionBuilder,
+          $$CustomFieldTemplatesTableUpdateCompanionBuilder,
+          (CustomFieldTemplateRow, $$CustomFieldTemplatesTableReferences),
+          CustomFieldTemplateRow,
+          PrefetchHooks Function({bool customFieldValuesRefs})
+        > {
+  $$CustomFieldTemplatesTableTableManager(
+    _$AppDatabase db,
+    $CustomFieldTemplatesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomFieldTemplatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomFieldTemplatesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CustomFieldTemplatesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> target = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<String> labelKey = const Value.absent(),
+                Value<bool> hidden = const Value.absent(),
+                Value<bool> archived = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CustomFieldTemplatesCompanion(
+                id: id,
+                target: target,
+                type: type,
+                label: label,
+                labelKey: labelKey,
+                hidden: hidden,
+                archived: archived,
+                revision: revision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String target,
+                required String type,
+                required String label,
+                required String labelKey,
+                Value<bool> hidden = const Value.absent(),
+                Value<bool> archived = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CustomFieldTemplatesCompanion.insert(
+                id: id,
+                target: target,
+                type: type,
+                label: label,
+                labelKey: labelKey,
+                hidden: hidden,
+                archived: archived,
+                revision: revision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CustomFieldTemplatesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({customFieldValuesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (customFieldValuesRefs) db.customFieldValues,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (customFieldValuesRefs)
+                    await $_getPrefetchedData<
+                      CustomFieldTemplateRow,
+                      $CustomFieldTemplatesTable,
+                      CustomFieldValueRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CustomFieldTemplatesTableReferences
+                          ._customFieldValuesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$CustomFieldTemplatesTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).customFieldValuesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.templateId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CustomFieldTemplatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CustomFieldTemplatesTable,
+      CustomFieldTemplateRow,
+      $$CustomFieldTemplatesTableFilterComposer,
+      $$CustomFieldTemplatesTableOrderingComposer,
+      $$CustomFieldTemplatesTableAnnotationComposer,
+      $$CustomFieldTemplatesTableCreateCompanionBuilder,
+      $$CustomFieldTemplatesTableUpdateCompanionBuilder,
+      (CustomFieldTemplateRow, $$CustomFieldTemplatesTableReferences),
+      CustomFieldTemplateRow,
+      PrefetchHooks Function({bool customFieldValuesRefs})
+    >;
+typedef $$CustomFieldValuesTableCreateCompanionBuilder =
+    CustomFieldValuesCompanion Function({
+      Value<int> id,
+      required String templateId,
+      Value<int?> animalId,
+      Value<int?> boxId,
+      required String valueJson,
+      Value<int> revision,
+    });
+typedef $$CustomFieldValuesTableUpdateCompanionBuilder =
+    CustomFieldValuesCompanion Function({
+      Value<int> id,
+      Value<String> templateId,
+      Value<int?> animalId,
+      Value<int?> boxId,
+      Value<String> valueJson,
+      Value<int> revision,
+    });
+
+final class $$CustomFieldValuesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CustomFieldValuesTable,
+          CustomFieldValueRow
+        > {
+  $$CustomFieldValuesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CustomFieldTemplatesTable _templateIdTable(_$AppDatabase db) =>
+      db.customFieldTemplates.createAlias(
+        'custom_field_values__template_id__custom_field_templates__id',
+      );
+
+  $$CustomFieldTemplatesTableProcessedTableManager get templateId {
+    final $_column = $_itemColumn<String>('template_id')!;
+
+    final manager = $$CustomFieldTemplatesTableTableManager(
+      $_db,
+      $_db.customFieldTemplates,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_templateIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $AnimalsTable _animalIdTable(_$AppDatabase db) =>
+      db.animals.createAlias('custom_field_values__animal_id__animals__id');
+
+  $$AnimalsTableProcessedTableManager? get animalId {
+    final $_column = $_itemColumn<int>('animal_id');
+    if ($_column == null) return null;
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_animalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $BoxesTable _boxIdTable(_$AppDatabase db) =>
+      db.boxes.createAlias('custom_field_values__box_id__boxes__id');
+
+  $$BoxesTableProcessedTableManager? get boxId {
+    final $_column = $_itemColumn<int>('box_id');
+    if ($_column == null) return null;
+    final manager = $$BoxesTableTableManager(
+      $_db,
+      $_db.boxes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_boxIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CustomFieldValuesTableFilterComposer
+    extends Composer<_$AppDatabase, $CustomFieldValuesTable> {
+  $$CustomFieldValuesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get valueJson => $composableBuilder(
+    column: $table.valueJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CustomFieldTemplatesTableFilterComposer get templateId {
+    final $$CustomFieldTemplatesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.templateId,
+      referencedTable: $db.customFieldTemplates,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomFieldTemplatesTableFilterComposer(
+            $db: $db,
+            $table: $db.customFieldTemplates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$AnimalsTableFilterComposer get animalId {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BoxesTableFilterComposer get boxId {
+    final $$BoxesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableFilterComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CustomFieldValuesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CustomFieldValuesTable> {
+  $$CustomFieldValuesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get valueJson => $composableBuilder(
+    column: $table.valueJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CustomFieldTemplatesTableOrderingComposer get templateId {
+    final $$CustomFieldTemplatesTableOrderingComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.templateId,
+          referencedTable: $db.customFieldTemplates,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CustomFieldTemplatesTableOrderingComposer(
+                $db: $db,
+                $table: $db.customFieldTemplates,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$AnimalsTableOrderingComposer get animalId {
+    final $$AnimalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BoxesTableOrderingComposer get boxId {
+    final $$BoxesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableOrderingComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CustomFieldValuesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CustomFieldValuesTable> {
+  $$CustomFieldValuesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get valueJson =>
+      $composableBuilder(column: $table.valueJson, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  $$CustomFieldTemplatesTableAnnotationComposer get templateId {
+    final $$CustomFieldTemplatesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.templateId,
+          referencedTable: $db.customFieldTemplates,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CustomFieldTemplatesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.customFieldTemplates,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$AnimalsTableAnnotationComposer get animalId {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$BoxesTableAnnotationComposer get boxId {
+    final $$BoxesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CustomFieldValuesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CustomFieldValuesTable,
+          CustomFieldValueRow,
+          $$CustomFieldValuesTableFilterComposer,
+          $$CustomFieldValuesTableOrderingComposer,
+          $$CustomFieldValuesTableAnnotationComposer,
+          $$CustomFieldValuesTableCreateCompanionBuilder,
+          $$CustomFieldValuesTableUpdateCompanionBuilder,
+          (CustomFieldValueRow, $$CustomFieldValuesTableReferences),
+          CustomFieldValueRow,
+          PrefetchHooks Function({bool templateId, bool animalId, bool boxId})
+        > {
+  $$CustomFieldValuesTableTableManager(
+    _$AppDatabase db,
+    $CustomFieldValuesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomFieldValuesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomFieldValuesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomFieldValuesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> templateId = const Value.absent(),
+                Value<int?> animalId = const Value.absent(),
+                Value<int?> boxId = const Value.absent(),
+                Value<String> valueJson = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+              }) => CustomFieldValuesCompanion(
+                id: id,
+                templateId: templateId,
+                animalId: animalId,
+                boxId: boxId,
+                valueJson: valueJson,
+                revision: revision,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String templateId,
+                Value<int?> animalId = const Value.absent(),
+                Value<int?> boxId = const Value.absent(),
+                required String valueJson,
+                Value<int> revision = const Value.absent(),
+              }) => CustomFieldValuesCompanion.insert(
+                id: id,
+                templateId: templateId,
+                animalId: animalId,
+                boxId: boxId,
+                valueJson: valueJson,
+                revision: revision,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CustomFieldValuesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({templateId = false, animalId = false, boxId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (templateId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.templateId,
+                            referencedTable: $$CustomFieldValuesTableReferences
+                                ._templateIdTable(db),
+                            referencedColumn: $$CustomFieldValuesTableReferences
+                                ._templateIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (animalId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.animalId,
+                            referencedTable: $$CustomFieldValuesTableReferences
+                                ._animalIdTable(db),
+                            referencedColumn: $$CustomFieldValuesTableReferences
+                                ._animalIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (boxId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.boxId,
+                            referencedTable: $$CustomFieldValuesTableReferences
+                                ._boxIdTable(db),
+                            referencedColumn: $$CustomFieldValuesTableReferences
+                                ._boxIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$CustomFieldValuesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CustomFieldValuesTable,
+      CustomFieldValueRow,
+      $$CustomFieldValuesTableFilterComposer,
+      $$CustomFieldValuesTableOrderingComposer,
+      $$CustomFieldValuesTableAnnotationComposer,
+      $$CustomFieldValuesTableCreateCompanionBuilder,
+      $$CustomFieldValuesTableUpdateCompanionBuilder,
+      (CustomFieldValueRow, $$CustomFieldValuesTableReferences),
+      CustomFieldValueRow,
+      PrefetchHooks Function({bool templateId, bool animalId, bool boxId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -11973,4 +14013,8 @@ class $AppDatabaseManager {
       $$CareEventTypesTableTableManager(_db, _db.careEventTypes);
   $$BoxCareEventsTableTableManager get boxCareEvents =>
       $$BoxCareEventsTableTableManager(_db, _db.boxCareEvents);
+  $$CustomFieldTemplatesTableTableManager get customFieldTemplates =>
+      $$CustomFieldTemplatesTableTableManager(_db, _db.customFieldTemplates);
+  $$CustomFieldValuesTableTableManager get customFieldValues =>
+      $$CustomFieldValuesTableTableManager(_db, _db.customFieldValues);
 }

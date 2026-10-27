@@ -1,3 +1,6 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/features/custom_fields/presentation/standalone_custom_fields.dart';
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -47,6 +50,9 @@ class NewAnimalPage extends StatefulWidget {
 
 class _NewAnimalPageState extends State<NewAnimalPage> {
   final _formKey = GlobalKey<FormState>();
+  late final _custom = CustomFieldsController(
+    standaloneCustomFields(widget.database, CustomFieldTarget.animal),
+  );
 
   final _commonNameController = TextEditingController();
   final _latinNameController = TextEditingController();
@@ -94,6 +100,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
   @override
   void initState() {
     super.initState();
+    _custom.load();
     _pictureSelectionFlow =
         widget.pictureSelectionFlow ?? DefaultPictureSelectionFlow();
     _loadBoxes();
@@ -101,6 +108,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
 
   @override
   void dispose() {
+    _custom.dispose();
     _commonNameController.dispose();
     _latinNameController.dispose();
     _tempMinController.dispose();
@@ -279,6 +287,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
         }
 
         await AnimalRepository(widget.database).createAnimal(
+          customFields: _custom.patch,
           boxId: _boxId!,
           commonName: _commonNameController.text.trim(),
           latinName: _latinNameController.text.trim(),
@@ -331,6 +340,14 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
       }
 
       Navigator.of(context).pop(true);
+    } on CustomFieldConflict {
+      _custom.conflict();
+      if (mounted) {
+        setState(() {
+          _saving = false;
+          _saveError = context.l10n.customFieldsFailure;
+        });
+      }
     } on BoxAssignmentException {
       try {
         final boxes = await BoxRepository(widget.database).getActiveBoxes();
@@ -551,6 +568,7 @@ class _NewAnimalPageState extends State<NewAnimalPage> {
               enabled: !_saving,
             ),
             const SizedBox(height: 16),
+            CustomFieldsEditor(controller: _custom, enabled: !_saving),
             AnimalAdditionalCharacteristicsFields(
               expanded: _additionalCharacteristicsExpanded,
               enabled: !_saving && !_processingPicture,

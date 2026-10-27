@@ -27,6 +27,15 @@ definition contains stable UUID `id`, `label`, `sortOrder`, `archived`, `revisio
 `createdAt`, and `updatedAt`. Preserve unused and archived definitions. Restore
 validates IDs/labels and inserts definitions before their events.
 
+`customFieldTemplates` and `customFieldValues` are optional lists (absent means
+empty). Templates contain `id`, `target`, `type`, `label`, `hidden`, `archived`,
+`revision`; values contain `templateId`, nullable `animalId`/`boxId` (exactly one),
+scalar `value` (including null tombstones) and positive `revision`. Definitions
+and all values, including hidden/archived, are preserved by encrypted and plain
+portable backups. Restore validates label uniqueness, types and owner references
+before replacing data; definitions precede values. Older archives restore without
+custom fields. Core records and portable format version remain unchanged.
+
 ## Portable records
 
 Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are

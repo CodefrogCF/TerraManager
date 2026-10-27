@@ -1,3 +1,4 @@
+import '../../custom_fields/domain/custom_field.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
 
 import 'dart:convert';
@@ -463,6 +464,47 @@ class BackupValidationService {
   }
 
   void _validateData(BackupData data) {
+    try {
+      final definitions = <String, CustomFieldTemplate>{};
+      final labels = <String>{};
+      final owners = <String>{};
+      for (final t in data.customFieldTemplates) {
+        CustomFieldTemplate.fromJson(t.toJson());
+        if (definitions.containsKey(t.id) ||
+            !labels.add('${t.target.name}:${t.label.toLowerCase()}') ||
+            t.label != CustomFieldTemplate.normalizeLabel(t.label)) {
+          throw ArgumentError('Duplicate custom field.');
+        }
+        definitions[t.id] = t;
+      }
+      for (final v in data.customFieldValues) {
+        final t = definitions[v['templateId']];
+        final animal = v['animalId'];
+        final box = v['boxId'];
+        if (t == null ||
+            v.length != 5 ||
+            !v.containsKey('value') ||
+            v['revision'] is! int ||
+            (v['revision'] as int) < 1 ||
+            (t.target == CustomFieldTarget.animal
+                ? animal is! int ||
+                      box != null ||
+                      !data.animals.any((a) => a.id == animal)
+                : box is! int ||
+                      animal != null ||
+                      !data.boxes.any((b) => b.id == box)) ||
+            !owners.add('${t.id}:$animal:$box')) {
+          throw ArgumentError('Invalid custom field owner.');
+        }
+        t.validate(v['value']);
+      }
+    } catch (_) {
+      throw const BackupValidationException(
+        code: BackupValidationErrorCode.invalidData,
+        message: 'Invalid custom fields.',
+      );
+    }
+
     final boxIds = <int>{};
     final archivedBoxIds = <int>{};
     final qrIds = <String>{};

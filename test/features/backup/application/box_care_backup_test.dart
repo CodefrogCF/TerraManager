@@ -77,7 +77,7 @@ void main() {
       );
     }
     final validated = BackupValidationService().validate(await export(source));
-    expect(validated.manifest.databaseSchemaVersion, 20);
+    expect(validated.manifest.databaseSchemaVersion, 21);
     expect(validated.mediaFiles, hasLength(1));
     expect(
       BackupValidationService()

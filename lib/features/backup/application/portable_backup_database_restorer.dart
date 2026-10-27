@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
@@ -16,6 +18,8 @@ class PortableBackupDatabaseRestorer {
 
   Future<int> restore(ValidatedBackup backup) {
     return database.transaction(() async {
+      await database.delete(database.customFieldValues).go();
+      await database.delete(database.customFieldTemplates).go();
       await database.delete(database.boxCareEvents).go();
       await database.delete(database.careEventTypes).go();
       await database.delete(database.feedingEvents).go();
@@ -62,6 +66,22 @@ class PortableBackupDatabaseRestorer {
                 revision: Value(type.revision),
                 createdAt: type.createdAt,
                 updatedAt: type.updatedAt,
+              ),
+            );
+      }
+      for (final t in backup.data.customFieldTemplates) {
+        await database
+            .into(database.customFieldTemplates)
+            .insert(
+              CustomFieldTemplatesCompanion.insert(
+                id: t.id,
+                target: t.target.name,
+                type: t.type.name,
+                label: t.label,
+                labelKey: t.label.toLowerCase(),
+                hidden: Value(t.hidden),
+                archived: Value(t.archived),
+                revision: Value(t.revision),
               ),
             );
       }
@@ -322,6 +342,19 @@ class PortableBackupDatabaseRestorer {
         );
       }
 
+      for (final v in backup.data.customFieldValues) {
+        await database
+            .into(database.customFieldValues)
+            .insert(
+              CustomFieldValuesCompanion.insert(
+                templateId: v['templateId'] as String,
+                animalId: Value(v['animalId'] as int?),
+                boxId: Value(v['boxId'] as int?),
+                valueJson: jsonEncode(v['value']),
+                revision: Value(v['revision'] as int),
+              ),
+            );
+      }
       return mediaCache.length;
     });
   }

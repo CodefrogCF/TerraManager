@@ -1,3 +1,5 @@
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+
 import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
@@ -22,6 +24,10 @@ class BoxOperations extends CollectionOperations {
   }
 
   Future<ApiReply> create(ApiInput input) async {
+    final rawCustomFields = input.values.remove('customFields');
+    final customFields = rawCustomFields == null
+        ? null
+        : CustomFieldPatch.fromJson(rawCustomFields);
     final boxes = BoxRepository(database);
 
     input.allow(const {
@@ -39,6 +45,7 @@ class BoxOperations extends CollectionOperations {
     final mediaId = input.nullableInteger('pictureMediaId');
     await requireMedia(mediaId);
     final id = await boxes.createBoxWithGeneratedQrId(
+      customFields: customFields,
       name: input.nullableString('name', maxLength: 200),
       widthCm: width,
       heightCm: height,
@@ -71,6 +78,10 @@ class BoxOperations extends CollectionOperations {
   }
 
   Future<ApiReply> update(int id, Box existing, ApiInput input) async {
+    final rawCustomFields = input.values.remove('customFields');
+    final customFields = rawCustomFields == null
+        ? null
+        : CustomFieldPatch.fromJson(rawCustomFields);
     final boxes = BoxRepository(database);
 
     if (existing.status != BoxStatus.active) {
@@ -88,7 +99,7 @@ class BoxOperations extends CollectionOperations {
       'pictureMediaId',
     });
     final expectedRevision = input.string('expectedRevision', maxLength: 64);
-    if (input.values.length == 1) {
+    if (input.values.length == 1 && customFields == null) {
       return apiError(400, 'invalid_data', 'No fields to update.');
     }
     final mediaId = input.nullableInteger('pictureMediaId');
@@ -102,6 +113,7 @@ class BoxOperations extends CollectionOperations {
         expectedRevision,
       );
       return boxes.updateBox(
+        customFields: customFields,
         boxId: id,
         name: input.values.containsKey('name')
             ? Value(input.nullableString('name', maxLength: 200))

@@ -90,7 +90,7 @@ void main() {
               .validatePreview(bytes)
               .manifest
               .databaseSchemaVersion,
-          20,
+          21,
         );
         await PortableBackupDatabaseRestorer(target).restore(validated);
         expect(

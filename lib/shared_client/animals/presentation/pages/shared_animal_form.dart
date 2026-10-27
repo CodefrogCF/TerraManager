@@ -1,3 +1,5 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/shared_client/custom_fields/presentation/shared_custom_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/database/date_only.dart';
 import 'package:terramanager/core/database/enums/animal_category.dart';
@@ -41,6 +43,13 @@ class SharedAnimalForm extends StatefulWidget {
 
 class _SharedAnimalFormState extends State<SharedAnimalForm> {
   final _form = GlobalKey<FormState>();
+  late final _custom = CustomFieldsController(
+    sharedCustomFields(
+      widget.api,
+      CustomFieldTarget.animal,
+      widget.initial?['id'] as int?,
+    ),
+  );
   late final Map<String, TextEditingController> _fields;
   Map<String, dynamic>? _initial;
   late List<Map<String, dynamic>> _boxes;
@@ -69,6 +78,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   @override
   void initState() {
     super.initState();
+    _custom.load();
     _initial = widget.initial;
     _boxes = widget.boxes;
     final initial = widget.initial;
@@ -133,6 +143,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
 
   @override
   void dispose() {
+    _custom.dispose();
     for (final controller in _fields.values) {
       controller.dispose();
     }
@@ -150,6 +161,7 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
   }
 
   bool get _hasUnsavedEdits {
+    if (_custom.dirty) return true;
     final initial = _initial;
     if (initial == null) return false;
     if (_boxId != initial['boxId'] ||
@@ -402,7 +414,9 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
           .showSnackBar(SnackBar(content: Text(message)));
       return;
     }
+    final customPatch = _custom.patch;
     final values = <String, dynamic>{
+      if (customPatch != null) 'customFields': customPatch.toJson(),
       'boxId': _boxId,
       'commonName': _text('commonName') ?? '',
       'latinName': _text('latinName') ?? '',
@@ -510,6 +524,8 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
         Navigator.of(context).pop(false);
         return;
       }
+      await _custom.load();
+      if (!mounted) return;
       setState(() {
         _initial = latest;
         _showWeightOnDetail = latest['showWeightOnDetail'] as bool? ?? true;
@@ -931,6 +947,11 @@ class _SharedAnimalFormState extends State<SharedAnimalForm> {
                     Text(
                       _created!['commonName']?.toString() ??
                           _fields['commonName']!.text,
+                    ),
+                  if (_created == null)
+                    CustomFieldsEditor(
+                      controller: _custom,
+                      enabled: !_saving && widget.api.connected,
                     ),
                   if (_error != null)
                     Text(

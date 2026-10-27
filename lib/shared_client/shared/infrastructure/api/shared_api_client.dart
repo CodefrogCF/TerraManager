@@ -1,3 +1,4 @@
+import 'package:terramanager/shared_client/custom_fields/infrastructure/api/shared_custom_fields_api.dart';
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:terramanager/shared_client/changes/application/shared_change_stream.dart';
 import 'package:terramanager/shared_client/changes/application/shared_sync_controller.dart';
@@ -26,6 +27,7 @@ export 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_
 /// Composes feature API operations over one authenticated, transient transport.
 class SharedApiClient extends SharedApiTransport
     with
+        SharedCustomFieldsApi,
         SharedAuthenticationApi,
         SharedChangesApi,
         SharedSettingsApi,

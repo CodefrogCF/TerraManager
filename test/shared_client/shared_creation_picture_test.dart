@@ -39,6 +39,23 @@ class _Fixture {
     api = SharedApiClient(
       Uri.parse('https://localhost'),
       MockClient((request) async {
+        if (request.method == 'GET' &&
+            request.url.path == '/api/v1/custom-field-templates') {
+          return http.Response(jsonEncode({'templates': []}), 200);
+        }
+        if (request.method == 'GET' &&
+            request.url.path.endsWith('/custom-fields')) {
+          return http.Response(
+            jsonEncode({
+              'templates': [],
+              'values': [],
+              'active': true,
+              'revision': 'custom-fields',
+            }),
+            200,
+          );
+        }
+
         final path = request.url.path;
         if (path.startsWith('/api/v1/auth/')) {
           return _json({

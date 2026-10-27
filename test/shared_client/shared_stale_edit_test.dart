@@ -25,6 +25,19 @@ void main() {
     };
     var writes = 0;
     final backend = MockClient((request) async {
+      if (request.method == 'GET' &&
+          request.url.path.endsWith('/custom-fields')) {
+        return http.Response(
+          jsonEncode({
+            'templates': [],
+            'values': [],
+            'active': true,
+            'revision': 'custom-fields',
+          }),
+          200,
+        );
+      }
+
       switch (request.url.path) {
         case '/api/v1/changes':
           return fakeChangeResponse(
@@ -97,10 +110,22 @@ void main() {
 
     box = {...box, 'name': 'Changed elsewhere', 'revision': 'revision-2'};
     await tester.enterText(find.byType(TextFormField).first, 'My change');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('shared-save-box')),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('shared-save-box')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('shared-save-box')));
     await tester.pumpAndSettle();
     expect(writes, 0);
     expect(find.text('Reload and review'), findsOneWidget);
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
       find.byKey(const Key('shared-save-box')),
       200,
@@ -119,6 +144,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Changed elsewhere'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).first, 'Reviewed change');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const Key('shared-save-box')),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('shared-save-box')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('shared-save-box')));
     await tester.pumpAndSettle();
     expect(writes, 1);

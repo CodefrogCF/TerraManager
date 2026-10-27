@@ -1,3 +1,5 @@
+import 'package:terramanager/features/custom_fields/presentation/custom_fields.dart';
+import 'package:terramanager/features/custom_fields/presentation/standalone_custom_fields.dart';
 import 'package:flutter/material.dart';
 
 import '../standalone_box_care_history.dart';
@@ -732,6 +734,11 @@ class _BoxDetailPageState extends State<BoxDetailPage> {
                     ),
                   ],
 
+                  StandaloneCustomFieldsSection(
+                    database: widget.database,
+                    target: CustomFieldTarget.box,
+                    id: box.id,
+                  ),
                   if (box.notes != null && box.notes!.trim().isNotEmpty) ...[
                     const SizedBox(height: 16),
 

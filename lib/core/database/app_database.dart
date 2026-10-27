@@ -19,6 +19,7 @@ import 'enums/animal_status.dart';
 import 'enums/birth_date_accuracy.dart';
 import 'enums/sex.dart';
 
+import 'tables/custom_fields.dart';
 import 'tables/boxes.dart';
 import 'tables/box_care_events.dart';
 import 'tables/care_event_types.dart';
@@ -57,6 +58,8 @@ QueryExecutor _configureTestQueryExecutor(QueryExecutor executor) {
     BoxPictureAssociations,
     CareEventTypes,
     BoxCareEvents,
+    CustomFieldTemplates,
+    CustomFieldValues,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -212,6 +215,10 @@ class AppDatabase extends _$AppDatabase {
               from18To19: (m, schema) async {
                 await m.deleteTable('box_care_event_attachments');
               },
+              from20To21: (m, schema) async {
+                await m.createTable(schema.customFieldTemplates);
+                await m.createTable(schema.customFieldValues);
+              },
               from19To20: (m, schema) async {
                 await m.createTable(schema.careEventTypes);
                 await m.alterTable(
@@ -245,7 +252,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

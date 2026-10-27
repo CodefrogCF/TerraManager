@@ -43,6 +43,7 @@ List<AuditEvent> collectionAuditEvents(
 }) {
   if (path.isEmpty) return [];
   const roots = {
+    'custom-field-templates': 'customFieldTemplate',
     'care-event-types': 'careEventType',
     'boxes': 'box',
     'animals': 'animal',
@@ -86,10 +87,11 @@ List<AuditEvent> collectionAuditEvents(
       if (path.length > 4 && path[4] == 'primary') operation = 'set_primary';
     }
   }
-  if (type == 'careEventType') {
+  if (type == 'careEventType' || type == 'customFieldTemplate') {
     final id = path.length > 1
         ? path[1]
-        : (reply?['careEventType'] as Map?)?['id'];
+        : (reply?[type == 'customFieldTemplate' ? 'template' : 'careEventType']
+              as Map?)?['id'];
     target =
         id is String &&
             RegExp(

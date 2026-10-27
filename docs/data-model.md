@@ -34,7 +34,8 @@ All entity IDs are integer primary keys. Box and Animal have `createdAt` and
 | FeedingEvent | `animalId`, `fedAt`, optional `notes`. Group feeding creates one event per selected Animal in one transaction. |
 | AnimalWeightEntry | `animalId`, positive finite `weightGrams`, `measuredAt`. Latest measurement determines current numeric weight. |
 | SheddingEvent | `animalId`, `shedAt`, optional `notes`, `createdAt`, `updatedAt`. |
-| BoxCareEvent | `boxId`, `type` (`substrateChange`, `cleaning`, `waterChange`), `occurredAt`, optional `notes`, unique retry `requestId`, integer `revision`, creation/update timestamps. Care events have no media association. |
+| BoxCareEvent | `boxId`, `type` (`substrateChange`, `cleaning`, `waterChange`, `custom`), optional `customTypeId`, `occurredAt`, optional `notes`, unique retry `requestId`, integer `revision`, creation/update timestamps. Care events have no media association. |
+| CareEventType | Collection-wide UUID `id`, normalized unique `labelKey`, display `label` (1–80 characters), `sortOrder`, `archived`, `revision`, timestamps. Custom events reference its stable ID; definitions are archived rather than deleted. |
 | MediaAsset | `fileName`, `mimeType`, binary `data`, `createdAt`, `updatedAt`. |
 | Picture association | Owner `animalId` or `boxId`, `mediaAssetId`, `capturedAt`, `sortOrder`; unique media association and unique owner/order. |
 
@@ -46,6 +47,12 @@ Animal event or follows an Animal when it moves. Schema 17 → 18 introduced car
 18 → 19 removes the retired image-link table without changing care records. Archived Boxes retain read-only care;
 duplicates start without care history. Permanent Box deletion cascades its care
 events. Gallery images follow the existing gallery ownership rules.
+
+Custom definitions are managed directly from Box care history in both modes. Rename changes the
+displayed label without rewriting events; archive removes a type from new-event
+choices while preserving history, filtering and edits that retain the same type.
+Case-insensitive normalized labels must be unique, including archived types;
+standard DE/EN labels are reserved. Reordering checks the complete ID/revision set.
 
 ## Lifecycle and duplication
 
@@ -82,7 +89,7 @@ migrated only when readable. Missing legacy files must not discard other data.
 
 ## Schema Version
 
-The current Drift database schema version is **19**. Upgrade steps preserve
+The current Drift database schema version is **20**. Upgrade steps preserve
 existing IDs, relationships and QR values and finish with foreign-key checks.
 
 | Version | Addition |
@@ -106,5 +113,6 @@ existing IDs, relationships and QR values and finish with foreign-key checks.
 | 17 | Weekday/time/zone feeding reminders |
 | 18 | Box care events and picture attachments |
 | 19 | Remove retired Box care picture links |
+| 20 | Collection-wide custom care definitions and stable event references |
 
 Generation commands and migration checks are in [Development](development.md).

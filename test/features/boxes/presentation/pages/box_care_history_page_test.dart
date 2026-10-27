@@ -47,6 +47,7 @@ void main() {
               ({
                 existing,
                 required type,
+                customTypeId,
                 required occurredAt,
                 notes,
                 required requestId,
@@ -110,6 +111,7 @@ void main() {
             ({
               existing,
               required type,
+              customTypeId,
               required occurredAt,
               notes,
               required requestId,
@@ -160,6 +162,7 @@ void main() {
           ({
             existing,
             required type,
+            customTypeId,
             required occurredAt,
             notes,
             required requestId,
@@ -215,6 +218,7 @@ void main() {
       save: ({
         existing,
         required type,
+        customTypeId,
         required occurredAt,
         notes,
         required requestId,

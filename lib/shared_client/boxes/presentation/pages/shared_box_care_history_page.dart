@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:terramanager/shared_client/settings/presentation/pages/shared_care_event_types_page.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_care_history_page.dart';
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:terramanager/shared_client/shared/application/shared_change.dart';
@@ -34,6 +35,7 @@ class _SharedBoxCareHistoryPageState extends State<SharedBoxCareHistoryPage> {
       dependencies: () => {
         'boxes': {widget.boxId},
         'boxCareHistories': {widget.boxId},
+        'careEventTypes': null,
       },
       isVisible: () => mounted && (_route?.isCurrent ?? false),
       refresh: (_) async {
@@ -65,6 +67,13 @@ class _SharedBoxCareHistoryPageState extends State<SharedBoxCareHistoryPage> {
   Widget build(BuildContext context) => BoxCareHistoryPage(
     key: _page,
     boxLabel: widget.label,
+    manageTypes: () async {
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SharedCareEventTypesPage(api: widget.api),
+        ),
+      );
+    },
     load: () async {
       final box = await widget.api.box(widget.boxId);
       final entries = await widget.api.boxCareEvents(widget.boxId);
@@ -72,12 +81,14 @@ class _SharedBoxCareHistoryPageState extends State<SharedBoxCareHistoryPage> {
         entries: entries,
         active: box['status'] == 'active',
         canDelete: widget.api.canDeleteCollection,
+        types: await widget.api.careEventTypes(),
       );
     },
     save:
         ({
           existing,
           required type,
+          customTypeId,
           required occurredAt,
           notes,
           required requestId,
@@ -86,6 +97,7 @@ class _SharedBoxCareHistoryPageState extends State<SharedBoxCareHistoryPage> {
             widget.boxId,
             existing: existing,
             type: type,
+            customTypeId: customTypeId,
             occurredAt: occurredAt,
             notes: notes,
             requestId: requestId,

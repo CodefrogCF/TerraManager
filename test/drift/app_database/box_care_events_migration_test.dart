@@ -117,7 +117,7 @@ void main() {
 
   for (final shared in [false, true]) {
     test(
-      'v18 to v19 removes care image links and preserves all other data; shared=$shared',
+      'v18 to current removes care image links and preserves existing values; shared=$shared',
       () async {
         final directory = await Directory.systemTemp.createTemp('tm-care-v18-');
         addTearDown(() => directory.delete(recursive: true));
@@ -183,7 +183,11 @@ VALUES (1, 1, 'cleaning', 1700000000, 'Keep care note', 'existing-care', 4, 1700
           for (final entry in preserved.entries) {
             expect(
               (await current.customSelect('SELECT * FROM ${entry.key}').get())
-                  .map((r) => r.data)
+                  .map(
+                    (r) =>
+                        Map<String, dynamic>.from(r.data)
+                          ..remove('custom_type_id'),
+                  )
                   .toList(),
               entry.value,
             );
@@ -201,6 +205,7 @@ VALUES (1, 1, 'cleaning', 1700000000, 'Keep care note', 'existing-care', 4, 1700
             isEmpty,
           );
           final care = (await BoxCareRepository(current).history(1)).single;
+          expect(care.customTypeId, isNull);
           expect(care.notes, 'Keep care note');
           expect(care.revision, 4);
           expect(care.requestId, 'existing-care');

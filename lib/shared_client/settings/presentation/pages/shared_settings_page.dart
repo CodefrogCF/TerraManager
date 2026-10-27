@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/features/settings/animal_name_order.dart';
 import 'package:terramanager/features/settings/app_accent.dart';

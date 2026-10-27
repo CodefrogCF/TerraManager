@@ -47,6 +47,9 @@ void main() {
                 200,
               );
             }
+            if (path == '/api/v1/care-event-types') {
+              return http.Response(jsonEncode({'careEventTypes': []}), 200);
+            }
             if (path == '/api/v1/boxes/$box') {
               return http.Response(
                 jsonEncode({

@@ -1,18 +1,22 @@
 import '../../../core/database/date_only.dart';
+import '../../boxes/domain/care_event_type_definition.dart';
 
 class BackupData {
   final List<BackupBox> boxes;
   final List<BackupAnimal> animals;
   final List<BackupFeedingEvent> feedingEvents;
+  final List<CareEventTypeDefinition> careEventTypes;
 
   const BackupData({
     required this.boxes,
     required this.animals,
     required this.feedingEvents,
+    this.careEventTypes = const [],
   });
 
   Map<String, dynamic> toJson() {
     return {
+      'careEventTypes': careEventTypes.map((type) => type.toJson()).toList(),
       'boxes': boxes.map((box) => box.toJson()).toList(),
       'animals': animals.map((animal) => animal.toJson()).toList(),
       'feedingEvents': feedingEvents
@@ -23,6 +27,11 @@ class BackupData {
 
   factory BackupData.fromJson(Map<String, dynamic> json) {
     return BackupData(
+      careEventTypes: (json['careEventTypes'] as List? ?? const [])
+          .map(
+            (e) => CareEventTypeDefinition.fromJson(e as Map<String, dynamic>),
+          )
+          .toList(),
       boxes: (json['boxes'] as List<dynamic>)
           .map((item) => BackupBox.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -144,6 +153,7 @@ class BackupBoxCareEvent {
   const BackupBoxCareEvent({
     required this.id,
     required this.type,
+    this.customTypeId,
     required this.occurredAt,
     this.notes,
     required this.requestId,
@@ -153,6 +163,7 @@ class BackupBoxCareEvent {
   });
   final int id;
   final String type;
+  final String? customTypeId;
   final DateTime occurredAt;
   final String? notes;
   final String requestId;
@@ -162,6 +173,7 @@ class BackupBoxCareEvent {
   Map<String, dynamic> toJson() => {
     'id': id,
     'type': type,
+    'customTypeId': customTypeId,
     'occurredAt': occurredAt.toUtc().toIso8601String(),
     'notes': notes,
     'requestId': requestId,
@@ -173,6 +185,7 @@ class BackupBoxCareEvent {
       BackupBoxCareEvent(
         id: json['id'] as int,
         type: json['type'] as String,
+        customTypeId: json['customTypeId'] as String?,
         occurredAt: DateTime.parse(json['occurredAt'] as String),
         notes: json['notes'] as String?,
         requestId: json['requestId'] as String,

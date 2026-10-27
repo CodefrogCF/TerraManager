@@ -1,8 +1,51 @@
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_payload.dart';
 import 'package:terramanager/features/boxes/domain/box_care_entry.dart';
+import 'package:terramanager/features/boxes/domain/care_event_type_definition.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 
 mixin SharedBoxesApi on SharedApiTransport {
+  Future<List<CareEventTypeDefinition>> careEventTypes() async => readApiList(
+    await requestJson('GET', '/api/v1/care-event-types'),
+    'careEventTypes',
+  ).map(CareEventTypeDefinition.fromJson).toList();
+  Future<void> createCareEventType(String id, String label) async {
+    await requestJson(
+      'POST',
+      '/api/v1/care-event-types',
+      body: {'id': id, 'label': label},
+    );
+  }
+
+  Future<void> updateCareEventType(
+    CareEventTypeDefinition type, {
+    required String label,
+    required bool archived,
+  }) async {
+    await requestJson(
+      'PATCH',
+      '/api/v1/care-event-types/${Uri.encodeComponent(type.id)}',
+      body: {
+        'label': label,
+        'archived': archived,
+        'expectedRevision': type.revision,
+      },
+    );
+  }
+
+  Future<void> reorderCareEventTypes(
+    List<CareEventTypeDefinition> order,
+  ) async {
+    await requestJson(
+      'PUT',
+      '/api/v1/care-event-types/order',
+      body: {
+        'order': order
+            .map((t) => {'id': t.id, 'revision': t.revision})
+            .toList(),
+      },
+    );
+  }
+
   Future<List<BoxCareEntry>> boxCareEvents(int boxId) async => readApiList(
     await requestJson('GET', '/api/v1/boxes/$boxId/care-events'),
     'careEvents',
@@ -12,6 +55,7 @@ mixin SharedBoxesApi on SharedApiTransport {
     int boxId, {
     BoxCareEntry? existing,
     required BoxCareEventType type,
+    String? customTypeId,
     required DateTime occurredAt,
     String? notes,
     required String requestId,
@@ -21,6 +65,7 @@ mixin SharedBoxesApi on SharedApiTransport {
       '/api/v1/boxes/$boxId/care-events${existing == null ? '' : '/${existing.id}'}',
       body: {
         'type': type.name,
+        'customTypeId': customTypeId,
         'occurredAt': occurredAt.toUtc().toIso8601String(),
         'notes': notes,
         if (existing == null) 'requestId': requestId,

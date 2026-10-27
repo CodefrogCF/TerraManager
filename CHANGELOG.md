@@ -8,22 +8,21 @@ groupings are retained from the existing record.
 
 ### Added
 
+- Manage collection-wide custom care types from Box care history in Standalone and Shared
+  Care: add, rename, reorder and archive; select them in care forms and filter
+  history. Stable identifiers preserve entries, and portable backups include all
+  definitions. Shared Care uses the existing authenticated change stream (#240).
 - Record substrate changes, cleaning and water changes in a Box-owned care history
   in Standalone and Shared Care, with timestamps and optional notes. Include
   editing, chronological history, conflict/retry protection,
   schema migration and portable backup/restore support. Open care history from
   the Box detail toolbar, next to Edit (#238).
 
-- Show bundled German/English release highlights once per version/build after an
-  Android Standalone update, with manual reopening through Settings → What's new;
-  keep first-run onboarding and device-local display state separate (#252).
-
 ### Changed
 
 - Remove Box care picture integration from storage, API, backups and media cleanup.
   Schema 19 removes the obsolete association table; care records and ordinary
   gallery data remain intact.
-
 - Use up to three columns for long Animal A4 histories, filling each column from
   top to bottom before continuing to the right or onto another page. Keep long
   notes readable and preserve gallery page layouts.
@@ -33,6 +32,14 @@ groupings are retained from the existing record.
 - Keep due Android feeding alarms pending when returning to the running app,
   instead of restarting their inexact delivery window. Cold starts still rearm
   cached alarms to recover after force stop.
+
+## [1.16.1] - 2026-10-24
+
+### Added
+
+- Show bundled German/English release highlights once per version/build after an
+  Android Standalone update, with manual reopening through Settings → What's new;
+  keep first-run onboarding and device-local display state separate (#252).
 
 ## [1.16.0] - 2026-10-23
 
@@ -48,10 +55,6 @@ groupings are retained from the existing record.
   alongside Add Feeding and the existing 24-hour overview suppression.
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - Give empty Boxes their own localized heading when empty-last sorting is enabled,
   in compact and Big Picture overviews in Standalone and Shared Care.
@@ -75,10 +78,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - Place the Box scanner above Create Box and Feeding Mode above Create Animal;
   use the same archive icon in both overviews (#236, #237).
 - Remove Standalone overview Rename actions; names remain editable through Edit (#231).
@@ -99,10 +98,6 @@ groupings are retained from the existing record.
   Shared Care (#219).
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - Keep Animal labels compact with a square favorite picture and shorter field
   labels; arrange optional A4 gallery pictures chronologically, including the
@@ -155,10 +150,6 @@ groupings are retained from the existing record.
   new permission or a new dependency — Issue #182
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - organize Shared Care client pages, widgets and API methods by feature and split
   server routing, application commands, authentication and persistence modules without
@@ -218,10 +209,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - connect Shared Care detail, scanner and dialog routes to browser Back history so
   Android edge-back and in-app Back return within the interface without a duplicate
   route pop
@@ -266,10 +253,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - keep onboarding navigation inside the introduction itself; Back/Next move between
   steps and Finish/Skip closes the tour without changing the current primary page
 - align Shared Care overview controls more closely with standalone workflows and keep
@@ -304,10 +287,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - keep standalone Android and standalone Web local-first and independent from a Shared
   Care installation; opening Shared Care does not synchronize or replace either
   standalone collection
@@ -325,10 +304,6 @@ groupings are retained from the existing record.
 ## [1.10.4] - 2026-09-22
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - omit the Sex row from Animal details when no sex is stored or the stored value is
   `unknown`
@@ -349,10 +324,6 @@ groupings are retained from the existing record.
 - show an explicit confirmation before assigning the Animal to the scanned Box
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - make the Box scanner reusable through a resolved-Box callback and workflow-specific
   title
@@ -378,10 +349,6 @@ groupings are retained from the existing record.
 - add an optional next-feeding summary to the Animal Overview
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - allow an existing Animal birth date to be cleared
 - clear birth-date accuracy when the associated birth date is removed
@@ -413,10 +380,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - align Animal and Box archive presentation and interaction patterns
 - keep archive sort preferences local to the current installation
 - consolidate project and release documentation around authoritative shared documents
@@ -441,10 +404,6 @@ groupings are retained from the existing record.
   actions
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - make the first Latest Feeding sort selection show the oldest latest feeding first
 - persist Big Picture Mode between application restarts
@@ -496,10 +455,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - remove Category from the Animal sort menu and apply creation time, displayed name,
   age and latest-feeding sorting inside every final category group
 - migrate legacy Category sort preferences to enabled category grouping with the
@@ -547,10 +502,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - retain earlier pictures when a new Animal or Box picture is selected
 - duplicate complete picture galleries with independent MediaAssets
 - advance the local database to Schema Version 12 and migrate each existing persistent
@@ -566,10 +517,6 @@ groupings are retained from the existing record.
 ## [1.7.1] - 2026-09-15
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - move the optional temperature-zone note from Animal forms and details to the owning
   Box, directly above ordinary Box notes
@@ -593,10 +540,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - advance the local database to Schema Version 10; existing Animals migrate to
   category `other` without a subcategory
 - extend Portable Backup Format Version 2 with category and optional subcategory while
@@ -616,10 +559,6 @@ groupings are retained from the existing record.
   and public privacy pages
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - simplify PDF QR sizing to the accessible integer slider from 6 mm to 20 mm while
   preserving the 15 mm default and generated document layout
@@ -644,10 +583,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - generate ZIP archives and vector PDF documents completely on-device before opening
   the operating-system save dialog
 - prevent incomplete ZIP or PDF output when generation fails and treat a cancelled
@@ -669,10 +604,6 @@ groupings are retained from the existing record.
   reusable profile data and copying picture media
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - assign every duplicated Box a new database ID and permanent QR identifier
 - assign every duplicated Animal a new database ID and selected active Box, without
@@ -696,10 +627,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - sort names containing numbers naturally in Box and Animal overviews, so names 1
   through 10 follow numeric order
 - restrict humidity to 0–100 percent and temperature to the documented realistic range
@@ -721,10 +648,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - keep all primary pages in one state-preserving shell so overview scroll positions,
   selected sorting and Settings state survive swipe and tap changes
 - keep the visible navigation indicator synchronized with swipe, keyboard and
@@ -745,10 +668,6 @@ groupings are retained from the existing record.
 - added localized archived-QR results in both the Box and Feeding Mode scanners
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - filter active Box overviews and all Animal assignment choices to active Boxes
 - recheck assigned active Animals transactionally before archiving and name blocking
@@ -801,10 +720,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - display a named Box with its name as the primary overview label while keeping its
   generated Box number visible underneath
 - display non-empty Box names prominently on Box details
@@ -840,10 +755,6 @@ groupings are retained from the existing record.
 - added a non-empty Box notes section to Box details
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - made the pre-restore safety backup optional for the current operation so an empty
   database can be restored without creating an unnecessary archive
@@ -897,10 +808,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - adopted `com.codefrog.terramanager` as the permanent application identifier and
   Android namespace
 - replaced remaining Flutter placeholder names in the prepared platform projects with
@@ -947,10 +854,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - feeding reminders now use the latest FeedingEvent whenever feeding history exists,
   even when that event predates the reminder baseline
 - the reminder baseline is now used only for Animals without FeedingEvents
@@ -980,10 +883,6 @@ groupings are retained from the existing record.
 - optional initial Box selection for the existing New Animal workflow
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - the Animal name sort follows the currently preferred displayed primary name
 - Animals without a birth date remain last for both age directions; never-fed Animals
@@ -1040,10 +939,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - Animal archive and restore operations retain reminder configuration
 - Animal repository writes reject incomplete or non-positive reminder configurations
 - reminder calculations use the later of the configured baseline and latest
@@ -1089,10 +984,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - selected pictures reach the form preview and persistent `MediaAssets` storage only
   after the crop is confirmed
 - cancelling the crop keeps the current picture and form state unchanged
@@ -1136,10 +1027,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - unsupported camera picture sources are disabled inside the source menu without
   blocking Gallery use
 - captured pictures use the existing persistent `MediaAssets` storage and portable
@@ -1167,10 +1054,6 @@ groupings are retained from the existing record.
 - localized backup-validation messages
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - user-visible text is now resolved through generated Flutter localizations
 - language changes are applied immediately without restarting the application
@@ -1202,10 +1085,6 @@ groupings are retained from the existing record.
 - atomic creation of one FeedingEvent per selected Animal
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - Box and Animal detail pictures are now interactive and open in a separate
   full-screen route
@@ -1241,10 +1120,6 @@ groupings are retained from the existing record.
 - first and last record navigation boundaries
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - Animal detail actions continue to target the currently displayed Animal after
   swiping
@@ -1283,10 +1158,6 @@ groupings are retained from the existing record.
 - `media/boxes/` archive media support
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - Box QR identifiers remain immutable when Box metadata is edited
 - Latest Feeding is recalculated after FeedingEvent edits and deletions
@@ -1343,10 +1214,6 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
-
 - Animal pictures are now stored persistently in Drift/SQLite instead of relying on
   temporary `image_picker` paths
 - restored Animal pictures are stored as `MediaAssets`
@@ -1391,10 +1258,6 @@ groupings are retained from the existing record.
 - selectable application accent colors
 
 ### Changed
-
-- Remove Box care picture integration from storage, API, backups and media cleanup.
-  Schema 19 removes the obsolete association table; care records and ordinary
-  gallery data remain intact.
 
 - animal overview now displays active animals only
 - box details only display active assigned animals

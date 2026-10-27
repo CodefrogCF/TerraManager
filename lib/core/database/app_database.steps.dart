@@ -3667,6 +3667,321 @@ final class Schema19 extends i0.VersionedSchema {
   );
 }
 
+final class Schema20 extends i0.VersionedSchema {
+  Schema20({required super.database}) : super(version: 20);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    mediaAssets,
+    boxes,
+    animals,
+    animalWeightEntries,
+    sheddingEvents,
+    feedingEvents,
+    animalPictureAssociations,
+    boxPictureAssociations,
+    careEventTypes,
+    boxCareEvents,
+  ];
+  late final Shape3 mediaAssets = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'media_assets',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_22,
+        _column_23,
+        _column_24,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 boxes = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'boxes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_5,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_31,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_36,
+        _column_16,
+        _column_25,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 animals = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'animals',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_37,
+        _column_38,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_44,
+        _column_45,
+        _column_46,
+        _column_13,
+        _column_14,
+        _column_32,
+        _column_33,
+        _column_34,
+        _column_35,
+        _column_36,
+        _column_15,
+        _column_25,
+        _column_16,
+        _column_17,
+        _column_18,
+        _column_19,
+        _column_29,
+        _column_30,
+        _column_54,
+        _column_55,
+        _column_56,
+        _column_52,
+        _column_53,
+        _column_2,
+        _column_3,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 animalWeightEntries = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'animal_weight_entries',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_39, _column_47, _column_48],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 sheddingEvents = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'shedding_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [
+        _column_0,
+        _column_39,
+        _column_49,
+        _column_16,
+        _column_50,
+        _column_51,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 feedingEvents = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'feeding_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_0, _column_20, _column_21, _column_16],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 animalPictureAssociations = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'animal_picture_associations',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'UNIQUE(media_asset_id)',
+        'UNIQUE(animal_id, sort_order)',
+      ],
+      columns: [_column_0, _column_39, _column_40, _column_41, _column_42],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 boxPictureAssociations = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'box_picture_associations',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'UNIQUE(media_asset_id)',
+        'UNIQUE(box_id, sort_order)',
+      ],
+      columns: [_column_0, _column_43, _column_40, _column_41, _column_42],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape23 careEventTypes = Shape23(
+    source: i0.VersionedTable(
+      entityName: 'care_event_types',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'PRIMARY KEY(id)',
+        'CHECK(revision > 0)',
+        'CHECK(sort_order >= 0)',
+      ],
+      columns: [
+        _column_63,
+        _column_64,
+        _column_65,
+        _column_42,
+        _column_66,
+        _column_60,
+        _column_50,
+        _column_51,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape24 boxCareEvents = Shape24(
+    source: i0.VersionedTable(
+      entityName: 'box_care_events',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'CHECK(type IN (\'substrateChange\', \'cleaning\', \'waterChange\', \'custom\'))',
+        'CHECK((type = \'custom\' AND custom_type_id IS NOT NULL)OR(type <> \'custom\' AND custom_type_id IS NULL))',
+        'CHECK(revision > 0)',
+      ],
+      columns: [
+        _column_0,
+        _column_43,
+        _column_57,
+        _column_67,
+        _column_58,
+        _column_16,
+        _column_59,
+        _column_60,
+        _column_50,
+        _column_51,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape23 extends i0.VersionedTable {
+  Shape23({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get label =>
+      columnsByName['label']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get labelKey =>
+      columnsByName['label_key']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get sortOrder =>
+      columnsByName['sort_order']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get archived =>
+      columnsByName['archived']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get revision =>
+      columnsByName['revision']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_63(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_64(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'label',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_65(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'label_key',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL UNIQUE',
+    );
+i1.GeneratedColumn<int> _column_66(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'archived',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NOT NULL DEFAULT 0 CHECK (archived IN (0, 1))',
+      defaultValue: const i1.CustomExpression('0'),
+    );
+
+class Shape24 extends i0.VersionedTable {
+  Shape24({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<int> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get boxId =>
+      columnsByName['box_id']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get type =>
+      columnsByName['type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get customTypeId =>
+      columnsByName['custom_type_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get occurredAt =>
+      columnsByName['occurred_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get notes =>
+      columnsByName['notes']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get requestId =>
+      columnsByName['request_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get revision =>
+      columnsByName['revision']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<String> _column_67(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'custom_type_id',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL REFERENCES care_event_types(id)',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -3686,6 +4001,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema17 schema) from16To17,
   required Future<void> Function(i1.Migrator m, Schema18 schema) from17To18,
   required Future<void> Function(i1.Migrator m, Schema19 schema) from18To19,
+  required Future<void> Function(i1.Migrator m, Schema20 schema) from19To20,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -3779,6 +4095,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from18To19(migrator, schema);
         return 19;
+      case 19:
+        final schema = Schema20(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from19To20(migrator, schema);
+        return 20;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -3804,6 +4125,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema17 schema) from16To17,
   required Future<void> Function(i1.Migrator m, Schema18 schema) from17To18,
   required Future<void> Function(i1.Migrator m, Schema19 schema) from18To19,
+  required Future<void> Function(i1.Migrator m, Schema20 schema) from19To20,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -3824,5 +4146,6 @@ i1.OnUpgrade stepByStep({
     from16To17: from16To17,
     from17To18: from17To18,
     from18To19: from18To19,
+    from19To20: from19To20,
   ),
 );

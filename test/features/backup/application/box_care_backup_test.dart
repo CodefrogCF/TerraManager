@@ -68,7 +68,7 @@ void main() {
       mimeType: 'image/png',
       data: Uint8List.fromList([1, 2, 3]),
     );
-    for (final type in BoxCareEventType.values) {
+    for (final type in BoxCareEventType.builtIn) {
       await BoxCareRepository(source).add(
         boxId: box,
         type: type,
@@ -77,7 +77,7 @@ void main() {
       );
     }
     final validated = BackupValidationService().validate(await export(source));
-    expect(validated.manifest.databaseSchemaVersion, 19);
+    expect(validated.manifest.databaseSchemaVersion, 20);
     expect(validated.mediaFiles, hasLength(1));
     expect(
       BackupValidationService()
@@ -98,7 +98,7 @@ void main() {
     }
     expect(await target.select(target.mediaAssets).get(), hasLength(1));
     final entries = await BoxCareRepository(target).history(box);
-    expect(entries.map((e) => e.type), BoxCareEventType.values.reversed);
+    expect(entries.map((e) => e.type), BoxCareEventType.builtIn.reversed);
     final kept = (await PictureGalleryRepository(
       target,
     ).getBoxGalleryMediaIds(box)).single;

@@ -911,5 +911,21 @@
   "boxCareFailed": "Care history could not be loaded or saved. Reload the current history and try again. A failed save keeps your draft.",
   "boxCareFuture": "Date and time must not be in the future.",
   "boxCareDeleteConfirm": "Delete this care event?",
-  "boxCareReload": "Reload history"
+  "boxCareReload": "Reload history",
+  "careTypes": "Custom care types",
+  "careTypesDescription": "Manage care types for this collection. Standard care types remain available.",
+  "careTypesEmpty": "No custom care types yet.",
+  "careTypeAdd": "Add care type",
+  "careTypeRename": "Rename",
+  "careTypeLabel": "Label",
+  "careTypeInvalid": "Use 1–80 characters on one line. Standard names are reserved.",
+  "careTypeDuplicate": "This label already exists, possibly as an archived type.",
+  "careTypeSaveFailed": "Care types could not be loaded or saved. Reload the current list and try again. A failed save keeps your draft.",
+  "careTypeArchiveConfirm": "Archive this care type?",
+  "careTypeArchiveHint": "Existing events remain in the history. This type will no longer be offered for new events.",
+  "careTypeMoveUp": "Move up",
+  "careTypeMoveDown": "Move down",
+  "careTypeFilter": "Filter care history",
+  "careTypeAll": "All care types",
+  "careTypeUnavailable": "Unavailable care type"
 }

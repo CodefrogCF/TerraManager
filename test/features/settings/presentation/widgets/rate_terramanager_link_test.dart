@@ -164,7 +164,16 @@ void main() {
         300,
         scrollable: find.byType(Scrollable).first,
       );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const Key('rate-terramanager-link')),
+      );
+      await tester.pumpAndSettle();
       expect(calls, 0);
+      expect(
+        find.byKey(const Key('rate-terramanager-link')).hitTestable(),
+        findsOneWidget,
+      );
       await tester.tap(find.byKey(const Key('rate-terramanager-link')));
       await tester.pumpAndSettle();
       expect(calls, 1);

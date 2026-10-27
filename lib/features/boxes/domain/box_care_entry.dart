@@ -7,6 +7,7 @@ class BoxCareEntry {
     required this.id,
     required this.boxId,
     required this.type,
+    this.customTypeId,
     required this.occurredAt,
     this.notes,
     required this.revision,
@@ -15,6 +16,8 @@ class BoxCareEntry {
   final int id;
   final int boxId;
   final BoxCareEventType type;
+  final String? customTypeId;
+  String get choiceId => customTypeId ?? type.name;
   final DateTime occurredAt;
   final String? notes;
   final int revision;
@@ -24,6 +27,7 @@ class BoxCareEntry {
     id: json['id'] as int,
     boxId: json['boxId'] as int,
     type: BoxCareEventType.values.byName(json['type'] as String),
+    customTypeId: json['customTypeId'] as String?,
     occurredAt: DateTime.parse(json['occurredAt'] as String),
     notes: json['notes'] as String?,
     revision: json['revision'] as int,
@@ -33,6 +37,7 @@ class BoxCareEntry {
     'id': id,
     'boxId': boxId,
     'type': type.name,
+    'customTypeId': customTypeId,
     'occurredAt': occurredAt.toUtc().toIso8601String(),
     'notes': notes,
     'revision': revision,

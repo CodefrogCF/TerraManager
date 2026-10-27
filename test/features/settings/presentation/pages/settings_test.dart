@@ -67,6 +67,7 @@ void main() {
     tester,
   ) async {
     await pumpSettings(tester);
+    expect(find.byKey(const Key('manage-care-types')), findsNothing);
 
     final themeSelector = find.byKey(const Key('theme-mode-selector'));
 

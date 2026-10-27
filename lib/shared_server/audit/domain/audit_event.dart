@@ -43,6 +43,7 @@ List<AuditEvent> collectionAuditEvents(
 }) {
   if (path.isEmpty) return [];
   const roots = {
+    'care-event-types': 'careEventType',
     'boxes': 'box',
     'animals': 'animal',
     'feedings': 'feeding',
@@ -84,6 +85,19 @@ List<AuditEvent> collectionAuditEvents(
       target = path.length > 3 ? numeric(path[3]) : null;
       if (path.length > 4 && path[4] == 'primary') operation = 'set_primary';
     }
+  }
+  if (type == 'careEventType') {
+    final id = path.length > 1
+        ? path[1]
+        : (reply?['careEventType'] as Map?)?['id'];
+    target =
+        id is String &&
+            RegExp(
+              r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+            ).hasMatch(id)
+        ? id
+        : null;
+    if (path.length == 2 && path[1] == 'order') operation = 'reorder';
   }
   final ids = <String>[];
   if (status < 400 && reply != null) {

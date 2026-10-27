@@ -22,6 +22,11 @@ and permanent Box QR values survive full replacement; internal MediaAsset IDs
 are recreated. Media paths are portable relative paths, never device paths.
 Generated QR images are omitted because `qrId` regenerates them.
 
+`careEventTypes` is an optional collection-wide list (empty when absent). Each
+definition contains stable UUID `id`, `label`, `sortOrder`, `archived`, `revision`,
+`createdAt`, and `updatedAt`. Preserve unused and archived definitions. Restore
+validates IDs/labels and inserts definitions before their events.
+
 ## Portable records
 
 Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are
@@ -36,7 +41,7 @@ Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are
 | Animal reminder | `feedingReminderIntervalDays`, `feedingReminderBaseline`, `feedingReminderWeekdays`, `feedingReminderMinuteOfDay`, `feedingReminderTimeZone` |
 | FeedingEvent | `id`, `animalId`, `fedAt`, `notes` |
 | Nested weight entry | `id`, `weightGrams`, `measuredAt` |
-| Nested Box care event | `id`, `type`, `occurredAt`, optional `notes`, `requestId`, positive integer `revision`, `createdAt`, `updatedAt`. Missing `careEvents` means empty history; IDs/retry keys are unique across Boxes. Retired care-picture metadata in older archives is ignored. |
+| Nested Box care event | `id`, `type`, optional `customTypeId` (required for `custom`, otherwise null), `occurredAt`, optional `notes`, `requestId`, positive integer `revision`, `createdAt`, `updatedAt`. Missing `careEvents` means empty history; IDs/retry keys are unique across Boxes. Retired care-picture metadata in older archives is ignored. |
 | Nested shedding entry | `id`, `shedAt`, `notes`, `createdAt`, `updatedAt` |
 | Gallery entry | `mediaPath`, `capturedAt`; list order is retained |
 

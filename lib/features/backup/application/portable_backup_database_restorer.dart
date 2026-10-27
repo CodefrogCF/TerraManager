@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/database/enums/box_care_event_type.dart';
+import '../../boxes/domain/care_event_type_definition.dart';
 import '../../../core/database/validation/animal_weight_parser.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_data.dart';
@@ -16,6 +17,7 @@ class PortableBackupDatabaseRestorer {
   Future<int> restore(ValidatedBackup backup) {
     return database.transaction(() async {
       await database.delete(database.boxCareEvents).go();
+      await database.delete(database.careEventTypes).go();
       await database.delete(database.feedingEvents).go();
 
       await database.delete(database.animalWeightEntries).go();
@@ -47,6 +49,22 @@ class PortableBackupDatabaseRestorer {
         ")",
       );
 
+      for (final type in backup.data.careEventTypes) {
+        await database
+            .into(database.careEventTypes)
+            .insert(
+              CareEventTypesCompanion.insert(
+                id: type.id,
+                label: type.label,
+                labelKey: CareEventTypeDefinition.labelKey(type.label),
+                sortOrder: type.sortOrder,
+                archived: Value(type.archived),
+                revision: Value(type.revision),
+                createdAt: type.createdAt,
+                updatedAt: type.updatedAt,
+              ),
+            );
+      }
       final mediaCache = <String, int>{};
 
       for (final box in backup.data.boxes) {
@@ -110,6 +128,7 @@ class PortableBackupDatabaseRestorer {
                   id: Value(event.id),
                   boxId: box.id,
                   type: BoxCareEventType.values.byName(event.type),
+                  customTypeId: Value(event.customTypeId),
                   occurredAt: event.occurredAt,
                   notes: Value(event.notes),
                   requestId: event.requestId,

@@ -65,7 +65,7 @@ de:
     steps:
     - number: '1'
       heading: Box anlegen
-      body_html: Öffne <strong>Boxen → +</strong>. Ergänze Namen, Abmessungen und optional ein zugeschnittenes Bild. Beim Speichern entsteht die permanente QR-Kennung. Unter <strong>Boxpflege</strong> in den Boxdetails erfasst du Substratwechsel, Reinigung oder Wasserwechsel mit Zeitpunkt und optionaler Notiz. Den Zugang findest du oben rechts neben Bearbeiten. Der Verlauf bleibt in Standalone und Shared Care bei der Box.
+      body_html: Öffne <strong>Boxen → +</strong>. Ergänze Namen, Abmessungen und optional ein zugeschnittenes Bild. Beim Speichern entsteht die permanente QR-Kennung. Unter <strong>Boxpflege</strong> in den Boxdetails erfasst du Substratwechsel, Reinigung oder Wasserwechsel mit Zeitpunkt und optionaler Notiz. Den Zugang findest du oben rechts neben Bearbeiten. Der Verlauf bleibt in Standalone und Shared Care bei der Box. Eigene Pflegearten legst du direkt im Pflegeverlauf über <strong>Eigene Pflegearten</strong> an und verwaltest sie dort. Archivierte Arten bleiben im Verlauf filterbar.
       images:
       - file: boxes-overview.webp
         alt: Boxübersicht mit mehreren Behältern
@@ -307,7 +307,7 @@ en:
     steps:
     - number: '1'
       heading: Add an enclosure
-      body_html: Open <strong>Boxes → +</strong>. Add a name, dimensions and an optional cropped picture. Saving creates the permanent QR identifier. Use <strong>Enclosure care</strong> in Box details for dated substrate changes, cleaning or water changes, with optional notes. Open it from the top right, next to Edit. Entries stay with the enclosure in Standalone and Shared Care.
+      body_html: Open <strong>Boxes → +</strong>. Add a name, dimensions and an optional cropped picture. Saving creates the permanent QR identifier. Use <strong>Enclosure care</strong> in Box details for dated substrate changes, cleaning or water changes, with optional notes. Open it from the top right, next to Edit. Entries stay with the enclosure in Standalone and Shared Care. Add and manage custom types directly from the care history using <strong>Custom care types</strong>. Archived types remain filterable in history.
       images:
       - file: boxes-overview.webp
         alt: Enclosure overview with multiple enclosures

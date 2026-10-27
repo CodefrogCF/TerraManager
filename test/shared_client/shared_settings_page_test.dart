@@ -50,6 +50,7 @@ void main() {
     await tester.pumpWidget(page('administrator'));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('shared-theme-mode-selector')), findsOneWidget);
+    expect(find.byKey(const Key('manage-care-types')), findsNothing);
     expect(find.text('Übersichten'), findsNothing);
     expect(find.byKey(const Key('shared-box-sort-selector')), findsNothing);
     expect(find.byKey(const Key('shared-animal-sort-selector')), findsNothing);

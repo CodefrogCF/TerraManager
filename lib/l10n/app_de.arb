@@ -760,5 +760,21 @@
   "boxCareFailed": "Der Pflegeverlauf konnte nicht geladen oder gespeichert werden. Lade den aktuellen Stand neu und versuche es erneut. Dein Entwurf bleibt bei einem Speicherfehler erhalten.",
   "boxCareFuture": "Datum und Uhrzeit dürfen nicht in der Zukunft liegen.",
   "boxCareDeleteConfirm": "Diesen Pflegeeintrag löschen?",
-  "boxCareReload": "Verlauf neu laden"
+  "boxCareReload": "Verlauf neu laden",
+  "careTypes": "Eigene Pflegearten",
+  "careTypesDescription": "Verwalte eigene Pflegearten für diese Sammlung. Die Standardarten bleiben verfügbar.",
+  "careTypesEmpty": "Noch keine eigenen Pflegearten vorhanden.",
+  "careTypeAdd": "Pflegeart hinzufügen",
+  "careTypeRename": "Umbenennen",
+  "careTypeLabel": "Bezeichnung",
+  "careTypeInvalid": "Verwende 1–80 Zeichen in einer Zeile. Standardbezeichnungen sind reserviert.",
+  "careTypeDuplicate": "Diese Bezeichnung ist bereits vorhanden, eventuell als archivierte Pflegeart.",
+  "careTypeSaveFailed": "Die Pflegearten konnten nicht geladen oder gespeichert werden. Lade die aktuelle Liste neu und versuche es erneut. Dein Entwurf bleibt bei einem Speicherfehler erhalten.",
+  "careTypeArchiveConfirm": "Diese Pflegeart archivieren?",
+  "careTypeArchiveHint": "Vorhandene Einträge bleiben im Verlauf erhalten. Für neue Einträge wird diese Pflegeart nicht mehr angeboten.",
+  "careTypeMoveUp": "Nach oben",
+  "careTypeMoveDown": "Nach unten",
+  "careTypeFilter": "Pflegeverlauf filtern",
+  "careTypeAll": "Alle Pflegearten",
+  "careTypeUnavailable": "Nicht verfügbare Pflegeart"
 }

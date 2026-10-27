@@ -14,12 +14,19 @@ class BoxCareOperations extends CollectionOperations {
   });
 
   Future<ApiReply> create(int boxId, ApiInput input) async {
-    input.allow(const {'type', 'occurredAt', 'notes', 'requestId'});
+    input.allow(const {
+      'type',
+      'customTypeId',
+      'occurredAt',
+      'notes',
+      'requestId',
+    });
     final requestId = input.string('requestId', maxLength: 64);
     final previous = await _repository.byRequestId(requestId);
     final id = await _repository.add(
       boxId: boxId,
       type: input.enumerated('type', BoxCareEventType.values),
+      customTypeId: input.nullableString('customTypeId', maxLength: 36),
       occurredAt: input.dateTime('occurredAt'),
       notes: input.nullableString('notes'),
       requestId: requestId,
@@ -34,6 +41,7 @@ class BoxCareOperations extends CollectionOperations {
   Future<ApiReply> update(int boxId, int id, ApiInput input) async {
     input.allow(const {
       'type',
+      'customTypeId',
       'occurredAt',
       'notes',
       'expectedRevision',
@@ -45,6 +53,7 @@ class BoxCareOperations extends CollectionOperations {
       expectedRevision: input.integer('expectedRevision'),
       expectedRequestId: input.string('expectedRequestId', maxLength: 64),
       type: input.enumerated('type', BoxCareEventType.values),
+      customTypeId: input.nullableString('customTypeId', maxLength: 36),
       occurredAt: input.dateTime('occurredAt'),
       notes: input.nullableString('notes'),
     );

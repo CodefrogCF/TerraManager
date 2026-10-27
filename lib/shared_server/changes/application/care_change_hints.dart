@@ -45,6 +45,9 @@ class CareChangeHints {
 
   Map<String, Iterable<int>?> complete(ApiReply reply) {
     if (reply.status < 200 || reply.status >= 300 || reply.replayed) return {};
+    if (path.firstOrNull == 'care-event-types') {
+      return {'audit': null, 'careEventTypes': null};
+    }
     final resources = <String, Iterable<int>?>{'audit': null};
     final ids = <int>{};
     final id = path.length > 1 ? int.tryParse(path[1]) : null;

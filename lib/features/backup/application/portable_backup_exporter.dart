@@ -6,6 +6,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/repositories/animal_repository.dart';
 import '../../../core/database/repositories/animal_weight_repository.dart';
 import '../../../core/database/repositories/box_repository.dart';
+import '../../../core/database/repositories/care_event_type_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
 import '../../../core/database/repositories/media_repository.dart';
 import '../../../core/database/repositories/picture_gallery_repository.dart';
@@ -85,6 +86,7 @@ class PortableBackupExporter {
           BackupBoxCareEvent(
             id: event.id,
             type: event.type.name,
+            customTypeId: event.customTypeId,
             occurredAt: event.occurredAt,
             notes: event.notes,
             requestId: event.requestId,
@@ -208,6 +210,7 @@ class PortableBackupExporter {
     }
 
     final backupData = BackupData(
+      careEventTypes: await CareEventTypeRepository(database).all(),
       boxes: backupBoxes,
       animals: backupAnimals,
       feedingEvents: feedingEvents

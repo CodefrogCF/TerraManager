@@ -73,6 +73,7 @@ They belong to the account and are excluded from portable collection backups.
 | Weight | `GET/POST /animals/{id}/weights`; `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`; `PUT/DELETE /animals/{id}/shedding/{eventId}` |
 | Box care | `GET/POST /boxes/{id}/care-events`; `PUT/DELETE /boxes/{id}/care-events/{eventId}` |
+| Custom care types | `GET/POST /care-event-types`; `PATCH /care-event-types/{uuid}`; `PUT /care-event-types/order` |
 | Galleries | `GET/POST /animals/{id}/pictures` and `/boxes/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
 | Media | `GET /media/{id}`; standalone `POST /media` is unsupported |
 | Changes | `GET /changes`, `GET /changes/events`; [contract](shared-care-change-contract.md) |
@@ -86,15 +87,27 @@ editable fields and additionally requires `category`, `showWeightOnDetail`,
 `showSheddingOnDetail`; Box PATCH changes supplied fields only. Ordinary edits
 cannot assign IDs, QR values, lifecycle state or archive timestamps.
 
-Box care POST requires `type` (`substrateChange`, `cleaning`, `waterChange`), UTC
+Box care POST requires `type` (`substrateChange`, `cleaning`, `waterChange`, `custom`), UTC
 `occurredAt` and a stable `requestId` (1–64 characters). `notes` is optional;
-care events have no media fields.
-PUT supplies `type`, `occurredAt`, optional `notes`, integer `expectedRevision` and immutable
+care events have no media fields. `custom` additionally requires a defined
+`customTypeId`; standard types require null/absent `customTypeId`. New events
+cannot select archived definitions; existing entries may retain theirs.
+PUT supplies `type`, `customTypeId`, `occurredAt`, optional `notes`, integer `expectedRevision` and immutable
 `expectedRequestId`; DELETE supplies both guards. The identity guard also prevents
 old drafts from changing a different event after restore reuses numeric IDs. Stale writes return `409 stale_record`. Retries of the same
 POST return the existing entry without a second commit. Archived histories are
 read-only; permanent deletion remains administrator-only. Committed care changes
 invalidate `boxCareHistories` for the owning Box ID through the existing change stream.
+
+Custom definitions are collection data, available to both authenticated roles.
+POST takes a client-generated v4 UUID `id` and `label`; an identical retry reuses
+the definition. PATCH takes `label`, `archived`, and `expectedRevision`. PUT
+`/care-event-types/order` takes the complete ordered `order: [{id, revision}]`.
+Stale or duplicate changes return 409. Labels are normalized, unique across active
+and archived definitions, and reject controls/reserved standard labels. No delete
+endpoint exists. Committed metadata changes invalidate `careEventTypes: null`;
+open histories and care-type management refresh through the existing SSE/fallback mechanism.
+
 
 ## Conflicts, histories and retries
 

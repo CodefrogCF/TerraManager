@@ -2,6 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:terramanager/shared_server/boxes/application/care_event_type_operations.dart';
+import 'package:terramanager/shared_server/boxes/infrastructure/http/care_event_type_handler.dart';
+
 import 'package:terramanager/shared_server/boxes/application/box_care_operations.dart';
 
 import 'package:sqlite3/sqlite3.dart' show SqlError, SqliteException;
@@ -39,6 +42,9 @@ class CareApi {
   final CommittedChanges? changes;
   final String? Function(HttpRequest)? cursorForRequest;
 
+  late final _careTypes = CareEventTypeHandler(
+    CareEventTypeOperations(database),
+  );
   late final _feedingOperations = FeedingOperations(database);
   late final _mediaHandler = MediaHandler(MediaOperations(database));
   late final _historyHandler = AnimalHistoryHandler(
@@ -225,6 +231,9 @@ class CareApi {
     }
     final path = segments.skip(2).toList(growable: false);
     final method = request.method;
+    if (path[0] == 'care-event-types') {
+      return _careTypes.handle(path, method, request);
+    }
     if (path[0] == 'boxes') return _boxHandler.handle(path, method, request);
     if (path[0] == 'animals') {
       return _animalHandler.handle(path, method, request);

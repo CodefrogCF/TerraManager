@@ -1,3 +1,5 @@
+import '../../boxes/domain/care_event_type_definition.dart';
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -466,6 +468,28 @@ class BackupValidationService {
     final qrIds = <String>{};
     final careIds = <int>{};
     final careRequests = <String>{};
+    final customIds = <String>{};
+    final customLabels = <String>{};
+    for (final type in data.careEventTypes) {
+      var valid = false;
+      try {
+        valid =
+            CareEventTypeDefinition.validId(type.id) &&
+            customIds.add(type.id) &&
+            type.label == CareEventTypeDefinition.normalizeLabel(type.label) &&
+            customLabels.add(CareEventTypeDefinition.labelKey(type.label)) &&
+            type.sortOrder >= 0 &&
+            type.revision > 0;
+      } on ArgumentError {
+        valid = false;
+      }
+      if (!valid) {
+        throw const BackupValidationException(
+          code: BackupValidationErrorCode.invalidData,
+          message: 'Invalid or duplicate custom care type.',
+        );
+      }
+    }
 
     for (final box in data.boxes) {
       if (box.id <= 0) {
@@ -507,7 +531,11 @@ class BackupValidationService {
               'substrateChange',
               'cleaning',
               'waterChange',
+              'custom',
             }.contains(event.type) ||
+            (event.type == 'custom'
+                ? !customIds.contains(event.customTypeId)
+                : event.customTypeId != null) ||
             event.revision < 1 ||
             event.requestId.isEmpty ||
             event.requestId.length > 64 ||

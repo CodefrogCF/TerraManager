@@ -33,11 +33,31 @@ class BoxCareRepository {
       id: event.id,
       boxId: event.boxId,
       type: event.type,
+      customTypeId: event.customTypeId,
       occurredAt: event.occurredAt,
       notes: event.notes,
       revision: event.revision,
       requestId: event.requestId,
     );
+  }
+
+  Future<void> _validateType(
+    BoxCareEventType type,
+    String? id, {
+    BoxCareEvent? previous,
+  }) async {
+    if (type != BoxCareEventType.custom) {
+      if (id != null) throw ArgumentError('Unexpected custom care type.');
+      return;
+    }
+    if (id == null) throw ArgumentError('Custom care type is required.');
+    final definition = await (database.select(
+      database.careEventTypes,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
+    if (definition == null ||
+        (definition.archived && previous?.customTypeId != id)) {
+      throw ArgumentError('Care type is unavailable.');
+    }
   }
 
   Future<void> _validate(int boxId, DateTime at, String? notes) async {
@@ -58,6 +78,7 @@ class BoxCareRepository {
   Future<int> add({
     required int boxId,
     required BoxCareEventType type,
+    String? customTypeId,
     required DateTime occurredAt,
     String? notes,
     String? requestId,
@@ -71,12 +92,14 @@ class BoxCareRepository {
     if (previous != null) {
       if (previous.boxId != boxId ||
           previous.type != type ||
+          previous.customTypeId != customTypeId ||
           !previous.occurredAt.isAtSameMomentAs(_seconds(occurredAt)) ||
           previous.notes != normalized) {
         throw StateError('Request ID already used for another event.');
       }
       return previous.id;
     }
+    await _validateType(type, customTypeId);
     await _validate(boxId, occurredAt, normalized);
     final now = DateTime.now();
     final id = await database
@@ -85,6 +108,7 @@ class BoxCareRepository {
           BoxCareEventsCompanion.insert(
             boxId: boxId,
             type: type,
+            customTypeId: Value(customTypeId),
             occurredAt: occurredAt,
             notes: Value(normalized),
             requestId: key,
@@ -101,9 +125,21 @@ class BoxCareRepository {
     required int expectedRevision,
     required String expectedRequestId,
     required BoxCareEventType type,
+    String? customTypeId,
     required DateTime occurredAt,
     String? notes,
   }) => database.transaction(() async {
+    final previous =
+        await (database.select(database.boxCareEvents)..where(
+              (e) =>
+                  e.id.equals(id) &
+                  e.boxId.equals(boxId) &
+                  e.revision.equals(expectedRevision) &
+                  e.requestId.equals(expectedRequestId),
+            ))
+            .getSingleOrNull();
+    if (previous == null) return false;
+    await _validateType(type, customTypeId, previous: previous);
     await _validate(boxId, occurredAt, notes);
     final changed =
         await (database.update(database.boxCareEvents)..where(
@@ -116,6 +152,7 @@ class BoxCareRepository {
             .write(
               BoxCareEventsCompanion(
                 type: Value(type),
+                customTypeId: Value(customTypeId),
                 occurredAt: Value(occurredAt),
                 notes: Value(_notes(notes)),
                 revision: Value(expectedRevision + 1),

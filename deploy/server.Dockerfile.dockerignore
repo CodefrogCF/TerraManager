@@ -17,6 +17,7 @@ lib/core/database/app_database_connection_flutter.dart
 !lib/features/boxes/
 !lib/features/boxes/domain/
 !lib/features/boxes/domain/box_care_entry.dart
+!lib/features/boxes/domain/care_event_type_definition.dart
 !lib/features/feedings/
 !lib/features/feedings/application/
 !lib/features/feedings/application/feeding_reminder_service.dart

@@ -4,7 +4,9 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/enums/box_status.dart';
 import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/box_care_repository.dart';
+import '../../../core/database/repositories/care_event_type_repository.dart';
 import 'pages/box_care_history_page.dart';
+import 'standalone_care_event_types.dart';
 
 Future<void> openStandaloneBoxCareHistory(
   BuildContext context, {
@@ -17,12 +19,14 @@ Future<void> openStandaloneBoxCareHistory(
     MaterialPageRoute<void>(
       builder: (context) => BoxCareHistoryPage(
         boxLabel: label,
+        manageTypes: () => openStandaloneCareEventTypes(context, database),
         load: () async {
           final box = await BoxRepository(database).getBoxById(boxId);
           if (box == null) throw StateError('Box no longer exists');
           return BoxCareHistoryData(
             entries: await repository.history(boxId),
             active: box.status == BoxStatus.active,
+            types: await CareEventTypeRepository(database).all(),
           );
         },
         updates: database.tableUpdates().where(
@@ -30,6 +34,7 @@ Future<void> openStandaloneBoxCareHistory(
             (update) => {
               database.boxCareEvents.actualTableName,
               database.boxes.actualTableName,
+              database.careEventTypes.actualTableName,
             }.contains(update.table),
           ),
         ),
@@ -37,6 +42,7 @@ Future<void> openStandaloneBoxCareHistory(
             ({
               existing,
               required type,
+              customTypeId,
               required occurredAt,
               notes,
               required requestId,
@@ -45,6 +51,7 @@ Future<void> openStandaloneBoxCareHistory(
                 await repository.add(
                   boxId: boxId,
                   type: type,
+                  customTypeId: customTypeId,
                   occurredAt: occurredAt,
                   notes: notes,
                   requestId: requestId,
@@ -57,6 +64,7 @@ Future<void> openStandaloneBoxCareHistory(
                 expectedRevision: existing.revision,
                 expectedRequestId: existing.requestId,
                 type: type,
+                customTypeId: customTypeId,
                 occurredAt: occurredAt,
                 notes: notes,
               );

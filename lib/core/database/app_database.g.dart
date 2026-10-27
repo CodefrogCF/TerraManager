@@ -5189,6 +5189,521 @@ class BoxPictureAssociationsCompanion
   }
 }
 
+class $CareEventTypesTable extends CareEventTypes
+    with TableInfo<$CareEventTypesTable, CareEventTypeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CareEventTypesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 80,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelKeyMeta = const VerificationMeta(
+    'labelKey',
+  );
+  @override
+  late final GeneratedColumn<String> labelKey = GeneratedColumn<String>(
+    'label_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _archivedMeta = const VerificationMeta(
+    'archived',
+  );
+  @override
+  late final GeneratedColumn<bool> archived = GeneratedColumn<bool>(
+    'archived',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("archived" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    label,
+    labelKey,
+    sortOrder,
+    archived,
+    revision,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'care_event_types';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CareEventTypeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_labelMeta);
+    }
+    if (data.containsKey('label_key')) {
+      context.handle(
+        _labelKeyMeta,
+        labelKey.isAcceptableOrUnknown(data['label_key']!, _labelKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_labelKeyMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    if (data.containsKey('archived')) {
+      context.handle(
+        _archivedMeta,
+        archived.isAcceptableOrUnknown(data['archived']!, _archivedMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CareEventTypeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CareEventTypeRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      )!,
+      labelKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label_key'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      archived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}archived'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CareEventTypesTable createAlias(String alias) {
+    return $CareEventTypesTable(attachedDatabase, alias);
+  }
+}
+
+class CareEventTypeRow extends DataClass
+    implements Insertable<CareEventTypeRow> {
+  final String id;
+  final String label;
+  final String labelKey;
+  final int sortOrder;
+  final bool archived;
+  final int revision;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const CareEventTypeRow({
+    required this.id,
+    required this.label,
+    required this.labelKey,
+    required this.sortOrder,
+    required this.archived,
+    required this.revision,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['label'] = Variable<String>(label);
+    map['label_key'] = Variable<String>(labelKey);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['archived'] = Variable<bool>(archived);
+    map['revision'] = Variable<int>(revision);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CareEventTypesCompanion toCompanion(bool nullToAbsent) {
+    return CareEventTypesCompanion(
+      id: Value(id),
+      label: Value(label),
+      labelKey: Value(labelKey),
+      sortOrder: Value(sortOrder),
+      archived: Value(archived),
+      revision: Value(revision),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CareEventTypeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CareEventTypeRow(
+      id: serializer.fromJson<String>(json['id']),
+      label: serializer.fromJson<String>(json['label']),
+      labelKey: serializer.fromJson<String>(json['labelKey']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      archived: serializer.fromJson<bool>(json['archived']),
+      revision: serializer.fromJson<int>(json['revision']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'label': serializer.toJson<String>(label),
+      'labelKey': serializer.toJson<String>(labelKey),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'archived': serializer.toJson<bool>(archived),
+      'revision': serializer.toJson<int>(revision),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  CareEventTypeRow copyWith({
+    String? id,
+    String? label,
+    String? labelKey,
+    int? sortOrder,
+    bool? archived,
+    int? revision,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => CareEventTypeRow(
+    id: id ?? this.id,
+    label: label ?? this.label,
+    labelKey: labelKey ?? this.labelKey,
+    sortOrder: sortOrder ?? this.sortOrder,
+    archived: archived ?? this.archived,
+    revision: revision ?? this.revision,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CareEventTypeRow copyWithCompanion(CareEventTypesCompanion data) {
+    return CareEventTypeRow(
+      id: data.id.present ? data.id.value : this.id,
+      label: data.label.present ? data.label.value : this.label,
+      labelKey: data.labelKey.present ? data.labelKey.value : this.labelKey,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      archived: data.archived.present ? data.archived.value : this.archived,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CareEventTypeRow(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('labelKey: $labelKey, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('archived: $archived, ')
+          ..write('revision: $revision, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    label,
+    labelKey,
+    sortOrder,
+    archived,
+    revision,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CareEventTypeRow &&
+          other.id == this.id &&
+          other.label == this.label &&
+          other.labelKey == this.labelKey &&
+          other.sortOrder == this.sortOrder &&
+          other.archived == this.archived &&
+          other.revision == this.revision &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CareEventTypesCompanion extends UpdateCompanion<CareEventTypeRow> {
+  final Value<String> id;
+  final Value<String> label;
+  final Value<String> labelKey;
+  final Value<int> sortOrder;
+  final Value<bool> archived;
+  final Value<int> revision;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const CareEventTypesCompanion({
+    this.id = const Value.absent(),
+    this.label = const Value.absent(),
+    this.labelKey = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.archived = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CareEventTypesCompanion.insert({
+    required String id,
+    required String label,
+    required String labelKey,
+    required int sortOrder,
+    this.archived = const Value.absent(),
+    this.revision = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       label = Value(label),
+       labelKey = Value(labelKey),
+       sortOrder = Value(sortOrder),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<CareEventTypeRow> custom({
+    Expression<String>? id,
+    Expression<String>? label,
+    Expression<String>? labelKey,
+    Expression<int>? sortOrder,
+    Expression<bool>? archived,
+    Expression<int>? revision,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (label != null) 'label': label,
+      if (labelKey != null) 'label_key': labelKey,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (archived != null) 'archived': archived,
+      if (revision != null) 'revision': revision,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CareEventTypesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? label,
+    Value<String>? labelKey,
+    Value<int>? sortOrder,
+    Value<bool>? archived,
+    Value<int>? revision,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return CareEventTypesCompanion(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      labelKey: labelKey ?? this.labelKey,
+      sortOrder: sortOrder ?? this.sortOrder,
+      archived: archived ?? this.archived,
+      revision: revision ?? this.revision,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (labelKey.present) {
+      map['label_key'] = Variable<String>(labelKey.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (archived.present) {
+      map['archived'] = Variable<bool>(archived.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CareEventTypesCompanion(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('labelKey: $labelKey, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('archived: $archived, ')
+          ..write('revision: $revision, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BoxCareEventsTable extends BoxCareEvents
     with TableInfo<$BoxCareEventsTable, BoxCareEvent> {
   @override
@@ -5229,6 +5744,20 @@ class $BoxCareEventsTable extends BoxCareEvents
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       ).withConverter<BoxCareEventType>($BoxCareEventsTable.$convertertype);
+  static const VerificationMeta _customTypeIdMeta = const VerificationMeta(
+    'customTypeId',
+  );
+  @override
+  late final GeneratedColumn<String> customTypeId = GeneratedColumn<String>(
+    'custom_type_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES care_event_types (id)',
+    ),
+  );
   static const VerificationMeta _occurredAtMeta = const VerificationMeta(
     'occurredAt',
   );
@@ -5300,6 +5829,7 @@ class $BoxCareEventsTable extends BoxCareEvents
     id,
     boxId,
     type,
+    customTypeId,
     occurredAt,
     notes,
     requestId,
@@ -5329,6 +5859,15 @@ class $BoxCareEventsTable extends BoxCareEvents
       );
     } else if (isInserting) {
       context.missing(_boxIdMeta);
+    }
+    if (data.containsKey('custom_type_id')) {
+      context.handle(
+        _customTypeIdMeta,
+        customTypeId.isAcceptableOrUnknown(
+          data['custom_type_id']!,
+          _customTypeIdMeta,
+        ),
+      );
     }
     if (data.containsKey('occurred_at')) {
       context.handle(
@@ -5397,6 +5936,10 @@ class $BoxCareEventsTable extends BoxCareEvents
           data['${effectivePrefix}type'],
         )!,
       ),
+      customTypeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_type_id'],
+      ),
       occurredAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}occurred_at'],
@@ -5437,6 +5980,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
   final int id;
   final int boxId;
   final BoxCareEventType type;
+  final String? customTypeId;
   final DateTime occurredAt;
   final String? notes;
   final String requestId;
@@ -5447,6 +5991,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
     required this.id,
     required this.boxId,
     required this.type,
+    this.customTypeId,
     required this.occurredAt,
     this.notes,
     required this.requestId,
@@ -5464,6 +6009,9 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
         $BoxCareEventsTable.$convertertype.toSql(type),
       );
     }
+    if (!nullToAbsent || customTypeId != null) {
+      map['custom_type_id'] = Variable<String>(customTypeId);
+    }
     map['occurred_at'] = Variable<DateTime>(occurredAt);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
@@ -5480,6 +6028,9 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
       id: Value(id),
       boxId: Value(boxId),
       type: Value(type),
+      customTypeId: customTypeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customTypeId),
       occurredAt: Value(occurredAt),
       notes: notes == null && nullToAbsent
           ? const Value.absent()
@@ -5502,6 +6053,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
       type: $BoxCareEventsTable.$convertertype.fromJson(
         serializer.fromJson<String>(json['type']),
       ),
+      customTypeId: serializer.fromJson<String?>(json['customTypeId']),
       occurredAt: serializer.fromJson<DateTime>(json['occurredAt']),
       notes: serializer.fromJson<String?>(json['notes']),
       requestId: serializer.fromJson<String>(json['requestId']),
@@ -5519,6 +6071,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
       'type': serializer.toJson<String>(
         $BoxCareEventsTable.$convertertype.toJson(type),
       ),
+      'customTypeId': serializer.toJson<String?>(customTypeId),
       'occurredAt': serializer.toJson<DateTime>(occurredAt),
       'notes': serializer.toJson<String?>(notes),
       'requestId': serializer.toJson<String>(requestId),
@@ -5532,6 +6085,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
     int? id,
     int? boxId,
     BoxCareEventType? type,
+    Value<String?> customTypeId = const Value.absent(),
     DateTime? occurredAt,
     Value<String?> notes = const Value.absent(),
     String? requestId,
@@ -5542,6 +6096,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
     id: id ?? this.id,
     boxId: boxId ?? this.boxId,
     type: type ?? this.type,
+    customTypeId: customTypeId.present ? customTypeId.value : this.customTypeId,
     occurredAt: occurredAt ?? this.occurredAt,
     notes: notes.present ? notes.value : this.notes,
     requestId: requestId ?? this.requestId,
@@ -5554,6 +6109,9 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
       id: data.id.present ? data.id.value : this.id,
       boxId: data.boxId.present ? data.boxId.value : this.boxId,
       type: data.type.present ? data.type.value : this.type,
+      customTypeId: data.customTypeId.present
+          ? data.customTypeId.value
+          : this.customTypeId,
       occurredAt: data.occurredAt.present
           ? data.occurredAt.value
           : this.occurredAt,
@@ -5571,6 +6129,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
           ..write('id: $id, ')
           ..write('boxId: $boxId, ')
           ..write('type: $type, ')
+          ..write('customTypeId: $customTypeId, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('notes: $notes, ')
           ..write('requestId: $requestId, ')
@@ -5586,6 +6145,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
     id,
     boxId,
     type,
+    customTypeId,
     occurredAt,
     notes,
     requestId,
@@ -5600,6 +6160,7 @@ class BoxCareEvent extends DataClass implements Insertable<BoxCareEvent> {
           other.id == this.id &&
           other.boxId == this.boxId &&
           other.type == this.type &&
+          other.customTypeId == this.customTypeId &&
           other.occurredAt == this.occurredAt &&
           other.notes == this.notes &&
           other.requestId == this.requestId &&
@@ -5612,6 +6173,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
   final Value<int> id;
   final Value<int> boxId;
   final Value<BoxCareEventType> type;
+  final Value<String?> customTypeId;
   final Value<DateTime> occurredAt;
   final Value<String?> notes;
   final Value<String> requestId;
@@ -5622,6 +6184,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
     this.id = const Value.absent(),
     this.boxId = const Value.absent(),
     this.type = const Value.absent(),
+    this.customTypeId = const Value.absent(),
     this.occurredAt = const Value.absent(),
     this.notes = const Value.absent(),
     this.requestId = const Value.absent(),
@@ -5633,6 +6196,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
     this.id = const Value.absent(),
     required int boxId,
     required BoxCareEventType type,
+    this.customTypeId = const Value.absent(),
     required DateTime occurredAt,
     this.notes = const Value.absent(),
     required String requestId,
@@ -5649,6 +6213,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
     Expression<int>? id,
     Expression<int>? boxId,
     Expression<String>? type,
+    Expression<String>? customTypeId,
     Expression<DateTime>? occurredAt,
     Expression<String>? notes,
     Expression<String>? requestId,
@@ -5660,6 +6225,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
       if (id != null) 'id': id,
       if (boxId != null) 'box_id': boxId,
       if (type != null) 'type': type,
+      if (customTypeId != null) 'custom_type_id': customTypeId,
       if (occurredAt != null) 'occurred_at': occurredAt,
       if (notes != null) 'notes': notes,
       if (requestId != null) 'request_id': requestId,
@@ -5673,6 +6239,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
     Value<int>? id,
     Value<int>? boxId,
     Value<BoxCareEventType>? type,
+    Value<String?>? customTypeId,
     Value<DateTime>? occurredAt,
     Value<String?>? notes,
     Value<String>? requestId,
@@ -5684,6 +6251,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
       id: id ?? this.id,
       boxId: boxId ?? this.boxId,
       type: type ?? this.type,
+      customTypeId: customTypeId ?? this.customTypeId,
       occurredAt: occurredAt ?? this.occurredAt,
       notes: notes ?? this.notes,
       requestId: requestId ?? this.requestId,
@@ -5706,6 +6274,9 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
       map['type'] = Variable<String>(
         $BoxCareEventsTable.$convertertype.toSql(type.value),
       );
+    }
+    if (customTypeId.present) {
+      map['custom_type_id'] = Variable<String>(customTypeId.value);
     }
     if (occurredAt.present) {
       map['occurred_at'] = Variable<DateTime>(occurredAt.value);
@@ -5734,6 +6305,7 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
           ..write('id: $id, ')
           ..write('boxId: $boxId, ')
           ..write('type: $type, ')
+          ..write('customTypeId: $customTypeId, ')
           ..write('occurredAt: $occurredAt, ')
           ..write('notes: $notes, ')
           ..write('requestId: $requestId, ')
@@ -5759,6 +6331,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $AnimalPictureAssociationsTable(this);
   late final $BoxPictureAssociationsTable boxPictureAssociations =
       $BoxPictureAssociationsTable(this);
+  late final $CareEventTypesTable careEventTypes = $CareEventTypesTable(this);
   late final $BoxCareEventsTable boxCareEvents = $BoxCareEventsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -5773,6 +6346,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     feedingEvents,
     animalPictureAssociations,
     boxPictureAssociations,
+    careEventTypes,
     boxCareEvents,
   ];
   @override
@@ -10504,11 +11078,381 @@ typedef $$BoxPictureAssociationsTableProcessedTableManager =
       BoxPictureAssociation,
       PrefetchHooks Function({bool boxId, bool mediaAssetId})
     >;
+typedef $$CareEventTypesTableCreateCompanionBuilder =
+    CareEventTypesCompanion Function({
+      required String id,
+      required String label,
+      required String labelKey,
+      required int sortOrder,
+      Value<bool> archived,
+      Value<int> revision,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$CareEventTypesTableUpdateCompanionBuilder =
+    CareEventTypesCompanion Function({
+      Value<String> id,
+      Value<String> label,
+      Value<String> labelKey,
+      Value<int> sortOrder,
+      Value<bool> archived,
+      Value<int> revision,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$CareEventTypesTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $CareEventTypesTable, CareEventTypeRow> {
+  $$CareEventTypesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$BoxCareEventsTable, List<BoxCareEvent>>
+  _boxCareEventsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.boxCareEvents,
+    aliasName: 'care_event_types__id__box_care_events__custom_type_id',
+  );
+
+  $$BoxCareEventsTableProcessedTableManager get boxCareEventsRefs {
+    final manager = $$BoxCareEventsTableTableManager(
+      $_db,
+      $_db.boxCareEvents,
+    ).filter((f) => f.customTypeId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_boxCareEventsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$CareEventTypesTableFilterComposer
+    extends Composer<_$AppDatabase, $CareEventTypesTable> {
+  $$CareEventTypesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get labelKey => $composableBuilder(
+    column: $table.labelKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> boxCareEventsRefs(
+    Expression<bool> Function($$BoxCareEventsTableFilterComposer f) f,
+  ) {
+    final $$BoxCareEventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.boxCareEvents,
+      getReferencedColumn: (t) => t.customTypeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxCareEventsTableFilterComposer(
+            $db: $db,
+            $table: $db.boxCareEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CareEventTypesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CareEventTypesTable> {
+  $$CareEventTypesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get labelKey => $composableBuilder(
+    column: $table.labelKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CareEventTypesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CareEventTypesTable> {
+  $$CareEventTypesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get labelKey =>
+      $composableBuilder(column: $table.labelKey, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get archived =>
+      $composableBuilder(column: $table.archived, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> boxCareEventsRefs<T extends Object>(
+    Expression<T> Function($$BoxCareEventsTableAnnotationComposer a) f,
+  ) {
+    final $$BoxCareEventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.boxCareEvents,
+      getReferencedColumn: (t) => t.customTypeId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxCareEventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.boxCareEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$CareEventTypesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CareEventTypesTable,
+          CareEventTypeRow,
+          $$CareEventTypesTableFilterComposer,
+          $$CareEventTypesTableOrderingComposer,
+          $$CareEventTypesTableAnnotationComposer,
+          $$CareEventTypesTableCreateCompanionBuilder,
+          $$CareEventTypesTableUpdateCompanionBuilder,
+          (CareEventTypeRow, $$CareEventTypesTableReferences),
+          CareEventTypeRow,
+          PrefetchHooks Function({bool boxCareEventsRefs})
+        > {
+  $$CareEventTypesTableTableManager(
+    _$AppDatabase db,
+    $CareEventTypesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CareEventTypesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CareEventTypesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CareEventTypesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<String> labelKey = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> archived = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CareEventTypesCompanion(
+                id: id,
+                label: label,
+                labelKey: labelKey,
+                sortOrder: sortOrder,
+                archived: archived,
+                revision: revision,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String label,
+                required String labelKey,
+                required int sortOrder,
+                Value<bool> archived = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CareEventTypesCompanion.insert(
+                id: id,
+                label: label,
+                labelKey: labelKey,
+                sortOrder: sortOrder,
+                archived: archived,
+                revision: revision,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CareEventTypesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({boxCareEventsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (boxCareEventsRefs) db.boxCareEvents,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (boxCareEventsRefs)
+                    await $_getPrefetchedData<
+                      CareEventTypeRow,
+                      $CareEventTypesTable,
+                      BoxCareEvent
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CareEventTypesTableReferences
+                          ._boxCareEventsRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$CareEventTypesTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).boxCareEventsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where(
+                            (e) => e.customTypeId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CareEventTypesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CareEventTypesTable,
+      CareEventTypeRow,
+      $$CareEventTypesTableFilterComposer,
+      $$CareEventTypesTableOrderingComposer,
+      $$CareEventTypesTableAnnotationComposer,
+      $$CareEventTypesTableCreateCompanionBuilder,
+      $$CareEventTypesTableUpdateCompanionBuilder,
+      (CareEventTypeRow, $$CareEventTypesTableReferences),
+      CareEventTypeRow,
+      PrefetchHooks Function({bool boxCareEventsRefs})
+    >;
 typedef $$BoxCareEventsTableCreateCompanionBuilder =
     BoxCareEventsCompanion Function({
       Value<int> id,
       required int boxId,
       required BoxCareEventType type,
+      Value<String?> customTypeId,
       required DateTime occurredAt,
       Value<String?> notes,
       required String requestId,
@@ -10521,6 +11465,7 @@ typedef $$BoxCareEventsTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> boxId,
       Value<BoxCareEventType> type,
+      Value<String?> customTypeId,
       Value<DateTime> occurredAt,
       Value<String?> notes,
       Value<String> requestId,
@@ -10548,6 +11493,24 @@ final class $$BoxCareEventsTableReferences
       $_db.boxes,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_boxIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CareEventTypesTable _customTypeIdTable(_$AppDatabase db) => db
+      .careEventTypes
+      .createAlias('box_care_events__custom_type_id__care_event_types__id');
+
+  $$CareEventTypesTableProcessedTableManager? get customTypeId {
+    final $_column = $_itemColumn<String>('custom_type_id');
+    if ($_column == null) return null;
+    final manager = $$CareEventTypesTableTableManager(
+      $_db,
+      $_db.careEventTypes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_customTypeIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -10619,6 +11582,29 @@ class $$BoxCareEventsTableFilterComposer
           }) => $$BoxesTableFilterComposer(
             $db: $db,
             $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CareEventTypesTableFilterComposer get customTypeId {
+    final $$CareEventTypesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.customTypeId,
+      referencedTable: $db.careEventTypes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CareEventTypesTableFilterComposer(
+            $db: $db,
+            $table: $db.careEventTypes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -10700,6 +11686,29 @@ class $$BoxCareEventsTableOrderingComposer
     );
     return composer;
   }
+
+  $$CareEventTypesTableOrderingComposer get customTypeId {
+    final $$CareEventTypesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.customTypeId,
+      referencedTable: $db.careEventTypes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CareEventTypesTableOrderingComposer(
+            $db: $db,
+            $table: $db.careEventTypes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$BoxCareEventsTableAnnotationComposer
@@ -10759,6 +11768,29 @@ class $$BoxCareEventsTableAnnotationComposer
     );
     return composer;
   }
+
+  $$CareEventTypesTableAnnotationComposer get customTypeId {
+    final $$CareEventTypesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.customTypeId,
+      referencedTable: $db.careEventTypes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CareEventTypesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.careEventTypes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$BoxCareEventsTableTableManager
@@ -10774,7 +11806,7 @@ class $$BoxCareEventsTableTableManager
           $$BoxCareEventsTableUpdateCompanionBuilder,
           (BoxCareEvent, $$BoxCareEventsTableReferences),
           BoxCareEvent,
-          PrefetchHooks Function({bool boxId})
+          PrefetchHooks Function({bool boxId, bool customTypeId})
         > {
   $$BoxCareEventsTableTableManager(_$AppDatabase db, $BoxCareEventsTable table)
     : super(
@@ -10792,6 +11824,7 @@ class $$BoxCareEventsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> boxId = const Value.absent(),
                 Value<BoxCareEventType> type = const Value.absent(),
+                Value<String?> customTypeId = const Value.absent(),
                 Value<DateTime> occurredAt = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String> requestId = const Value.absent(),
@@ -10802,6 +11835,7 @@ class $$BoxCareEventsTableTableManager
                 id: id,
                 boxId: boxId,
                 type: type,
+                customTypeId: customTypeId,
                 occurredAt: occurredAt,
                 notes: notes,
                 requestId: requestId,
@@ -10814,6 +11848,7 @@ class $$BoxCareEventsTableTableManager
                 Value<int> id = const Value.absent(),
                 required int boxId,
                 required BoxCareEventType type,
+                Value<String?> customTypeId = const Value.absent(),
                 required DateTime occurredAt,
                 Value<String?> notes = const Value.absent(),
                 required String requestId,
@@ -10824,6 +11859,7 @@ class $$BoxCareEventsTableTableManager
                 id: id,
                 boxId: boxId,
                 type: type,
+                customTypeId: customTypeId,
                 occurredAt: occurredAt,
                 notes: notes,
                 requestId: requestId,
@@ -10839,7 +11875,7 @@ class $$BoxCareEventsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({boxId = false}) {
+          prefetchHooksCallback: ({boxId = false, customTypeId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -10870,6 +11906,17 @@ class $$BoxCareEventsTableTableManager
                             .id,
                       ) as T;
                     }
+                    if (customTypeId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.customTypeId,
+                        referencedTable: $$BoxCareEventsTableReferences
+                            ._customTypeIdTable(db),
+                        referencedColumn: $$BoxCareEventsTableReferences
+                            ._customTypeIdTable(db)
+                            .id,
+                      ) as T;
+                    }
 
                     return state;
                   },
@@ -10894,7 +11941,7 @@ typedef $$BoxCareEventsTableProcessedTableManager =
       $$BoxCareEventsTableUpdateCompanionBuilder,
       (BoxCareEvent, $$BoxCareEventsTableReferences),
       BoxCareEvent,
-      PrefetchHooks Function({bool boxId})
+      PrefetchHooks Function({bool boxId, bool customTypeId})
     >;
 
 class $AppDatabaseManager {
@@ -10922,6 +11969,8 @@ class $AppDatabaseManager {
         _db,
         _db.boxPictureAssociations,
       );
+  $$CareEventTypesTableTableManager get careEventTypes =>
+      $$CareEventTypesTableTableManager(_db, _db.careEventTypes);
   $$BoxCareEventsTableTableManager get boxCareEvents =>
       $$BoxCareEventsTableTableManager(_db, _db.boxCareEvents);
 }

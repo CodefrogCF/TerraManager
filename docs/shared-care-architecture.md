@@ -7,7 +7,7 @@ permalink: /shared-care-architecture.html
 # Shared Care code organization
 
 Shared Care separates browser presentation from server-owned persistence and
-reuses standalone domain/repository code. The collection is schema 19; portable
+reuses standalone domain/repository code. The collection is schema 20; portable
 format 2 and API routes are documented in their respective contracts.
 
 ## Client

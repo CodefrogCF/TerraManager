@@ -4,7 +4,7 @@ Release changes are summarized below. Detailed contracts are in the
 [documentation](docs/project-documentation.md). Dates and historical release
 groupings are retained from the existing record.
 
-## [unreleased]
+## [1.17.0]
 
 ### Added
 
@@ -12,8 +12,6 @@ groupings are retained from the existing record.
   Shared Care: text, number, date and yes/no. Manage collection-wide templates
   from profiles, edit values with the profile, and retain data when renaming,
   hiding or archiving templates. Schema 21 and portable backups preserve values.
-
-
 - Manage collection-wide custom care types from Box care history in Standalone and Shared
   Care: add, rename, reorder and archive; select them in care forms and filter
   history. Stable identifiers preserve entries, and portable backups include all
@@ -28,8 +26,6 @@ groupings are retained from the existing record.
 
 - Match Box care history to existing history lists, with compact edit/delete
   actions, an Add button and a Feeding-style date/time and notes popup.
-
-
 - Remove Box care picture integration from storage, API, backups and media cleanup.
   Schema 19 removes the obsolete association table; care records and ordinary
   gallery data remain intact.

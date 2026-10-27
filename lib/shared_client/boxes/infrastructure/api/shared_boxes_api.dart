@@ -14,7 +14,6 @@ mixin SharedBoxesApi on SharedApiTransport {
     required BoxCareEventType type,
     required DateTime occurredAt,
     String? notes,
-    List<int> mediaIds = const [],
     required String requestId,
   }) async {
     await requestJson(
@@ -24,7 +23,6 @@ mixin SharedBoxesApi on SharedApiTransport {
         'type': type.name,
         'occurredAt': occurredAt.toUtc().toIso8601String(),
         'notes': notes,
-        'mediaIds': mediaIds,
         if (existing == null) 'requestId': requestId,
         if (existing != null) 'expectedRevision': existing.revision,
         if (existing != null) 'expectedRequestId': existing.requestId,

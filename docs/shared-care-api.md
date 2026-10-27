@@ -87,9 +87,9 @@ editable fields and additionally requires `category`, `showWeightOnDetail`,
 cannot assign IDs, QR values, lifecycle state or archive timestamps.
 
 Box care POST requires `type` (`substrateChange`, `cleaning`, `waterChange`), UTC
-`occurredAt` and a stable `requestId` (1–64 characters). Optional `notes` and
-`mediaIds` (up to 20 distinct pictures belonging to that Box) attach gallery images.
-PUT supplies the same care fields plus integer `expectedRevision` and immutable
+`occurredAt` and a stable `requestId` (1–64 characters). `notes` is optional;
+care events have no media fields.
+PUT supplies `type`, `occurredAt`, optional `notes`, integer `expectedRevision` and immutable
 `expectedRequestId`; DELETE supplies both guards. The identity guard also prevents
 old drafts from changing a different event after restore reuses numeric IDs. Stale writes return `409 stale_record`. Retries of the same
 POST return the existing entry without a second commit. Archived histories are

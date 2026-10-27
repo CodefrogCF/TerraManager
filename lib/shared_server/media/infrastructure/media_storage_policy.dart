@@ -76,8 +76,6 @@ NOT EXISTS (SELECT 1 FROM animal_picture_associations AS a
             WHERE a.media_asset_id = m.id)
 AND NOT EXISTS (SELECT 1 FROM box_picture_associations AS b
                 WHERE b.media_asset_id = m.id)
-AND NOT EXISTS (SELECT 1 FROM box_care_event_attachments AS c
-                WHERE c.media_asset_id = m.id)
 AND NOT EXISTS (SELECT 1 FROM animals AS a WHERE a.picture_media_id = m.id)
 AND NOT EXISTS (SELECT 1 FROM boxes AS b WHERE b.picture_media_id = m.id)
 ''';

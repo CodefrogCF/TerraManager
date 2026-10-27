@@ -15,7 +15,6 @@ class PortableBackupDatabaseRestorer {
 
   Future<int> restore(ValidatedBackup backup) {
     return database.transaction(() async {
-      await database.delete(database.boxCareEventAttachments).go();
       await database.delete(database.boxCareEvents).go();
       await database.delete(database.feedingEvents).go();
 
@@ -119,24 +118,6 @@ class PortableBackupDatabaseRestorer {
                   updatedAt: event.updatedAt,
                 ),
               );
-          final pictures = await _restorePictures(
-            backup: backup,
-            mediaCache: mediaCache,
-            pictures: event.attachments,
-            primaryPath: null,
-            fallbackCapturedAt: event.occurredAt,
-            updatedAt: event.updatedAt,
-          );
-          for (final item in pictures.items) {
-            await database
-                .into(database.boxCareEventAttachments)
-                .insert(
-                  BoxCareEventAttachmentsCompanion.insert(
-                    eventId: event.id,
-                    mediaAssetId: item.mediaId,
-                  ),
-                );
-          }
         }
       }
 

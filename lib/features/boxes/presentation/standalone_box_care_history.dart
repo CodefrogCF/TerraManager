@@ -29,7 +29,6 @@ Future<void> openStandaloneBoxCareHistory(
           (updates) => updates.any(
             (update) => {
               database.boxCareEvents.actualTableName,
-              database.boxCareEventAttachments.actualTableName,
               database.boxes.actualTableName,
             }.contains(update.table),
           ),
@@ -40,7 +39,6 @@ Future<void> openStandaloneBoxCareHistory(
               required type,
               required occurredAt,
               notes,
-              required mediaIds,
               required requestId,
             }) async {
               if (existing == null) {
@@ -49,7 +47,6 @@ Future<void> openStandaloneBoxCareHistory(
                   type: type,
                   occurredAt: occurredAt,
                   notes: notes,
-                  mediaIds: mediaIds,
                   requestId: requestId,
                 );
                 return true;
@@ -62,7 +59,6 @@ Future<void> openStandaloneBoxCareHistory(
                 type: type,
                 occurredAt: occurredAt,
                 notes: notes,
-                mediaIds: mediaIds,
               );
             },
         delete: (entry) => repository.delete(

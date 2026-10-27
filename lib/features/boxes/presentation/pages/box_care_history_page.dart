@@ -31,7 +31,6 @@ typedef SaveBoxCare = Future<bool> Function({
   required BoxCareEventType type,
   required DateTime occurredAt,
   String? notes,
-  required List<int> mediaIds,
   required String requestId,
 });
 
@@ -316,7 +315,6 @@ class _CareDialogState extends State<_CareDialog> {
         type: _type,
         occurredAt: _at,
         notes: _notes.text.trim().isEmpty ? null : _notes.text.trim(),
-        mediaIds: widget.entry?.mediaIds ?? const [],
         requestId: _requestId,
       );
       if (!saved) throw StateError('Care save failed');

@@ -60,9 +60,9 @@ void main() {
     await source.close();
     await target.close();
   });
-  test('all care types and shared picture references survive Standalone/server round trips', () async {
+  test('all care types and ordinary galleries survive Standalone/server round trips', () async {
     final gallery = PictureGalleryRepository(source);
-    final picture = await gallery.addBoxPicture(
+    await gallery.addBoxPicture(
       boxId: box,
       fileName: 'care.png',
       mimeType: 'image/png',
@@ -74,11 +74,10 @@ void main() {
         type: type,
         occurredAt: DateTime.utc(2026, 1, type.index + 1),
         notes: type == BoxCareEventType.cleaning ? 'Cleaned' : null,
-        mediaIds: [picture],
       );
     }
     final validated = BackupValidationService().validate(await export(source));
-    expect(validated.manifest.databaseSchemaVersion, 18);
+    expect(validated.manifest.databaseSchemaVersion, 19);
     expect(validated.mediaFiles, hasLength(1));
     expect(
       BackupValidationService()
@@ -100,8 +99,9 @@ void main() {
     expect(await target.select(target.mediaAssets).get(), hasLength(1));
     final entries = await BoxCareRepository(target).history(box);
     expect(entries.map((e) => e.type), BoxCareEventType.values.reversed);
-    expect(entries.map((e) => e.mediaIds.single).toSet(), hasLength(1));
-    final kept = entries.first.mediaIds.single;
+    final kept = (await PictureGalleryRepository(
+      target,
+    ).getBoxGalleryMediaIds(box)).single;
     await PictureGalleryRepository(target)
         .deleteBoxPicture(boxId: box, mediaId: kept);
     final serverBackup = BackupValidationService().validate(
@@ -113,11 +113,7 @@ void main() {
       isEmpty,
     );
     expect(await BoxCareRepository(source).history(box), hasLength(3));
-    expect((await source.select(source.mediaAssets).get()).single.data, [
-      1,
-      2,
-      3,
-    ]);
+    expect(await source.select(source.mediaAssets).get(), isEmpty);
     expect(
       await source.customSelect('PRAGMA foreign_key_check').get(),
       isEmpty,
@@ -142,7 +138,40 @@ void main() {
       expect(await source.select(source.boxes).get(), hasLength(1));
     },
   );
-  test('invalid care kinds IDs and missing attachments are rejected before replacement', () async {
+  test('retired care picture metadata in old archives is ignored and not re-exported', () async {
+    await BoxCareRepository(source).add(
+      boxId: box,
+      type: BoxCareEventType.cleaning,
+      occurredAt: DateTime.utc(2026),
+      notes: 'Keep note',
+    );
+    final legacy = changeData(await export(source), (data) {
+      final event =
+          ((data['boxes'] as List).single['careEvents'] as List).single as Map;
+      event['attachments'] = [
+        {
+          'mediaPath': 'media/boxes/retired.png',
+          'capturedAt': '2026-01-01T00:00:00Z',
+        },
+      ];
+    });
+    final validated = BackupValidationService().validate(legacy);
+    expect(validated.mediaFiles, isEmpty);
+    await PortableBackupDatabaseRestorer(target).restore(validated);
+    expect(
+      (await BoxCareRepository(target).history(box)).single.notes,
+      'Keep note',
+    );
+    expect(await target.select(target.mediaAssets).get(), isEmpty);
+    final again = ZipDecoder().decodeBytes(await export(target));
+    final data = jsonDecode(utf8.decode(again.findFile('data.json')!.content));
+    expect(
+      ((data['boxes'] as List).single['careEvents'] as List).single,
+      isNot(contains('attachments')),
+    );
+  });
+
+  test('invalid care kinds IDs revisions and notes are rejected before replacement', () async {
     await BoxCareRepository(source).add(
       boxId: box,
       type: BoxCareEventType.cleaning,
@@ -153,15 +182,7 @@ void main() {
       (e) => e['type'] = 'invented',
       (e) => e['id'] = 0,
       (e) => e['revision'] = 0,
-      (e) => e['attachments'] = [
-        {
-          'mediaPath': 'media/boxes/missing.png',
-          'capturedAt': '2026-01-01T00:00:00Z',
-        },
-      ],
-      (e) => e['attachments'] = [
-        {'mediaPath': '../outside.png', 'capturedAt': '2026-01-01T00:00:00Z'},
-      ],
+      (e) => e['notes'] = 'x' * 10001,
     ]) {
       final invalid = changeData(
         bytes,

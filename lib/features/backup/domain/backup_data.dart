@@ -146,7 +146,6 @@ class BackupBoxCareEvent {
     required this.type,
     required this.occurredAt,
     this.notes,
-    this.attachments = const [],
     required this.requestId,
     required this.revision,
     required this.createdAt,
@@ -156,7 +155,6 @@ class BackupBoxCareEvent {
   final String type;
   final DateTime occurredAt;
   final String? notes;
-  final List<BackupPicture> attachments;
   final String requestId;
   final int revision;
   final DateTime createdAt;
@@ -166,7 +164,6 @@ class BackupBoxCareEvent {
     'type': type,
     'occurredAt': occurredAt.toUtc().toIso8601String(),
     'notes': notes,
-    'attachments': attachments.map((p) => p.toJson()).toList(),
     'requestId': requestId,
     'revision': revision,
     'createdAt': createdAt.toUtc().toIso8601String(),
@@ -178,9 +175,6 @@ class BackupBoxCareEvent {
         type: json['type'] as String,
         occurredAt: DateTime.parse(json['occurredAt'] as String),
         notes: json['notes'] as String?,
-        attachments: (json['attachments'] as List? ?? const [])
-            .map((p) => BackupPicture.fromJson(p as Map<String, dynamic>))
-            .toList(),
         requestId: json['requestId'] as String,
         revision: json['revision'] as int,
         createdAt: DateTime.parse(json['createdAt'] as String),

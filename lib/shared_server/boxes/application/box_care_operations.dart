@@ -13,15 +13,8 @@ class BoxCareOperations extends CollectionOperations {
         .toList(),
   });
 
-  List<int> _media(ApiInput input) =>
-      input.values['mediaIds'] == null ||
-          (input.values['mediaIds'] is List &&
-              (input.values['mediaIds'] as List).isEmpty)
-      ? const []
-      : input.integerList('mediaIds');
-
   Future<ApiReply> create(int boxId, ApiInput input) async {
-    input.allow(const {'type', 'occurredAt', 'notes', 'mediaIds', 'requestId'});
+    input.allow(const {'type', 'occurredAt', 'notes', 'requestId'});
     final requestId = input.string('requestId', maxLength: 64);
     final previous = await _repository.byRequestId(requestId);
     final id = await _repository.add(
@@ -29,7 +22,6 @@ class BoxCareOperations extends CollectionOperations {
       type: input.enumerated('type', BoxCareEventType.values),
       occurredAt: input.dateTime('occurredAt'),
       notes: input.nullableString('notes'),
-      mediaIds: _media(input),
       requestId: requestId,
     );
     final event = (await _repository.history(boxId))
@@ -44,7 +36,6 @@ class BoxCareOperations extends CollectionOperations {
       'type',
       'occurredAt',
       'notes',
-      'mediaIds',
       'expectedRevision',
       'expectedRequestId',
     });
@@ -56,7 +47,6 @@ class BoxCareOperations extends CollectionOperations {
       type: input.enumerated('type', BoxCareEventType.values),
       occurredAt: input.dateTime('occurredAt'),
       notes: input.nullableString('notes'),
-      mediaIds: _media(input),
     );
     if (!changed) {
       throw const ApiProblem(

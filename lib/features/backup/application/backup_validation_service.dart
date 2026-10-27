@@ -512,8 +512,7 @@ class BackupValidationService {
             event.requestId.isEmpty ||
             event.requestId.length > 64 ||
             !careRequests.add(event.requestId) ||
-            (event.notes?.length ?? 0) > 10000 ||
-            event.attachments.length > 20) {
+            (event.notes?.length ?? 0) > 10000) {
           throw BackupValidationException(
             code: BackupValidationErrorCode.invalidData,
             message: 'Box ${box.id} contains an invalid care event.',
@@ -843,19 +842,6 @@ class BackupValidationService {
     final result = <String, Uint8List>{};
 
     for (final box in data.boxes) {
-      for (final event in box.careEvents) {
-        _validateEntityMedia(
-          entityLabel: 'Box care event',
-          entityId: event.id,
-          primaryPath: null,
-          pictures: event.attachments,
-          isValidPath: _isValidBoxMediaPath,
-          archiveFiles: archiveFiles,
-          result: result,
-          mediaPaths: mediaPaths,
-          retainMediaBytes: retainMediaBytes,
-        );
-      }
       _validateEntityMedia(
         entityLabel: 'Box',
         entityId: box.id,

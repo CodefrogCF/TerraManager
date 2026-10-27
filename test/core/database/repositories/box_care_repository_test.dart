@@ -9,7 +9,6 @@ import 'package:terramanager/core/database/repositories/box_care_repository.dart
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/boxes/domain/box_care_entry.dart';
-import 'package:terramanager/shared_server/media/infrastructure/media_storage_policy.dart';
 
 void main() {
   late AppDatabase db;
@@ -156,77 +155,48 @@ void main() {
       true,
     );
   });
+  test('future timestamps and oversized notes change nothing', () async {
+    await expectLater(
+      care.add(
+        boxId: box,
+        type: BoxCareEventType.cleaning,
+        occurredAt: DateTime.now().add(const Duration(days: 1)),
+      ),
+      throwsArgumentError,
+    );
+    await expectLater(
+      care.add(
+        boxId: box,
+        type: BoxCareEventType.cleaning,
+        occurredAt: at,
+        notes: 'x' * 10001,
+      ),
+      throwsArgumentError,
+    );
+    expect(await care.history(box), isEmpty);
+  });
   test(
-    'invalid future times and foreign Box attachments change nothing',
+    'care events do not retain gallery pictures after their removal',
     () async {
-      await expectLater(
-        care.add(
-          boxId: box,
-          type: BoxCareEventType.cleaning,
-          occurredAt: DateTime.now().add(const Duration(days: 1)),
-        ),
-        throwsArgumentError,
+      final media = await picture(box);
+      await care.add(
+        boxId: box,
+        type: BoxCareEventType.cleaning,
+        occurredAt: at,
+        notes: 'Cleaned',
       );
-      final foreign = await picture(other);
-      await expectLater(
-        care.add(
-          boxId: box,
-          type: BoxCareEventType.cleaning,
-          occurredAt: at,
-          mediaIds: [foreign],
-        ),
-        throwsArgumentError,
-      );
-      expect(await care.history(box), isEmpty);
+      await PictureGalleryRepository(db)
+          .deleteBoxPicture(boxId: box, mediaId: media);
+      expect(await MediaRepository(db).getMediaById(media), isNull);
+      expect((await care.history(box)).single.notes, 'Cleaned');
     },
   );
-  test('care attachments survive gallery removal and media cleanup', () async {
-    final media = await picture(box);
-    final first = await care.add(
-      boxId: box,
-      type: BoxCareEventType.cleaning,
-      occurredAt: at,
-      mediaIds: [media],
-    );
-    final second = await care.add(
-      boxId: box,
-      type: BoxCareEventType.waterChange,
-      occurredAt: at,
-      mediaIds: [media],
-    );
-    await PictureGalleryRepository(db)
-        .deleteBoxPicture(boxId: box, mediaId: media);
-    expect(await MediaRepository(db).getMediaById(media), isNotNull);
-    await MediaStoragePolicy(db).cleanUnassociatedMedia();
-    expect(
-      (await care.history(box)).every((e) => e.mediaIds.single == media),
-      true,
-    );
-    await care.delete(
-      boxId: box,
-      id: first,
-      expectedRevision: 1,
-      expectedRequestId: await keyFor(first),
-    );
-    expect(await MediaRepository(db).getMediaById(media), isNotNull);
-    await care.delete(
-      boxId: box,
-      id: second,
-      expectedRevision: 1,
-      expectedRequestId: await keyFor(second),
-    );
-    expect(await MediaRepository(db).getMediaById(media), isNull);
-  });
-  test('archive preserves history; duplicate has none; permanent delete cleans attachments', () async {
-    final media = await picture(box);
+  test('archive preserves history; duplicate has none; permanent deletion removes care', () async {
     final id = await care.add(
       boxId: box,
       type: BoxCareEventType.cleaning,
       occurredAt: at,
-      mediaIds: [media],
     );
-    await PictureGalleryRepository(db)
-        .deleteBoxPicture(boxId: box, mediaId: media);
     final duplicate = await BoxRepository(db)
         .duplicateBox(sourceBoxId: box, name: 'Copy');
     expect(await care.history(duplicate), isEmpty);
@@ -249,7 +219,6 @@ void main() {
     );
     await BoxRepository(db).permanentlyDeleteArchivedBox(box);
     expect(await care.history(box), isEmpty);
-    expect(await MediaRepository(db).getMediaById(media), isNull);
     expect(await db.customSelect('PRAGMA foreign_key_check').get(), isEmpty);
   });
 

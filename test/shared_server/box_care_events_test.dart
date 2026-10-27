@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:drift/native.dart';
+
+import '../drift/app_database/generated/schema_v18.dart' as v18;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:terramanager/core/database/app_database.dart';
@@ -45,6 +49,17 @@ void main() {
       accounts = await AccountStore.open(
         File('${directory.path}/accounts.sqlite'),
       );
+      final old = v18.DatabaseAtV18(
+        NativeDatabase(File('${directory.path}/collection.sqlite')),
+      );
+      final existingBox = await old
+          .into(old.boxes)
+          .insert(
+            v18.BoxesCompanion.insert(
+              qrId: 'TM:BOX:12345678-1234-4123-8123-123456789abc',
+            ),
+          );
+      await old.close();
       database = await openServerDatabase(
         File('${directory.path}/collection.sqlite'),
       );
@@ -68,6 +83,12 @@ void main() {
       keeper = SharedApiClient(origin, keeperHttp);
       await admin.login('admin', 'secure admin password 123');
       await keeper.login('keeper', 'secure keeper password 123');
+      expect(await admin.boxCareEvents(existingBox), isEmpty);
+      final before = await adminHttp.get(
+        origin.resolve('/api/v1/boxes/$existingBox/care-events'),
+      );
+      expect(before.statusCode, 200);
+      expect(jsonDecode(before.body)['careEvents'], isEmpty);
       final box = (await admin.createBox({'name': 'Care Box'}))['id'] as int;
       final other = (await admin.createBox({'name': 'Other Box'}))['id'] as int;
       final path = origin.resolve('/api/v1/boxes/$box/care-events');
@@ -102,6 +123,22 @@ void main() {
       final entry = (await admin.boxCareEvents(box)).single;
       expect(entry.boxId, box);
       expect(entry.type, BoxCareEventType.substrateChange);
+      expect(entry.toJson(), isNot(contains('mediaIds')));
+      final retiredField = await keeperHttp.post(
+        path,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': keeper.session!.csrfToken,
+        },
+        body: jsonEncode({
+          'type': 'cleaning',
+          'occurredAt': at.toIso8601String(),
+          'requestId': 'retired-picture-field',
+          'mediaIds': [1],
+        }),
+      );
+      expect(retiredField.statusCode, 400);
+
       await keeper.saveBoxCareEvent(
         box,
         type: BoxCareEventType.substrateChange,

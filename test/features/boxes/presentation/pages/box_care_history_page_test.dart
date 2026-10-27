@@ -49,12 +49,10 @@ void main() {
                 required type,
                 required occurredAt,
                 notes,
-                required mediaIds,
                 required requestId,
               }) async {
                 expect(type, BoxCareEventType.waterChange);
                 expect(notes, 'Changed the water');
-                expect(mediaIds, isEmpty);
                 entries.add(
                   BoxCareEntry(
                     id: 1,
@@ -62,7 +60,6 @@ void main() {
                     type: type,
                     occurredAt: occurredAt,
                     notes: notes,
-                    mediaIds: mediaIds,
                     revision: 1,
                     requestId: 'widget-fixture',
                   ),
@@ -115,7 +112,6 @@ void main() {
               required type,
               required occurredAt,
               notes,
-              required mediaIds,
               required requestId,
             }) async {
               ids.add(requestId);
@@ -144,53 +140,49 @@ void main() {
       expect(find.byType(AlertDialog), findsOneWidget);
     },
   );
-  testWidgets(
-    'editing a text-only care entry preserves existing stored attachments',
-    (tester) async {
-      final entry = BoxCareEntry(
-        id: 1,
-        boxId: 1,
-        type: BoxCareEventType.cleaning,
-        occurredAt: DateTime.utc(2026, 1, 1),
-        mediaIds: const [7],
-        revision: 1,
-        requestId: 'existing-with-picture',
-      );
-      var saved = false;
-      await show(
-        tester,
-        language: 'en',
-        load: () async => BoxCareHistoryData(entries: [entry], active: true),
-        save:
-            ({
-              existing,
-              required type,
-              required occurredAt,
-              notes,
-              required mediaIds,
-              required requestId,
-            }) async {
-              expect(existing, same(entry));
-              expect(notes, 'Updated note');
-              expect(mediaIds, [7]);
-              saved = true;
-              return true;
-            },
-      );
-      expect(find.byType(Image), findsNothing);
-      await tester.tap(find.byKey(const ValueKey('edit-box-care-1')));
-      await tester.pumpAndSettle();
-      expect(find.byType(CheckboxListTile), findsNothing);
-      expect(find.byIcon(Icons.photo_library_outlined), findsNothing);
-      await tester.enterText(
-        find.byKey(const Key('box-care-notes')),
-        'Updated note',
-      );
-      await tester.tap(find.byKey(const Key('save-box-care-event')));
-      await tester.pumpAndSettle();
-      expect(saved, isTrue);
-    },
-  );
+  testWidgets('editing a care entry updates its note without media controls', (
+    tester,
+  ) async {
+    final entry = BoxCareEntry(
+      id: 1,
+      boxId: 1,
+      type: BoxCareEventType.cleaning,
+      occurredAt: DateTime.utc(2026, 1, 1),
+      revision: 1,
+      requestId: 'existing-with-picture',
+    );
+    var saved = false;
+    await show(
+      tester,
+      language: 'en',
+      load: () async => BoxCareHistoryData(entries: [entry], active: true),
+      save:
+          ({
+            existing,
+            required type,
+            required occurredAt,
+            notes,
+            required requestId,
+          }) async {
+            expect(existing, same(entry));
+            expect(notes, 'Updated note');
+            saved = true;
+            return true;
+          },
+    );
+    expect(find.byType(Image), findsNothing);
+    await tester.tap(find.byKey(const ValueKey('edit-box-care-1')));
+    await tester.pumpAndSettle();
+    expect(find.byType(CheckboxListTile), findsNothing);
+    expect(find.byIcon(Icons.photo_library_outlined), findsNothing);
+    await tester.enterText(
+      find.byKey(const Key('box-care-notes')),
+      'Updated note',
+    );
+    await tester.tap(find.byKey(const Key('save-box-care-event')));
+    await tester.pumpAndSettle();
+    expect(saved, isTrue);
+  });
 
   testWidgets('archived histories are chronological and read-only', (
     tester,
@@ -225,7 +217,6 @@ void main() {
         required type,
         required occurredAt,
         notes,
-        required mediaIds,
         required requestId,
       }) async => throw StateError('Read-only'),
     );

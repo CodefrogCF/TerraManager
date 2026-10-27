@@ -5745,242 +5745,6 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
   }
 }
 
-class $BoxCareEventAttachmentsTable extends BoxCareEventAttachments
-    with TableInfo<$BoxCareEventAttachmentsTable, BoxCareEventAttachment> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $BoxCareEventAttachmentsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _eventIdMeta = const VerificationMeta(
-    'eventId',
-  );
-  @override
-  late final GeneratedColumn<int> eventId = GeneratedColumn<int>(
-    'event_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES box_care_events (id) ON DELETE CASCADE',
-    ),
-  );
-  static const VerificationMeta _mediaAssetIdMeta = const VerificationMeta(
-    'mediaAssetId',
-  );
-  @override
-  late final GeneratedColumn<int> mediaAssetId = GeneratedColumn<int>(
-    'media_asset_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES media_assets (id)',
-    ),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [eventId, mediaAssetId];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'box_care_event_attachments';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<BoxCareEventAttachment> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('event_id')) {
-      context.handle(
-        _eventIdMeta,
-        eventId.isAcceptableOrUnknown(data['event_id']!, _eventIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_eventIdMeta);
-    }
-    if (data.containsKey('media_asset_id')) {
-      context.handle(
-        _mediaAssetIdMeta,
-        mediaAssetId.isAcceptableOrUnknown(
-          data['media_asset_id']!,
-          _mediaAssetIdMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_mediaAssetIdMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {eventId, mediaAssetId};
-  @override
-  BoxCareEventAttachment map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return BoxCareEventAttachment(
-      eventId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}event_id'],
-      )!,
-      mediaAssetId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}media_asset_id'],
-      )!,
-    );
-  }
-
-  @override
-  $BoxCareEventAttachmentsTable createAlias(String alias) {
-    return $BoxCareEventAttachmentsTable(attachedDatabase, alias);
-  }
-}
-
-class BoxCareEventAttachment extends DataClass
-    implements Insertable<BoxCareEventAttachment> {
-  final int eventId;
-  final int mediaAssetId;
-  const BoxCareEventAttachment({
-    required this.eventId,
-    required this.mediaAssetId,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['event_id'] = Variable<int>(eventId);
-    map['media_asset_id'] = Variable<int>(mediaAssetId);
-    return map;
-  }
-
-  BoxCareEventAttachmentsCompanion toCompanion(bool nullToAbsent) {
-    return BoxCareEventAttachmentsCompanion(
-      eventId: Value(eventId),
-      mediaAssetId: Value(mediaAssetId),
-    );
-  }
-
-  factory BoxCareEventAttachment.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return BoxCareEventAttachment(
-      eventId: serializer.fromJson<int>(json['eventId']),
-      mediaAssetId: serializer.fromJson<int>(json['mediaAssetId']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'eventId': serializer.toJson<int>(eventId),
-      'mediaAssetId': serializer.toJson<int>(mediaAssetId),
-    };
-  }
-
-  BoxCareEventAttachment copyWith({int? eventId, int? mediaAssetId}) =>
-      BoxCareEventAttachment(
-        eventId: eventId ?? this.eventId,
-        mediaAssetId: mediaAssetId ?? this.mediaAssetId,
-      );
-  BoxCareEventAttachment copyWithCompanion(
-    BoxCareEventAttachmentsCompanion data,
-  ) {
-    return BoxCareEventAttachment(
-      eventId: data.eventId.present ? data.eventId.value : this.eventId,
-      mediaAssetId: data.mediaAssetId.present
-          ? data.mediaAssetId.value
-          : this.mediaAssetId,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('BoxCareEventAttachment(')
-          ..write('eventId: $eventId, ')
-          ..write('mediaAssetId: $mediaAssetId')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(eventId, mediaAssetId);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is BoxCareEventAttachment &&
-          other.eventId == this.eventId &&
-          other.mediaAssetId == this.mediaAssetId);
-}
-
-class BoxCareEventAttachmentsCompanion
-    extends UpdateCompanion<BoxCareEventAttachment> {
-  final Value<int> eventId;
-  final Value<int> mediaAssetId;
-  final Value<int> rowid;
-  const BoxCareEventAttachmentsCompanion({
-    this.eventId = const Value.absent(),
-    this.mediaAssetId = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  BoxCareEventAttachmentsCompanion.insert({
-    required int eventId,
-    required int mediaAssetId,
-    this.rowid = const Value.absent(),
-  }) : eventId = Value(eventId),
-       mediaAssetId = Value(mediaAssetId);
-  static Insertable<BoxCareEventAttachment> custom({
-    Expression<int>? eventId,
-    Expression<int>? mediaAssetId,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (eventId != null) 'event_id': eventId,
-      if (mediaAssetId != null) 'media_asset_id': mediaAssetId,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  BoxCareEventAttachmentsCompanion copyWith({
-    Value<int>? eventId,
-    Value<int>? mediaAssetId,
-    Value<int>? rowid,
-  }) {
-    return BoxCareEventAttachmentsCompanion(
-      eventId: eventId ?? this.eventId,
-      mediaAssetId: mediaAssetId ?? this.mediaAssetId,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (eventId.present) {
-      map['event_id'] = Variable<int>(eventId.value);
-    }
-    if (mediaAssetId.present) {
-      map['media_asset_id'] = Variable<int>(mediaAssetId.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('BoxCareEventAttachmentsCompanion(')
-          ..write('eventId: $eventId, ')
-          ..write('mediaAssetId: $mediaAssetId, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5996,8 +5760,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BoxPictureAssociationsTable boxPictureAssociations =
       $BoxPictureAssociationsTable(this);
   late final $BoxCareEventsTable boxCareEvents = $BoxCareEventsTable(this);
-  late final $BoxCareEventAttachmentsTable boxCareEventAttachments =
-      $BoxCareEventAttachmentsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6012,7 +5774,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     animalPictureAssociations,
     boxPictureAssociations,
     boxCareEvents,
-    boxCareEventAttachments,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -6072,15 +5833,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('box_care_events', kind: UpdateKind.delete)],
-    ),
-    WritePropagation(
-      on: TableUpdateQuery.onTableName(
-        'box_care_events',
-        limitUpdateKind: UpdateKind.delete,
-      ),
-      result: [
-        TableUpdate('box_care_event_attachments', kind: UpdateKind.delete),
-      ],
     ),
   ]);
 }
@@ -6191,32 +5943,6 @@ final class $$MediaAssetsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _boxPictureAssociationsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<
-    $BoxCareEventAttachmentsTable,
-    List<BoxCareEventAttachment>
-  >
-  _boxCareEventAttachmentsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.boxCareEventAttachments,
-        aliasName:
-            'media_assets__id__box_care_event_attachments__media_asset_id',
-      );
-
-  $$BoxCareEventAttachmentsTableProcessedTableManager
-  get boxCareEventAttachmentsRefs {
-    final manager = $$BoxCareEventAttachmentsTableTableManager(
-      $_db,
-      $_db.boxCareEventAttachments,
-    ).filter((f) => f.mediaAssetId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _boxCareEventAttachmentsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -6357,32 +6083,6 @@ class $$MediaAssetsTableFilterComposer
               }) => $$BoxPictureAssociationsTableFilterComposer(
                 $db: $db,
                 $table: $db.boxPictureAssociations,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
-
-  Expression<bool> boxCareEventAttachmentsRefs(
-    Expression<bool> Function($$BoxCareEventAttachmentsTableFilterComposer f) f,
-  ) {
-    final $$BoxCareEventAttachmentsTableFilterComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.boxCareEventAttachments,
-          getReferencedColumn: (t) => t.mediaAssetId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$BoxCareEventAttachmentsTableFilterComposer(
-                $db: $db,
-                $table: $db.boxCareEventAttachments,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -6562,33 +6262,6 @@ class $$MediaAssetsTableAnnotationComposer
         );
     return f(composer);
   }
-
-  Expression<T> boxCareEventAttachmentsRefs<T extends Object>(
-    Expression<T> Function($$BoxCareEventAttachmentsTableAnnotationComposer a)
-    f,
-  ) {
-    final $$BoxCareEventAttachmentsTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.boxCareEventAttachments,
-          getReferencedColumn: (t) => t.mediaAssetId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$BoxCareEventAttachmentsTableAnnotationComposer(
-                $db: $db,
-                $table: $db.boxCareEventAttachments,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
 }
 
 class $$MediaAssetsTableTableManager
@@ -6609,7 +6282,6 @@ class $$MediaAssetsTableTableManager
             bool animalsRefs,
             bool animalPictureAssociationsRefs,
             bool boxPictureAssociationsRefs,
-            bool boxCareEventAttachmentsRefs,
           })
         > {
   $$MediaAssetsTableTableManager(_$AppDatabase db, $MediaAssetsTable table)
@@ -6669,7 +6341,6 @@ class $$MediaAssetsTableTableManager
                 animalsRefs = false,
                 animalPictureAssociationsRefs = false,
                 boxPictureAssociationsRefs = false,
-                boxCareEventAttachmentsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -6679,7 +6350,6 @@ class $$MediaAssetsTableTableManager
                     if (animalPictureAssociationsRefs)
                       db.animalPictureAssociations,
                     if (boxPictureAssociationsRefs) db.boxPictureAssociations,
-                    if (boxCareEventAttachmentsRefs) db.boxCareEventAttachments,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -6768,27 +6438,6 @@ class $$MediaAssetsTableTableManager
                               ),
                           typedResults: items,
                         ),
-                      if (boxCareEventAttachmentsRefs)
-                        await $_getPrefetchedData<
-                          MediaAsset,
-                          $MediaAssetsTable,
-                          BoxCareEventAttachment
-                        >(
-                          currentTable: table,
-                          referencedTable: $$MediaAssetsTableReferences
-                              ._boxCareEventAttachmentsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$MediaAssetsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).boxCareEventAttachmentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.mediaAssetId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
                     ];
                   },
                 );
@@ -6814,7 +6463,6 @@ typedef $$MediaAssetsTableProcessedTableManager =
         bool animalsRefs,
         bool animalPictureAssociationsRefs,
         bool boxPictureAssociationsRefs,
-        bool boxCareEventAttachmentsRefs,
       })
     >;
 typedef $$BoxesTableCreateCompanionBuilder = BoxesCompanion Function({
@@ -10905,31 +10553,6 @@ final class $$BoxCareEventsTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
-
-  static MultiTypedResultKey<
-    $BoxCareEventAttachmentsTable,
-    List<BoxCareEventAttachment>
-  >
-  _boxCareEventAttachmentsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.boxCareEventAttachments,
-        aliasName: 'box_care_events__id__box_care_event_attachments__event_id',
-      );
-
-  $$BoxCareEventAttachmentsTableProcessedTableManager
-  get boxCareEventAttachmentsRefs {
-    final manager = $$BoxCareEventAttachmentsTableTableManager(
-      $_db,
-      $_db.boxCareEventAttachments,
-    ).filter((f) => f.eventId.id.sqlEquals($_itemColumn<int>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(
-      _boxCareEventAttachmentsRefsTable($_db),
-    );
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 }
 
 class $$BoxCareEventsTableFilterComposer
@@ -11003,32 +10626,6 @@ class $$BoxCareEventsTableFilterComposer
           ),
     );
     return composer;
-  }
-
-  Expression<bool> boxCareEventAttachmentsRefs(
-    Expression<bool> Function($$BoxCareEventAttachmentsTableFilterComposer f) f,
-  ) {
-    final $$BoxCareEventAttachmentsTableFilterComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.boxCareEventAttachments,
-          getReferencedColumn: (t) => t.eventId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$BoxCareEventAttachmentsTableFilterComposer(
-                $db: $db,
-                $table: $db.boxCareEventAttachments,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
   }
 }
 
@@ -11162,33 +10759,6 @@ class $$BoxCareEventsTableAnnotationComposer
     );
     return composer;
   }
-
-  Expression<T> boxCareEventAttachmentsRefs<T extends Object>(
-    Expression<T> Function($$BoxCareEventAttachmentsTableAnnotationComposer a)
-    f,
-  ) {
-    final $$BoxCareEventAttachmentsTableAnnotationComposer composer =
-        $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.boxCareEventAttachments,
-          getReferencedColumn: (t) => t.eventId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$BoxCareEventAttachmentsTableAnnotationComposer(
-                $db: $db,
-                $table: $db.boxCareEventAttachments,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
-    return f(composer);
-  }
 }
 
 class $$BoxCareEventsTableTableManager
@@ -11204,7 +10774,7 @@ class $$BoxCareEventsTableTableManager
           $$BoxCareEventsTableUpdateCompanionBuilder,
           (BoxCareEvent, $$BoxCareEventsTableReferences),
           BoxCareEvent,
-          PrefetchHooks Function({bool boxId, bool boxCareEventAttachmentsRefs})
+          PrefetchHooks Function({bool boxId})
         > {
   $$BoxCareEventsTableTableManager(_$AppDatabase db, $BoxCareEventsTable table)
     : super(
@@ -11269,385 +10839,7 @@ class $$BoxCareEventsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback:
-              ({boxId = false, boxCareEventAttachmentsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (boxCareEventAttachmentsRefs) db.boxCareEventAttachments,
-                  ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (boxId) {
-                          state = state.withJoin(
-                            currentTable: table,
-                            currentColumn: table.boxId,
-                            referencedTable: $$BoxCareEventsTableReferences
-                                ._boxIdTable(db),
-                            referencedColumn: $$BoxCareEventsTableReferences
-                                ._boxIdTable(db)
-                                .id,
-                          ) as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (boxCareEventAttachmentsRefs)
-                        await $_getPrefetchedData<
-                          BoxCareEvent,
-                          $BoxCareEventsTable,
-                          BoxCareEventAttachment
-                        >(
-                          currentTable: table,
-                          referencedTable: $$BoxCareEventsTableReferences
-                              ._boxCareEventAttachmentsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$BoxCareEventsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).boxCareEventAttachmentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.eventId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
-        ),
-      );
-}
-
-typedef $$BoxCareEventsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $BoxCareEventsTable,
-      BoxCareEvent,
-      $$BoxCareEventsTableFilterComposer,
-      $$BoxCareEventsTableOrderingComposer,
-      $$BoxCareEventsTableAnnotationComposer,
-      $$BoxCareEventsTableCreateCompanionBuilder,
-      $$BoxCareEventsTableUpdateCompanionBuilder,
-      (BoxCareEvent, $$BoxCareEventsTableReferences),
-      BoxCareEvent,
-      PrefetchHooks Function({bool boxId, bool boxCareEventAttachmentsRefs})
-    >;
-typedef $$BoxCareEventAttachmentsTableCreateCompanionBuilder =
-    BoxCareEventAttachmentsCompanion Function({
-      required int eventId,
-      required int mediaAssetId,
-      Value<int> rowid,
-    });
-typedef $$BoxCareEventAttachmentsTableUpdateCompanionBuilder =
-    BoxCareEventAttachmentsCompanion Function({
-      Value<int> eventId,
-      Value<int> mediaAssetId,
-      Value<int> rowid,
-    });
-
-final class $$BoxCareEventAttachmentsTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $BoxCareEventAttachmentsTable,
-          BoxCareEventAttachment
-        > {
-  $$BoxCareEventAttachmentsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $BoxCareEventsTable _eventIdTable(_$AppDatabase db) => db.boxCareEvents
-      .createAlias('box_care_event_attachments__event_id__box_care_events__id');
-
-  $$BoxCareEventsTableProcessedTableManager get eventId {
-    final $_column = $_itemColumn<int>('event_id')!;
-
-    final manager = $$BoxCareEventsTableTableManager(
-      $_db,
-      $_db.boxCareEvents,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_eventIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $MediaAssetsTable _mediaAssetIdTable(_$AppDatabase db) =>
-      db.mediaAssets.createAlias(
-        'box_care_event_attachments__media_asset_id__media_assets__id',
-      );
-
-  $$MediaAssetsTableProcessedTableManager get mediaAssetId {
-    final $_column = $_itemColumn<int>('media_asset_id')!;
-
-    final manager = $$MediaAssetsTableTableManager(
-      $_db,
-      $_db.mediaAssets,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_mediaAssetIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
-
-class $$BoxCareEventAttachmentsTableFilterComposer
-    extends Composer<_$AppDatabase, $BoxCareEventAttachmentsTable> {
-  $$BoxCareEventAttachmentsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$BoxCareEventsTableFilterComposer get eventId {
-    final $$BoxCareEventsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.eventId,
-      referencedTable: $db.boxCareEvents,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoxCareEventsTableFilterComposer(
-            $db: $db,
-            $table: $db.boxCareEvents,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$MediaAssetsTableFilterComposer get mediaAssetId {
-    final $$MediaAssetsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.mediaAssetId,
-      referencedTable: $db.mediaAssets,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$MediaAssetsTableFilterComposer(
-            $db: $db,
-            $table: $db.mediaAssets,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$BoxCareEventAttachmentsTableOrderingComposer
-    extends Composer<_$AppDatabase, $BoxCareEventAttachmentsTable> {
-  $$BoxCareEventAttachmentsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$BoxCareEventsTableOrderingComposer get eventId {
-    final $$BoxCareEventsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.eventId,
-      referencedTable: $db.boxCareEvents,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoxCareEventsTableOrderingComposer(
-            $db: $db,
-            $table: $db.boxCareEvents,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$MediaAssetsTableOrderingComposer get mediaAssetId {
-    final $$MediaAssetsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.mediaAssetId,
-      referencedTable: $db.mediaAssets,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$MediaAssetsTableOrderingComposer(
-            $db: $db,
-            $table: $db.mediaAssets,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$BoxCareEventAttachmentsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $BoxCareEventAttachmentsTable> {
-  $$BoxCareEventAttachmentsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  $$BoxCareEventsTableAnnotationComposer get eventId {
-    final $$BoxCareEventsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.eventId,
-      referencedTable: $db.boxCareEvents,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoxCareEventsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.boxCareEvents,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$MediaAssetsTableAnnotationComposer get mediaAssetId {
-    final $$MediaAssetsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.mediaAssetId,
-      referencedTable: $db.mediaAssets,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$MediaAssetsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.mediaAssets,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-}
-
-class $$BoxCareEventAttachmentsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $BoxCareEventAttachmentsTable,
-          BoxCareEventAttachment,
-          $$BoxCareEventAttachmentsTableFilterComposer,
-          $$BoxCareEventAttachmentsTableOrderingComposer,
-          $$BoxCareEventAttachmentsTableAnnotationComposer,
-          $$BoxCareEventAttachmentsTableCreateCompanionBuilder,
-          $$BoxCareEventAttachmentsTableUpdateCompanionBuilder,
-          (BoxCareEventAttachment, $$BoxCareEventAttachmentsTableReferences),
-          BoxCareEventAttachment,
-          PrefetchHooks Function({bool eventId, bool mediaAssetId})
-        > {
-  $$BoxCareEventAttachmentsTableTableManager(
-    _$AppDatabase db,
-    $BoxCareEventAttachmentsTable table,
-  ) : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$BoxCareEventAttachmentsTableFilterComposer(
-                $db: db,
-                $table: table,
-              ),
-          createOrderingComposer: () =>
-              $$BoxCareEventAttachmentsTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
-          createComputedFieldComposer: () =>
-              $$BoxCareEventAttachmentsTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<int> eventId = const Value.absent(),
-                Value<int> mediaAssetId = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => BoxCareEventAttachmentsCompanion(
-                eventId: eventId,
-                mediaAssetId: mediaAssetId,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required int eventId,
-                required int mediaAssetId,
-                Value<int> rowid = const Value.absent(),
-              }) => BoxCareEventAttachmentsCompanion.insert(
-                eventId: eventId,
-                mediaAssetId: mediaAssetId,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$BoxCareEventAttachmentsTableReferences(db, table, e),
-                ),
-              )
-              .toList(),
-          prefetchHooksCallback: ({eventId = false, mediaAssetId = false}) {
+          prefetchHooksCallback: ({boxId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -11667,30 +10859,15 @@ class $$BoxCareEventAttachmentsTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (eventId) {
+                    if (boxId) {
                       state = state.withJoin(
                         currentTable: table,
-                        currentColumn: table.eventId,
-                        referencedTable:
-                            $$BoxCareEventAttachmentsTableReferences
-                                ._eventIdTable(db),
-                        referencedColumn:
-                            $$BoxCareEventAttachmentsTableReferences
-                                ._eventIdTable(db)
-                                .id,
-                      ) as T;
-                    }
-                    if (mediaAssetId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.mediaAssetId,
-                        referencedTable:
-                            $$BoxCareEventAttachmentsTableReferences
-                                ._mediaAssetIdTable(db),
-                        referencedColumn:
-                            $$BoxCareEventAttachmentsTableReferences
-                                ._mediaAssetIdTable(db)
-                                .id,
+                        currentColumn: table.boxId,
+                        referencedTable: $$BoxCareEventsTableReferences
+                            ._boxIdTable(db),
+                        referencedColumn: $$BoxCareEventsTableReferences
+                            ._boxIdTable(db)
+                            .id,
                       ) as T;
                     }
 
@@ -11705,19 +10882,19 @@ class $$BoxCareEventAttachmentsTableTableManager
       );
 }
 
-typedef $$BoxCareEventAttachmentsTableProcessedTableManager =
+typedef $$BoxCareEventsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $BoxCareEventAttachmentsTable,
-      BoxCareEventAttachment,
-      $$BoxCareEventAttachmentsTableFilterComposer,
-      $$BoxCareEventAttachmentsTableOrderingComposer,
-      $$BoxCareEventAttachmentsTableAnnotationComposer,
-      $$BoxCareEventAttachmentsTableCreateCompanionBuilder,
-      $$BoxCareEventAttachmentsTableUpdateCompanionBuilder,
-      (BoxCareEventAttachment, $$BoxCareEventAttachmentsTableReferences),
-      BoxCareEventAttachment,
-      PrefetchHooks Function({bool eventId, bool mediaAssetId})
+      $BoxCareEventsTable,
+      BoxCareEvent,
+      $$BoxCareEventsTableFilterComposer,
+      $$BoxCareEventsTableOrderingComposer,
+      $$BoxCareEventsTableAnnotationComposer,
+      $$BoxCareEventsTableCreateCompanionBuilder,
+      $$BoxCareEventsTableUpdateCompanionBuilder,
+      (BoxCareEvent, $$BoxCareEventsTableReferences),
+      BoxCareEvent,
+      PrefetchHooks Function({bool boxId})
     >;
 
 class $AppDatabaseManager {
@@ -11747,9 +10924,4 @@ class $AppDatabaseManager {
       );
   $$BoxCareEventsTableTableManager get boxCareEvents =>
       $$BoxCareEventsTableTableManager(_db, _db.boxCareEvents);
-  $$BoxCareEventAttachmentsTableTableManager get boxCareEventAttachments =>
-      $$BoxCareEventAttachmentsTableTableManager(
-        _db,
-        _db.boxCareEventAttachments,
-      );
 }

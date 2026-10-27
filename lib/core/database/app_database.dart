@@ -55,7 +55,6 @@ QueryExecutor _configureTestQueryExecutor(QueryExecutor executor) {
     AnimalPictureAssociations,
     BoxPictureAssociations,
     BoxCareEvents,
-    BoxCareEventAttachments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -208,6 +207,9 @@ class AppDatabase extends _$AppDatabase {
                 await m.createTable(schema.boxCareEvents);
                 await m.createTable(schema.boxCareEventAttachments);
               },
+              from18To19: (m, schema) async {
+                await m.deleteTable('box_care_event_attachments');
+              },
             ),
           );
 
@@ -232,7 +234,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

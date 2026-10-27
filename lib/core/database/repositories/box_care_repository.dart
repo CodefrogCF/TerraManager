@@ -4,7 +4,6 @@ import 'package:uuid/uuid.dart';
 import '../../../features/boxes/domain/box_care_entry.dart';
 import '../app_database.dart';
 import '../enums/box_status.dart';
-import 'picture_gallery_repository.dart';
 
 class BoxCareRepository {
   const BoxCareRepository(this.database);
@@ -19,7 +18,7 @@ class BoxCareRepository {
                 (e) => OrderingTerm.desc(e.id),
               ]))
             .get();
-    return [for (final event in events) await _entry(event)];
+    return events.map(_entry).toList();
   }
 
   Future<BoxCareEntry?> byRequestId(String requestId) async {
@@ -29,45 +28,19 @@ class BoxCareRepository {
     return row == null ? null : _entry(row);
   }
 
-  Future<List<int>> mediaIdsForBox(int boxId) async {
-    final rows = await (database.select(database.boxCareEventAttachments).join([
-      innerJoin(
-        database.boxCareEvents,
-        database.boxCareEvents.id.equalsExp(
-          database.boxCareEventAttachments.eventId,
-        ),
-      ),
-    ])..where(database.boxCareEvents.boxId.equals(boxId))).get();
-    return rows
-        .map((r) => r.readTable(database.boxCareEventAttachments).mediaAssetId)
-        .toSet()
-        .toList();
-  }
-
-  Future<BoxCareEntry> _entry(BoxCareEvent event) async {
-    final attachments =
-        await (database.select(database.boxCareEventAttachments)
-              ..where((a) => a.eventId.equals(event.id))
-              ..orderBy([(a) => OrderingTerm.asc(a.mediaAssetId)]))
-            .get();
+  static BoxCareEntry _entry(BoxCareEvent event) {
     return BoxCareEntry(
       id: event.id,
       boxId: event.boxId,
       type: event.type,
       occurredAt: event.occurredAt,
       notes: event.notes,
-      mediaIds: attachments.map((a) => a.mediaAssetId).toList(),
       revision: event.revision,
       requestId: event.requestId,
     );
   }
 
-  Future<void> _validate(
-    int boxId,
-    DateTime at,
-    String? notes,
-    List<int> mediaIds,
-  ) async {
+  Future<void> _validate(int boxId, DateTime at, String? notes) async {
     final box = await (database.select(
       database.boxes,
     )..where((b) => b.id.equals(boxId))).getSingleOrNull();
@@ -80,22 +53,6 @@ class BoxCareRepository {
     if ((notes?.trim().length ?? 0) > 10000) {
       throw ArgumentError('Notes are too long.');
     }
-    if (mediaIds.length > 20 || mediaIds.toSet().length != mediaIds.length) {
-      throw ArgumentError('At most 20 distinct pictures may be attached.');
-    }
-    final linked = await mediaIdsForBox(boxId);
-    for (final id in mediaIds) {
-      // Existing event attachments may remain after their gallery picture is
-      // removed. New links must belong to this Box's gallery or care history.
-      final gallery =
-          await (database.select(database.boxPictureAssociations)..where(
-                (p) => p.boxId.equals(boxId) & p.mediaAssetId.equals(id),
-              ))
-              .getSingleOrNull();
-      if (gallery == null && !linked.contains(id)) {
-        throw ArgumentError('Picture does not belong to this Box.');
-      }
-    }
   }
 
   Future<int> add({
@@ -103,7 +60,6 @@ class BoxCareRepository {
     required BoxCareEventType type,
     required DateTime occurredAt,
     String? notes,
-    List<int> mediaIds = const [],
     String? requestId,
   }) => database.transaction(() async {
     final normalized = _notes(notes);
@@ -116,14 +72,12 @@ class BoxCareRepository {
       if (previous.boxId != boxId ||
           previous.type != type ||
           !previous.occurredAt.isAtSameMomentAs(_seconds(occurredAt)) ||
-          previous.notes != normalized ||
-          (previous.mediaIds.length != mediaIds.length ||
-              !previous.mediaIds.toSet().containsAll(mediaIds))) {
+          previous.notes != normalized) {
         throw StateError('Request ID already used for another event.');
       }
       return previous.id;
     }
-    await _validate(boxId, occurredAt, normalized, mediaIds);
+    await _validate(boxId, occurredAt, normalized);
     final now = DateTime.now();
     final id = await database
         .into(database.boxCareEvents)
@@ -138,7 +92,6 @@ class BoxCareRepository {
             updatedAt: now,
           ),
         );
-    await _attachments(id, mediaIds);
     return id;
   });
 
@@ -150,12 +103,8 @@ class BoxCareRepository {
     required BoxCareEventType type,
     required DateTime occurredAt,
     String? notes,
-    List<int> mediaIds = const [],
   }) => database.transaction(() async {
-    await _validate(boxId, occurredAt, notes, mediaIds);
-    final old = await (database.select(
-      database.boxCareEventAttachments,
-    )..where((a) => a.eventId.equals(id))).get();
+    await _validate(boxId, occurredAt, notes);
     final changed =
         await (database.update(database.boxCareEvents)..where(
               (e) =>
@@ -174,12 +123,6 @@ class BoxCareRepository {
               ),
             );
     if (changed != 1) return false;
-    await (database.delete(
-      database.boxCareEventAttachments,
-    )..where((a) => a.eventId.equals(id))).go();
-    await _attachments(id, mediaIds);
-    await PictureGalleryRepository(database)
-        .deleteUnreferencedMedia(old.map((a) => a.mediaAssetId));
     return true;
   });
 
@@ -195,9 +138,6 @@ class BoxCareRepository {
     if (box == null || box.status != BoxStatus.active) {
       throw StateError('Box is not active.');
     }
-    final old = await (database.select(
-      database.boxCareEventAttachments,
-    )..where((a) => a.eventId.equals(id))).get();
     final changed =
         await (database.delete(database.boxCareEvents)..where(
               (e) =>
@@ -208,23 +148,8 @@ class BoxCareRepository {
             ))
             .go();
     if (changed != 1) return false;
-    await PictureGalleryRepository(database)
-        .deleteUnreferencedMedia(old.map((a) => a.mediaAssetId));
     return true;
   });
-
-  Future<void> _attachments(int id, List<int> mediaIds) async {
-    for (final mediaId in mediaIds) {
-      await database
-          .into(database.boxCareEventAttachments)
-          .insert(
-            BoxCareEventAttachmentsCompanion.insert(
-              eventId: id,
-              mediaAssetId: mediaId,
-            ),
-          );
-    }
-  }
 
   static String? _notes(String? notes) =>
       notes == null || notes.trim().isEmpty ? null : notes.trim();

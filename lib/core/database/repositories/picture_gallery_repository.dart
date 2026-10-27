@@ -594,13 +594,7 @@ class PictureGalleryRepository {
       database.boxes,
     )..where((row) => row.pictureMediaId.equals(mediaId))).getSingleOrNull();
 
-    final careAttachment =
-        await (database.select(database.boxCareEventAttachments)
-              ..where((row) => row.mediaAssetId.equals(mediaId))
-              ..limit(1))
-            .getSingleOrNull();
-    if (careAttachment == null &&
-        animalAssociation == null &&
+    if (animalAssociation == null &&
         boxAssociation == null &&
         animalPrimary == null &&
         boxPrimary == null) {

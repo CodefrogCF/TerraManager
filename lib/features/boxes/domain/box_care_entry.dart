@@ -9,7 +9,6 @@ class BoxCareEntry {
     required this.type,
     required this.occurredAt,
     this.notes,
-    this.mediaIds = const [],
     required this.revision,
     required this.requestId,
   });
@@ -18,7 +17,6 @@ class BoxCareEntry {
   final BoxCareEventType type;
   final DateTime occurredAt;
   final String? notes;
-  final List<int> mediaIds;
   final int revision;
   final String requestId;
 
@@ -28,7 +26,6 @@ class BoxCareEntry {
     type: BoxCareEventType.values.byName(json['type'] as String),
     occurredAt: DateTime.parse(json['occurredAt'] as String),
     notes: json['notes'] as String?,
-    mediaIds: (json['mediaIds'] as List).cast<int>(),
     revision: json['revision'] as int,
     requestId: json['requestId'] as String,
   );
@@ -38,7 +35,6 @@ class BoxCareEntry {
     'type': type.name,
     'occurredAt': occurredAt.toUtc().toIso8601String(),
     'notes': notes,
-    'mediaIds': mediaIds,
     'revision': revision,
     'requestId': requestId,
   };

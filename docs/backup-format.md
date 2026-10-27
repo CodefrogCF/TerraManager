@@ -36,7 +36,7 @@ Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are
 | Animal reminder | `feedingReminderIntervalDays`, `feedingReminderBaseline`, `feedingReminderWeekdays`, `feedingReminderMinuteOfDay`, `feedingReminderTimeZone` |
 | FeedingEvent | `id`, `animalId`, `fedAt`, `notes` |
 | Nested weight entry | `id`, `weightGrams`, `measuredAt` |
-| Nested Box care event | `id`, `type`, `occurredAt`, optional `notes`, `attachments` (picture records), `requestId`, positive integer `revision`, `createdAt`, `updatedAt`. Missing `careEvents` means empty history; IDs/retry keys are unique across Boxes. Shared images are archived/restored once. |
+| Nested Box care event | `id`, `type`, `occurredAt`, optional `notes`, `requestId`, positive integer `revision`, `createdAt`, `updatedAt`. Missing `careEvents` means empty history; IDs/retry keys are unique across Boxes. Retired care-picture metadata in older archives is ignored. |
 | Nested shedding entry | `id`, `shedAt`, `notes`, `createdAt`, `updatedAt` |
 | Gallery entry | `mediaPath`, `capturedAt`; list order is retained |
 

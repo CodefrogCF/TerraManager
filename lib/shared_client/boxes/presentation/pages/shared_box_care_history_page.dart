@@ -80,7 +80,6 @@ class _SharedBoxCareHistoryPageState extends State<SharedBoxCareHistoryPage> {
           required type,
           required occurredAt,
           notes,
-          required mediaIds,
           required requestId,
         }) => widget.change(() async {
           await widget.api.saveBoxCareEvent(
@@ -89,7 +88,6 @@ class _SharedBoxCareHistoryPageState extends State<SharedBoxCareHistoryPage> {
             type: type,
             occurredAt: occurredAt,
             notes: notes,
-            mediaIds: mediaIds,
             requestId: requestId,
           );
         }),

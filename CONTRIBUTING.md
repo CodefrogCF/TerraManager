@@ -6,9 +6,7 @@ documentation corrections are welcome through
 
 ## Code and content contributions
 
-TerraManager is distributed under `GPL-3.0-or-later`. The maintainer also wants
-to preserve the option of offering separate commercial licence terms in the
-future. Copyright ownership and contribution terms must therefore be clear.
+TerraManager is distributed under `GPL-3.0-or-later`.
 
 Until a separate contributor agreement is published, please do not submit
 unsolicited pull requests containing substantial source code, translations,

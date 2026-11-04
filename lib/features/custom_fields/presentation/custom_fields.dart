@@ -336,6 +336,15 @@ class CustomFieldsSectionState extends State<CustomFieldsSection> {
     future: _future,
     builder: (context, s) {
       if (!s.hasData && !s.hasError) return const SizedBox.shrink();
+      final boxDetails = widget.access.target == CustomFieldTarget.box;
+      final visibleFields =
+          s.data?.templates
+              .where((t) => !t.hidden && s.data!.value(t.id) != null)
+              .toList() ??
+          const <CustomFieldTemplate>[];
+      if (boxDetails && !s.hasError && visibleFields.isEmpty) {
+        return const SizedBox.shrink();
+      }
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
         child: Column(
@@ -353,9 +362,7 @@ class CustomFieldsSectionState extends State<CustomFieldsSection> {
               ),
             ],
             if (s.hasData) ...[
-              for (final t in s.data!.templates.where(
-                (t) => !t.hidden && s.data!.value(t.id) != null,
-              ))
+              for (final t in visibleFields)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Column(
@@ -371,27 +378,22 @@ class CustomFieldsSectionState extends State<CustomFieldsSection> {
                     ],
                   ),
                 ),
-              if (s.data!.values.every(
-                (v) =>
-                    v.value == null ||
-                    !s.data!.templates.any(
-                      (t) => t.id == v.templateId && !t.hidden,
-                    ),
-              ))
-                Text(context.l10n.customFieldsEmpty),
-              TextButton.icon(
-                onPressed: () async {
-                  await Navigator.of(context).push<void>(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          CustomFieldTemplatesPage(access: widget.access),
-                    ),
-                  );
-                  await reload();
-                },
-                icon: const Icon(Icons.tune),
-                label: Text(context.l10n.customFieldsManage),
-              ),
+              if (!boxDetails) ...[
+                if (visibleFields.isEmpty) Text(context.l10n.customFieldsEmpty),
+                TextButton.icon(
+                  onPressed: () async {
+                    await Navigator.of(context).push<void>(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            CustomFieldTemplatesPage(access: widget.access),
+                      ),
+                    );
+                    await reload();
+                  },
+                  icon: const Icon(Icons.tune),
+                  label: Text(context.l10n.customFieldsManage),
+                ),
+              ],
             ],
           ],
         ),

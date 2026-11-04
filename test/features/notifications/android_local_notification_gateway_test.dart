@@ -112,7 +112,13 @@ void main() {
       () async {
         final gateway = AndroidLocalNotificationGateway();
         await gateway.initialize((_) {});
-        final due = DateTime.utc(2026, 11, 1, 18);
+        final tomorrow = DateTime.now().toUtc().add(const Duration(days: 1));
+        final due = DateTime.utc(
+          tomorrow.year,
+          tomorrow.month,
+          tomorrow.day,
+          18,
+        );
         await gateway.schedule(
           id: 7,
           at: due,
@@ -136,7 +142,10 @@ void main() {
         );
         expect(args['timeZoneName'], 'Etc/UTC');
         expect(args['matchDateTimeComponents'], isNull);
-        expect(args['scheduledDateTime'], startsWith('2026-11-01T18:00:00'));
+        expect(
+          args['scheduledDateTime'],
+          startsWith(due.toIso8601String().split('.').first),
+        );
         final details = args['platformSpecifics'] as Map;
         expect(details['scheduleMode'], 'inexactAllowWhileIdle');
         expect(details['visibility'], 0); // Android VISIBILITY_PRIVATE

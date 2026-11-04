@@ -47,9 +47,10 @@ existing installations see the highlights when this feature first becomes availa
 The last shown version/build is stored on the device, outside collection backups.
 Web and Shared Care do not show this overlay.
 
-For release maintenance, review the `releaseHighlights*` texts in both
-`lib/l10n/app_en.arb` and `lib/l10n/app_de.arb` alongside the changelog. The installed
-version and build number are read from the application package.
+For release maintenance, edit the numbered list in
+[`release_highlights_content.dart`](../lib/features/release_highlights/presentation/release_highlights_content.dart).
+Each entry contains its icon and German/English title and description; the dialog
+adapts to the list length. The installed version/build is read from the package.
 
 Create a current `.tmbackup` before updating.
 

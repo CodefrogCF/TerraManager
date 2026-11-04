@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../l10n/app_localizations_context.dart';
 import '../application/release_highlights_controller.dart';
+import 'release_highlights_content.dart';
 
 Future<void> showReleaseHighlights(
   BuildContext context, {
@@ -10,28 +11,7 @@ Future<void> showReleaseHighlights(
   context: context,
   builder: (context) {
     final text = context.l10n;
-    final highlights = [
-      (
-        Icons.notifications_outlined,
-        text.releaseHighlightsNotificationsTitle,
-        text.releaseHighlightsNotificationsBody,
-      ),
-      (
-        Icons.restaurant_outlined,
-        text.releaseHighlightsFeedingTitle,
-        text.releaseHighlightsFeedingBody,
-      ),
-      (
-        Icons.inventory_2_outlined,
-        text.releaseHighlightsBoxesTitle,
-        text.releaseHighlightsBoxesBody,
-      ),
-      (
-        Icons.touch_app_outlined,
-        text.releaseHighlightsOverviewTitle,
-        text.releaseHighlightsOverviewBody,
-      ),
-    ];
+    final languageCode = Localizations.localeOf(context).languageCode;
     return AlertDialog(
       key: const Key('release-highlights-dialog'),
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -54,15 +34,16 @@ Future<void> showReleaseHighlights(
             const SizedBox(height: 12),
             Text(text.releaseHighlightsIntro),
             const SizedBox(height: 24),
-            for (final (icon, title, body) in highlights)
+            for (final highlight in releaseHighlightsContent)
               Padding(
+                key: ValueKey('release-highlight-${highlight.number}'),
                 padding: const EdgeInsets.only(bottom: 24),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ExcludeSemantics(
                       child: Icon(
-                        icon,
+                        highlight.icon,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
@@ -72,11 +53,11 @@ Future<void> showReleaseHighlights(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            title,
+                            highlight.localized(languageCode).title,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 4),
-                          Text(body),
+                          Text(highlight.localized(languageCode).description),
                         ],
                       ),
                     ),

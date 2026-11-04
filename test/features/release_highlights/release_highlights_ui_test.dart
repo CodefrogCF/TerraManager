@@ -9,6 +9,7 @@ import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/onboarding/presentation/standalone_tutorial_gate.dart';
 import 'package:terramanager/features/release_highlights/application/release_highlights_controller.dart';
 import 'package:terramanager/features/release_highlights/presentation/release_highlights_dialog.dart';
+import 'package:terramanager/features/release_highlights/presentation/release_highlights_content.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/presentation/pages/settings.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
@@ -239,6 +240,24 @@ void main() {
     variant: TargetPlatformVariant.only(TargetPlatform.windows),
   );
 
+  test('numbered content has unique IDs, both translations and an English fallback', () {
+    expect(releaseHighlightsContent, isNotEmpty);
+    final numbers = releaseHighlightsContent
+        .map((item) => item.number)
+        .toList();
+    expect(numbers.every((number) => number > 0), true);
+    expect(numbers.toSet(), hasLength(numbers.length));
+    for (final item in releaseHighlightsContent) {
+      for (final copy in [item.de, item.en]) {
+        expect(copy.title.trim(), isNotEmpty);
+        expect(copy.description.trim(), isNotEmpty);
+      }
+      expect(item.localized('de'), item.de);
+      expect(item.localized('en'), item.en);
+      expect(item.localized('fr'), item.en);
+    }
+  });
+
   for (final language in ['de', 'en']) {
     for (final size in [const Size(320, 480), const Size(800, 320)]) {
       testWidgets(
@@ -277,6 +296,28 @@ void main() {
             find.text(language == 'de' ? 'Das ist neu' : "What's new"),
             findsOneWidget,
           );
+          for (final item in releaseHighlightsContent) {
+            final row = find.byKey(
+              ValueKey('release-highlight-${item.number}'),
+            );
+            final expected = language == 'de' ? item.de : item.en;
+            expect(row, findsOneWidget);
+            expect(
+              find.descendant(of: row, matching: find.text(expected.title)),
+              findsOneWidget,
+            );
+            expect(
+              find.descendant(
+                of: row,
+                matching: find.text(expected.description),
+              ),
+              findsOneWidget,
+            );
+            expect(
+              find.descendant(of: row, matching: find.byIcon(item.icon)),
+              findsOneWidget,
+            );
+          }
           final rect = tester.getRect(find.byKey(dialogKey));
           expect(rect.left, greaterThanOrEqualTo(0));
           expect(rect.right, lessThanOrEqualTo(size.width));

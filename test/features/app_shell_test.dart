@@ -8,6 +8,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
 import 'package:terramanager/features/settings/animal_sort_order.dart';
 import 'package:terramanager/features/boxes/presentation/pages/boxes_page.dart';
 import 'package:terramanager/features/navigation/presentation/pages/app_shell.dart';
@@ -31,11 +32,16 @@ void main() {
     await database.close();
   });
 
-  Future<void> pumpApp(WidgetTester tester) async {
+  Future<void> pumpApp(
+    WidgetTester tester, {
+    DateTime Function()? reminderNow,
+  }) async {
     await tester.pumpWidget(
       AppSettingsScope(
         controller: settingsController,
-        child: MaterialApp(home: AppShell(database: database)),
+        child: MaterialApp(
+          home: AppShell(database: database, reminderNow: reminderNow),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -66,13 +72,14 @@ void main() {
   Future<int> createAnimalWithReminder({
     required DateTime baseline,
     int intervalDays = 1,
+    String name = 'Reminder Animal',
   }) async {
     final boxId = await BoxRepository(database)
         .createBoxWithGeneratedQrId(name: 'Reminder Box');
 
     final animalId = await AnimalRepository(database).createAnimal(
       boxId: boxId,
-      commonName: 'Reminder Animal',
+      commonName: name,
       latinName: 'Test species',
       tempMin: 20,
       tempMax: 30,
@@ -448,6 +455,119 @@ void main() {
     );
 
     expect(badge.isLabelVisible, isTrue);
+  });
+
+  testWidgets('a reminder becomes due in Settings and keeps Animals scrolled', (
+    tester,
+  ) async {
+    var now = DateTime.utc(2026, 11, 1, 12);
+    final animalId = await createAnimalWithReminder(
+      baseline: now.subtract(const Duration(hours: 23)),
+    );
+    await createAnimalWithReminder(baseline: now, name: 'Later Animal');
+    final animals = AnimalRepository(database);
+    final boxId = (await animals.getAnimalById(animalId))!.boxId!;
+    for (var i = 0; i < 12; i++) {
+      await animals.createAnimal(
+        boxId: boxId,
+        commonName: 'Animal $i',
+        latinName: 'Test species',
+        tempMin: 20,
+        tempMax: 30,
+        humidityMin: 40,
+        humidityMax: 60,
+      );
+    }
+    await settingsController.setNextFeedingSummaryEnabled(true);
+    await pumpApp(tester, reminderNow: () => now);
+
+    await tester.tap(find.text('Animals').last);
+    await tester.pumpAndSettle();
+    final selectedBadge = find.byKey(
+      const Key('animals-feeding-due-badge-selected'),
+    );
+    final marker = find.byKey(Key('animal-due-marker-$animalId'));
+    final nextFeeding = find.byKey(const Key('next-feeding-summary-text'));
+    expect(tester.widget<Badge>(selectedBadge).isLabelVisible, isFalse);
+    expect(marker, findsNothing);
+    expect(tester.widget<Text>(nextFeeding).data, contains('Reminder Animal'));
+
+    final overview = find.byType(AnimalsPage);
+    final overviewState = tester.state(overview);
+    final scrollController = tester
+        .widget<ListView>(
+          find.descendant(of: overview, matching: find.byType(ListView)),
+        )
+        .controller!;
+    scrollController.jumpTo(180);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Settings').last);
+    await tester.pumpAndSettle();
+    expect(selectedPage(tester), 2);
+    now = now.add(const Duration(hours: 1));
+    await tester.tap(find.text('Animals').last);
+    await tester.pumpAndSettle();
+    expect(tester.state(overview), same(overviewState));
+    expect(scrollController.offset, closeTo(180, 0.1));
+
+    scrollController.jumpTo(0);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Badge>(selectedBadge).isLabelVisible, isTrue);
+    expect(find.byKey(const Key('feeding-reminder-summary')), findsOneWidget);
+    expect(marker, findsOneWidget);
+    expect(tester.widget<Text>(nextFeeding).data, contains('Later Animal'));
+
+    await tester.tap(find.text('Boxes').last);
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<Badge>(find.byKey(const Key('animals-feeding-due-badge')))
+          .isLabelVisible,
+      isTrue,
+    );
+  });
+
+  testWidgets('committed Feeding and reminder edits update the open overview', (
+    tester,
+  ) async {
+    final now = DateTime.utc(2026, 11, 1, 12);
+    final oldFeeding = now.subtract(const Duration(days: 2));
+    final animalId = await createAnimalWithReminder(baseline: oldFeeding);
+    await settingsController.setNextFeedingSummaryEnabled(true);
+    await pumpApp(tester, reminderNow: () => now);
+    await tester.tap(find.text('Animals').last);
+    await tester.pumpAndSettle();
+    final overview = find.byType(AnimalsPage);
+    final overviewState = tester.state(overview);
+    final selectedBadge = find.byKey(
+      const Key('animals-feeding-due-badge-selected'),
+    );
+    final marker = find.byKey(Key('animal-due-marker-$animalId'));
+    expect(marker, findsOneWidget);
+
+    final feedings = FeedingRepository(database);
+    final feedingId = await feedings.addFeeding(animalId, now);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Badge>(selectedBadge).isLabelVisible, isFalse);
+    expect(marker, findsNothing);
+    expect(find.byKey(const Key('next-feeding-summary')), findsOneWidget);
+
+    await feedings.updateFeeding(feedingId: feedingId, fedAt: oldFeeding);
+    await tester.pumpAndSettle();
+    expect(tester.widget<Badge>(selectedBadge).isLabelVisible, isTrue);
+    expect(marker, findsOneWidget);
+
+    await AnimalRepository(database).updateFeedingReminder(
+      animalId: animalId,
+      intervalDays: null,
+      baseline: null,
+    );
+    await tester.pumpAndSettle();
+    expect(tester.widget<Badge>(selectedBadge).isLabelVisible, isFalse);
+    expect(marker, findsNothing);
+    expect(find.byKey(const Key('next-feeding-summary')), findsNothing);
+    expect(tester.state(overview), same(overviewState));
   });
 
   testWidgets('refreshes navigation badge after reminder changes', (

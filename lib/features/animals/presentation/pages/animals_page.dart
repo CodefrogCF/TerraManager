@@ -72,17 +72,11 @@ class _AnimalsPageState extends State<AnimalsPage> {
   void didUpdateWidget(covariant AnimalsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.database == oldWidget.database &&
-        widget.dataRevision == oldWidget.dataRevision) {
-      return;
+    if (widget.database != oldWidget.database) {
+      _loadAnimals();
+    } else if (widget.dataRevision != oldWidget.dataRevision) {
+      _overviewFuture = _fetchOverview();
     }
-
-    final previousOffset = _scrollController.hasClients
-        ? _scrollController.offset
-        : 0.0;
-
-    _loadAnimals();
-    _restoreScrollAfterLoad(previousOffset);
   }
 
   @override
@@ -104,29 +98,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
     final latestFeedingTimes = await FeedingRepository(widget.database)
         .getLatestFeedingTimes(animals.map((animal) => animal.id));
 
-    final reminderService = FeedingReminderService(
-      widget.database,
-      now: widget.reminderNow,
-    );
-
-    final reminderStates = reminderService.calculateReminderStates(
-      animals: animals,
-      latestFeedingTimes: latestFeedingTimes,
-    );
-
-    final dueReminders = reminderStates
-        .where((state) => state.isDue)
-        .toList(growable: false);
-
-    final nextUpcomingReminder = reminderService.nextUpcomingReminderState(
-      reminderStates,
-    );
-
     return _AnimalsOverviewData(
       animals: animals,
       latestFeedingTimes: latestFeedingTimes,
-      dueReminders: dueReminders,
-      nextUpcomingReminder: nextUpcomingReminder,
     );
   }
 
@@ -177,8 +151,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
   }
 
   Future<void> _restoreScrollAfterLoad(double previousOffset) async {
+    final overview = _overviewFuture;
     try {
-      await _overviewFuture;
+      await overview;
     } catch (_) {
       return;
     }
@@ -188,7 +163,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scrollController.hasClients) {
+      if (!mounted ||
+          overview != _overviewFuture ||
+          !_scrollController.hasClients) {
         return;
       }
 
@@ -220,7 +197,11 @@ class _AnimalsPageState extends State<AnimalsPage> {
         ),
       ),
     );
-    if (mounted) await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+    if (mounted) {
+      setState(() {
+        _overviewFuture = _fetchOverview();
+      });
+    }
   }
 
   Future<void> _openNewAnimalPage() async {
@@ -333,7 +314,9 @@ class _AnimalsPageState extends State<AnimalsPage> {
       return;
     }
 
-    await _reloadAnimalsPreservingScroll(_currentScrollOffset());
+    setState(() {
+      _overviewFuture = _fetchOverview();
+    });
 
     widget.onDataChanged?.call();
 
@@ -1224,6 +1207,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
           ],
         ),
         body: FutureBuilder<_AnimalsOverviewData>(
+          key: ObjectKey(widget.database),
           future: _overviewFuture,
           builder: (context, snapshot) {
             if (snapshot.hasError) {
@@ -1232,7 +1216,8 @@ class _AnimalsPageState extends State<AnimalsPage> {
               );
             }
 
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            if (!snapshot.hasData &&
+                snapshot.connectionState == ConnectionState.waiting) {
               return const OverviewPlaceholder(
                 child: CircularProgressIndicator(),
               );
@@ -1265,22 +1250,33 @@ class _AnimalsPageState extends State<AnimalsPage> {
                       .expand((group) => group.animals)
                       .toList(growable: false);
 
-            final dueReminders =
-                (data?.dueReminders ?? const <FeedingReminderState>[])
-                    .where(
-                      (reminder) =>
-                          !(settings?.isFeedingAlertSuppressed(
-                                feedingAlertAnimalKey(
-                                  reminder.animal.id,
-                                  reminder.animal.createdAt,
-                                ),
-                              ) ??
-                              false),
-                    )
-                    .toList();
+            // Saved inputs stay in the overview. Evaluate the clock again when
+            // the shell rebuilds after a tab switch.
+            final reminderService = FeedingReminderService(
+              widget.database,
+              now: widget.reminderNow,
+            );
+            final reminderStates = reminderService.calculateReminderStates(
+              animals: rawAnimals,
+              latestFeedingTimes: data?.latestFeedingTimes ?? const {},
+            );
+            final dueReminders = reminderStates
+                .where(
+                  (reminder) =>
+                      reminder.isDue &&
+                      !(settings?.isFeedingAlertSuppressed(
+                            feedingAlertAnimalKey(
+                              reminder.animal.id,
+                              reminder.animal.createdAt,
+                            ),
+                          ) ??
+                          false),
+                )
+                .toList();
 
             final nextUpcomingReminder = nextFeedingSummaryEnabled
-                ? data?.nextUpcomingReminder ?? data?.dueReminders.firstOrNull
+                ? reminderService.nextUpcomingReminderState(reminderStates) ??
+                      reminderStates.firstOrNull
                 : null;
 
             if (animals.isEmpty) {
@@ -1355,14 +1351,10 @@ PopupMenuItem<_AnimalOverviewAction> _animalMenuItem({
 class _AnimalsOverviewData {
   final List<Animal> animals;
   final Map<int, DateTime> latestFeedingTimes;
-  final List<FeedingReminderState> dueReminders;
-  final FeedingReminderState? nextUpcomingReminder;
 
   const _AnimalsOverviewData({
     required this.animals,
     required this.latestFeedingTimes,
-    required this.dueReminders,
-    required this.nextUpcomingReminder,
   });
 }
 

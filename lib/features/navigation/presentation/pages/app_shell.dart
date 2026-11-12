@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:drift/drift.dart' show TableUpdate, TableUpdateQuery;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,6 +15,7 @@ class AppShell extends StatefulWidget {
   final AppDatabase database;
   final VoidCallback? onReplayTutorial;
   final VoidCallback? onShowReleaseHighlights;
+  final FeedingReminderClock? reminderNow;
   final int dataRevision;
 
   const AppShell({
@@ -19,6 +23,7 @@ class AppShell extends StatefulWidget {
     required this.database,
     this.onReplayTutorial,
     this.onShowReleaseHighlights,
+    this.reminderNow,
     this.dataRevision = 0,
   });
 
@@ -35,42 +40,72 @@ class _AppShellState extends State<AppShell> {
   int _dataRevision = 0;
   double _horizontalDragDistance = 0;
   int _animalsRevision = 0;
-  bool _hasDueFeedings = false;
-  int _dueFeedingsRequest = 0;
+  DateTime? _earliestFeedingDueAt;
+  int _reminderRequest = 0;
+  StreamSubscription<Set<TableUpdate>>? _reminderChanges;
 
   @override
   void initState() {
     super.initState();
-    _refreshDueFeedings();
+    _watchReminderChanges();
+    _refreshReminderDate();
   }
 
   @override
   void didUpdateWidget(covariant AppShell oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.dataRevision != oldWidget.dataRevision) {
+    if (widget.database != oldWidget.database) {
+      _watchReminderChanges();
+    }
+    if (widget.database != oldWidget.database ||
+        widget.dataRevision != oldWidget.dataRevision) {
       _dataRevision++;
-      _refreshDueFeedings();
+      _refreshReminderDate();
     }
   }
 
-  Future<void> _refreshDueFeedings() async {
-    final request = ++_dueFeedingsRequest;
+  @override
+  void dispose() {
+    unawaited(_reminderChanges?.cancel());
+    super.dispose();
+  }
 
-    final dueStates = await FeedingReminderService(widget.database)
-        .getDueReminderStates();
+  void _watchReminderChanges() {
+    unawaited(_reminderChanges?.cancel());
+    final database = widget.database;
+    _reminderChanges = database
+        .tableUpdates(
+          TableUpdateQuery.onAllTables([
+            database.animals,
+            database.feedingEvents,
+          ]),
+        )
+        .listen((_) {
+          if (!mounted || widget.database != database) return;
+          setState(() => _animalsRevision++);
+          unawaited(_refreshReminderDate());
+        });
+  }
 
-    if (!mounted || request != _dueFeedingsRequest) {
+  Future<void> _refreshReminderDate() async {
+    final request = ++_reminderRequest;
+
+    final reminders = await FeedingReminderService(
+      widget.database,
+      now: widget.reminderNow,
+    ).getReminderStates();
+
+    if (!mounted || request != _reminderRequest) {
       return;
     }
 
-    final hasDueFeedings = dueStates.isNotEmpty;
-
-    if (_hasDueFeedings == hasDueFeedings) {
+    final dueAt = reminders.firstOrNull?.dueAt;
+    if (_earliestFeedingDueAt == dueAt) {
       return;
     }
 
     setState(() {
-      _hasDueFeedings = hasDueFeedings;
+      _earliestFeedingDueAt = dueAt;
     });
   }
 
@@ -117,33 +152,19 @@ class _AppShellState extends State<AppShell> {
       _dataRevision++;
     });
 
-    _refreshDueFeedings();
-  }
-
-  void _handleFeedingChanged() {
-    setState(() {
-      _dataRevision++;
-    });
-
-    _refreshDueFeedings();
-  }
-
-  void _handleAnimalsDataChanged() {
-    setState(() {
-      _animalsRevision++;
-    });
-
-    _refreshDueFeedings();
+    _refreshReminderDate();
   }
 
   Widget _animalsNavigationIcon({required bool selected}) {
+    final dueAt = _earliestFeedingDueAt;
+    final now = widget.reminderNow?.call() ?? DateTime.now();
     return Badge(
       key: Key(
         selected
             ? 'animals-feeding-due-badge-selected'
             : 'animals-feeding-due-badge',
       ),
-      isLabelVisible: _hasDueFeedings,
+      isLabelVisible: dueAt != null && !now.isBefore(dueAt),
       label: const Text('!'),
       child: Icon(selected ? Icons.pets : Icons.pets_outlined),
     );
@@ -155,14 +176,12 @@ class _AppShellState extends State<AppShell> {
       BoxesPage(
         key: ValueKey('boxes-$_dataRevision'),
         database: widget.database,
-        onAnimalsChanged: _handleAnimalsDataChanged,
       ),
       AnimalsPage(
         key: ValueKey('animals-$_dataRevision'),
         database: widget.database,
+        reminderNow: widget.reminderNow,
         dataRevision: _animalsRevision,
-        onDataChanged: _handleAnimalsDataChanged,
-        onFeedingChanged: _handleFeedingChanged,
       ),
       SettingsPage(
         database: widget.database,

@@ -13,11 +13,13 @@ class FeedingDetailsFields extends StatefulWidget {
   const FeedingDetailsFields({
     super.key,
     required this.access,
+    required this.notes,
     this.saved,
     this.enabled = true,
   });
 
   final FeedingDetailsAccess access;
+  final Widget notes;
   final List<FeedingFieldValue>? saved;
   final bool enabled;
 
@@ -28,7 +30,6 @@ class FeedingDetailsFields extends StatefulWidget {
 class FeedingDetailsFieldsState extends State<FeedingDetailsFields>
     with AutomaticKeepAliveClientMixin<FeedingDetailsFields> {
   final _form = GlobalKey<FormState>();
-  final _expansion = ExpansibleController();
   late final CustomFieldsController _fields;
   late Future<List<FoodPreset>> _presets;
 
@@ -54,11 +55,7 @@ class FeedingDetailsFieldsState extends State<FeedingDetailsFields>
     _presets = widget.access.presets();
   }
 
-  bool validate() {
-    final valid = _form.currentState?.validate() ?? true;
-    if (!valid) _expansion.expand();
-    return valid;
-  }
+  bool validate() => _form.currentState?.validate() ?? true;
 
   CustomFieldPatch? get patch => _fields.patch;
 
@@ -76,7 +73,6 @@ class FeedingDetailsFieldsState extends State<FeedingDetailsFields>
   @override
   void dispose() {
     _fields.dispose();
-    _expansion.dispose();
     super.dispose();
   }
 
@@ -88,56 +84,70 @@ class FeedingDetailsFieldsState extends State<FeedingDetailsFields>
       builder: (context, snapshot) => ListenableBuilder(
         listenable: _fields,
         builder: (context, _) {
-          final editableIds = _fields.editable
-              .map((template) => template.id)
-              .toSet();
-          final presets = (snapshot.data ?? const <FoodPreset>[])
-              .where(
-                (preset) =>
-                    !preset.archived &&
-                    preset.defaults.keys.any(editableIds.contains),
-              )
-              .toList();
+          final defaults = {
+            for (final preset in snapshot.data ?? const <FoodPreset>[])
+              if (!preset.archived)
+                preset: preset.applicableDefaults(_fields.editable),
+          };
+          final presets = defaults.entries.where(
+            (entry) => entry.value.isNotEmpty,
+          );
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (presets.isNotEmpty)
-                DropdownButton<FoodPreset>(
-                  key: const Key('feeding-preset-picker'),
-                  isExpanded: true,
-                  hint: Text(context.l10n.foodPresetSelect),
-                  items: [
-                    for (final preset in presets)
-                      DropdownMenuItem(
-                        value: preset,
-                        child: Text(
-                          preset.name,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                  ],
-                  onChanged: !widget.enabled
-                      ? null
-                      : (preset) {
-                          if (preset == null) return;
-                          _fields.applyDefaults(preset.defaults);
-                          _expansion.expand();
-                        },
+              Semantics(
+                header: true,
+                child: Text(
+                  context.l10n.feedingDetails,
+                  key: const Key('feeding-details-fields'),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-              ExpansionTile(
-                key: const Key('feeding-details-fields'),
-                controller: _expansion,
-                maintainState: true,
-                tilePadding: EdgeInsets.zero,
-                title: Text(context.l10n.feedingDetails),
-                initiallyExpanded: widget.saved?.isNotEmpty ?? false,
+              ),
+              if (presets.isNotEmpty)
+                DropdownButtonHideUnderline(
+                  child: DropdownButton<FoodPreset>(
+                    key: const Key('feeding-preset-picker'),
+                    isExpanded: true,
+                    hint: Text(context.l10n.foodPresetSelect),
+                    items: [
+                      for (final entry in presets)
+                        DropdownMenuItem(
+                          value: entry.key,
+                          child: Text(
+                            entry.key.name,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                    onChanged: !widget.enabled
+                        ? null
+                        : (preset) {
+                            if (preset != null) {
+                              _fields.applyDefaults(defaults[preset]!);
+                            }
+                          },
+                  ),
+                ),
+              const SizedBox(height: 8),
+              Form(
+                key: _form,
+                child: CustomFieldsEditor(
+                  controller: _fields,
+                  enabled: widget.enabled,
+                  compact: true,
+                  showManagement: false,
+                ),
+              ),
+              const SizedBox(height: 12),
+              widget.notes,
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 4,
                 children: [
-                  Form(
-                    key: _form,
-                    child: CustomFieldsEditor(
-                      controller: _fields,
-                      enabled: widget.enabled,
-                    ),
+                  CustomFieldTemplatesButton(
+                    controller: _fields,
+                    enabled:
+                        widget.enabled && !_fields.loading && !_fields.failed,
                   ),
                   if (snapshot.hasError)
                     TextButton(

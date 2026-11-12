@@ -16,6 +16,8 @@ class FeedingFieldValue {
       'target': 'feeding',
       'label': json['label'],
       'type': json['type'],
+      // The saved option is independent of later changes to its template.
+      if (json['type'] == 'choice') 'options': [json['value']],
     });
     final value = template.validate(json['value']);
     if (value == null) throw ArgumentError('A saved Feeding field is empty.');
@@ -67,7 +69,15 @@ CustomFieldsSnapshot feedingFieldsSnapshot(
   List<CustomFieldTemplate> templates, {
   List<FeedingFieldValue>? saved,
 }) => CustomFieldsSnapshot(
-  templates: templates,
+  templates: [
+    for (final type in [CustomFieldType.integer, CustomFieldType.choice])
+      ...templates.where((template) => template.type == type),
+    ...templates.where(
+      (template) =>
+          template.type != CustomFieldType.integer &&
+          template.type != CustomFieldType.choice,
+    ),
+  ],
   values: [
     for (final field in saved ?? const <FeedingFieldValue>[])
       CustomFieldValue(field.template.id, field.value),

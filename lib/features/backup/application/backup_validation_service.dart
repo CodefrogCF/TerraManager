@@ -507,7 +507,7 @@ class BackupValidationService {
             !presetNames.add(preset.name.toLowerCase())) {
           throw ArgumentError('Duplicate food preset.');
         }
-        preset.validatedDefaults(definitions.values);
+        preset.validatedDefaults(definitions.values, previous: preset);
       }
     } catch (_) {
       throw const BackupValidationException(

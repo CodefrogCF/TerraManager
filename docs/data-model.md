@@ -72,10 +72,11 @@ all custom values, including hidden/archived values. Dates are strict calendar
 dates (YYYY-MM-DD); numbers are finite and may be zero; booleans distinguish
 unset from false. Text is limited to 10,000 characters.
 
-Feedings have their own collection-wide templates using the same field types.
-Named food presets fill optional values in regular and quick Feeding forms.
+Feedings have collection-wide templates, including whole numbers and dropdowns.
+Each dropdown keeps its options in the configured order. Named food presets
+fill available optional values in regular and quick Feeding forms.
 Each Feeding stores its own values with their labels and types for history.
-Renaming or archiving a preset leaves earlier Feedings intact.
+Removing an option or changing a preset preserves earlier Feedings.
 
 ## Lifecycle and duplication
 
@@ -114,7 +115,7 @@ migrated only when readable. Missing legacy files must not discard other data.
 
 ## Schema Version
 
-The current Drift database schema version is **24**. Upgrade steps preserve
+The current Drift database schema version is **25**. Upgrade steps preserve
 existing IDs, relationships and QR values and finish with foreign-key checks.
 
 | Version | Addition |
@@ -143,5 +144,6 @@ existing IDs, relationships and QR values and finish with foreign-key checks.
 | 22 | Optional dated Animal rest period, alongside existing notes |
 | 23 | Feeding field templates, per-Feeding values and food presets |
 | 24 | Optional Box care reminders and repair for databases missing the Animal rest-period column |
+| 25 | Whole-number and dropdown fields for Feedings |
 
 Generation commands and migration checks are in [Development](development.md).

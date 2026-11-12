@@ -134,7 +134,7 @@ de:
     steps:
     - number: '7'
       heading: Fütterungshistorie
-      body_html: Öffne die Tierhistorie, um Fütterungen anzusehen, zu korrigieren oder zu löschen. Unter <strong>Futterdetails</strong> verwaltest du optionale Felder und Futtervorlagen. Eine Vorlage füllt die Felder auch bei der Schnellfütterung aus. Du kannst die Werte vor dem Speichern anpassen. Shared Care erlaubt endgültiges Löschen nur Administratoren.
+      body_html: Öffne die Tierhistorie, um Fütterungen anzusehen, zu korrigieren oder zu löschen. <strong>Futterdetails</strong> stehen zwischen Datum und Uhrzeit und den Notizen. Über <strong>Feldvorlagen verwalten</strong> am Ende des Formulars kannst du „Anzahl“ als Ganzzahl und etwa „Größe“, „Art“ oder „Alter“ als Auswahllisten anlegen. Gib einen Auswahlwert pro Zeile ein. Futtervorlagen können diese Felder auch bei der Schnellfütterung vorausfüllen. Shared Care erlaubt endgültiges Löschen nur Administratoren.
       images:
       - file: feeding-history.webp
         alt: Fütterungshistorie eines Tieres
@@ -378,7 +378,7 @@ en:
     steps:
     - number: '7'
       heading: Feeding history
-      body_html: Open an Animal history to view, correct or delete Feedings. Under <strong>Food details</strong>, manage optional fields and food presets. A preset fills in fields in regular and quick Feeding forms. You can adjust the values before saving. Permanent deletion in Shared Care requires an administrator.
+      body_html: Open an Animal history to view, correct or delete Feedings. <strong>Food details</strong> appear between the date and time and the notes. Use <strong>Manage field templates</strong> at the end of the form to create a whole-number Quantity field and dropdowns for Size, Food type or Age. Enter one option per line. Food presets can prefill these fields in regular and quick Feeding forms. Permanent deletion in Shared Care requires an administrator.
       images:
       - file: feeding-history.webp
         alt: Animal feeding history

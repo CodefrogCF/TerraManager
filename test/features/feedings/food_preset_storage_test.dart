@@ -19,7 +19,7 @@ import 'package:terramanager/shared_server/backups/application/shared_portable_b
 void main() {
   for (final shared in [false, true]) {
     test(
-      'typed values and archived presets round-trip; shared=$shared',
+      'integer and choice values and retired preset options round-trip; shared=$shared',
       () async {
         final source = AppDatabase.test(NativeDatabase.memory());
         final target = AppDatabase.test(NativeDatabase.memory());
@@ -41,13 +41,14 @@ void main() {
         const type = CustomFieldTemplate(
           id: '11111111-1111-4111-8111-111111111111',
           target: CustomFieldTarget.feeding,
-          type: CustomFieldType.text,
+          type: CustomFieldType.choice,
           label: 'Food',
+          options: ['Cricket', 'Locust'],
         );
         const quantity = CustomFieldTemplate(
           id: '22222222-2222-4222-8222-222222222222',
           target: CustomFieldTarget.feeding,
-          type: CustomFieldType.number,
+          type: CustomFieldType.integer,
           label: 'Quantity',
         );
         final templates = CustomFieldRepository(source);
@@ -63,7 +64,7 @@ void main() {
           creating: true,
         );
         expect(preset.name, 'Crickets');
-        expect(preset.defaults[quantity.id], 2.0);
+        expect(preset.defaults[quantity.id], isA<int>());
         final feedings = FeedingRepository(source);
         final fedAt = DateTime.utc(2026, 11, 12);
         final ids = await feedings.addFeedings(
@@ -85,6 +86,30 @@ void main() {
           animals.first,
           fedAt,
           notes: 'Original note',
+        );
+        final updated = await templates.update(
+          CustomFieldTemplate(
+            id: type.id,
+            target: type.target,
+            type: type.type,
+            label: type.label,
+            options: const ['Locust', 'Mealworm'],
+            revision: type.revision,
+          ),
+        );
+        expect(preset.applicableDefaults([updated, quantity]), {
+          quantity.id: 2,
+        });
+        await expectLater(
+          presets.save(
+            FoodPreset(
+              id: '44444444-4444-4444-8444-444444444444',
+              name: 'Unavailable',
+              defaults: {type.id: 'Cricket'},
+            ),
+            creating: true,
+          ),
+          throwsArgumentError,
         );
         final archived = await presets.save(
           FoodPreset(
@@ -149,15 +174,19 @@ void main() {
           (await FoodPresetRepository(target).all()).single.toJson(),
           archived.toJson(),
         );
+        final restoredTemplates = await CustomFieldRepository(target)
+            .templates(CustomFieldTarget.feeding);
+        expect(restoredTemplates, hasLength(2));
         expect(
-          await CustomFieldRepository(target)
-              .templates(CustomFieldTarget.feeding),
-          hasLength(2),
+          restoredTemplates.singleWhere((field) => field.id == type.id).options,
+          ['Locust', 'Mealworm'],
         );
         final restored = FeedingRepository(target);
         final first = (await restored.getFeedingById(ids.first))!;
         expect(first.notes, 'Edited note');
-        expect(decodeFeedingFieldValues(first.customFieldsJson).last.value, 4);
+        final firstValues = decodeFeedingFieldValues(first.customFieldsJson);
+        expect(firstValues.map((field) => field.value), ['Cricket', 4]);
+        expect(firstValues.last.value, isA<int>());
         final second = (await restored.getFeedingById(ids.last))!;
         expect(second.notes, isNull);
         expect(decodeFeedingFieldValues(second.customFieldsJson).last.value, 3);

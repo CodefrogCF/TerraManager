@@ -51,9 +51,10 @@ void main() {
 
   for (final quick in [false, true]) {
     testWidgets(
-      'Shared Care ${quick ? 'quick' : 'regular'} Feeding uses food defaults',
+      'Shared Care ${quick ? 'quick' : 'regular'} Feeding combines a preset and manual choice',
       (tester) async {
         const fieldId = '11111111-1111-4111-8111-111111111111';
+        const sizeId = '33333333-3333-4333-8333-333333333333';
         Map<String, dynamic>? submitted;
         final api = SharedApiClient(
           Uri.parse(origin),
@@ -73,7 +74,14 @@ void main() {
                     'id': fieldId,
                     'target': 'feeding',
                     'label': 'Quantity',
-                    'type': 'number',
+                    'type': 'integer',
+                  },
+                  {
+                    'id': sizeId,
+                    'target': 'feeding',
+                    'label': 'Size',
+                    'type': 'choice',
+                    'options': ['Micro', 'Large'],
                   },
                 ],
               },
@@ -82,7 +90,7 @@ void main() {
                   {
                     'id': '22222222-2222-4222-8222-222222222222',
                     'name': 'Crickets',
-                    'defaults': {fieldId: 2},
+                    'defaults': {fieldId: 2, sizeId: 'Micro'},
                   },
                 ],
               },
@@ -135,6 +143,12 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(find.text('Crickets').last);
         await tester.pumpAndSettle();
+        final size = find.byKey(const ValueKey('custom-field-$sizeId'));
+        await tester.ensureVisible(size);
+        await tester.tap(size);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Large').last);
+        await tester.pumpAndSettle();
 
         await tester.tap(
           quick
@@ -148,6 +162,7 @@ void main() {
           'expectedRevision': null,
           'updates': [
             {'templateId': fieldId, 'templateRevision': 1, 'value': 2},
+            {'templateId': sizeId, 'templateRevision': 1, 'value': 'Large'},
           ],
         });
       },

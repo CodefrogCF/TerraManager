@@ -29,7 +29,14 @@ void main() {
         });
         final repo = CustomFieldRepository(source);
         final box = await BoxRepository(source).createBoxWithGeneratedQrId();
-        for (final kind in CustomFieldType.values) {
+        const samples = {
+          CustomFieldType.text: 'Übersicht\nNotes',
+          CustomFieldType.number: 0.0,
+          CustomFieldType.date: '2024-02-29',
+          CustomFieldType.boolean: false,
+        };
+        for (final sample in samples.entries) {
+          final kind = sample.key;
           final id = '${kind.index + 1}2345678-1234-4123-8123-123456789abc';
           await repo.create(
             CustomFieldTemplate(
@@ -40,12 +47,7 @@ void main() {
             ),
           );
           final state = await repo.snapshot(CustomFieldTarget.box, box);
-          final value = switch (kind) {
-            CustomFieldType.text => 'Übersicht\nNotes',
-            CustomFieldType.number => 0.0,
-            CustomFieldType.date => '2024-02-29',
-            CustomFieldType.boolean => false,
-          };
+          final value = sample.value;
           await repo.save(
             CustomFieldTarget.box,
             box,

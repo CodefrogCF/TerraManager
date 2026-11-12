@@ -983,6 +983,20 @@
   "customFieldNumber": "Number",
   "customFieldDate": "Date",
   "customFieldBoolean": "Yes / No",
+  "customFieldInteger": "Whole number",
+  "customFieldIntegerInvalid": "Enter a whole number.",
+  "customFieldChoice": "Dropdown",
+  "customFieldOptions": "Options",
+  "customFieldOptionsHelp": "One option per line, in the order you want.",
+  "customFieldOptionsInvalid": "Enter unique options with 1–80 characters each.",
+  "customFieldChoiceUnavailable": "{option} (unavailable)",
+  "@customFieldChoiceUnavailable": {
+    "placeholders": {
+      "option": {
+        "type": "String"
+      }
+    }
+  },
   "customFieldUnset": "Not specified",
   "customFieldHidden": "Hide field",
   "customFieldArchived": "Archive template",

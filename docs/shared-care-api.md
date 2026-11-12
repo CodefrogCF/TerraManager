@@ -135,6 +135,8 @@ open histories and care-type management refresh through the existing SSE/fallbac
 - Feeding create and edit accept an optional `customFields` patch for
   Feeding-target templates. Responses include the saved labels, types and
   values when present. Food presets provide defaults keyed by template UUID.
+  Feeding templates support `integer` for whole numbers and `choice` for an
+  ordered `options` list. A saved choice is the selected option text.
 - Feedings require UUID `Idempotency-Key`; process-local successes last 24 hours.
   Repeating identical data returns the original result; changed data returns
   `409 idempotency_conflict`.

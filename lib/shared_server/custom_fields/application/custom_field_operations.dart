@@ -24,6 +24,7 @@ class CustomFieldOperations extends CollectionOperations {
       'target',
       'type',
       'label',
+      'options',
       'hidden',
       'archived',
       'revision',

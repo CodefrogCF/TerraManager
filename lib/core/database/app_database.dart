@@ -248,6 +248,14 @@ class AppDatabase extends _$AppDatabase {
                 }
                 await m.createTable(schema.boxCareReminders);
               },
+              from24To25: (m, schema) async {
+                await m.alterTable(
+                  TableMigration(
+                    schema.customFieldTemplates,
+                    newColumns: [schema.customFieldTemplates.optionsJson],
+                  ),
+                );
+              },
               from19To20: (m, schema) async {
                 await m.createTable(schema.careEventTypes);
                 await m.alterTable(
@@ -281,7 +289,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

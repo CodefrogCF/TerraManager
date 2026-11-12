@@ -347,20 +347,21 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
                                 icon: const Icon(Icons.calendar_today),
                               ),
                             ),
-                            TextField(
-                              key: const Key('shared-feeding-notes'),
-                              controller: _notesController,
-                              enabled: !_saving,
-                              maxLines: 3,
-                              decoration: InputDecoration(
-                                labelText: context.l10n.notes,
-                              ),
-                            ),
                             if (_animals.isNotEmpty)
                               FeedingDetailsFields(
                                 key: _details,
                                 access: sharedFeedingDetails(widget.api),
                                 enabled: !_saving,
+                                notes: TextField(
+                                  key: const Key('shared-feeding-notes'),
+                                  controller: _notesController,
+                                  enabled: !_saving,
+                                  minLines: 1,
+                                  maxLines: 3,
+                                  decoration: InputDecoration(
+                                    labelText: context.l10n.notes,
+                                  ),
+                                ),
                               ),
                           ],
                         ],

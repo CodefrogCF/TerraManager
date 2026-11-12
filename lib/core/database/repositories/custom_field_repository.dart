@@ -19,6 +19,9 @@ class CustomFieldRepository {
         target: CustomFieldTarget.values.byName(t.target),
         type: CustomFieldType.values.byName(t.type),
         label: t.label,
+        options: t.optionsJson == null
+            ? const []
+            : List<String>.from(jsonDecode(t.optionsJson!) as List),
         hidden: t.hidden,
         archived: t.archived,
         revision: t.revision,
@@ -71,6 +74,9 @@ class CustomFieldRepository {
                 type: t.type.name,
                 label: t.label,
                 labelKey: t.label.toLowerCase(),
+                optionsJson: Value(
+                  t.options.isEmpty ? null : jsonEncode(t.options),
+                ),
                 hidden: Value(t.hidden),
                 archived: Value(t.archived),
               ),
@@ -96,6 +102,9 @@ class CustomFieldRepository {
           CustomFieldTemplatesCompanion(
             label: Value(t.label),
             labelKey: Value(t.label.toLowerCase()),
+            optionsJson: Value(
+              t.options.isEmpty ? null : jsonEncode(t.options),
+            ),
             hidden: Value(t.hidden),
             archived: Value(t.archived),
             revision: Value(t.revision + 1),

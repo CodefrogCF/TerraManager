@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 
+import '../../../core/database/date_only.dart';
 import '../domain/custom_field.dart';
 export '../domain/custom_field.dart';
 
@@ -27,6 +28,8 @@ String customFieldTypeLabel(BuildContext c, CustomFieldType type) =>
       CustomFieldType.number => c.l10n.customFieldNumber,
       CustomFieldType.date => c.l10n.customFieldDate,
       CustomFieldType.boolean => c.l10n.customFieldBoolean,
+      CustomFieldType.integer => c.l10n.customFieldInteger,
+      CustomFieldType.choice => c.l10n.customFieldChoice,
     };
 String customFieldDisplay(BuildContext c, CustomFieldTemplate t, Object value) {
   if (t.type == CustomFieldType.boolean) {
@@ -49,7 +52,7 @@ class CustomFieldsController extends ChangeNotifier {
   CustomFieldsSnapshot? snapshot;
   bool loading = false, failed = false, _disposed = false;
   final fields = <String, TextEditingController>{};
-  final booleans = <String, bool?>{};
+  final selections = <String, Object?>{};
   int appliedDefaults = 0;
   Iterable<CustomFieldTemplate> get editable =>
       snapshot?.templates.where((t) => !t.hidden && !t.archived) ?? const [];
@@ -65,12 +68,12 @@ class CustomFieldsController extends ChangeNotifier {
         c.dispose();
       }
       fields.clear();
-      booleans.clear();
+      selections.clear();
       snapshot = next;
       for (final t in editable) {
         final value = next.value(t.id);
-        if (t.type == CustomFieldType.boolean) {
-          booleans[t.id] = value as bool?;
+        if (t.type.usesSelection) {
+          selections[t.id] = value;
         } else {
           fields[t.id] = TextEditingController(text: value?.toString() ?? '')
             ..addListener(notifyListeners);
@@ -87,16 +90,16 @@ class CustomFieldsController extends ChangeNotifier {
   }
 
   Object? read(CustomFieldTemplate t) {
-    if (t.type == CustomFieldType.boolean) return booleans[t.id];
+    if (t.type.usesSelection) return selections[t.id];
     final text = fields[t.id]!.text;
     if (text.trim().isEmpty) return null;
-    return t.validate(
-      t.type == CustomFieldType.number
-          ? double.tryParse(text.trim().replaceAll(',', '.')) ?? text
-          : t.type == CustomFieldType.date
-          ? text.trim()
-          : text,
-    );
+    return t.validate(switch (t.type) {
+      CustomFieldType.number =>
+        double.tryParse(text.trim().replaceAll(',', '.')) ?? text,
+      CustomFieldType.integer => int.tryParse(text.trim(), radix: 10) ?? text,
+      CustomFieldType.date => text.trim(),
+      _ => text,
+    });
   }
 
   bool get dirty {
@@ -122,8 +125,8 @@ class CustomFieldsController extends ChangeNotifier {
     );
   }
 
-  void setBoolean(String id, bool? value) {
-    booleans[id] = value;
+  void setSelection(String id, Object? value) {
+    selections[id] = value;
     notifyListeners();
   }
 
@@ -136,8 +139,8 @@ class CustomFieldsController extends ChangeNotifier {
     for (final template in editable) {
       if (!defaults.containsKey(template.id)) continue;
       final value = template.validate(defaults[template.id]);
-      if (template.type == CustomFieldType.boolean) {
-        booleans[template.id] = value as bool?;
+      if (template.type.usesSelection) {
+        selections[template.id] = value;
       } else {
         fields[template.id]!.text = value?.toString() ?? '';
       }
@@ -166,10 +169,12 @@ class CustomFieldsEditor extends StatelessWidget {
     required this.controller,
     this.enabled = true,
     this.showManagement = true,
+    this.compact = false,
   });
   final CustomFieldsController controller;
   final bool enabled;
   final bool showManagement;
+  final bool compact;
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
@@ -178,11 +183,13 @@ class CustomFieldsEditor extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 16),
-          Text(
-            context.l10n.customFields,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          if (!compact) ...[
+            const SizedBox(height: 16),
+            Text(
+              context.l10n.customFields,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ],
           if (c.loading) const LinearProgressIndicator(),
           if (c.failed) ...[
             Text(
@@ -195,126 +202,212 @@ class CustomFieldsEditor extends StatelessWidget {
             ),
           ],
           if (!c.loading && c.snapshot != null) ...[
-            for (final t in c.editable)
-              Padding(
-                key: ValueKey((t.id, c.appliedDefaults)),
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: t.type == CustomFieldType.boolean
-                    ? DropdownButtonFormField<String>(
-                        key: ValueKey('custom-field-${t.id}'),
-                        initialValue: c.booleans[t.id]?.toString() ?? '',
-                        isExpanded: true,
-                        itemHeight: null,
-                        decoration: InputDecoration(labelText: t.label),
-                        items: [
-                          DropdownMenuItem(
-                            value: '',
-                            child: Text(context.l10n.customFieldUnset),
+            if (compact)
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+                  final twoColumns =
+                      width >= 304 &&
+                      MediaQuery.textScalerOf(context).scale(14) <= 18;
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      for (final template in c.editable)
+                        SizedBox(
+                          key: ValueKey((template.id, c.appliedDefaults)),
+                          width: twoColumns ? (width - 12) / 2 : width,
+                          child: _CustomFieldInput(
+                            controller: c,
+                            template: template,
+                            enabled: enabled,
+                            compact: true,
                           ),
-                          DropdownMenuItem(
-                            value: 'true',
-                            child: Text(context.l10n.customFieldYes),
-                          ),
-                          DropdownMenuItem(
-                            value: 'false',
-                            child: Text(context.l10n.customFieldNo),
-                          ),
-                        ],
-                        onChanged: !enabled
-                            ? null
-                            : (v) {
-                                c.setBoolean(
-                                  t.id,
-                                  v == '' ? null : v == 'true',
-                                );
-                              },
-                      )
-                    : TextFormField(
-                        key: ValueKey('custom-field-${t.id}'),
-                        controller: c.fields[t.id],
-                        enabled: enabled,
-                        maxLines: t.type == CustomFieldType.text ? 3 : 1,
-                        keyboardType: t.type == CustomFieldType.number
-                            ? const TextInputType.numberWithOptions(
-                                decimal: true,
-                                signed: true,
-                              )
-                            : TextInputType.text,
-                        decoration: InputDecoration(
-                          labelText: t.label,
-                          helperText: t.type == CustomFieldType.date
-                              ? 'YYYY-MM-DD'
-                              : null,
-                          suffixIcon: t.type == CustomFieldType.date
-                              ? IconButton(
-                                  tooltip: context.l10n.customFieldDate,
-                                  icon: const Icon(Icons.calendar_today),
-                                  onPressed: !enabled
-                                      ? null
-                                      : () async {
-                                          final old = DateTime.tryParse(
-                                            c.fields[t.id]!.text,
-                                          );
-                                          final now = DateTime.now();
-                                          final date = await showDatePicker(
-                                            context: context,
-                                            initialDate:
-                                                old != null &&
-                                                    old.year >= 1 &&
-                                                    old.year <= 9999
-                                                ? old
-                                                : now,
-                                            firstDate: DateTime(1),
-                                            lastDate: DateTime(9999, 12, 31),
-                                          );
-                                          if (date != null) {
-                                            c.fields[t.id]!.text =
-                                                '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-                                          }
-                                        },
-                                )
-                              : null,
                         ),
-                        validator: (_) {
-                          try {
-                            c.read(t);
-                            return null;
-                          } catch (_) {
-                            return context.l10n.customFieldInvalid;
-                          }
-                        },
-                      ),
-              ),
+                    ],
+                  );
+                },
+              )
+            else
+              for (final template in c.editable)
+                Padding(
+                  key: ValueKey((template.id, c.appliedDefaults)),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: _CustomFieldInput(
+                    controller: c,
+                    template: template,
+                    enabled: enabled,
+                    compact: false,
+                  ),
+                ),
             if (showManagement)
-              TextButton.icon(
-                key: const Key('manage-custom-fields'),
-                onPressed: !enabled
-                    ? null
-                    : () async {
-                        if (c.dirty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(context.l10n.customFieldsDirty),
-                            ),
-                          );
-                          return;
-                        }
-                        await Navigator.of(context).push<void>(
-                          MaterialPageRoute(
-                            builder: (_) =>
-                                CustomFieldTemplatesPage(access: c.access),
-                          ),
-                        );
-                        await c.load();
-                      },
-                icon: const Icon(Icons.tune),
-                label: Text(context.l10n.customFieldsManage),
-              ),
+              CustomFieldTemplatesButton(controller: c, enabled: enabled),
           ],
         ],
       );
     },
   );
+}
+
+class CustomFieldTemplatesButton extends StatelessWidget {
+  const CustomFieldTemplatesButton({
+    super.key,
+    required this.controller,
+    required this.enabled,
+  });
+  final CustomFieldsController controller;
+  final bool enabled;
+
+  @override
+  Widget build(BuildContext context) => TextButton.icon(
+    key: const Key('manage-custom-fields'),
+    onPressed: !enabled
+        ? null
+        : () async {
+            if (controller.dirty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(context.l10n.customFieldsDirty)),
+              );
+              return;
+            }
+            await Navigator.of(context).push<void>(
+              MaterialPageRoute(
+                builder: (_) =>
+                    CustomFieldTemplatesPage(access: controller.access),
+              ),
+            );
+            await controller.load();
+          },
+    icon: const Icon(Icons.tune),
+    label: Text(context.l10n.customFieldsManage),
+  );
+}
+
+class _CustomFieldInput extends StatelessWidget {
+  const _CustomFieldInput({
+    required this.controller,
+    required this.template,
+    required this.enabled,
+    required this.compact,
+  });
+
+  final CustomFieldsController controller;
+  final CustomFieldTemplate template;
+  final bool enabled;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final key = ValueKey('custom-field-${template.id}');
+    final type = template.type;
+    final decoration = InputDecoration(
+      labelText: template.label,
+      isDense: compact ? true : null,
+    );
+    if (type.usesSelection) {
+      final current = controller.selections[template.id]?.toString() ?? '';
+      final labels = {
+        '': context.l10n.customFieldUnset,
+        if (type == CustomFieldType.boolean) ...{
+          'true': context.l10n.customFieldYes,
+          'false': context.l10n.customFieldNo,
+        } else
+          for (final option in template.options) option: option,
+      };
+      final unavailable = !labels.containsKey(current);
+      if (unavailable) {
+        labels[current] = context.l10n.customFieldChoiceUnavailable(current);
+      }
+      return DropdownButtonFormField<String>(
+        key: key,
+        initialValue: current,
+        isExpanded: true,
+        itemHeight: null,
+        decoration: decoration,
+        selectedItemBuilder: (context) => [
+          for (final label in labels.values)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+        ],
+        items: [
+          for (final entry in labels.entries)
+            DropdownMenuItem(
+              value: entry.key,
+              enabled: !unavailable || entry.key != current,
+              child: Text(entry.value),
+            ),
+        ],
+        onChanged: !enabled
+            ? null
+            : (value) => controller.setSelection(
+                template.id,
+                value == ''
+                    ? null
+                    : type == CustomFieldType.boolean
+                    ? value == 'true'
+                    : value,
+              ),
+      );
+    }
+    final text = controller.fields[template.id]!;
+    return TextFormField(
+      key: key,
+      controller: text,
+      enabled: enabled,
+      minLines: compact ? 1 : null,
+      maxLines: type == CustomFieldType.text ? 3 : 1,
+      keyboardType: switch (type) {
+        CustomFieldType.number => const TextInputType.numberWithOptions(
+          decimal: true,
+          signed: true,
+        ),
+        CustomFieldType.integer => const TextInputType.numberWithOptions(
+          signed: true,
+        ),
+        _ => TextInputType.text,
+      },
+      decoration: type == CustomFieldType.date
+          ? decoration.copyWith(
+              helperText: 'YYYY-MM-DD',
+              suffixIcon: IconButton(
+                tooltip: context.l10n.customFieldDate,
+                icon: const Icon(Icons.calendar_today),
+                onPressed: enabled ? () => _pickDate(context, text) : null,
+              ),
+            )
+          : decoration,
+      validator: (_) {
+        try {
+          controller.read(template);
+          return null;
+        } on ArgumentError {
+          return type == CustomFieldType.integer
+              ? context.l10n.customFieldIntegerInvalid
+              : context.l10n.customFieldInvalid;
+        }
+      },
+    );
+  }
+
+  Future<void> _pickDate(
+    BuildContext context,
+    TextEditingController text,
+  ) async {
+    final old = DateTime.tryParse(text.text);
+    final date = await showDatePicker(
+      context: context,
+      initialDate: old != null && old.year >= 1 && old.year <= 9999
+          ? old
+          : DateTime.now(),
+      firstDate: DateTime(1),
+      lastDate: DateTime(9999, 12, 31),
+    );
+    if (date != null && context.mounted) {
+      text.text = dateOnlyString(date)!;
+    }
+  }
 }
 
 class CustomFieldsSection extends StatefulWidget {
@@ -497,15 +590,24 @@ class _TemplateDialog extends StatefulWidget {
 class _TemplateDialogState extends State<_TemplateDialog> {
   final _form = GlobalKey<FormState>();
   late final _label = TextEditingController(text: widget.initial?.label);
+  late final _options = TextEditingController(
+    text: widget.initial?.options.join('\n'),
+  );
   late CustomFieldType _type = widget.initial?.type ?? CustomFieldType.text;
   late bool _hidden = widget.initial?.hidden ?? false,
       _archived = widget.initial?.archived ?? false;
   late final _id = widget.initial?.id ?? const Uuid().v4();
   bool _saving = false;
   String? _error;
+  Iterable<String> get _optionLines => _options.text
+      .split('\n')
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty);
+
   @override
   void dispose() {
     _label.dispose();
+    _options.dispose();
     super.dispose();
   }
 
@@ -522,6 +624,9 @@ class _TemplateDialogState extends State<_TemplateDialog> {
           target: widget.access.target,
           type: _type,
           label: _label.text,
+          options: _type == CustomFieldType.choice
+              ? CustomFieldTemplate.normalizeOptions(_optionLines)
+              : const [],
           hidden: _hidden,
           archived: _archived,
           revision: widget.initial?.revision ?? 1,
@@ -578,15 +683,37 @@ class _TemplateDialogState extends State<_TemplateDialog> {
                   ),
                   items: [
                     for (final t in CustomFieldType.values)
-                      DropdownMenuItem(
-                        value: t,
-                        child: Text(customFieldTypeLabel(context, t)),
-                      ),
+                      if (t.supports(widget.access.target))
+                        DropdownMenuItem(
+                          value: t,
+                          child: Text(customFieldTypeLabel(context, t)),
+                        ),
                   ],
                   onChanged: widget.initial != null || _saving
                       ? null
                       : (v) => setState(() => _type = v!),
                 ),
+                if (_type == CustomFieldType.choice)
+                  TextFormField(
+                    key: const Key('field-template-options'),
+                    controller: _options,
+                    enabled: !_saving,
+                    minLines: 3,
+                    maxLines: 6,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.customFieldOptions,
+                      helperText: context.l10n.customFieldOptionsHelp,
+                      helperMaxLines: 2,
+                    ),
+                    validator: (_) {
+                      try {
+                        CustomFieldTemplate.normalizeOptions(_optionLines);
+                        return null;
+                      } on ArgumentError {
+                        return context.l10n.customFieldOptionsInvalid;
+                      }
+                    },
+                  ),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(context.l10n.customFieldHidden),

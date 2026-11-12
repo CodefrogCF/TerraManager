@@ -10,6 +10,7 @@ class CustomFieldTemplates extends Table {
   TextColumn get type => text()();
   TextColumn get label => text().withLength(min: 1, max: 80)();
   TextColumn get labelKey => text()();
+  TextColumn get optionsJson => text().nullable()();
   BoolColumn get hidden => boolean().withDefault(const Constant(false))();
   BoolColumn get archived => boolean().withDefault(const Constant(false))();
   IntColumn get revision => integer().withDefault(const Constant(1))();
@@ -22,7 +23,8 @@ class CustomFieldTemplates extends Table {
   @override
   List<String> get customConstraints => [
     "CHECK (target IN ('animal','box','feeding'))",
-    "CHECK (type IN ('text','number','date','boolean'))",
+    "CHECK (type IN ('text','number','date','boolean') OR (target = 'feeding' AND type IN ('integer','choice')))",
+    "CHECK ((type = 'choice') = (options_json IS NOT NULL))",
     'CHECK (revision>0)',
   ];
 }

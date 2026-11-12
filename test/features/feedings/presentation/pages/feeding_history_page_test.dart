@@ -9,6 +9,7 @@ import 'package:terramanager/core/database/repositories/feeding_repository.dart'
 import 'package:terramanager/core/database/repositories/custom_field_repository.dart';
 import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
 import 'package:terramanager/features/feedings/domain/feeding_field_values.dart';
+import 'package:terramanager/l10n/generated/app_localizations.dart';
 
 import 'package:terramanager/features/feedings/presentation/pages/feeding_history_page.dart';
 
@@ -152,6 +153,139 @@ void main() {
   });
 
   testWidgets(
+    'configures and fills compact Feeding choices on a narrow screen',
+    (tester) async {
+      await tester.binding.setSurfaceSize(const Size(360, 760));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final animal = await createTestAnimal();
+      final templates = CustomFieldRepository(database);
+      const quantity = CustomFieldTemplate(
+        id: '11111111-1111-4111-8111-111111111111',
+        target: CustomFieldTarget.feeding,
+        type: CustomFieldType.integer,
+        label: 'Anzahl',
+      );
+      const size = CustomFieldTemplate(
+        id: '22222222-2222-4222-8222-222222222222',
+        target: CustomFieldTarget.feeding,
+        type: CustomFieldType.choice,
+        label: 'Größe',
+        options: ['micro', 'groß', 'XXL'],
+      );
+      const age = CustomFieldTemplate(
+        id: '33333333-3333-4333-8333-333333333333',
+        target: CustomFieldTarget.feeding,
+        type: CustomFieldType.choice,
+        label: 'Alter',
+        options: ['2-tägig', 'adult'],
+      );
+      for (final field in [quantity, size, age]) {
+        await templates.create(field);
+      }
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('de'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(1.3)),
+            child: child!,
+          ),
+          home: FeedingHistoryPage(database: database, animalId: animal),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('add-feeding-button')));
+      await tester.pumpAndSettle();
+      final heading = find.text('Futterdetails');
+      final notes = find.byKey(const Key('feeding-notes-field'));
+      final manage = find.byKey(const Key('manage-custom-fields'));
+      expect(
+        tester.getTopLeft(heading).dy,
+        greaterThan(
+          tester
+              .getBottomLeft(find.byKey(const Key('feeding-date-time-field')))
+              .dy,
+        ),
+      );
+      expect(
+        tester.getTopLeft(notes).dy,
+        greaterThan(tester.getTopLeft(heading).dy),
+      );
+      expect(
+        tester.getTopLeft(manage).dy,
+        greaterThan(tester.getTopLeft(notes).dy),
+      );
+      await tester.ensureVisible(manage);
+      await tester.tap(manage);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('add-field-template')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('field-template-label')),
+        'Art',
+      );
+      await tester.tap(find.byKey(const Key('field-template-type')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Auswahlliste').last);
+      await tester.pumpAndSettle();
+      final options = find.byKey(const Key('field-template-options'));
+      await tester.enterText(options, 'Drosophila\ndrosophila');
+      final saveTemplate = find.byKey(const Key('save-field-template'));
+      await tester.tap(saveTemplate);
+      await tester.pumpAndSettle();
+      expect(options, findsOneWidget);
+      expect(
+        await templates.templates(CustomFieldTarget.feeding),
+        hasLength(3),
+      );
+      await tester.enterText(options, 'Drosophila\nHeimchen\nMaus');
+      await tester.tap(saveTemplate);
+      await tester.pumpAndSettle();
+      final food = (await templates.templates(CustomFieldTarget.feeding))
+          .singleWhere((field) => field.label == 'Art');
+      expect(food.options, ['Drosophila', 'Heimchen', 'Maus']);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+
+      final count = find.byKey(ValueKey('custom-field-${quantity.id}'));
+      await tester.ensureVisible(count);
+      await tester.enterText(count, '4,5');
+      final saveFeeding = find.byKey(const Key('save-feeding-button'));
+      await tester.tap(saveFeeding);
+      await tester.pumpAndSettle();
+      expect(find.text('Gib eine ganze Zahl ein.'), findsOneWidget);
+      expect(
+        await FeedingRepository(database).getFeedingsForAnimal(animal),
+        isEmpty,
+      );
+      await tester.enterText(count, '4');
+      for (final (field, option) in [(size, 'groß'), (food, 'Drosophila')]) {
+        final dropdown = find.byKey(ValueKey('custom-field-${field.id}'));
+        await tester.ensureVisible(dropdown);
+        await tester.tap(dropdown);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(option).last);
+        await tester.pumpAndSettle();
+      }
+      await tester.tap(saveFeeding);
+      await tester.pumpAndSettle();
+      final saved = (await FeedingRepository(
+        database,
+      ).getFeedingsForAnimal(animal)).single;
+      expect(saved.notes, isNull);
+      final fields = decodeFeedingFieldValues(saved.customFieldsJson);
+      expect(fields.first.value, isA<int>());
+      expect(
+        {for (final field in fields) field.template.label: field.value},
+        {'Anzahl': 4, 'Größe': 'groß', 'Art': 'Drosophila'},
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
     'creates a preset, applies it, and saves an adjusted field without notes',
     (tester) async {
       final animal = await createTestAnimal();
@@ -164,8 +298,6 @@ void main() {
       await CustomFieldRepository(database).create(field);
       await pumpPage(tester, animalId: animal);
       await tester.tap(find.byKey(const Key('add-feeding-button')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Food details'));
       await tester.pumpAndSettle();
       final manage = find.byKey(const Key('manage-food-presets'));
       await tester.ensureVisible(manage);

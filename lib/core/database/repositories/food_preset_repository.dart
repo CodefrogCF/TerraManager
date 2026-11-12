@@ -29,13 +29,14 @@ class FoodPresetRepository {
   Future<FoodPreset> save(FoodPreset draft, {required bool creating}) =>
       database.transaction(() async {
         final preset = FoodPreset.fromJson(draft.toJson());
-        final defaults = preset.validatedDefaults(
-          await CustomFieldRepository(database)
-              .templates(CustomFieldTarget.feeding),
-        );
         final existing = await (database.select(
           database.foodPresets,
         )..where((row) => row.id.equals(preset.id))).getSingleOrNull();
+        final defaults = preset.validatedDefaults(
+          await CustomFieldRepository(database)
+              .templates(CustomFieldTarget.feeding),
+          previous: existing == null ? null : definition(existing),
+        );
         if (creating) {
           if (preset.revision != 1) {
             throw ArgumentError('Invalid initial revision.');

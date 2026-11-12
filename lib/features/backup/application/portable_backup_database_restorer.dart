@@ -84,6 +84,9 @@ class PortableBackupDatabaseRestorer {
                 type: t.type.name,
                 label: t.label,
                 labelKey: t.label.toLowerCase(),
+                optionsJson: Value(
+                  t.options.isEmpty ? null : jsonEncode(t.options),
+                ),
                 hidden: Value(t.hidden),
                 archived: Value(t.archived),
                 revision: Value(t.revision),

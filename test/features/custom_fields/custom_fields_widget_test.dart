@@ -27,7 +27,9 @@ void main() {
           addTearDown(db.close);
           final repo = CustomFieldRepository(db);
           final box = await BoxRepository(db).createBoxWithGeneratedQrId();
-          for (final kind in CustomFieldType.values) {
+          for (final kind in CustomFieldType.values.where(
+            (kind) => kind.supports(CustomFieldTarget.box),
+          )) {
             await repo.create(
               CustomFieldTemplate(
                 id: '${kind.index + 1}2345678-1234-4123-8123-123456789abc',

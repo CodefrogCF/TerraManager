@@ -7343,6 +7343,17 @@ class $CustomFieldTemplatesTable extends CustomFieldTemplates
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _optionsJsonMeta = const VerificationMeta(
+    'optionsJson',
+  );
+  @override
+  late final GeneratedColumn<String> optionsJson = GeneratedColumn<String>(
+    'options_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
   @override
   late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
@@ -7390,6 +7401,7 @@ class $CustomFieldTemplatesTable extends CustomFieldTemplates
     type,
     label,
     labelKey,
+    optionsJson,
     hidden,
     archived,
     revision,
@@ -7443,6 +7455,15 @@ class $CustomFieldTemplatesTable extends CustomFieldTemplates
     } else if (isInserting) {
       context.missing(_labelKeyMeta);
     }
+    if (data.containsKey('options_json')) {
+      context.handle(
+        _optionsJsonMeta,
+        optionsJson.isAcceptableOrUnknown(
+          data['options_json']!,
+          _optionsJsonMeta,
+        ),
+      );
+    }
     if (data.containsKey('hidden')) {
       context.handle(
         _hiddenMeta,
@@ -7494,6 +7515,10 @@ class $CustomFieldTemplatesTable extends CustomFieldTemplates
         DriftSqlType.string,
         data['${effectivePrefix}label_key'],
       )!,
+      optionsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}options_json'],
+      ),
       hidden: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}hidden'],
@@ -7522,6 +7547,7 @@ class CustomFieldTemplateRow extends DataClass
   final String type;
   final String label;
   final String labelKey;
+  final String? optionsJson;
   final bool hidden;
   final bool archived;
   final int revision;
@@ -7531,6 +7557,7 @@ class CustomFieldTemplateRow extends DataClass
     required this.type,
     required this.label,
     required this.labelKey,
+    this.optionsJson,
     required this.hidden,
     required this.archived,
     required this.revision,
@@ -7543,6 +7570,9 @@ class CustomFieldTemplateRow extends DataClass
     map['type'] = Variable<String>(type);
     map['label'] = Variable<String>(label);
     map['label_key'] = Variable<String>(labelKey);
+    if (!nullToAbsent || optionsJson != null) {
+      map['options_json'] = Variable<String>(optionsJson);
+    }
     map['hidden'] = Variable<bool>(hidden);
     map['archived'] = Variable<bool>(archived);
     map['revision'] = Variable<int>(revision);
@@ -7556,6 +7586,9 @@ class CustomFieldTemplateRow extends DataClass
       type: Value(type),
       label: Value(label),
       labelKey: Value(labelKey),
+      optionsJson: optionsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(optionsJson),
       hidden: Value(hidden),
       archived: Value(archived),
       revision: Value(revision),
@@ -7573,6 +7606,7 @@ class CustomFieldTemplateRow extends DataClass
       type: serializer.fromJson<String>(json['type']),
       label: serializer.fromJson<String>(json['label']),
       labelKey: serializer.fromJson<String>(json['labelKey']),
+      optionsJson: serializer.fromJson<String?>(json['optionsJson']),
       hidden: serializer.fromJson<bool>(json['hidden']),
       archived: serializer.fromJson<bool>(json['archived']),
       revision: serializer.fromJson<int>(json['revision']),
@@ -7587,6 +7621,7 @@ class CustomFieldTemplateRow extends DataClass
       'type': serializer.toJson<String>(type),
       'label': serializer.toJson<String>(label),
       'labelKey': serializer.toJson<String>(labelKey),
+      'optionsJson': serializer.toJson<String?>(optionsJson),
       'hidden': serializer.toJson<bool>(hidden),
       'archived': serializer.toJson<bool>(archived),
       'revision': serializer.toJson<int>(revision),
@@ -7599,6 +7634,7 @@ class CustomFieldTemplateRow extends DataClass
     String? type,
     String? label,
     String? labelKey,
+    Value<String?> optionsJson = const Value.absent(),
     bool? hidden,
     bool? archived,
     int? revision,
@@ -7608,6 +7644,7 @@ class CustomFieldTemplateRow extends DataClass
     type: type ?? this.type,
     label: label ?? this.label,
     labelKey: labelKey ?? this.labelKey,
+    optionsJson: optionsJson.present ? optionsJson.value : this.optionsJson,
     hidden: hidden ?? this.hidden,
     archived: archived ?? this.archived,
     revision: revision ?? this.revision,
@@ -7619,6 +7656,9 @@ class CustomFieldTemplateRow extends DataClass
       type: data.type.present ? data.type.value : this.type,
       label: data.label.present ? data.label.value : this.label,
       labelKey: data.labelKey.present ? data.labelKey.value : this.labelKey,
+      optionsJson: data.optionsJson.present
+          ? data.optionsJson.value
+          : this.optionsJson,
       hidden: data.hidden.present ? data.hidden.value : this.hidden,
       archived: data.archived.present ? data.archived.value : this.archived,
       revision: data.revision.present ? data.revision.value : this.revision,
@@ -7633,6 +7673,7 @@ class CustomFieldTemplateRow extends DataClass
           ..write('type: $type, ')
           ..write('label: $label, ')
           ..write('labelKey: $labelKey, ')
+          ..write('optionsJson: $optionsJson, ')
           ..write('hidden: $hidden, ')
           ..write('archived: $archived, ')
           ..write('revision: $revision')
@@ -7647,6 +7688,7 @@ class CustomFieldTemplateRow extends DataClass
     type,
     label,
     labelKey,
+    optionsJson,
     hidden,
     archived,
     revision,
@@ -7660,6 +7702,7 @@ class CustomFieldTemplateRow extends DataClass
           other.type == this.type &&
           other.label == this.label &&
           other.labelKey == this.labelKey &&
+          other.optionsJson == this.optionsJson &&
           other.hidden == this.hidden &&
           other.archived == this.archived &&
           other.revision == this.revision);
@@ -7672,6 +7715,7 @@ class CustomFieldTemplatesCompanion
   final Value<String> type;
   final Value<String> label;
   final Value<String> labelKey;
+  final Value<String?> optionsJson;
   final Value<bool> hidden;
   final Value<bool> archived;
   final Value<int> revision;
@@ -7682,6 +7726,7 @@ class CustomFieldTemplatesCompanion
     this.type = const Value.absent(),
     this.label = const Value.absent(),
     this.labelKey = const Value.absent(),
+    this.optionsJson = const Value.absent(),
     this.hidden = const Value.absent(),
     this.archived = const Value.absent(),
     this.revision = const Value.absent(),
@@ -7693,6 +7738,7 @@ class CustomFieldTemplatesCompanion
     required String type,
     required String label,
     required String labelKey,
+    this.optionsJson = const Value.absent(),
     this.hidden = const Value.absent(),
     this.archived = const Value.absent(),
     this.revision = const Value.absent(),
@@ -7708,6 +7754,7 @@ class CustomFieldTemplatesCompanion
     Expression<String>? type,
     Expression<String>? label,
     Expression<String>? labelKey,
+    Expression<String>? optionsJson,
     Expression<bool>? hidden,
     Expression<bool>? archived,
     Expression<int>? revision,
@@ -7719,6 +7766,7 @@ class CustomFieldTemplatesCompanion
       if (type != null) 'type': type,
       if (label != null) 'label': label,
       if (labelKey != null) 'label_key': labelKey,
+      if (optionsJson != null) 'options_json': optionsJson,
       if (hidden != null) 'hidden': hidden,
       if (archived != null) 'archived': archived,
       if (revision != null) 'revision': revision,
@@ -7732,6 +7780,7 @@ class CustomFieldTemplatesCompanion
     Value<String>? type,
     Value<String>? label,
     Value<String>? labelKey,
+    Value<String?>? optionsJson,
     Value<bool>? hidden,
     Value<bool>? archived,
     Value<int>? revision,
@@ -7743,6 +7792,7 @@ class CustomFieldTemplatesCompanion
       type: type ?? this.type,
       label: label ?? this.label,
       labelKey: labelKey ?? this.labelKey,
+      optionsJson: optionsJson ?? this.optionsJson,
       hidden: hidden ?? this.hidden,
       archived: archived ?? this.archived,
       revision: revision ?? this.revision,
@@ -7768,6 +7818,9 @@ class CustomFieldTemplatesCompanion
     if (labelKey.present) {
       map['label_key'] = Variable<String>(labelKey.value);
     }
+    if (optionsJson.present) {
+      map['options_json'] = Variable<String>(optionsJson.value);
+    }
     if (hidden.present) {
       map['hidden'] = Variable<bool>(hidden.value);
     }
@@ -7791,6 +7844,7 @@ class CustomFieldTemplatesCompanion
           ..write('type: $type, ')
           ..write('label: $label, ')
           ..write('labelKey: $labelKey, ')
+          ..write('optionsJson: $optionsJson, ')
           ..write('hidden: $hidden, ')
           ..write('archived: $archived, ')
           ..write('revision: $revision, ')
@@ -14784,6 +14838,7 @@ typedef $$CustomFieldTemplatesTableCreateCompanionBuilder =
       required String type,
       required String label,
       required String labelKey,
+      Value<String?> optionsJson,
       Value<bool> hidden,
       Value<bool> archived,
       Value<int> revision,
@@ -14796,6 +14851,7 @@ typedef $$CustomFieldTemplatesTableUpdateCompanionBuilder =
       Value<String> type,
       Value<String> label,
       Value<String> labelKey,
+      Value<String?> optionsJson,
       Value<bool> hidden,
       Value<bool> archived,
       Value<int> revision,
@@ -14869,6 +14925,11 @@ class $$CustomFieldTemplatesTableFilterComposer
 
   ColumnFilters<String> get labelKey => $composableBuilder(
     column: $table.labelKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get optionsJson => $composableBuilder(
+    column: $table.optionsJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14947,6 +15008,11 @@ class $$CustomFieldTemplatesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get optionsJson => $composableBuilder(
+    column: $table.optionsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get hidden => $composableBuilder(
     column: $table.hidden,
     builder: (column) => ColumnOrderings(column),
@@ -14986,6 +15052,11 @@ class $$CustomFieldTemplatesTableAnnotationComposer
 
   GeneratedColumn<String> get labelKey =>
       $composableBuilder(column: $table.labelKey, builder: (column) => column);
+
+  GeneratedColumn<String> get optionsJson => $composableBuilder(
+    column: $table.optionsJson,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<bool> get hidden =>
       $composableBuilder(column: $table.hidden, builder: (column) => column);
@@ -15064,6 +15135,7 @@ class $$CustomFieldTemplatesTableTableManager
                 Value<String> type = const Value.absent(),
                 Value<String> label = const Value.absent(),
                 Value<String> labelKey = const Value.absent(),
+                Value<String?> optionsJson = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
                 Value<bool> archived = const Value.absent(),
                 Value<int> revision = const Value.absent(),
@@ -15074,6 +15146,7 @@ class $$CustomFieldTemplatesTableTableManager
                 type: type,
                 label: label,
                 labelKey: labelKey,
+                optionsJson: optionsJson,
                 hidden: hidden,
                 archived: archived,
                 revision: revision,
@@ -15086,6 +15159,7 @@ class $$CustomFieldTemplatesTableTableManager
                 required String type,
                 required String label,
                 required String labelKey,
+                Value<String?> optionsJson = const Value.absent(),
                 Value<bool> hidden = const Value.absent(),
                 Value<bool> archived = const Value.absent(),
                 Value<int> revision = const Value.absent(),
@@ -15096,6 +15170,7 @@ class $$CustomFieldTemplatesTableTableManager
                 type: type,
                 label: label,
                 labelKey: labelKey,
+                optionsJson: optionsJson,
                 hidden: hidden,
                 archived: archived,
                 revision: revision,

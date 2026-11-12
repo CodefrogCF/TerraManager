@@ -208,8 +208,9 @@ void main() {
     const field = CustomFieldTemplate(
       id: '11111111-1111-4111-8111-111111111111',
       target: CustomFieldTarget.feeding,
-      type: CustomFieldType.text,
+      type: CustomFieldType.choice,
       label: 'Food',
+      options: ['Mouse', 'Rat'],
     );
     await CustomFieldRepository(database).create(field);
     await FoodPresetRepository(database).save(

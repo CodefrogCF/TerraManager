@@ -144,16 +144,30 @@ void main() {
       const food = CustomFieldTemplate(
         id: '22222222-2222-4222-8222-222222222222',
         target: CustomFieldTarget.feeding,
-        type: CustomFieldType.number,
+        type: CustomFieldType.integer,
         label: 'Quantity',
       );
+      const prey = CustomFieldTemplate(
+        id: '55555555-5555-4555-8555-555555555555',
+        target: CustomFieldTarget.feeding,
+        type: CustomFieldType.choice,
+        label: 'Food',
+        options: ['Cricket', 'Locust'],
+      );
       await api.saveCustomFieldTemplate(food, creating: true);
+      await api.saveCustomFieldTemplate(prey, creating: true);
+      expect(
+        (await api.customFieldTemplates(CustomFieldTarget.feeding))
+            .singleWhere((field) => field.id == prey.id)
+            .options,
+        prey.options,
+      );
       final presetCursor = (await api.queryChanges()).cursor;
       await api.saveFoodPreset(
         FoodPreset(
           id: '33333333-3333-4333-8333-333333333333',
           name: 'Crickets',
-          defaults: {food.id: 2},
+          defaults: {food.id: 2, prey.id: 'Cricket'},
         ),
         creating: true,
       );
@@ -177,22 +191,28 @@ void main() {
           ),
       ];
       final fedAt = DateTime.now().toUtc().subtract(const Duration(minutes: 1));
-      CustomFieldPatch fields(Object value) => CustomFieldPatch(
-        expectedRevision: null,
-        updates: [(id: food.id, templateRevision: 1, value: value)],
-      );
-      await expectLater(
-        api.createFeedings(
-          animalIds: animalIds,
-          fedAt: fedAt,
-          notes: null,
-          boxId: id,
-          customFields: fields('invalid number'),
-        ),
-        throwsA(
-          isA<SharedApiException>().having((e) => e.status, 'status', 400),
-        ),
-      );
+      CustomFieldPatch fields(Object value, [String option = 'Cricket']) =>
+          CustomFieldPatch(
+            expectedRevision: null,
+            updates: [
+              (id: food.id, templateRevision: 1, value: value),
+              (id: prey.id, templateRevision: 1, value: option),
+            ],
+          );
+      for (final invalid in [fields(1.5), fields(3, 'Unavailable')]) {
+        await expectLater(
+          api.createFeedings(
+            animalIds: animalIds,
+            fedAt: fedAt,
+            notes: null,
+            boxId: id,
+            customFields: invalid,
+          ),
+          throwsA(
+            isA<SharedApiException>().having((e) => e.status, 'status', 400),
+          ),
+        );
+      }
       expect(await api.feedings(animalIds.first), isEmpty);
       Future<List<Map<String, dynamic>>> create() => api!.createFeedings(
         animalIds: animalIds,
@@ -218,7 +238,9 @@ void main() {
       for (final animal in animalIds) {
         final entry = (await api.feedings(animal)).single;
         expect(entry['notes'], isNull);
-        expect(readFeedingFieldValues(entry['customFields']).single.value, 3);
+        final values = readFeedingFieldValues(entry['customFields']);
+        expect(values.map((field) => field.value), [3, 'Cricket']);
+        expect(values.first.value, isA<int>());
       }
     } finally {
       api?.close();

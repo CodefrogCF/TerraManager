@@ -495,62 +495,74 @@ class _HistoryDialogState extends State<_HistoryDialog> {
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: Text(sharedText(context, 'Care entry', 'Pflegeeintrag')),
-    content: SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            key: const Key('shared-history-date'),
-            title: Text(sharedText(context, 'Date', 'Datum')),
-            subtitle: Text(
-              MaterialLocalizations.of(context).formatShortDate(_date),
-            ),
-            trailing: const Icon(Icons.calendar_today_outlined),
-            onTap: _pickDate,
-          ),
-          ListTile(
-            key: const Key('shared-history-time'),
-            title: Text(sharedText(context, 'Time', 'Uhrzeit')),
-            subtitle: Text(
-              MaterialLocalizations.of(context).formatTimeOfDay(
-                TimeOfDay.fromDateTime(_date),
-                alwaysUse24HourFormat: true,
+    content: SizedBox(
+      width: widget.feedingAccess == null ? null : 360,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              key: const Key('shared-history-date'),
+              title: Text(sharedText(context, 'Date', 'Datum')),
+              subtitle: Text(
+                MaterialLocalizations.of(context).formatShortDate(_date),
               ),
+              trailing: const Icon(Icons.calendar_today_outlined),
+              onTap: _pickDate,
             ),
-            trailing: const Icon(Icons.schedule_outlined),
-            onTap: _pickTime,
-          ),
-          if (widget.kind == SharedHistoryKind.weights)
-            TextField(
-              controller: _grams,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
+            ListTile(
+              key: const Key('shared-history-time'),
+              title: Text(sharedText(context, 'Time', 'Uhrzeit')),
+              subtitle: Text(
+                MaterialLocalizations.of(context).formatTimeOfDay(
+                  TimeOfDay.fromDateTime(_date),
+                  alwaysUse24HourFormat: true,
+                ),
               ),
-              decoration: InputDecoration(
-                labelText: sharedText(context, 'Weight (g)', 'Gewicht (g)'),
+              trailing: const Icon(Icons.schedule_outlined),
+              onTap: _pickTime,
+            ),
+            if (widget.kind == SharedHistoryKind.weights)
+              TextField(
+                controller: _grams,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: sharedText(context, 'Weight (g)', 'Gewicht (g)'),
+                ),
               ),
-            ),
-          if (widget.kind != SharedHistoryKind.weights)
-            TextField(
-              controller: _notes,
-              decoration: InputDecoration(
-                labelText: sharedText(context, 'Notes', 'Notizen'),
+            if (widget.kind == SharedHistoryKind.shedding)
+              TextField(
+                controller: _notes,
+                decoration: InputDecoration(
+                  labelText: sharedText(context, 'Notes', 'Notizen'),
+                ),
               ),
-            ),
-          if (widget.feedingAccess case final access?)
-            FeedingDetailsFields(
-              key: _details,
-              access: access,
-              saved: widget.initial == null
-                  ? null
-                  : readFeedingFieldValues(widget.initial?['customFields']),
-            ),
-          if (_error != null)
-            Text(
-              _error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-        ],
+            if (widget.feedingAccess case final access?)
+              FeedingDetailsFields(
+                key: _details,
+                access: access,
+                saved: widget.initial == null
+                    ? null
+                    : readFeedingFieldValues(widget.initial?['customFields']),
+                notes: TextField(
+                  key: const Key('shared-feeding-notes'),
+                  controller: _notes,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: InputDecoration(
+                    labelText: sharedText(context, 'Notes', 'Notizen'),
+                  ),
+                ),
+              ),
+            if (_error != null)
+              Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+          ],
+        ),
       ),
     ),
     actions: [

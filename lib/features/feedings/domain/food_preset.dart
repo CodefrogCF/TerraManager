@@ -44,8 +44,9 @@ class FoodPreset {
   };
 
   Map<String, Object> validatedDefaults(
-    Iterable<CustomFieldTemplate> templates,
-  ) {
+    Iterable<CustomFieldTemplate> templates, {
+    FoodPreset? previous,
+  }) {
     final feedingFields = {
       for (final template in templates)
         if (template.target == CustomFieldTarget.feeding) template.id: template,
@@ -54,8 +55,23 @@ class FoodPreset {
     return {
       for (final id in ids)
         id:
-            feedingFields[id]?.validate(defaults[id]) ??
+            feedingFields[id]?.validate(
+              defaults[id],
+              allowUnavailableChoice:
+                  previous != null &&
+                  sameFieldValue(previous.defaults[id], defaults[id]),
+            ) ??
             (throw ArgumentError('Invalid food preset default.')),
     };
   }
+
+  Map<String, Object?> applicableDefaults(
+    Iterable<CustomFieldTemplate> editable,
+  ) => {
+    for (final template in editable)
+      if (defaults.containsKey(template.id) &&
+          (template.type != CustomFieldType.choice ||
+              template.options.contains(defaults[template.id])))
+        template.id: defaults[template.id],
+  };
 }

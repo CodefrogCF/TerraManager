@@ -433,52 +433,55 @@ class _FeedingDialogState extends State<_FeedingDialog> {
       title: Text(
         widget.isEditing ? context.l10n.editFeeding : context.l10n.addFeeding,
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (_error != null) ...[
-              Text(
-                _error!,
-                key: const Key('feeding-dialog-error'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+      content: SizedBox(
+        width: 360,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_error != null) ...[
+                Text(
+                  _error!,
+                  key: const Key('feeding-dialog-error'),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                const SizedBox(height: 16),
+              ],
+              ListTile(
+                key: const Key('feeding-date-time-field'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(context.l10n.dateAndTime),
+                subtitle: Text(
+                  _formatDateTime(_fedAt),
+                  key: const Key('feeding-date-time-value'),
+                ),
+                trailing: IconButton(
+                  key: const Key('feeding-date-time-button'),
+                  onPressed: _saving ? null : _selectDateTime,
+                  icon: const Icon(Icons.calendar_today),
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              FeedingDetailsFields(
+                key: _details,
+                access: standaloneFeedingDetails(widget.database),
+                saved: widget.feeding == null
+                    ? null
+                    : decodeFeedingFieldValues(
+                        widget.feeding!.customFieldsJson,
+                      ),
+                enabled: !_saving,
+                notes: TextField(
+                  key: const Key('feeding-notes-field'),
+                  controller: _notesController,
+                  enabled: !_saving,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: InputDecoration(labelText: context.l10n.notes),
+                ),
+              ),
             ],
-            ListTile(
-              key: const Key('feeding-date-time-field'),
-              contentPadding: EdgeInsets.zero,
-              title: Text(context.l10n.dateAndTime),
-              subtitle: Text(
-                _formatDateTime(_fedAt),
-                key: const Key('feeding-date-time-value'),
-              ),
-              trailing: IconButton(
-                key: const Key('feeding-date-time-button'),
-                onPressed: _saving ? null : _selectDateTime,
-                icon: const Icon(Icons.calendar_today),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              key: const Key('feeding-notes-field'),
-              controller: _notesController,
-              enabled: !_saving,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: context.l10n.notes,
-                alignLabelWithHint: true,
-              ),
-            ),
-            FeedingDetailsFields(
-              key: _details,
-              access: standaloneFeedingDetails(widget.database),
-              saved: widget.feeding == null
-                  ? null
-                  : decodeFeedingFieldValues(widget.feeding!.customFieldsJson),
-              enabled: !_saving,
-            ),
-          ],
+          ),
         ),
       ),
       actions: [

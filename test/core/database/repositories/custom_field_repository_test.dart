@@ -39,17 +39,19 @@ void main() {
           ),
         ],
       );
-  for (final kind in CustomFieldType.values) {
+  const samples = {
+    CustomFieldType.text: ' Multiline\nÜmlaut ',
+    CustomFieldType.number: 0.0,
+    CustomFieldType.date: '2024-02-29',
+    CustomFieldType.boolean: false,
+  };
+  for (final sample in samples.entries) {
+    final kind = sample.key;
     test(
       '${kind.name} validates, saves and clears without erasing metadata',
       () async {
         final t = await repo.create(template(kind));
-        final value = switch (kind) {
-          CustomFieldType.text => ' Multiline\nÜmlaut ',
-          CustomFieldType.number => 0.0,
-          CustomFieldType.date => '2024-02-29',
-          CustomFieldType.boolean => false,
-        };
+        final value = sample.value;
         await repo.save(
           CustomFieldTarget.box,
           box,

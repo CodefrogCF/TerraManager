@@ -2,7 +2,20 @@ import 'dart:convert';
 
 enum CustomFieldTarget { animal, box, feeding }
 
-enum CustomFieldType { text, number, date, boolean }
+enum CustomFieldType {
+  text,
+  number,
+  date,
+  boolean,
+  integer,
+  choice;
+
+  bool supports(CustomFieldTarget target) =>
+      target == CustomFieldTarget.feeding ||
+      (this != integer && this != choice);
+
+  bool get usesSelection => this == boolean || this == choice;
+}
 
 class CustomFieldConflict extends StateError {
   CustomFieldConflict() : super('Custom fields changed. Reload before saving.');
@@ -15,6 +28,7 @@ class CustomFieldTemplate {
     required this.target,
     required this.type,
     required this.label,
+    this.options = const [],
     this.hidden = false,
     this.archived = false,
     this.revision = 1,
@@ -23,6 +37,7 @@ class CustomFieldTemplate {
   final CustomFieldTarget target;
   final CustomFieldType type;
   final String label;
+  final List<String> options;
   final bool hidden, archived;
   final int revision;
   static bool validId(String id) => RegExp(
@@ -41,17 +56,36 @@ class CustomFieldTemplate {
     return clean;
   }
 
+  static List<String> normalizeOptions(Iterable<String> options) {
+    final normalized = options.map(normalizeLabel).toList();
+    if (normalized.isEmpty ||
+        normalized.length > 1000 ||
+        normalized.map((option) => option.toLowerCase()).toSet().length !=
+            normalized.length) {
+      throw ArgumentError('A choice field requires unique options.');
+    }
+    return normalized;
+  }
+
   factory CustomFieldTemplate.fromJson(Map<String, dynamic> json) {
+    final type = CustomFieldType.values.byName(json['type'] as String);
+    final options = List<String>.from(json['options'] as List? ?? const []);
     final result = CustomFieldTemplate(
       id: json['id'] as String,
       target: CustomFieldTarget.values.byName(json['target'] as String),
-      type: CustomFieldType.values.byName(json['type'] as String),
+      type: type,
       label: normalizeLabel(json['label'] as String),
+      options: List.unmodifiable(
+        type == CustomFieldType.choice ? normalizeOptions(options) : options,
+      ),
       hidden: json['hidden'] as bool? ?? false,
       archived: json['archived'] as bool? ?? false,
       revision: json['revision'] as int? ?? 1,
     );
-    if (!validId(result.id) || result.revision < 1) {
+    if (!validId(result.id) ||
+        result.revision < 1 ||
+        !type.supports(result.target) ||
+        (type != CustomFieldType.choice && options.isNotEmpty)) {
       throw ArgumentError('Invalid field definition.');
     }
     return result;
@@ -61,11 +95,12 @@ class CustomFieldTemplate {
     'target': target.name,
     'type': type.name,
     'label': label,
+    if (options.isNotEmpty) 'options': options,
     'hidden': hidden,
     'archived': archived,
     'revision': revision,
   };
-  Object? validate(Object? value) {
+  Object? validate(Object? value, {bool allowUnavailableChoice = false}) {
     if (value == null) return null;
     switch (type) {
       case CustomFieldType.text:
@@ -78,6 +113,21 @@ class CustomFieldTemplate {
           throw ArgumentError('Invalid number.');
         }
         return value.toDouble();
+      case CustomFieldType.integer:
+        const maxExactInteger = 9007199254740991;
+        if (value is! int ||
+            value < -maxExactInteger ||
+            value > maxExactInteger) {
+          throw ArgumentError('Invalid whole number.');
+        }
+        return value;
+      case CustomFieldType.choice:
+        if (value is! String ||
+            value != normalizeLabel(value) ||
+            (!allowUnavailableChoice && !options.contains(value))) {
+          throw ArgumentError('Invalid choice.');
+        }
+        return value;
       case CustomFieldType.boolean:
         if (value is! bool) throw ArgumentError('Invalid boolean.');
         return value;

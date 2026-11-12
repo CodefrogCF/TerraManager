@@ -859,6 +859,10 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final settings = AppSettingsScope.of(context);
+    final isAndroidApp =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+    final showReleaseHighlights =
+        isAndroidApp && widget.onShowReleaseHighlights != null;
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.navigationSettings)),
@@ -1200,45 +1204,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ],
 
-            if (!kIsWeb &&
-                defaultTargetPlatform == TargetPlatform.android &&
-                widget.onShowReleaseHighlights != null) ...[
-              const SizedBox(height: 24),
-              const Divider(),
-              ListTile(
-                key: const Key('release-highlights-settings'),
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.new_releases_outlined),
-                title: Text(context.l10n.releaseHighlightsSettings),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _operationBusy ? null : widget.onShowReleaseHighlights,
-              ),
-            ],
-
-            if (widget.onReplayTutorial != null) ...[
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 24),
-              Text(
-                sharedText(context, 'Getting started', 'Erste Schritte'),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              ListTile(
-                key: const Key('replay-tutorial-button'),
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.school_outlined),
-                title: Text(
-                  sharedText(
-                    context,
-                    'Show introduction again',
-                    'Einführung erneut anzeigen',
-                  ),
-                ),
-                onTap: widget.onReplayTutorial,
-              ),
-            ],
-
-            if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) ...[
+            if (isAndroidApp) ...[
               const SizedBox(height: 40),
               const Divider(),
               const SizedBox(height: 24),
@@ -1258,6 +1224,34 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               const SizedBox(height: 8),
               const SharedCareBrowserLink(),
+            ],
+
+            if (widget.onReplayTutorial != null || showReleaseHighlights) ...[
+              const SizedBox(height: 24),
+              const Divider(),
+              if (widget.onReplayTutorial != null)
+                ListTile(
+                  key: const Key('replay-tutorial-button'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.school_outlined),
+                  title: Text(
+                    sharedText(context, 'Getting started', 'Erste Schritte'),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: widget.onReplayTutorial,
+                ),
+              if (showReleaseHighlights)
+                ListTile(
+                  key: const Key('release-highlights-settings'),
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.new_releases_outlined),
+                  title: Text(context.l10n.releaseHighlightsSettings),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _operationBusy ? null : widget.onShowReleaseHighlights,
+                ),
+            ],
+
+            if (isAndroidApp) ...[
               const SizedBox(height: 32),
               const Divider(),
               const SizedBox(height: 24),

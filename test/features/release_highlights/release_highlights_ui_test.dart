@@ -35,13 +35,14 @@ void main() {
     WidgetTester tester, {
     InstalledReleaseLoader? loader,
     GlobalKey<NavigatorState>? navigatorKey,
+    Locale locale = const Locale('de'),
   }) async {
     await tester.pumpWidget(
       AppSettingsScope(
         controller: settings,
         child: MaterialApp(
           navigatorKey: navigatorKey,
-          locale: const Locale('de'),
+          locale: locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: StandaloneTutorialGate(
@@ -56,11 +57,14 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> openSettings(WidgetTester tester) async {
+  Future<void> openSettings(
+    WidgetTester tester, {
+    Key entryKey = const Key('release-highlights-settings'),
+  }) async {
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.byKey(const Key('release-highlights-settings')).hitTestable(),
+      find.byKey(entryKey).hitTestable(),
       350,
       scrollable: find
           .descendant(
@@ -70,6 +74,49 @@ void main() {
           .first,
     );
     await tester.pumpAndSettle();
+  }
+
+  for (final language in ['de', 'en']) {
+    testWidgets(
+      '$language Settings groups Getting started and What’s new above project links',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(320, 640));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+        SharedPreferences.setMockInitialValues({
+          'standalone_tutorial_seen': true,
+          ReleaseHighlightsController.lastShownReleaseKey: current.identity,
+        });
+        await pumpGate(tester, locale: Locale(language));
+        await openSettings(
+          tester,
+          entryKey: const Key('replay-tutorial-button'),
+        );
+
+        final gettingStarted = find.byKey(const Key('replay-tutorial-button'));
+        final whatsNew = find.byKey(const Key('release-highlights-settings'));
+        final projectLinksHeading = find.text(
+          language == 'de' ? 'Website und Anleitung' : 'Website and guide',
+        );
+        expect(
+          find.text(language == 'de' ? 'Erste Schritte' : 'Getting started'),
+          findsOneWidget,
+        );
+        expect(
+          find.text(language == 'de' ? 'Neuerungen' : "What's new"),
+          findsOneWidget,
+        );
+        expect(
+          tester.getBottomLeft(gettingStarted).dy,
+          closeTo(tester.getTopLeft(whatsNew).dy, 0.1),
+        );
+        expect(
+          tester.getBottomLeft(whatsNew).dy,
+          lessThan(tester.getTopLeft(projectLinksHeading).dy),
+        );
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
   }
 
   testWidgets(

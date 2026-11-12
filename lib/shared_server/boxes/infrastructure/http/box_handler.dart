@@ -41,6 +41,9 @@ class BoxHandler {
     final id = parseRecordId(path[1]);
     final existing = await boxes.getBoxById(id);
     if (existing == null) return apiError(404, 'not_found', 'Box not found.');
+    if (path.length == 4 && path[2] == 'care-reminders' && method == 'PUT') {
+      return care.saveReminder(id, path[3], await readCollectionBody(request));
+    }
     if (path.length >= 3 && path[2] == 'care-events') {
       if (path.length == 3 && method == 'GET') return care.list(id);
       if (path.length == 3 && method == 'POST') {

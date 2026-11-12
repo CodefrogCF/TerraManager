@@ -6,6 +6,7 @@ import 'package:terramanager/core/presentation/widgets/constrained_page_width.da
 import 'package:terramanager/core/presentation/widgets/overview_context_menu.dart';
 import 'package:terramanager/core/presentation/widgets/overview_action_buttons.dart';
 import 'package:terramanager/features/boxes/presentation/widgets/box_overview_layout.dart';
+import 'package:terramanager/features/boxes/presentation/widgets/box_care_due_button.dart';
 import 'package:terramanager/features/settings/app_settings_controller.dart';
 import 'package:terramanager/features/settings/archive_sort_order.dart';
 import 'package:terramanager/features/settings/box_sort_order.dart';
@@ -13,6 +14,7 @@ import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/l10n/app_localizations_labels.dart';
 import 'package:terramanager/shared_client/boxes/presentation/box_overview.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_detail_page.dart';
+import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_care_history_page.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_form.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
 import 'package:terramanager/shared_client/media/application/shared_overview_image_cache.dart';
@@ -305,11 +307,35 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
     ),
   ];
 
+  Widget? _careDueButton(Map<String, dynamic> box, {bool iconOnly = false}) {
+    final day = box['nextCareDueOn'];
+    if (_archived || day is! String) return null;
+    final due = DateTime.tryParse(day);
+    if (due == null) return null;
+    final id = recordId(box);
+    return BoxCareDueButton(
+      key: ValueKey('box-care-due-$id'),
+      dueOn: due,
+      iconOnly: iconOnly,
+      onPressed: () => Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => SharedBoxCareHistoryPage(
+            api: widget.api,
+            boxId: id,
+            label: boxLabel(box),
+            change: widget.change,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _bigPictureBoxCard(Map<String, dynamic> box, bool archived) {
     final id = recordId(box);
     final name = (box['name'] as String?)?.trim();
     final hasName = name != null && name.isNotEmpty;
     final dimensions = _boxDimensions(box);
+    final dueButton = _careDueButton(box, iconOnly: true);
     Widget card(Widget? menuButton) => Card(
       key: Key('box-list-item-$id'),
       margin: EdgeInsets.zero,
@@ -320,16 +346,23 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: SharedThumbnail(
-                key: Key('box-big-picture-$id'),
-                api: widget.api,
-                images: _images,
-                mediaId: box['pictureMediaId'] as int?,
-                fallback: Icons.inventory_2_outlined,
-                width: double.infinity,
-                height: double.infinity,
-                iconSize: 72,
-                borderRadius: 0,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  SharedThumbnail(
+                    key: Key('box-big-picture-$id'),
+                    api: widget.api,
+                    images: _images,
+                    mediaId: box['pictureMediaId'] as int?,
+                    fallback: Icons.inventory_2_outlined,
+                    width: double.infinity,
+                    height: double.infinity,
+                    iconSize: 72,
+                    borderRadius: 0,
+                  ),
+                  if (dueButton != null)
+                    PositionedDirectional(top: 12, end: 12, child: dueButton),
+                ],
               ),
             ),
             Padding(
@@ -573,6 +606,7 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                     final name = (box['name'] as String?)?.trim();
                     final hasName = name != null && name.isNotEmpty;
                     final dimensions = _boxDimensions(box);
+                    final dueButton = _careDueButton(box);
                     Widget tile(Widget? menuButton) => ListTile(
                       key: Key('box-list-item-$id'),
                       leading: SharedThumbnail(
@@ -597,7 +631,12 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
                           ? null
                           : Text(dimensions),
                       isThreeLine: !_archived && hasName && dimensions != null,
-                      trailing: menuButton,
+                      trailing: dueButton == null
+                          ? menuButton
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [dueButton, ?menuButton],
+                            ),
                       onTap: () => _openBox(box),
                     );
                     return OverviewContextMenu<_BoxAction>(

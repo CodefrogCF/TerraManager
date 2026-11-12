@@ -1,5 +1,7 @@
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_payload.dart';
 import 'package:terramanager/features/boxes/domain/box_care_entry.dart';
+import 'package:terramanager/features/boxes/domain/box_care_reminder.dart';
+import 'package:terramanager/core/database/date_only.dart';
 import 'package:terramanager/features/boxes/domain/care_event_type_definition.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 
@@ -46,10 +48,43 @@ mixin SharedBoxesApi on SharedApiTransport {
     );
   }
 
-  Future<List<BoxCareEntry>> boxCareEvents(int boxId) async => readApiList(
-    await requestJson('GET', '/api/v1/boxes/$boxId/care-events'),
-    'careEvents',
-  ).map(BoxCareEntry.fromJson).toList();
+  Future<List<BoxCareEntry>> boxCareEvents(int boxId) async =>
+      (await boxCareHistory(boxId)).entries;
+
+  Future<({List<BoxCareEntry> entries, List<BoxCareReminder> reminders})>
+  boxCareHistory(int boxId) async {
+    final data = await requestJson('GET', '/api/v1/boxes/$boxId/care-events');
+    return (
+      entries: readApiList(
+        data,
+        'careEvents',
+      ).map(BoxCareEntry.fromJson).toList(),
+      reminders: data['careReminders'] == null
+          ? const <BoxCareReminder>[]
+          : readApiList(
+              data,
+              'careReminders',
+            ).map(BoxCareReminder.fromJson).toList(),
+    );
+  }
+
+  Future<void> saveBoxCareReminder(
+    int boxId, {
+    required String typeKey,
+    required DateTime? dueOn,
+    required int? intervalDays,
+    required String? expectedRevision,
+  }) async {
+    await requestJson(
+      'PUT',
+      '/api/v1/boxes/$boxId/care-reminders/${Uri.encodeComponent(typeKey)}',
+      body: {
+        'dueOn': dateOnlyString(dueOn),
+        'intervalDays': intervalDays,
+        'expectedRevision': expectedRevision,
+      },
+    );
+  }
 
   Future<void> saveBoxCareEvent(
     int boxId, {
@@ -67,6 +102,8 @@ mixin SharedBoxesApi on SharedApiTransport {
         'type': type.name,
         'customTypeId': customTypeId,
         'occurredAt': occurredAt.toUtc().toIso8601String(),
+        if (existing == null)
+          'occurredOn': dateOnlyString(occurredAt.toLocal()),
         'notes': notes,
         if (existing == null) 'requestId': requestId,
         if (existing != null) 'expectedRevision': existing.revision,

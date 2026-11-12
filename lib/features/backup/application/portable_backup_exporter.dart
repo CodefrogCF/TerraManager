@@ -26,6 +26,7 @@ import '../domain/backup_media_format.dart';
 import 'backup_export_exception.dart';
 import 'backup_export_result.dart';
 import 'backup_zip_builder.dart';
+import 'box_care_backup.dart';
 
 typedef BackupMediaReader = Future<Uint8List> Function(String path);
 
@@ -83,31 +84,14 @@ class PortableBackupExporter {
         archiveWriter: archiveWriter,
       );
 
-      final careEvents = await (database.select(
-        database.boxCareEvents,
-      )..where((e) => e.boxId.equals(box.id))).get();
-      final backupCare = <BackupBoxCareEvent>[];
-      for (final event in careEvents) {
-        backupCare.add(
-          BackupBoxCareEvent(
-            id: event.id,
-            type: event.type.name,
-            customTypeId: event.customTypeId,
-            occurredAt: event.occurredAt,
-            notes: event.notes,
-            requestId: event.requestId,
-            revision: event.revision,
-            createdAt: event.createdAt,
-            updatedAt: event.updatedAt,
-          ),
-        );
-      }
+      final care = await readBoxCareBackup(database, box.id);
 
       backupBoxes.add(
         BackupBox(
           id: box.id,
           qrId: box.qrId,
-          careEvents: backupCare,
+          careEvents: care.events,
+          careReminders: care.reminders,
           status: BackupEnumCodec.encodeBoxStatus(box.status),
           archiveReason: box.archiveReason == null
               ? null

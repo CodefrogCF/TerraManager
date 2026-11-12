@@ -7,7 +7,9 @@ import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../domain/box_care_entry.dart';
+import '../../domain/box_care_reminder.dart';
 import '../../domain/care_event_type_definition.dart';
+import '../widgets/box_care_reminders.dart';
 
 String boxCareTypeLabel(
   AppLocalizations text,
@@ -26,11 +28,13 @@ class BoxCareHistoryData {
     required this.active,
     this.canDelete = true,
     this.types = const [],
+    this.reminders = const [],
   });
   final List<BoxCareEntry> entries;
   final bool active;
   final bool canDelete;
   final List<CareEventTypeDefinition> types;
+  final List<BoxCareReminder> reminders;
 }
 
 typedef SaveBoxCare = Future<bool> Function({
@@ -51,6 +55,7 @@ class BoxCareHistoryPage extends StatefulWidget {
     required this.save,
     required this.delete,
     this.manageTypes,
+    this.saveReminder,
     this.updates,
   });
   final String boxLabel;
@@ -59,6 +64,7 @@ class BoxCareHistoryPage extends StatefulWidget {
   final Future<bool> Function(BoxCareEntry entry) delete;
   final Stream<Object?>? updates;
   final Future<void> Function()? manageTypes;
+  final SaveBoxCareReminder? saveReminder;
   @override
   State<BoxCareHistoryPage> createState() => BoxCareHistoryPageState();
 }
@@ -113,12 +119,20 @@ class BoxCareHistoryPageState extends State<BoxCareHistoryPage> {
     }
   }
 
-  Future<void> _edit(BoxCareHistoryData data, [BoxCareEntry? entry]) async {
+  Future<void> _edit(
+    BoxCareHistoryData data, {
+    BoxCareEntry? entry,
+    String? initialTypeKey,
+  }) async {
     final saved = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (_) =>
-          _CareDialog(page: widget, entry: entry, types: data.types),
+      builder: (_) => _CareDialog(
+        page: widget,
+        entry: entry,
+        types: data.types,
+        initialTypeKey: initialTypeKey,
+      ),
     );
     if (saved == true && mounted) await reload().catchError((Object _) {});
   }
@@ -213,6 +227,20 @@ class BoxCareHistoryPageState extends State<BoxCareHistoryPage> {
                     const SizedBox(height: 8),
                     Text(context.l10n.boxCareScope),
                     const SizedBox(height: 12),
+                    if (widget.saveReminder case final save? when data.active)
+                      BoxCareReminderSection(
+                        reminders: data.reminders,
+                        choices: {
+                          for (final type in BoxCareEventType.builtIn)
+                            type.name: choices[type.name]!,
+                          for (final type in data.types)
+                            if (!type.archived) type.id: type.label,
+                        },
+                        save: save,
+                        onSaved: () =>
+                            unawaited(reload().catchError((Object _) {})),
+                        onRecord: (key) => _edit(data, initialTypeKey: key),
+                      ),
                     InputDecorator(
                       decoration: InputDecoration(
                         labelText: context.l10n.careTypeFilter,
@@ -300,7 +328,7 @@ class BoxCareHistoryPageState extends State<BoxCareHistoryPage> {
       children: [
         IconButton(
           key: ValueKey('edit-box-care-${entry.id}'),
-          onPressed: _busy ? null : () => _edit(data, entry),
+          onPressed: _busy ? null : () => _edit(data, entry: entry),
           icon: const Icon(Icons.edit_outlined),
           tooltip: context.l10n.boxCareEdit,
         ),
@@ -337,7 +365,7 @@ class BoxCareHistoryPageState extends State<BoxCareHistoryPage> {
             ],
           ),
           trailing: data.active && !compact ? actions : null,
-          onTap: data.active && !_busy ? () => _edit(data, entry) : null,
+          onTap: data.active && !_busy ? () => _edit(data, entry: entry) : null,
         );
       },
     );
@@ -351,18 +379,33 @@ String _when(BuildContext context, DateTime at) {
 }
 
 class _CareDialog extends StatefulWidget {
-  const _CareDialog({required this.page, required this.types, this.entry});
+  const _CareDialog({
+    required this.page,
+    required this.types,
+    this.entry,
+    this.initialTypeKey,
+  });
   final BoxCareHistoryPage page;
   final List<CareEventTypeDefinition> types;
   final BoxCareEntry? entry;
+  final String? initialTypeKey;
   @override
   State<_CareDialog> createState() => _CareDialogState();
 }
 
 class _CareDialogState extends State<_CareDialog> {
+  late final _initialKey =
+      widget.entry?.choiceId ??
+      widget.initialTypeKey ??
+      BoxCareEventType.substrateChange.name;
   late BoxCareEventType _type =
-      widget.entry?.type ?? BoxCareEventType.substrateChange;
-  late String? _customTypeId = widget.entry?.customTypeId;
+      BoxCareEventType.builtIn
+          .where((type) => type.name == _initialKey)
+          .firstOrNull ??
+      BoxCareEventType.custom;
+  late String? _customTypeId = _type == BoxCareEventType.custom
+      ? _initialKey
+      : null;
   late DateTime _at = widget.entry?.occurredAt.toLocal() ?? DateTime.now();
   late final TextEditingController _notes = TextEditingController(
     text: widget.entry?.notes,

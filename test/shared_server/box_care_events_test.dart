@@ -226,11 +226,74 @@ void main() {
           isA<SharedApiException>().having((e) => e.status, 'status', 409),
         ),
       );
+      final reminderPath = origin.resolve(
+        '/api/v1/boxes/$other/care-reminders/cleaning',
+      );
+      expect((await anonymous.put(reminderPath)).statusCode, 401);
+      expect((await keeperHttp.put(reminderPath, body: '{}')).statusCode, 403);
+      await keeper.saveBoxCareReminder(
+        other,
+        typeKey: 'cleaning',
+        dueOn: DateTime.utc(2026, 1, 3),
+        intervalDays: 7,
+        expectedRevision: null,
+      );
+      expect(
+        (await admin.boxes()).firstWhere(
+          (record) => record['id'] == other,
+        )['nextCareDueOn'],
+        '2026-01-03',
+      );
+      final scheduled = (await admin.boxCareHistory(other)).reminders.single;
+      final reminderCursor = (await admin.queryChanges()).cursor;
+      await keeper.saveBoxCareEvent(
+        other,
+        type: BoxCareEventType.cleaning,
+        occurredAt: at,
+        requestId: 'complete-reminder',
+      );
+      final advanced = (await admin.boxCareHistory(other)).reminders.single;
+      expect(advanced.dueOn, DateTime.utc(2026, 1, 9));
+      final reminderDelta = await admin.queryChanges(since: reminderCursor);
+      final reminderResources =
+          ((reminderDelta.body!['changes'] as List).single as Map)['resources']
+              as Map;
+      expect(reminderResources['boxes'], [other]);
+      expect(reminderResources['boxCareHistories'], [other]);
+      await expectLater(
+        keeper.saveBoxCareReminder(
+          other,
+          typeKey: 'cleaning',
+          dueOn: null,
+          intervalDays: null,
+          expectedRevision: scheduled.revision,
+        ),
+        throwsA(
+          isA<SharedApiException>().having((e) => e.status, 'status', 409),
+        ),
+      );
+      await keeper.saveBoxCareReminder(
+        other,
+        typeKey: 'cleaning',
+        dueOn: null,
+        intervalDays: null,
+        expectedRevision: advanced.revision,
+      );
+      expect((await admin.boxCareHistory(other)).reminders, isEmpty);
       final audit = await CollectionAuditLog(database).read(
         AuditQuery.parse(Uri.parse('http://127.0.0.1/api/v1/audit?limit=100')),
       );
       expect(audit.any((e) => e['action'] == 'boxCareEvent.create'), true);
       expect(jsonEncode(audit), isNot(contains('Private care notes')));
+      final reminderAudit = await CollectionAuditLog(database).read(
+        AuditQuery.parse(
+          Uri.parse('http://127.0.0.1/api/v1/audit?action=care-reminders'),
+        ),
+      );
+      expect(
+        reminderAudit.where((event) => event['outcome'] == 'success'),
+        hasLength(2),
+      );
     } finally {
       admin?.close();
       keeper?.close();

@@ -2,8 +2,10 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../features/boxes/domain/box_care_entry.dart';
+import '../../../features/boxes/domain/box_care_reminder.dart';
 import '../app_database.dart';
 import '../enums/box_status.dart';
+import 'box_care_reminder_repository.dart';
 
 class BoxCareRepository {
   const BoxCareRepository(this.database);
@@ -82,6 +84,23 @@ class BoxCareRepository {
     required DateTime occurredAt,
     String? notes,
     String? requestId,
+  }) async => (await addWithResult(
+    boxId: boxId,
+    type: type,
+    customTypeId: customTypeId,
+    occurredAt: occurredAt,
+    notes: notes,
+    requestId: requestId,
+  )).id;
+
+  Future<({int id, bool replayed, bool reminderChanged})> addWithResult({
+    required int boxId,
+    required BoxCareEventType type,
+    String? customTypeId,
+    required DateTime occurredAt,
+    String? notes,
+    String? requestId,
+    DateTime? occurredOn,
   }) => database.transaction(() async {
     final normalized = _notes(notes);
     final key = requestId ?? const Uuid().v4();
@@ -97,10 +116,24 @@ class BoxCareRepository {
           previous.notes != normalized) {
         throw StateError('Request ID already used for another event.');
       }
-      return previous.id;
+      return (id: previous.id, replayed: true, reminderChanged: false);
     }
     await _validateType(type, customTypeId);
     await _validate(boxId, occurredAt, normalized);
+    final careDay = BoxCareReminder.calendarDay(occurredOn ?? occurredAt);
+    final utc = occurredAt.toUtc();
+    final firstDay = BoxCareReminder.calendarDay(
+      utc.subtract(const Duration(hours: 12)),
+    );
+    final lastDay = BoxCareReminder.calendarDay(
+      utc.add(const Duration(hours: 14)),
+    );
+    if (careDay.year < 1 ||
+        careDay.year > 9999 ||
+        careDay.isBefore(firstDay) ||
+        careDay.isAfter(lastDay)) {
+      throw ArgumentError('Care date does not match the event time.');
+    }
     final now = DateTime.now();
     final id = await database
         .into(database.boxCareEvents)
@@ -116,7 +149,9 @@ class BoxCareRepository {
             updatedAt: now,
           ),
         );
-    return id;
+    final changed = await BoxCareReminderRepository(database)
+        .recordCompletion(boxId, customTypeId ?? type.name, careDay);
+    return (id: id, replayed: false, reminderChanged: changed);
   });
 
   Future<bool> update({

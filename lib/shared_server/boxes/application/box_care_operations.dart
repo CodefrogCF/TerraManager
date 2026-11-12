@@ -1,5 +1,7 @@
 import 'package:terramanager/core/database/repositories/box_care_repository.dart';
+import 'package:terramanager/core/database/repositories/box_care_reminder_repository.dart';
 import 'package:terramanager/features/boxes/domain/box_care_entry.dart';
+import 'package:terramanager/features/boxes/domain/box_care_reminder.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 import 'package:terramanager/shared_server/shared/application/collection_operations.dart';
 import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
@@ -7,35 +9,76 @@ import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
 class BoxCareOperations extends CollectionOperations {
   BoxCareOperations(super.database);
   BoxCareRepository get _repository => BoxCareRepository(database);
-  Future<ApiReply> list(int boxId) async => ApiReply(200, {
-    'careEvents': (await _repository.history(boxId))
-        .map((e) => e.toJson())
-        .toList(),
-  });
+  BoxCareReminderRepository get _reminders =>
+      BoxCareReminderRepository(database);
+
+  Future<ApiReply> list(int boxId) => database.transaction(
+    () async => ApiReply(200, {
+      'careEvents': (await _repository.history(boxId))
+          .map((e) => e.toJson())
+          .toList(),
+      'careReminders': (await _reminders.forBox(boxId))
+          .map((r) => r.toJson())
+          .toList(),
+    }),
+  );
+
+  Future<ApiReply> saveReminder(
+    int boxId,
+    String typeKey,
+    ApiInput input,
+  ) async {
+    input.allow(const {'dueOn', 'intervalDays', 'expectedRevision'});
+    if (!input.values.containsKey('dueOn')) {
+      throw const ApiProblem(400, 'invalid_data', 'dueOn is required.');
+    }
+    await _reminders.save(
+      boxId: boxId,
+      typeKey: typeKey,
+      dueOn: _calendarDate(input, 'dueOn'),
+      intervalDays: input.nullableInteger('intervalDays'),
+      expectedRevision: input.nullableString('expectedRevision', maxLength: 36),
+    );
+    return const ApiReply(200, {'saved': true});
+  }
 
   Future<ApiReply> create(int boxId, ApiInput input) async {
     input.allow(const {
       'type',
       'customTypeId',
       'occurredAt',
+      'occurredOn',
       'notes',
       'requestId',
     });
     final requestId = input.string('requestId', maxLength: 64);
-    final previous = await _repository.byRequestId(requestId);
-    final id = await _repository.add(
+    final result = await _repository.addWithResult(
       boxId: boxId,
       type: input.enumerated('type', BoxCareEventType.values),
       customTypeId: input.nullableString('customTypeId', maxLength: 36),
       occurredAt: input.dateTime('occurredAt'),
+      occurredOn: _calendarDate(input, 'occurredOn'),
       notes: input.nullableString('notes'),
       requestId: requestId,
     );
-    final event = (await _repository.history(boxId))
-        .firstWhere((e) => e.id == id);
+    final event = (await _repository.byRequestId(requestId))!;
     return ApiReply(201, {
       'careEvent': event.toJson(),
-    }, replayed: previous != null);
+      if (result.reminderChanged) 'reminderChanged': true,
+    }, replayed: result.replayed);
+  }
+
+  DateTime? _calendarDate(ApiInput input, String key) {
+    final value = input.values[key];
+    if (value == null) return null;
+    if (value is String) {
+      try {
+        return BoxCareReminder.parseDay(value);
+      } on FormatException {
+        // Report invalid dates through the standard API validation response.
+      }
+    }
+    throw ApiProblem(400, 'invalid_data', '$key must be a calendar date.');
   }
 
   Future<ApiReply> update(int boxId, int id, ApiInput input) async {

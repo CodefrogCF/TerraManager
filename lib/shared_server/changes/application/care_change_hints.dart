@@ -14,7 +14,11 @@ class CareChangeHints {
       return {'audit': null, 'customFieldTemplates': null};
     }
     if (path.firstOrNull == 'care-event-types') {
-      return {'audit': null, 'careEventTypes': null};
+      return {
+        'audit': null,
+        'careEventTypes': null,
+        if (method == 'PATCH') 'boxes': null,
+      };
     }
     if (path.firstOrNull == 'food-presets') {
       return {'audit': null, 'foodPresets': null};
@@ -68,8 +72,14 @@ class CareChangeHints {
         }
       }
     } else if (path.firstOrNull == 'boxes') {
-      if (path.length > 2 && path[2] == 'care-events') {
-        return {'audit': null, 'boxCareHistories': ids};
+      if (path.length > 2 &&
+          const {'care-events', 'care-reminders'}.contains(path[2])) {
+        return {
+          'audit': null,
+          'boxCareHistories': ids,
+          if (path[2] == 'care-reminders' || body['reminderChanged'] == true)
+            'boxes': ids,
+        };
       }
       final box = body['box'];
       if (box is Map && box['id'] is int) ids.add(box['id'] as int);

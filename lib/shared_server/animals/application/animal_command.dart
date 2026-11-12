@@ -141,6 +141,7 @@ class AnimalCommand {
       feedingReminderWeekdays: input.nullableInteger('feedingReminderWeekdays'),
       feedingReminderMinuteOfDay: input.nullableInteger(
         'feedingReminderMinuteOfDay',
+        minimum: 0,
       ),
       feedingReminderTimeZone: input.nullableString('feedingReminderTimeZone'),
       weightGrams: weightGrams,

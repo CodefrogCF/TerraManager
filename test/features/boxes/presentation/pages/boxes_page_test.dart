@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/repositories/box_care_reminder_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/features/boxes/presentation/pages/box_detail_page.dart';
@@ -167,6 +168,39 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('test-box-detail'), findsOneWidget);
+  });
+
+  testWidgets('due marker opens the matching care and updates on completion', (
+    tester,
+  ) async {
+    final id = await BoxRepository(database).createBox('test-box-care');
+    await pumpPage(tester);
+    final marker = find.byKey(ValueKey('box-care-due-$id'));
+    expect(marker, findsNothing);
+    await BoxCareReminderRepository(database)
+        .save(boxId: id, typeKey: 'cleaning', dueOn: DateTime.utc(2024));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: marker, matching: find.text('Due')),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.descendant(of: marker, matching: find.byType(TextButton)),
+    );
+    await tester.pumpAndSettle();
+    final task = find.byKey(const Key('box-care-reminder-cleaning'));
+    expect(
+      find.descendant(of: task, matching: find.text('Cleaning')),
+      findsOneWidget,
+    );
+    await tester.tap(find.descendant(of: task, matching: find.text('Due')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('save-box-care-event')));
+    await tester.pumpAndSettle();
+    expect(task, findsNothing);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(marker, findsNothing);
   });
 
   testWidgets('passes box overview order to box details', (tester) async {

@@ -6847,6 +6847,445 @@ class BoxCareEventsCompanion extends UpdateCompanion<BoxCareEvent> {
   }
 }
 
+class $BoxCareRemindersTable extends BoxCareReminders
+    with TableInfo<$BoxCareRemindersTable, BoxCareReminderRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BoxCareRemindersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _boxIdMeta = const VerificationMeta('boxId');
+  @override
+  late final GeneratedColumn<int> boxId = GeneratedColumn<int>(
+    'box_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES boxes (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _typeKeyMeta = const VerificationMeta(
+    'typeKey',
+  );
+  @override
+  late final GeneratedColumn<String> typeKey = GeneratedColumn<String>(
+    'type_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dueOnMeta = const VerificationMeta('dueOn');
+  @override
+  late final GeneratedColumn<String> dueOn = GeneratedColumn<String>(
+    'due_on',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 10,
+      maxTextLength: 10,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _intervalDaysMeta = const VerificationMeta(
+    'intervalDays',
+  );
+  @override
+  late final GeneratedColumn<int> intervalDays = GeneratedColumn<int>(
+    'interval_days',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastCompletedOnMeta = const VerificationMeta(
+    'lastCompletedOn',
+  );
+  @override
+  late final GeneratedColumn<String> lastCompletedOn = GeneratedColumn<String>(
+    'last_completed_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<String> revision = GeneratedColumn<String>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    boxId,
+    typeKey,
+    dueOn,
+    intervalDays,
+    lastCompletedOn,
+    revision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'box_care_reminders';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BoxCareReminderRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('box_id')) {
+      context.handle(
+        _boxIdMeta,
+        boxId.isAcceptableOrUnknown(data['box_id']!, _boxIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_boxIdMeta);
+    }
+    if (data.containsKey('type_key')) {
+      context.handle(
+        _typeKeyMeta,
+        typeKey.isAcceptableOrUnknown(data['type_key']!, _typeKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeKeyMeta);
+    }
+    if (data.containsKey('due_on')) {
+      context.handle(
+        _dueOnMeta,
+        dueOn.isAcceptableOrUnknown(data['due_on']!, _dueOnMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dueOnMeta);
+    }
+    if (data.containsKey('interval_days')) {
+      context.handle(
+        _intervalDaysMeta,
+        intervalDays.isAcceptableOrUnknown(
+          data['interval_days']!,
+          _intervalDaysMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_completed_on')) {
+      context.handle(
+        _lastCompletedOnMeta,
+        lastCompletedOn.isAcceptableOrUnknown(
+          data['last_completed_on']!,
+          _lastCompletedOnMeta,
+        ),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_revisionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {boxId, typeKey};
+  @override
+  BoxCareReminderRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BoxCareReminderRow(
+      boxId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}box_id'],
+      )!,
+      typeKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type_key'],
+      )!,
+      dueOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}due_on'],
+      )!,
+      intervalDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}interval_days'],
+      ),
+      lastCompletedOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_completed_on'],
+      ),
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}revision'],
+      )!,
+    );
+  }
+
+  @override
+  $BoxCareRemindersTable createAlias(String alias) {
+    return $BoxCareRemindersTable(attachedDatabase, alias);
+  }
+}
+
+class BoxCareReminderRow extends DataClass
+    implements Insertable<BoxCareReminderRow> {
+  final int boxId;
+  final String typeKey;
+  final String dueOn;
+  final int? intervalDays;
+  final String? lastCompletedOn;
+  final String revision;
+  const BoxCareReminderRow({
+    required this.boxId,
+    required this.typeKey,
+    required this.dueOn,
+    this.intervalDays,
+    this.lastCompletedOn,
+    required this.revision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['box_id'] = Variable<int>(boxId);
+    map['type_key'] = Variable<String>(typeKey);
+    map['due_on'] = Variable<String>(dueOn);
+    if (!nullToAbsent || intervalDays != null) {
+      map['interval_days'] = Variable<int>(intervalDays);
+    }
+    if (!nullToAbsent || lastCompletedOn != null) {
+      map['last_completed_on'] = Variable<String>(lastCompletedOn);
+    }
+    map['revision'] = Variable<String>(revision);
+    return map;
+  }
+
+  BoxCareRemindersCompanion toCompanion(bool nullToAbsent) {
+    return BoxCareRemindersCompanion(
+      boxId: Value(boxId),
+      typeKey: Value(typeKey),
+      dueOn: Value(dueOn),
+      intervalDays: intervalDays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(intervalDays),
+      lastCompletedOn: lastCompletedOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastCompletedOn),
+      revision: Value(revision),
+    );
+  }
+
+  factory BoxCareReminderRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BoxCareReminderRow(
+      boxId: serializer.fromJson<int>(json['boxId']),
+      typeKey: serializer.fromJson<String>(json['typeKey']),
+      dueOn: serializer.fromJson<String>(json['dueOn']),
+      intervalDays: serializer.fromJson<int?>(json['intervalDays']),
+      lastCompletedOn: serializer.fromJson<String?>(json['lastCompletedOn']),
+      revision: serializer.fromJson<String>(json['revision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'boxId': serializer.toJson<int>(boxId),
+      'typeKey': serializer.toJson<String>(typeKey),
+      'dueOn': serializer.toJson<String>(dueOn),
+      'intervalDays': serializer.toJson<int?>(intervalDays),
+      'lastCompletedOn': serializer.toJson<String?>(lastCompletedOn),
+      'revision': serializer.toJson<String>(revision),
+    };
+  }
+
+  BoxCareReminderRow copyWith({
+    int? boxId,
+    String? typeKey,
+    String? dueOn,
+    Value<int?> intervalDays = const Value.absent(),
+    Value<String?> lastCompletedOn = const Value.absent(),
+    String? revision,
+  }) => BoxCareReminderRow(
+    boxId: boxId ?? this.boxId,
+    typeKey: typeKey ?? this.typeKey,
+    dueOn: dueOn ?? this.dueOn,
+    intervalDays: intervalDays.present ? intervalDays.value : this.intervalDays,
+    lastCompletedOn: lastCompletedOn.present
+        ? lastCompletedOn.value
+        : this.lastCompletedOn,
+    revision: revision ?? this.revision,
+  );
+  BoxCareReminderRow copyWithCompanion(BoxCareRemindersCompanion data) {
+    return BoxCareReminderRow(
+      boxId: data.boxId.present ? data.boxId.value : this.boxId,
+      typeKey: data.typeKey.present ? data.typeKey.value : this.typeKey,
+      dueOn: data.dueOn.present ? data.dueOn.value : this.dueOn,
+      intervalDays: data.intervalDays.present
+          ? data.intervalDays.value
+          : this.intervalDays,
+      lastCompletedOn: data.lastCompletedOn.present
+          ? data.lastCompletedOn.value
+          : this.lastCompletedOn,
+      revision: data.revision.present ? data.revision.value : this.revision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoxCareReminderRow(')
+          ..write('boxId: $boxId, ')
+          ..write('typeKey: $typeKey, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('intervalDays: $intervalDays, ')
+          ..write('lastCompletedOn: $lastCompletedOn, ')
+          ..write('revision: $revision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    boxId,
+    typeKey,
+    dueOn,
+    intervalDays,
+    lastCompletedOn,
+    revision,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BoxCareReminderRow &&
+          other.boxId == this.boxId &&
+          other.typeKey == this.typeKey &&
+          other.dueOn == this.dueOn &&
+          other.intervalDays == this.intervalDays &&
+          other.lastCompletedOn == this.lastCompletedOn &&
+          other.revision == this.revision);
+}
+
+class BoxCareRemindersCompanion extends UpdateCompanion<BoxCareReminderRow> {
+  final Value<int> boxId;
+  final Value<String> typeKey;
+  final Value<String> dueOn;
+  final Value<int?> intervalDays;
+  final Value<String?> lastCompletedOn;
+  final Value<String> revision;
+  final Value<int> rowid;
+  const BoxCareRemindersCompanion({
+    this.boxId = const Value.absent(),
+    this.typeKey = const Value.absent(),
+    this.dueOn = const Value.absent(),
+    this.intervalDays = const Value.absent(),
+    this.lastCompletedOn = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BoxCareRemindersCompanion.insert({
+    required int boxId,
+    required String typeKey,
+    required String dueOn,
+    this.intervalDays = const Value.absent(),
+    this.lastCompletedOn = const Value.absent(),
+    required String revision,
+    this.rowid = const Value.absent(),
+  }) : boxId = Value(boxId),
+       typeKey = Value(typeKey),
+       dueOn = Value(dueOn),
+       revision = Value(revision);
+  static Insertable<BoxCareReminderRow> custom({
+    Expression<int>? boxId,
+    Expression<String>? typeKey,
+    Expression<String>? dueOn,
+    Expression<int>? intervalDays,
+    Expression<String>? lastCompletedOn,
+    Expression<String>? revision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (boxId != null) 'box_id': boxId,
+      if (typeKey != null) 'type_key': typeKey,
+      if (dueOn != null) 'due_on': dueOn,
+      if (intervalDays != null) 'interval_days': intervalDays,
+      if (lastCompletedOn != null) 'last_completed_on': lastCompletedOn,
+      if (revision != null) 'revision': revision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BoxCareRemindersCompanion copyWith({
+    Value<int>? boxId,
+    Value<String>? typeKey,
+    Value<String>? dueOn,
+    Value<int?>? intervalDays,
+    Value<String?>? lastCompletedOn,
+    Value<String>? revision,
+    Value<int>? rowid,
+  }) {
+    return BoxCareRemindersCompanion(
+      boxId: boxId ?? this.boxId,
+      typeKey: typeKey ?? this.typeKey,
+      dueOn: dueOn ?? this.dueOn,
+      intervalDays: intervalDays ?? this.intervalDays,
+      lastCompletedOn: lastCompletedOn ?? this.lastCompletedOn,
+      revision: revision ?? this.revision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (boxId.present) {
+      map['box_id'] = Variable<int>(boxId.value);
+    }
+    if (typeKey.present) {
+      map['type_key'] = Variable<String>(typeKey.value);
+    }
+    if (dueOn.present) {
+      map['due_on'] = Variable<String>(dueOn.value);
+    }
+    if (intervalDays.present) {
+      map['interval_days'] = Variable<int>(intervalDays.value);
+    }
+    if (lastCompletedOn.present) {
+      map['last_completed_on'] = Variable<String>(lastCompletedOn.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<String>(revision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BoxCareRemindersCompanion(')
+          ..write('boxId: $boxId, ')
+          ..write('typeKey: $typeKey, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('intervalDays: $intervalDays, ')
+          ..write('lastCompletedOn: $lastCompletedOn, ')
+          ..write('revision: $revision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $CustomFieldTemplatesTable extends CustomFieldTemplates
     with TableInfo<$CustomFieldTemplatesTable, CustomFieldTemplateRow> {
   @override
@@ -7793,6 +8232,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $BoxPictureAssociationsTable(this);
   late final $CareEventTypesTable careEventTypes = $CareEventTypesTable(this);
   late final $BoxCareEventsTable boxCareEvents = $BoxCareEventsTable(this);
+  late final $BoxCareRemindersTable boxCareReminders = $BoxCareRemindersTable(
+    this,
+  );
   late final $CustomFieldTemplatesTable customFieldTemplates =
       $CustomFieldTemplatesTable(this);
   late final $CustomFieldValuesTable customFieldValues =
@@ -7813,6 +8255,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     boxPictureAssociations,
     careEventTypes,
     boxCareEvents,
+    boxCareReminders,
     customFieldTemplates,
     customFieldValues,
   ];
@@ -7874,6 +8317,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('box_care_events', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'boxes',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('box_care_reminders', kind: UpdateKind.delete)],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -8638,6 +9088,26 @@ final class $$BoxesTableReferences
     );
   }
 
+  static MultiTypedResultKey<$BoxCareRemindersTable, List<BoxCareReminderRow>>
+  _boxCareRemindersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.boxCareReminders,
+    aliasName: 'boxes__id__box_care_reminders__box_id',
+  );
+
+  $$BoxCareRemindersTableProcessedTableManager get boxCareRemindersRefs {
+    final manager = $$BoxCareRemindersTableTableManager(
+      $_db,
+      $_db.boxCareReminders,
+    ).filter((f) => f.boxId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _boxCareRemindersRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$CustomFieldValuesTable, List<CustomFieldValueRow>>
   _customFieldValuesRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
@@ -8830,6 +9300,31 @@ class $$BoxesTableFilterComposer extends Composer<_$AppDatabase, $BoxesTable> {
           }) => $$BoxCareEventsTableFilterComposer(
             $db: $db,
             $table: $db.boxCareEvents,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> boxCareRemindersRefs(
+    Expression<bool> Function($$BoxCareRemindersTableFilterComposer f) f,
+  ) {
+    final $$BoxCareRemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.boxCareReminders,
+      getReferencedColumn: (t) => t.boxId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxCareRemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.boxCareReminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -9127,6 +9622,31 @@ class $$BoxesTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> boxCareRemindersRefs<T extends Object>(
+    Expression<T> Function($$BoxCareRemindersTableAnnotationComposer a) f,
+  ) {
+    final $$BoxCareRemindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.boxCareReminders,
+      getReferencedColumn: (t) => t.boxId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxCareRemindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.boxCareReminders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> customFieldValuesRefs<T extends Object>(
     Expression<T> Function($$CustomFieldValuesTableAnnotationComposer a) f,
   ) {
@@ -9172,6 +9692,7 @@ class $$BoxesTableTableManager
             bool animalsRefs,
             bool boxPictureAssociationsRefs,
             bool boxCareEventsRefs,
+            bool boxCareRemindersRefs,
             bool customFieldValuesRefs,
           })
         > {
@@ -9266,6 +9787,7 @@ class $$BoxesTableTableManager
                 animalsRefs = false,
                 boxPictureAssociationsRefs = false,
                 boxCareEventsRefs = false,
+                boxCareRemindersRefs = false,
                 customFieldValuesRefs = false,
               }) {
                 return PrefetchHooks(
@@ -9274,6 +9796,7 @@ class $$BoxesTableTableManager
                     if (animalsRefs) db.animals,
                     if (boxPictureAssociationsRefs) db.boxPictureAssociations,
                     if (boxCareEventsRefs) db.boxCareEvents,
+                    if (boxCareRemindersRefs) db.boxCareReminders,
                     if (customFieldValuesRefs) db.customFieldValues,
                   ],
                   addJoins:
@@ -9363,6 +9886,27 @@ class $$BoxesTableTableManager
                           ) => referencedItems.where((e) => e.boxId == item.id),
                           typedResults: items,
                         ),
+                      if (boxCareRemindersRefs)
+                        await $_getPrefetchedData<
+                          Box,
+                          $BoxesTable,
+                          BoxCareReminderRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$BoxesTableReferences
+                              ._boxCareRemindersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$BoxesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).boxCareRemindersRefs,
+                          referencedItemsForCurrentItem: (
+                            item,
+                            referencedItems,
+                          ) => referencedItems.where((e) => e.boxId == item.id),
+                          typedResults: items,
+                        ),
                       if (customFieldValuesRefs)
                         await $_getPrefetchedData<
                           Box,
@@ -9409,6 +9953,7 @@ typedef $$BoxesTableProcessedTableManager =
         bool animalsRefs,
         bool boxPictureAssociationsRefs,
         bool boxCareEventsRefs,
+        bool boxCareRemindersRefs,
         bool customFieldValuesRefs,
       })
     >;
@@ -13883,6 +14428,355 @@ typedef $$BoxCareEventsTableProcessedTableManager =
       BoxCareEvent,
       PrefetchHooks Function({bool boxId, bool customTypeId})
     >;
+typedef $$BoxCareRemindersTableCreateCompanionBuilder =
+    BoxCareRemindersCompanion Function({
+      required int boxId,
+      required String typeKey,
+      required String dueOn,
+      Value<int?> intervalDays,
+      Value<String?> lastCompletedOn,
+      required String revision,
+      Value<int> rowid,
+    });
+typedef $$BoxCareRemindersTableUpdateCompanionBuilder =
+    BoxCareRemindersCompanion Function({
+      Value<int> boxId,
+      Value<String> typeKey,
+      Value<String> dueOn,
+      Value<int?> intervalDays,
+      Value<String?> lastCompletedOn,
+      Value<String> revision,
+      Value<int> rowid,
+    });
+
+final class $$BoxCareRemindersTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $BoxCareRemindersTable,
+          BoxCareReminderRow
+        > {
+  $$BoxCareRemindersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $BoxesTable _boxIdTable(_$AppDatabase db) =>
+      db.boxes.createAlias('box_care_reminders__box_id__boxes__id');
+
+  $$BoxesTableProcessedTableManager get boxId {
+    final $_column = $_itemColumn<int>('box_id')!;
+
+    final manager = $$BoxesTableTableManager(
+      $_db,
+      $_db.boxes,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_boxIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$BoxCareRemindersTableFilterComposer
+    extends Composer<_$AppDatabase, $BoxCareRemindersTable> {
+  $$BoxCareRemindersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get typeKey => $composableBuilder(
+    column: $table.typeKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dueOn => $composableBuilder(
+    column: $table.dueOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get intervalDays => $composableBuilder(
+    column: $table.intervalDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastCompletedOn => $composableBuilder(
+    column: $table.lastCompletedOn,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$BoxesTableFilterComposer get boxId {
+    final $$BoxesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableFilterComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BoxCareRemindersTableOrderingComposer
+    extends Composer<_$AppDatabase, $BoxCareRemindersTable> {
+  $$BoxCareRemindersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get typeKey => $composableBuilder(
+    column: $table.typeKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dueOn => $composableBuilder(
+    column: $table.dueOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get intervalDays => $composableBuilder(
+    column: $table.intervalDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastCompletedOn => $composableBuilder(
+    column: $table.lastCompletedOn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$BoxesTableOrderingComposer get boxId {
+    final $$BoxesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableOrderingComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BoxCareRemindersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BoxCareRemindersTable> {
+  $$BoxCareRemindersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get typeKey =>
+      $composableBuilder(column: $table.typeKey, builder: (column) => column);
+
+  GeneratedColumn<String> get dueOn =>
+      $composableBuilder(column: $table.dueOn, builder: (column) => column);
+
+  GeneratedColumn<int> get intervalDays => $composableBuilder(
+    column: $table.intervalDays,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get lastCompletedOn => $composableBuilder(
+    column: $table.lastCompletedOn,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  $$BoxesTableAnnotationComposer get boxId {
+    final $$BoxesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.boxId,
+      referencedTable: $db.boxes,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$BoxesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.boxes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$BoxCareRemindersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BoxCareRemindersTable,
+          BoxCareReminderRow,
+          $$BoxCareRemindersTableFilterComposer,
+          $$BoxCareRemindersTableOrderingComposer,
+          $$BoxCareRemindersTableAnnotationComposer,
+          $$BoxCareRemindersTableCreateCompanionBuilder,
+          $$BoxCareRemindersTableUpdateCompanionBuilder,
+          (BoxCareReminderRow, $$BoxCareRemindersTableReferences),
+          BoxCareReminderRow,
+          PrefetchHooks Function({bool boxId})
+        > {
+  $$BoxCareRemindersTableTableManager(
+    _$AppDatabase db,
+    $BoxCareRemindersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BoxCareRemindersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BoxCareRemindersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BoxCareRemindersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> boxId = const Value.absent(),
+                Value<String> typeKey = const Value.absent(),
+                Value<String> dueOn = const Value.absent(),
+                Value<int?> intervalDays = const Value.absent(),
+                Value<String?> lastCompletedOn = const Value.absent(),
+                Value<String> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BoxCareRemindersCompanion(
+                boxId: boxId,
+                typeKey: typeKey,
+                dueOn: dueOn,
+                intervalDays: intervalDays,
+                lastCompletedOn: lastCompletedOn,
+                revision: revision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int boxId,
+                required String typeKey,
+                required String dueOn,
+                Value<int?> intervalDays = const Value.absent(),
+                Value<String?> lastCompletedOn = const Value.absent(),
+                required String revision,
+                Value<int> rowid = const Value.absent(),
+              }) => BoxCareRemindersCompanion.insert(
+                boxId: boxId,
+                typeKey: typeKey,
+                dueOn: dueOn,
+                intervalDays: intervalDays,
+                lastCompletedOn: lastCompletedOn,
+                revision: revision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$BoxCareRemindersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({boxId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (boxId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.boxId,
+                        referencedTable: $$BoxCareRemindersTableReferences
+                            ._boxIdTable(db),
+                        referencedColumn: $$BoxCareRemindersTableReferences
+                            ._boxIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$BoxCareRemindersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BoxCareRemindersTable,
+      BoxCareReminderRow,
+      $$BoxCareRemindersTableFilterComposer,
+      $$BoxCareRemindersTableOrderingComposer,
+      $$BoxCareRemindersTableAnnotationComposer,
+      $$BoxCareRemindersTableCreateCompanionBuilder,
+      $$BoxCareRemindersTableUpdateCompanionBuilder,
+      (BoxCareReminderRow, $$BoxCareRemindersTableReferences),
+      BoxCareReminderRow,
+      PrefetchHooks Function({bool boxId})
+    >;
 typedef $$CustomFieldTemplatesTableCreateCompanionBuilder =
     CustomFieldTemplatesCompanion Function({
       required String id,
@@ -14812,6 +15706,8 @@ class $AppDatabaseManager {
       $$CareEventTypesTableTableManager(_db, _db.careEventTypes);
   $$BoxCareEventsTableTableManager get boxCareEvents =>
       $$BoxCareEventsTableTableManager(_db, _db.boxCareEvents);
+  $$BoxCareRemindersTableTableManager get boxCareReminders =>
+      $$BoxCareRemindersTableTableManager(_db, _db.boxCareReminders);
   $$CustomFieldTemplatesTableTableManager get customFieldTemplates =>
       $$CustomFieldTemplatesTableTableManager(_db, _db.customFieldTemplates);
   $$CustomFieldValuesTableTableManager get customFieldValues =>

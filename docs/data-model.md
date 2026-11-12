@@ -56,6 +56,13 @@ choices while preserving history, filtering and edits that retain the same type.
 Case-insensitive normalized labels must be unique, including archived types;
 standard DE/EN labels are reserved. Reordering checks the complete ID/revision set.
 
+Each Box can have one reminder per standard or custom care type. The due date
+is a calendar day shown as due from local midnight. A new matching entry
+completes a one-time reminder or sets the next date to the recorded care day
+plus the interval (1–36,500 days). Earlier or same-day entries do not move an
+already advanced recurring schedule. Archived Boxes and types retain their
+schedules while inactive. Duplicate Boxes start without reminders.
+
 Custom fields are optional profile data, edited with the core profile in one
 transaction. Templates are managed from details/editing, separately for Animals
 and Boxes. Rename keeps IDs; hidden fields retain values but leave the UI;
@@ -107,7 +114,7 @@ migrated only when readable. Missing legacy files must not discard other data.
 
 ## Schema Version
 
-The current Drift database schema version is **23**. Upgrade steps preserve
+The current Drift database schema version is **24**. Upgrade steps preserve
 existing IDs, relationships and QR values and finish with foreign-key checks.
 
 | Version | Addition |
@@ -135,5 +142,6 @@ existing IDs, relationships and QR values and finish with foreign-key checks.
 | 21 | Typed Animal/Box custom-field templates and separately stored values |
 | 22 | Optional dated Animal rest period, alongside existing notes |
 | 23 | Feeding field templates, per-Feeding values and food presets |
+| 24 | Optional Box care reminders and repair for databases missing the Animal rest-period column |
 
 Generation commands and migration checks are in [Development](development.md).

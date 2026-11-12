@@ -1,5 +1,6 @@
 import '../../custom_fields/domain/custom_field.dart';
 import '../../../core/database/date_only.dart';
+import '../../boxes/domain/box_care_reminder.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
 import '../../feedings/domain/animal_rest_period.dart';
 import '../../feedings/domain/feeding_field_values.dart';
@@ -99,6 +100,7 @@ class BackupBox {
   final String? pictureMediaPath;
   final List<BackupPicture> pictures;
   final List<BackupBoxCareEvent> careEvents;
+  final List<BoxCareReminder> careReminders;
 
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -119,6 +121,7 @@ class BackupBox {
     this.pictureMediaPath,
     this.pictures = const [],
     this.careEvents = const [],
+    this.careReminders = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -140,6 +143,10 @@ class BackupBox {
       'pictureMediaPath': pictureMediaPath,
       'pictures': pictures.map((picture) => picture.toJson()).toList(),
       'careEvents': careEvents.map((event) => event.toJson()).toList(),
+      if (careReminders.isNotEmpty)
+        'careReminders': careReminders
+            .map((reminder) => reminder.toJson())
+            .toList(),
       'createdAt': createdAt.toUtc().toIso8601String(),
       'updatedAt': updatedAt.toUtc().toIso8601String(),
     };
@@ -151,6 +158,9 @@ class BackupBox {
     return BackupBox(
       id: json['id'] as int,
       qrId: json['qrId'] as String,
+      careReminders: (json['careReminders'] as List? ?? const [])
+          .map((item) => BoxCareReminder.fromJson(item as Map<String, dynamic>))
+          .toList(),
       careEvents: (json['careEvents'] as List? ?? const [])
           .map(
             (item) => BackupBoxCareEvent.fromJson(item as Map<String, dynamic>),

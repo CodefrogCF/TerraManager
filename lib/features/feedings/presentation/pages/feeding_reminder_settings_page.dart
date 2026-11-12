@@ -152,9 +152,15 @@ class _FeedingReminderSettingsPageState
   }
 
   Future<void> _save() async {
-    if (_saving || _animal == null || !_formKey.currentState!.validate()) {
+    final animal = _animal;
+    if (_saving || animal == null) {
       return;
     }
+    if (!_hasUnsavedChanges) {
+      Navigator.of(context).pop(false);
+      return;
+    }
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _saving = true;
@@ -186,7 +192,9 @@ class _FeedingReminderSettingsPageState
             weekdays: _reminderEnabled && _weekdayMode ? _weekdays : null,
             minuteOfDay: _reminderEnabled && _weekdayMode ? _minuteOfDay : null,
             timeZone: timeZone,
-            restPeriod: Value(_restPeriod),
+            restPeriod: _restPeriod == animal.restPeriod
+                ? const Value.absent()
+                : Value(_restPeriod),
           );
 
       if (!mounted) {

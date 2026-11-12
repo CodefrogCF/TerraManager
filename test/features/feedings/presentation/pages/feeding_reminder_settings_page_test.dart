@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -143,6 +144,27 @@ void main() {
     expect(
       find.byKey(const Key('feeding-reminder-interval-days-field')),
       findsNothing,
+    );
+  });
+
+  testWidgets('saving an unchanged disabled reminder closes without writing', (
+    tester,
+  ) async {
+    final animalId = await createAnimal();
+    final original = DateTime(2020);
+    await (database.update(database.animals)
+          ..where((animal) => animal.id.equals(animalId)))
+        .write(AnimalsCompanion(updatedAt: Value(original)));
+    await pumpPageWithNavigation(tester, animalId: animalId);
+    await tester.tap(find.byKey(const Key('save-feeding-reminder-button')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const Key('open-feeding-reminder-button')),
+      findsOneWidget,
+    );
+    expect(
+      (await AnimalRepository(database).getAnimalById(animalId))!.updatedAt,
+      original,
     );
   });
 

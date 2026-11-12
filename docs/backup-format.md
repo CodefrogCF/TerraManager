@@ -48,7 +48,7 @@ Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are
 
 | Record | Serialized fields |
 | --- | --- |
-| Box | `id`, `qrId`, `name`, lifecycle, `widthCm`, `heightCm`, `depthCm`, `temperatureZones`, `notes`, `pictureMediaPath`, `pictures`, optional `careEvents`, creation/update fields |
+| Box | `id`, `qrId`, `name`, lifecycle, `widthCm`, `heightCm`, `depthCm`, `temperatureZones`, `notes`, `pictureMediaPath`, `pictures`, optional `careEvents` and `careReminders`, creation/update fields |
 | Animal identity | `id`, `boxId`, lifecycle, `commonName`, `latinName`, `category`, `subcategory`, `sex`, `birthDate`, `birthDateAccuracy` |
 | Animal profile | `tempMin`, `tempMax`, `nighttimeTemperature`, `nighttimeTemperatureMin`, `nighttimeTemperatureMax`, `humidityMin`, `humidityMax`, `originHabitat`, `weight`, `restOrDormancyPeriods`, `temperatureZones`, `notes` |
 | Animal history / pictures | `weightHistory`, `sheddingNotes` (legacy), `sheddingHistory`, `showWeightOnDetail`, `showSheddingOnDetail`, `pictureMediaPath`, `pictures`, creation/update fields |
@@ -56,6 +56,7 @@ Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are
 | FeedingEvent | `id`, `animalId`, `fedAt`, `notes` |
 | Nested weight entry | `id`, `weightGrams`, `measuredAt` |
 | Nested Box care event | `id`, `type`, optional `customTypeId` (required for `custom`, otherwise null), `occurredAt`, optional `notes`, `requestId`, positive integer `revision`, `createdAt`, `updatedAt`. Missing `careEvents` means empty history; IDs/retry keys are unique across Boxes. Retired care-picture metadata in older archives is ignored. |
+| Nested Box care reminder | Unique `typeKey` per Box (standard name or custom UUID), `dueOn` and optional `lastCompletedOn` as YYYY-MM-DD, nullable `intervalDays`, UUID `revision`. Restore assigns a new revision. Missing `careReminders` means no schedules. |
 | Nested shedding entry | `id`, `shedAt`, `notes`, `createdAt`, `updatedAt` |
 | Gallery entry | `mediaPath`, `capturedAt`; list order is retained |
 

@@ -74,6 +74,7 @@ They belong to the account and are excluded from portable collection backups.
 | Weight | `GET/POST /animals/{id}/weights`; `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`; `PUT/DELETE /animals/{id}/shedding/{eventId}` |
 | Box care | `GET/POST /boxes/{id}/care-events`; `PUT/DELETE /boxes/{id}/care-events/{eventId}` |
+| Box care reminders | `PUT /boxes/{id}/care-reminders/{typeKey}` |
 | Custom fields | `GET/POST /custom-field-templates`; `PATCH /custom-field-templates/{uuid}`; `GET /animals/{id}/custom-fields` and `/boxes/{id}/custom-fields` |
 | Custom care types | `GET/POST /care-event-types`; `PATCH /care-event-types/{uuid}`; `PUT /care-event-types/order` |
 | Galleries | `GET/POST /animals/{id}/pictures` and `/boxes/{id}/pictures`; `DELETE /.../pictures/{mediaId}`; `POST /.../pictures/{mediaId}/primary` |
@@ -100,6 +101,14 @@ old drafts from changing a different event after restore reuses numeric IDs. Sta
 POST return the existing entry without a second commit. Archived histories are
 read-only; permanent deletion remains administrator-only. Committed care changes
 invalidate `boxCareHistories` for the owning Box ID through the existing change stream.
+
+The care history response includes `careReminders`. PUT takes `dueOn`
+(YYYY-MM-DD, or null to disable), optional `intervalDays` and
+`expectedRevision` (null for a new schedule). A Box list record can include
+`nextCareDueOn`, the earliest active reminder date. A new care entry can supply
+`occurredOn` for its local calendar date. Older clients use the UTC day.
+Reminder changes invalidate the owning Box and care history. Archiving or
+reactivating a custom type also refreshes the Box overview.
 
 Custom definitions are collection data, available to both authenticated roles.
 POST takes a client-generated v4 UUID `id` and `label`; an identical retry reuses

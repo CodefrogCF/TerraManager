@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/presentation/widgets/reminder_due_button.dart';
 import '../../../../l10n/app_localizations_context.dart';
 
 enum FeedingAlertAction { viewAnimal, addFeeding, suppressFor24Hours }
@@ -73,25 +74,9 @@ class FeedingAlertButton extends StatelessWidget {
   final bool iconOnly;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Tooltip(
-      message: context.l10n.feedingAlertActions,
-      child: TextButton(
-        onPressed: onPressed,
-        style: TextButton.styleFrom(
-          foregroundColor: colors.onErrorContainer,
-          backgroundColor: colors.errorContainer,
-          minimumSize: const Size(48, 48),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        ),
-        child: iconOnly
-            ? const Icon(Icons.notification_important_outlined)
-            : Text(
-                context.l10n.due,
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => ReminderDueButton(
+    tooltip: context.l10n.feedingAlertActions,
+    onPressed: onPressed,
+    iconOnly: iconOnly,
+  );
 }

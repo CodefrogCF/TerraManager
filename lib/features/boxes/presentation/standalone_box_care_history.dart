@@ -4,6 +4,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/enums/box_status.dart';
 import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/box_care_repository.dart';
+import '../../../core/database/repositories/box_care_reminder_repository.dart';
 import '../../../core/database/repositories/care_event_type_repository.dart';
 import 'pages/box_care_history_page.dart';
 import 'standalone_care_event_types.dart';
@@ -15,6 +16,7 @@ Future<void> openStandaloneBoxCareHistory(
   required String label,
 }) async {
   final repository = BoxCareRepository(database);
+  final reminders = BoxCareReminderRepository(database);
   await Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (context) => BoxCareHistoryPage(
@@ -27,17 +29,35 @@ Future<void> openStandaloneBoxCareHistory(
             entries: await repository.history(boxId),
             active: box.status == BoxStatus.active,
             types: await CareEventTypeRepository(database).all(),
+            reminders: await reminders.forBox(boxId),
           );
         },
         updates: database.tableUpdates().where(
           (updates) => updates.any(
             (update) => {
               database.boxCareEvents.actualTableName,
+              database.boxCareReminders.actualTableName,
               database.boxes.actualTableName,
               database.careEventTypes.actualTableName,
             }.contains(update.table),
           ),
         ),
+        saveReminder:
+            ({
+              required typeKey,
+              required dueOn,
+              required intervalDays,
+              required expectedRevision,
+            }) async {
+              await reminders.save(
+                boxId: boxId,
+                typeKey: typeKey,
+                dueOn: dueOn,
+                intervalDays: intervalDays,
+                expectedRevision: expectedRevision,
+              );
+              return true;
+            },
         save:
             ({
               existing,

@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_care_repository.dart';
+import 'package:terramanager/core/database/repositories/box_care_reminder_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/features/boxes/presentation/standalone_box_care_history.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
@@ -67,6 +68,9 @@ void main() {
               reply = await operations.list(box);
             } else if (request.method == 'POST') {
               reply = await operations.create(box, input);
+            } else if (request.method == 'PUT' &&
+                parts.contains('care-reminders')) {
+              reply = await operations.saveReminder(box, parts.last, input);
             } else if (request.method == 'PUT') {
               reply = await operations.update(
                 box,
@@ -166,6 +170,51 @@ void main() {
         expect(await care.history(box), isEmpty);
         expect(find.text(l10n.boxCareEmpty), findsOneWidget);
       }
+      final reminders = BoxCareReminderRepository(database);
+      final addReminder = find.byKey(const Key('add-box-care-reminder'));
+      final saveReminder = find.byKey(const Key('save-box-care-reminder'));
+      final reminderRow = find.byKey(
+        const Key('box-care-reminder-substrateChange'),
+      );
+      await tester.ensureVisible(addReminder);
+      await tester.tap(addReminder);
+      await tester.pumpAndSettle();
+      await tester.tap(saveReminder);
+      await tester.pumpAndSettle();
+      expect((await reminders.forBox(box)).single.intervalDays, isNull);
+      final dueAction = find.descendant(
+        of: reminderRow,
+        matching: find.text(l10n.due),
+      );
+      await tester.tap(dueAction);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('save-box-care-event')));
+      await tester.pumpAndSettle();
+      expect(await reminders.forBox(box), isEmpty);
+
+      await tester.tap(addReminder);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('box-care-reminder-repeat')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('box-care-reminder-interval')),
+        '7',
+      );
+      await tester.tap(saveReminder);
+      await tester.pumpAndSettle();
+      expect((await reminders.forBox(box)).single.intervalDays, 7);
+      await tester.tap(
+        find.descendant(
+          of: reminderRow,
+          matching: find.text(l10n.boxCareSubstrate),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('box-care-reminder-enabled')));
+      await tester.pumpAndSettle();
+      await tester.tap(saveReminder);
+      await tester.pumpAndSettle();
+      expect(await reminders.forBox(box), isEmpty);
       expect(tester.takeException(), isNull);
     });
   }

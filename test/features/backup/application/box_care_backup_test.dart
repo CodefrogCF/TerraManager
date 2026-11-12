@@ -4,16 +4,21 @@ import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/box_care_repository.dart';
+import 'package:terramanager/core/database/repositories/box_care_reminder_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/care_event_type_repository.dart';
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
 import 'package:terramanager/features/boxes/domain/box_care_entry.dart';
 import 'package:terramanager/features/backup/application/portable_backup_exporter.dart';
 import 'package:terramanager/features/backup/application/portable_backup_database_restorer.dart';
 import 'package:terramanager/features/backup/application/backup_validation_service.dart';
+import 'package:terramanager/features/backup/application/backup_export_service.dart';
 import 'package:terramanager/features/backup/domain/backup_settings.dart';
+import 'package:terramanager/features/settings/app_accent.dart';
 
 Uint8List changeData(
   Uint8List bytes,
@@ -60,6 +65,68 @@ void main() {
     await source.close();
     await target.close();
   });
+  for (final server in [false, true]) {
+    test(
+      'care reminder dates and archived types round-trip; server=$server',
+      () async {
+        const id = '12345678-1234-4123-8123-123456789abc';
+        final types = CareEventTypeRepository(source);
+        final custom = await types.create(id, 'Check ventilation');
+        final reminders = BoxCareReminderRepository(source);
+        await reminders.save(
+          boxId: box,
+          typeKey: id,
+          dueOn: DateTime.utc(2024, 1, 5),
+          intervalDays: 7,
+        );
+        await BoxCareRepository(source).add(
+          boxId: box,
+          type: BoxCareEventType.custom,
+          customTypeId: id,
+          occurredAt: DateTime.utc(2024, 1, 5, 12),
+        );
+        await types.update(
+          id: id,
+          expectedRevision: custom.revision,
+          label: custom.label,
+          archived: true,
+        );
+        await reminders.save(
+          boxId: box,
+          typeKey: 'cleaning',
+          dueOn: DateTime.utc(2024, 2, 3),
+        );
+        final bytes = server
+            ? await export(source, server: true)
+            : (await BackupExportService(source).createBackup(
+                appVersion: 'test',
+                themeMode: ThemeMode.system,
+                accent: AppAccent.green,
+              )).bytes;
+        final validated = BackupValidationService().validate(bytes);
+        await PortableBackupDatabaseRestorer(target).restore(validated);
+        final restored = BoxCareReminderRepository(target);
+        final scheduled = await restored.forBox(box);
+        expect(scheduled.map((r) => r.typeKey), [id, 'cleaning']);
+        expect(scheduled.first.dueOn, DateTime.utc(2024, 1, 12));
+        expect(scheduled.first.lastCompletedOn, DateTime.utc(2024, 1, 5));
+        expect(scheduled.first.intervalDays, 7);
+        expect(scheduled.last.intervalDays, isNull);
+        expect(await restored.nextDueDates(), {box: DateTime.utc(2024, 2, 3)});
+        expect(
+          (await BoxCareRepository(target).history(box)).single.customTypeId,
+          id,
+        );
+
+        final legacy = changeData(bytes, (data) {
+          (data['boxes'] as List).single.remove('careReminders');
+        });
+        await PortableBackupDatabaseRestorer(target)
+            .restore(BackupValidationService().validate(legacy));
+        expect(await restored.forBox(box), isEmpty);
+      },
+    );
+  }
   test('all care types and ordinary galleries survive Standalone/server round trips', () async {
     final gallery = PictureGalleryRepository(source);
     await gallery.addBoxPicture(

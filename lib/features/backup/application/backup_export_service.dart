@@ -8,6 +8,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/database/repositories/animal_repository.dart';
 import '../../../core/database/repositories/animal_weight_repository.dart';
 import '../../../core/database/repositories/box_repository.dart';
+import '../../../core/database/repositories/care_event_type_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
 import '../../../core/database/repositories/custom_field_repository.dart';
 import '../../../core/database/repositories/food_preset_repository.dart';
@@ -30,6 +31,7 @@ import 'backup_export_exception.dart';
 import 'backup_export_result.dart';
 import 'backup_settings_codec.dart';
 import 'backup_zip_builder.dart';
+import 'box_care_backup.dart';
 
 typedef BackupMediaReader = Future<Uint8List> Function(String path);
 
@@ -115,10 +117,13 @@ class BackupExportService {
         archiveWriter: archiveWriter,
       );
 
+      final care = await readBoxCareBackup(database, box.id);
       backupBoxes.add(
         BackupBox(
           id: box.id,
           qrId: box.qrId,
+          careEvents: care.events,
+          careReminders: care.reminders,
           status: BackupEnumCodec.encodeBoxStatus(box.status),
           archiveReason: box.archiveReason == null
               ? null
@@ -228,6 +233,7 @@ class BackupExportService {
     }
 
     final backupData = BackupData(
+      careEventTypes: await CareEventTypeRepository(database).all(),
       foodPresets: await FoodPresetRepository(database).all(),
       customFieldTemplates: await CustomFieldRepository(database)
           .templates(CustomFieldTarget.feeding),

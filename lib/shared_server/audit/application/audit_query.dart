@@ -94,6 +94,7 @@ class AuditQuery {
         'duplicate',
         'move',
         'feeding-reminder',
+        'care-reminders',
         'set_primary',
       }.contains(action)) {
         throw const FormatException('Unknown audit action.');

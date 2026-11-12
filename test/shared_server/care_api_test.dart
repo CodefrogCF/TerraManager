@@ -620,6 +620,31 @@ void main() {
       );
       expect(cleared.status, 200);
       expect(cleared.json!['animal']['restPeriod'], isNull);
+      final midnight = await _call(
+        clientA,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          ...plan,
+          'expectedRevision': cleared.json!['animal']['revision'],
+          'minuteOfDay': 0,
+        },
+      );
+      expect(midnight.status, 200, reason: midnight.json.toString());
+      expect(midnight.json!['animal']['feedingReminderMinuteOfDay'], 0);
+      final resaved = await _call(
+        clientA,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          ...plan,
+          'expectedRevision': midnight.json!['animal']['revision'],
+          'minuteOfDay': 0,
+        },
+      );
+      expect(resaved.status, 200, reason: resaved.json.toString());
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );

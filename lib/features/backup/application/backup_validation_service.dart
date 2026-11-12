@@ -1,5 +1,6 @@
 import '../../custom_fields/domain/custom_field.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
+import '../../boxes/domain/box_care_reminder.dart';
 
 import 'dart:convert';
 import 'dart:typed_data';
@@ -596,6 +597,18 @@ class BackupValidationService {
           throw BackupValidationException(
             code: BackupValidationErrorCode.invalidData,
             message: 'Box ${box.id} contains an invalid care event.',
+          );
+        }
+      }
+      final reminderKeys = <String>{};
+      for (final reminder in box.careReminders) {
+        if (!reminderKeys.add(reminder.typeKey) ||
+            (!BoxCareReminder.isBuiltIn(reminder.typeKey) &&
+                !customIds.contains(reminder.typeKey))) {
+          throw BackupValidationException(
+            code: BackupValidationErrorCode.invalidData,
+            message:
+                'Box ${box.id} contains an invalid or duplicate care reminder.',
           );
         }
       }

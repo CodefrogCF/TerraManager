@@ -7,6 +7,8 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/box_archive_reason.dart';
 import 'package:terramanager/core/database/enums/box_status.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
+import 'package:terramanager/core/database/repositories/box_care_reminder_repository.dart';
+import 'package:terramanager/core/database/date_only.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 import 'package:terramanager/shared_server/shared/application/collection_operations.dart';
 import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
@@ -17,9 +19,17 @@ class BoxOperations extends CollectionOperations {
   Future<Box?> getBoxById(int id) => BoxRepository(database).getBoxById(id);
   Future<ApiReply> list() async {
     final boxes = BoxRepository(database);
+    final nextDue = await BoxCareReminderRepository(database).nextDueDates();
 
     return ApiReply(200, {
-      'boxes': (await boxes.getAllBoxes()).map(boxJson).toList(),
+      'boxes': [
+        for (final box in await boxes.getAllBoxes())
+          {
+            ...boxJson(box),
+            if (box.status == BoxStatus.active && nextDue.containsKey(box.id))
+              'nextCareDueOn': dateOnlyString(nextDue[box.id]),
+          },
+      ],
     });
   }
 

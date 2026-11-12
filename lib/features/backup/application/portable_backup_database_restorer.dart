@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/database/date_only.dart';
 import '../../../core/database/enums/box_care_event_type.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
 import '../../feedings/domain/feeding_field_values.dart';
@@ -23,6 +25,7 @@ class PortableBackupDatabaseRestorer {
       await database.delete(database.foodPresets).go();
       await database.delete(database.customFieldTemplates).go();
       await database.delete(database.boxCareEvents).go();
+      await database.delete(database.boxCareReminders).go();
       await database.delete(database.careEventTypes).go();
       await database.delete(database.feedingEvents).go();
 
@@ -156,6 +159,22 @@ class PortableBackupDatabaseRestorer {
       }
 
       for (final box in backup.data.boxes) {
+        for (final reminder in box.careReminders) {
+          await database
+              .into(database.boxCareReminders)
+              .insert(
+                BoxCareRemindersCompanion.insert(
+                  boxId: box.id,
+                  typeKey: reminder.typeKey,
+                  dueOn: dateOnlyString(reminder.dueOn)!,
+                  intervalDays: Value(reminder.intervalDays),
+                  lastCompletedOn: Value(
+                    dateOnlyString(reminder.lastCompletedOn),
+                  ),
+                  revision: const Uuid().v4(),
+                ),
+              );
+        }
         for (final event in box.careEvents) {
           await database
               .into(database.boxCareEvents)

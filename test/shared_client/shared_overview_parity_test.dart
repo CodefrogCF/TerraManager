@@ -49,8 +49,14 @@ void main() {
         'widthCm': 10,
         'heightCm': 10,
         'depthCm': 10,
+        'nextCareDueOn': '2024-01-01',
       },
-      {'id': 3, 'name': 'Archived', 'status': 'archived'},
+      {
+        'id': 3,
+        'name': 'Archived',
+        'status': 'archived',
+        'nextCareDueOn': '2024-01-01',
+      },
     ];
     await settings.setBoxSortOrder(BoxSortOrder.nameAscending);
     await tester.pumpWidget(
@@ -71,8 +77,20 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    final due = find.byKey(const Key('box-care-due-2'));
+    expect(
+      find.descendant(of: due, matching: find.text('Due')),
+      findsOneWidget,
+    );
     await settings.setBigPictureModeEnabled(true);
     await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: due,
+        matching: find.byIcon(Icons.notification_important_outlined),
+      ),
+      findsOneWidget,
+    );
     expect(find.byKey(const Key('box-big-picture-1')), findsOneWidget);
     expect(find.byKey(const Key('box-big-picture-2')), findsOneWidget);
     expect(find.byKey(const Key('box-big-picture-3')), findsNothing);
@@ -85,6 +103,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('box-big-picture-3')), findsNothing);
     expect(find.byKey(const Key('box-list-item-3')), findsOneWidget);
+    expect(find.byKey(const Key('box-care-due-3')), findsNothing);
     expect(find.byKey(const Key('box-big-picture-1')), findsNothing);
     await settings.setBigPictureModeEnabled(false);
     await tester.pumpAndSettle();

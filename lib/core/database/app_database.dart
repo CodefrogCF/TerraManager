@@ -24,6 +24,7 @@ import 'enums/sex.dart';
 import 'tables/custom_fields.dart';
 import 'tables/boxes.dart';
 import 'tables/box_care_events.dart';
+import 'tables/box_care_reminders.dart';
 import 'tables/care_event_types.dart';
 import 'enums/box_care_event_type.dart';
 import 'tables/animals.dart';
@@ -62,6 +63,7 @@ QueryExecutor _configureTestQueryExecutor(QueryExecutor executor) {
     BoxPictureAssociations,
     CareEventTypes,
     BoxCareEvents,
+    BoxCareReminders,
     CustomFieldTemplates,
     CustomFieldValues,
   ],
@@ -234,6 +236,18 @@ class AppDatabase extends _$AppDatabase {
                 );
                 await m.createTable(schema.foodPresets);
               },
+              from23To24: (m, schema) async {
+                // The rolled-back pairing build also used version 22.
+                // Its Animals lacked the column added by the rest-period build.
+                final columns = await customSelect('PRAGMA table_info(animals)')
+                    .get();
+                if (columns.every(
+                  (column) => column.read<String>('name') != 'rest_period',
+                )) {
+                  await m.addColumn(schema.animals, schema.animals.restPeriod);
+                }
+                await m.createTable(schema.boxCareReminders);
+              },
               from19To20: (m, schema) async {
                 await m.createTable(schema.careEventTypes);
                 await m.alterTable(
@@ -267,7 +281,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

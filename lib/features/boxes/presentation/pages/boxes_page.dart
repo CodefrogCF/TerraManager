@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/animal_repository.dart';
+import '../../../../core/database/repositories/box_care_reminder_repository.dart';
 import '../../../../core/database/repositories/box_lifecycle_exception.dart';
 import '../../../../core/database/repositories/box_repository.dart';
 import '../../../../core/database/repositories/media_repository.dart';
@@ -16,6 +19,8 @@ import '../../../settings/box_sort_order.dart';
 import '../box_lifecycle_dialogs.dart';
 import '../box_overview_sorting.dart';
 import '../box_quick_action_dialogs.dart';
+import '../standalone_box_care_history.dart';
+import '../widgets/box_care_due_button.dart';
 import '../widgets/box_overview_layout.dart';
 import 'box_detail_page.dart';
 import 'box_edit_page.dart';
@@ -38,6 +43,8 @@ class BoxesPage extends StatefulWidget {
 class _BoxesPageState extends State<BoxesPage> {
   late Future<List<Box>> _boxesFuture;
   late final Stream<Set<int>> _occupiedBoxIds;
+  late Future<Map<int, DateTime>> _nextCareDates;
+  late final StreamSubscription<Object?> _careUpdates;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -47,11 +54,21 @@ class _BoxesPageState extends State<BoxesPage> {
   void initState() {
     super.initState();
     _occupiedBoxIds = AnimalRepository(widget.database).watchOccupiedBoxIds();
+    final reminders = BoxCareReminderRepository(widget.database);
+    _nextCareDates = reminders.nextDueDates();
+    _careUpdates = reminders.changes.listen((_) {
+      if (mounted) {
+        setState(() {
+          _nextCareDates = reminders.nextDueDates();
+        });
+      }
+    });
     _loadBoxes();
   }
 
   @override
   void dispose() {
+    unawaited(_careUpdates.cancel());
     _scrollController.dispose();
 
     super.dispose();
@@ -372,6 +389,23 @@ class _BoxesPageState extends State<BoxesPage> {
     ];
   }
 
+  Widget _careDueButton(
+    Box box,
+    String label,
+    DateTime dueOn, {
+    bool iconOnly = false,
+  }) => BoxCareDueButton(
+    key: ValueKey('box-care-due-${box.id}'),
+    dueOn: dueOn,
+    iconOnly: iconOnly,
+    onPressed: () => openStandaloneBoxCareHistory(
+      context,
+      database: widget.database,
+      boxId: box.id,
+      label: label,
+    ),
+  );
+
   Widget _buildCompactBoxTile(
     BuildContext context, {
     required Box box,
@@ -379,6 +413,7 @@ class _BoxesPageState extends State<BoxesPage> {
     required String? boxName,
     required String boxLabel,
     required String dimensions,
+    required DateTime? nextCareDueOn,
   }) {
     return OverviewContextMenu<_BoxOverviewAction>(
       key: Key('box-context-menu-region-${box.id}'),
@@ -417,7 +452,15 @@ class _BoxesPageState extends State<BoxesPage> {
                 ],
               ),
         isThreeLine: boxName != null,
-        trailing: menuButton,
+        trailing: nextCareDueOn == null
+            ? menuButton
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _careDueButton(box, boxName ?? boxLabel, nextCareDueOn),
+                  menuButton,
+                ],
+              ),
         onTap: () {
           _openBoxDetail(box, boxes);
         },
@@ -432,6 +475,7 @@ class _BoxesPageState extends State<BoxesPage> {
     required String? boxName,
     required String boxLabel,
     required String dimensions,
+    required DateTime? nextCareDueOn,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -456,56 +500,72 @@ class _BoxesPageState extends State<BoxesPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: FutureBuilder<MediaAsset?>(
-                    future: _pictureFutureFor(box.pictureMediaId),
-                    builder: (context, pictureSnapshot) {
-                      final pictureBytes = pictureSnapshot.data?.data;
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      FutureBuilder<MediaAsset?>(
+                        future: _pictureFutureFor(box.pictureMediaId),
+                        builder: (context, pictureSnapshot) {
+                          final pictureBytes = pictureSnapshot.data?.data;
 
-                      if (pictureSnapshot.connectionState ==
-                              ConnectionState.waiting &&
-                          box.pictureMediaId != null) {
-                        return Container(
-                          key: Key('box-big-picture-${box.id}'),
-                          color: colorScheme.surfaceContainerHighest,
-                          alignment: Alignment.center,
-                          child: const CircularProgressIndicator(),
-                        );
-                      }
+                          if (pictureSnapshot.connectionState ==
+                                  ConnectionState.waiting &&
+                              box.pictureMediaId != null) {
+                            return Container(
+                              key: Key('box-big-picture-${box.id}'),
+                              color: colorScheme.surfaceContainerHighest,
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(),
+                            );
+                          }
 
-                      if (pictureBytes == null) {
-                        return Container(
-                          key: Key('box-big-picture-${box.id}'),
-                          color: colorScheme.surfaceContainerHighest,
-                          alignment: Alignment.center,
-                          child: Icon(
-                            Icons.inventory_2_outlined,
-                            size: 72,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        );
-                      }
-
-                      return Container(
-                        key: Key('box-big-picture-${box.id}'),
-                        color: colorScheme.surfaceContainerHighest,
-                        child: Image.memory(
-                          pictureBytes,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          gaplessPlayback: true,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
+                          if (pictureBytes == null) {
+                            return Container(
+                              key: Key('box-big-picture-${box.id}'),
+                              color: colorScheme.surfaceContainerHighest,
+                              alignment: Alignment.center,
                               child: Icon(
                                 Icons.inventory_2_outlined,
                                 size: 72,
                                 color: colorScheme.onSurfaceVariant,
                               ),
                             );
-                          },
+                          }
+
+                          return Container(
+                            key: Key('box-big-picture-${box.id}'),
+                            color: colorScheme.surfaceContainerHighest,
+                            child: Image.memory(
+                              pictureBytes,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                              gaplessPlayback: true,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 72,
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                      if (nextCareDueOn != null)
+                        PositionedDirectional(
+                          top: 12,
+                          end: 12,
+                          child: _careDueButton(
+                            box,
+                            boxName ?? boxLabel,
+                            nextCareDueOn,
+                            iconOnly: true,
+                          ),
                         ),
-                      );
-                    },
+                    ],
                   ),
                 ),
                 Padding(
@@ -641,46 +701,52 @@ class _BoxesPageState extends State<BoxesPage> {
                 );
               }
 
-              return BoxOverviewLayout(
-                scrollKey: PageStorageKey<String>(
-                  bigPictureModeEnabled
-                      ? 'boxes-overview-grid'
-                      : 'boxes-overview-list',
-                ),
-                bigPictures: bigPictureModeEnabled,
-                firstEmptyIndex: settings?.showEmptyBoxesLast == true
-                    ? boxes.indexWhere(
-                        (box) =>
-                            !(occupied.data ?? const <int>{}).contains(box.id),
-                      )
-                    : -1,
-                controller: _scrollController,
-                itemCount: boxes.length,
-                itemBuilder: (context, index) {
-                  final box = boxes[index];
-                  final boxName = _boxName(box);
-                  final boxLabel = context.l10n.boxLabel(box.id);
-                  final dimensions = _formatDimensions(context, box);
+              return FutureBuilder<Map<int, DateTime>>(
+                future: _nextCareDates,
+                builder: (context, reminders) => BoxOverviewLayout(
+                  scrollKey: PageStorageKey<String>(
+                    bigPictureModeEnabled
+                        ? 'boxes-overview-grid'
+                        : 'boxes-overview-list',
+                  ),
+                  bigPictures: bigPictureModeEnabled,
+                  firstEmptyIndex: settings?.showEmptyBoxesLast == true
+                      ? boxes.indexWhere(
+                          (box) => !(occupied.data ?? const <int>{}).contains(
+                            box.id,
+                          ),
+                        )
+                      : -1,
+                  controller: _scrollController,
+                  itemCount: boxes.length,
+                  itemBuilder: (context, index) {
+                    final box = boxes[index];
+                    final boxName = _boxName(box);
+                    final boxLabel = context.l10n.boxLabel(box.id);
+                    final dimensions = _formatDimensions(context, box);
 
-                  if (bigPictureModeEnabled) {
-                    return _buildBigPictureBoxCard(
+                    if (bigPictureModeEnabled) {
+                      return _buildBigPictureBoxCard(
+                        context,
+                        box: box,
+                        boxes: boxes,
+                        boxName: boxName,
+                        boxLabel: boxLabel,
+                        dimensions: dimensions,
+                        nextCareDueOn: reminders.data?[box.id],
+                      );
+                    }
+                    return _buildCompactBoxTile(
                       context,
                       box: box,
                       boxes: boxes,
                       boxName: boxName,
                       boxLabel: boxLabel,
                       dimensions: dimensions,
+                      nextCareDueOn: reminders.data?[box.id],
                     );
-                  }
-                  return _buildCompactBoxTile(
-                    context,
-                    box: box,
-                    boxes: boxes,
-                    boxName: boxName,
-                    boxLabel: boxLabel,
-                    dimensions: dimensions,
-                  );
-                },
+                  },
+                ),
               );
             },
           ),

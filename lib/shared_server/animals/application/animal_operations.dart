@@ -171,7 +171,7 @@ class AnimalOperations extends CollectionOperations {
     final intervalDays = input.nullableInteger('intervalDays');
     final baseline = input.nullableDateTime('baseline');
     final weekdays = input.nullableInteger('weekdays');
-    final minuteOfDay = input.nullableInteger('minuteOfDay');
+    final minuteOfDay = input.nullableInteger('minuteOfDay', minimum: 0);
     final timeZone = input.nullableString('timeZone');
     final Value<AnimalRestPeriod?> restPeriod;
     try {

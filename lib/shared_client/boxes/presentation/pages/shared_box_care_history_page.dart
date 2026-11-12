@@ -76,14 +76,30 @@ class _SharedBoxCareHistoryPageState extends State<SharedBoxCareHistoryPage> {
     },
     load: () async {
       final box = await widget.api.box(widget.boxId);
-      final entries = await widget.api.boxCareEvents(widget.boxId);
+      final history = await widget.api.boxCareHistory(widget.boxId);
       return BoxCareHistoryData(
-        entries: entries,
+        entries: history.entries,
+        reminders: history.reminders,
         active: box['status'] == 'active',
         canDelete: widget.api.canDeleteCollection,
         types: await widget.api.careEventTypes(),
       );
     },
+    saveReminder:
+        ({
+          required typeKey,
+          required dueOn,
+          required intervalDays,
+          required expectedRevision,
+        }) => widget.change(
+          () => widget.api.saveBoxCareReminder(
+            widget.boxId,
+            typeKey: typeKey,
+            dueOn: dueOn,
+            intervalDays: intervalDays,
+            expectedRevision: expectedRevision,
+          ),
+        ),
     save:
         ({
           existing,

@@ -17,6 +17,10 @@ const _actions = <String, (String, String)>{
     'Feeding reminder changed',
     'Fütterungserinnerung geändert',
   ),
+  'care-reminders': (
+    'Box care reminder changed',
+    'Boxpflegeerinnerung geändert',
+  ),
   'set_primary': ('Primary picture changed', 'Hauptbild geändert'),
 };
 

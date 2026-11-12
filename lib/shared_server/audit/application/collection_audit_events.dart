@@ -42,6 +42,7 @@ Future<List<AuditEvent>> collectionAuditEvents(
       'duplicate',
       'move',
       'feeding-reminder',
+      'care-reminders',
     }.contains(section)) {
       operation = section;
     } else if (const {

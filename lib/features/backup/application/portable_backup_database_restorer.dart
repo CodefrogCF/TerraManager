@@ -252,6 +252,7 @@ class PortableBackupDatabaseRestorer {
                 ),
                 sheddingNotes: const Value(null),
                 restOrDormancyPeriods: Value(animal.restOrDormancyPeriods),
+                restPeriod: Value(animal.restPeriod),
                 temperatureZones: Value(animal.temperatureZones),
                 picturePath: const Value(null),
                 pictureMediaId: Value(restoredPictures.primaryMediaId),

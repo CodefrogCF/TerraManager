@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 import 'package:terramanager/features/feedings/domain/feeding_alert_suppression.dart';
 import 'package:terramanager/features/feedings/presentation/widgets/feeding_alert_actions.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +20,7 @@ import 'package:terramanager/l10n/app_localizations_labels.dart';
 import 'package:terramanager/shared_client/animals/presentation/animal_overview.dart';
 import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_scanner_page.dart';
 import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_box_page.dart';
+import 'package:terramanager/shared_client/feedings/presentation/feeding_reminder_state.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_detail_page.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
 import 'package:terramanager/shared_client/boxes/presentation/widgets/shared_box_selection_dialog.dart';
@@ -37,6 +39,12 @@ import 'package:terramanager/shared_client/shared/presentation/widgets/shared_du
 import 'package:terramanager/shared_client/shared/presentation/widgets/shared_menu_item.dart';
 
 enum _AnimalAction { details, feeding, edit, archive, duplicate, restore }
+
+typedef _ReminderEntry = ({
+  Map<String, dynamic> animal,
+  DateTime dueAt,
+  FeedingPauseWindow? pause,
+});
 
 class SharedAnimalsPage extends StatefulWidget {
   const SharedAnimalsPage({
@@ -76,16 +84,19 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
 
   SharedRefreshDemand? _demand;
   ModalRoute<dynamic>? _route;
+  ModalRoute<void>? _scheduleRoute;
+  ValueNotifier<List<_ReminderEntry>>? _scheduleEntries;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _route = ModalRoute.of(context);
     _synchronizeMediaGeneration();
-    _demand ??= widget.api.refresh.observe({
-      'animals',
-      'boxes',
-      'reminders',
-    }, () => mounted && (_route?.isCurrent ?? true));
+    _demand ??= widget.api.refresh.observe(
+      {'animals', 'boxes', 'reminders'},
+      () =>
+          mounted &&
+          ((_route?.isCurrent ?? true) || (_scheduleRoute?.isCurrent ?? false)),
+    );
     scheduleMicrotask(() {
       if (mounted) {
         unawaited(
@@ -100,14 +111,16 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   }
 
   Future<void> _openFeedingSchedule(
-    List<({Map<String, dynamic> animal, DateTime dueAt})> reminders,
+    List<_ReminderEntry> reminders,
     AnimalNameOrder nameOrder,
   ) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => FeedingSchedulePage(
+    final entries = ValueNotifier(reminders);
+    final route = MaterialPageRoute<void>(
+      builder: (_) => ValueListenableBuilder<List<_ReminderEntry>>(
+        valueListenable: entries,
+        builder: (context, current, _) => FeedingSchedulePage(
           onSelectAnimal: (animalId) async {
-            for (final reminder in reminders) {
+            for (final reminder in current) {
               if (recordId(reminder.animal) == animalId) {
                 await _openAnimal(reminder.animal);
                 return;
@@ -115,11 +128,12 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
             }
           },
           entries: [
-            for (final reminder in reminders)
+            for (final reminder in current)
               FeedingScheduleEntry(
                 animalId: recordId(reminder.animal),
                 animalName: animalLabel(reminder.animal, order: nameOrder),
                 dueAt: reminder.dueAt,
+                pause: reminder.pause,
                 timeZone: reminder.animal['feedingReminderWeekdays'] == null
                     ? null
                     : reminder.animal['feedingReminderTimeZone'] as String?,
@@ -128,6 +142,36 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         ),
       ),
     );
+    _scheduleRoute = route;
+    _scheduleEntries = entries;
+    try {
+      await Navigator.of(context).push(route);
+    } finally {
+      if (identical(_scheduleEntries, entries)) {
+        _scheduleEntries = null;
+        _scheduleRoute = null;
+        entries.dispose();
+      }
+    }
+  }
+
+  List<_ReminderEntry> _reminderEntriesFor(
+    Iterable<Map<String, dynamic>> animals,
+  ) {
+    final byId = {for (final animal in animals) animal['id']: animal};
+    final result = <_ReminderEntry>[];
+    for (final reminder in widget.reminders) {
+      final animal = byId[reminder['animalId']];
+      final dueAt = DateTime.tryParse(reminder['dueAt'] as String? ?? '');
+      if (animal != null && dueAt != null) {
+        result.add((
+          animal: animal,
+          dueAt: dueAt,
+          pause: sharedReminderPause(reminder),
+        ));
+      }
+    }
+    return result..sort((a, b) => a.dueAt.compareTo(b.dueAt));
   }
 
   @override
@@ -141,6 +185,18 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   @override
   void didUpdateWidget(covariant SharedAnimalsPage oldWidget) {
     super.didUpdateWidget(oldWidget);
+    final schedule = _scheduleEntries;
+    if (schedule != null &&
+        (oldWidget.animals != widget.animals ||
+            oldWidget.reminders != widget.reminders)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && identical(_scheduleEntries, schedule)) {
+          schedule.value = _reminderEntriesFor(
+            widget.animals.where((animal) => animal['status'] != 'archived'),
+          );
+        }
+      });
+    }
     final archive = _archiveData;
     if (archive != null) {
       final snapshot = _archiveSnapshot;
@@ -172,6 +228,8 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     _images.dispose();
     _archiveData?.dispose();
     _archiveData = null;
+    _scheduleEntries?.dispose();
+    _scheduleEntries = null;
     super.dispose();
   }
 
@@ -226,7 +284,7 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
   }
 
   Widget _dueReminderSummary(
-    List<({Map<String, dynamic> animal, DateTime dueAt})> reminders,
+    List<_ReminderEntry> reminders,
     AnimalNameOrder nameOrder,
   ) => Card(
     key: const Key('shared-feeding-reminder-summary'),
@@ -616,9 +674,9 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
     List<Object> rows,
     Set<int> dueAnimalIds,
     AnimalNameOrder nameOrder,
-    List<({Map<String, dynamic> animal, DateTime dueAt})> dueReminders,
-    ({Map<String, dynamic> animal, DateTime dueAt})? nextReminder,
-    List<({Map<String, dynamic> animal, DateTime dueAt})> allReminders,
+    List<_ReminderEntry> dueReminders,
+    _ReminderEntry? nextReminder,
+    List<_ReminderEntry> allReminders,
   ) => LayoutBuilder(
     builder: (context, constraints) {
       final columns = switch (constraints.maxWidth) {
@@ -744,21 +802,14 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
       values,
       groupCategories: !_archived && settings.animalCategoryViewEnabled,
     );
-    final reminderEntries = <({Map<String, dynamic> animal, DateTime dueAt})>[];
-    if (!_archived) {
-      for (final reminder in widget.reminders) {
-        final animal = values
-            .where((entry) => entry['id'] == reminder['animalId'])
-            .firstOrNull;
-        final dueAt = DateTime.tryParse(reminder['dueAt'] as String? ?? '');
-        if (animal != null && dueAt != null) {
-          reminderEntries.add((animal: animal, dueAt: dueAt));
-        }
-      }
-      reminderEntries.sort((a, b) => a.dueAt.compareTo(b.dueAt));
-    }
+    final reminderEntries = _archived
+        ? const <_ReminderEntry>[]
+        : _reminderEntriesFor(values);
     final now = DateTime.now();
-    final dueReminders = reminderEntries
+    final activeReminderEntries = reminderEntries
+        .where((entry) => !(entry.pause?.contains(now) ?? false))
+        .toList();
+    final dueReminders = activeReminderEntries
         .where(
           (entry) =>
               !entry.dueAt.isAfter(now) &&
@@ -769,10 +820,10 @@ class _SharedAnimalsPageState extends State<SharedAnimalsPage> {
         .map((entry) => recordId(entry.animal))
         .toSet();
     final nextReminder = settings.nextFeedingSummaryEnabled
-        ? reminderEntries
+        ? activeReminderEntries
                   .where((entry) => entry.dueAt.isAfter(now))
                   .firstOrNull ??
-              reminderEntries.firstOrNull
+              activeReminderEntries.firstOrNull
         : null;
     final reminderRowCount =
         (dueReminders.isEmpty ? 0 : 1) + (nextReminder == null ? 0 : 1);

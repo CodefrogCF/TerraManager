@@ -108,12 +108,13 @@ class _AnimalsPageState extends State<AnimalsPage> {
     final reminders = await FeedingReminderService(
       widget.database,
       now: widget.reminderNow,
-    ).getReminderStates();
+    ).getReminderStates(includePaused: true);
     final animals = await AnimalRepository(widget.database).getActiveAnimals();
     if (!mounted) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => FeedingSchedulePage(
+          now: widget.reminderNow,
           onSelectAnimal: (animalId) async {
             for (final animal in animals) {
               if (animal.id == animalId) {
@@ -132,6 +133,7 @@ class _AnimalsPageState extends State<AnimalsPage> {
                   latinName: reminder.animal.latinName,
                 ).primary,
                 dueAt: reminder.dueAt,
+                pause: reminder.pause,
                 timeZone: reminder.weekdays == null
                     ? null
                     : reminder.animal.feedingReminderTimeZone,

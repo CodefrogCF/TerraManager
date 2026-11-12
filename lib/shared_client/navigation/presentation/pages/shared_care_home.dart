@@ -92,9 +92,14 @@ class _SharedCareHomeState extends State<SharedCareHome>
   }
 
   void _scheduleDueTimes() => widget.api.refresh.scheduleDueTimes(
-    _reminders
-        .map((r) => DateTime.tryParse(r['dueAt'] as String? ?? ''))
-        .whereType<DateTime>(),
+    _reminders.expand((reminder) {
+      final pause = sharedReminderPause(reminder);
+      return [
+        ?DateTime.tryParse(reminder['dueAt'] as String? ?? ''),
+        ?pause?.startsAt,
+        ?pause?.endsAt,
+      ];
+    }),
   );
   void _clockChanged() {
     if (mounted) setState(() {});

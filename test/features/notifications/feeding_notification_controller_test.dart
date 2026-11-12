@@ -8,6 +8,7 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_status.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/features/feedings/domain/feeding_alert_suppression.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 import 'package:terramanager/features/notifications/application/feeding_notification_controller.dart';
 import 'package:terramanager/features/notifications/application/local_notification_gateway.dart';
 import 'package:terramanager/features/notifications/domain/feeding_notification_target.dart';
@@ -234,6 +235,40 @@ void main() {
     expect(gateway.permissionRequests, 1);
     expect(gateway.pending, hasLength(1));
     expect(gateway.scheduleCalls, 2);
+  });
+
+  test('rest changes replace pending alarms and schedule resumption before closing', () async {
+    final id = await animal();
+    await controller.start();
+    await controller.setEnabled(true);
+    final previous = gateway.pending.values.single;
+    final period = AnimalRestPeriod(
+      startDate: DateTime(2026, 10, 21),
+      endDate: DateTime(2026, 10, 22),
+      timeZone: 'Europe/Berlin',
+    );
+    await updateAnimal(id, AnimalsCompanion(restPeriod: Value(period)));
+    await eventually(
+      () => gateway.pending.values.singleOrNull?.target.pause != null,
+    );
+    final deferred = gateway.pending.values.single;
+    expect(gateway.cancelled, contains(previous.id));
+    expect(deferred.at, DateTime.utc(2026, 10, 22, 22));
+    expect(deferred.target.dueAt, previous.target.dueAt);
+    expect(deferred.target.pause, period.window);
+
+    controller.dispose();
+    now = period.window.endsAt;
+    expect(gateway.pending.values.single.at, now);
+    controller = makeController();
+    await controller.start();
+    await updateAnimal(id, const AnimalsCompanion(restPeriod: Value(null)));
+    await eventually(
+      () =>
+          gateway.pending.length == 1 &&
+          gateway.pending.values.single.target.pause == null,
+    );
+    expect(gateway.pending.values.single.target.pause, isNull);
   });
 
   test('delivered overdue appointment stays consumed across restart language and clock changes', () async {

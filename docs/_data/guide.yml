@@ -164,6 +164,7 @@ de:
     - number: '10'
       heading: Intervall oder Wochentage festlegen
       body_html: Öffne das Erinnerungssymbol in den Tierdetails. Stelle ein positives Tagesintervall oder Wochentage mit Uhrzeit und IANA-Zeitzone ein. Neue Fütterungen verschieben einen festen Wochentagsplan nicht.
+      note_html: Mit <strong>Ruhezeit</strong> pausierst du Hinweise und Termine bis einschließlich Enddatum. Die angezeigte Zeitzone gilt für beide Tagesgrenzen. Fütterungen kannst du weiterhin erfassen.
       images:
       - file: feeding-reminder-settings.webp
         alt: Einstellungen für eine Fütterungserinnerung
@@ -406,6 +407,7 @@ en:
     - number: '10'
       heading: Set an interval or weekdays
       body_html: Open the reminder action in Animal details. Set a positive day interval or weekdays with a time and IANA zone. Recording a Feeding does not shift a fixed weekday schedule.
+      note_html: Use <strong>Rest period</strong> to pause alerts and scheduled entries through the end date. Both dates use the displayed time zone. You can still record Feedings.
       images:
       - file: feeding-reminder-settings.webp
         alt: Feeding reminder settings

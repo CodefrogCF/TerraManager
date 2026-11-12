@@ -14,6 +14,7 @@ import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animals_page.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_detail_page.dart';
 import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_reminder_page.dart';
+import 'package:terramanager/shared_client/feedings/presentation/feeding_reminder_state.dart';
 import 'package:terramanager/shared_client/feedings/presentation/widgets/shared_feeding_information.dart';
 import 'package:terramanager/shared_client/animals/presentation/pages/shared_animal_form.dart';
 
@@ -162,34 +163,52 @@ void main() {
     final animals = [
       {..._animal, 'id': 7, 'commonName': 'Due'},
       {..._animal, 'id': 8, 'commonName': 'Next'},
+      {..._animal, 'id': 9, 'commonName': 'Resting'},
     ];
+    final latePause = ValueNotifier(false);
+    addTearDown(latePause.dispose);
+    final pause = {
+      'pauseStartsAt': now.subtract(const Duration(days: 1)).toIso8601String(),
+      'pauseEndsAt': now.add(const Duration(days: 1)).toIso8601String(),
+    };
     await tester.pumpWidget(
       AppSettingsScope(
         controller: settings,
         child: MaterialApp(
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
-          home: SharedAnimalsPage(
-            api: api,
-            boxes: const [
-              {'id': 1, 'name': 'Box', 'status': 'active'},
-            ],
-            animals: animals,
-            reminders: [
-              {
-                'animalId': 7,
-                'dueAt': now
-                    .subtract(const Duration(days: 1))
-                    .toIso8601String(),
-              },
-              {
-                'animalId': 8,
-                'dueAt': now.add(const Duration(days: 2)).toIso8601String(),
-              },
-            ],
-            connected: true,
-            change: (_) async => true,
-            onReload: () async {},
+          home: ValueListenableBuilder<bool>(
+            valueListenable: latePause,
+            builder: (context, paused, _) => SharedAnimalsPage(
+              api: api,
+              boxes: const [
+                {'id': 1, 'name': 'Box', 'status': 'active'},
+              ],
+              animals: animals,
+              reminders: [
+                {
+                  'animalId': 7,
+                  'dueAt': now
+                      .subtract(const Duration(days: 1))
+                      .toIso8601String(),
+                  if (paused) ...pause,
+                },
+                {
+                  'animalId': 8,
+                  'dueAt': now.add(const Duration(days: 2)).toIso8601String(),
+                },
+                {
+                  'animalId': 9,
+                  'dueAt': now
+                      .subtract(const Duration(days: 2))
+                      .toIso8601String(),
+                  ...pause,
+                },
+              ],
+              connected: true,
+              change: (_) async => true,
+              onReload: () async {},
+            ),
           ),
         ),
       ),
@@ -227,10 +246,36 @@ void main() {
     await tester.tap(find.byKey(const Key('shared-next-feeding-summary')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('feeding-schedule-page')), findsOneWidget);
+    expect(find.byKey(const Key('feeding-schedule-animal-9')), findsNothing);
     expect(
       tester.getTopLeft(find.text('Due')).dy,
       lessThan(tester.getTopLeft(find.text('Next')).dy),
     );
+    latePause.value = true;
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('feeding-schedule-animal-7')), findsNothing);
+    expect(find.byKey(const Key('feeding-schedule-animal-8')), findsOneWidget);
+  });
+
+  test('the Shared Care badge follows pause boundaries without a fetch', () {
+    final start = DateTime.utc(2026, 10, 24, 22);
+    final end = DateTime.utc(2026, 10, 25, 23);
+    final reminders = [
+      {
+        'animalId': 7,
+        'dueAt': '2026-10-24T12:00:00Z',
+        'pauseStartsAt': start.toIso8601String(),
+        'pauseEndsAt': end.toIso8601String(),
+      },
+    ];
+    for (final (now, expected) in [
+      (start.subtract(const Duration(microseconds: 1)), true),
+      (start, false),
+      (end.subtract(const Duration(microseconds: 1)), false),
+      (end, true),
+    ]) {
+      expect(hasDueSharedFeedings([_animal], reminders, now: now), expected);
+    }
   });
 
   testWidgets('compact rows mark only active due Animals and refresh', (
@@ -659,6 +704,75 @@ void main() {
       'timeZone',
     });
     expect(body['weekdays'], isNull);
+  });
+
+  testWidgets('Shared Care saves and clears a dated rest period', (
+    tester,
+  ) async {
+    setDeviceTimeZone('Europe/Berlin');
+    Object? rest;
+    final api = await _client((request) async {
+      if (request.method == 'PUT') {
+        expect(request.url.path, '/api/v1/animals/7/feeding-reminder');
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        expect(body['expectedRevision'], 'opened-revision');
+        expect(body, contains('restPeriod'));
+        rest = body['restPeriod'];
+      }
+      return http.Response(
+        jsonEncode({
+          'animal': {..._animal, 'restPeriod': rest},
+        }),
+        200,
+      );
+    });
+    addTearDown(api.close);
+    Future<void> open() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          key: UniqueKey(),
+          home: SharedFeedingReminderPage(
+            api: api,
+            animalId: 7,
+            change: (operation) async {
+              await operation();
+              return true;
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    await open();
+    await tester.tap(find.byKey(const Key('animal-rest-period-field')));
+    await tester.pumpAndSettle();
+    expect(find.byType(DateRangePickerDialog), findsOneWidget);
+    tester
+        .state<NavigatorState>(find.byType(Navigator).first)
+        .pop(
+          DateTimeRange(
+            start: DateTime(2026, 12, 18),
+            end: DateTime(2026, 12, 20),
+          ),
+        );
+    await tester.pumpAndSettle();
+    final save = find.byKey(const Key('shared-feeding-reminder-save-action'));
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(rest, {
+      'startDate': '2026-12-18',
+      'endDate': '2026-12-20',
+      'timeZone': 'Europe/Berlin',
+    });
+
+    await open();
+    await tester.tap(find.byKey(const Key('clear-animal-rest-period')));
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+    expect(rest, isNull);
+    debugDefaultTargetPlatformOverride = null;
   });
 
   testWidgets('shared reminder settings send weekday plan fields', (

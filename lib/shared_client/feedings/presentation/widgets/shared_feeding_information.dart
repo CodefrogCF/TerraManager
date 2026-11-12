@@ -3,6 +3,7 @@ import 'package:terramanager/shared_client/changes/application/shared_refresh_co
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
 import 'package:terramanager/features/feedings/presentation/widgets/feeding_due_date_label.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
@@ -77,10 +78,17 @@ class SharedFeedingInformation extends StatelessWidget {
                 baseline: baseline!,
                 latestFeedingAt: latest,
               );
-        final overdue = next != null && !next.isAfter(DateTime.now());
+        final now = DateTime.now();
+        final pause = AnimalRestPeriod.fromJson(animal['restPeriod'])?.window;
+        final paused = pause?.contains(now) ?? false;
+        final overdue = next != null && !next.isAfter(now);
         if (due) {
-          if (!overdue || animal['status'] != 'active') {
-            refresh?.scheduleDueTimes([?next], owner: 'animal-${animal['id']}');
+          refresh?.scheduleDueTimes([
+            ?next,
+            ?pause?.startsAt,
+            ?pause?.endsAt,
+          ], owner: 'animal-${animal['id']}');
+          if (paused || !overdue || animal['status'] != 'active') {
             return const SizedBox.shrink();
           }
           return Card(
@@ -110,7 +118,10 @@ class SharedFeedingInformation extends StatelessWidget {
               ),
               onTap: () => onHistory(animal['status'] == 'active'),
             ),
-            if (next != null && !overdue && animal['status'] == 'active')
+            if (next != null &&
+                !paused &&
+                !overdue &&
+                animal['status'] == 'active')
               ListTile(
                 leading: const Icon(Icons.event_outlined),
                 title: Text(context.l10n.nextFeeding),

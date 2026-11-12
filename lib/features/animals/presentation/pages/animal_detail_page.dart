@@ -22,6 +22,8 @@ import '../../../feedings/domain/feeding_reminder_state.dart';
 import '../../../feedings/presentation/pages/feeding_history_page.dart';
 import '../../../feedings/presentation/pages/feeding_reminder_settings_page.dart';
 import '../../../feedings/presentation/widgets/feeding_due_date_label.dart';
+import '../../../feedings/presentation/widgets/feeding_reminder_clock.dart';
+import '../../../feedings/presentation/widgets/animal_rest_period_field.dart';
 import '../../../boxes/presentation/box_selection_label.dart';
 import '../../../boxes/presentation/pages/box_detail_page.dart';
 import '../../../navigation/domain/detail_navigation_context.dart';
@@ -134,7 +136,7 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
     _feedingReminderFuture = FeedingReminderService(
       widget.database,
       now: widget.reminderNow,
-    ).getReminderStateForAnimal(_animalId);
+    ).getReminderStateForAnimal(_animalId, includePaused: true);
   }
 
   Future<void> _openEditPage() async {
@@ -565,7 +567,8 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
 
         final reminder = snapshot.data;
 
-        if (reminder == null || !reminder.isDue) {
+        final now = (widget.reminderNow ?? DateTime.now)();
+        if (reminder == null || !reminder.isDueAt(now)) {
           return const SizedBox.shrink();
         }
 
@@ -694,10 +697,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       future: _feedingReminderFuture,
       builder: (context, snapshot) {
         final reminder = snapshot.data;
+        final now = (widget.reminderNow ?? DateTime.now)();
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.hasError ||
             reminder == null ||
-            reminder.isDue) {
+            reminder.isDueAt(now) ||
+            (reminder.pause?.contains(now) ?? false)) {
           return const SizedBox.shrink();
         }
         return Column(
@@ -801,7 +806,14 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
                 onHorizontalDragCancel: _navigationContext == null
                     ? null
                     : _handleHorizontalDragCancel,
-                child: _buildBody(context, snapshot),
+                child: FeedingReminderClockView(
+                  transitions: [
+                    ?animal?.restPeriod?.window.startsAt,
+                    ?animal?.restPeriod?.window.endsAt,
+                  ],
+                  now: widget.reminderNow,
+                  builder: (context, _) => _buildBody(context, snapshot),
+                ),
               ),
             ),
           ),
@@ -831,10 +843,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
       commonName: animal.commonName,
       latinName: animal.latinName,
     );
-    final hasAdditionalCharacteristics = [
-      animal.originHabitat,
-      animal.restOrDormancyPeriods,
-    ].any((value) => value != null && value.trim().isNotEmpty);
+    final hasAdditionalCharacteristics =
+        animal.restPeriod != null ||
+        [
+          animal.originHabitat,
+          animal.restOrDormancyPeriods,
+        ].any((value) => value != null && value.trim().isNotEmpty);
 
     return ListView(
       key: ValueKey<String>('animal-detail-list-$_animalId'),
@@ -1107,6 +1121,12 @@ class _AnimalDetailPageState extends State<AnimalDetailPage> {
               key: const Key('rest-or-dormancy-periods-detail'),
               label: context.l10n.restOrDormancyPeriods,
               value: animal.restOrDormancyPeriods!,
+            ),
+          if (animal.restPeriod case final period?)
+            _DetailRow(
+              key: const Key('animal-rest-period-detail'),
+              label: context.l10n.animalRestPeriod,
+              value: animalRestPeriodLabel(context, period),
             ),
         ],
 

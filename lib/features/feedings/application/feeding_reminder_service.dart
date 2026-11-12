@@ -17,7 +17,9 @@ class FeedingReminderService {
       _feedingRepository = FeedingRepository(database),
       _now = now ?? DateTime.now;
 
-  Future<List<FeedingReminderState>> getReminderStates() async {
+  Future<List<FeedingReminderState>> getReminderStates({
+    bool includePaused = false,
+  }) async {
     final animals = await _animalRepository
         .getActiveAnimalsWithFeedingReminders();
 
@@ -31,16 +33,23 @@ class FeedingReminderService {
     return calculateReminderStates(
       animals: animals,
       latestFeedingTimes: latestFeedingTimes,
+      includePaused: includePaused,
     );
   }
 
   List<FeedingReminderState> calculateReminderStates({
     required Iterable<Animal> animals,
     required Map<int, DateTime> latestFeedingTimes,
+    bool includePaused = false,
   }) {
     final evaluatedAt = _now();
     final states = animals
-        .where(_hasEnabledReminder)
+        .where(
+          (animal) =>
+              _hasEnabledReminder(animal) &&
+              (includePaused ||
+                  !(animal.restPeriod?.window.contains(evaluatedAt) ?? false)),
+        )
         .map(
           (animal) => _calculateState(
             animal: animal,
@@ -95,7 +104,10 @@ class FeedingReminderService {
     return null;
   }
 
-  Future<FeedingReminderState?> getReminderStateForAnimal(int animalId) async {
+  Future<FeedingReminderState?> getReminderStateForAnimal(
+    int animalId, {
+    bool includePaused = false,
+  }) async {
     final animal = await _animalRepository.getAnimalById(animalId);
 
     if (animal == null || !_hasEnabledReminder(animal)) {
@@ -103,11 +115,16 @@ class FeedingReminderService {
     }
 
     final latestFeedingAt = await _feedingRepository.getLastFeeding(animalId);
+    final evaluatedAt = _now();
+    if (!includePaused &&
+        (animal.restPeriod?.window.contains(evaluatedAt) ?? false)) {
+      return null;
+    }
 
     return _calculateState(
       animal: animal,
       latestFeedingAt: latestFeedingAt,
-      evaluatedAt: _now(),
+      evaluatedAt: evaluatedAt,
     );
   }
 
@@ -166,7 +183,6 @@ class FeedingReminderService {
       referenceAt: referenceAt,
       dueAt: dueAt,
       evaluatedAt: evaluatedAt,
-      isDue: !evaluatedAt.isBefore(dueAt),
     );
   }
 

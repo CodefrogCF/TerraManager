@@ -163,7 +163,7 @@ class FeedingNotificationController extends ChangeNotifier {
       await _save();
       return;
     }
-    final states = await _reminders.getReminderStates();
+    final states = await _reminders.getReminderStates(includePaused: true);
     final targets = {
       for (final state in states)
         '${state.animalId}:${state.animal.createdAt.millisecondsSinceEpoch}':
@@ -171,6 +171,7 @@ class FeedingNotificationController extends ChangeNotifier {
               animalId: state.animalId,
               createdAt: state.animal.createdAt,
               dueAt: state.dueAt,
+              pause: state.pause,
             ),
     };
     final pending = await gateway.pendingIds();
@@ -192,10 +193,13 @@ class FeedingNotificationController extends ChangeNotifier {
       // notify again after dismissal, restart, language or clock changes.
       if (previous != null && !pending.contains(previous.id)) continue;
       final now = _now().toUtc();
+      final pauseChanged =
+          previous != null && previous.target.pause != target.pause;
       // Do not restart Android's delivery window for a due alarm on resume.
       // A cold start still renews pending alarms: force stop can remove alarms
       // from AlarmManager while leaving the plugin's persistent cache intact.
       if (previous != null &&
+          !pauseChanged &&
           previous.language == language &&
           (!renew || (preserveDue && !target.dueAt.isAfter(now)))) {
         continue;
@@ -206,12 +210,17 @@ class FeedingNotificationController extends ChangeNotifier {
           id++;
         }
       }
+      if (pauseChanged) {
+        await gateway.cancel(id);
+        _deliveries.remove(target.identity);
+        await _save();
+      }
       final at = target.dueAt.isAfter(now)
           ? target.dueAt.toUtc()
           : now.add(const Duration(seconds: 5));
       await gateway.schedule(
         id: id,
-        at: at,
+        at: target.pause?.defer(at) ?? at,
         languageCode: language,
         target: target,
       );

@@ -139,6 +139,14 @@ A lost response does not prove rollback. Reconcile server state before retrying
 an operation without idempotency protection. The browser queues no offline writes.
 SSE triggers targeted HTTP reads; it does not reload the page or replace drafts.
 
+### Animal rest periods
+
+`PUT /animals/{id}/feeding-reminder` accepts optional `restPeriod` with
+`startDate`, `endDate` (YYYY-MM-DD) and IANA `timeZone`. Omit it to keep the
+period or send null to clear it. `GET /reminders` includes UTC `pauseStartsAt`
+and exclusive `pauseEndsAt` alongside the history-derived due time. Clients
+hide paused reminders between these bounds and re-evaluate at either boundary.
+
 ## Backup and audit
 
 The [backup contract](backup-format.md) defines portable fields, formats and time

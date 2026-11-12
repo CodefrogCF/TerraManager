@@ -539,6 +539,11 @@ void main() {
           'weekdays': 1 | 4 | 16,
           'minuteOfDay': 600,
           'timeZone': 'Europe/Berlin',
+          'restPeriod': {
+            'startDate': '2026-10-24',
+            'endDate': '2026-10-25',
+            'timeZone': 'Europe/Berlin',
+          },
         },
       );
       expect(enabled.status, 200, reason: enabled.json.toString());
@@ -549,6 +554,8 @@ void main() {
       final result = await _call(clientB, server, 'GET', '/api/v1/reminders');
       expect(result.status, 200);
       final reminder = (result.json!['reminders'] as List).single as Map;
+      expect(reminder['pauseStartsAt'], '2026-10-23T22:00:00.000Z');
+      expect(reminder['pauseEndsAt'], '2026-10-25T23:00:00.000Z');
       expect(
         DateTime.parse(reminder['dueAt'] as String),
         DateTime.utc(2026, 10, 5, 8),
@@ -576,10 +583,43 @@ void main() {
       );
       final winterReminder =
           (winterResult.json!['reminders'] as List).single as Map;
+      expect(winterReminder['pauseEndsAt'], reminder['pauseEndsAt']);
       expect(
         DateTime.parse(winterReminder['dueAt'] as String),
         DateTime.utc(2026, 1, 5, 17),
       );
+      final winterAnimal = winter.json!['animal'] as Map;
+      final plan = {
+        'expectedRevision': winterAnimal['revision'],
+        'baseline': winterAnimal['feedingReminderBaseline'],
+        'weekdays': 1,
+        'minuteOfDay': 18 * 60,
+        'timeZone': 'Europe/Berlin',
+      };
+      final invalid = await _call(
+        clientA,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {
+          ...plan,
+          'restPeriod': {
+            'startDate': '2026-02-30',
+            'endDate': '2026-03-03',
+            'timeZone': 'Europe/Berlin',
+          },
+        },
+      );
+      expect(invalid.status, 400);
+      final cleared = await _call(
+        clientA,
+        server,
+        'PUT',
+        '/api/v1/animals/$animalId/feeding-reminder',
+        body: {...plan, 'restPeriod': null},
+      );
+      expect(cleared.status, 200);
+      expect(cleared.json!['animal']['restPeriod'], isNull);
     },
     timeout: const Timeout(Duration(minutes: 2)),
   );

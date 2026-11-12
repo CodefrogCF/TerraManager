@@ -29,7 +29,7 @@ Record IDs are integer primary keys; custom definitions use stable UUIDs. Box an
 | Animal identity | `boxId`, `status`, required `commonName`, `latinName`, `category` (legacy default `other`), compatible optional `subcategory`, `sex`, `birthDate`, `birthDateAccuracy`. |
 | Animal husbandry | Required `tempMin`, `tempMax`, `humidityMin`, `humidityMax`; optional `nighttimeTemperatureMin`, `nighttimeTemperatureMax`, `originHabitat`, `restOrDormancyPeriods`, `notes`, `pictureMediaId`. |
 | Animal lifecycle / display | `archiveReason`, `archivedAt`, `archiveNotes`; `showWeightOnDetail` and `showSheddingOnDetail` default to true and never delete history. |
-| Animal reminders | `feedingReminderIntervalDays`, `feedingReminderBaseline`, `feedingReminderWeekdays`, `feedingReminderMinuteOfDay`, `feedingReminderTimeZone`. |
+| Animal reminders | `feedingReminderIntervalDays`, `feedingReminderBaseline`, `feedingReminderWeekdays`, `feedingReminderMinuteOfDay`, `feedingReminderTimeZone`, optional `restPeriod`. |
 | Animal legacy compatibility | `picturePath`, `weight`, `sheddingNotes`, `nighttimeTemperature`, `temperatureZones`; retained for migration/older archives, not new parallel histories. |
 | FeedingEvent | `animalId`, `fedAt`, optional `notes`. Group feeding creates one event per selected Animal in one transaction. |
 | AnimalWeightEntry | `animalId`, positive finite `weightGrams`, `measuredAt`. Latest measurement determines current numeric weight. |
@@ -84,8 +84,10 @@ Null `feedingReminderWeekdays` selects interval mode. A positive interval and
 baseline are paired; the latest feeding supersedes the baseline. Weekly mode
 uses a Monday-bit-0 mask (1-127), minute of day (0-1439), IANA zone and baseline,
 with a null interval. Archived Animals are excluded from active due results.
-Due state is derived from history and the clock, not stored or delivered as an
-OS notification. Recalculate after care changes and foreground return.
+The optional rest period includes both calendar dates in its saved IANA zone.
+Feeding reminders resume at the start of the following day. Due state uses
+the saved plan and Feeding history. Standalone Android can defer its one-shot
+alert until the pause ends, including when the app is closed.
 
 ## Storage and repositories
 
@@ -100,7 +102,7 @@ migrated only when readable. Missing legacy files must not discard other data.
 
 ## Schema Version
 
-The current Drift database schema version is **21**. Upgrade steps preserve
+The current Drift database schema version is **22**. Upgrade steps preserve
 existing IDs, relationships and QR values and finish with foreign-key checks.
 
 | Version | Addition |
@@ -126,5 +128,6 @@ existing IDs, relationships and QR values and finish with foreign-key checks.
 | 19 | Remove retired Box care picture links |
 | 20 | Collection-wide custom care definitions and stable event references |
 | 21 | Typed Animal/Box custom-field templates and separately stored values |
+| 22 | Optional dated Animal rest period, alongside existing notes |
 
 Generation commands and migration checks are in [Development](development.md).

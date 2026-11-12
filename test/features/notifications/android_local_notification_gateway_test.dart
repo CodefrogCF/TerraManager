@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 import 'package:terramanager/features/notifications/domain/feeding_notification_target.dart';
 import 'package:terramanager/features/notifications/infrastructure/android_local_notification_gateway.dart';
 import 'package:xml/xml.dart';
@@ -12,15 +13,23 @@ import 'package:xml/xml.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('dexterous.com/flutter/local_notifications');
+  const restChannel = MethodChannel('com.codefrog.terramanager/feeding_alarms');
   final calls = <MethodCall>[];
+  final restCalls = <MethodCall>[];
   Map<String, Object?> launch = {'notificationLaunchedApp': false};
   List<Map<String, Object?>> channels = [];
   setUp(() {
     calls.clear();
+    restCalls.clear();
     launch = {'notificationLaunchedApp': false};
     channels = [];
     debugDefaultTargetPlatformOverride = TargetPlatform.android;
     AndroidFlutterLocalNotificationsPlugin.registerWith();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(restChannel, (call) async {
+          restCalls.add(call);
+          return call.method == 'pendingIds' ? <int>[9] : null;
+        });
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
           calls.add(call);
@@ -36,6 +45,8 @@ void main() {
     debugDefaultTargetPlatformOverride = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(restChannel, null);
   });
 
   test(
@@ -167,6 +178,57 @@ void main() {
       expect(gateway.isSupported, false);
       await gateway.initialize((_) {});
       expect(calls, isEmpty);
+      expect(restCalls, isEmpty);
+    },
+  );
+
+  test(
+    'a rest alarm carries the UTC guard and uses the closed-app receiver',
+    () async {
+      final gateway = AndroidLocalNotificationGateway();
+      await gateway.initialize((_) {});
+      final start = DateTime.utc(2026, 11, 19, 23);
+      final end = DateTime.utc(2026, 11, 20, 23);
+      final target = FeedingNotificationTarget(
+        animalId: 42,
+        createdAt: DateTime.utc(2026),
+        dueAt: start.subtract(const Duration(minutes: 1)),
+        pause: FeedingPauseWindow(start, end),
+      );
+      await gateway.schedule(
+        id: 9,
+        at: target.dueAt,
+        languageCode: 'de',
+        target: target,
+      );
+      expect(
+        calls.map((call) => call.method),
+        isNot(contains('zonedSchedule')),
+      );
+      final request = restCalls.singleWhere(
+        (call) => call.method == 'schedule',
+      );
+      expect(
+        request.arguments,
+        containsPair('pauseFrom', start.millisecondsSinceEpoch),
+      );
+      expect(
+        request.arguments,
+        containsPair('pauseUntil', end.millisecondsSinceEpoch),
+      );
+      expect(
+        request.arguments,
+        containsPair('at', target.dueAt.millisecondsSinceEpoch),
+      );
+      expect(
+        FeedingNotificationTarget.parse(request.arguments['payload'] as String)
+            ?.pause,
+        target.pause,
+      );
+      expect(await gateway.pendingIds(), {9});
+      await gateway.cancel(9);
+      expect(restCalls.last.arguments, 9);
+      expect(calls.last.method, 'cancel');
     },
   );
 
@@ -198,7 +260,13 @@ void main() {
       isEmpty,
     );
     final receivers = xml.findAllElements('receiver').toList();
-    expect(receivers, hasLength(2));
+    expect(receivers, hasLength(4));
+    expect(
+      receivers.map(
+        (element) => element.getAttribute('name', namespaceUri: android),
+      ),
+      containsAll(['.RestFeedingAlarmReceiver', '.RestFeedingBootReceiver']),
+    );
     expect(
       receivers.every(
         (item) =>

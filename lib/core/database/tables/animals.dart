@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../converters/animal_archive_reason_converter.dart';
 import '../converters/animal_category_converter.dart';
+import '../converters/animal_rest_period_converter.dart';
 import '../converters/animal_status_converter.dart';
 import '../converters/birth_date_accuracy_converter.dart';
 import '../converters/sex_converter.dart';
@@ -58,6 +59,9 @@ class Animals extends Table {
   TextColumn get sheddingNotes => text().nullable()();
 
   TextColumn get restOrDormancyPeriods => text().nullable()();
+
+  TextColumn get restPeriod =>
+      text().map(const AnimalRestPeriodConverter()).nullable()();
 
   TextColumn get temperatureZones => text().nullable()();
 

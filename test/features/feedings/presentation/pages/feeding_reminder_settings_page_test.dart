@@ -146,6 +146,46 @@ void main() {
     );
   });
 
+  testWidgets(
+    'a rest period can be set, edited and cleared without enabling a reminder',
+    (tester) async {
+      setDeviceTimeZone('Europe/Berlin');
+      final id = await createAnimal();
+      final field = find.byKey(const Key('animal-rest-period-field'));
+      final save = find.byKey(const Key('save-feeding-reminder-button'));
+      final animals = AnimalRepository(database);
+      for (final day in [20, 22]) {
+        await pumpPageWithNavigation(tester, animalId: id);
+        await tester.tap(field);
+        await tester.pumpAndSettle();
+        expect(find.byType(DateRangePickerDialog), findsOneWidget);
+        tester
+            .state<NavigatorState>(find.byType(Navigator).first)
+            .pop(
+              DateTimeRange(
+                start: DateTime(2026, 12, 18),
+                end: DateTime(2026, 12, day),
+              ),
+            );
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Europe/Berlin'), findsOneWidget);
+        await tester.tap(save);
+        await tester.pumpAndSettle();
+        final saved = (await animals.getAnimalById(id))!;
+        expect(saved.restPeriod?.endDate, DateTime.utc(2026, 12, day));
+        expect(saved.restPeriod?.timeZone, 'Europe/Berlin');
+        expect(saved.feedingReminderIntervalDays, isNull);
+      }
+      await pumpPageWithNavigation(tester, animalId: id);
+      await tester.tap(find.byKey(const Key('clear-animal-rest-period')));
+      await tester.pumpAndSettle();
+      await tester.tap(save);
+      await tester.pumpAndSettle();
+      expect((await animals.getAnimalById(id))!.restPeriod, isNull);
+      debugDefaultTargetPlatformOverride = null;
+    },
+  );
+
   testWidgets('requires a positive interval when reminders are enabled', (
     tester,
   ) async {
@@ -225,12 +265,7 @@ void main() {
           .selected,
       isTrue,
     );
-    await tester.ensureVisible(
-      find.byKey(const Key('save-feeding-reminder-form-button')),
-    );
-    await tester.tap(
-      find.byKey(const Key('save-feeding-reminder-form-button')),
-    );
+    await tester.tap(find.byKey(const Key('save-feeding-reminder-button')));
     await tester.pumpAndSettle();
     debugDefaultTargetPlatformOverride = null;
     expect(find.text('Open Reminder'), findsOneWidget);
@@ -258,9 +293,7 @@ void main() {
     expect(find.byKey(const Key('feeding-reminder-time')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('feeding-weekday-3')));
-    await tester.tap(
-      find.byKey(const Key('save-feeding-reminder-form-button')),
-    );
+    await tester.tap(find.byKey(const Key('save-feeding-reminder-button')));
     await tester.pumpAndSettle();
     debugDefaultTargetPlatformOverride = null;
 

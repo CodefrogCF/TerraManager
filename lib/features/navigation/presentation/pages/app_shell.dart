@@ -10,6 +10,8 @@ import '../../../animals/presentation/pages/animals_page.dart';
 import '../../../boxes/presentation/pages/boxes_page.dart';
 import '../../../settings/presentation/pages/settings.dart';
 import '../../../feedings/application/feeding_reminder_service.dart';
+import '../../../feedings/domain/feeding_reminder_state.dart';
+import '../../../feedings/presentation/widgets/feeding_reminder_clock.dart';
 
 class AppShell extends StatefulWidget {
   final AppDatabase database;
@@ -40,7 +42,7 @@ class _AppShellState extends State<AppShell> {
   int _dataRevision = 0;
   double _horizontalDragDistance = 0;
   int _animalsRevision = 0;
-  DateTime? _earliestFeedingDueAt;
+  List<FeedingReminderState> _feedingReminders = const [];
   int _reminderRequest = 0;
   StreamSubscription<Set<TableUpdate>>? _reminderChanges;
 
@@ -93,20 +95,13 @@ class _AppShellState extends State<AppShell> {
     final reminders = await FeedingReminderService(
       widget.database,
       now: widget.reminderNow,
-    ).getReminderStates();
+    ).getReminderStates(includePaused: true);
 
     if (!mounted || request != _reminderRequest) {
       return;
     }
 
-    final dueAt = reminders.firstOrNull?.dueAt;
-    if (_earliestFeedingDueAt == dueAt) {
-      return;
-    }
-
-    setState(() {
-      _earliestFeedingDueAt = dueAt;
-    });
+    setState(() => _feedingReminders = reminders);
   }
 
   void _selectPage(int index) {
@@ -155,23 +150,32 @@ class _AppShellState extends State<AppShell> {
     _refreshReminderDate();
   }
 
-  Widget _animalsNavigationIcon({required bool selected}) {
-    final dueAt = _earliestFeedingDueAt;
-    final now = widget.reminderNow?.call() ?? DateTime.now();
+  Widget _animalsNavigationIcon({
+    required bool selected,
+    required DateTime now,
+  }) {
     return Badge(
       key: Key(
         selected
             ? 'animals-feeding-due-badge-selected'
             : 'animals-feeding-due-badge',
       ),
-      isLabelVisible: dueAt != null && !now.isBefore(dueAt),
+      isLabelVisible: _feedingReminders.any(
+        (reminder) => reminder.isDueAt(now),
+      ),
       label: const Text('!'),
       child: Icon(selected ? Icons.pets : Icons.pets_outlined),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => FeedingReminderClockView(
+    transitions: _feedingReminders.expand((reminder) => reminder.transitions),
+    now: widget.reminderNow,
+    builder: _buildAt,
+  );
+
+  Widget _buildAt(BuildContext context, DateTime now) {
     final pages = [
       BoxesPage(
         key: ValueKey('boxes-$_dataRevision'),
@@ -244,8 +248,8 @@ class _AppShellState extends State<AppShell> {
               label: context.l10n.navigationBoxes,
             ),
             NavigationDestination(
-              icon: _animalsNavigationIcon(selected: false),
-              selectedIcon: _animalsNavigationIcon(selected: true),
+              icon: _animalsNavigationIcon(selected: false, now: now),
+              selectedIcon: _animalsNavigationIcon(selected: true, now: now),
               label: context.l10n.navigationAnimals,
             ),
             NavigationDestination(

@@ -200,6 +200,7 @@ class BackupExportService {
               )
               .toList(),
           restOrDormancyPeriods: animal.restOrDormancyPeriods,
+          restPeriod: animal.restPeriod,
           temperatureZones: animal.temperatureZones,
           pictureMediaPath: exportedPictures.primaryPath,
           pictures: exportedPictures.pictures,

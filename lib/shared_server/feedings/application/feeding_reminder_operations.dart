@@ -8,7 +8,8 @@ class FeedingReminderOperations {
   const FeedingReminderOperations(this.database);
   final AppDatabase database;
   Future<ApiReply> list() async {
-    final states = await FeedingReminderService(database).getReminderStates();
+    final states = await FeedingReminderService(database)
+        .getReminderStates(includePaused: true);
     return ApiReply(200, {
       'reminders': [
         for (final state in states)
@@ -16,6 +17,10 @@ class FeedingReminderOperations {
             'animalId': state.animalId,
             'dueAt': state.dueAt.toUtc().toIso8601String(),
             'latestFeedingAt': state.latestFeedingAt?.toUtc().toIso8601String(),
+            if (state.pause case final pause?) ...{
+              'pauseStartsAt': pause.startsAt.toIso8601String(),
+              'pauseEndsAt': pause.endsAt.toIso8601String(),
+            },
           },
       ],
     });

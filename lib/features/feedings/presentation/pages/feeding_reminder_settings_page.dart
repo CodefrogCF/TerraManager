@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 
 import '../../../../core/presentation/widgets/constrained_page_width.dart';
@@ -7,9 +8,11 @@ import '../../../../core/database/repositories/animal_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/animal_display_names.dart';
 import '../../application/feeding_reminder_service.dart';
+import '../../domain/animal_rest_period.dart';
 import '../../domain/feeding_weekday_schedule.dart';
 import '../../infrastructure/feeding_device_time_zone.dart';
 import '../widgets/feeding_reminder_form_fields.dart';
+import '../widgets/animal_rest_period_field.dart';
 
 class FeedingReminderSettingsPage extends StatefulWidget {
   final AppDatabase database;
@@ -40,6 +43,7 @@ class _FeedingReminderSettingsPageState
   int _minuteOfDay = 12 * 60;
   String? _timeZone;
   DateTime? _baseline;
+  AnimalRestPeriod? _restPeriod;
   bool _loading = true;
   bool _saving = false;
   bool _hasUnsavedChanges = false;
@@ -99,6 +103,7 @@ class _FeedingReminderSettingsPageState
       _timeZone = animal.feedingReminderTimeZone;
       _intervalDaysController.text = intervalDays?.toString() ?? '';
       _baseline = baseline;
+      _restPeriod = animal.restPeriod;
 
       setState(() {
         _loading = false;
@@ -181,6 +186,7 @@ class _FeedingReminderSettingsPageState
             weekdays: _reminderEnabled && _weekdayMode ? _weekdays : null,
             minuteOfDay: _reminderEnabled && _weekdayMode ? _minuteOfDay : null,
             timeZone: timeZone,
+            restPeriod: Value(_restPeriod),
           );
 
       if (!mounted) {
@@ -345,6 +351,16 @@ class _FeedingReminderSettingsPageState
             }),
           ),
           const SizedBox(height: 24),
+          AnimalRestPeriodField(
+            period: _restPeriod,
+            reminderTimeZone: _timeZone,
+            enabled: !_saving,
+            onChanged: (value) => setState(() {
+              _restPeriod = value;
+              _hasUnsavedChanges = true;
+            }),
+          ),
+          const SizedBox(height: 16),
           FilledButton.icon(
             key: const Key('save-feeding-reminder-form-button'),
             onPressed: _saving ? null : _save,

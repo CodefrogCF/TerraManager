@@ -47,6 +47,7 @@ Map<String, dynamic> animalJson(Animal animal) => _withRevision({
   'weight': animal.weight,
   'sheddingNotes': animal.sheddingNotes,
   'restOrDormancyPeriods': animal.restOrDormancyPeriods,
+  if (animal.restPeriod case final period?) 'restPeriod': period.toJson(),
   'temperatureZones': animal.temperatureZones,
   'notes': animal.notes,
   'picturePath': animal.picturePath,

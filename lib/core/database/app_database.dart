@@ -1,10 +1,12 @@
 import 'package:drift/drift.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 
 import 'app_database_connection_stub.dart'
     if (dart.library.ui) 'app_database_connection_flutter.dart'
     as platform_connection;
 
 import 'converters/birth_date_accuracy_converter.dart';
+import 'converters/animal_rest_period_converter.dart';
 import 'converters/animal_category_converter.dart';
 import 'converters/sex_converter.dart';
 import 'converters/box_status_converter.dart';
@@ -219,6 +221,9 @@ class AppDatabase extends _$AppDatabase {
                 await m.createTable(schema.customFieldTemplates);
                 await m.createTable(schema.customFieldValues);
               },
+              from21To22: (m, schema) async {
+                await m.addColumn(schema.animals, schema.animals.restPeriod);
+              },
               from19To20: (m, schema) async {
                 await m.createTable(schema.careEventTypes);
                 await m.alterTable(
@@ -252,7 +257,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

@@ -1,6 +1,7 @@
 import '../../custom_fields/domain/custom_field.dart';
 import '../../../core/database/date_only.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
+import '../../feedings/domain/animal_rest_period.dart';
 
 class BackupData {
   final List<CustomFieldTemplate> customFieldTemplates;
@@ -308,6 +309,7 @@ class BackupAnimal {
   final String? sheddingNotes;
   final List<BackupSheddingEvent> sheddingHistory;
   final String? restOrDormancyPeriods;
+  final AnimalRestPeriod? restPeriod;
   final String? temperatureZones;
 
   final String? pictureMediaPath;
@@ -354,6 +356,7 @@ class BackupAnimal {
     this.sheddingNotes,
     this.sheddingHistory = const [],
     this.restOrDormancyPeriods,
+    this.restPeriod,
     this.temperatureZones,
     required this.pictureMediaPath,
     this.pictures = const [],
@@ -399,6 +402,7 @@ class BackupAnimal {
           .map((entry) => entry.toJson())
           .toList(),
       'restOrDormancyPeriods': restOrDormancyPeriods,
+      if (restPeriod != null) 'restPeriod': restPeriod!.toJson(),
       'temperatureZones': temperatureZones,
       'pictureMediaPath': pictureMediaPath,
       'pictures': pictures.map((picture) => picture.toJson()).toList(),
@@ -465,6 +469,7 @@ class BackupAnimal {
           )
           .toList(),
       restOrDormancyPeriods: json['restOrDormancyPeriods'] as String?,
+      restPeriod: AnimalRestPeriod.fromJson(json['restPeriod']),
       temperatureZones: json['temperatureZones'] as String?,
       pictureMediaPath: pictureMediaPath,
       pictures: _picturesFromJson(

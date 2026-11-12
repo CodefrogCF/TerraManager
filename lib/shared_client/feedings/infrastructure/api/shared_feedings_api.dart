@@ -1,3 +1,4 @@
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_payload.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 import 'package:uuid/uuid.dart';
@@ -11,6 +12,8 @@ mixin SharedFeedingsApi on SharedApiTransport {
     required String expectedRevision,
     required int? intervalDays,
     required DateTime? baseline,
+    AnimalRestPeriod? restPeriod,
+    bool clearRestPeriod = false,
     int? weekdays,
     int? minuteOfDay,
     String? timeZone,
@@ -25,6 +28,8 @@ mixin SharedFeedingsApi on SharedApiTransport {
         'weekdays': weekdays,
         'minuteOfDay': minuteOfDay,
         'timeZone': timeZone,
+        if (restPeriod != null || clearRestPeriod)
+          'restPeriod': restPeriod?.toJson(),
       },
     ),
     'animal',

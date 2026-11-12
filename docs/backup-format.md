@@ -47,7 +47,7 @@ Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are
 | Animal identity | `id`, `boxId`, lifecycle, `commonName`, `latinName`, `category`, `subcategory`, `sex`, `birthDate`, `birthDateAccuracy` |
 | Animal profile | `tempMin`, `tempMax`, `nighttimeTemperature`, `nighttimeTemperatureMin`, `nighttimeTemperatureMax`, `humidityMin`, `humidityMax`, `originHabitat`, `weight`, `restOrDormancyPeriods`, `temperatureZones`, `notes` |
 | Animal history / pictures | `weightHistory`, `sheddingNotes` (legacy), `sheddingHistory`, `showWeightOnDetail`, `showSheddingOnDetail`, `pictureMediaPath`, `pictures`, creation/update fields |
-| Animal reminder | `feedingReminderIntervalDays`, `feedingReminderBaseline`, `feedingReminderWeekdays`, `feedingReminderMinuteOfDay`, `feedingReminderTimeZone` |
+| Animal reminder | `feedingReminderIntervalDays`, `feedingReminderBaseline`, `feedingReminderWeekdays`, `feedingReminderMinuteOfDay`, `feedingReminderTimeZone`, optional `restPeriod` with `startDate`, `endDate` (YYYY-MM-DD) and IANA `timeZone` |
 | FeedingEvent | `id`, `animalId`, `fedAt`, `notes` |
 | Nested weight entry | `id`, `weightGrams`, `measuredAt` |
 | Nested Box care event | `id`, `type`, optional `customTypeId` (required for `custom`, otherwise null), `occurredAt`, optional `notes`, `requestId`, positive integer `revision`, `createdAt`, `updatedAt`. Missing `careEvents` means empty history; IDs/retry keys are unique across Boxes. Retired care-picture metadata in older archives is ignored. |

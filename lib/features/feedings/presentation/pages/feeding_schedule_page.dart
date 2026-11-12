@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../domain/animal_rest_period.dart';
 import '../widgets/feeding_due_date_label.dart';
+import '../widgets/feeding_reminder_clock.dart';
 
 class FeedingScheduleEntry {
   const FeedingScheduleEntry({
@@ -11,12 +13,14 @@ class FeedingScheduleEntry {
     required this.animalName,
     required this.dueAt,
     this.timeZone,
+    this.pause,
   });
 
   final int animalId;
   final String animalName;
   final DateTime dueAt;
   final String? timeZone;
+  final FeedingPauseWindow? pause;
 }
 
 /// Chronological appointments for all active Animals with a reminder.
@@ -25,18 +29,31 @@ class FeedingSchedulePage extends StatelessWidget {
     super.key,
     required this.entries,
     this.onSelectAnimal,
+    this.now,
   });
 
   final List<FeedingScheduleEntry> entries;
   final Future<void> Function(int animalId)? onSelectAnimal;
+  final DateTime Function()? now;
 
   @override
-  Widget build(BuildContext context) {
-    final sorted = [...entries]
-      ..sort((a, b) {
-        final byDate = a.dueAt.compareTo(b.dueAt);
-        return byDate != 0 ? byDate : a.animalId.compareTo(b.animalId);
-      });
+  Widget build(BuildContext context) => FeedingReminderClockView(
+    transitions: entries.expand(
+      (entry) => [entry.dueAt, ?entry.pause?.startsAt, ?entry.pause?.endsAt],
+    ),
+    now: now,
+    builder: _buildAt,
+  );
+
+  Widget _buildAt(BuildContext context, DateTime now) {
+    final sorted =
+        entries
+            .where((entry) => !(entry.pause?.contains(now) ?? false))
+            .toList()
+          ..sort((a, b) {
+            final byDate = a.dueAt.compareTo(b.dueAt);
+            return byDate != 0 ? byDate : a.animalId.compareTo(b.animalId);
+          });
     final formatter = DateFormat.yMd(
       Localizations.localeOf(context).toLanguageTag(),
     ).add_jm();
@@ -54,7 +71,7 @@ class FeedingSchedulePage extends StatelessWidget {
                   return ListTile(
                     key: Key('feeding-schedule-animal-${entry.animalId}'),
                     leading: Icon(
-                      entry.dueAt.isAfter(DateTime.now())
+                      entry.dueAt.isAfter(now)
                           ? Icons.schedule_outlined
                           : Icons.notifications_active_outlined,
                     ),

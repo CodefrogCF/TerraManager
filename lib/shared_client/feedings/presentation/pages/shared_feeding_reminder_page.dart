@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/features/animals/presentation/animal_display_names.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/animal_rest_period_field.dart';
 import 'package:terramanager/features/feedings/presentation/widgets/feeding_reminder_form_fields.dart';
 import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
 import 'package:terramanager/features/feedings/infrastructure/feeding_device_time_zone.dart';
@@ -32,6 +34,7 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
   final _interval = TextEditingController();
   Map<String, dynamic>? _animal;
   DateTime? _baseline;
+  AnimalRestPeriod? _restPeriod;
   bool _enabled = false;
   bool _weekdayMode = false;
   int _weekdays = 0;
@@ -74,10 +77,12 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
       final baseline = DateTime.tryParse(
         animal['feedingReminderBaseline'] as String? ?? '',
       );
+      final restPeriod = AnimalRestPeriod.fromJson(animal['restPeriod']);
       _interval.text = animal['feedingReminderIntervalDays']?.toString() ?? '';
       setState(() {
         _animal = animal;
         _baseline = baseline;
+        _restPeriod = restPeriod;
         _enabled = FeedingWeekdaySchedule.isConfigured(
           intervalDays: animal['feedingReminderIntervalDays'] as int?,
           baseline: baseline,
@@ -141,6 +146,8 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
         weekdays: _enabled && _weekdayMode ? _weekdays : null,
         minuteOfDay: _enabled && _weekdayMode ? _minuteOfDay : null,
         timeZone: timeZone,
+        restPeriod: _restPeriod,
+        clearRestPeriod: _restPeriod == null && animal['restPeriod'] != null,
       );
     });
     if (!mounted) return;
@@ -285,6 +292,16 @@ class _SharedFeedingReminderPageState extends State<SharedFeedingReminderPage> {
                         }),
                       ),
                       const SizedBox(height: 24),
+                      AnimalRestPeriodField(
+                        period: _restPeriod,
+                        reminderTimeZone: _timeZone,
+                        enabled: !_saving && !_stale,
+                        onChanged: (value) => setState(() {
+                          _restPeriod = value;
+                          _dirty = true;
+                        }),
+                      ),
+                      const SizedBox(height: 16),
                       FilledButton.icon(
                         key: const Key('shared-feeding-reminder-save'),
                         onPressed: _saving || _stale ? null : _save,

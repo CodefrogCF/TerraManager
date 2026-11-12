@@ -8,8 +8,52 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
+    private lateinit var feedingAlarmChannel: MethodChannel
+    private var feedingAlarmChannelReady = false
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        feedingAlarmChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "com.codefrog.terramanager/feeding_alarms",
+        )
+        feedingAlarmChannelReady = false
+        feedingAlarmChannel.setMethodCallHandler { call, result ->
+            try {
+                when (call.method) {
+                    "launchPayload" -> {
+                        feedingAlarmChannelReady = true
+                        result.success(takeFeedingAlarmPayload(intent))
+                    }
+                    "pendingIds" -> result.success(RestFeedingAlarms.pendingIds(this))
+                    "schedule" -> {
+                        RestFeedingAlarms.schedule(
+                            this,
+                            requireNotNull(call.argument<Int>("id")),
+                            RestFeedingAlarm(
+                                requireNotNull(call.argument<Number>("at")).toLong(),
+                                requireNotNull(call.argument<Number>("pauseFrom")).toLong(),
+                                requireNotNull(call.argument<Number>("pauseUntil")).toLong(),
+                                requireNotNull(call.argument<String>("body")),
+                                requireNotNull(call.argument<String>("payload")),
+                            ),
+                        )
+                        result.success(null)
+                    }
+                    "cancel" -> {
+                        RestFeedingAlarms.cancel(this, call.arguments as Int)
+                        result.success(null)
+                    }
+                    "cancelAll" -> {
+                        RestFeedingAlarms.cancelAll(this)
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            } catch (error: RuntimeException) {
+                result.error("feeding_alarm", error.message, null)
+            }
+        }
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
             "com.codefrog.terramanager/browser",
@@ -71,5 +115,24 @@ class MainActivity : FlutterActivity() {
                 result.error("no_browser", "No browser can open the URL.", null)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.action != RestFeedingAlarms.openAction) return
+        if (feedingAlarmChannelReady) {
+            takeFeedingAlarmPayload(intent)?.let {
+                feedingAlarmChannel.invokeMethod("openAnimal", it)
+            }
+        } else {
+            setIntent(intent)
+        }
+    }
+
+    private fun takeFeedingAlarmPayload(intent: Intent): String? {
+        if (intent.action != RestFeedingAlarms.openAction) return null
+        val payload = intent.getStringExtra(RestFeedingAlarms.openPayload)
+        intent.removeExtra(RestFeedingAlarms.openPayload)
+        return payload
     }
 }

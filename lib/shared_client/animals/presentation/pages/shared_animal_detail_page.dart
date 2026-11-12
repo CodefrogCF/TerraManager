@@ -24,6 +24,8 @@ import 'package:terramanager/shared_client/boxes/presentation/pages/shared_box_d
 import 'package:terramanager/shared_client/boxes/presentation/widgets/shared_box_selection_dialog.dart';
 import 'package:terramanager/shared_client/care_history/presentation/pages/shared_history_page.dart';
 import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_reminder_page.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/animal_rest_period_field.dart';
 import 'package:terramanager/shared_client/feedings/presentation/widgets/shared_feeding_information.dart';
 import 'package:terramanager/shared_client/media/presentation/widgets/shared_picture_gallery.dart';
 import 'package:terramanager/shared_client/navigation/application/shared_detail_navigation.dart';
@@ -749,6 +751,12 @@ class _SharedAnimalDetailPageState extends State<SharedAnimalDetailPage> {
                       ),
                       value: animal['restOrDormancyPeriods'] as String?,
                     ),
+                    if (AnimalRestPeriod.fromJson(animal['restPeriod'])
+                        case final period?)
+                      SharedDetailRow(
+                        label: context.l10n.animalRestPeriod,
+                        value: animalRestPeriodLabel(context, period),
+                      ),
                     SharedCustomFieldsSection(
                       key: ValueKey('custom-fields-${animal['id']}'),
                       api: widget.api,

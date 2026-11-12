@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -9,6 +10,9 @@ import '../application/local_notification_gateway.dart';
 import '../domain/feeding_notification_target.dart';
 
 class AndroidLocalNotificationGateway implements LocalNotificationGateway {
+  static const _restAlarms = MethodChannel(
+    'com.codefrog.terramanager/feeding_alarms',
+  );
   final _plugin = FlutterLocalNotificationsPlugin();
   AndroidFlutterLocalNotificationsPlugin get _android => _plugin
       .resolvePlatformSpecificImplementation<
@@ -35,6 +39,11 @@ class AndroidLocalNotificationGateway implements LocalNotificationGateway {
     if (launch?.didNotificationLaunchApp ?? false) {
       onTap(launch?.notificationResponse?.payload);
     }
+    _restAlarms.setMethodCallHandler((call) async {
+      if (call.method == 'openAnimal') onTap(call.arguments as String?);
+    });
+    final restPayload = await _restAlarms.invokeMethod<String>('launchPayload');
+    if (restPayload != null) onTap(restPayload);
   }
 
   @override
@@ -59,10 +68,10 @@ class AndroidLocalNotificationGateway implements LocalNotificationGateway {
   }
 
   @override
-  Future<Set<int>> pendingIds() async =>
-      (await _plugin.pendingNotificationRequests())
-          .map((item) => item.id)
-          .toSet();
+  Future<Set<int>> pendingIds() async => {
+    for (final item in await _plugin.pendingNotificationRequests()) item.id,
+    ...?await _restAlarms.invokeListMethod<int>('pendingIds'),
+  };
 
   @override
   Future<void> schedule({
@@ -83,6 +92,17 @@ class AndroidLocalNotificationGateway implements LocalNotificationGateway {
         enableVibration: false,
       ),
     );
+    if (target.pause case final pause?) {
+      await _restAlarms.invokeMethod<void>('schedule', {
+        'id': id,
+        'at': at.millisecondsSinceEpoch,
+        'pauseFrom': pause.startsAt.millisecondsSinceEpoch,
+        'pauseUntil': pause.endsAt.millisecondsSinceEpoch,
+        'body': text.localNotificationsBody,
+        'payload': target.encode(),
+      });
+      return;
+    }
     await _plugin.zonedSchedule(
       id: id,
       title: 'TerraManager',
@@ -105,10 +125,16 @@ class AndroidLocalNotificationGateway implements LocalNotificationGateway {
   }
 
   @override
-  Future<void> cancel(int id) => _plugin.cancel(id: id);
+  Future<void> cancel(int id) async {
+    await _restAlarms.invokeMethod<void>('cancel', id);
+    await _plugin.cancel(id: id);
+  }
 
   @override
-  Future<void> cancelAll() => _plugin.cancelAll();
+  Future<void> cancelAll() async {
+    await _restAlarms.invokeMethod<void>('cancelAll');
+    await _plugin.cancelAll();
+  }
 }
 
 extension on AndroidNotificationDetails {

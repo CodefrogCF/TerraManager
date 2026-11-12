@@ -1,4 +1,5 @@
 import 'package:drift/native.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:terramanager/core/database/app_database.dart';
@@ -7,6 +8,7 @@ import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/features/feedings/application/feeding_reminder_service.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 
 void main() {
   late AppDatabase database;
@@ -33,6 +35,7 @@ void main() {
     int? weekdays,
     int? minuteOfDay,
     String? timeZone,
+    AnimalRestPeriod? restPeriod,
   }) {
     return animalRepository.createAnimal(
       boxId: boxId,
@@ -47,6 +50,7 @@ void main() {
       feedingReminderWeekdays: weekdays,
       feedingReminderMinuteOfDay: minuteOfDay,
       feedingReminderTimeZone: timeZone,
+      restPeriod: restPeriod,
     );
   }
 
@@ -99,6 +103,60 @@ void main() {
 
     expect(state!.isDue, isTrue);
   });
+
+  test(
+    'Berlin rest dates include the DST transition and preserve feeding history',
+    () async {
+      final period = AnimalRestPeriod(
+        startDate: DateTime(2026, 10, 24),
+        endDate: DateTime(2026, 10, 25),
+        timeZone: 'Europe/Berlin',
+      );
+      final start = DateTime.utc(2026, 10, 23, 22);
+      final end = DateTime.utc(2026, 10, 25, 23);
+      expect(period.window.startsAt, start);
+      expect(period.window.endsAt, end);
+      final baseline = DateTime.utc(2026, 10, 21);
+      final animal = await createAnimal(
+        commonName: 'Resting Animal',
+        intervalDays: 2,
+        baseline: baseline,
+        restPeriod: period,
+      );
+      const epsilon = Duration(microseconds: 1);
+      var now = start.subtract(epsilon);
+      final service = FeedingReminderService(database, now: () => now);
+      expect(await service.getDueReminderStates(), hasLength(1));
+      now = start;
+      expect(await service.getReminderStates(), isEmpty);
+      expect(await service.getReminderStateForAnimal(animal), isNull);
+      now = end.subtract(epsilon);
+      expect(await service.getDueReminderStates(), isEmpty);
+      now = end;
+      expect(
+        (await service.getDueReminderStates()).single.dueAt,
+        DateTime.utc(2026, 10, 23),
+      );
+
+      final fedAt = end.subtract(const Duration(hours: 2));
+      now = fedAt;
+      await feedingRepository.addFeeding(animal, fedAt);
+      expect(await service.getReminderStates(), isEmpty);
+      final dueAt = fedAt.add(const Duration(days: 2));
+      now = end;
+      expect((await service.getReminderStates()).single.dueAt, dueAt);
+      expect(await service.getDueReminderStates(), isEmpty);
+
+      now = fedAt.add(const Duration(hours: 1));
+      await animalRepository.updateFeedingReminder(
+        animalId: animal,
+        intervalDays: 2,
+        baseline: baseline,
+        restPeriod: const Value(null),
+      );
+      expect((await service.getReminderStates()).single.dueAt, dueAt);
+    },
+  );
 
   test(
     'weekday reminder is due at 18:00 Berlin in summer and winter',

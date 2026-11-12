@@ -1,4 +1,5 @@
 import '../../../core/database/app_database.dart';
+import 'animal_rest_period.dart';
 
 class FeedingReminderState {
   final Animal animal;
@@ -9,7 +10,6 @@ class FeedingReminderState {
   final DateTime referenceAt;
   final DateTime dueAt;
   final DateTime evaluatedAt;
-  final bool isDue;
 
   const FeedingReminderState({
     required this.animal,
@@ -20,8 +20,16 @@ class FeedingReminderState {
     required this.referenceAt,
     required this.dueAt,
     required this.evaluatedAt,
-    required this.isDue,
   });
 
   int get animalId => animal.id;
+  FeedingPauseWindow? get pause => animal.restPeriod?.window;
+  bool get isDue => isDueAt(evaluatedAt);
+  bool isDueAt(DateTime time) =>
+      !time.isBefore(dueAt) && !(pause?.contains(time) ?? false);
+  Iterable<DateTime> get transitions => [
+    dueAt,
+    ?pause?.startsAt,
+    ?pause?.endsAt,
+  ];
 }

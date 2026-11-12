@@ -15,6 +15,7 @@ import 'animal_weight_repository.dart';
 import 'box_lifecycle_exception.dart';
 import 'picture_gallery_repository.dart';
 import '../../../features/feedings/domain/feeding_weekday_schedule.dart';
+import '../../../features/feedings/domain/animal_rest_period.dart';
 
 class AnimalRepository {
   final AppDatabase database;
@@ -105,6 +106,7 @@ class AnimalRepository {
     DateTime? weightMeasuredAt,
     String? sheddingNotes,
     String? restOrDormancyPeriods,
+    AnimalRestPeriod? restPeriod,
     int? pictureMediaId,
     String? picturePath,
     String? notes,
@@ -164,6 +166,7 @@ class AnimalRepository {
               weight: Value.absentIfNull(weight),
               sheddingNotes: Value.absentIfNull(sheddingNotes),
               restOrDormancyPeriods: Value.absentIfNull(restOrDormancyPeriods),
+              restPeriod: Value.absentIfNull(restPeriod),
               pictureMediaId: Value.absentIfNull(pictureMediaId),
               picturePath: Value.absentIfNull(picturePath),
               notes: Value.absentIfNull(notes),
@@ -320,6 +323,7 @@ class AnimalRepository {
               restOrDormancyPeriods: Value.absentIfNull(
                 source.restOrDormancyPeriods,
               ),
+              restPeriod: Value.absentIfNull(source.restPeriod),
               picturePath: source.pictureMediaId == null
                   ? Value.absentIfNull(source.picturePath)
                   : const Value.absent(),
@@ -535,6 +539,7 @@ class AnimalRepository {
     int? weekdays,
     int? minuteOfDay,
     String? timeZone,
+    Value<AnimalRestPeriod?> restPeriod = const Value.absent(),
   }) async {
     _validateFeedingReminder(
       intervalDays: intervalDays,
@@ -557,6 +562,7 @@ class AnimalRepository {
                 feedingReminderWeekdays: Value(weekdays),
                 feedingReminderMinuteOfDay: Value(minuteOfDay),
                 feedingReminderTimeZone: Value(timeZone),
+                restPeriod: restPeriod,
                 updatedAt: Value(DateTime.now()),
               ),
             );

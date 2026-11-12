@@ -88,7 +88,10 @@ void main() {
           (await current.customSelect('SELECT * FROM ${entry.key}').get())
               .map((r) => r.data)
               .toList(),
-          entry.value,
+          [
+            for (final row in entry.value)
+              {...row, if (entry.key == 'animals') 'rest_period': null},
+          ],
         );
       }
       expect(await BoxCareRepository(current).history(box), isEmpty);
@@ -189,7 +192,10 @@ VALUES (1, 1, 'cleaning', 1700000000, 'Keep care note', 'existing-care', 4, 1700
                           ..remove('custom_type_id'),
                   )
                   .toList(),
-              entry.value,
+              [
+                for (final row in entry.value)
+                  {...row, if (entry.key == 'animals') 'rest_period': null},
+              ],
             );
           }
           expect(

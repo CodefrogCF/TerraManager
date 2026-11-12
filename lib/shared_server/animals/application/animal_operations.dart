@@ -2,11 +2,13 @@ import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
 
 import 'dart:async';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/enums/animal_archive_reason.dart';
 import 'package:terramanager/core/database/enums/animal_status.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
 import 'package:terramanager/features/feedings/domain/feeding_weekday_schedule.dart';
 import 'package:terramanager/shared_server/animals/application/animal_command.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
@@ -163,6 +165,7 @@ class AnimalOperations extends CollectionOperations {
       'weekdays',
       'minuteOfDay',
       'timeZone',
+      'restPeriod',
     });
     final expectedRevision = input.string('expectedRevision', maxLength: 64);
     final intervalDays = input.nullableInteger('intervalDays');
@@ -170,6 +173,18 @@ class AnimalOperations extends CollectionOperations {
     final weekdays = input.nullableInteger('weekdays');
     final minuteOfDay = input.nullableInteger('minuteOfDay');
     final timeZone = input.nullableString('timeZone');
+    final Value<AnimalRestPeriod?> restPeriod;
+    try {
+      restPeriod = input.values.containsKey('restPeriod')
+          ? Value(AnimalRestPeriod.fromJson(input.values['restPeriod']))
+          : const Value.absent();
+    } on FormatException {
+      throw const ApiProblem(
+        400,
+        'invalid_data',
+        'Invalid Animal rest period.',
+      );
+    }
     try {
       FeedingWeekdaySchedule.validate(
         intervalDays: intervalDays,
@@ -198,6 +213,7 @@ class AnimalOperations extends CollectionOperations {
         weekdays: weekdays,
         minuteOfDay: minuteOfDay,
         timeZone: timeZone,
+        restPeriod: restPeriod,
       );
     });
     return updated

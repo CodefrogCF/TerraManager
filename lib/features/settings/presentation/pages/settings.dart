@@ -1226,10 +1226,22 @@ class _SettingsPageState extends State<SettingsPage> {
               const SharedCareBrowserLink(),
             ],
 
-            if (widget.onReplayTutorial != null || showReleaseHighlights) ...[
-              const SizedBox(height: 24),
+            if (isAndroidApp || widget.onReplayTutorial != null) ...[
+              SizedBox(height: isAndroidApp ? 32 : 24),
               const Divider(),
-              if (widget.onReplayTutorial != null)
+              if (isAndroidApp) ...[
+                const SizedBox(height: 24),
+                Text(
+                  sharedText(
+                    context,
+                    'Website and guide',
+                    'Website und Anleitung',
+                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+              ],
+              if (widget.onReplayTutorial != null) ...[
                 ListTile(
                   key: const Key('replay-tutorial-button'),
                   contentPadding: EdgeInsets.zero,
@@ -1240,7 +1252,9 @@ class _SettingsPageState extends State<SettingsPage> {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: widget.onReplayTutorial,
                 ),
-              if (showReleaseHighlights)
+                if (isAndroidApp) const Divider(),
+              ],
+              if (showReleaseHighlights) ...[
                 ListTile(
                   key: const Key('release-highlights-settings'),
                   contentPadding: EdgeInsets.zero,
@@ -1249,25 +1263,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: _operationBusy ? null : widget.onShowReleaseHighlights,
                 ),
-            ],
-
-            if (isAndroidApp) ...[
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 24),
-              Text(
-                sharedText(
-                  context,
-                  'Website and guide',
-                  'Website und Anleitung',
-                ),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              const ProjectWebLinks(),
-              const Divider(),
-              const RateTerraManagerLink(),
-              const SizedBox(height: 32),
+                const Divider(),
+              ],
+              if (isAndroidApp) ...[
+                const ProjectWebLinks(),
+                const Divider(),
+                const RateTerraManagerLink(),
+                const SizedBox(height: 32),
+              ],
             ],
 
             const Divider(),

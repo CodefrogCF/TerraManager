@@ -4,7 +4,7 @@ Release changes are summarized below. Detailed contracts are in the
 [documentation](docs/project-documentation.md). Dates and historical release
 groupings are retained from the existing record.
 
-## [1.17.1 - 1.17.5]
+## [1.17.5]
 
 ### Added
 
@@ -20,7 +20,8 @@ groupings are retained from the existing record.
 
 ### Changed
 
-- Group Getting started and What's new above Website and guide in Settings.
+- Place Getting started and What's new in the Website and guide section in
+  Settings, with the same dividers as the other rows.
 - Manage field templates from Animal and Box edit pages. Details show the
   populated, visible custom fields.
 - Allow unnamed duplicates of active and archived Boxes. Each copy gets its own

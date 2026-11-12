@@ -57,14 +57,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> openSettings(
-    WidgetTester tester, {
-    Key entryKey = const Key('release-highlights-settings'),
-  }) async {
+  Future<void> openSettings(WidgetTester tester, {Finder? entry}) async {
     await tester.tap(find.byIcon(Icons.settings_outlined));
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(
-      find.byKey(entryKey).hitTestable(),
+      (entry ?? find.byKey(const Key('release-highlights-settings')))
+          .hitTestable(),
       350,
       scrollable: find
           .descendant(
@@ -78,7 +76,7 @@ void main() {
 
   for (final language in ['de', 'en']) {
     testWidgets(
-      '$language Settings groups Getting started and What’s new above project links',
+      '$language Website and guide includes Getting started and What’s new with dividers',
       (tester) async {
         await tester.binding.setSurfaceSize(const Size(320, 640));
         addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -86,17 +84,15 @@ void main() {
           'standalone_tutorial_seen': true,
           ReleaseHighlightsController.lastShownReleaseKey: current.identity,
         });
-        await pumpGate(tester, locale: Locale(language));
-        await openSettings(
-          tester,
-          entryKey: const Key('replay-tutorial-button'),
-        );
-
-        final gettingStarted = find.byKey(const Key('replay-tutorial-button'));
-        final whatsNew = find.byKey(const Key('release-highlights-settings'));
         final projectLinksHeading = find.text(
           language == 'de' ? 'Website und Anleitung' : 'Website and guide',
         );
+        await pumpGate(tester, locale: Locale(language));
+        await openSettings(tester, entry: projectLinksHeading);
+
+        final gettingStarted = find.byKey(const Key('replay-tutorial-button'));
+        final whatsNew = find.byKey(const Key('release-highlights-settings'));
+        final website = find.byKey(const Key('project-website-link'));
         expect(
           find.text(language == 'de' ? 'Erste Schritte' : 'Getting started'),
           findsOneWidget,
@@ -106,13 +102,26 @@ void main() {
           findsOneWidget,
         );
         expect(
-          tester.getBottomLeft(gettingStarted).dy,
-          closeTo(tester.getTopLeft(whatsNew).dy, 0.1),
+          tester.getBottomLeft(projectLinksHeading).dy,
+          lessThan(tester.getTopLeft(gettingStarted).dy),
         );
-        expect(
-          tester.getBottomLeft(whatsNew).dy,
-          lessThan(tester.getTopLeft(projectLinksHeading).dy),
-        );
+        final dividers = find.byType(Divider);
+        final dividerCount = dividers.evaluate().length;
+        final dividerCenters = [
+          for (var index = 0; index < dividerCount; index++)
+            tester.getCenter(dividers.at(index)).dy,
+        ];
+        for (final (above, below) in [
+          (gettingStarted, whatsNew),
+          (whatsNew, website),
+        ]) {
+          final bottom = tester.getBottomLeft(above).dy;
+          final top = tester.getTopLeft(below).dy;
+          expect(
+            dividerCenters.where((center) => bottom < center && center < top),
+            hasLength(1),
+          );
+        }
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       },
@@ -264,7 +273,7 @@ void main() {
   );
 
   testWidgets(
-    'unsupported platforms do not load releases or expose the Settings entry',
+    'Windows Settings keeps the tutorial and skips release highlights',
     (tester) async {
       var requests = 0;
       await pumpGate(
@@ -276,8 +285,9 @@ void main() {
       );
       expect(find.byKey(dialogKey), findsNothing);
       expect(requests, 0);
-      await tester.tap(find.byIcon(Icons.settings_outlined));
-      await tester.pumpAndSettle();
+      final tutorialEntry = find.byKey(const Key('replay-tutorial-button'));
+      await openSettings(tester, entry: tutorialEntry);
+      expect(tutorialEntry.hitTestable(), findsOneWidget);
       expect(
         find.byKey(const Key('release-highlights-settings')),
         findsNothing,

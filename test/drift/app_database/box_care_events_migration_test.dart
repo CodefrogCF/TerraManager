@@ -90,7 +90,11 @@ void main() {
               .toList(),
           [
             for (final row in entry.value)
-              {...row, if (entry.key == 'animals') 'rest_period': null},
+              {
+                ...row,
+                if (entry.key == 'animals') 'rest_period': null,
+                if (entry.key == 'feeding_events') 'custom_fields_json': null,
+              },
           ],
         );
       }

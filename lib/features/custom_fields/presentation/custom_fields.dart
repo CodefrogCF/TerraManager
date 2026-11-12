@@ -50,6 +50,7 @@ class CustomFieldsController extends ChangeNotifier {
   bool loading = false, failed = false, _disposed = false;
   final fields = <String, TextEditingController>{};
   final booleans = <String, bool?>{};
+  int appliedDefaults = 0;
   Iterable<CustomFieldTemplate> get editable =>
       snapshot?.templates.where((t) => !t.hidden && !t.archived) ?? const [];
   Future<void> load() async {
@@ -126,6 +127,24 @@ class CustomFieldsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Map<String, Object> get populatedValues => {
+    for (final template in editable) template.id: ?read(template),
+  };
+
+  void applyDefaults(Map<String, Object?> defaults) {
+    appliedDefaults++;
+    for (final template in editable) {
+      if (!defaults.containsKey(template.id)) continue;
+      final value = template.validate(defaults[template.id]);
+      if (template.type == CustomFieldType.boolean) {
+        booleans[template.id] = value as bool?;
+      } else {
+        fields[template.id]!.text = value?.toString() ?? '';
+      }
+    }
+    notifyListeners();
+  }
+
   void conflict() {
     failed = true;
     notifyListeners();
@@ -146,9 +165,11 @@ class CustomFieldsEditor extends StatelessWidget {
     super.key,
     required this.controller,
     this.enabled = true,
+    this.showManagement = true,
   });
   final CustomFieldsController controller;
   final bool enabled;
+  final bool showManagement;
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
@@ -176,6 +197,7 @@ class CustomFieldsEditor extends StatelessWidget {
           if (!c.loading && c.snapshot != null) ...[
             for (final t in c.editable)
               Padding(
+                key: ValueKey((t.id, c.appliedDefaults)),
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: t.type == CustomFieldType.boolean
                     ? DropdownButtonFormField<String>(
@@ -263,30 +285,31 @@ class CustomFieldsEditor extends StatelessWidget {
                         },
                       ),
               ),
-            TextButton.icon(
-              key: const Key('manage-custom-fields'),
-              onPressed: !enabled
-                  ? null
-                  : () async {
-                      if (c.dirty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(context.l10n.customFieldsDirty),
+            if (showManagement)
+              TextButton.icon(
+                key: const Key('manage-custom-fields'),
+                onPressed: !enabled
+                    ? null
+                    : () async {
+                        if (c.dirty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(context.l10n.customFieldsDirty),
+                            ),
+                          );
+                          return;
+                        }
+                        await Navigator.of(context).push<void>(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                CustomFieldTemplatesPage(access: c.access),
                           ),
                         );
-                        return;
-                      }
-                      await Navigator.of(context).push<void>(
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              CustomFieldTemplatesPage(access: c.access),
-                        ),
-                      );
-                      await c.load();
-                    },
-              icon: const Icon(Icons.tune),
-              label: Text(context.l10n.customFieldsManage),
-            ),
+                        await c.load();
+                      },
+                icon: const Icon(Icons.tune),
+                label: Text(context.l10n.customFieldsManage),
+              ),
           ],
         ],
       );

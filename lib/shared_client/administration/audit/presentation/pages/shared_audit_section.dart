@@ -29,6 +29,7 @@ String _recordLabel(BuildContext context, String type) => switch (type) {
   'box' => sharedText(context, 'Box', 'Box'),
   'animal' => sharedText(context, 'Animal', 'Tier'),
   'feeding' => sharedText(context, 'Feeding', 'Fütterung'),
+  'foodPreset' => sharedText(context, 'Food preset', 'Futtervorlage'),
   'weight' => sharedText(context, 'Weight', 'Gewicht'),
   'shedding' => sharedText(context, 'Shedding', 'Häutung'),
   'boxCareEvent' => sharedText(context, 'Enclosure care', 'Boxpflege'),

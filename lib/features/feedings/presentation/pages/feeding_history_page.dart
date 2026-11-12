@@ -4,6 +4,9 @@ import '../../../../core/presentation/widgets/constrained_page_width.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
+import '../../domain/feeding_field_values.dart';
+import '../widgets/feeding_details_fields.dart';
+import '../widgets/standalone_feeding_details.dart';
 
 Future<bool?> showFeedingEntryDialog({
   required BuildContext context,
@@ -216,11 +219,11 @@ class _FeedingHistoryPageState extends State<FeedingHistoryPage> {
                           key: Key('feeding-item-${feeding.id}'),
                           leading: const Icon(Icons.restaurant),
                           title: Text(_formatDateTime(feeding.fedAt)),
-                          subtitle:
-                              feeding.notes != null &&
-                                  feeding.notes!.trim().isNotEmpty
-                              ? Text(feeding.notes!)
-                              : null,
+                          subtitle: feedingDetailsSubtitle(
+                            context,
+                            feeding.notes,
+                            decodeFeedingFieldValues(feeding.customFieldsJson),
+                          ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -298,6 +301,7 @@ class _FeedingDialog extends StatefulWidget {
 
 class _FeedingDialogState extends State<_FeedingDialog> {
   final _notesController = TextEditingController();
+  final _details = GlobalKey<FeedingDetailsFieldsState>();
 
   late DateTime _fedAt;
 
@@ -322,7 +326,7 @@ class _FeedingDialogState extends State<_FeedingDialog> {
   }
 
   Future<void> _save() async {
-    if (_saving) {
+    if (_saving || _details.currentState?.validate() == false) {
       return;
     }
 
@@ -334,20 +338,26 @@ class _FeedingDialogState extends State<_FeedingDialog> {
     try {
       final notes = _notesController.text.trim();
       final normalizedNotes = notes.isEmpty ? null : notes;
+      final fields = _details.currentState?.patch;
 
       if (widget.isEditing) {
         final updated = await FeedingRepository(widget.database).updateFeeding(
           feedingId: widget.feeding!.id,
           fedAt: _fedAt,
           notes: normalizedNotes,
+          customFields: fields,
         );
 
         if (!updated) {
           throw StateError('Feeding update failed');
         }
       } else {
-        await FeedingRepository(widget.database)
-            .addFeeding(widget.animalId, _fedAt, notes: normalizedNotes);
+        await FeedingRepository(widget.database).addFeeding(
+          widget.animalId,
+          _fedAt,
+          notes: normalizedNotes,
+          customFields: fields,
+        );
       }
 
       if (!mounted) {
@@ -459,6 +469,14 @@ class _FeedingDialogState extends State<_FeedingDialog> {
                 labelText: context.l10n.notes,
                 alignLabelWithHint: true,
               ),
+            ),
+            FeedingDetailsFields(
+              key: _details,
+              access: standaloneFeedingDetails(widget.database),
+              saved: widget.feeding == null
+                  ? null
+                  : decodeFeedingFieldValues(widget.feeding!.customFieldsJson),
+              enabled: !_saving,
             ),
           ],
         ),

@@ -13,6 +13,11 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/core/database/repositories/custom_field_repository.dart';
+import 'package:terramanager/core/database/repositories/food_preset_repository.dart';
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+import 'package:terramanager/features/feedings/domain/feeding_field_values.dart';
+import 'package:terramanager/features/feedings/domain/food_preset.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_box_animals_page.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_history_page.dart';
 import 'package:terramanager/features/feedings/presentation/pages/feeding_scanner_page.dart';
@@ -200,6 +205,21 @@ void main() {
     tester,
   ) async {
     final box = await createBox();
+    const field = CustomFieldTemplate(
+      id: '11111111-1111-4111-8111-111111111111',
+      target: CustomFieldTarget.feeding,
+      type: CustomFieldType.text,
+      label: 'Food',
+    );
+    await CustomFieldRepository(database).create(field);
+    await FoodPresetRepository(database).save(
+      FoodPreset(
+        id: '22222222-2222-4222-8222-222222222222',
+        name: 'Adult mouse',
+        defaults: {field.id: 'Mouse'},
+      ),
+      creating: true,
+    );
     final firstAnimal = await createAnimal(
       boxId: box.id,
       commonName: 'First Snake',
@@ -221,6 +241,16 @@ void main() {
       find.byKey(const Key('quick-feeding-notes-field')),
       '  One mouse each  ',
     );
+    final picker = find.byKey(const Key('feeding-preset-picker'));
+    await tester.scrollUntilVisible(
+      picker,
+      180,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(picker);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Adult mouse').last);
+    await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('save-quick-feeding-button')));
     await tester.pumpAndSettle();
@@ -239,6 +269,13 @@ void main() {
       feedings.every((feeding) => feeding.notes == 'One mouse each'),
       isTrue,
     );
+    expect(
+      feedings.map(
+        (feeding) =>
+            decodeFeedingFieldValues(feeding.customFieldsJson).single.value,
+      ),
+      ['Mouse', 'Mouse'],
+    );
 
     await tester.pumpWidget(
       MaterialApp(
@@ -249,6 +286,7 @@ void main() {
 
     expect(find.text('05.09.2026 14:30'), findsOneWidget);
     expect(find.text('One mouse each'), findsOneWidget);
+    expect(find.text('Food · Mouse'), findsOneWidget);
   });
 
   testWidgets('ignores repeated save submissions', (tester) async {

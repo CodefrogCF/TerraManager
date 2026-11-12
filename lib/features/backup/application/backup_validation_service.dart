@@ -482,6 +482,7 @@ class BackupValidationService {
         final animal = v['animalId'];
         final box = v['boxId'];
         if (t == null ||
+            t.target == CustomFieldTarget.feeding ||
             v.length != 5 ||
             !v.containsKey('value') ||
             v['revision'] is! int ||
@@ -497,6 +498,15 @@ class BackupValidationService {
           throw ArgumentError('Invalid custom field owner.');
         }
         t.validate(v['value']);
+      }
+      final presetIds = <String>{};
+      final presetNames = <String>{};
+      for (final preset in data.foodPresets) {
+        if (!presetIds.add(preset.id) ||
+            !presetNames.add(preset.name.toLowerCase())) {
+          throw ArgumentError('Duplicate food preset.');
+        }
+        preset.validatedDefaults(definitions.values);
       }
     } catch (_) {
       throw const BackupValidationException(

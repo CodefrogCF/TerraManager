@@ -21,7 +21,7 @@ class CustomFieldTemplates extends Table {
   ];
   @override
   List<String> get customConstraints => [
-    "CHECK (target IN ('animal','box'))",
+    "CHECK (target IN ('animal','box','feeding'))",
     "CHECK (type IN ('text','number','date','boolean'))",
     'CHECK (revision>0)',
   ];

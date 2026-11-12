@@ -18,6 +18,7 @@ Future<List<AuditEvent>> collectionAuditEvents(
   const roots = {
     'custom-field-templates': 'customFieldTemplate',
     'care-event-types': 'careEventType',
+    'food-presets': 'foodPreset',
     'boxes': 'box',
     'animals': 'animal',
     'feedings': 'feeding',
@@ -60,11 +61,13 @@ Future<List<AuditEvent>> collectionAuditEvents(
       if (path.length > 4 && path[4] == 'primary') operation = 'set_primary';
     }
   }
-  if (type == 'careEventType' || type == 'customFieldTemplate') {
-    final id = path.length > 1
-        ? path[1]
-        : (reply?[type == 'customFieldTemplate' ? 'template' : 'careEventType']
-              as Map?)?['id'];
+  const keys = {
+    'careEventType': 'careEventType',
+    'customFieldTemplate': 'template',
+    'foodPreset': 'preset',
+  };
+  if (keys.containsKey(type)) {
+    final id = path.length > 1 ? path[1] : (reply?[keys[type]] as Map?)?['id'];
     target =
         id is String &&
             RegExp(

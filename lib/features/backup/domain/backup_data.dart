@@ -2,6 +2,8 @@ import '../../custom_fields/domain/custom_field.dart';
 import '../../../core/database/date_only.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
 import '../../feedings/domain/animal_rest_period.dart';
+import '../../feedings/domain/feeding_field_values.dart';
+import '../../feedings/domain/food_preset.dart';
 
 class BackupData {
   final List<CustomFieldTemplate> customFieldTemplates;
@@ -10,6 +12,7 @@ class BackupData {
   final List<BackupAnimal> animals;
   final List<BackupFeedingEvent> feedingEvents;
   final List<CareEventTypeDefinition> careEventTypes;
+  final List<FoodPreset> foodPresets;
 
   const BackupData({
     required this.boxes,
@@ -18,6 +21,7 @@ class BackupData {
     this.careEventTypes = const [],
     this.customFieldTemplates = const [],
     this.customFieldValues = const [],
+    this.foodPresets = const [],
   });
 
   Map<String, dynamic> toJson() {
@@ -26,6 +30,8 @@ class BackupData {
           .map((t) => t.toJson())
           .toList(),
       'customFieldValues': customFieldValues,
+      if (foodPresets.isNotEmpty)
+        'foodPresets': foodPresets.map((preset) => preset.toJson()).toList(),
       'careEventTypes': careEventTypes.map((type) => type.toJson()).toList(),
       'boxes': boxes.map((box) => box.toJson()).toList(),
       'animals': animals.map((animal) => animal.toJson()).toList(),
@@ -46,6 +52,12 @@ class BackupData {
           .toList(),
       customFieldValues: (json['customFieldValues'] as List? ?? const [])
           .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
+      foodPresets: (json['foodPresets'] as List? ?? const [])
+          .map(
+            (preset) =>
+                FoodPreset.fromJson(Map<String, dynamic>.from(preset as Map)),
+          )
           .toList(),
       careEventTypes: (json['careEventTypes'] as List? ?? const [])
           .map(
@@ -542,12 +554,14 @@ class BackupFeedingEvent {
   final int animalId;
   final DateTime fedAt;
   final String? notes;
+  final List<FeedingFieldValue> customFields;
 
   const BackupFeedingEvent({
     required this.id,
     required this.animalId,
     required this.fedAt,
     required this.notes,
+    this.customFields = const [],
   });
 
   Map<String, dynamic> toJson() {
@@ -556,6 +570,8 @@ class BackupFeedingEvent {
       'animalId': animalId,
       'fedAt': fedAt.toUtc().toIso8601String(),
       'notes': notes,
+      if (customFields.isNotEmpty)
+        'customFields': feedingFieldValuesJson(customFields),
     };
   }
 
@@ -565,6 +581,7 @@ class BackupFeedingEvent {
       animalId: json['animalId'] as int,
       fedAt: DateTime.parse(json['fedAt'] as String),
       notes: json['notes'] as String?,
+      customFields: readFeedingFieldValues(json['customFields']),
     );
   }
 }

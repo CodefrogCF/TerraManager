@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
 import 'package:terramanager/core/sorting/natural_string_comparator.dart';
 import 'package:terramanager/features/animals/presentation/animal_display_names.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/feeding_details_fields.dart';
+import 'package:terramanager/shared_client/feedings/presentation/shared_feeding_details.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
 import 'package:terramanager/shared_client/media/application/shared_overview_image_cache.dart';
 import 'package:terramanager/shared_client/media/presentation/widgets/shared_thumbnail.dart';
@@ -35,6 +37,7 @@ class SharedFeedingBoxPage extends StatefulWidget {
 class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
   late final SharedOverviewImageCache _images;
   final TextEditingController _notesController = TextEditingController();
+  final _details = GlobalKey<FeedingDetailsFieldsState>();
   List<Map<String, dynamic>> _animals = const [];
   Set<int> _selectedIds = {};
   DateTime _fedAt = DateTime.now();
@@ -146,7 +149,12 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
   }
 
   Future<void> _save() async {
-    if (_saving || _selectedIds.isEmpty || _loading) return;
+    if (_saving ||
+        _selectedIds.isEmpty ||
+        _loading ||
+        _details.currentState?.validate() == false) {
+      return;
+    }
     if (_fedAt.isAfter(DateTime.now())) {
       setState(() => _error = context.l10n.feedingDateTimeInFuture);
       return;
@@ -157,11 +165,13 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
         .toList();
     final text = _notesController.text.trim();
     final notes = text.isEmpty ? null : text;
+    final fields = _details.currentState?.patch;
     final fingerprint = jsonEncode({
       'boxId': _boxId,
       'animalIds': ids,
       'fedAt': _fedAt.toUtc().toIso8601String(),
       'notes': notes,
+      if (fields != null) 'customFields': fields.toJson(),
     });
     if (_pendingFingerprint != fingerprint) {
       _pendingFingerprint = fingerprint;
@@ -180,6 +190,7 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
           notes: notes,
           boxId: _boxId,
           requestId: _pendingRequestId,
+          customFields: fields,
         );
       });
       if (!mounted) return;
@@ -345,6 +356,12 @@ class _SharedFeedingBoxPageState extends State<SharedFeedingBoxPage> {
                                 labelText: context.l10n.notes,
                               ),
                             ),
+                            if (_animals.isNotEmpty)
+                              FeedingDetailsFields(
+                                key: _details,
+                                access: sharedFeedingDetails(widget.api),
+                                enabled: !_saving,
+                              ),
                           ],
                         ],
                       ),

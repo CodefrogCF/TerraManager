@@ -24,7 +24,7 @@ Widget localized(Widget child, {String language = 'en'}) => MaterialApp(
 );
 
 void main() {
-  for (final target in CustomFieldTarget.values) {
+  for (final target in [CustomFieldTarget.animal, CustomFieldTarget.box]) {
     for (final shared in [false, true]) {
       for (final language in ['de', 'en']) {
         testWidgets(

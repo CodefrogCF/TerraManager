@@ -278,7 +278,7 @@ class CareApi {
     if (path[0] == 'animals') {
       return _animalHandler.handle(path, method, request);
     }
-    if (path[0] == 'feedings') {
+    if (path[0] == 'feedings' || path[0] == 'food-presets') {
       return _feedingHandler.handle(path, method, request);
     }
     if (path[0] == 'reminders' && path.length == 1 && method == 'GET') {

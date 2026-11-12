@@ -15,6 +15,19 @@ class FeedingHandler {
     HttpRequest request,
   ) async {
     final feedings = operations;
+    if (path.first == 'food-presets') {
+      if (path.length == 1 && method == 'GET') return feedings.listPresets();
+      if (path.length == 1 && method == 'POST') {
+        return feedings.savePreset(await readCollectionBody(request));
+      }
+      if (path.length == 2 && method == 'PATCH') {
+        return feedings.savePreset(
+          await readCollectionBody(request),
+          id: path[1],
+        );
+      }
+      return apiError(404, 'not_found', 'Unknown food preset operation.');
+    }
     if (path.length == 1 && method == 'POST') {
       final input = await readCollectionBody(request);
       final requestId = request.headers.value('Idempotency-Key');

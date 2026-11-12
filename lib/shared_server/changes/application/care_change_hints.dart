@@ -16,6 +16,9 @@ class CareChangeHints {
     if (path.firstOrNull == 'care-event-types') {
       return {'audit': null, 'careEventTypes': null};
     }
+    if (path.firstOrNull == 'food-presets') {
+      return {'audit': null, 'foodPresets': null};
+    }
     final resources = <String, Iterable<int>?>{'audit': null};
     final oldPictureMediaId =
         before.animal?.pictureMediaId ?? before.box?.pictureMediaId;

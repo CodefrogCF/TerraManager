@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+import 'package:terramanager/features/feedings/domain/feeding_field_values.dart';
+import 'package:terramanager/features/feedings/domain/food_preset.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
 import 'package:terramanager/shared_server/app/shared_server_api.dart';
@@ -127,6 +130,96 @@ void main() {
         jsonEncode((await api.queryChanges(since: before)).body),
         contains('boxCustomFields'),
       );
+
+      final presetPath = origin.resolve('/api/v1/food-presets');
+      expect((await anonymous.get(presetPath)).statusCode, 401);
+      expect(
+        (await transport.post(
+          presetPath,
+          body: '{}',
+          headers: {'Content-Type': 'application/json'},
+        )).statusCode,
+        403,
+      );
+      const food = CustomFieldTemplate(
+        id: '22222222-2222-4222-8222-222222222222',
+        target: CustomFieldTarget.feeding,
+        type: CustomFieldType.number,
+        label: 'Quantity',
+      );
+      await api.saveCustomFieldTemplate(food, creating: true);
+      final presetCursor = (await api.queryChanges()).cursor;
+      await api.saveFoodPreset(
+        FoodPreset(
+          id: '33333333-3333-4333-8333-333333333333',
+          name: 'Crickets',
+          defaults: {food.id: 2},
+        ),
+        creating: true,
+      );
+      final preset = (await api.foodPresets()).single;
+      expect(preset.defaults[food.id], 2);
+      final presetDelta = jsonEncode(
+        (await api.queryChanges(since: presetCursor)).body,
+      );
+      expect(presetDelta, contains('foodPresets'));
+      expect(presetDelta, isNot(contains('Crickets')));
+      final animalIds = [
+        for (final name in ['First', 'Second'])
+          await AnimalRepository(db).createAnimal(
+            boxId: id,
+            commonName: name,
+            latinName: 'Species',
+            tempMin: 20,
+            tempMax: 28,
+            humidityMin: 40,
+            humidityMax: 60,
+          ),
+      ];
+      final fedAt = DateTime.now().toUtc().subtract(const Duration(minutes: 1));
+      CustomFieldPatch fields(Object value) => CustomFieldPatch(
+        expectedRevision: null,
+        updates: [(id: food.id, templateRevision: 1, value: value)],
+      );
+      await expectLater(
+        api.createFeedings(
+          animalIds: animalIds,
+          fedAt: fedAt,
+          notes: null,
+          boxId: id,
+          customFields: fields('invalid number'),
+        ),
+        throwsA(
+          isA<SharedApiException>().having((e) => e.status, 'status', 400),
+        ),
+      );
+      expect(await api.feedings(animalIds.first), isEmpty);
+      Future<List<Map<String, dynamic>>> create() => api!.createFeedings(
+        animalIds: animalIds,
+        fedAt: fedAt,
+        notes: null,
+        boxId: id,
+        requestId: '44444444-4444-4444-8444-444444444444',
+        customFields: fields(3),
+      );
+      final saved = await create();
+      expect(await create(), saved);
+      await api.saveFoodPreset(
+        FoodPreset(
+          id: preset.id,
+          name: 'Archived crickets',
+          defaults: {food.id: 8},
+          archived: true,
+          revision: preset.revision,
+        ),
+        creating: false,
+      );
+      expect((await api.foodPresets()).single.archived, isTrue);
+      for (final animal in animalIds) {
+        final entry = (await api.feedings(animal)).single;
+        expect(entry['notes'], isNull);
+        expect(readFeedingFieldValues(entry['customFields']).single.value, 3);
+      }
     } finally {
       api?.close();
       transport.close();

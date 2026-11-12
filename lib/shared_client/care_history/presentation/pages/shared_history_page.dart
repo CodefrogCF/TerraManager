@@ -3,6 +3,11 @@ import 'dart:async';
 import 'package:terramanager/shared_client/changes/application/shared_refresh_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:terramanager/core/presentation/widgets/constrained_page_width.dart';
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+import 'package:terramanager/features/feedings/domain/feeding_field_values.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/feeding_details_access.dart';
+import 'package:terramanager/features/feedings/presentation/widgets/feeding_details_fields.dart';
+import 'package:terramanager/shared_client/feedings/presentation/shared_feeding_details.dart';
 import 'package:terramanager/shared_client/shared/application/shared_change.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 import 'package:terramanager/shared_client/shared/presentation/shared_text.dart';
@@ -132,7 +137,13 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
   Future<void> _edit([Map<String, dynamic>? initial]) async {
     final input = await showDialog<_HistoryInput>(
       context: context,
-      builder: (context) => _HistoryDialog(kind: widget.kind, initial: initial),
+      builder: (context) => _HistoryDialog(
+        kind: widget.kind,
+        initial: initial,
+        feedingAccess: widget.kind == SharedHistoryKind.feedings
+            ? sharedFeedingDetails(widget.api)
+            : null,
+      ),
     );
     if (input == null) return;
     final previousRefreshes = _refreshes;
@@ -145,9 +156,15 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
               widget.animalId,
               input.date,
               input.notes,
+              customFields: input.customFields,
             );
           } else {
-            await widget.api.updateFeeding(id, input.date, input.notes);
+            await widget.api.updateFeeding(
+              id,
+              input.date,
+              input.notes,
+              customFields: input.customFields,
+            );
           }
         case SharedHistoryKind.weights:
           final grams = input.grams!;
@@ -302,9 +319,11 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
                     title: Text(
                       amount == null ? formatted : '$formatted · $amount g',
                     ),
-                    subtitle: entry['notes'] == null
-                        ? null
-                        : Text(entry['notes'] as String),
+                    subtitle: feedingDetailsSubtitle(
+                      context,
+                      entry['notes'] as String?,
+                      readFeedingFieldValues(entry['customFields']),
+                    ),
                     trailing: widget.active
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
@@ -347,22 +366,29 @@ class _SharedHistoryPageState extends State<SharedHistoryPage> {
 }
 
 class _HistoryInput {
-  const _HistoryInput(this.date, this.notes, this.grams);
+  const _HistoryInput(this.date, this.notes, this.grams, this.customFields);
   final DateTime date;
   final String? notes;
   final double? grams;
+  final CustomFieldPatch? customFields;
 }
 
 class _HistoryDialog extends StatefulWidget {
-  const _HistoryDialog({required this.kind, required this.initial});
+  const _HistoryDialog({
+    required this.kind,
+    required this.initial,
+    this.feedingAccess,
+  });
   final SharedHistoryKind kind;
   final Map<String, dynamic>? initial;
+  final FeedingDetailsAccess? feedingAccess;
 
   @override
   State<_HistoryDialog> createState() => _HistoryDialogState();
 }
 
 class _HistoryDialogState extends State<_HistoryDialog> {
+  final _details = GlobalKey<FeedingDetailsFieldsState>();
   late DateTime _date;
   late final TextEditingController _notes;
   late final TextEditingController _grams;
@@ -440,6 +466,7 @@ class _HistoryDialogState extends State<_HistoryDialog> {
   }
 
   void _submit() {
+    if (_details.currentState?.validate() == false) return;
     final grams = widget.kind == SharedHistoryKind.weights
         ? double.tryParse(_grams.text.trim().replaceAll(',', '.'))
         : null;
@@ -460,6 +487,7 @@ class _HistoryDialogState extends State<_HistoryDialog> {
         _date,
         _notes.text.trim().isEmpty ? null : _notes.text.trim(),
         grams,
+        _details.currentState?.patch,
       ),
     );
   }
@@ -508,6 +536,14 @@ class _HistoryDialogState extends State<_HistoryDialog> {
               decoration: InputDecoration(
                 labelText: sharedText(context, 'Notes', 'Notizen'),
               ),
+            ),
+          if (widget.feedingAccess case final access?)
+            FeedingDetailsFields(
+              key: _details,
+              access: access,
+              saved: widget.initial == null
+                  ? null
+                  : readFeedingFieldValues(widget.initial?['customFields']),
             ),
           if (_error != null)
             Text(

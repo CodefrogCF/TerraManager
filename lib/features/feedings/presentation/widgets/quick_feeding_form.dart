@@ -6,6 +6,8 @@ import '../../../../core/media/media_thumbnail.dart';
 import '../../../../core/database/repositories/feeding_repository.dart';
 import '../../../../l10n/app_localizations_context.dart';
 import '../../../animals/presentation/animal_display_names.dart';
+import 'feeding_details_fields.dart';
+import 'standalone_feeding_details.dart';
 
 class QuickFeedingForm extends StatefulWidget {
   final AppDatabase database;
@@ -35,6 +37,7 @@ class QuickFeedingForm extends StatefulWidget {
 
 class _QuickFeedingFormState extends State<QuickFeedingForm> {
   final TextEditingController _notesController = TextEditingController();
+  final _details = GlobalKey<FeedingDetailsFieldsState>();
 
   late final Set<int> _selectedAnimalIds;
   late DateTime _fedAt;
@@ -144,7 +147,9 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
   }
 
   Future<void> _save() async {
-    if (_saving || _selectedAnimalIds.isEmpty) {
+    if (_saving ||
+        _selectedAnimalIds.isEmpty ||
+        _details.currentState?.validate() == false) {
       return;
     }
 
@@ -165,6 +170,7 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
         animalIds: orderedAnimalIds,
         fedAt: _fedAt,
         notes: normalizedNotes,
+        customFields: _details.currentState?.patch,
       );
 
       if (!mounted) {
@@ -294,6 +300,11 @@ class _QuickFeedingFormState extends State<QuickFeedingForm> {
                   labelText: context.l10n.notes,
                   alignLabelWithHint: true,
                 ),
+              ),
+              FeedingDetailsFields(
+                key: _details,
+                access: standaloneFeedingDetails(widget.database),
+                enabled: !_saving,
               ),
             ],
           ),

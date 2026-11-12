@@ -4242,8 +4242,25 @@ class $FeedingEventsTable extends FeedingEvents
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _customFieldsJsonMeta = const VerificationMeta(
+    'customFieldsJson',
+  );
   @override
-  List<GeneratedColumn> get $columns => [id, animalId, fedAt, notes];
+  late final GeneratedColumn<String> customFieldsJson = GeneratedColumn<String>(
+    'custom_fields_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    animalId,
+    fedAt,
+    notes,
+    customFieldsJson,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4281,6 +4298,15 @@ class $FeedingEventsTable extends FeedingEvents
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('custom_fields_json')) {
+      context.handle(
+        _customFieldsJsonMeta,
+        customFieldsJson.isAcceptableOrUnknown(
+          data['custom_fields_json']!,
+          _customFieldsJsonMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4306,6 +4332,10 @@ class $FeedingEventsTable extends FeedingEvents
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      customFieldsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_fields_json'],
+      ),
     );
   }
 
@@ -4320,11 +4350,13 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
   final int animalId;
   final DateTime fedAt;
   final String? notes;
+  final String? customFieldsJson;
   const FeedingEvent({
     required this.id,
     required this.animalId,
     required this.fedAt,
     this.notes,
+    this.customFieldsJson,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4334,6 +4366,9 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
     map['fed_at'] = Variable<DateTime>(fedAt);
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
+    }
+    if (!nullToAbsent || customFieldsJson != null) {
+      map['custom_fields_json'] = Variable<String>(customFieldsJson);
     }
     return map;
   }
@@ -4346,6 +4381,9 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      customFieldsJson: customFieldsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customFieldsJson),
     );
   }
 
@@ -4359,6 +4397,7 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
       animalId: serializer.fromJson<int>(json['animalId']),
       fedAt: serializer.fromJson<DateTime>(json['fedAt']),
       notes: serializer.fromJson<String?>(json['notes']),
+      customFieldsJson: serializer.fromJson<String?>(json['customFieldsJson']),
     );
   }
   @override
@@ -4369,6 +4408,7 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
       'animalId': serializer.toJson<int>(animalId),
       'fedAt': serializer.toJson<DateTime>(fedAt),
       'notes': serializer.toJson<String?>(notes),
+      'customFieldsJson': serializer.toJson<String?>(customFieldsJson),
     };
   }
 
@@ -4377,11 +4417,15 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
     int? animalId,
     DateTime? fedAt,
     Value<String?> notes = const Value.absent(),
+    Value<String?> customFieldsJson = const Value.absent(),
   }) => FeedingEvent(
     id: id ?? this.id,
     animalId: animalId ?? this.animalId,
     fedAt: fedAt ?? this.fedAt,
     notes: notes.present ? notes.value : this.notes,
+    customFieldsJson: customFieldsJson.present
+        ? customFieldsJson.value
+        : this.customFieldsJson,
   );
   FeedingEvent copyWithCompanion(FeedingEventsCompanion data) {
     return FeedingEvent(
@@ -4389,6 +4433,9 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
       animalId: data.animalId.present ? data.animalId.value : this.animalId,
       fedAt: data.fedAt.present ? data.fedAt.value : this.fedAt,
       notes: data.notes.present ? data.notes.value : this.notes,
+      customFieldsJson: data.customFieldsJson.present
+          ? data.customFieldsJson.value
+          : this.customFieldsJson,
     );
   }
 
@@ -4398,13 +4445,14 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
           ..write('id: $id, ')
           ..write('animalId: $animalId, ')
           ..write('fedAt: $fedAt, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('customFieldsJson: $customFieldsJson')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, animalId, fedAt, notes);
+  int get hashCode => Object.hash(id, animalId, fedAt, notes, customFieldsJson);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4412,7 +4460,8 @@ class FeedingEvent extends DataClass implements Insertable<FeedingEvent> {
           other.id == this.id &&
           other.animalId == this.animalId &&
           other.fedAt == this.fedAt &&
-          other.notes == this.notes);
+          other.notes == this.notes &&
+          other.customFieldsJson == this.customFieldsJson);
 }
 
 class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
@@ -4420,17 +4469,20 @@ class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
   final Value<int> animalId;
   final Value<DateTime> fedAt;
   final Value<String?> notes;
+  final Value<String?> customFieldsJson;
   const FeedingEventsCompanion({
     this.id = const Value.absent(),
     this.animalId = const Value.absent(),
     this.fedAt = const Value.absent(),
     this.notes = const Value.absent(),
+    this.customFieldsJson = const Value.absent(),
   });
   FeedingEventsCompanion.insert({
     this.id = const Value.absent(),
     required int animalId,
     required DateTime fedAt,
     this.notes = const Value.absent(),
+    this.customFieldsJson = const Value.absent(),
   }) : animalId = Value(animalId),
        fedAt = Value(fedAt);
   static Insertable<FeedingEvent> custom({
@@ -4438,12 +4490,14 @@ class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
     Expression<int>? animalId,
     Expression<DateTime>? fedAt,
     Expression<String>? notes,
+    Expression<String>? customFieldsJson,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (animalId != null) 'animal_id': animalId,
       if (fedAt != null) 'fed_at': fedAt,
       if (notes != null) 'notes': notes,
+      if (customFieldsJson != null) 'custom_fields_json': customFieldsJson,
     });
   }
 
@@ -4452,12 +4506,14 @@ class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
     Value<int>? animalId,
     Value<DateTime>? fedAt,
     Value<String?>? notes,
+    Value<String?>? customFieldsJson,
   }) {
     return FeedingEventsCompanion(
       id: id ?? this.id,
       animalId: animalId ?? this.animalId,
       fedAt: fedAt ?? this.fedAt,
       notes: notes ?? this.notes,
+      customFieldsJson: customFieldsJson ?? this.customFieldsJson,
     );
   }
 
@@ -4476,6 +4532,9 @@ class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (customFieldsJson.present) {
+      map['custom_fields_json'] = Variable<String>(customFieldsJson.value);
+    }
     return map;
   }
 
@@ -4485,7 +4544,425 @@ class FeedingEventsCompanion extends UpdateCompanion<FeedingEvent> {
           ..write('id: $id, ')
           ..write('animalId: $animalId, ')
           ..write('fedAt: $fedAt, ')
-          ..write('notes: $notes')
+          ..write('notes: $notes, ')
+          ..write('customFieldsJson: $customFieldsJson')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FoodPresetsTable extends FoodPresets
+    with TableInfo<$FoodPresetsTable, FoodPresetRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FoodPresetsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 80,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameKeyMeta = const VerificationMeta(
+    'nameKey',
+  );
+  @override
+  late final GeneratedColumn<String> nameKey = GeneratedColumn<String>(
+    'name_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _defaultsJsonMeta = const VerificationMeta(
+    'defaultsJson',
+  );
+  @override
+  late final GeneratedColumn<String> defaultsJson = GeneratedColumn<String>(
+    'defaults_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _archivedMeta = const VerificationMeta(
+    'archived',
+  );
+  @override
+  late final GeneratedColumn<bool> archived = GeneratedColumn<bool>(
+    'archived',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("archived" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    nameKey,
+    defaultsJson,
+    archived,
+    revision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'food_presets';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FoodPresetRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('name_key')) {
+      context.handle(
+        _nameKeyMeta,
+        nameKey.isAcceptableOrUnknown(data['name_key']!, _nameKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameKeyMeta);
+    }
+    if (data.containsKey('defaults_json')) {
+      context.handle(
+        _defaultsJsonMeta,
+        defaultsJson.isAcceptableOrUnknown(
+          data['defaults_json']!,
+          _defaultsJsonMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_defaultsJsonMeta);
+    }
+    if (data.containsKey('archived')) {
+      context.handle(
+        _archivedMeta,
+        archived.isAcceptableOrUnknown(data['archived']!, _archivedMeta),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FoodPresetRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FoodPresetRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      nameKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name_key'],
+      )!,
+      defaultsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}defaults_json'],
+      )!,
+      archived: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}archived'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+    );
+  }
+
+  @override
+  $FoodPresetsTable createAlias(String alias) {
+    return $FoodPresetsTable(attachedDatabase, alias);
+  }
+}
+
+class FoodPresetRow extends DataClass implements Insertable<FoodPresetRow> {
+  final String id;
+  final String name;
+  final String nameKey;
+  final String defaultsJson;
+  final bool archived;
+  final int revision;
+  const FoodPresetRow({
+    required this.id,
+    required this.name,
+    required this.nameKey,
+    required this.defaultsJson,
+    required this.archived,
+    required this.revision,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['name_key'] = Variable<String>(nameKey);
+    map['defaults_json'] = Variable<String>(defaultsJson);
+    map['archived'] = Variable<bool>(archived);
+    map['revision'] = Variable<int>(revision);
+    return map;
+  }
+
+  FoodPresetsCompanion toCompanion(bool nullToAbsent) {
+    return FoodPresetsCompanion(
+      id: Value(id),
+      name: Value(name),
+      nameKey: Value(nameKey),
+      defaultsJson: Value(defaultsJson),
+      archived: Value(archived),
+      revision: Value(revision),
+    );
+  }
+
+  factory FoodPresetRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FoodPresetRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      nameKey: serializer.fromJson<String>(json['nameKey']),
+      defaultsJson: serializer.fromJson<String>(json['defaultsJson']),
+      archived: serializer.fromJson<bool>(json['archived']),
+      revision: serializer.fromJson<int>(json['revision']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'nameKey': serializer.toJson<String>(nameKey),
+      'defaultsJson': serializer.toJson<String>(defaultsJson),
+      'archived': serializer.toJson<bool>(archived),
+      'revision': serializer.toJson<int>(revision),
+    };
+  }
+
+  FoodPresetRow copyWith({
+    String? id,
+    String? name,
+    String? nameKey,
+    String? defaultsJson,
+    bool? archived,
+    int? revision,
+  }) => FoodPresetRow(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    nameKey: nameKey ?? this.nameKey,
+    defaultsJson: defaultsJson ?? this.defaultsJson,
+    archived: archived ?? this.archived,
+    revision: revision ?? this.revision,
+  );
+  FoodPresetRow copyWithCompanion(FoodPresetsCompanion data) {
+    return FoodPresetRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      nameKey: data.nameKey.present ? data.nameKey.value : this.nameKey,
+      defaultsJson: data.defaultsJson.present
+          ? data.defaultsJson.value
+          : this.defaultsJson,
+      archived: data.archived.present ? data.archived.value : this.archived,
+      revision: data.revision.present ? data.revision.value : this.revision,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodPresetRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('nameKey: $nameKey, ')
+          ..write('defaultsJson: $defaultsJson, ')
+          ..write('archived: $archived, ')
+          ..write('revision: $revision')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, name, nameKey, defaultsJson, archived, revision);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FoodPresetRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.nameKey == this.nameKey &&
+          other.defaultsJson == this.defaultsJson &&
+          other.archived == this.archived &&
+          other.revision == this.revision);
+}
+
+class FoodPresetsCompanion extends UpdateCompanion<FoodPresetRow> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> nameKey;
+  final Value<String> defaultsJson;
+  final Value<bool> archived;
+  final Value<int> revision;
+  final Value<int> rowid;
+  const FoodPresetsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.nameKey = const Value.absent(),
+    this.defaultsJson = const Value.absent(),
+    this.archived = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FoodPresetsCompanion.insert({
+    required String id,
+    required String name,
+    required String nameKey,
+    required String defaultsJson,
+    this.archived = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       name = Value(name),
+       nameKey = Value(nameKey),
+       defaultsJson = Value(defaultsJson);
+  static Insertable<FoodPresetRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? nameKey,
+    Expression<String>? defaultsJson,
+    Expression<bool>? archived,
+    Expression<int>? revision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (nameKey != null) 'name_key': nameKey,
+      if (defaultsJson != null) 'defaults_json': defaultsJson,
+      if (archived != null) 'archived': archived,
+      if (revision != null) 'revision': revision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FoodPresetsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String>? nameKey,
+    Value<String>? defaultsJson,
+    Value<bool>? archived,
+    Value<int>? revision,
+    Value<int>? rowid,
+  }) {
+    return FoodPresetsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameKey: nameKey ?? this.nameKey,
+      defaultsJson: defaultsJson ?? this.defaultsJson,
+      archived: archived ?? this.archived,
+      revision: revision ?? this.revision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (nameKey.present) {
+      map['name_key'] = Variable<String>(nameKey.value);
+    }
+    if (defaultsJson.present) {
+      map['defaults_json'] = Variable<String>(defaultsJson.value);
+    }
+    if (archived.present) {
+      map['archived'] = Variable<bool>(archived.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FoodPresetsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('nameKey: $nameKey, ')
+          ..write('defaultsJson: $defaultsJson, ')
+          ..write('archived: $archived, ')
+          ..write('revision: $revision, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -7309,6 +7786,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $AnimalWeightEntriesTable(this);
   late final $SheddingEventsTable sheddingEvents = $SheddingEventsTable(this);
   late final $FeedingEventsTable feedingEvents = $FeedingEventsTable(this);
+  late final $FoodPresetsTable foodPresets = $FoodPresetsTable(this);
   late final $AnimalPictureAssociationsTable animalPictureAssociations =
       $AnimalPictureAssociationsTable(this);
   late final $BoxPictureAssociationsTable boxPictureAssociations =
@@ -7330,6 +7808,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     animalWeightEntries,
     sheddingEvents,
     feedingEvents,
+    foodPresets,
     animalPictureAssociations,
     boxPictureAssociations,
     careEventTypes,
@@ -11166,6 +11645,7 @@ typedef $$FeedingEventsTableCreateCompanionBuilder =
       required int animalId,
       required DateTime fedAt,
       Value<String?> notes,
+      Value<String?> customFieldsJson,
     });
 typedef $$FeedingEventsTableUpdateCompanionBuilder =
     FeedingEventsCompanion Function({
@@ -11173,6 +11653,7 @@ typedef $$FeedingEventsTableUpdateCompanionBuilder =
       Value<int> animalId,
       Value<DateTime> fedAt,
       Value<String?> notes,
+      Value<String?> customFieldsJson,
     });
 
 final class $$FeedingEventsTableReferences
@@ -11225,6 +11706,11 @@ class $$FeedingEventsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get customFieldsJson => $composableBuilder(
+    column: $table.customFieldsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$AnimalsTableFilterComposer get animalId {
     final $$AnimalsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -11273,6 +11759,11 @@ class $$FeedingEventsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get customFieldsJson => $composableBuilder(
+    column: $table.customFieldsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$AnimalsTableOrderingComposer get animalId {
     final $$AnimalsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -11314,6 +11805,11 @@ class $$FeedingEventsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get customFieldsJson => $composableBuilder(
+    column: $table.customFieldsJson,
+    builder: (column) => column,
+  );
 
   $$AnimalsTableAnnotationComposer get animalId {
     final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
@@ -11371,11 +11867,13 @@ class $$FeedingEventsTableTableManager
                 Value<int> animalId = const Value.absent(),
                 Value<DateTime> fedAt = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> customFieldsJson = const Value.absent(),
               }) => FeedingEventsCompanion(
                 id: id,
                 animalId: animalId,
                 fedAt: fedAt,
                 notes: notes,
+                customFieldsJson: customFieldsJson,
               ),
           createCompanionCallback:
               ({
@@ -11383,11 +11881,13 @@ class $$FeedingEventsTableTableManager
                 required int animalId,
                 required DateTime fedAt,
                 Value<String?> notes = const Value.absent(),
+                Value<String?> customFieldsJson = const Value.absent(),
               }) => FeedingEventsCompanion.insert(
                 id: id,
                 animalId: animalId,
                 fedAt: fedAt,
                 notes: notes,
+                customFieldsJson: customFieldsJson,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -11453,6 +11953,227 @@ typedef $$FeedingEventsTableProcessedTableManager =
       (FeedingEvent, $$FeedingEventsTableReferences),
       FeedingEvent,
       PrefetchHooks Function({bool animalId})
+    >;
+typedef $$FoodPresetsTableCreateCompanionBuilder =
+    FoodPresetsCompanion Function({
+      required String id,
+      required String name,
+      required String nameKey,
+      required String defaultsJson,
+      Value<bool> archived,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+typedef $$FoodPresetsTableUpdateCompanionBuilder =
+    FoodPresetsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String> nameKey,
+      Value<String> defaultsJson,
+      Value<bool> archived,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+
+class $$FoodPresetsTableFilterComposer
+    extends Composer<_$AppDatabase, $FoodPresetsTable> {
+  $$FoodPresetsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get nameKey => $composableBuilder(
+    column: $table.nameKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get defaultsJson => $composableBuilder(
+    column: $table.defaultsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FoodPresetsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FoodPresetsTable> {
+  $$FoodPresetsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get nameKey => $composableBuilder(
+    column: $table.nameKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get defaultsJson => $composableBuilder(
+    column: $table.defaultsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get archived => $composableBuilder(
+    column: $table.archived,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FoodPresetsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FoodPresetsTable> {
+  $$FoodPresetsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get nameKey =>
+      $composableBuilder(column: $table.nameKey, builder: (column) => column);
+
+  GeneratedColumn<String> get defaultsJson => $composableBuilder(
+    column: $table.defaultsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get archived =>
+      $composableBuilder(column: $table.archived, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+}
+
+class $$FoodPresetsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FoodPresetsTable,
+          FoodPresetRow,
+          $$FoodPresetsTableFilterComposer,
+          $$FoodPresetsTableOrderingComposer,
+          $$FoodPresetsTableAnnotationComposer,
+          $$FoodPresetsTableCreateCompanionBuilder,
+          $$FoodPresetsTableUpdateCompanionBuilder,
+          (
+            FoodPresetRow,
+            BaseReferences<_$AppDatabase, $FoodPresetsTable, FoodPresetRow>,
+          ),
+          FoodPresetRow,
+          PrefetchHooks Function()
+        > {
+  $$FoodPresetsTableTableManager(_$AppDatabase db, $FoodPresetsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FoodPresetsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FoodPresetsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FoodPresetsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> nameKey = const Value.absent(),
+                Value<String> defaultsJson = const Value.absent(),
+                Value<bool> archived = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodPresetsCompanion(
+                id: id,
+                name: name,
+                nameKey: nameKey,
+                defaultsJson: defaultsJson,
+                archived: archived,
+                revision: revision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String name,
+                required String nameKey,
+                required String defaultsJson,
+                Value<bool> archived = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FoodPresetsCompanion.insert(
+                id: id,
+                name: name,
+                nameKey: nameKey,
+                defaultsJson: defaultsJson,
+                archived: archived,
+                revision: revision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FoodPresetsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FoodPresetsTable,
+      FoodPresetRow,
+      $$FoodPresetsTableFilterComposer,
+      $$FoodPresetsTableOrderingComposer,
+      $$FoodPresetsTableAnnotationComposer,
+      $$FoodPresetsTableCreateCompanionBuilder,
+      $$FoodPresetsTableUpdateCompanionBuilder,
+      (
+        FoodPresetRow,
+        BaseReferences<_$AppDatabase, $FoodPresetsTable, FoodPresetRow>,
+      ),
+      FoodPresetRow,
+      PrefetchHooks Function()
     >;
 typedef $$AnimalPictureAssociationsTableCreateCompanionBuilder =
     AnimalPictureAssociationsCompanion Function({
@@ -14075,6 +14796,8 @@ class $AppDatabaseManager {
       $$SheddingEventsTableTableManager(_db, _db.sheddingEvents);
   $$FeedingEventsTableTableManager get feedingEvents =>
       $$FeedingEventsTableTableManager(_db, _db.feedingEvents);
+  $$FoodPresetsTableTableManager get foodPresets =>
+      $$FoodPresetsTableTableManager(_db, _db.foodPresets);
   $$AnimalPictureAssociationsTableTableManager get animalPictureAssociations =>
       $$AnimalPictureAssociationsTableTableManager(
         _db,

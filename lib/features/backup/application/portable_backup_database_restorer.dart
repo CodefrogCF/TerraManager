@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/enums/box_care_event_type.dart';
 import '../../boxes/domain/care_event_type_definition.dart';
+import '../../feedings/domain/feeding_field_values.dart';
 import '../../../core/database/validation/animal_weight_parser.dart';
 import '../domain/backup_enum_codec.dart';
 import '../domain/backup_data.dart';
@@ -19,6 +20,7 @@ class PortableBackupDatabaseRestorer {
   Future<int> restore(ValidatedBackup backup) {
     return database.transaction(() async {
       await database.delete(database.customFieldValues).go();
+      await database.delete(database.foodPresets).go();
       await database.delete(database.customFieldTemplates).go();
       await database.delete(database.boxCareEvents).go();
       await database.delete(database.careEventTypes).go();
@@ -86,6 +88,20 @@ class PortableBackupDatabaseRestorer {
             );
       }
       final mediaCache = <String, int>{};
+      for (final preset in backup.data.foodPresets) {
+        await database
+            .into(database.foodPresets)
+            .insert(
+              FoodPresetsCompanion.insert(
+                id: preset.id,
+                name: preset.name,
+                nameKey: preset.name.toLowerCase(),
+                defaultsJson: jsonEncode(preset.defaults),
+                archived: Value(preset.archived),
+                revision: Value(preset.revision),
+              ),
+            );
+      }
 
       for (final box in backup.data.boxes) {
         final restoredPictures = await _restorePictures(
@@ -327,6 +343,9 @@ class PortableBackupDatabaseRestorer {
                 animalId: Value(feeding.animalId),
                 fedAt: Value(feeding.fedAt),
                 notes: Value(feeding.notes),
+                customFieldsJson: Value(
+                  encodeFeedingFieldValues(feeding.customFields),
+                ),
               ),
             );
       }

@@ -1,9 +1,27 @@
 import 'package:terramanager/features/feedings/domain/animal_rest_period.dart';
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+import 'package:terramanager/features/feedings/domain/food_preset.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_payload.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_transport.dart';
 import 'package:uuid/uuid.dart';
 
 mixin SharedFeedingsApi on SharedApiTransport {
+  Future<List<FoodPreset>> foodPresets() async => readApiList(
+    await requestJson('GET', '/api/v1/food-presets'),
+    'presets',
+  ).map(FoodPreset.fromJson).toList();
+
+  Future<void> saveFoodPreset(
+    FoodPreset preset, {
+    required bool creating,
+  }) async {
+    await requestJson(
+      creating ? 'POST' : 'PATCH',
+      '/api/v1/food-presets${creating ? '' : '/${preset.id}'}',
+      body: preset.toJson(),
+    );
+  }
+
   Future<List<Map<String, dynamic>>> reminders() async =>
       readApiList(await requestJson('GET', '/api/v1/reminders'), 'reminders');
 
@@ -46,11 +64,13 @@ mixin SharedFeedingsApi on SharedApiTransport {
     DateTime fedAt,
     String? notes, {
     String? requestId,
+    CustomFieldPatch? customFields,
   }) async => (await createFeedings(
     animalIds: [animalId],
     fedAt: fedAt,
     notes: notes,
     requestId: requestId,
+    customFields: customFields,
   )).single;
 
   Future<List<Map<String, dynamic>>> createFeedings({
@@ -59,11 +79,13 @@ mixin SharedFeedingsApi on SharedApiTransport {
     required String? notes,
     int? boxId,
     String? requestId,
+    CustomFieldPatch? customFields,
   }) async {
     final body = <String, dynamic>{
       'animalIds': animalIds,
       'fedAt': fedAt.toUtc().toIso8601String(),
       'notes': notes,
+      if (customFields != null) 'customFields': customFields.toJson(),
     };
     if (boxId != null) {
       body['boxId'] = boxId;
@@ -82,12 +104,17 @@ mixin SharedFeedingsApi on SharedApiTransport {
   Future<Map<String, dynamic>> updateFeeding(
     int id,
     DateTime fedAt,
-    String? notes,
-  ) async => readApiObject(
+    String? notes, {
+    CustomFieldPatch? customFields,
+  }) async => readApiObject(
     await requestJson(
       'PUT',
       '/api/v1/feedings/$id',
-      body: {'fedAt': fedAt.toUtc().toIso8601String(), 'notes': notes},
+      body: {
+        'fedAt': fedAt.toUtc().toIso8601String(),
+        'notes': notes,
+        if (customFields != null) 'customFields': customFields.toJson(),
+      },
     ),
     'feeding',
   );

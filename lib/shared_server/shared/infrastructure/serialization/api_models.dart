@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/date_only.dart';
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
+import 'package:terramanager/features/feedings/domain/feeding_field_values.dart';
 
 String? _date(DateTime? value) => value?.toUtc().toIso8601String();
 
@@ -78,6 +79,10 @@ Map<String, dynamic> feedingJson(FeedingEvent event) => {
   'animalId': event.animalId,
   'fedAt': _date(event.fedAt),
   'notes': event.notes,
+  if (event.customFieldsJson != null)
+    'customFields': feedingFieldValuesJson(
+      decodeFeedingFieldValues(event.customFieldsJson),
+    ),
 };
 
 Map<String, dynamic> weightJson(AnimalWeightEntry entry) => {

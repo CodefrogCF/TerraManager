@@ -107,9 +107,13 @@ class CustomFieldRepository {
     CustomFieldValues t,
     CustomFieldTarget target,
     int id,
-  ) => target == CustomFieldTarget.animal
-      ? t.animalId.equals(id)
-      : t.boxId.equals(id);
+  ) => switch (target) {
+    CustomFieldTarget.animal => t.animalId.equals(id),
+    CustomFieldTarget.box => t.boxId.equals(id),
+    CustomFieldTarget.feeding => throw ArgumentError(
+      'Feeding values belong to the Feeding entry.',
+    ),
+  };
   Future<List<CustomFieldValueRow>> rows(CustomFieldTarget target, int id) =>
       (database.select(database.customFieldValues)
             ..where((r) => _owner(r, target, id))
@@ -120,6 +124,9 @@ class CustomFieldRepository {
         final definitions = await templates(target);
         if (id == null) {
           return CustomFieldsSnapshot(templates: definitions, values: const []);
+        }
+        if (target == CustomFieldTarget.feeding) {
+          throw ArgumentError('Feeding values belong to the Feeding entry.');
         }
         bool active;
         String identity;

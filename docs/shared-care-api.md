@@ -69,6 +69,7 @@ They belong to the account and are excluded from portable collection backups.
 | Boxes | `GET/POST /boxes`; `GET/PATCH/DELETE /boxes/{id}`; `POST /boxes/{id}/duplicate`, `/archive`, `/restore`; `GET /boxes/qr/{qrId}` |
 | Animals | `GET/POST /animals`; `GET/PUT/DELETE /animals/{id}`; `POST /animals/{id}/duplicate`, `/move`, `/archive`, `/restore`; `PUT /animals/{id}/feeding-reminder` |
 | Feedings | `POST /feedings`; `GET/PUT/DELETE /feedings/{id}`; `GET /animals/{id}/feedings` |
+| Food presets | `GET/POST /food-presets`; `PATCH /food-presets/{uuid}` |
 | Reminders | `GET /reminders` |
 | Weight | `GET/POST /animals/{id}/weights`; `PUT/DELETE /animals/{id}/weights/{entryId}` |
 | Shedding | `GET/POST /animals/{id}/shedding`; `PUT/DELETE /animals/{id}/shedding/{eventId}` |
@@ -122,6 +123,9 @@ open histories and care-type management refresh through the existing SSE/fallbac
 - Feeding creation accepts nonempty `animalIds`, timestamp and optional notes/
   `boxId`. A supplied Box must still own all selected active Animals; otherwise
   the whole grouped write rolls back.
+- Feeding create and edit accept an optional `customFields` patch for
+  Feeding-target templates. Responses include the saved labels, types and
+  values when present. Food presets provide defaults keyed by template UUID.
 - Feedings require UUID `Idempotency-Key`; process-local successes last 24 hours.
   Repeating identical data returns the original result; changed data returns
   `409 idempotency_conflict`.

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:terramanager/shared_client/shared/infrastructure/api/shared_api_client.dart';
 import 'package:terramanager/shared_client/feedings/presentation/pages/shared_feeding_box_page.dart';
+import 'package:terramanager/shared_client/shared_history_page.dart';
 import 'package:terramanager/shared_client/media/presentation/widgets/shared_thumbnail.dart';
 
 void main() {
@@ -47,6 +48,111 @@ void main() {
       },
     ],
   };
+
+  for (final quick in [false, true]) {
+    testWidgets(
+      'Shared Care ${quick ? 'quick' : 'regular'} Feeding uses food defaults',
+      (tester) async {
+        const fieldId = '11111111-1111-4111-8111-111111111111';
+        Map<String, dynamic>? submitted;
+        final api = SharedApiClient(
+          Uri.parse(origin),
+          MockClient((request) async {
+            final data = switch (request.url.path) {
+              '/api/v1/auth/login' => session,
+              '/api/v1/animals' => {
+                'animals': [animals['animals']![1]],
+              },
+              '/api/v1/animals/2/feedings' => {'feedings': []},
+              '/api/v1/boxes/7' => {
+                'box': {'id': 7, 'status': 'active'},
+              },
+              '/api/v1/custom-field-templates' => {
+                'templates': [
+                  {
+                    'id': fieldId,
+                    'target': 'feeding',
+                    'label': 'Quantity',
+                    'type': 'number',
+                  },
+                ],
+              },
+              '/api/v1/food-presets' => {
+                'presets': [
+                  {
+                    'id': '22222222-2222-4222-8222-222222222222',
+                    'name': 'Crickets',
+                    'defaults': {fieldId: 2},
+                  },
+                ],
+              },
+              _ => null,
+            };
+            if (request.url.path == '/api/v1/feedings') {
+              submitted = jsonDecode(request.body) as Map<String, dynamic>;
+              return http.Response(
+                jsonEncode({
+                  'feedings': [
+                    {'id': 10, 'animalId': 2},
+                  ],
+                }),
+                201,
+              );
+            }
+            return http.Response(jsonEncode(data), data == null ? 404 : 200);
+          }),
+        );
+        addTearDown(api.close);
+        await api.login('hagen', 'password');
+        Future<bool> change(Future<void> Function() operation) async {
+          await operation();
+          return true;
+        }
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: quick
+                ? SharedFeedingBoxPage(
+                    api: api,
+                    box: const {'id': 7, 'status': 'active'},
+                    change: change,
+                    onReload: () async {},
+                  )
+                : SharedHistoryPage(
+                    api: api,
+                    animalId: 2,
+                    kind: SharedHistoryKind.feedings,
+                    active: true,
+                    createOnOpen: true,
+                    change: change,
+                  ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final picker = find.byKey(const Key('feeding-preset-picker'));
+        await tester.ensureVisible(picker);
+        await tester.tap(picker);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Crickets').last);
+        await tester.pumpAndSettle();
+
+        await tester.tap(
+          quick
+              ? find.byKey(const Key('shared-feeding-save'))
+              : find.widgetWithText(FilledButton, 'Save'),
+        );
+        await tester.pumpAndSettle();
+        expect(submitted?['animalIds'], [2]);
+        expect(submitted?['notes'], isNull);
+        expect(submitted?['customFields'], {
+          'expectedRevision': null,
+          'updates': [
+            {'templateId': fieldId, 'templateRevision': 1, 'value': 2},
+          ],
+        });
+      },
+    );
+  }
 
   testWidgets('only active Animals in the scanned Box can be fed', (
     tester,

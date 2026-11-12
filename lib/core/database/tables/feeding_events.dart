@@ -10,4 +10,6 @@ class FeedingEvents extends Table {
   DateTimeColumn get fedAt => dateTime()();
 
   TextColumn get notes => text().nullable()();
+
+  TextColumn get customFieldsJson => text().nullable()();
 }

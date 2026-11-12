@@ -31,6 +31,7 @@ import 'tables/animal_picture_associations.dart';
 import 'tables/animal_weight_entries.dart';
 import 'tables/box_picture_associations.dart';
 import 'tables/feeding_events.dart';
+import 'tables/food_presets.dart';
 import 'tables/media_assets.dart';
 import 'tables/shedding_events.dart';
 import 'validation/animal_weight_parser.dart';
@@ -56,6 +57,7 @@ QueryExecutor _configureTestQueryExecutor(QueryExecutor executor) {
     AnimalWeightEntries,
     SheddingEvents,
     FeedingEvents,
+    FoodPresets,
     AnimalPictureAssociations,
     BoxPictureAssociations,
     CareEventTypes,
@@ -224,6 +226,14 @@ class AppDatabase extends _$AppDatabase {
               from21To22: (m, schema) async {
                 await m.addColumn(schema.animals, schema.animals.restPeriod);
               },
+              from22To23: (m, schema) async {
+                await m.alterTable(TableMigration(schema.customFieldTemplates));
+                await m.addColumn(
+                  schema.feedingEvents,
+                  schema.feedingEvents.customFieldsJson,
+                );
+                await m.createTable(schema.foodPresets);
+              },
               from19To20: (m, schema) async {
                 await m.createTable(schema.careEventTypes);
                 await m.alterTable(
@@ -257,7 +267,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   Future<void> migrateSchema13AnimalData() async {
     await customStatement('''

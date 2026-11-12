@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-enum CustomFieldTarget { animal, box }
+enum CustomFieldTarget { animal, box, feeding }
 
 enum CustomFieldType { text, number, date, boolean }
 

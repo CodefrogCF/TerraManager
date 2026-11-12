@@ -36,6 +36,11 @@ portable backups. Restore validates label uniqueness, types and owner references
 before replacing data; definitions precede values. Older archives restore without
 custom fields. Core records and portable format version remain unchanged.
 
+Feeding templates use the target `feeding`. Each Feeding can include a
+`customFields` list of `templateId`, `label`, `type` and `value` snapshots.
+Optional `foodPresets` contain `id`, `name`, `defaults` keyed by template
+UUID, `archived` and `revision`. Older archives omit both lists.
+
 ## Portable records
 
 Common creation/update fields are `createdAt`, `updatedAt`; lifecycle fields are

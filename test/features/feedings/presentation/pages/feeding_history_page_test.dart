@@ -6,6 +6,9 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/core/database/repositories/custom_field_repository.dart';
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+import 'package:terramanager/features/feedings/domain/feeding_field_values.dart';
 
 import 'package:terramanager/features/feedings/presentation/pages/feeding_history_page.dart';
 
@@ -147,6 +150,59 @@ void main() {
 
     expect(feedings.single.notes, isNull);
   });
+
+  testWidgets(
+    'creates a preset, applies it, and saves an adjusted field without notes',
+    (tester) async {
+      final animal = await createTestAnimal();
+      const field = CustomFieldTemplate(
+        id: '11111111-1111-4111-8111-111111111111',
+        target: CustomFieldTarget.feeding,
+        type: CustomFieldType.number,
+        label: 'Quantity',
+      );
+      await CustomFieldRepository(database).create(field);
+      await pumpPage(tester, animalId: animal);
+      await tester.tap(find.byKey(const Key('add-feeding-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Food details'));
+      await tester.pumpAndSettle();
+      final manage = find.byKey(const Key('manage-food-presets'));
+      await tester.ensureVisible(manage);
+      await tester.tap(manage);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('add-food-preset')));
+      await tester.pumpAndSettle();
+      final fieldFinder = find.byKey(ValueKey('custom-field-${field.id}'));
+      await tester.enterText(
+        find.byKey(const Key('food-preset-name')),
+        'Crickets',
+      );
+      await tester.enterText(fieldFinder, '2');
+      await tester.tap(find.byKey(const Key('save-food-preset')));
+      await tester.pumpAndSettle();
+      expect(find.text('Crickets'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+
+      final picker = find.byKey(const Key('feeding-preset-picker'));
+      await tester.ensureVisible(picker);
+      await tester.tap(picker);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Crickets').last);
+      await tester.pumpAndSettle();
+      expect(tester.widget<TextFormField>(fieldFinder).controller!.text, '2.0');
+      await tester.enterText(fieldFinder, '3');
+      await tester.tap(find.byKey(const Key('save-feeding-button')));
+      await tester.pumpAndSettle();
+      final entry = (await FeedingRepository(
+        database,
+      ).getFeedingsForAnimal(animal)).single;
+      expect(entry.notes, isNull);
+      expect(decodeFeedingFieldValues(entry.customFieldsJson).single.value, 3);
+      expect(find.text('Quantity · 3'), findsOneWidget);
+    },
+  );
 
   testWidgets('cancel does not create feeding', (tester) async {
     final animalId = await createTestAnimal();

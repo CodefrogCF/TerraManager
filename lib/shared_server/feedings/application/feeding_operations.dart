@@ -7,6 +7,9 @@ import 'package:terramanager/core/database/enums/box_status.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/core/database/repositories/food_preset_repository.dart';
+import 'package:terramanager/features/custom_fields/domain/custom_field.dart';
+import 'package:terramanager/features/feedings/domain/food_preset.dart';
 import 'package:terramanager/shared_server/shared/application/api_input.dart';
 import 'package:terramanager/shared_server/shared/application/collection_operations.dart';
 import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
@@ -14,6 +17,28 @@ import 'package:terramanager/shared_server/shared/infrastructure/serialization/a
 
 class FeedingOperations extends CollectionOperations {
   FeedingOperations(super.database);
+
+  Future<ApiReply> listPresets() async => ApiReply(200, {
+    'presets': (await FoodPresetRepository(
+      database,
+    ).all()).map((preset) => preset.toJson()).toList(),
+  });
+
+  Future<ApiReply> savePreset(ApiInput input, {String? id}) async {
+    input.allow(const {'id', 'name', 'defaults', 'archived', 'revision'});
+    final FoodPreset preset;
+    try {
+      preset = FoodPreset.fromJson(input.values);
+    } on TypeError {
+      throw ArgumentError('Invalid food preset.');
+    }
+    if (id != null && preset.id != id) {
+      throw ArgumentError('Food preset ID mismatch.');
+    }
+    final saved = await FoodPresetRepository(database)
+        .save(preset, creating: id == null);
+    return ApiReply(id == null ? 201 : 200, {'preset': saved.toJson()});
+  }
 
   Future<ApiReply> forAnimal(int animalId) async => ApiReply(200, {
     'feedings': (await FeedingRepository(
@@ -65,7 +90,7 @@ class FeedingOperations extends CollectionOperations {
   Future<ApiReply> create(ApiInput input, String? requestId) async {
     final feedings = FeedingRepository(database);
 
-    input.allow(const {'animalIds', 'fedAt', 'notes', 'boxId'});
+    input.allow(const {'animalIds', 'fedAt', 'notes', 'boxId', 'customFields'});
 
     if (requestId == null ||
         !RegExp(r'^[0-9a-fA-F-]{36}$').hasMatch(requestId)) {
@@ -79,6 +104,7 @@ class FeedingOperations extends CollectionOperations {
     final fedAt = input.dateTime('fedAt');
     final notes = input.nullableString('notes');
     final boxId = input.nullableInteger('boxId');
+    final fields = _customFields(input);
     return _idempotentFeeding(requestId, input.values, () async {
       final ids = await database.transaction(() async {
         if (boxId != null) {
@@ -105,6 +131,7 @@ class FeedingOperations extends CollectionOperations {
           animalIds: animalIds,
           fedAt: fedAt,
           notes: notes,
+          customFields: fields,
         );
       });
       return ApiReply(201, {
@@ -119,11 +146,12 @@ class FeedingOperations extends CollectionOperations {
   Future<ApiReply> update(int id, ApiInput input) async {
     final feedings = FeedingRepository(database);
 
-    input.allow(const {'fedAt', 'notes'});
+    input.allow(const {'fedAt', 'notes', 'customFields'});
     final changed = await feedings.updateFeeding(
       feedingId: id,
       fedAt: input.dateTime('fedAt'),
       notes: input.nullableString('notes'),
+      customFields: _customFields(input),
     );
     return changed
         ? ApiReply(200, {
@@ -139,6 +167,11 @@ class FeedingOperations extends CollectionOperations {
     return deleted
         ? ApiReply(200, {'deleted': true})
         : apiError(409, 'conflict', 'Feeding could not be deleted.');
+  }
+
+  CustomFieldPatch? _customFields(ApiInput input) {
+    final raw = input.values['customFields'];
+    return raw == null ? null : CustomFieldPatch.fromJson(raw);
   }
 }
 

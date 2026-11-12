@@ -9,10 +9,14 @@ import '../../../core/database/repositories/animal_repository.dart';
 import '../../../core/database/repositories/animal_weight_repository.dart';
 import '../../../core/database/repositories/box_repository.dart';
 import '../../../core/database/repositories/feeding_repository.dart';
+import '../../../core/database/repositories/custom_field_repository.dart';
+import '../../../core/database/repositories/food_preset_repository.dart';
 import '../../../core/database/repositories/media_repository.dart';
 import '../../../core/database/repositories/picture_gallery_repository.dart';
 import '../../../core/database/repositories/shedding_repository.dart';
 import '../../settings/app_accent.dart';
+import '../../custom_fields/domain/custom_field.dart';
+import '../../feedings/domain/feeding_field_values.dart';
 import '../../settings/app_language.dart';
 import '../../settings/animal_name_order.dart';
 import '../../settings/animal_sort_order.dart';
@@ -224,6 +228,9 @@ class BackupExportService {
     }
 
     final backupData = BackupData(
+      foodPresets: await FoodPresetRepository(database).all(),
+      customFieldTemplates: await CustomFieldRepository(database)
+          .templates(CustomFieldTarget.feeding),
       boxes: backupBoxes,
       animals: backupAnimals,
       feedingEvents: feedingEvents
@@ -233,6 +240,7 @@ class BackupExportService {
               animalId: feeding.animalId,
               fedAt: feeding.fedAt,
               notes: feeding.notes,
+              customFields: decodeFeedingFieldValues(feeding.customFieldsJson),
             ),
           )
           .toList(),

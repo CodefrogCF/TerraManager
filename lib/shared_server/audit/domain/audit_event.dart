@@ -8,6 +8,14 @@ class AuditActor {
   final String role;
 }
 
+/// The affected Box, Animal or account as known when the event was recorded.
+class AuditSubject {
+  const AuditSubject(this.type, this.id, this.label);
+  final String type;
+  final String id;
+  final String? label;
+}
+
 class AuditEvent {
   AuditEvent({
     required this.actor,
@@ -16,6 +24,7 @@ class AuditEvent {
     required this.recordId,
     required this.outcome,
     required this.statusCode,
+    this.subject,
     DateTime? occurredAt,
   }) : id = const Uuid().v4(),
        occurredAt = (occurredAt ?? DateTime.now()).toUtc();
@@ -27,121 +36,7 @@ class AuditEvent {
   final String? recordId;
   final String outcome;
   final int statusCode;
+  final AuditSubject? subject;
 }
 
 const auditRetention = Duration(days: 365);
-
-/// Extract only typed, numeric identifiers and allowlisted operation names.
-/// Each grouped Feeding has its own affected-record event.
-List<AuditEvent> collectionAuditEvents(
-  AuditActor actor,
-  String method,
-  List<String> path,
-  int status,
-  Map<String, dynamic>? reply, {
-  bool replayed = false,
-}) {
-  if (path.isEmpty) return [];
-  const roots = {
-    'custom-field-templates': 'customFieldTemplate',
-    'care-event-types': 'careEventType',
-    'boxes': 'box',
-    'animals': 'animal',
-    'feedings': 'feeding',
-    'media': 'media',
-  };
-  var type = roots[path.first];
-  if (type == null) return [];
-  String? numeric(String? text) => int.tryParse(text ?? '')?.toString();
-  var target = path.length > 1 ? numeric(path[1]) : null;
-  var operation = switch (method) {
-    'POST' => 'create',
-    'DELETE' => 'delete',
-    'PUT' || 'PATCH' => 'update',
-    _ => 'unknown',
-  };
-  if (path.length > 2) {
-    final section = path[2];
-    if (const {
-      'archive',
-      'restore',
-      'duplicate',
-      'move',
-      'feeding-reminder',
-    }.contains(section)) {
-      operation = section;
-    } else if (const {
-      'pictures',
-      'weights',
-      'shedding',
-      'care-events',
-    }.contains(section)) {
-      type = section == 'care-events'
-          ? 'boxCareEvent'
-          : section == 'pictures'
-          ? 'media'
-          : section == 'weights'
-          ? 'weight'
-          : section;
-      target = path.length > 3 ? numeric(path[3]) : null;
-      if (path.length > 4 && path[4] == 'primary') operation = 'set_primary';
-    }
-  }
-  if (type == 'careEventType' || type == 'customFieldTemplate') {
-    final id = path.length > 1
-        ? path[1]
-        : (reply?[type == 'customFieldTemplate' ? 'template' : 'careEventType']
-              as Map?)?['id'];
-    target =
-        id is String &&
-            RegExp(
-              r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
-            ).hasMatch(id)
-        ? id
-        : null;
-    if (path.length == 2 && path[1] == 'order') operation = 'reorder';
-  }
-  final ids = <String>[];
-  if (status < 400 && reply != null) {
-    if (reply['feedings'] case final List<dynamic> feedings) {
-      for (final record in feedings) {
-        if (record is Map && record['id'] is int) ids.add('${record['id']}');
-      }
-    } else {
-      for (final key in [
-        'box',
-        'animal',
-        'feeding',
-        'weight',
-        'shedding',
-        'careEvent',
-        'picture',
-      ]) {
-        final record = reply[key];
-        if (record is Map) {
-          final value = key == 'picture' ? record['mediaId'] : record['id'];
-          if (value is int) {
-            ids.add('$value');
-            break;
-          }
-        }
-      }
-      if (ids.isEmpty && reply['id'] is int) ids.add('${reply['id']}');
-    }
-  }
-  return [
-    for (final id in ids.isEmpty ? <String?>[target] : ids)
-      AuditEvent(
-        actor: actor,
-        action: '$type.$operation',
-        recordType: type,
-        recordId: id,
-        outcome: replayed
-            ? 'replayed'
-            : status < 400
-            ? 'success'
-            : 'rejected',
-        statusCode: status,
-      ),
-  ];
-}

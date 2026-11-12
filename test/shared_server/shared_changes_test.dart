@@ -232,7 +232,7 @@ void main() {
       database: helper.database,
       authenticator: api.sessions,
       changes: feed,
-      audit: (request, status, body, replayed) async {
+      audit: (request, status, body, replayed, before) async {
         entered.complete();
         await release.future;
       },

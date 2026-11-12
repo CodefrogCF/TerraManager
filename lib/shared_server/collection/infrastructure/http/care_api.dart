@@ -21,6 +21,7 @@ import 'package:terramanager/shared_server/animals/infrastructure/http/animal_hi
 import 'package:terramanager/shared_server/authentication/infrastructure/http/care_authenticator.dart';
 import 'package:terramanager/shared_server/changes/application/care_change_hints.dart';
 import 'package:terramanager/shared_server/changes/application/committed_changes.dart';
+import 'package:terramanager/shared_server/collection/application/care_mutation_records.dart';
 import 'package:terramanager/shared_server/boxes/application/box_operations.dart';
 import 'package:terramanager/shared_server/boxes/infrastructure/http/box_handler.dart';
 import 'package:terramanager/shared_server/feedings/application/feeding_operations.dart';
@@ -37,6 +38,7 @@ typedef CareAuditWriter = Future<void> Function(
   int status,
   Map<String, dynamic>? reply,
   bool replayed,
+  CareMutationRecords? before,
 );
 
 class CareApi {
@@ -187,26 +189,34 @@ class CareApi {
     }
     late final ApiReply committed;
     Map<String, Iterable<int>?> resources = {};
+    CareMutationRecords? before;
     try {
       committed = await database.transaction(() async {
-        final hints = changes == null
-            ? null
-            : await CareChangeHints.capture(
-                database,
-                request.uri.pathSegments.skip(2).toList(),
-                request.method,
-              );
+        final path = request.uri.pathSegments.skip(2).toList();
+        final records = before = await readCareMutationRecords(database, path);
         final reply = await _dispatch(request);
         if (reply.status >= 400) throw _RejectedReply(reply);
         if (audit != null) {
-          await audit!(request, reply.status, reply.body, reply.replayed);
+          await audit!(
+            request,
+            reply.status,
+            reply.body,
+            reply.replayed,
+            records,
+          );
         }
-        resources = hints?.complete(reply) ?? {};
+        if (changes != null) {
+          resources = CareChangeHints(
+            path,
+            request.method,
+            records,
+          ).complete(reply);
+        }
         return reply;
       });
     } on _RejectedReply catch (rejected) {
       if (audit != null) {
-        await audit!(request, rejected.reply.status, null, false);
+        await audit!(request, rejected.reply.status, null, false, before);
       }
       return rejected.reply;
     } catch (error) {
@@ -228,7 +238,7 @@ class CareApi {
                     error.resultCode == SqlError.SQLITE_LOCKED)
           ? 409
           : 500;
-      if (audit != null) await audit!(request, status, null, false);
+      if (audit != null) await audit!(request, status, null, false, before);
       rethrow;
     }
     // Neither dispatch success nor the audit callback proves a commit. Publish

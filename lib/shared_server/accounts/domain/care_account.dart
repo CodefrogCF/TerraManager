@@ -10,6 +10,7 @@ class CareAccount {
   final String auditId;
 
   AuditActor get auditActor => AuditActor(auditId, username, role.name);
+  AuditSubject get auditSubject => AuditSubject('account', auditId, username);
 
   const CareAccount(
     this.id,

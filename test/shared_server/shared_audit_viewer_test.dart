@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
+import 'package:terramanager/shared_server/audit/application/audit_query.dart';
 import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/audit_schema.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/collection_audit_log.dart';
@@ -161,7 +162,7 @@ void main() {
       do {
         final path = Uri(
           path: '/api/v1/admin/audit',
-          queryParameters: {'limit': '3', 'cursor': ?cursor},
+          queryParameters: {'limit': '3', 'subject': '42', 'cursor': ?cursor},
         ).toString();
         final response = await call(path, cookie: adminCookie);
         expect(response.$1, 200, reason: response.$2.toString());
@@ -238,6 +239,10 @@ void main() {
         'extra=x',
         'action=password',
         'actor=',
+        'subjectType=feeding',
+        'subjectType=box&subjectType=animal',
+        'subject=%20',
+        'subject=${'x' * 201}',
         'from=tomorrow',
         'cursor=garbage',
         'from=2026-09-27T00:00:00.000Z&until=2026-09-26T00:00:00.000Z',
@@ -253,60 +258,155 @@ void main() {
     },
   );
 
-  test(
-    'API exposes metadata only and retains account attribution after deletion',
-    () async {
-      const private = 'PRIVATE NOTES NEVER RETURN';
-      final mutation = await call(
-        '/api/v1/boxes',
-        cookie: adminCookie,
-        method: 'POST',
-        body: {'name': private, 'notes': private},
-      );
-      expect(mutation.$1, 201);
-      final user = accounts.listAccounts().firstWhere(
-        (a) => a.username == 'caregiver',
-      );
-      accounts.removeAccount(
-        user.id,
-        actor: accounts.listAccounts().firstWhere((a) => a.username == 'admin'),
-      );
-      final result = await call('/api/v1/admin/audit', cookie: adminCookie);
-      expect(result.$1, 200);
-      final events = result.$2['events'] as List;
+  test('API exposes metadata only and retains account attribution after deletion', () async {
+    const private = 'PRIVATE NOTES NEVER RETURN';
+    final mutation = await call(
+      '/api/v1/boxes',
+      cookie: adminCookie,
+      method: 'POST',
+      body: {'name': 'North habitat', 'notes': private},
+    );
+    expect(mutation.$1, 201);
+    final user = accounts.listAccounts().firstWhere(
+      (a) => a.username == 'caregiver',
+    );
+    final renamed = await call(
+      '/api/v1/admin/accounts/${user.id}',
+      cookie: adminCookie,
+      method: 'PATCH',
+      body: {'username': 'new-keeper', 'expectedAuditId': user.auditId},
+    );
+    expect(renamed.$1, 200);
+    final removed = await call(
+      '/api/v1/admin/accounts/${user.id}',
+      cookie: adminCookie,
+      method: 'DELETE',
+      body: {'expectedAuditId': user.auditId, 'confirmation': 'remove-account'},
+    );
+    expect(removed.$1, 200, reason: removed.$2.toString());
+    final result = await call('/api/v1/admin/audit', cookie: adminCookie);
+    expect(result.$1, 200);
+    final events = result.$2['events'] as List;
+    expect(
+      events.map((e) => e['action']),
+      containsAll(['box.create', 'account.delete']),
+    );
+    expect(
+      events.firstWhere((e) => e['action'] == 'box.create')['subject']['label'],
+      'North habitat',
+    );
+    final deletion = events.firstWhere((e) => e['action'] == 'account.delete');
+    expect(deletion['recordId'], user.auditId);
+    expect(deletion['actorName'], 'admin');
+    expect(deletion['subject'], {
+      'type': 'account',
+      'id': user.auditId,
+      'label': 'new-keeper',
+    });
+    final filtered = await call(
+      '/api/v1/admin/audit?subjectType=account&subject=NEW-KEEPER&actor=admin',
+      cookie: adminCookie,
+    );
+    expect(filtered.$1, 200);
+    expect(
+      (filtered.$2['events'] as List).map((entry) => entry['action']),
+      unorderedEquals(['account.delete', 'account.update']),
+    );
+    for (final event in events) {
+      expect((event as Map).keys.toSet(), {
+        'id',
+        'source',
+        'occurredAt',
+        'actorId',
+        'actorName',
+        'actorRole',
+        'action',
+        'recordType',
+        'recordId',
+        'subject',
+        'outcome',
+        'statusCode',
+      });
+    }
+    final encoded = jsonEncode(result.$2);
+    for (final secret in [
+      private,
+      adminCookie,
+      csrf,
+      'secure admin password 123',
+      'password_hash',
+    ]) {
+      expect(encoded, isNot(contains(secret)));
+    }
+  });
+
+  test('upgrades both audit stores and keeps legacy entries readable by ID', () async {
+    const schema =
+        'CREATE TABLE shared_audit_events ('
+        'id TEXT PRIMARY KEY, occurred_at TEXT NOT NULL, actor_id TEXT NOT NULL, '
+        'actor_name TEXT NOT NULL, actor_role TEXT NOT NULL, action TEXT NOT NULL, '
+        'record_type TEXT NOT NULL, record_id TEXT, outcome TEXT NOT NULL, '
+        'status_code INTEGER NOT NULL)';
+    const insert =
+        'INSERT INTO shared_audit_events VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    AuditEvent oldEvent(String type) => AuditEvent(
+      actor: const AuditActor('admin', 'admin', 'administrator'),
+      action: '$type.update',
+      recordType: type,
+      recordId: '42',
+      outcome: 'success',
+      statusCode: 200,
+    );
+
+    final oldBox = oldEvent('box');
+    await database.customStatement('DROP TABLE shared_audit_events');
+    await database.customStatement(schema);
+    await database.customStatement(insert, oldBox.sqlValues.take(10).toList());
+    final log = CollectionAuditLog(database);
+    await log.initialize();
+    await log.initialize();
+    final response = await call(
+      '/api/v1/admin/audit?subjectType=box&subject=42',
+      cookie: adminCookie,
+    );
+    expect(response.$1, 200);
+    final box = (response.$2['events'] as List).single as Map;
+    expect(box['id'], oldBox.id);
+    expect(box['recordId'], '42');
+    expect(box.containsKey('subject'), isFalse);
+
+    final oldAccount = oldEvent('account');
+    final file = File('${helper!.directory.path}/legacy-audit-accounts.sqlite');
+    final raw = sqlite.sqlite3.open(file.path);
+    try {
+      raw.execute(schema);
+      raw.execute(insert, oldAccount.sqlValues.take(10).toList());
+    } finally {
+      raw.close();
+    }
+    final legacy = await AccountStore.open(file);
+    try {
+      final account = legacy
+          .readAudit(
+            AuditQuery.parse(
+              Uri.parse('/api/v1/admin/audit?subjectType=account&subject=42'),
+            ),
+          )
+          .single;
+      expect(account['id'], oldAccount.id);
+      expect(account['recordId'], '42');
+      expect(account.containsKey('subject'), isFalse);
+      await legacy.createInitialAdministrator('legacy', 'legacy password 123');
       expect(
-        events.map((e) => e['action']),
-        containsAll(['box.create', 'account.delete']),
+        legacy
+            .readAudit(
+              AuditQuery.parse(Uri.parse('/api/v1/admin/audit?subject=legacy')),
+            )
+            .single['subject'],
+        containsPair('label', 'legacy'),
       );
-      expect(
-        events.firstWhere((e) => e['action'] == 'account.delete')['recordId'],
-        user.auditId,
-      );
-      for (final event in events) {
-        expect((event as Map).keys.toSet(), {
-          'id',
-          'source',
-          'occurredAt',
-          'actorId',
-          'actorName',
-          'actorRole',
-          'action',
-          'recordType',
-          'recordId',
-          'outcome',
-          'statusCode',
-        });
-      }
-      final encoded = jsonEncode(result.$2);
-      for (final secret in [
-        private,
-        adminCookie,
-        csrf,
-        'secure admin password 123',
-        'password_hash',
-      ]) {
-        expect(encoded, isNot(contains(secret)));
-      }
-    },
-  );
+    } finally {
+      legacy.close();
+    }
+  });
 }

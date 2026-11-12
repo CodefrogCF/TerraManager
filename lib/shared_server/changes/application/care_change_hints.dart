@@ -1,47 +1,12 @@
-import 'package:terramanager/core/database/app_database.dart';
-import 'package:terramanager/core/database/repositories/animal_repository.dart';
-import 'package:terramanager/core/database/repositories/box_repository.dart';
-import 'package:terramanager/core/database/repositories/feeding_repository.dart';
+import 'package:terramanager/shared_server/collection/application/care_mutation_records.dart';
 import 'package:terramanager/shared_server/shared/domain/api_reply.dart';
 
 /// Captures dependencies inside the same transaction as the mutation/audit.
 class CareChangeHints {
-  CareChangeHints._(
-    this.path,
-    this.method,
-    this.oldBoxId,
-    this.feedingAnimalId,
-    this.oldPictureMediaId,
-  );
+  const CareChangeHints(this.path, this.method, this.before);
   final List<String> path;
   final String method;
-  final int? oldBoxId;
-  final int? feedingAnimalId;
-  final int? oldPictureMediaId;
-
-  static Future<CareChangeHints> capture(
-    AppDatabase database,
-    List<String> path,
-    String method,
-  ) async {
-    final id = path.length > 1 ? int.tryParse(path[1]) : null;
-    final animal = path.firstOrNull == 'animals' && id != null
-        ? await AnimalRepository(database).getAnimalById(id)
-        : null;
-    final feeding = path.firstOrNull == 'feedings' && id != null
-        ? await FeedingRepository(database).getFeedingById(id)
-        : null;
-    final box = path.firstOrNull == 'boxes' && id != null
-        ? await BoxRepository(database).getBoxById(id)
-        : null;
-    return CareChangeHints._(
-      path,
-      method,
-      animal?.boxId,
-      feeding?.animalId,
-      animal?.pictureMediaId ?? box?.pictureMediaId,
-    );
-  }
+  final CareMutationRecords before;
 
   Map<String, Iterable<int>?> complete(ApiReply reply) {
     if (reply.status < 200 || reply.status >= 300 || reply.replayed) return {};
@@ -52,6 +17,8 @@ class CareChangeHints {
       return {'audit': null, 'careEventTypes': null};
     }
     final resources = <String, Iterable<int>?>{'audit': null};
+    final oldPictureMediaId =
+        before.animal?.pictureMediaId ?? before.box?.pictureMediaId;
     final ids = <int>{};
     final id = path.length > 1 ? int.tryParse(path[1]) : null;
     if (id != null) ids.add(id);
@@ -79,7 +46,7 @@ class CareChangeHints {
         resources['animalCustomFields'] = ids;
       }
       resources['boxes'] = {
-        ?oldBoxId,
+        ?before.animal?.boxId,
         if (animal is Map && animal['boxId'] is int) animal['boxId'] as int,
       };
       if ((path.length > 2 && path[2] == 'pictures') ||
@@ -121,7 +88,7 @@ class CareChangeHints {
         resources['media'] = null;
       }
     } else if (path.firstOrNull == 'feedings') {
-      final animals = <int>{?feedingAnimalId};
+      final animals = <int>{?before.feedingAnimalId};
       final entries =
           body['feedings'] ?? [if (body['feeding'] != null) body['feeding']];
       if (entries is List) {

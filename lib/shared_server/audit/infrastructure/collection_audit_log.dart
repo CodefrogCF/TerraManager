@@ -10,12 +10,20 @@ class CollectionAuditLog {
   const CollectionAuditLog(this.database);
   final AppDatabase database;
 
-  Future<void> initialize() async {
+  Future<void> initialize() => database.transaction(() async {
     await database.customStatement(auditTableSql);
+    final columns = await database
+        .customSelect('PRAGMA table_info(shared_audit_events)')
+        .get();
+    for (final statement in auditSubjectMigrations(
+      columns.map((row) => row.data['name']),
+    )) {
+      await database.customStatement(statement);
+    }
     await database.customStatement(auditIndexSql);
     await database.customStatement(auditReadIndexSql);
     await _prune();
-  }
+  });
 
   Future<void> record(AuditEvent event) async {
     await database.customStatement(auditInsertSql, event.sqlValues);

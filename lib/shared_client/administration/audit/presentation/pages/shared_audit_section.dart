@@ -97,12 +97,16 @@ class SharedAuditViewerPage extends StatefulWidget {
 
 class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
   final _actor = TextEditingController();
+  final _subject = TextEditingController();
   final _cursors = <String?>[null];
   String? _action;
+  String? _subjectType;
   DateTime? _from;
   DateTime? _through;
   String? _appliedActor;
   String? _appliedAction;
+  String? _appliedSubjectType;
+  String? _appliedSubject;
   DateTime? _appliedFrom;
   DateTime? _appliedUntil;
   SharedAuditPage? _page;
@@ -116,6 +120,8 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
   bool get _filtered =>
       _appliedActor != null ||
       _appliedAction != null ||
+      _appliedSubjectType != null ||
+      _appliedSubject != null ||
       _appliedFrom != null ||
       _appliedUntil != null;
 
@@ -128,6 +134,7 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
   @override
   void dispose() {
     _actor.dispose();
+    _subject.dispose();
     super.dispose();
   }
 
@@ -144,6 +151,8 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
         cursor: _cursors[_pageIndex],
         actor: _appliedActor,
         action: _appliedAction,
+        subjectType: _appliedSubjectType,
+        subject: _appliedSubject,
         from: _appliedFrom,
         until: _appliedUntil,
       );
@@ -177,6 +186,9 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
     }
     _appliedActor = _actor.text.trim().isEmpty ? null : _actor.text.trim();
     _appliedAction = _action;
+    _appliedSubjectType = _subjectType;
+    final subject = _subject.text.trim();
+    _appliedSubject = subject.isEmpty ? null : subject;
     _appliedFrom = _from;
     _appliedUntil = _through == null
         ? null
@@ -187,8 +199,10 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
 
   void _reset() {
     _actor.clear();
+    _subject.clear();
     setState(() {
       _action = null;
+      _subjectType = null;
       _from = null;
       _through = null;
     });
@@ -292,7 +306,10 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
                   const SizedBox(height: 16),
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      final wide = constraints.maxWidth >= 600;
+                      final width = constraints.maxWidth;
+                      final fieldWidth = width >= 600
+                          ? (width - 16) / 2
+                          : width;
                       final actor = TextField(
                         key: const Key('audit-actor'),
                         controller: _actor,
@@ -302,7 +319,7 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
                           labelText: sharedText(
                             context,
                             'Actor name',
-                            'Benutzername',
+                            'Ausgeführt von',
                           ),
                           helperText: sharedText(
                             context,
@@ -351,22 +368,74 @@ class _SharedAuditViewerPageState extends State<SharedAuditViewerPage> {
                                 () => _action = value == 'all' ? null : value,
                               ),
                       );
-                      return wide
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(child: actor),
-                                const SizedBox(width: 16),
-                                Expanded(child: action),
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                actor,
-                                const SizedBox(height: 16),
-                                action,
-                              ],
-                            );
+                      final subjectType = DropdownButtonFormField<String>(
+                        key: ValueKey(
+                          'audit-subject-type-${_subjectType ?? 'all'}',
+                        ),
+                        initialValue: _subjectType ?? 'all',
+                        isExpanded: true,
+                        decoration: InputDecoration(
+                          labelText: sharedText(
+                            context,
+                            'Affected record',
+                            'Betroffener Datensatz',
+                          ),
+                          border: const OutlineInputBorder(),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'all',
+                            child: Text(
+                              sharedText(
+                                context,
+                                'Any record type',
+                                'Alle Datensatzarten',
+                              ),
+                            ),
+                          ),
+                          for (final type in const ['box', 'animal', 'account'])
+                            DropdownMenuItem(
+                              value: type,
+                              child: Text(_recordLabel(context, type)),
+                            ),
+                        ],
+                        onChanged: _busy
+                            ? null
+                            : (value) => setState(
+                                () => _subjectType = value == 'all'
+                                    ? null
+                                    : value,
+                              ),
+                      );
+                      final subject = TextField(
+                        key: const Key('audit-subject'),
+                        controller: _subject,
+                        enabled: !_busy,
+                        maxLength: 200,
+                        decoration: InputDecoration(
+                          labelText: sharedText(
+                            context,
+                            'Affected name or ID',
+                            'Betroffener Name oder ID',
+                          ),
+                          counterText: '',
+                          border: const OutlineInputBorder(),
+                        ),
+                        onSubmitted: (_) => _apply(),
+                      );
+                      return Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [
+                          for (final field in [
+                            actor,
+                            action,
+                            subjectType,
+                            subject,
+                          ])
+                            SizedBox(width: fieldWidth, child: field),
+                        ],
+                      );
                     },
                   ),
                   const SizedBox(height: 12),
@@ -548,6 +617,9 @@ class _AuditEventCard extends StatelessWidget {
       ),
       _ => sharedText(context, 'Rejected', 'Abgelehnt'),
     };
+    final subject = event.subject;
+    final recordType = _recordLabel(context, event.recordType);
+    final recordId = event.recordId;
     return Card(
       key: Key('audit-event-${event.source}-${event.id}'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -557,18 +629,25 @@ class _AuditEventCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${_recordLabel(context, event.recordType)} · ${_actionLabel(context, event.action)}',
+              '$recordType · ${_actionLabel(context, event.action)}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            Text('${event.actorName} · $role'),
+            Text(
+              '${sharedText(context, 'Performed by', 'Ausgeführt von')} · ${event.actorName} · $role',
+            ),
             Text(time),
             const SizedBox(height: 8),
-            SelectableText(
-              event.recordId == null
-                  ? _recordLabel(context, event.recordType)
-                  : '${_recordLabel(context, event.recordType)} · ID ${event.recordId}',
-            ),
+            if (subject != null)
+              SelectableText(
+                '${sharedText(context, 'Affected', 'Betroffen')} · ${_subjectLabel(context, subject)}',
+              ),
+            if (subject == null ||
+                subject.type != event.recordType ||
+                subject.id != recordId)
+              SelectableText(
+                recordId == null ? recordType : '$recordType · ID $recordId',
+              ),
             Text(
               outcome,
               style: TextStyle(
@@ -581,5 +660,13 @@ class _AuditEventCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _subjectLabel(BuildContext context, SharedAuditSubject subject) {
+    final type = _recordLabel(context, subject.type);
+    final label = subject.label;
+    if (label == null) return '$type · ID ${subject.id}';
+    if (subject.type == 'box' && label == 'Box ${subject.id}') return label;
+    return '$type · $label · ID ${subject.id}';
   }
 }

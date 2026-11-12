@@ -81,6 +81,13 @@ class AccountStore {
         "UPDATE accounts SET audit_id = lower(hex(randomblob(16))) WHERE audit_id IS NULL",
       );
       db.execute(auditTableSql);
+      for (final statement in auditSubjectMigrations(
+        db
+            .select('PRAGMA table_info(shared_audit_events)')
+            .map((row) => row['name']),
+      )) {
+        db.execute(statement);
+      }
       db.execute(auditIndexSql);
       db.execute(auditReadIndexSql);
       db.execute('DELETE FROM shared_audit_events WHERE occurred_at < ?', [
@@ -236,6 +243,7 @@ class AccountStore {
           action: 'account.create',
           recordType: 'account',
           recordId: account.auditId,
+          subject: account.auditSubject,
           outcome: 'success',
           statusCode: 201,
         ),
@@ -372,6 +380,7 @@ class AccountStore {
           hash != null) {
         _db.execute('DELETE FROM sessions WHERE account_id = ?', [id]);
       }
+      final updated = accountById(id)!;
       _recordAudit(
         AuditEvent(
           actor:
@@ -384,11 +393,12 @@ class AccountStore {
           action: 'account.update',
           recordType: 'account',
           recordId: current.auditId,
+          subject: updated.auditSubject,
           outcome: 'success',
           statusCode: 200,
         ),
       );
-      return accountById(id)!;
+      return updated;
     });
   }
 
@@ -426,6 +436,7 @@ class AccountStore {
           action: 'account.delete',
           recordType: 'account',
           recordId: current.auditId,
+          subject: current.auditSubject,
           outcome: 'success',
           statusCode: 200,
         ),
@@ -441,12 +452,14 @@ class AccountStore {
     int? accountId,
     int status,
   ) {
+    final target = accountId == null ? null : accountById(accountId);
     _recordAudit(
       AuditEvent(
         actor: actor.auditActor,
         action: action,
         recordType: 'account',
-        recordId: accountId == null ? null : accountById(accountId)?.auditId,
+        recordId: target?.auditId,
+        subject: target?.auditSubject,
         outcome: 'rejected',
         statusCode: status,
       ),

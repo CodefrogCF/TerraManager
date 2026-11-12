@@ -7,14 +7,30 @@ const auditTableSql =
     'id TEXT PRIMARY KEY, occurred_at TEXT NOT NULL, actor_id TEXT NOT NULL, '
     'actor_name TEXT NOT NULL, actor_role TEXT NOT NULL, action TEXT NOT NULL, '
     'record_type TEXT NOT NULL, record_id TEXT, outcome TEXT NOT NULL, '
-    'status_code INTEGER NOT NULL)';
+    'status_code INTEGER NOT NULL, subject_type TEXT, subject_id TEXT, '
+    'subject_label TEXT, subject_label_search TEXT)';
+
+Iterable<String> auditSubjectMigrations(Iterable<Object?> existing) sync* {
+  for (final column in const [
+    'subject_type',
+    'subject_id',
+    'subject_label',
+    'subject_label_search',
+  ]) {
+    if (!existing.contains(column)) {
+      yield 'ALTER TABLE shared_audit_events ADD COLUMN $column TEXT';
+    }
+  }
+}
+
 const auditIndexSql =
     'CREATE INDEX IF NOT EXISTS shared_audit_time '
     'ON shared_audit_events(occurred_at)';
 const auditInsertSql =
     'INSERT INTO shared_audit_events '
     '(id, occurred_at, actor_id, actor_name, actor_role, action, record_type, '
-    'record_id, outcome, status_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    'record_id, outcome, status_code, subject_type, subject_id, subject_label, '
+    'subject_label_search) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
 const auditReadIndexSql =
     'CREATE INDEX IF NOT EXISTS shared_audit_seek '
@@ -32,5 +48,9 @@ extension AuditEventSql on AuditEvent {
     recordId,
     outcome,
     statusCode,
+    subject?.type,
+    subject?.id,
+    subject?.label,
+    subject?.label?.toLowerCase(),
   ];
 }

@@ -48,6 +48,10 @@ Widget _app(SharedApiClient api, {Locale locale = const Locale('en')}) =>
       home: SharedAuditViewerPage(api: api),
     );
 
+Finder get _auditScroll => find
+    .descendant(of: find.byType(ListView), matching: find.byType(Scrollable))
+    .first;
+
 void main() {
   testWidgets('page navigation and combined filters reset to the first page', (
     tester,
@@ -60,11 +64,21 @@ void main() {
       return http.Response(
         jsonEncode({
           'events': [
-            _event(
-              request.url.queryParameters['cursor'] == null
-                  ? 'first'
-                  : 'second',
-            ),
+            if (request.url.queryParameters['cursor'] == null)
+              _event('first')
+            else
+              {
+                ..._event('second'),
+                'source': 'account',
+                'action': 'account.update',
+                'recordType': 'account',
+                'recordId': 'keeper-id',
+                'subject': {
+                  'type': 'account',
+                  'id': 'keeper-id',
+                  'label': 'keeper',
+                },
+              },
           ],
           'nextCursor': request.url.queryParameters['cursor'] == null
               ? 'next-page'
@@ -76,25 +90,41 @@ void main() {
     addTearDown(api.close);
     await tester.pumpWidget(_app(api));
     await tester.pumpAndSettle();
-    expect(find.text('alice · Caregiver'), findsOneWidget);
+    expect(find.text('Performed by · alice · Caregiver'), findsOneWidget);
     expect(find.text('Animal · Updated'), findsOneWidget);
     expect(find.text('Animal · ID 42'), findsOneWidget);
     expect(find.textContaining('PRIVATE NOTE'), findsNothing);
     expect(find.textContaining('PASSWORD SECRET'), findsNothing);
-    await tester.ensureVisible(find.byKey(const Key('audit-next')));
-    await tester.tap(find.byKey(const Key('audit-next')));
+    final next = find.byKey(const Key('audit-next'));
+    await tester.scrollUntilVisible(next, 200, scrollable: _auditScroll);
+    await tester.tap(next);
     await tester.pumpAndSettle();
     expect(queries.last['cursor'], 'next-page');
+    await tester.scrollUntilVisible(next, 200, scrollable: _auditScroll);
     expect(find.text('Page 2'), findsOneWidget);
+    expect(
+      find.text('Affected · Account · keeper · ID keeper-id'),
+      findsOneWidget,
+    );
     await tester.tap(find.byKey(const Key('audit-previous')));
     await tester.pumpAndSettle();
     expect(queries.last.containsKey('cursor'), false);
-    await tester.ensureVisible(find.byKey(const Key('audit-actor')));
-    await tester.enterText(find.byKey(const Key('audit-actor')), ' Alice ');
+    final actor = find.byKey(const Key('audit-actor'));
+    await tester.scrollUntilVisible(actor, -200, scrollable: _auditScroll);
+    await tester.enterText(actor, ' Alice ');
     await tester.tap(find.byKey(const Key('audit-action-all')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Updated').last);
     await tester.pumpAndSettle();
+    final type = find.byKey(const Key('audit-subject-type-all'));
+    final subject = find.byKey(const Key('audit-subject'));
+    await tester.ensureVisible(type);
+    await tester.tap(type);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Account').last);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(subject);
+    await tester.enterText(subject, ' Keeper ');
     await tester.tap(find.byKey(const Key('audit-from')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('OK'));
@@ -107,6 +137,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(queries.last['actor'], 'Alice');
     expect(queries.last['action'], 'update');
+    expect(queries.last['subjectType'], 'account');
+    expect(queries.last['subject'], 'Keeper');
     final localDate = DateTime.now();
     expect(
       DateTime.parse(queries.last['from']!),
@@ -135,12 +167,9 @@ void main() {
     await tester.tap(find.byKey(const Key('audit-apply')));
     await tester.pumpAndSettle();
     expect(find.text('No events match these filters.'), findsOneWidget);
-    expect(
-      tester
-          .widget<OutlinedButton>(find.byKey(const Key('audit-next')))
-          .onPressed,
-      isNull,
-    );
+    final next = find.byKey(const Key('audit-next'));
+    await tester.scrollUntilVisible(next, 200, scrollable: _auditScroll);
+    expect(tester.widget<OutlinedButton>(next).onPressed, isNull);
   });
 
   testWidgets('caregivers cannot open the viewer or issue an audit request', (
@@ -185,11 +214,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('audit-retry')));
       await tester.pumpAndSettle();
-      expect(find.text('alice · Caregiver'), findsOneWidget);
+      expect(find.text('Performed by · alice · Caregiver'), findsOneWidget);
       await tester.tap(find.byKey(const Key('audit-refresh')));
       await tester.pumpAndSettle();
       expect(find.text('Administrator access required.'), findsOneWidget);
-      expect(find.text('alice · Caregiver'), findsNothing);
+      expect(find.text('Performed by · alice · Caregiver'), findsNothing);
     },
   );
 
@@ -213,6 +242,11 @@ void main() {
                 'action': 'account.delete',
                 'outcome': 'rejected',
                 'statusCode': 409,
+                'subject': {
+                  'type': 'account',
+                  'id': '11111111-1111-4111-8111-111111111111',
+                  'label': 'b' * 64,
+                },
               },
             ],
             'nextCursor': null,
@@ -230,23 +264,14 @@ void main() {
       await tester.scrollUntilVisible(
         find.byKey(const Key('audit-event-collection-long')),
         200,
-        scrollable: find
-            .descendant(
-              of: find.byType(ListView),
-              matching: find.byType(Scrollable),
-            )
-            .first,
+        scrollable: _auditScroll,
       );
       expect(find.text('Konto · Gelöscht'), findsOneWidget);
+      expect(find.textContaining('Betroffen · Konto · '), findsOneWidget);
       await tester.scrollUntilVisible(
         find.byKey(const Key('audit-next')),
         200,
-        scrollable: find
-            .descendant(
-              of: find.byType(ListView),
-              matching: find.byType(Scrollable),
-            )
-            .first,
+        scrollable: _auditScroll,
       );
       expect(find.text('Seite 1'), findsOneWidget);
       expect(tester.takeException(), isNull);

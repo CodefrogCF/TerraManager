@@ -157,16 +157,22 @@ and audit are neither exported nor replaced; stopped-volume backup protects them
 
 Collection/account audit rows commit with their mutations. Audit failure rolls
 back the change. Metadata contains actor identity/name/role, UTC time, action,
-record identity, outcome and HTTP status; no bodies, notes, filenames, media,
-passwords or tokens. Retention is 365 days; account removal and portable restore
-preserve retained attribution.
+record identity, outcome and HTTP status. New entries include the affected
+Box, Animal or account as `subject` with `type`, `id` and `label` captured at
+the time of the event. History entries include the owning Animal or Box.
+Older entries keep their original record type and ID. Bodies, notes, filenames,
+media, passwords and tokens are excluded. Retention is 365 days. Account
+removal and portable restore preserve retained entries.
 
 `GET /admin/audit` merges both sources newest first and returns
 `{"events":[...],"nextCursor":...}`. Parameters: `limit` (1-100, default 20), opaque
 `cursor`, inclusive UTC `from`, exclusive UTC `until`, literal case-insensitive
 `actor` (1-64 characters), `action` (`create`, `update`, `delete`, `archive`,
-`restore`, `duplicate`, `move`, `feeding-reminder`, `set_primary`). Keep filters
-with the cursor. Unknown/repeated parameters or malformed values return 400.
+`restore`, `duplicate`, `move`, `feeding-reminder`, `set_primary`),
+`subjectType` (`box`, `animal`, `account`), and `subject` (exact ID or
+case-insensitive literal substring of the recorded label, 1–200 characters).
+Keep filters with the cursor. Unknown/repeated parameters or malformed values
+return 400.
 
 ## Errors
 

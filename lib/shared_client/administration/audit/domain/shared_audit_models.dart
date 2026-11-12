@@ -1,3 +1,18 @@
+class SharedAuditSubject {
+  const SharedAuditSubject(this.type, this.id, this.label);
+
+  final String type;
+  final String id;
+  final String? label;
+
+  factory SharedAuditSubject.fromJson(Map<String, dynamic> json) =>
+      SharedAuditSubject(
+        json['type'] as String,
+        json['id'] as String,
+        json['label'] as String?,
+      );
+}
+
 /// A deliberately small read model: no collection payloads or credentials.
 class SharedAuditEvent {
   const SharedAuditEvent({
@@ -11,6 +26,7 @@ class SharedAuditEvent {
     required this.recordId,
     required this.outcome,
     required this.statusCode,
+    this.subject,
   });
   final String id;
   final String source;
@@ -22,6 +38,7 @@ class SharedAuditEvent {
   final String? recordId;
   final String outcome;
   final int statusCode;
+  final SharedAuditSubject? subject;
 
   factory SharedAuditEvent.fromJson(Map<String, dynamic> json) =>
       SharedAuditEvent(
@@ -35,6 +52,11 @@ class SharedAuditEvent {
         recordId: json['recordId'] as String?,
         outcome: json['outcome'] as String,
         statusCode: json['statusCode'] as int,
+        subject: json['subject'] == null
+            ? null
+            : SharedAuditSubject.fromJson(
+                json['subject'] as Map<String, dynamic>,
+              ),
       );
 }
 

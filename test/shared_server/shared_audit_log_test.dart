@@ -121,7 +121,7 @@ void main() {
       final box = await call(
         'POST',
         '/api/v1/boxes',
-        body: {'name': secret, 'notes': secret},
+        body: {'name': 'Habitat', 'notes': secret},
       );
       expect(box.status, 201);
       final boxId = box.json['box']['id'] as int;
@@ -130,7 +130,7 @@ void main() {
         '/api/v1/animals',
         body: {
           'boxId': boxId,
-          'commonName': secret,
+          'commonName': 'Moss',
           'latinName': 'Example species',
           'tempMin': 22,
           'tempMax': 28,
@@ -253,6 +253,10 @@ void main() {
         expect(entry['actor_role'], 'administrator');
         expect(DateTime.parse(entry['occurred_at'] as String).isUtc, true);
         expect(entry['record_id'], isNotNull);
+        final isBox = entry['record_type'] == 'box';
+        expect(entry['subject_type'], isBox ? 'box' : 'animal');
+        expect(entry['subject_id'], isBox ? '$boxId' : '$animalId');
+        expect(entry['subject_label'], isBox ? 'Habitat' : 'Moss');
       }
       final encoded = jsonEncode(entries);
       for (final excluded in [
@@ -281,6 +285,166 @@ void main() {
       expect(accounts.accountById(admin.id)!.auditId, admin.auditId);
     },
     timeout: const Timeout(Duration(minutes: 2)),
+  );
+
+  test(
+    'history owners and record names survive rename, archive and deletion',
+    () async {
+      final box = await call('POST', '/api/v1/boxes', body: {'name': 'Äste'});
+      expect(box.status, 201);
+      final boxId = box.json['box']['id'] as int;
+      final animalFields = {
+        'boxId': boxId,
+        'category': 'other',
+        'latinName': 'Species',
+        'tempMin': 22,
+        'tempMax': 28,
+        'humidityMin': 40,
+        'humidityMax': 60,
+        'showWeightOnDetail': true,
+        'showSheddingOnDetail': true,
+      };
+      Future<Map<String, dynamic>> addAnimal(String name) async {
+        final result = await call(
+          'POST',
+          '/api/v1/animals',
+          body: {...animalFields, 'commonName': name},
+        );
+        expect(result.status, 201, reason: result.json.toString());
+        return result.json['animal'] as Map<String, dynamic>;
+      }
+
+      final first = await addAnimal('Moss');
+      final second = await addAnimal('Fern');
+      final firstId = first['id'] as int;
+      final secondId = second['id'] as int;
+      final time = DateTime.now().toUtc().subtract(const Duration(minutes: 1));
+      final group = await call(
+        'POST',
+        '/api/v1/feedings',
+        body: {
+          'animalIds': [firstId, secondId],
+          'fedAt': time.toIso8601String(),
+        },
+        key: '44444444-4444-4444-8444-444444444444',
+      );
+      expect(group.status, 201, reason: group.json.toString());
+      final firstFeeding = (group.json['feedings'] as List).singleWhere(
+        (entry) => entry['animalId'] == firstId,
+      );
+      expect(
+        (await call('DELETE', '/api/v1/feedings/${firstFeeding['id']}')).status,
+        200,
+      );
+      final care = await call(
+        'POST',
+        '/api/v1/boxes/$boxId/care-events',
+        body: {
+          'type': 'cleaning',
+          'occurredAt': time.toIso8601String(),
+          'requestId': '55555555-5555-4555-8555-555555555555',
+        },
+      );
+      expect(care.status, 201, reason: care.json.toString());
+
+      final renamedAnimal = await call(
+        'PUT',
+        '/api/v1/animals/$firstId',
+        body: {
+          ...animalFields,
+          'commonName': 'Moss II',
+          'expectedRevision': first['revision'],
+        },
+      );
+      expect(renamedAnimal.status, 200, reason: renamedAnimal.json.toString());
+      for (final id in [firstId, secondId]) {
+        expect(
+          (await call(
+            'POST',
+            '/api/v1/animals/$id/archive',
+            body: {'reason': 'other'},
+          )).status,
+          200,
+        );
+        expect((await call('DELETE', '/api/v1/animals/$id')).status, 200);
+      }
+      expect(
+        (await call(
+          'PATCH',
+          '/api/v1/boxes/$boxId',
+          body: {
+            'name': 'Wald',
+            'expectedRevision': (await call(
+              'GET',
+              '/api/v1/boxes/$boxId',
+            )).json['box']['revision'],
+          },
+        )).status,
+        200,
+      );
+      expect(
+        (await call(
+          'POST',
+          '/api/v1/boxes/$boxId/archive',
+          body: {'reason': 'other'},
+        )).status,
+        200,
+      );
+      expect((await call('DELETE', '/api/v1/boxes/$boxId')).status, 200);
+
+      Future<List<dynamic>> filtered(Map<String, String> filters) async {
+        final response = await call(
+          'GET',
+          Uri(path: '/api/v1/admin/audit', queryParameters: filters).toString(),
+        );
+        expect(response.status, 200, reason: response.json.toString());
+        return response.json['events'] as List;
+      }
+
+      final firstEvents = await filtered({
+        'subjectType': 'animal',
+        'subject': '$firstId',
+      });
+      expect(
+        firstEvents.map(
+          (entry) => (entry['action'], entry['subject']['label']),
+        ),
+        unorderedEquals([
+          ('animal.create', 'Moss'),
+          ('feeding.create', 'Moss'),
+          ('feeding.delete', 'Moss'),
+          ('animal.update', 'Moss II'),
+          ('animal.archive', 'Moss II'),
+          ('animal.delete', 'Moss II'),
+        ]),
+      );
+      final fern = (await filtered({
+        'subjectType': 'animal',
+        'subject': 'fern',
+        'action': 'create',
+        'actor': 'admin',
+      })).singleWhere((entry) => entry['action'] == 'feeding.create');
+      expect(fern['subject'], {
+        'type': 'animal',
+        'id': '$secondId',
+        'label': 'Fern',
+      });
+      final oldBox = await filtered({'subjectType': 'box', 'subject': 'äste'});
+      expect(
+        oldBox.map((entry) => entry['action']),
+        unorderedEquals(['box.create', 'boxCareEvent.create']),
+      );
+      final deleted = (await filtered({
+        'subjectType': 'box',
+        'subject': '$boxId',
+        'action': 'delete',
+      })).single;
+      expect(deleted['subject'], {
+        'type': 'box',
+        'id': '$boxId',
+        'label': 'Wald',
+      });
+    },
   );
 
   test(

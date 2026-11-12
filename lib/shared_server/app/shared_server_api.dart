@@ -6,8 +6,8 @@ import 'package:terramanager/core/database/app_database.dart';
 import 'package:terramanager/features/backup/application/backup_validation_exception.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/http/account_administration_handler.dart';
+import 'package:terramanager/shared_server/audit/application/collection_audit_events.dart';
 import 'package:terramanager/shared_server/audit/application/rejected_administration_audit.dart';
-import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/collection_audit_log.dart';
 import 'package:terramanager/shared_server/audit/infrastructure/http/audit_handler.dart';
 import 'package:terramanager/shared_server/authentication/infrastructure/http/authentication_handler.dart';
@@ -62,18 +62,20 @@ class SharedServerApi {
         final current = sessions.session(request);
         return current == null ? null : _changesHandler.cursor(current);
       },
-      audit: (request, status, reply, replayed) async {
+      audit: (request, status, reply, replayed, before) async {
         final actor = SessionAuthenticator(
           accounts,
           publicUrl,
         ).session(request)?.account;
         if (actor == null) throw StateError('Audit actor is unavailable.');
-        for (final event in collectionAuditEvents(
+        for (final event in await collectionAuditEvents(
+          database,
           actor.auditActor,
           request.method,
           request.uri.pathSegments.skip(2).toList(),
           status,
           reply,
+          before: before,
           replayed: replayed,
         )) {
           await CollectionAuditLog(database).record(event);

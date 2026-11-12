@@ -76,7 +76,9 @@ state before retrying. Do not add SSE buffering/compression overrides to Caddy;
 see [change contract](shared-care-change-contract.md).
 
 Administrators manage accounts under Settings → Server → Manage accounts and
-review metadata under Settings → Shared server → Audit. Account changes revoke
+review changes under Settings → Shared server → Audit. Filter by the affected
+Box, Animal or account name or ID. History events show the owning record, and
+labels stay as recorded even after renaming or deletion. Account changes revoke
 sessions; the final active administrator is protected. Audit retention is 365
 days. Storage/audit failure rolls back a mutation: repair storage rather than
 disabling audit. Roles, upload limits and retry receipts are in the [API](shared-care-api.md).

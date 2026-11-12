@@ -5,7 +5,9 @@ import 'package:terramanager/shared_server/audit/domain/audit_event.dart';
 /// Read only the metadata allowlist, never account or collection payloads.
 const auditReadColumns =
     'id, occurred_at, actor_id, actor_name, actor_role, action, record_type, '
-    'record_id, outcome, status_code';
+    'record_id, outcome, status_code, subject_type, subject_id, subject_label';
+
+const _subjectTypeSql = 'coalesce(subject_type, record_type)';
 
 /// Stored UTC timestamps have either millisecond or microsecond precision.
 /// Padding makes SQL ordering and seek pagination agree at both precisions.
@@ -20,7 +22,16 @@ class AuditQuery {
   final int? sourceParameter;
 
   factory AuditQuery.parse(Uri uri) {
-    const keys = {'limit', 'cursor', 'from', 'until', 'actor', 'action'};
+    const keys = {
+      'limit',
+      'cursor',
+      'from',
+      'until',
+      'actor',
+      'action',
+      'subjectType',
+      'subject',
+    };
     final query = uri.queryParameters;
     for (final entry in uri.queryParametersAll.entries) {
       if (!keys.contains(entry.key) || entry.value.length != 1) {
@@ -90,6 +101,28 @@ class AuditQuery {
       clauses.add("substr(action, instr(action, '.') + 1) = ?");
       parameters.add(action);
     }
+    final subjectType = query['subjectType'];
+    if (subjectType != null) {
+      if (!const {'box', 'animal', 'account'}.contains(subjectType)) {
+        throw const FormatException('Unknown affected record type.');
+      }
+      clauses.add('$_subjectTypeSql = ?');
+      parameters.add(subjectType);
+    }
+    final subject = query['subject']?.trim();
+    if (subject != null) {
+      if (subject.isEmpty || subject.runes.length > 200) {
+        throw const FormatException(
+          'Affected record search must contain 1 to 200 characters.',
+        );
+      }
+      clauses.add(
+        "($_subjectTypeSql IN ('box', 'animal', 'account') "
+        'AND (coalesce(subject_id, record_id) = ? '
+        'OR instr(subject_label_search, ?) > 0))',
+      );
+      parameters.addAll([subject, subject.toLowerCase()]);
+    }
     final cursor = query['cursor'];
     int? sourceParameter;
     if (cursor != null) {
@@ -153,6 +186,12 @@ Map<String, Object?> auditMetadata(Map<String, Object?> row, String source) => {
   'action': row['action'],
   'recordType': row['record_type'],
   'recordId': row['record_id'],
+  if (row['subject_type'] != null && row['subject_id'] != null)
+    'subject': {
+      'type': row['subject_type'],
+      'id': row['subject_id'],
+      'label': row['subject_label'],
+    },
   'outcome': row['outcome'],
   'statusCode': row['status_code'],
 };

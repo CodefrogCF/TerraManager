@@ -7,6 +7,8 @@ mixin SharedAuditApi on SharedApiTransport {
     String? cursor,
     String? actor,
     String? action,
+    String? subjectType,
+    String? subject,
     DateTime? from,
     DateTime? until,
     int limit = 20,
@@ -25,6 +27,9 @@ mixin SharedAuditApi on SharedApiTransport {
         'cursor': ?cursor,
         if (actor != null && actor.trim().isNotEmpty) 'actor': actor.trim(),
         'action': ?action,
+        'subjectType': ?subjectType,
+        if (subject != null && subject.trim().isNotEmpty)
+          'subject': subject.trim(),
         if (from != null) 'from': from.toUtc().toIso8601String(),
         if (until != null) 'until': until.toUtc().toIso8601String(),
       },

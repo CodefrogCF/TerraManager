@@ -6,50 +6,69 @@ import 'package:flutter/material.dart';
 const releaseHighlightsContent = <ReleaseHighlight>[
   ReleaseHighlight(
     number: 1,
-    icon: Icons.cleaning_services_outlined,
+    icon: Icons.restaurant_outlined,
     de: (
-      title: 'Pflegeverlauf für Boxen',
-      description: 'Dokumentiere Substratwechsel, Reinigung und Wasserwechsel mit Datum, Uhrzeit und optionalen Notizen. Eigene Pflegearten kannst du direkt im Pflegeverlauf anlegen und verwalten.',
+      title: 'Fütterungen schneller erfassen',
+      description:
+          'Lege unter „Feldvorlagen verwalten“ ein Feld für die Anzahl und '
+          'Auswahllisten etwa für Größe oder Futterart an. Futtervorlagen '
+          'füllen die Felder auch bei der Schnellfütterung aus.',
     ),
     en: (
-      title: 'Box care history',
-      description: 'Record substrate changes, cleaning and water changes with a date, time and optional notes. Create and manage your own care types directly from care history.',
+      title: 'Record feedings faster',
+      description:
+          'Use Manage field templates to add a quantity field and dropdowns '
+          'for details like size or food type. Food presets can fill in those '
+          'fields in regular and quick feeding forms.',
     ),
   ),
   ReleaseHighlight(
     number: 2,
-    icon: Icons.tune,
+    icon: Icons.cleaning_services_outlined,
     de: (
-      title: 'Eigene Felder für Tiere und Boxen',
-      description: 'Ergänze Profile um Text-, Zahlen-, Datums- und Ja/Nein-Felder. Feldvorlagen für Boxen und Tiere verwaltest du beim Bearbeiten. In den Box- und Tierdetails erscheinen nur ausgefüllte, sichtbare Felder.',
+      title: 'Pflegeerinnerungen für Boxen',
+      description:
+          'Lege in der Boxpflege einmalige oder wiederkehrende Termine fest. '
+          'Fällige Pflege erkennst du in der Boxübersicht.',
     ),
     en: (
-      title: 'Custom fields for Animals and Boxes',
-      description: 'Add text, number, date and yes/no fields to profiles. Manage Animal and Box field templates when editing. Their details show only populated, visible fields.',
+      title: 'Box care reminders',
+      description:
+          'Set one-time or recurring reminders in Enclosure care. '
+          'The Box overview shows which Boxes are due for care.',
     ),
   ),
   ReleaseHighlight(
     number: 3,
-    icon: Icons.picture_as_pdf_outlined,
+    icon: Icons.bedtime_outlined,
     de: (
-      title: 'Mehr Verlauf auf weniger Seiten',
-      description: 'Der vollständige A4-Tierexport nutzt für lange Fütterungs-, Häutungs- und Gewichtsverläufe bis zu drei Spalten. Dadurch passen mehr Einträge auf eine Seite.',
+      title: 'Ruhezeiten für Tiere',
+      description:
+          'Lege unter „Fütterungserinnerung“ eine Ruhezeit für dein Tier fest. '
+          'Fütterungshinweise und Android-Benachrichtigungen pausieren bis '
+          'einschließlich Enddatum.',
     ),
     en: (
-      title: 'More history on fewer pages',
-      description: 'Complete A4 Animal reports use up to three columns for long Feeding, Shedding and Weight histories, fitting more entries onto each page.',
+      title: 'Rest periods for Animals',
+      description:
+          'Set a rest period in the Animal’s feeding reminder settings. '
+          'Feeding alerts and Android notifications pause through the end date.',
     ),
   ),
   ReleaseHighlight(
     number: 4,
-    icon: Icons.notifications_active_outlined,
+    icon: Icons.content_copy_outlined,
     de: (
-      title: 'Verbesserte Fütterungserinnerungen',
-      description: 'Fällige Android-Benachrichtigungen bleiben beim Zurückkehren zur laufenden App eingeplant. Android kann die Zustellung weiterhin verzögern.',
+      title: 'Boxen ohne Namen duplizieren',
+      description:
+          'Leere beim Duplizieren das Namensfeld, um eine unbenannte Box mit '
+          'eigenem QR-Code zu erstellen.',
     ),
     en: (
-      title: 'Improved feeding reminders',
-      description: 'Due Android notifications stay scheduled when you return to the running app. Android may still delay delivery.',
+      title: 'Duplicate a Box without a name',
+      description:
+          'Clear the name when duplicating a Box to create an unnamed copy '
+          'with its own QR code.',
     ),
   ),
 ];

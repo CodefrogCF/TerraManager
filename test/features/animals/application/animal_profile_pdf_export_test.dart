@@ -192,22 +192,36 @@ void main() {
     }
   });
 
-  test('continues very long history notes across columns and pages', () async {
-    final data = AnimalProfilePdfData(
-      name: 'Long history note',
-      fields: const [],
-      feedingTitle: 'Feeding history',
-      sheddingTitle: 'Shedding history',
-      weightTitle: 'Weight history',
-      galleryTitle: 'Gallery',
-      feedings: [AnimalProfilePdfEntry('F1', notes: 'Very long note. ' * 500)],
-    );
-    final pdf = await const AnimalProfilePdfExportService().export(
-      data,
-      const AnimalProfilePdfOptions(kind: AnimalProfilePdfKind.handover),
-    );
-    expect(pageCount(pdf), inInclusiveRange(2, 6));
-  });
+  test(
+    'continues long Feeding fields and notes across columns and pages',
+    () async {
+      for (final entry in [
+        AnimalProfilePdfEntry('F1', notes: 'Very long note. ' * 500),
+        AnimalProfilePdfEntry(
+          'F2',
+          notes: 'Last feeding note.',
+          fields: [
+            AnimalProfilePdfField('Food', 'Detailed food information. ' * 300),
+          ],
+        ),
+      ]) {
+        final data = AnimalProfilePdfData(
+          name: 'Long Feeding entry',
+          fields: const [],
+          feedingTitle: 'Feeding history',
+          sheddingTitle: 'Shedding history',
+          weightTitle: 'Weight history',
+          galleryTitle: 'Gallery',
+          feedings: [entry],
+        );
+        final pdf = await const AnimalProfilePdfExportService().export(
+          data,
+          const AnimalProfilePdfOptions(kind: AnimalProfilePdfKind.handover),
+        );
+        expect(pageCount(pdf), inInclusiveRange(2, 6), reason: entry.date);
+      }
+    },
+  );
 
   test('wraps long label values and paginates complete A4 histories', () async {
     final picture = Uint8List.fromList(

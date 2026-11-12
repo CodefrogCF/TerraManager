@@ -4,6 +4,43 @@ Release changes are summarized below. Detailed contracts are in the
 [documentation](docs/project-documentation.md). Dates and historical release
 groupings are retained from the existing record.
 
+## [1.17.1 - 1.17.5]
+
+### Added
+
+- Add optional Feeding fields for details such as quantity, size and food type,
+  with whole-number inputs and configurable dropdowns. Reuse named food presets
+  in regular and quick Feeding forms and see recorded values in Feeding history.
+- Set dated rest periods that pause an Animal's feeding alerts and hide upcoming
+  reminders through the end date. Standalone Android notifications follow the
+  same pause.
+- Set one-time or recurring reminders for standard and custom Box care types.
+  The Box overview marks due care. Recording matching care completes or advances
+  the reminder.
+
+### Changed
+
+- Group Getting started and What's new above Website and guide in Settings.
+- Manage field templates from Animal and Box edit pages. Details show the
+  populated, visible custom fields.
+- Allow unnamed duplicates of active and archived Boxes. Each copy gets its own
+  QR code.
+- Show recognizable labels for affected Animals, Boxes and accounts in the
+  Shared Care admin audit log and filter by record. History changes identify
+  their Animal or Box. New entries keep recorded labels after renames or deletions.
+- Migrate databases to schema 25. Feeding fields, food presets, Animal rest
+  periods and Box care reminders work in both modes and carry over in portable
+  backups.
+
+### Fixed
+
+- Refresh Standalone feeding indicators and schedules when switching between
+  Animals, Boxes and Settings.
+- Repair the missing rest-period column on upgrade from affected builds so
+  feeding reminder settings can be saved.
+- Include Box care reminder code in the Shared Care server Docker build.
+- Include saved custom Feeding fields in complete A4 Animal PDFs.
+
 ## [1.17.0]
 
 ### Added

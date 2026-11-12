@@ -6,6 +6,7 @@ import '../core/database/enums/box_archive_reason.dart';
 import '../core/database/enums/birth_date_accuracy.dart';
 import '../core/database/enums/sex.dart';
 import '../features/backup/application/backup_validation_exception.dart';
+import '../features/custom_fields/domain/custom_field.dart';
 import '../features/settings/app_accent.dart';
 import '../features/settings/app_language.dart';
 import '../features/settings/animal_name_order.dart';
@@ -15,6 +16,23 @@ import '../features/settings/archive_sort_order.dart';
 import 'generated/app_localizations.dart';
 
 extension AppLocalizationsLabels on AppLocalizations {
+  String customFieldValueLabel(
+    CustomFieldType type,
+    Object value, {
+    required String Function(DateTime) formatDate,
+  }) {
+    if (type == CustomFieldType.boolean) {
+      return value == true ? customFieldYes : customFieldNo;
+    }
+    if (type == CustomFieldType.date) {
+      return formatDate(DateTime.parse(value as String));
+    }
+    final text = value.toString();
+    return value is double && text.endsWith('.0')
+        ? (value == 0 ? '0' : text.substring(0, text.length - 2))
+        : text;
+  }
+
   String animalCategoryLabel(AnimalCategory category) {
     return switch (category) {
       AnimalCategory.amphibian => categoryAmphibian,

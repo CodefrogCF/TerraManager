@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:terramanager/l10n/app_localizations_context.dart';
+import 'package:terramanager/l10n/app_localizations_labels.dart';
 
 import '../../../core/database/date_only.dart';
 import '../domain/custom_field.dart';
@@ -31,19 +32,15 @@ String customFieldTypeLabel(BuildContext c, CustomFieldType type) =>
       CustomFieldType.integer => c.l10n.customFieldInteger,
       CustomFieldType.choice => c.l10n.customFieldChoice,
     };
-String customFieldDisplay(BuildContext c, CustomFieldTemplate t, Object value) {
-  if (t.type == CustomFieldType.boolean) {
-    return value == true ? c.l10n.customFieldYes : c.l10n.customFieldNo;
-  }
-  if (t.type == CustomFieldType.date) {
-    return MaterialLocalizations.of(c)
-        .formatMediumDate(DateTime.parse(value as String));
-  }
-  if (value is double && value == value.truncateToDouble()) {
-    return value.toInt().toString();
-  }
-  return value.toString();
-}
+String customFieldDisplay(
+  BuildContext c,
+  CustomFieldTemplate t,
+  Object value,
+) => c.l10n.customFieldValueLabel(
+  t.type,
+  value,
+  formatDate: (date) => MaterialLocalizations.of(c).formatMediumDate(date),
+);
 
 /// Owns only custom-field drafts; core forms retain their existing save flow.
 class CustomFieldsController extends ChangeNotifier {

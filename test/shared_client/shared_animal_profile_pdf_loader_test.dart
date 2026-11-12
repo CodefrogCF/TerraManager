@@ -70,7 +70,30 @@ void main() {
           },
           '/api/v1/animals/9/feedings' => {
             'feedings': [
-              {'fedAt': '2026-10-01T17:00:00Z', 'notes': 'Mouse'},
+              {
+                'fedAt': '2026-10-01T17:00:00Z',
+                'notes': 'Mouse',
+                'customFields': [
+                  {
+                    'templateId': '11111111-1111-4111-8111-111111111111',
+                    'type': 'boolean',
+                    'label': 'Gefroren',
+                    'value': false,
+                  },
+                  {
+                    'templateId': '22222222-2222-4222-8222-222222222222',
+                    'type': 'date',
+                    'label': 'Aufgetaut am',
+                    'value': '2026-10-01',
+                  },
+                  {
+                    'templateId': '33333333-3333-4333-8333-333333333333',
+                    'type': 'number',
+                    'label': 'Gewicht',
+                    'value': 2.375,
+                  },
+                ],
+              },
             ],
           },
           '/api/v1/animals/9/shedding' => {
@@ -105,6 +128,16 @@ void main() {
     expect(withoutGallery.primaryPicture, [7]);
     expect(withoutGallery.galleryPictures, isEmpty);
     expect(withoutGallery.feedings.single.notes, 'Mouse');
+    expect(
+      withoutGallery.feedings.single.fields.map(
+        (field) => (field.label, field.value),
+      ),
+      [
+        ('Gefroren', 'Nein'),
+        ('Aufgetaut am', '01.10.2026'),
+        ('Gewicht', '2.375'),
+      ],
+    );
     expect(withoutGallery.shedding.single.notes, 'Complete');
     expect(withoutGallery.weights.single.value, '123,5 g');
     expect(

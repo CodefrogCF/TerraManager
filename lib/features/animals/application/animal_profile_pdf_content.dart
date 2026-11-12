@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:intl/intl.dart';
 
+import '../../../l10n/app_localizations_labels.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../feedings/domain/feeding_field_values.dart';
 import 'animal_profile_pdf_export_service.dart';
 
 /// Common, localized representation for local and Shared Care Animal records.
@@ -140,6 +142,7 @@ class AnimalProfilePdfContent {
       List<Map<String, dynamic>> source,
       String dateKey, {
       String? valueKey,
+      bool includeFeedingFields = false,
     }) => [
       for (final item in source)
         if (readDate(item[dateKey]) case final date?)
@@ -149,6 +152,20 @@ class AnimalProfilePdfContent {
                 ? null
                 : l10n.weightMeasurement(numberFormat.format(item[valueKey])),
             notes: item['notes'] as String?,
+            fields: [
+              if (includeFeedingFields)
+                for (final field in readFeedingFieldValues(
+                  item['customFields'],
+                ))
+                  AnimalProfilePdfField(
+                    field.template.label,
+                    l10n.customFieldValueLabel(
+                      field.template.type,
+                      field.value,
+                      formatDate: formatDate,
+                    ),
+                  ),
+            ],
           ),
     ];
 
@@ -164,7 +181,7 @@ class AnimalProfilePdfContent {
       sheddingTitle: l10n.sheddingHistory,
       weightTitle: l10n.weightHistory,
       galleryTitle: l10n.pictureGallery,
-      feedings: events(feedings, 'fedAt'),
+      feedings: events(feedings, 'fedAt', includeFeedingFields: true),
       shedding: events(shedding, 'shedAt'),
       weights: events(weights, 'measuredAt', valueKey: 'weightGrams'),
     );

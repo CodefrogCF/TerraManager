@@ -31,11 +31,17 @@ class AnimalProfilePdfField {
 }
 
 class AnimalProfilePdfEntry {
-  const AnimalProfilePdfEntry(this.date, {this.value, this.notes});
+  const AnimalProfilePdfEntry(
+    this.date, {
+    this.value,
+    this.notes,
+    this.fields = const [],
+  });
 
   final String date;
   final String? value;
   final String? notes;
+  final List<AnimalProfilePdfField> fields;
 }
 
 class AnimalProfilePdfData {
@@ -401,12 +407,16 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
     double width, {
     String? heading,
   }) sync* {
-    // Bound each block so even very long notes can continue in the next column
-    // or page, while keeping the date with the first part of its note.
-    final notes = entry.notes?.trim().isNotEmpty == true
-        ? _chunks(entry.notes!, 100).toList()
-        : const <String>[];
-    for (var index = 0; index < math.max(1, notes.length); index++) {
+    // Keep the date with the start of the details. Long entries can continue
+    // in the next column or page.
+    final details = _chunks(
+      [
+        for (final field in entry.fields) '${field.label}: ${field.value}',
+        if (entry.notes?.trim().isNotEmpty == true) entry.notes!,
+      ].join(' · '),
+      100,
+    ).toList();
+    for (var index = 0; index < math.max(1, details.length); index++) {
       yield pw.SizedBox(
         width: width,
         child: pw.Column(
@@ -422,11 +432,11 @@ class AnimalProfilePdfExportService implements AnimalProfilePdfExporter {
                 ].join(' · '),
                 style: const pw.TextStyle(fontSize: 10),
               ),
-            if (notes.isNotEmpty)
+            if (details.isNotEmpty)
               pw.Padding(
                 padding: pw.EdgeInsets.only(left: 3 * PdfPageFormat.mm),
                 child: pw.Text(
-                  notes[index],
+                  details[index],
                   style: const pw.TextStyle(fontSize: 9),
                 ),
               ),

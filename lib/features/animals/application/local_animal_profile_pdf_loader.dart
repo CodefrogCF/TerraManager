@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:image_picker/image_picker.dart';
@@ -118,7 +119,12 @@ class LocalAnimalProfilePdfLoader {
           : const [],
       feedings: [
         for (final event in feedings)
-          {'fedAt': event.fedAt, 'notes': event.notes},
+          {
+            'fedAt': event.fedAt,
+            'notes': event.notes,
+            if (event.customFieldsJson case final json?)
+              'customFields': jsonDecode(json),
+          },
       ],
       shedding: [
         for (final event in shedding)

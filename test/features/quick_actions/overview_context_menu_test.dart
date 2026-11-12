@@ -11,6 +11,7 @@ import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/repositories/media_repository.dart';
+import 'package:terramanager/core/qr/qr_validator.dart';
 import 'package:terramanager/features/animals/presentation/pages/animal_history_page.dart';
 import 'package:terramanager/features/animals/presentation/pages/animals_page.dart';
 import 'package:terramanager/l10n/generated/app_localizations.dart';
@@ -262,6 +263,14 @@ void main() {
             .text,
         'Source Animal (copy)',
       );
+      await tester.enterText(
+        find.byKey(const Key('duplicate-animal-name-field')),
+        '   ',
+      );
+      await tester.tap(find.byKey(const Key('save-duplicate-animal-button')));
+      await tester.pumpAndSettle();
+      expect(find.text('Please enter a common name'), findsOneWidget);
+      expect(await animals.getAllAnimals(), hasLength(1));
       await tester.tap(find.byKey(const Key('cancel-duplicate-animal-button')));
       await tester.pumpAndSettle();
       expect(await animals.getAllAnimals(), hasLength(1));
@@ -359,6 +368,59 @@ void main() {
     expect(await database.select(database.mediaAssets).get(), hasLength(2));
     expect(find.text('Independent Box'), findsOneWidget);
   });
+
+  for (final (archived, name) in [(false, ''), (true, '   ')]) {
+    testWidgets(
+      'A ${archived ? 'whitespace-only' : 'blank'} duplicate name creates an unnamed active Box from an ${archived ? 'archived' : 'active'} source',
+      (tester) async {
+        final boxId = await boxes.createBoxWithGeneratedQrId(
+          name: 'Source Box',
+        );
+        if (archived) {
+          await boxes.archiveBox(
+            boxId: boxId,
+            reason: BoxArchiveReason.stored,
+            archivedAt: DateTime(2026, 9, 14),
+          );
+        }
+        final source = (await boxes.getBoxById(boxId))!;
+        await pumpBoxes(tester);
+        if (archived) {
+          await tester.tap(find.byKey(const Key('box-archive-button')));
+          await tester.pumpAndSettle();
+        }
+        await tester.tap(
+          find.byKey(
+            Key('${archived ? 'archived-' : ''}box-context-menu-button-$boxId'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Duplicate Box'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('duplicate-box-name-field')),
+          name,
+        );
+        await tester.tap(find.byKey(const Key('save-duplicate-box-button')));
+        await tester.pumpAndSettle();
+
+        final copy = (await boxes.getActiveBoxes()).singleWhere(
+          (box) => box.id != boxId,
+        );
+        expect(await boxes.getBoxById(boxId), source);
+        expect(copy.name, isNull);
+        expect(copy.qrId, isNot(source.qrId));
+        expect(isValidBoxQrId(copy.qrId), isTrue);
+        expect(
+          find.descendant(
+            of: find.byKey(Key('box-list-item-${copy.id}')),
+            matching: find.text('Box ${copy.id}'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+  }
 
   testWidgets('Box edit and archive actions reuse existing workflows', (
     tester,

@@ -298,6 +298,11 @@ class _SharedBoxesPageState extends State<SharedBoxesPage> {
       Icons.unarchive_outlined,
       context.l10n.restoreBox,
     ),
+    sharedMenuItem(
+      _BoxAction.duplicate,
+      Icons.copy_outlined,
+      context.l10n.duplicateBox,
+    ),
   ];
 
   Widget _bigPictureBoxCard(Map<String, dynamic> box, bool archived) {

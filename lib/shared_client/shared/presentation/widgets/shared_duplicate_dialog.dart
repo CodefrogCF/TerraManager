@@ -36,10 +36,7 @@ class _DuplicateDialog extends StatefulWidget {
 class _DuplicateDialogState extends State<_DuplicateDialog> {
   final _form = GlobalKey<FormState>();
   late final _name = TextEditingController(
-    text:
-        (widget.source[widget.boxes == null ? 'name' : 'commonName']
-            as String?) ??
-        '',
+    text: (widget.source[_isBox ? 'name' : 'commonName'] as String?) ?? '',
   );
   late final _boxes =
       widget.boxes?.where((box) => box['status'] == 'active').toList() ?? [];
@@ -48,6 +45,9 @@ class _DuplicateDialogState extends State<_DuplicateDialog> {
       : _boxes.firstOrNull?['id'] as int?;
   bool _busy = false;
   String? _error;
+
+  bool get _isBox => widget.boxes == null;
+
   @override
   void dispose() {
     _name.dispose();
@@ -56,6 +56,7 @@ class _DuplicateDialogState extends State<_DuplicateDialog> {
 
   Future<void> _submit() async {
     if (_busy || !_form.currentState!.validate()) return;
+    final name = _name.text.trim();
     setState(() {
       _busy = true;
       _error = null;
@@ -63,16 +64,16 @@ class _DuplicateDialogState extends State<_DuplicateDialog> {
     Object? failure;
     final saved = await widget.change(() async {
       try {
-        if (widget.boxes == null) {
+        if (_isBox) {
           await widget.api.duplicateBox(
             recordId(widget.source),
-            _name.text.trim(),
+            name.isEmpty ? null : name,
           );
         } else {
           await widget.api.duplicateAnimal(
             recordId(widget.source),
             _boxId!,
-            _name.text.trim(),
+            name,
           );
         }
       } catch (error) {
@@ -114,9 +115,7 @@ class _DuplicateDialogState extends State<_DuplicateDialog> {
     child: AlertDialog(
       scrollable: true,
       title: Text(
-        widget.boxes == null
-            ? context.l10n.duplicateBox
-            : context.l10n.duplicateAnimal,
+        _isBox ? context.l10n.duplicateBox : context.l10n.duplicateAnimal,
       ),
       content: SizedBox(
         width: 360,
@@ -132,17 +131,20 @@ class _DuplicateDialogState extends State<_DuplicateDialog> {
                 maxLength: 200,
                 decoration: InputDecoration(
                   labelText: sharedText(context, 'Name', 'Name'),
+                  helperText: _isBox ? context.l10n.optional : null,
                 ),
-                validator: (value) => value?.trim().isEmpty ?? true
-                    ? sharedText(
-                        context,
-                        'Enter a name.',
-                        'Gib einen Namen ein.',
-                      )
-                    : null,
+                validator: _isBox
+                    ? null
+                    : (value) => value?.trim().isEmpty ?? true
+                          ? sharedText(
+                              context,
+                              'Enter a name.',
+                              'Gib einen Namen ein.',
+                            )
+                          : null,
                 onFieldSubmitted: (_) => _submit(),
               ),
-              if (widget.boxes != null)
+              if (!_isBox)
                 DropdownButtonFormField<int>(
                   key: const Key('duplicate-destination-box'),
                   initialValue: _boxId,

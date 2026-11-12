@@ -7,6 +7,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:terramanager/core/database/app_database.dart';
+import 'package:terramanager/core/database/enums/box_archive_reason.dart';
+import 'package:terramanager/core/database/enums/box_status.dart';
 import 'package:terramanager/core/database/repositories/box_repository.dart';
 import 'package:terramanager/core/database/repositories/animal_repository.dart';
 import 'package:terramanager/core/database/repositories/animal_weight_repository.dart';
@@ -14,6 +16,7 @@ import 'package:terramanager/core/database/repositories/shedding_repository.dart
 import 'package:terramanager/core/database/repositories/media_repository.dart';
 import 'package:terramanager/core/database/repositories/feeding_repository.dart';
 import 'package:terramanager/core/database/repositories/picture_gallery_repository.dart';
+import 'package:terramanager/core/qr/qr_validator.dart';
 import 'package:terramanager/shared_server/backups/application/shared_portable_backups.dart';
 import 'package:terramanager/shared_server/accounts/infrastructure/account_store.dart';
 import 'package:terramanager/shared_server/shared/infrastructure/database/server_database.dart';
@@ -277,6 +280,37 @@ void main() {
       );
     },
   );
+
+  test('active and archived Boxes can be duplicated without names', () async {
+    final boxes = BoxRepository(db);
+    for (final (archived, name) in [(false, null), (true, '   ')]) {
+      final sourceId = await boxes.createBoxWithGeneratedQrId(name: 'Original');
+      if (archived) {
+        await boxes.archiveBox(
+          boxId: sourceId,
+          reason: BoxArchiveReason.stored,
+          archivedAt: DateTime.utc(2026, 9, 14),
+        );
+      }
+      final source = (await boxes.getBoxById(sourceId))!;
+      final (status, body) = await call(
+        'POST',
+        '/api/v1/boxes/$sourceId/duplicate',
+        body: {'name': name},
+        session: caregiver,
+      );
+      expect(status, 201, reason: body.toString());
+      final payload = body['box'] as Map<String, dynamic>;
+      final copy = (await boxes.getBoxById(payload['id'] as int))!;
+      expect(copy.id, isNot(sourceId));
+      expect(payload, containsPair('name', null));
+      expect(copy.name, isNull);
+      expect(copy.status, BoxStatus.active);
+      expect(copy.qrId, isNot(source.qrId));
+      expect(isValidBoxQrId(copy.qrId), isTrue);
+      expect(await boxes.getBoxById(sourceId), source);
+    }
+  });
 
   test('caregiver visibility changes persist through other sessions and backup restore without changing history', () async {
     final box = await BoxRepository(db).createBoxWithGeneratedQrId();

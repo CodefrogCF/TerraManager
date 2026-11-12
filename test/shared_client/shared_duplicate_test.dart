@@ -14,15 +14,25 @@ import 'package:terramanager/shared_client/animals/presentation/pages/shared_ani
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
-  for (final animalMode in [false, true]) {
+  for (final (description, animalMode, archived, name) in [
+    ('Named Box', false, false, 'Chosen copy'),
+    ('Active Box with a blank name', false, false, ''),
+    ('Archived Box with a whitespace-only name', false, true, '   '),
+    ('Named Animal', true, false, 'Chosen copy'),
+  ]) {
     testWidgets(
-      '${animalMode ? 'Animal' : 'Box'} duplication submits once, refreshes and leaves original intact',
+      '$description duplication submits once, refreshes and leaves original intact',
       (tester) async {
+        final savedName = name.trim().isEmpty ? null : name;
         final reply = Completer<http.Response>();
         var writes = 0;
         var reloads = 0;
         final boxes = <Map<String, dynamic>>[
-          {'id': 1, 'name': 'Original Box', 'status': 'active'},
+          {
+            'id': 1,
+            'name': 'Original Box',
+            'status': archived ? 'archived' : 'active',
+          },
           {'id': 2, 'name': 'Destination', 'status': 'active'},
         ];
         final animals = <Map<String, dynamic>>[
@@ -46,7 +56,10 @@ void main() {
             if (request.url.path.endsWith('/duplicate')) {
               writes++;
               final body = jsonDecode(request.body);
-              expect(body[animalMode ? 'commonName' : 'name'], 'Chosen copy');
+              expect(
+                body,
+                containsPair(animalMode ? 'commonName' : 'name', savedName),
+              );
               if (animalMode) expect(body['boxId'], 2);
               return reply.future;
             }
@@ -97,6 +110,10 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        if (archived) {
+          await tester.tap(find.byKey(const Key('box-archive-button')));
+          await tester.pumpAndSettle();
+        }
         await tester.tap(
           find.byKey(
             Key('${animalMode ? 'animal' : 'box'}-context-menu-button-1'),
@@ -107,43 +124,42 @@ void main() {
           find.text(animalMode ? 'Duplicate Animal' : 'Duplicate Box'),
         );
         await tester.pumpAndSettle();
-        await tester.enterText(
-          find.byKey(const Key('duplicate-name')),
-          'Chosen copy',
-        );
+        final nameField = find.byKey(const Key('duplicate-name'));
+        final confirm = find.byKey(const Key('confirm-shared-duplicate'));
+        if (animalMode) {
+          await tester.enterText(nameField, '   ');
+          await tester.tap(confirm);
+          await tester.pumpAndSettle();
+          expect(find.text('Enter a name.'), findsOneWidget);
+          expect(writes, 0);
+        }
+        await tester.enterText(nameField, name);
         if (animalMode) {
           await tester.tap(find.byKey(const Key('duplicate-destination-box')));
           await tester.pumpAndSettle();
           await tester.tap(find.text('Destination · Box 2').last);
           await tester.pumpAndSettle();
         }
-        await tester.tap(find.byKey(const Key('confirm-shared-duplicate')));
+        await tester.tap(confirm);
         await tester.pump();
         expect(writes, 1);
-        expect(
-          tester
-              .widget<FilledButton>(
-                find.byKey(const Key('confirm-shared-duplicate')),
-              )
-              .onPressed,
-          isNull,
-        );
+        expect(tester.widget<FilledButton>(confirm).onPressed, isNull);
         final copy = animalMode
-            ? {
-                ...animals.first,
-                'id': 3,
-                'commonName': 'Chosen copy',
-                'boxId': 2,
-              }
-            : {...boxes.first, 'id': 3, 'name': 'Chosen copy'};
+            ? {...animals.first, 'id': 3, 'commonName': savedName, 'boxId': 2}
+            : {...boxes.first, 'id': 3, 'name': savedName, 'status': 'active'};
         (animalMode ? animals : boxes).add(copy);
         reply.complete(
           http.Response(jsonEncode({animalMode ? 'animal' : 'box': copy}), 201),
         );
         await tester.pumpAndSettle();
+        if (archived) {
+          expect(find.text('Original Box'), findsOneWidget);
+          await tester.pageBack();
+          await tester.pumpAndSettle();
+        }
         expect(writes, 1);
         expect(reloads, 1);
-        expect(find.text('Chosen copy'), findsOneWidget);
+        expect(find.text(savedName ?? 'Box 3'), findsOneWidget);
         expect(boxes.first['name'], 'Original Box');
         expect(animals.first['commonName'], 'Original Animal');
         expect(find.byKey(const Key('duplicate-error')), findsNothing);
